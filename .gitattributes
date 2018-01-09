@@ -1,1 +1,24 @@
 * text=auto !eol
+/optimization.hpp -text
+tackle/aligned_storage.hpp -text
+tackle/basic_iterator.hpp -text
+tackle/file_handle.cpp -text
+tackle/file_handle.hpp -text
+tackle/file_reader.cpp -text
+tackle/file_reader.hpp -text
+tackle/smart_handle.hpp -text
+tackle/stream_storage.hpp -text
+utility/algorithm.hpp -text
+utility/assert.hpp -text
+utility/crc.cpp -text
+utility/crc.hpp -text
+utility/crc_tables.hpp -text
+utility/debug.cpp -text
+utility/debug.hpp -text
+utility/hash.hpp -text
+utility/math.hpp -text
+utility/platform.hpp -text
+utility/preprocessor.hpp -text
+utility/type_traits.hpp -text
+utility/utility.cpp -text
+utility/utility.hpp -text
