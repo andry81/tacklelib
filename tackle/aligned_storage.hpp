@@ -25,6 +25,7 @@
 #include <boost/mpl/sizeof.hpp>
 #include <boost/mpl/max_element.hpp>
 #include <boost/mpl/transform_view.hpp>
+#include <boost/mpl/identity.hpp>
 
 #include <boost/scope_exit.hpp>
 
@@ -149,12 +150,33 @@ namespace tackle
     public:
         typedef typename t_mpl_container_types storage_types_t;
 
-    public:
+    private:
+        // as reference
+        template<typename Ret>
+        static FORCE_INLINE Ret & _default_construct_dummy(mpl::identity<Ret &>)
+        {
+            static typename boost::remove_cv<Ret>::type default_constructed_dummy;
+            return default_constructed_dummy;
+        }
+
+        // as void
+        static FORCE_INLINE void _default_construct_dummy(mpl::identity<void>)
+        {
+            return;
+        }
+
+        // as value
+        template<typename Ret>
+        static FORCE_INLINE Ret _default_construct_dummy(mpl::identity<Ret>)
+        {
+            return Ret();
+        }
+
         template <typename Type, bool Convertable>
         struct construct_if_convertible
         {
             template <typename Ref>
-            static bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
             {
                 ::new (storage_ptr) Type(r);
 
@@ -166,7 +188,7 @@ namespace tackle
         struct construct_if_convertible<Type, false>
         {
             template <typename Ref>
-            static bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
             {
                 throw std::runtime_error(
                     (boost::format(
@@ -181,7 +203,7 @@ namespace tackle
         struct construct_dispatcher
         {
             template <typename Ref>
-            static bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
             {
                 return construct_if_convertible<Type, boost::is_convertible<Ref, Type>::value>::construct(storage_ptr, r, error_msg_fmt);
             }
@@ -191,7 +213,7 @@ namespace tackle
         struct construct_dispatcher<TypeIndex, Type, false>
         {
             template <typename Ref>
-            static bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
             {
                 return false;
             }
@@ -201,7 +223,7 @@ namespace tackle
         struct invoke_if_convertible
         {
             template <typename F, typename Ref>
-            static Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
                 return f(r);
             }
@@ -211,7 +233,7 @@ namespace tackle
         struct invoke_if_convertible<Ret, From, To, false>
         {
             template <typename F, typename Ref>
-            static Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
                 if(throw_exceptions_on_type_error) {
                     throw std::runtime_error(
@@ -220,7 +242,7 @@ namespace tackle
                                 typeid(From).raw_name() % typeid(To).raw_name()).str());
                 }
 
-                return Ret();
+                return _default_construct_dummy(mpl::identity<Ret>());
             }
         };
 
@@ -228,7 +250,7 @@ namespace tackle
         struct invoke_dispatcher
         {
             template <typename F, typename Ref>
-            static Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
                 typedef typename boost::remove_cv<typename boost::remove_reference<typename utility::function_traits<F>::arg<0>::type>::type >::type unqual_arg0_type;
 
@@ -244,7 +266,7 @@ namespace tackle
         struct invoke_dispatcher<TypeIndex, Ret, TypeList, EndIt, true, false>
         {
             template <typename F, typename Ref>
-            static Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
                 return f(r); // call as generic or cast
             }
@@ -254,9 +276,9 @@ namespace tackle
         struct invoke_dispatcher<TypeIndex, Ret, TypeList, EndIt, false, IsExtractable>
         {
             template <typename F, typename Ref>
-            static Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                return Ret(); // disabled call
+                return _default_construct_dummy(mpl::identity<Ret>()); // disabled call
             }
         };
 

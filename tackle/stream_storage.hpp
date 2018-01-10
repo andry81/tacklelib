@@ -7,27 +7,31 @@
 
 #include <tackle/aligned_storage.hpp>
 
+#include <boost/type_traits/is_pod.hpp>
+
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/push_front.hpp>
 
 #include <deque>
 #include <utility>
+#include <algorithm>
 
-
-#define TACKLE_PP_MAX_NUM_CHUNK_VARIANTS 24 // up to 8MB chunks (1, 2, 4, 8, 16, ..., 4 * 1024 * 1024, 8 * 1024 * 1024)
 
 namespace tackle
 {
     namespace mpl = boost::mpl;
 
-    class StreamStorage
+    template <typename T>
+    class stream_storage
     {
-    private:
-        typedef mpl::size_t<TACKLE_PP_MAX_NUM_CHUNK_VARIANTS> num_chunk_variants_t;
-        typedef mpl::size_t<(0x01U << (TACKLE_PP_MAX_NUM_CHUNK_VARIANTS - 1))> max_chunk_size_t;
+    public:
+        // up to 8MB chunks (1, 2, 4, 8, 16, ..., 4 * 1024 * 1024, 8 * 1024 * 1024)
+        typedef mpl::size_t<24> num_chunk_variants_t;
+        typedef mpl::size_t<(0x01U << (num_chunk_variants_t::value - 1))> max_chunk_size_t;
 
-        FORCE_INLINE static constexpr size_t _get_chunk_size(size_t type_index)
+    private:
+        static FORCE_INLINE constexpr size_t _get_chunk_size(size_t type_index)
         {
             return (0x01U << type_index);
         }
@@ -35,7 +39,7 @@ namespace tackle
         template <size_t S>
         struct Chunk
         {
-            uint8_t buf[S];
+            T buf[S];
         };
 
         template <size_t, typename> struct deque_chunks_pof2_generator; // generator of the deque with the power of 2 sized chunks
@@ -84,7 +88,7 @@ namespace tackle
     public:
         class ChunkBufferCRef
         {
-            friend class StreamStorage;
+            friend class stream_storage;
 
         private:
             FORCE_INLINE ChunkBufferCRef() :
@@ -92,14 +96,14 @@ namespace tackle
             {
             }
 
-            FORCE_INLINE ChunkBufferCRef(const uint8_t * buf, size_t size) :
+            FORCE_INLINE ChunkBufferCRef(const T * buf, size_t size) :
                 m_buf(buf), m_size(size)
             {
                 ASSERT_TRUE(buf && size);
             }
 
         public:
-            FORCE_INLINE const uint8_t * get() const
+            FORCE_INLINE const T * get() const
             {
                 return m_buf;
             }
@@ -110,13 +114,13 @@ namespace tackle
             }
 
         private:
-            const uint8_t * m_buf;
-            size_t          m_size;
+            const T *   m_buf;
+            size_t      m_size;
         };
 
         class basic_const_iterator
         {
-            friend class StreamStorage;
+            friend class stream_storage;
 
             typedef typename deque_const_iterators_mpl_container_t storage_types_t;
             typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
@@ -155,8 +159,8 @@ namespace tackle
     public:
         typedef basic_const_iterator const_iterator;
 
-        FORCE_INLINE StreamStorage(size_t min_chunk_size);
-        FORCE_INLINE ~StreamStorage();
+        FORCE_INLINE stream_storage(size_t min_chunk_size);
+        FORCE_INLINE ~stream_storage();
 
         FORCE_INLINE void reset(size_t min_chunk_size);
         FORCE_INLINE void clear();
@@ -165,9 +169,10 @@ namespace tackle
         FORCE_INLINE size_t chunk_size() const;
         FORCE_INLINE size_t size() const;
         FORCE_INLINE size_t remainder() const;
-        FORCE_INLINE void push_back(const uint8_t * p, size_t size);
-        FORCE_INLINE uint8_t operator[](size_t offset) const;
-        FORCE_INLINE size_t copy_to(size_t offset_from, void * to_buf, size_t size) const;
+        FORCE_INLINE void push_back(const T * p, size_t size);
+        FORCE_INLINE T & operator[](size_t offset);
+        FORCE_INLINE const T & operator[](size_t offset) const;
+        FORCE_INLINE size_t copy_to(size_t offset_from, T * to_buf, size_t size) const;
         FORCE_INLINE size_t erase_front(size_t size);
 
     private:
@@ -176,83 +181,50 @@ namespace tackle
         size_t                                                  m_remainder;
     };
 
-    //// StreamStorage::basic_const_iterator
+    //// stream_storage::basic_const_iterator
 
-    //#undef UTILITY_PP_LINE_TERMINATOR
-    #define TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
-        case n: { UTILITY_PP_LINE_TERMINATOR\
-            typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type storage_type_t; UTILITY_PP_LINE_TERMINATOR\
-            macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
-        } break; UTILITY_PP_LINE_TERMINATOR
-
-    #define TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX_POF2(z, n, macro_text) \
-        case (0x01U << n): { UTILITY_PP_LINE_TERMINATOR\
-            typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type storage_type_t; UTILITY_PP_LINE_TERMINATOR\
-            macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
-        } break; UTILITY_PP_LINE_TERMINATOR
-
-    FORCE_INLINE StreamStorage::basic_const_iterator::basic_const_iterator()
+    template <typename T>
+    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator()
     {
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator::basic_const_iterator(const basic_const_iterator & it)
+    template <typename T>
+    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator(const basic_const_iterator & it)
     {
         *this = it;
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator::basic_const_iterator(const iterator_storage_t & iterator_storage)
+    template <typename T>
+    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator(const iterator_storage_t & iterator_storage)
     {
         m_iterator_storage.construct(iterator_storage, false);
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator & StreamStorage::basic_const_iterator::operator =(const basic_const_iterator & it)
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator =(const basic_const_iterator & it)
     {
         m_iterator_storage.assign(it.m_iterator_storage);
 
         return *this;
     }
 
-    #define TACKLE_PP_OPERATOR_MACRO(z, n) \
-        if (n < num_types_t::value) { \
-            const auto & chunk = **static_cast<const storage_type_t *>(m_iterator_storage.address()); \
-            return ChunkBufferCRef{chunk.buf, std::size(chunk.buf)}; \
-        } else goto default_
-
-    FORCE_INLINE StreamStorage::ChunkBufferCRef StreamStorage::basic_const_iterator::operator *() const
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator *() const
     {
-        const int type_index = m_iterator_storage.type_index();
-
-        switch (type_index)
+        return m_iterator_storage.invoke<ChunkBufferCRef>([&](const auto & chunks_it)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_CHUNK_VARIANTS, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_OPERATOR_MACRO)
-
-        default_:;
-            default: {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            type_index).str());
-            }
-        }
-
-        return ChunkBufferCRef{};
+            return ChunkBufferCRef{ chunks_it->buf, std::size(chunks_it->buf) };
+        });
     }
 
-    #undef TACKLE_PP_OPERATOR_MACRO
-
-    FORCE_INLINE StreamStorage::ChunkBufferCRef StreamStorage::basic_const_iterator::operator ->() const
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator ->() const
     {
         return this->operator *();
     }
 
-    #define TACKLE_PP_OPERATOR_MACRO(z, n) \
-        if (n < num_types_t::value) { \
-            const auto & left_it = *static_cast<const storage_type_t *>(m_iterator_storage.address()); \
-            const auto & right_it = *static_cast<const storage_type_t *>(it.m_iterator_storage.address()); \
-            return left_it == right_it; \
-        } else goto default_
-
-    FORCE_INLINE bool StreamStorage::basic_const_iterator::operator ==(const StreamStorage::basic_const_iterator & it) const
+    template <typename T>
+    FORCE_INLINE bool stream_storage<T>::basic_const_iterator::operator ==(const basic_const_iterator & it) const
     {
         const int left_type_index = m_iterator_storage.type_index();
         const int right_type_index = it.m_iterator_storage.type_index();
@@ -263,30 +235,25 @@ namespace tackle
                         left_type_index % right_type_index).str());
         }
 
-        switch (left_type_index)
+        return m_iterator_storage.invoke<bool>([&](const auto & chunks_it)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_CHUNK_VARIANTS, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_OPERATOR_MACRO)
+            typedef decltype(chunks_it) ref_chunk_it_t;
+            typedef boost::remove_reference<ref_chunk_it_t>::type chunk_it_t;
 
-        default_:;
-            default: {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: left_type_index=%i")) %
-                            left_type_index).str());
-            }
-        }
+            const auto & right_chunk_it = *static_cast<const chunk_it_t *>(it.m_iterator_storage.address());
 
-        return false;
+            return chunks_it == right_chunk_it;
+        });
     }
 
-    #undef TACKLE_PP_OPERATOR_MACRO
-
-    FORCE_INLINE bool StreamStorage::basic_const_iterator::operator !=(const basic_const_iterator & it) const
+    template <typename T>
+    FORCE_INLINE bool stream_storage<T>::basic_const_iterator::operator !=(const basic_const_iterator & it) const
     {
         return !this->operator ==(it);
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator StreamStorage::basic_const_iterator::operator ++(int)
+    template <typename T>
+    FORCE_INLINE typename  stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator ++(int)
     {
         const auto it = *this;
 
@@ -298,7 +265,8 @@ namespace tackle
         return it;
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator & StreamStorage::basic_const_iterator::operator ++()
+    template <typename T>
+    FORCE_INLINE typename  stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator ++()
     {
         m_iterator_storage.invoke<void>([](auto & chunks_it)
         {
@@ -308,7 +276,8 @@ namespace tackle
         return *this;
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator StreamStorage::basic_const_iterator::operator --(int)
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator --(int)
     {
         const auto it = *this;
 
@@ -320,7 +289,8 @@ namespace tackle
         return it;
     }
 
-    FORCE_INLINE StreamStorage::basic_const_iterator & StreamStorage::basic_const_iterator::operator --()
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator --()
     {
         m_iterator_storage.invoke<void>([](auto & chunks_it)
         {
@@ -330,19 +300,22 @@ namespace tackle
         return *this;
     }
 
-    //// StreamStorage
+    //// stream_storage
 
-    FORCE_INLINE StreamStorage::StreamStorage(size_t min_chunk_size) :
+    template <typename T>
+    FORCE_INLINE stream_storage<T>::stream_storage(size_t min_chunk_size) :
         m_size(0), m_remainder(0)
     {
         reset(min_chunk_size);
     }
 
-    FORCE_INLINE StreamStorage::~StreamStorage()
+    template <typename T>
+    FORCE_INLINE stream_storage<T>::~stream_storage()
     {
     }
 
-    FORCE_INLINE void StreamStorage::reset(size_t min_chunk_size)
+    template <typename T>
+    FORCE_INLINE void stream_storage<T>::reset(size_t min_chunk_size)
     {
         ASSERT_TRUE(min_chunk_size);
 
@@ -355,7 +328,8 @@ namespace tackle
         }
     }
 
-    FORCE_INLINE void StreamStorage::clear()
+    template <typename T>
+    FORCE_INLINE void stream_storage<T>::clear()
     {
         m_chunks.invoke<void>([this](auto & chunks)
         {
@@ -365,7 +339,8 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE StreamStorage::const_iterator StreamStorage::begin() const
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::const_iterator stream_storage<T>::begin() const
     {
         return m_chunks.invoke<const_iterator>([this](const auto & chunks)
         {
@@ -373,7 +348,8 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE StreamStorage::const_iterator StreamStorage::end() const
+    template <typename T>
+    FORCE_INLINE typename stream_storage<T>::const_iterator stream_storage<T>::end() const
     {
         return m_chunks.invoke<const_iterator>([this](const auto & chunks)
         {
@@ -381,7 +357,8 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE size_t StreamStorage::chunk_size() const
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::chunk_size() const
     {
         return m_chunks.invoke<size_t>([this](const auto & chunks) // to throw exception on invalid type index
         {
@@ -389,17 +366,20 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE size_t StreamStorage::size() const
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::size() const
     {
         return m_size;
     }
 
-    FORCE_INLINE size_t StreamStorage::remainder() const
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::remainder() const
     {
         return m_remainder;
     }
 
-    FORCE_INLINE void StreamStorage::push_back(const uint8_t * buf, size_t size)
+    template <typename T>
+    FORCE_INLINE void stream_storage<T>::push_back(const T * buf, size_t size)
     {
         ASSERT_TRUE(buf && size);
 
@@ -415,9 +395,16 @@ namespace tackle
             size_t left_size = size;
 
             if_break(1) {
+                auto & last_chunk = chunks.back();
+
                 if (m_remainder) {
                     const size_t copy_to_remainder_size = (std::min)(chunk_size - m_remainder, left_size);
-                    memcpy(chunks.back().buf + m_remainder, buf, copy_to_remainder_size);
+                    if (boost::is_pod<T>::value) {
+                        memcpy(last_chunk.buf + m_remainder, buf, copy_to_remainder_size * sizeof(T));
+                    }
+                    else {
+                        std::copy(buf, buf + copy_to_remainder_size, last_chunk.buf + m_remainder);
+                    }
                     left_size -= copy_to_remainder_size;
                     buf_offset += copy_to_remainder_size;
                 }
@@ -426,14 +413,29 @@ namespace tackle
 
                 const size_t num_fixed_chunks = left_size / chunk_size;
                 const size_t last_fixed_chunk_remainder = left_size % chunk_size;
-                for (size_t i = 0; i < num_fixed_chunks; i++) {
-                    chunks.push_back(chunk_t());
-                    memcpy(chunks.back().buf, buf + buf_offset, chunk_size * sizeof(chunk_t().buf[0]));
-                    buf_offset += chunk_size;
+
+                if (boost::is_pod<T>::value) {
+                    for (size_t i = 0; i < num_fixed_chunks; i++) {
+                        chunks.push_back(chunk_t());
+                        memcpy(last_chunk.buf, buf + buf_offset, chunk_size * sizeof(T));
+                        buf_offset += chunk_size;
+                    }
+                }
+                else {
+                    for (size_t i = 0; i < num_fixed_chunks; i++) {
+                        chunks.push_back(chunk_t());
+                        std::copy(buf + buf_offset, buf + buf_offset + chunk_size, last_chunk.buf);
+                        buf_offset += chunk_size;
+                    }
                 }
                 if (last_fixed_chunk_remainder) {
                     chunks.push_back(chunk_t());
-                    memcpy(chunks.back().buf, buf + buf_offset, last_fixed_chunk_remainder);
+                    if (boost::is_pod<T>::value) {
+                        memcpy(last_chunk.buf, buf + buf_offset, last_fixed_chunk_remainder * sizeof(T));
+                    }
+                    else {
+                        std::copy(buf + buf_offset, buf + buf_offset + last_fixed_chunk_remainder, last_chunk.buf);
+                    }
                     buf_offset += last_fixed_chunk_remainder;
                 }
             }
@@ -443,11 +445,12 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE uint8_t StreamStorage::operator[](size_t offset) const
+    template <typename T>
+    FORCE_INLINE T & stream_storage<T>::operator[](size_t offset)
     {
         ASSERT_LT(offset, size());
 
-        return m_chunks.invoke<uint8_t>([=](const auto & chunks)
+        return m_chunks.invoke<T &>([=](auto & chunks)
         {
             const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
 
@@ -458,7 +461,24 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE size_t StreamStorage::copy_to(size_t offset_from, void * to_buf, size_t to_size) const
+    template <typename T>
+    FORCE_INLINE const T & stream_storage<T>::operator[](size_t offset) const
+    {
+        ASSERT_LT(offset, size());
+
+        return m_chunks.invoke<const T &>([=](const auto & chunks)
+        {
+            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+
+            const auto chunk_devrem = UINT32_DIVREM_POF2(offset, chunk_size);
+            const auto & chunk = chunks[chunk_devrem.quot];
+
+            return chunk.buf[chunk_devrem.rem];
+        });
+    }
+
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::copy_to(size_t offset_from, T * to_buf, size_t to_size) const
     {
         ASSERT_LT(offset_from, size());
         ASSERT_GE(size(), offset_from + to_size);
@@ -473,27 +493,35 @@ namespace tackle
             size_t from_buf_offset = chunk_divrem.rem;
             if (chunk_size >= from_buf_offset + to_size) {
                 for (; to_buf_offset < to_size; to_buf_offset++, from_buf_offset++) {
-                    ((uint8_t *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
+                    ((T *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
                 }
             }
             else {
                 const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
                 const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
                 for (size_t i = 0; i < first_chunk_size; i++, to_buf_offset++, from_buf_offset++) {
-                    ((uint8_t *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
+                    ((T *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
                 }
                 if (next_chunk_divrem.quot >= 1) {
                     if (next_chunk_divrem.quot >= 2) {
                         DEBUG_BREAK(true); // needs debug
-                        for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
-                            auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                            memcpy(((uint8_t *)to_buf) + to_buf_offset, chunk2.buf, chunk_size);
+                        if (boost::is_pod<T>::value) {
+                            for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
+                                const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
+                                memcpy(((T *)to_buf) + to_buf_offset, chunk2.buf, chunk_size * sizeof(T));
+                            }
+                        }
+                        else {
+                            for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
+                                const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
+                                std::copy(chunk2.buf, chunk2.buf + chunk_size, ((T *)to_buf) + to_buf_offset);
+                            }
                         }
                     }
                     auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
                     const size_t last_chunk_size = next_chunk_divrem.rem;
                     for (size_t i = 0; i < last_chunk_size; i++, to_buf_offset++) {
-                        ((uint8_t *)to_buf)[to_buf_offset] = chunk2.buf[i];
+                        ((T *)to_buf)[to_buf_offset] = chunk2.buf[i];
                     }
                 }
             }
@@ -502,7 +530,8 @@ namespace tackle
         });
     }
 
-    FORCE_INLINE size_t StreamStorage::erase_front(size_t size)
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::erase_front(size_t size)
     {
         ASSERT_GE(m_size, size);
 
