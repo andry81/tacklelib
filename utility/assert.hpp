@@ -55,117 +55,79 @@
 
 #ifdef USE_ASSERT_WITH_INPLACE_STRUCT_OPERATOR_INSTEAD_LAMBDAS
 
-#define VERIFY_TRUE_IMPL(exp) (BREAK_POINT_PLACEHOLDER(), [&](const auto & exp_var, const char * exp_str) -> const auto & { \
+#define VERIFY_TRUE_IMPL(exp) [&](const auto & exp_var, const char * exp_str) -> const auto & { \
         ::utility::AssertTrue assert_impl; assert_impl(exp_var, exp_str); return exp_var; \
-    })
+    }
 
-#define VERIFY_TRUE(exp) VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp))
-#define ASSERT_TRUE(exp) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_exp_var_, UTILITY_PP_LINE) = (exp); \
-        ::utility::AssertTrue UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_exp_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(exp)); \
-    } (void)0
+#define VERIFY_TRUE(exp) (( VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
+#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
 
 ////
 
-#define VERIFY_FALSE_IMPL(exp) (BREAK_POINT_PLACEHOLDER(), [&](const auto & exp_var, const char * exp_str) -> const auto & { \
+#define VERIFY_FALSE_IMPL(exp) [&](const auto & exp_var, const char * exp_str) -> const auto & { \
         ::utility::AssertFalse assert_impl; assert_impl(exp_var, exp_str); return exp_var; \
-    })
+    }
 
-#define VERIFY_FALSE(exp) VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp))
-#define ASSERT_FALSE(exp) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_exp_var_, UTILITY_PP_LINE) = (exp); \
-        ::utility::AssertFalse UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_exp_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(exp)); \
-    } (void)0
+#define VERIFY_FALSE(exp) (( VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
+#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
 
 ////
 
-#define VERIFY_EQ_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertEQ assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_EQ(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_EQ(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertEQ UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_EQ(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_NE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_NE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertNE assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_NE(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_NE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertNE UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_NE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_NE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_LE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_LE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertLE assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_LE(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_LE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertLE UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_LE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_LE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_LT_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_LT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertLT assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_LT(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_LT(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertLT UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_LT(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_LT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_GE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_GE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertGE assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_GE(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_GE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertGE UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_GE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_GE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_GT_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_GT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         ::utility::AssertGT assert_impl; assert_impl(v_1, v_2, v1_str, v2_str); return v_1; \
-    })
+    }
 
-#define VERIFY_GT(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_GT(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE) = (v2); \
-        ::utility::AssertGT UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE); \
-        UTILITY_PP_CONCAT(_assert_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_var_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_var_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_GT(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_GT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 #else
 
-#define VERIFY_TRUE_IMPL(exp) (BREAK_POINT_PLACEHOLDER(), [&](const auto & exp_var, const char * exp_str) -> const auto & { \
+#define VERIFY_TRUE_IMPL(exp) [&](const auto & exp_var, const char * exp_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & exp_var, const char * exp_str) -> void { \
             const bool is_success = !!(exp_var); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -177,16 +139,12 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(is_success, !break_on_failure); \
         }; fail_break(exp_var, exp_str); \
         return exp_var; \
-    })
+    }
 
-#define VERIFY_TRUE(exp) VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp))
-#define ASSERT_TRUE(exp) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE) = (exp); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_TRUE_IMPL(UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(exp)); \
-    } (void)0
+#define VERIFY_TRUE(exp) (( VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
+#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
 
-#define VERIFY_FALSE_IMPL(exp) (BREAK_POINT_PLACEHOLDER(), [&](const auto & exp_var, const char * exp_str) -> const auto & { \
+#define VERIFY_FALSE_IMPL(exp) [&](const auto & exp_var, const char * exp_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & exp_var, const char * exp_str) -> void { \
             const bool is_success = !(exp_var); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -198,16 +156,12 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(is_success, !break_on_failure); \
         }; fail_break(exp_var, exp_str); \
         return exp_var; \
-    })
+    }
 
-#define VERIFY_FALSE(exp) VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp))
-#define ASSERT_FALSE(exp) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE) = (exp); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_FALSE_IMPL(UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_exp_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(exp)); \
-    } (void)0
+#define VERIFY_FALSE(exp) (( VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
+#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
 
-#define VERIFY_EQ_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v_1)>::Compare(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -219,19 +173,14 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_EQ(v1, v2) VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_EQ(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_EQ_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_EQ(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_NE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_NE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -243,19 +192,14 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_NE(v1, v2) VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_NE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_NE_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_NE(v1, v2) (( VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_NE(v1, v2) {{ VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_LE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_LE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -267,19 +211,14 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_LE(v1, v2) VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_LE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_LE_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_LE(v1, v2) (( VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_LE(v1, v2) {{ VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_LT_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_LT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -291,19 +230,14 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_LT(v1, v2) VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_LT(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_LT_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_LT(v1, v2) (( VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_LT(v1, v2) {{ VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_GE_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_GE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -315,19 +249,14 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_GE(v1, v2) VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_GE(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_GE_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_GE(v1, v2) (( VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_GE(v1, v2) {{ VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 ////
 
-#define VERIFY_GT_IMPL(v1, v2) (BREAK_POINT_PLACEHOLDER(), [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
+#define VERIFY_GT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
             const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(v1_str, v2_str, v_1, v_2); \
             const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure); \
@@ -339,15 +268,10 @@
             ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp_value, !break_on_failure); \
         }; fail_break(v_1, v_2, v1_str, v2_str); \
         return v_1; \
-    })
+    }
 
-#define VERIFY_GT(v1, v2) VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2))
-#define ASSERT_GT(v1, v2) BREAK_POINT_PLACEHOLDER(); { \
-        const auto & UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE) = (v1); \
-        const auto & UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE) = (v2); \
-        static const auto & UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE) = VERIFY_GT_IMPL(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE)); \
-        UTILITY_PP_CONCAT(verify_impl_, UTILITY_PP_LINE)(UTILITY_PP_CONCAT(_v1_, UTILITY_PP_LINE), UTILITY_PP_CONCAT(_v2_, UTILITY_PP_LINE), UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); \
-    } (void)0
+#define VERIFY_GT(v1, v2) (( VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define ASSERT_GT(v1, v2) {{ VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
 
 #endif
 
@@ -410,18 +334,18 @@
 #define VERIFY_GE(v1, v2) ::utility::verify_greater_or_equal(v1, v2)
 #define VERIFY_GT(v1, v2) ::utility::verify_greater(v1, v2)
 
-#define ASSERT_TRUE(exp) (void)0; { UTILITY_UNUSED(exp); } (void)0
-#define ASSERT_FALSE(exp) (void)0; { UTILITY_UNUSED(exp); } (void)0
+#define ASSERT_TRUE(exp) {{ UTILITY_UNUSED(exp); }}
+#define ASSERT_FALSE(exp) {{ UTILITY_UNUSED(exp); }}
 
-#define ASSERT_EQ(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
-#define ASSERT_NE(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
-#define ASSERT_LE(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
-#define ASSERT_LT(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
-#define ASSERT_GE(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
-#define ASSERT_GT(v1, v2) (void)0; { UTILITY_UNUSED2(v1, v2); } (void)0
+#define ASSERT_EQ(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_NE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_LE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_LT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_GE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_GT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
 
 #define VERIFY(exp) ::utility::verify_true(exp)
-#define ASSERT(exp) (void)0; { UTILITY_UNUSED(exp); } (void)0
+#define ASSERT(exp) {{ UTILITY_UNUSED(exp); }}
 
 #define ASSERT_VERIFY_ENABLED 0
 
@@ -432,11 +356,11 @@
 #if ASSERT_VERIFY_ENABLED
 #define IF_ASSERT_VERIFY(exp) exp
 #define IF_ASSERT_VERIFY2(e1, e2) e1, e2
-#define IF_NOT_ASSERT_VERIFY(exp) (void)0; { static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); } (void)0
-#define IF_NOT_ASSERT_VERIFY2(e1, e2) (void)0; { static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); } (void)0
+#define IF_NOT_ASSERT_VERIFY(exp) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
+#define IF_NOT_ASSERT_VERIFY2(e1, e2) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
 #else
-#define IF_ASSERT_VERIFY(exp) (void)0; { static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); } (void)0
-#define IF_ASSERT_VERIFY2(e1, e2) (void)0; { static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); } (void)0
+#define IF_ASSERT_VERIFY(exp) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
+#define IF_ASSERT_VERIFY2(e1, e2) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
 #define IF_NOT_ASSERT_VERIFY(exp) exp
 #define IF_NOT_ASSERT_VERIFY2(e1, e2) e1, e2
 #endif

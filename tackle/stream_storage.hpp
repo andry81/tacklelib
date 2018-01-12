@@ -395,9 +395,9 @@ namespace tackle
             size_t left_size = size;
 
             if_break(1) {
-                auto & last_chunk = chunks.back();
-
                 if (m_remainder) {
+                    auto & last_chunk = chunks.back();
+
                     const size_t copy_to_remainder_size = (std::min)(chunk_size - m_remainder, left_size);
                     if (boost::is_pod<T>::value) {
                         memcpy(last_chunk.buf + m_remainder, buf, copy_to_remainder_size * sizeof(T));
@@ -417,6 +417,9 @@ namespace tackle
                 if (boost::is_pod<T>::value) {
                     for (size_t i = 0; i < num_fixed_chunks; i++) {
                         chunks.push_back(chunk_t());
+
+                        auto & last_chunk = chunks.back();
+
                         memcpy(last_chunk.buf, buf + buf_offset, chunk_size * sizeof(T));
                         buf_offset += chunk_size;
                     }
@@ -424,12 +427,19 @@ namespace tackle
                 else {
                     for (size_t i = 0; i < num_fixed_chunks; i++) {
                         chunks.push_back(chunk_t());
+
+                        auto & last_chunk = chunks.back();
+
                         std::copy(buf + buf_offset, buf + buf_offset + chunk_size, last_chunk.buf);
                         buf_offset += chunk_size;
                     }
                 }
+
                 if (last_fixed_chunk_remainder) {
                     chunks.push_back(chunk_t());
+
+                    auto & last_chunk = chunks.back();
+
                     if (boost::is_pod<T>::value) {
                         memcpy(last_chunk.buf, buf + buf_offset, last_fixed_chunk_remainder * sizeof(T));
                     }

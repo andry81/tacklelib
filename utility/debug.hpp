@@ -52,9 +52,7 @@
 namespace utility
 {
     // empty instruction for breakpoint placeholder
-    FORCE_INLINE void unused()
-    {
-    }
+    extern void unused();
 
     // better parameter suppression in release than (void)
     template<typename T>
