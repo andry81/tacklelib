@@ -58,11 +58,6 @@ namespace mpl {
 }
 }
 
-namespace
-{
-    namespace mpl = boost::mpl;
-}
-
 namespace tackle
 {
     namespace mpl = boost::mpl;
@@ -268,6 +263,7 @@ namespace tackle
             template <typename F, typename Ref>
             static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
+                UTILITY_UNUSED2(error_msg_fmt, throw_exceptions_on_type_error);
                 return f(r); // call as generic or cast
             }
         };
@@ -278,6 +274,7 @@ namespace tackle
             template <typename F, typename Ref>
             static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
+                UTILITY_UNUSED4(f, r, error_msg_fmt, throw_exceptions_on_type_error);
                 return _default_construct_dummy(mpl::identity<Ret>()); // disabled call
             }
         };
@@ -331,9 +328,9 @@ namespace tackle
         FORCE_INLINE void assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error = true);
 
         template <typename R, typename F>
-        FORCE_INLINE R invoke(F & functor, bool throw_exceptions_on_type_error = true);
+        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true);
         template <typename R, typename F>
-        FORCE_INLINE R invoke(F & functor, bool throw_exceptions_on_type_error = true) const;
+        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true) const;
 
         FORCE_INLINE void * address();
         FORCE_INLINE const void * address() const;
@@ -386,7 +383,7 @@ namespace tackle
     }
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             ::new (m_storage.address()) storage_type_t(); \
             m_type_index = type_index; \
         } else goto default_
@@ -416,7 +413,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             if (construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
                 construct(m_storage.address(), r, BOOST_PP_CAT(__FUNCTION__, ": storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\""))) { \
                 m_type_index = type_index; \
@@ -447,7 +444,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(s.address())); \
             m_type_index = s.m_type_index; \
         } else goto default_
@@ -478,7 +475,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_DESTRUCT_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             m_type_index = -1; \
             static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t(); \
         } else goto default_
@@ -509,7 +506,7 @@ namespace tackle
     }
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto & left_value = *static_cast<storage_type_t *>(m_storage.address()); \
             switch (m_type_index) \
             { \
@@ -520,7 +517,7 @@ namespace tackle
         } else goto default_
 
     #define TACKLE_PP_ASSIGN_MACRO_RIGHT(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto & right_value = *static_cast<const right_storage_type_t *>(s.address()); \
             left_value = right_value; \
         } \
@@ -530,33 +527,33 @@ namespace tackle
     FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types>::assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error)
     {
         // containers must be already constructed before the assign
-        //if (m_type_index < 0 || s.m_type_index < 0) goto default_;
+        if (m_type_index < 0 || s.m_type_index < 0) goto default_;
 
-        //switch (m_type_index)
-        //{
-        //    BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
-        //
-        //default_:;
-        //    default: if(throw_exceptions_on_type_error) {
-        //        throw std::runtime_error(
-        //            (boost::format(
-        //                BOOST_PP_CAT(__FUNCTION__, ": invalid storage assign: to_type_index=%i from_type_index=%i")) %
-        //                    m_type_index % s.m_type_index).str());
-        //    }
-        //}
+        switch (m_type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
+
+        default_:;
+            default: if(throw_exceptions_on_type_error) {
+                throw std::runtime_error(
+                    (boost::format(
+                        BOOST_PP_CAT(__FUNCTION__, ": invalid storage assign: to_type_index=%i from_type_index=%i")) %
+                            m_type_index % s.m_type_index).str());
+            }
+        }
     }
 
     #undef TACKLE_PP_ASSIGN_MACRO_LEFT
     #undef TACKLE_PP_ASSIGN_MACRO_RIGHT
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *static_cast<storage_type_t *>(m_storage.address()), BOOST_PP_CAT(__FUNCTION__, ": functor has not convertible first parameter type: From=\"%s\" To=\"%s\""), throw_exceptions_on_type_error); \
         } else goto default_
 
     template <typename t_mpl_container_types> template <typename R, typename F>
-    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types>::invoke(F & functor, bool throw_exceptions_on_type_error)
+    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types>::invoke(F && functor, bool throw_exceptions_on_type_error)
     {
         switch (m_type_index)
         {
@@ -577,13 +574,13 @@ namespace tackle
     #undef TACKLE_PP_INVOKE_MACRO
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (n < num_types_t::value) { \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *static_cast<const storage_type_t *>(m_storage.address()), BOOST_PP_CAT(__FUNCTION__, ": functor has not convertible first parameter type: From=\"%s\" To=\"%s\""), throw_exceptions_on_type_error); \
         } else goto default_
 
     template <typename t_mpl_container_types> template <typename R, typename F>
-    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types>::invoke(F & functor, bool throw_exceptions_on_type_error) const
+    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types>::invoke(F && functor, bool throw_exceptions_on_type_error) const
     {
         switch (m_type_index)
         {

@@ -15,10 +15,6 @@ static void signal_handler(int) { }
 
 namespace utility {
 
-extern void unused()
-{
-}
-
 void debug_break(bool condition)
 {
     DEBUG_BREAK(condition && is_under_debugger()); // avoid signal if not under debugger

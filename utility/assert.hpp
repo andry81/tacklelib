@@ -37,7 +37,7 @@
 #define ASSERT_FAIL_BREAK_ON_ATTACHED_DEBUGGER(exp, precondition) \
     if (!(precondition)); else if(!!(exp)); else DEBUG_BREAK(true)
 
-#ifdef GTEST_FAIL
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS) && defined(_DEBUG)
 
 #ifdef _MSC_VER
     #if _MSC_VER < 1600 // < MSVC++ 10 (Visual Studio 2010)
@@ -60,7 +60,7 @@
     }
 
 #define VERIFY_TRUE(exp) (( VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
-#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
+#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }} (void)0
 
 ////
 
@@ -69,7 +69,7 @@
     }
 
 #define VERIFY_FALSE(exp) (( VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
-#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
+#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }} (void)0
 
 ////
 
@@ -78,7 +78,7 @@
     }
 
 #define VERIFY_EQ(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -87,7 +87,7 @@
     }
 
 #define VERIFY_NE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_NE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_NE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -96,7 +96,7 @@
     }
 
 #define VERIFY_LE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_LE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_LE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -105,7 +105,7 @@
     }
 
 #define VERIFY_LT(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_LT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_LT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -114,7 +114,7 @@
     }
 
 #define VERIFY_GE(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_GE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_GE(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -123,7 +123,7 @@
     }
 
 #define VERIFY_GT(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_GT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_GT(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 #else
 
@@ -142,7 +142,7 @@
     }
 
 #define VERIFY_TRUE(exp) (( VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
-#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
+#define ASSERT_TRUE(exp) {{ VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }} (void)0
 
 #define VERIFY_FALSE_IMPL(exp) [&](const auto & exp_var, const char * exp_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & exp_var, const char * exp_str) -> void { \
@@ -159,7 +159,7 @@
     }
 
 #define VERIFY_FALSE(exp) (( VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)) ))
-#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }}
+#define ASSERT_FALSE(exp) {{ VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp)); }} (void)0
 
 #define VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> const auto & { \
         static const auto & fail_break = [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str) -> void { \
@@ -176,7 +176,7 @@
     }
 
 #define VERIFY_EQ(v1, v2) (( VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_EQ(v1, v2) {{ VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -195,7 +195,7 @@
     }
 
 #define VERIFY_NE(v1, v2) (( VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_NE(v1, v2) {{ VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_NE(v1, v2) {{ VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -214,7 +214,7 @@
     }
 
 #define VERIFY_LE(v1, v2) (( VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_LE(v1, v2) {{ VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_LE(v1, v2) {{ VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -233,7 +233,7 @@
     }
 
 #define VERIFY_LT(v1, v2) (( VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_LT(v1, v2) {{ VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_LT(v1, v2) {{ VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -252,7 +252,7 @@
     }
 
 #define VERIFY_GE(v1, v2) (( VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_GE(v1, v2) {{ VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_GE(v1, v2) {{ VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 ////
 
@@ -271,7 +271,7 @@
     }
 
 #define VERIFY_GT(v1, v2) (( VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
-#define ASSERT_GT(v1, v2) {{ VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }}
+#define ASSERT_GT(v1, v2) {{ VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
 
 #endif
 
@@ -334,18 +334,18 @@
 #define VERIFY_GE(v1, v2) ::utility::verify_greater_or_equal(v1, v2)
 #define VERIFY_GT(v1, v2) ::utility::verify_greater(v1, v2)
 
-#define ASSERT_TRUE(exp) {{ UTILITY_UNUSED(exp); }}
-#define ASSERT_FALSE(exp) {{ UTILITY_UNUSED(exp); }}
+#define ASSERT_TRUE(exp) {{ UTILITY_UNUSED(exp); }} (void)0
+#define ASSERT_FALSE(exp) {{ UTILITY_UNUSED(exp); }} (void)0
 
-#define ASSERT_EQ(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
-#define ASSERT_NE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
-#define ASSERT_LE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
-#define ASSERT_LT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
-#define ASSERT_GE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
-#define ASSERT_GT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }}
+#define ASSERT_EQ(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
+#define ASSERT_NE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
+#define ASSERT_LE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
+#define ASSERT_LT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
+#define ASSERT_GE(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
+#define ASSERT_GT(v1, v2) {{ UTILITY_UNUSED2(v1, v2); }} (void)0
 
 #define VERIFY(exp) ::utility::verify_true(exp)
-#define ASSERT(exp) {{ UTILITY_UNUSED(exp); }}
+#define ASSERT(exp) {{ UTILITY_UNUSED(exp); }} (void)0
 
 #define ASSERT_VERIFY_ENABLED 0
 
@@ -356,11 +356,11 @@
 #if ASSERT_VERIFY_ENABLED
 #define IF_ASSERT_VERIFY(exp) exp
 #define IF_ASSERT_VERIFY2(e1, e2) e1, e2
-#define IF_NOT_ASSERT_VERIFY(exp) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
-#define IF_NOT_ASSERT_VERIFY2(e1, e2) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
+#define IF_NOT_ASSERT_VERIFY(exp) UTILITY_UNUSED(exp)
+#define IF_NOT_ASSERT_VERIFY2(e1, e2) UTILITY_UNUSED2(e1, e2)
 #else
-#define IF_ASSERT_VERIFY(exp) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { exp; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
-#define IF_ASSERT_VERIFY2(e1, e2) {{ static const auto & UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE) = [&]() -> void { e1, e2; }; UTILITY_UNUSED(UTILITY_PP_CONCAT(if_assert_verify_impl_, UTILITY_PP_LINE)); }}
+#define IF_ASSERT_VERIFY(exp) UTILITY_UNUSED(exp)
+#define IF_ASSERT_VERIFY2(e1, e2) UTILITY_UNUSED2(e1, e2)
 #define IF_NOT_ASSERT_VERIFY(exp) exp
 #define IF_NOT_ASSERT_VERIFY2(e1, e2) e1, e2
 #endif

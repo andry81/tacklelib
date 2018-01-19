@@ -37,19 +37,19 @@ namespace utility
     // 2. Understanding:    http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
     // 3. RFC1662 (HDLC FCS implementation): https://tools.ietf.org/html/rfc1662
 
-    extern FORCE_INLINE uint32_t crc(uint32_t width, uint32_t polynomial, uint32_t crc, const void * buf, size_t size, uint32_t crc_init,
+    extern FORCE_INLINE uint32_t crc(size_t width, uint32_t polynomial, uint32_t crc, const void * buf, size_t size, uint32_t crc_init,
         uint32_t xor_in, uint32_t xor_out, bool input_reflected, bool result_reflected)
     {
         switch (width) {
         case 16:
             switch (polynomial) {
-            case 0x1021: return _t_crc<uint16_t>(width, g_crc16_1021, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0x8005: return _t_crc<uint16_t>(width, g_crc16_8005, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0xC867: return _t_crc<uint16_t>(width, g_crc16_C867, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0x0589: return _t_crc<uint16_t>(width, g_crc16_0589, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0x3D65: return _t_crc<uint16_t>(width, g_crc16_3D65, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0x8BB7: return _t_crc<uint16_t>(width, g_crc16_8BB7, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
-            case 0xA097: return _t_crc<uint16_t>(width, g_crc16_A097, crc, buf, size, crc_init, xor_in, xor_out, input_reflected, result_reflected);
+            case 0x1021: return _t_crc<uint16_t>(width, g_crc16_1021, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0x8005: return _t_crc<uint16_t>(width, g_crc16_8005, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0xC867: return _t_crc<uint16_t>(width, g_crc16_C867, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0x0589: return _t_crc<uint16_t>(width, g_crc16_0589, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0x3D65: return _t_crc<uint16_t>(width, g_crc16_3D65, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0x8BB7: return _t_crc<uint16_t>(width, g_crc16_8BB7, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
+            case 0xA097: return _t_crc<uint16_t>(width, g_crc16_A097, uint16_t(crc), buf, size, uint16_t(crc_init), uint16_t(xor_in), uint16_t(xor_out), input_reflected, result_reflected);
             }
             break;
 
@@ -79,10 +79,10 @@ namespace utility
                 BOOST_PP_CAT(__FUNCTION__, ": unimplemented crc polynomial: width=%u polynomial=%08X")) %
                     width % polynomial).str());
 
-        return 0;
+        //return 0; // unreachable code
     }
 
-    extern FORCE_INLINE uint32_t crc_mask(uint32_t width)
+    extern FORCE_INLINE uint32_t crc_mask(size_t width)
     {
         switch (width) {
         case 8: return 0xFFU;

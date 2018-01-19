@@ -22,6 +22,8 @@ namespace tackle
         FORCE_INLINE basic_const_iterator();
         FORCE_INLINE basic_const_iterator(const basic_const_iterator &) = default;
 
+        FORCE_INLINE basic_const_iterator & operator=(const basic_const_iterator & r) = default;
+
         FORCE_INLINE const T & operator *() const;
         FORCE_INLINE const T * operator ->() const;
 
@@ -51,6 +53,8 @@ namespace tackle
 
         FORCE_INLINE basic_map_const_iterator();
         FORCE_INLINE basic_map_const_iterator(const basic_map_const_iterator &) = default;
+
+        FORCE_INLINE basic_map_const_iterator & operator=(const basic_map_const_iterator &) = default;
 
         FORCE_INLINE const pair_t & operator *() const;
         FORCE_INLINE const pair_t * operator ->() const;
@@ -108,7 +112,7 @@ namespace tackle
     template <typename T, typename C, typename Friend>
     FORCE_INLINE basic_const_iterator<T, C, Friend> basic_const_iterator<T, C, Friend>::operator ++(int)
     {
-        const basic_const_iterator it = *this;
+        const auto it = *this;
         m_it++;
         return it;
     }
@@ -123,7 +127,7 @@ namespace tackle
     template <typename T, typename C, typename Friend>
     FORCE_INLINE basic_const_iterator<T, C, Friend> basic_const_iterator<T, C, Friend>::operator --(int)
     {
-        const basic_const_iterator it = *this;
+        const auto it = *this;
         m_it--;
         return it;
     }
@@ -177,7 +181,7 @@ namespace tackle
     template <typename K, typename T, typename C, typename Friend>
     FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> basic_map_const_iterator<K, T, C, Friend>::operator ++(int)
     {
-        const basic_map_const_iterator it = *this;
+        const auto it = *this;
         m_it++;
         return it;
     }
@@ -192,7 +196,7 @@ namespace tackle
     template <typename K, typename T, typename C, typename Friend>
     FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> basic_map_const_iterator<K, T, C, Friend>::operator --(int)
     {
-        const basic_map_const_iterator it = *this;
+        const auto it = *this;
         m_it--;
         return it;
     }

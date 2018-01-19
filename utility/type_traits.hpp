@@ -14,6 +14,8 @@
 #include <tuple>
 
 
+#define UTILITY_CONST_EXPR(exp) ::utility::const_expr<!!(exp)>::value
+
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl recurrent types
 #define UTILITY_TYPE_LOOKUP_BY_ERROR(type_name) \
     typedef decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::dummy*)0)) _type_lookup_t
@@ -35,6 +37,13 @@
 namespace utility
 {
     namespace mpl = boost::mpl;
+
+    // to suppress `warning C4127: conditional expression is constant`
+    template <bool B>
+    struct const_expr
+    {
+        static const bool value = B;
+    };
 
     struct dummy {};
 

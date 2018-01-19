@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility/platform.hpp"
+#include "utility/type_traits.hpp"
 #include "utility/math.hpp"
 #include "tackle/file_handle.hpp"
 
@@ -91,7 +92,7 @@ namespace utility
 #ifndef WIN64
         uint8_t * realloc_get(uint64_t size)
         {
-            if (sizeof(size_t) < sizeof(uint64_t)) {
+            if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
                 const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
                 if (size > max_value) {
                     throw std::runtime_error(

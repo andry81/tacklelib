@@ -319,7 +319,7 @@ namespace tackle
     {
         ASSERT_TRUE(min_chunk_size);
 
-        const size_t chunk_type_index = max_chunk_size_t::value >= min_chunk_size ? math::int_log2_ceil(min_chunk_size) : math::int_log2_ceil(max_chunk_size_t::value);
+        const int chunk_type_index = max_chunk_size_t::value >= min_chunk_size ? math::int_log2_ceil(min_chunk_size) : math::int_log2_ceil(max_chunk_size_t::value);
         if (chunk_type_index != m_chunks.type_index()) {
             m_chunks.construct(chunk_type_index, true);
         }
@@ -403,7 +403,9 @@ namespace tackle
                         memcpy(last_chunk.buf + m_remainder, buf, copy_to_remainder_size * sizeof(T));
                     }
                     else {
-                        std::copy(buf, buf + copy_to_remainder_size, last_chunk.buf + m_remainder);
+                        for (size_t i = 0; i < copy_to_remainder_size; i++) {
+                            last_chunk.buf[m_remainder + i] = buf[i];
+                        }
                     }
                     left_size -= copy_to_remainder_size;
                     buf_offset += copy_to_remainder_size;
@@ -430,7 +432,9 @@ namespace tackle
 
                         auto & last_chunk = chunks.back();
 
-                        std::copy(buf + buf_offset, buf + buf_offset + chunk_size, last_chunk.buf);
+                        for (size_t j = 0; j < chunk_size; j++) {
+                            last_chunk.buf[j] = buf[buf_offset + j];
+                        }
                         buf_offset += chunk_size;
                     }
                 }
@@ -444,7 +448,9 @@ namespace tackle
                         memcpy(last_chunk.buf, buf + buf_offset, last_fixed_chunk_remainder * sizeof(T));
                     }
                     else {
-                        std::copy(buf + buf_offset, buf + buf_offset + last_fixed_chunk_remainder, last_chunk.buf);
+                        for (size_t i = 0; i < last_fixed_chunk_remainder; i++) {
+                            last_chunk.buf[i] = buf[buf_offset + i];
+                        }
                     }
                     buf_offset += last_fixed_chunk_remainder;
                 }
@@ -503,35 +509,36 @@ namespace tackle
             size_t from_buf_offset = chunk_divrem.rem;
             if (chunk_size >= from_buf_offset + to_size) {
                 for (; to_buf_offset < to_size; to_buf_offset++, from_buf_offset++) {
-                    ((T *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
+                    to_buf[to_buf_offset] = chunk.buf[from_buf_offset];
                 }
             }
             else {
                 const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
                 const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
                 for (size_t i = 0; i < first_chunk_size; i++, to_buf_offset++, from_buf_offset++) {
-                    ((T *)to_buf)[to_buf_offset] = chunk.buf[from_buf_offset];
+                    to_buf[to_buf_offset] = chunk.buf[from_buf_offset];
                 }
                 if (next_chunk_divrem.quot >= 1) {
                     if (next_chunk_divrem.quot >= 2) {
-                        DEBUG_BREAK(true); // needs debug
                         if (boost::is_pod<T>::value) {
                             for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
                                 const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                                memcpy(((T *)to_buf) + to_buf_offset, chunk2.buf, chunk_size * sizeof(T));
+                                memcpy(to_buf + to_buf_offset, chunk2.buf, chunk_size * sizeof(T));
                             }
                         }
                         else {
                             for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
                                 const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                                std::copy(chunk2.buf, chunk2.buf + chunk_size, ((T *)to_buf) + to_buf_offset);
+                                for (size_t j = 0; j < chunk_size; j++) {
+                                    to_buf[to_buf_offset + i] = chunk2.buf[i];
+                                }
                             }
                         }
                     }
                     auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
                     const size_t last_chunk_size = next_chunk_divrem.rem;
                     for (size_t i = 0; i < last_chunk_size; i++, to_buf_offset++) {
-                        ((T *)to_buf)[to_buf_offset] = chunk2.buf[i];
+                        to_buf[to_buf_offset] = chunk2.buf[i];
                     }
                 }
             }
