@@ -9,30 +9,13 @@
 #endif
 
 
-#if defined(ENABLE_CPP11_UNUSED_SUPPRESSION) && !defined(DISABLE_CPP11_UNUSED_SUPPRESSION)
-#define UTILITY_UNUSED(exp) (void)::utility::unused((exp))
-#define UTILITY_UNUSED2(e0, e1) (void)::utility::unused((e0), (e1))
-#else
-// better implementation for time critical segments of code, because of interfering with the compiler optimizer somehow !!!
-#ifndef _DEBUG
-#define UTILITY_UNUSED(exp) (void)0
-#define UTILITY_UNUSED2(e0, e1) (void)0
-#else
-#define UTILITY_UNUSED(exp) (void)((void)(exp), 0)
-#define UTILITY_UNUSED2(e0, e1) (void)((void)(e0), (void)(e1), 0)
-#endif
-//#define UTILITY_UNUSED(exp) (void)(false ? (void)(exp) : (void)0)
-//#define UTILITY_UNUSED2(e0, e1) (void)(false ? (void)(UTILITY_UNUSED(e0), UTILITY_UNUSED(e1)) : (void)0)
-#endif
+#define UTILITY_UNUSED(exp)             {{ (void)((exp), 0); }} (void)0
+#define UTILITY_UNUSED2(e0, e1)         UTILITY_UNUSED(e0); UTILITY_UNUSED(e1)
+#define UTILITY_UNUSED3(e0, e1, e2)     UTILITY_UNUSED2(e0, e1); UTILITY_UNUSED(e2)
+#define UTILITY_UNUSED4(e0, e1, e2, e3) UTILITY_UNUSED3(e0, e1, e2); UTILITY_UNUSED(e3)
 
 // break point placeholder, useful inside macroses like ASSERT*
 #define BREAK_POINT_PLACEHOLDER() ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
-
-#ifdef _DEBUG
-#define IF_DEBUG(x) x
-#else
-#define IF_DEBUG(x) UTILITY_UNUSED(x)
-#endif
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
@@ -52,16 +35,7 @@
 namespace utility
 {
     // empty instruction for breakpoint placeholder
-    extern void unused();
-
-    // better parameter suppression in release than (void)
-    template<typename T>
-    FORCE_INLINE void unused(T &&)
-    {
-    }
-
-    template<typename T0,typename T1>
-    FORCE_INLINE void unused(T0 &&, T1 &&)
+    FORCE_INLINE void unused()
     {
     }
 
