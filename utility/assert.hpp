@@ -298,7 +298,7 @@
 #ifdef _DEBUG
 
 #define VERIFY_TRUE(exp) VERIFY_IMPL(exp)(exp)
-#define VERIFY_FALSE(exp) VERIFY_IMPL(!(exp))(!(exp))
+#define VERIFY_FALSE(exp) !VERIFY_IMPL(!(exp))(!(exp))
 
 #define VERIFY_EQ(v1, v2) VERIFY_IMPL((v1) == (v2))((v1) == (v2))
 #define VERIFY_NE(v1, v2) VERIFY_IMPL((v1) != (v2))((v1) != (v2))
