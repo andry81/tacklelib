@@ -1,6 +1,9 @@
 #pragma once
 
+#include "utility/preprocessor.hpp"
 #include "utility/platform.hpp"
+
+#include <boost/type_traits/remove_reference.hpp>
 
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>
@@ -9,10 +12,19 @@
 #endif
 
 
-#define UTILITY_UNUSED(exp)             {{ (void)((exp), 0); }} (void)0
-#define UTILITY_UNUSED2(e0, e1)         UTILITY_UNUSED(e0); UTILITY_UNUSED(e1)
-#define UTILITY_UNUSED3(e0, e1, e2)     UTILITY_UNUSED2(e0, e1); UTILITY_UNUSED(e2)
-#define UTILITY_UNUSED4(e0, e1, e2, e3) UTILITY_UNUSED3(e0, e1, e2); UTILITY_UNUSED(e3)
+#define UTILITY_UNUSED(suffix, exp)                 UTILITY_UNUSED_ ## suffix(exp)
+
+#define UTILITY_UNUSED_EXPR(exp)                    (( (void)((exp), nullptr) ))
+#define UTILITY_UNUSED_STATEMENT(exp)               {{ (void)((exp), 0); }} (void)0
+
+#define UTILITY_UNUSED_EXPR2(e0, e1)                (( UTILITY_UNUSED_EXPR(e0), UTILITY_UNUSED_EXPR(e1) ))
+#define UTILITY_UNUSED_STATEMENT2(e0, e1)           {{ UTILITY_UNUSED_STATEMENT(e0); UTILITY_UNUSED_STATEMENT(e1); }} (void)0
+
+#define UTILITY_UNUSED_EXPR3(e0, e1, e2)            (( UTILITY_UNUSED_EXPR2(e0, e1), UTILITY_UNUSED_EXPR(e2) ))
+#define UTILITY_UNUSED_STATEMENT3(e0, e1, e2)       {{ UTILITY_UNUSED_STATEMENT2(e0, e1); UTILITY_UNUSED_STATEMENT(e2); }} (void)0
+
+#define UTILITY_UNUSED_EXPR4(e0, e1, e2, e3)        (( UTILITY_UNUSED_EXPR3(e0, e1, e2), UTILITY_UNUSED_EXPR(e3) ))
+#define UTILITY_UNUSED_STATEMENT4(e0, e1, e2, e3)   {{ UTILITY_UNUSED_STATEMENT3(e0, e1, e2); UTILITY_UNUSED_STATEMENT(e3); }} (void)0
 
 // break point placeholder, useful inside macroses like ASSERT*
 #define BREAK_POINT_PLACEHOLDER() ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements

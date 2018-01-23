@@ -263,7 +263,7 @@ namespace tackle
             template <typename F, typename Ref>
             static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                UTILITY_UNUSED2(error_msg_fmt, throw_exceptions_on_type_error);
+                UTILITY_UNUSED_STATEMENT2(error_msg_fmt, throw_exceptions_on_type_error);
                 return f(r); // call as generic or cast
             }
         };
@@ -274,7 +274,7 @@ namespace tackle
             template <typename F, typename Ref>
             static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                UTILITY_UNUSED4(f, r, error_msg_fmt, throw_exceptions_on_type_error);
+                UTILITY_UNUSED_STATEMENT4(f, r, error_msg_fmt, throw_exceptions_on_type_error);
                 return _default_construct_dummy(mpl::identity<Ret>()); // disabled call
             }
         };
