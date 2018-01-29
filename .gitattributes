@@ -8,7 +8,10 @@ tackle/file_reader.cpp -text
 tackle/file_reader.hpp -text
 tackle/smart_handle.hpp -text
 tackle/stream_storage.hpp -text
+/tacklelib.hpp -text
 utility/algorithm.hpp -text
+utility/algorithm/generated/gen_unroll_copy_switch.bat -text
+utility/algorithm/generated/unroll_copy_switch.hpp -text
 utility/assert.hpp -text
 utility/crc.cpp -text
 utility/crc.hpp -text

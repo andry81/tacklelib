@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include "utility/platform.hpp"
 #include "utility/type_traits.hpp"
 #include "utility/math.hpp"
@@ -136,17 +139,29 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE std::string int_to_bin(T i, bool first_bit_is_lowest_bit = false) {
+    FORCE_INLINE void int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
+    {
         std::bitset<sizeof(T) * CHAR_BIT> bs(i);
         if (!first_bit_is_lowest_bit) {
-            return bs.to_string();
+            ret = bs.to_string();
+            return;
         }
 
-        const std::string ret = bs.to_string();
-        return std::string(ret.rbegin(), ret.rend());
+        const std::string bs_str = bs.to_string();
+        ret = std::string(bs_str.rbegin(), bs_str.rend());
+        return;
     }
 
-    FORCE_INLINE uint8_t reverse(uint8_t byte) {
+    template<typename T>
+    inline std::string int_to_bin(T i, bool first_bit_is_lowest_bit = false)
+    {
+        std::string res;
+        int_to_bin_forceinline(res, i, first_bit_is_lowest_bit);
+        return res;
+    }
+
+    FORCE_INLINE uint8_t reverse(uint8_t byte)
+    {
         byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
         byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
         byte = (byte & 0xAA) >> 1 | (byte & 0x55) << 1;
@@ -154,7 +169,8 @@ namespace utility
     }
 
     template <typename T>
-    FORCE_INLINE T reverse(T value) {
+    FORCE_INLINE T reverse(T value)
+    {
         T res = 0;
         for (size_t i = 0; i < sizeof(value) * CHAR_BIT; i++) {
             if (value & (0x01U << i)) {

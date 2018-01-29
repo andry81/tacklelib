@@ -1,4 +1,3 @@
-
 #include "utility/crc.hpp"
 #include "utility/crc_tables.hpp"
 #include "utility/assert.hpp"

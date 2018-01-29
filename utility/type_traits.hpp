@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include <utility/preprocessor.hpp>
 
 #include <boost/preprocessor/cat.hpp>
@@ -14,7 +17,7 @@
 #include <tuple>
 
 
-#define UTILITY_CONST_EXPR(exp) ::utility::const_expr<!!(exp)>::value
+#define UTILITY_CONST_EXPR(exp) ::utility::const_expr<(exp) ? true : false>::value
 
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl recurrent types
 #define UTILITY_TYPE_LOOKUP_BY_ERROR(type_name) \

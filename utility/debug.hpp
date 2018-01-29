@@ -1,9 +1,13 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include "utility/preprocessor.hpp"
 #include "utility/platform.hpp"
 
 #include <boost/type_traits/remove_reference.hpp>
+
 
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>
@@ -32,12 +36,12 @@
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
 #define DEBUG_BREAK(exp) \
-    if(!bool(exp)); else __debugbreak() // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly)
+    if((exp) ? false : true); else __debugbreak() // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly)
 
 #elif defined(UTILITY_PLATFORM_POSIX)
 
 #define DEBUG_BREAK(exp) \
-    if(!bool(exp)); else __builtin_trap() //or: signal(SIGTRAP, signal_handler)
+    if((exp) ? false : true); else __builtin_trap() //or: signal(SIGTRAP, signal_handler)
 
 #else
 #error debug_break is not supported for this platform

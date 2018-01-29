@@ -1,6 +1,10 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include "tackle/smart_handle.hpp"
+
 
 namespace tackle
 {

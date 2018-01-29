@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include "tacklelib.hpp"
+
 #include <utility/platform.hpp>
 
 #include <boost/type_traits/remove_const.hpp>
@@ -10,17 +12,34 @@
 
 namespace tackle
 {
+    template <typename T, typename C, typename Friend>
+    class basic_const_iterator;
+
+    template <typename K, typename T, typename C, typename Friend>
+    class basic_map_const_iterator;
+
+    // externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
+    template <typename T, typename C, typename Friend>
+    basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
+    template <typename T, typename C, typename Friend>
+    basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
+
     // for not associative containers
     template <typename T, typename C, typename Friend>
     class basic_const_iterator
     {
         friend typename Friend;
 
+        template <typename T, typename C, typename Friend>
+        friend basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
+        template <typename T, typename C, typename Friend>
+        friend basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
+
         FORCE_INLINE basic_const_iterator(const typename C::const_iterator & it);
 
     public:
         FORCE_INLINE basic_const_iterator();
-        FORCE_INLINE basic_const_iterator(const basic_const_iterator &) = default;
+        FORCE_INLINE basic_const_iterator(const basic_const_iterator & r) = default;
 
         FORCE_INLINE basic_const_iterator & operator=(const basic_const_iterator & r) = default;
 
@@ -30,20 +49,29 @@ namespace tackle
         FORCE_INLINE bool operator ==(const basic_const_iterator &) const;
         FORCE_INLINE bool operator !=(const basic_const_iterator &) const;
 
-        FORCE_INLINE basic_const_iterator operator ++(int);
         FORCE_INLINE basic_const_iterator & operator ++();
-        FORCE_INLINE basic_const_iterator operator --(int);
         FORCE_INLINE basic_const_iterator & operator --();
 
     private:
         typename C::const_iterator m_it;
     };
 
+    // externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
+    template <typename K, typename T, typename C, typename Friend>
+    basic_map_const_iterator<K, T, C, Friend> operator ++(basic_map_const_iterator<K, T, C, Friend> & r, int);
+    template <typename K, typename T, typename C, typename Friend>
+    basic_map_const_iterator<K, T, C, Friend> operator --(basic_map_const_iterator<K, T, C, Friend> & r, int);
+
     // for associative map containers
     template <typename K, typename T, typename C, typename Friend>
     class basic_map_const_iterator
     {
         friend typename Friend;
+
+        template <typename T, typename C, typename Friend>
+        friend basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
+        template <typename T, typename C, typename Friend>
+        friend basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
 
         FORCE_INLINE basic_map_const_iterator(const typename C::const_iterator & it);
 
@@ -62,14 +90,30 @@ namespace tackle
         FORCE_INLINE bool operator ==(const basic_map_const_iterator &) const;
         FORCE_INLINE bool operator !=(const basic_map_const_iterator &) const;
 
-        FORCE_INLINE basic_map_const_iterator operator ++(int);
         FORCE_INLINE basic_map_const_iterator & operator ++();
-        FORCE_INLINE basic_map_const_iterator operator --(int);
         FORCE_INLINE basic_map_const_iterator & operator --();
 
     private:
         typename C::const_iterator m_it;
     };
+
+    //// basic_const_iterator friends
+
+    template <typename T, typename C, typename Friend>
+    FORCE_INLINE basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int)
+    {
+        const auto it = r;
+        r.m_it++;
+        return it;
+    }
+
+    template <typename T, typename C, typename Friend>
+    FORCE_INLINE basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int)
+    {
+        const auto it = r;
+        r.m_it--;
+        return it;
+    }
 
     //// basic_const_iterator
 
@@ -110,26 +154,10 @@ namespace tackle
     }
 
     template <typename T, typename C, typename Friend>
-    FORCE_INLINE basic_const_iterator<T, C, Friend> basic_const_iterator<T, C, Friend>::operator ++(int)
-    {
-        const auto it = *this;
-        m_it++;
-        return it;
-    }
-
-    template <typename T, typename C, typename Friend>
     FORCE_INLINE basic_const_iterator<T, C, Friend> & basic_const_iterator<T, C, Friend>::operator ++()
     {
         ++m_it;
         return *this;
-    }
-
-    template <typename T, typename C, typename Friend>
-    FORCE_INLINE basic_const_iterator<T, C, Friend> basic_const_iterator<T, C, Friend>::operator --(int)
-    {
-        const auto it = *this;
-        m_it--;
-        return it;
     }
 
     template <typename T, typename C, typename Friend>
@@ -139,6 +167,24 @@ namespace tackle
         return *this;
     }
 
+
+    //// basic_map_const_iterator friends
+
+    template <typename K, typename T, typename C, typename Friend>
+    FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> operator ++(basic_map_const_iterator<K, T, C, Friend> & r, int)
+    {
+        const auto it = r;
+        r.m_it++;
+        return it;
+    }
+
+    template <typename K, typename T, typename C, typename Friend>
+    FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> operator --(basic_map_const_iterator<K, T, C, Friend> & r, int)
+    {
+        const auto it = r;
+        r.m_it--;
+        return it;
+    }
 
     //// basic_map_const_iterator
 
@@ -179,26 +225,10 @@ namespace tackle
     }
 
     template <typename K, typename T, typename C, typename Friend>
-    FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> basic_map_const_iterator<K, T, C, Friend>::operator ++(int)
-    {
-        const auto it = *this;
-        m_it++;
-        return it;
-    }
-
-    template <typename K, typename T, typename C, typename Friend>
     FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> & basic_map_const_iterator<K, T, C, Friend>::operator ++()
     {
         ++m_it;
         return *this;
-    }
-
-    template <typename K, typename T, typename C, typename Friend>
-    FORCE_INLINE basic_map_const_iterator<K, T, C, Friend> basic_map_const_iterator<K, T, C, Friend>::operator --(int)
-    {
-        const auto it = *this;
-        m_it--;
-        return it;
     }
 
     template <typename K, typename T, typename C, typename Friend>
