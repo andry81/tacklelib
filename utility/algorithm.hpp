@@ -46,7 +46,6 @@ namespace utility
     {
         const size_t unrolled_size = (std::min)(unroll_size, size_t(TACKLE_PP_MAX_UNROLLED_COPY_SIZE));
         if (unrolled_size >= size) {
-            //size_t buf_offset = 0;
             switch(size) {
                 case 0: break;
                 #include "utility/algorithm/generated/unroll_copy_switch.hpp"
