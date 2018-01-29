@@ -1,6 +1,6 @@
 @echo off
 
-setlocal
+setlocal ENABLEDELAYEDEXPANSION
 
 set MAX_UNROLL_SIZE=1024
 set "GEN_FILE=%~dp0unroll_copy_switch.hpp"
@@ -17,6 +17,6 @@ type nul>"%GEN_FILE%"
 for /L %%i in (1,1,%MAX_UNROLL_SIZE%) do (
   echo.%%i
   (
-    echo.case %%i: *reinterpret_cast^<StaticArray^<uint8_t, %%i^> *^>(to^) = *reinterpret_cast^<const StaticArray^<uint8_t, %%i^> *^>(from^); break;
+    echo.case %%i: *reinterpret_cast^<StaticArray^<T, %%i^> *^>(to^) = *reinterpret_cast^<const StaticArray^<T, %%i^> *^>(from^); break;
   ) >> "%GEN_FILE%"
 )

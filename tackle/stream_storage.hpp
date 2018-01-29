@@ -490,9 +490,9 @@ namespace tackle
             else {
                 const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
                 const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-                for (size_t i = 0; i < first_chunk_size; i++, to_buf_offset++, from_buf_offset++) {
-                    to_buf[to_buf_offset] = chunk.buf[from_buf_offset];
-                }
+                UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+                to_buf_offset += first_chunk_size;
+
                 if (next_chunk_divrem.quot >= 1) {
                     if (next_chunk_divrem.quot >= 2) {
                         for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
@@ -502,9 +502,8 @@ namespace tackle
                     }
                     auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
                     const size_t last_chunk_size = next_chunk_divrem.rem;
-                    for (size_t i = 0; i < last_chunk_size; i++, to_buf_offset++) {
-                        to_buf[to_buf_offset] = chunk2.buf[i];
-                    }
+                    UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+                    to_buf_offset += last_chunk_size;
                 }
             }
 
