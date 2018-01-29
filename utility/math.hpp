@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include "utility/utility.hpp"
 #include "utility/platform.hpp"
 #include "utility/assert.hpp"
@@ -351,7 +354,16 @@ namespace math
 
         if (1 >= v) return 0;
 
-        return T((v >= 2 ? int_log2_floor(v / 2) : 0) + 1);
+        T ret = 0;
+        T i = v;
+
+        // unrolled recursion
+        do {
+            ++ret;
+            i /= 2;
+        } while (i >= 2);
+
+        return ret;
     }
 
     template <typename T>

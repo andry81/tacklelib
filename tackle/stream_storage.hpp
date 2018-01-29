@@ -1,9 +1,12 @@
 #pragma once
 
 
+#include "tacklelib.hpp"
+
 #include <utility/utility.hpp>
 #include <utility/assert.hpp>
 #include <utility/math.hpp>
+#include <utility/algorithm.hpp>
 
 #include <tackle/aligned_storage.hpp>
 
@@ -399,14 +402,7 @@ namespace tackle
                     auto & last_chunk = chunks.back();
 
                     const size_t copy_to_remainder_size = (std::min)(chunk_size - m_remainder, left_size);
-                    if (boost::is_pod<T>::value) {
-                        memcpy(last_chunk.buf + m_remainder, buf, copy_to_remainder_size * sizeof(T));
-                    }
-                    else {
-                        for (size_t i = 0; i < copy_to_remainder_size; i++) {
-                            last_chunk.buf[m_remainder + i] = buf[i];
-                        }
-                    }
+                    UTILITY_COPY(buf, last_chunk.buf + m_remainder, copy_to_remainder_size);
                     left_size -= copy_to_remainder_size;
                     buf_offset += copy_to_remainder_size;
                 }
@@ -416,27 +412,13 @@ namespace tackle
                 const size_t num_fixed_chunks = left_size / chunk_size;
                 const size_t last_fixed_chunk_remainder = left_size % chunk_size;
 
-                if (boost::is_pod<T>::value) {
-                    for (size_t i = 0; i < num_fixed_chunks; i++) {
-                        chunks.push_back(chunk_t());
+                for (size_t i = 0; i < num_fixed_chunks; i++) {
+                    chunks.push_back(chunk_t());
 
-                        auto & last_chunk = chunks.back();
+                    auto & last_chunk = chunks.back();
 
-                        memcpy(last_chunk.buf, buf + buf_offset, chunk_size * sizeof(T));
-                        buf_offset += chunk_size;
-                    }
-                }
-                else {
-                    for (size_t i = 0; i < num_fixed_chunks; i++) {
-                        chunks.push_back(chunk_t());
-
-                        auto & last_chunk = chunks.back();
-
-                        for (size_t j = 0; j < chunk_size; j++) {
-                            last_chunk.buf[j] = buf[buf_offset + j];
-                        }
-                        buf_offset += chunk_size;
-                    }
+                    UTILITY_COPY(buf + buf_offset, last_chunk.buf, chunk_size);
+                    buf_offset += chunk_size;
                 }
 
                 if (last_fixed_chunk_remainder) {
@@ -444,14 +426,7 @@ namespace tackle
 
                     auto & last_chunk = chunks.back();
 
-                    if (boost::is_pod<T>::value) {
-                        memcpy(last_chunk.buf, buf + buf_offset, last_fixed_chunk_remainder * sizeof(T));
-                    }
-                    else {
-                        for (size_t i = 0; i < last_fixed_chunk_remainder; i++) {
-                            last_chunk.buf[i] = buf[buf_offset + i];
-                        }
-                    }
+                    UTILITY_COPY(buf + buf_offset, last_chunk.buf, last_fixed_chunk_remainder);
                     buf_offset += last_fixed_chunk_remainder;
                 }
             }
@@ -496,6 +471,7 @@ namespace tackle
     template <typename T>
     FORCE_INLINE size_t stream_storage<T>::copy_to(size_t offset_from, T * to_buf, size_t to_size) const
     {
+        ASSERT_LT(0U, to_size);
         ASSERT_LT(offset_from, size());
         ASSERT_GE(size(), offset_from + to_size);
 
@@ -508,9 +484,8 @@ namespace tackle
             size_t to_buf_offset = 0;
             size_t from_buf_offset = chunk_divrem.rem;
             if (chunk_size >= from_buf_offset + to_size) {
-                for (; to_buf_offset < to_size; to_buf_offset++, from_buf_offset++) {
-                    to_buf[to_buf_offset] = chunk.buf[from_buf_offset];
-                }
+                UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, to_size);
+                to_buf_offset += to_size;
             }
             else {
                 const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
@@ -520,19 +495,9 @@ namespace tackle
                 }
                 if (next_chunk_divrem.quot >= 1) {
                     if (next_chunk_divrem.quot >= 2) {
-                        if (boost::is_pod<T>::value) {
-                            for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
-                                const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                                memcpy(to_buf + to_buf_offset, chunk2.buf, chunk_size * sizeof(T));
-                            }
-                        }
-                        else {
-                            for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
-                                const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                                for (size_t j = 0; j < chunk_size; j++) {
-                                    to_buf[to_buf_offset + i] = chunk2.buf[i];
-                                }
-                            }
+                        for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
+                            const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
+                            UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
                         }
                     }
                     auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];

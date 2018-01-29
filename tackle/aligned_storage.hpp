@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include "tacklelib.hpp"
+
 #include <utility/platform.hpp>
 #include <utility/type_traits.hpp>
 
@@ -343,14 +345,14 @@ namespace tackle
     //// max_aligned_storage_from_mpl_container
 
     //#undef UTILITY_PP_LINE_TERMINATOR
-    #define TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
+    #define TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
         case n: { UTILITY_PP_LINE_TERMINATOR\
             typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type storage_type_t; UTILITY_PP_LINE_TERMINATOR\
             macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
         } break; UTILITY_PP_LINE_TERMINATOR
 
     // for binary operators
-    #define TACKLE_REPEAT_PP_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
+    #define TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
         case n: { UTILITY_PP_LINE_TERMINATOR\
             typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type right_storage_type_t; UTILITY_PP_LINE_TERMINATOR\
             macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
@@ -398,7 +400,7 @@ namespace tackle
 
         switch (type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
 
         default_:;
             default: {
@@ -429,7 +431,7 @@ namespace tackle
 
         switch (type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
 
         default_:;
             default: {
@@ -460,7 +462,7 @@ namespace tackle
 
         switch (s.m_type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_MACRO)
 
         default_:;
             default: {
@@ -485,7 +487,7 @@ namespace tackle
     {
         switch (m_type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_DESTRUCT_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_DESTRUCT_MACRO)
 
         default_:;
             default: {
@@ -510,7 +512,7 @@ namespace tackle
             auto & left_value = *static_cast<storage_type_t *>(m_storage.address()); \
             switch (m_type_index) \
             { \
-                BOOST_PP_CAT(BOOST_PP_REPEAT_, z)(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_RIGHT) \
+                BOOST_PP_CAT(BOOST_PP_REPEAT_, z)(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_RIGHT) \
                 \
                 default: goto default_; \
             } \
@@ -531,7 +533,7 @@ namespace tackle
 
         switch (m_type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
@@ -557,7 +559,7 @@ namespace tackle
     {
         switch (m_type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
@@ -584,7 +586,7 @@ namespace tackle
     {
         switch (m_type_index)
         {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
@@ -612,6 +614,6 @@ namespace tackle
         return m_storage.address();
     }
 
-    #undef TACKLE_REPEAT_PP_INVOKE_MACRO_BY_TYPE_INDEX
-    #undef TACKLE_REPEAT_PP_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX
+    #undef TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX
+    #undef TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX
 }

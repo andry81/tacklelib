@@ -1,6 +1,10 @@
 #pragma once
 
+
+#include "tacklelib.hpp"
+
 #include <boost/smart_ptr.hpp>
+
 
 namespace tackle
 {
