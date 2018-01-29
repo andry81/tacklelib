@@ -20,6 +20,9 @@
     ::utility::copy(from, to, size, __VA_ARGS__)
 
 
+static_assert(TACKLE_PP_MAX_UNROLLED_COPY_SIZE >= TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
+
+
 namespace utility
 {
     // for iterators debugging
