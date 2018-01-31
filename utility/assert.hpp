@@ -44,6 +44,7 @@
 // TIPS:
 //  * if debugger is attached but `::testing::GTEST_FLAG(break_on_failure)` has not been setted, then an assertion does explicit break.
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
 
 #define UTILITY_ASSERT_GTEST_MESSAGE_(message, result_type) \
     GTEST_MESSAGE_AT_(file, line, message, result_type) // `file` and `line` must be external respective variables
@@ -76,8 +77,6 @@
 #define UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, file, line) \
     ::utility::gtest_fail_exp(exp_value, file, line);
 
-
-#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
 
 #ifndef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
 
@@ -425,7 +424,7 @@
 
 // avoid usage unit test asserts in debug because of greater runtime slow down in respect to classic assert implementation
 
-#if (defined(UNIT_TESTS) || defined(BENCH_TESTS)) && !defined(_DEBUG)
+#if !defined(USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT) && (defined(UNIT_TESTS) || defined(BENCH_TESTS)) && !defined(_DEBUG)
 
 #define VERIFY_TRUE     UNIT_VERIFY_TRUE
 #define VERIFY_FALSE    UNIT_VERIFY_FALSE
@@ -553,6 +552,7 @@ namespace utility
         return v1 > v2 ? v1 : v1;
     }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
     inline void gtest_fail_true(const char * exp_str, const char * file, unsigned int line) // must be not `__forceinline`-ed!
     {
         if (const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure)) {
@@ -585,6 +585,7 @@ namespace utility
             DEBUG_BREAK(true);
         }
     }
+#endif
 
     struct BasicAnsiAssert
     {
@@ -614,6 +615,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T>
         FORCE_INLINE const T & gtest_verify(const T & exp_var, const char * exp_str) const {
             if (exp_var ? true : false); // to avoid `warning C4800: forcing value to bool 'true' or 'false' (performance warning)`
@@ -621,6 +623,7 @@ namespace utility
 
             return exp_var;
         }
+#endif
     };
 
     struct WideAssertTrue : BasicWideAssert {
@@ -651,6 +654,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T>
         FORCE_INLINE const T & gtest_verify(const T & exp_var, const char * exp_str) const {
             if (exp_var ? false : true); // to avoid `warning C4800: forcing value to bool 'true' or 'false' (performance warning)`
@@ -658,6 +662,7 @@ namespace utility
 
             return exp_var;
         }
+#endif
     };
 
     struct WideAssertFalse : BasicWideAssert {
@@ -687,6 +692,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v1)>::Compare(v1_str, v2_str, v1, v2));
@@ -694,6 +700,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertEQ : BasicWideAssert {
@@ -724,6 +731,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(v1_str, v2_str, v1, v2));
@@ -731,6 +739,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertNE : BasicWideAssert {
@@ -761,6 +770,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(v1_str, v2_str, v1, v2));
@@ -768,6 +778,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertLE : BasicWideAssert {
@@ -798,6 +809,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(v1_str, v2_str, v1, v2));
@@ -805,6 +817,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertLT : BasicWideAssert {
@@ -835,6 +848,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(v1_str, v2_str, v1, v2));
@@ -842,6 +856,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertGE : BasicWideAssert {
@@ -872,6 +887,7 @@ namespace utility
         {
         }
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(v1_str, v2_str, v1, v2));
@@ -879,6 +895,7 @@ namespace utility
 
             return v1;
         }
+#endif
     };
 
     struct WideAssertGT : BasicWideAssert {
