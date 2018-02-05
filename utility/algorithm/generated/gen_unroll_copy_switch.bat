@@ -1,6 +1,6 @@
 @echo off
 
-setlocal ENABLEDELAYEDEXPANSION
+setlocal
 
 set MAX_UNROLL_SIZE=1024
 set "GEN_FILE=%~dp0unroll_copy_switch.hpp"
