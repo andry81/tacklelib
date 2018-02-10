@@ -5,6 +5,7 @@
 
 #include <utility/platform.hpp>
 #include <utility/type_traits.hpp>
+#include <utility/static_assert.hpp>
 
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/cat.hpp>
@@ -64,29 +65,26 @@ namespace tackle
 {
     namespace mpl = boost::mpl;
 
-    // special designed class to post control size and alignment of outter constructed type (externally constructed types by a new placement operator with runtime selected size and alignment)
-    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value>
-    class aligned_storage_by
+    // special designed class to store type wich size and alignment is known (for example, type with deleted default constructor)
+    template <typename t_storage_type>
+    class aligned_storage_from
     {
     public:
         typedef t_storage_type storage_type_t;
 
-        static const size_t size_value = t_size_value;
-        static const size_t alignment_value = t_alignment_value;
+        static const size_t size_value = sizeof(storage_type_t);
+        static const size_t alignment_value = boost::alignment_of<storage_type_t>::value;
 
-        static_assert(size_value > 1, "size_value must be strictly positive value");
-        static_assert(alignment_value > 1 && size_value >= alignment_value, "alignment_value must be strictly positive value and not greater than size_value");
-
-        FORCE_INLINE aligned_storage_by()
-        {
-            // prevent the linkage of invalid constructed type with inappropriate size or alignment
-            static_assert(size_value == sizeof(storage_type_t), "the storage type size is different");
-            static_assert(alignment_value == boost::alignment_of<storage_type_t>::value, "the storage type alignment is different");
-        }
-
-        FORCE_INLINE ~aligned_storage_by()
+        FORCE_INLINE aligned_storage_from()
         {
         }
+
+        FORCE_INLINE ~aligned_storage_from()
+        {
+        }
+
+        aligned_storage_from(const aligned_storage_from &) = delete; // use explicit `construct` instead
+        aligned_storage_from & operator =(const aligned_storage_from &) = delete; // use explicit `assign` instead
 
         // direct construction and destruction of the storage
         FORCE_INLINE void construct()
@@ -103,6 +101,107 @@ namespace tackle
         FORCE_INLINE void destruct()
         {
             reinterpret_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
+        }
+
+        FORCE_INLINE void assign(const aligned_storage_from & s)
+        {
+            *this_() = s;
+        }
+
+        FORCE_INLINE void assign(const aligned_storage_from & s) volatile
+        {
+            *this_() = s;
+        }
+
+        // storage redirection
+        FORCE_INLINE storage_type_t * this_()
+        {
+            return reinterpret_cast<storage_type_t *>(m_storage.address());
+        }
+
+        FORCE_INLINE const storage_type_t * this_() const
+        {
+            return reinterpret_cast<const storage_type_t *>(m_storage.address());
+        }
+
+        FORCE_INLINE volatile storage_type_t * this_() volatile
+        {
+            return reinterpret_cast<volatile storage_type_t *>(m_storage.address());
+        }
+
+        FORCE_INLINE const volatile storage_type_t * this_() const volatile
+        {
+            return reinterpret_cast<const volatile storage_type_t *>(m_storage.address());
+        }
+
+        FORCE_INLINE void * address()
+        {
+            return m_storage.address();
+        }
+
+        FORCE_INLINE const void * address() const
+        {
+            return m_storage.address();
+        }
+
+    private:
+        boost::aligned_storage<size_value, alignment_value> m_storage;
+    };
+
+    // special designed class to store type with not yet known size and alignment (for example, forward type with implementation in .cpp file)
+    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value>
+    class aligned_storage_by
+    {
+    public:
+        typedef t_storage_type storage_type_t;
+
+        static const size_t size_value = t_size_value;
+        static const size_t alignment_value = t_alignment_value;
+
+        STATIC_ASSERT_GT(size_value, 1, "size_value must be strictly positive value");
+        STATIC_ASSERT_TRUE2(alignment_value > 1 && size_value >= alignment_value,
+            alignment_value, size_value,
+            "alignment_value must be strictly positive value and not greater than size_value");
+
+        FORCE_INLINE aligned_storage_by()
+        {
+            // prevent the linkage of invalid constructed type with inappropriate size or alignment
+            STATIC_ASSERT_EQ(size_value, sizeof(storage_type_t), "the storage type size is different");
+            STATIC_ASSERT_EQ(alignment_value, boost::alignment_of<storage_type_t>::value, "the storage type alignment is different");
+        }
+
+        FORCE_INLINE ~aligned_storage_by()
+        {
+        }
+
+        aligned_storage_by(const aligned_storage_by &) = delete; // use explicit `construct` instead
+        aligned_storage_by & operator =(const aligned_storage_by &) = delete; // use explicit `assign` instead
+
+        // direct construction and destruction of the storage
+        FORCE_INLINE void construct()
+        {
+            ::new (m_storage.address()) storage_type_t();
+        }
+
+        template <typename Ref>
+        FORCE_INLINE void construct(Ref & r)
+        {
+            ::new (m_storage.address()) storage_type_t(r);
+        }
+
+        FORCE_INLINE void destruct()
+        {
+            reinterpret_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
+        }
+
+        FORCE_INLINE void assign(const aligned_storage_by & s)
+        {
+            *this_() = s;
+        }
+
+        FORCE_INLINE void assign(const aligned_storage_by & s) volatile
+        {
+            *this_() = s;
         }
 
         // storage redirection
@@ -253,7 +352,8 @@ namespace tackle
 
                 typedef typename mpl::find<TypeList, unqual_arg0_type>::type found_it_t;
 
-                static_assert(!boost::is_same<found_it_t, EndIt>::value, "functor first unqualified parameter type is not declared by storage types list");
+                static_assert(!boost::is_same<found_it_t, EndIt>::value,
+                    "functor first unqualified parameter type is not declared by storage types list");
 
                 return invoke_if_convertible<Ret, Ref, unqual_arg0_type, boost::is_convertible<Ref, unqual_arg0_type>::value>::call(f, r, error_msg_fmt, throw_exceptions_on_type_error);
             }
@@ -285,8 +385,9 @@ namespace tackle
         typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
         typedef typename mpl::size<storage_types_t>::type num_types_t;
 
-        static_assert(num_types_t::value > 0, "template must be specialized with not empty mpl container");
-        static_assert(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES >= num_types_t::value, "TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES has not enough value or storage_types_t is too big");
+        STATIC_ASSERT_GT(num_types_t::value, 0, "template must be specialized with not empty mpl container");
+        STATIC_ASSERT_GE(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, num_types_t::value,
+            "TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES has not enough value or storage_types_t is too big");
 
         typedef typename mpl::deref<
             typename mpl::max_element<
@@ -305,8 +406,10 @@ namespace tackle
         static const size_t max_size_value = max_size_t::value;
         static const size_t max_alignment_value = max_alignment_t::value;
 
-        static_assert(max_size_value >= 1, "size_value must be strictly positive value");
-        static_assert(max_alignment_value >= 1 && max_size_value >= max_alignment_value, "max_alignment_value must be strictly positive value and not greater than max_size_value");
+        STATIC_ASSERT_GE(max_size_value, 1, "size_value must be strictly positive value");
+        STATIC_ASSERT_TRUE2(max_alignment_value >= 1 && max_size_value >= max_alignment_value,
+            max_alignment_value, max_size_value,
+            "max_alignment_value must be strictly positive value and not greater than max_size_value");
 
         typedef boost::aligned_storage<max_size_value, max_alignment_value> max_aligned_storage_t;
 

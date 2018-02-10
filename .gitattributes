@@ -22,6 +22,7 @@ utility/hash.hpp -text
 utility/math.hpp -text
 utility/platform.hpp -text
 utility/preprocessor.hpp -text
+utility/static_assert.hpp -text
 utility/type_traits.hpp -text
 utility/utility.cpp -text
 utility/utility.hpp -text

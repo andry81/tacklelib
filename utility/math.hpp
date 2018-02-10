@@ -5,6 +5,7 @@
 
 #include "utility/utility.hpp"
 #include "utility/platform.hpp"
+#include "utility/static_assert.hpp"
 #include "utility/assert.hpp"
 
 #include <boost/type_traits/is_unsigned.hpp>
@@ -80,8 +81,8 @@ namespace math
 
     template<int32_t x>
     struct int32_log2 {
-        static_assert(x > 0, "value must be positive");
-        static_assert(x && !(x & (x - 1)), "value must be power of 2");
+        STATIC_ASSERT_GT(x, 0, "value must be positive");
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const int32_t value = (int32_log2<x / 2>::value + 1);
     };
 
@@ -94,7 +95,7 @@ namespace math
 
     template<uint32_t x>
     struct uint32_log2 {
-        static_assert(x && !(x & (x - 1)), "value must be power of 2");
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const uint32_t value = (uint32_log2<x / 2>::value + 1);
     };
 
@@ -108,7 +109,7 @@ namespace math
 
     template<int32_t x>
     struct int32_log2_floor {
-        static_assert(x > 0, "value must be positive");
+        STATIC_ASSERT_GT(x, 0, "value must be positive");
         static const int32_t value = (int32_log2_floor<x / 2>::value + 1);
     };
 
@@ -134,8 +135,8 @@ namespace math
 
     template<int32_t x>
     struct int32_log2_ceil {
-        static_assert(x > 0, "value must be positive");
-        static_assert(int32_max / 2 >= x, "value is too big");
+        STATIC_ASSERT_GT(x, 0, "value must be positive");
+        STATIC_ASSERT_TRUE2(int32_max / 2 >= x, int32_max, x, "value is too big");
         static const int32_t value = (int32_log2_floor<(x + x - 1) / 2>::value + 1);
     };
 
@@ -148,7 +149,7 @@ namespace math
 
     template<uint32_t x>
     struct uint32_log2_ceil {
-        static_assert(uint32_max / 2 >= x, "value is too big");
+        STATIC_ASSERT_TRUE2(uint32_max / 2 >= x, uint32_max, x, "value is too big");
         static const uint32_t value = (uint32_log2_floor<(x + x - 1) / 2>::value + 1);
     };
 
@@ -163,14 +164,14 @@ namespace math
     template<int32_t x>
     struct int32_if_pof2
     {
-        static_assert(x && !(x & (x - 1)), "value must be power of 2");
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const int32_t value = x;
     };
 
     template<uint32_t x>
     struct uint32_if_pof2
     {
-        static_assert(x && !(x & (x - 1)), "value must be power of 2");
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const uint32_t value = x;
     };
 

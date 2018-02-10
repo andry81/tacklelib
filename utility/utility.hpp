@@ -4,6 +4,7 @@
 #include "tacklelib.hpp"
 
 #include "utility/platform.hpp"
+#include "utility/static_assert.hpp"
 #include "utility/type_traits.hpp"
 #include "utility/math.hpp"
 #include "tackle/file_handle.hpp"
@@ -183,7 +184,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE uint32_t t_rotl32(uint32_t n, unsigned int c)
     {
-        static_assert(sizeof(uint32_t) >= sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
+        STATIC_ASSERT_GE(sizeof(uint32_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
         const uint32_t byte_mask = uint32_t(-1) >> (CHAR_BIT * (sizeof(uint32_t) - sizeof(T)));
         const uint32_t mask = (CHAR_BIT * sizeof(T) - 1);
         c &= mask;
@@ -193,7 +194,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE uint32_t t_rotr32(uint32_t n, unsigned int c)
     {
-        static_assert(sizeof(uint32_t) >= sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
+        STATIC_ASSERT_GE(sizeof(uint32_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
         const uint32_t byte_mask = uint32_t(-1) >> (CHAR_BIT * (sizeof(uint32_t) - sizeof(T)));
         const uint32_t mask = (CHAR_BIT * sizeof(T) - 1);
         c &= mask;
@@ -203,7 +204,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE uint64_t t_rotl64(uint64_t n, unsigned int c)
     {
-        static_assert(sizeof(uint64_t) >= sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
+        STATIC_ASSERT_GE(sizeof(uint64_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
         const uint64_t byte_mask = uint64_t(-1) >> (CHAR_BIT * (sizeof(uint64_t) - sizeof(T)));
         const uint64_t mask = (CHAR_BIT * sizeof(T) - 1);
         c &= mask;
@@ -213,7 +214,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE uint64_t t_rotr64(uint64_t n, unsigned int c)
     {
-        static_assert(sizeof(uint64_t) >= sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
+        STATIC_ASSERT_GE(sizeof(uint64_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
         const uint64_t byte_mask = uint64_t(-1) >> (CHAR_BIT * (sizeof(uint64_t) - sizeof(T)));
         const uint64_t mask = (CHAR_BIT * sizeof(T) - 1);
         c &= mask;
