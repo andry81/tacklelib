@@ -95,3 +95,9 @@
 #define BUILTIN_MAINTAIN_OR_PASS_TRUE(x) (true)
 #define BUILTIN_MAINTAIN_OR_PASS_FALSE(x) (false)
 #endif
+
+#ifdef _DEBUG
+#define DEBUG_RELEASE_EXPR(debug_exp, release_exp) debug_exp
+#else
+#define DEBUG_RELEASE_EXPR(debug_exp, release_exp) release_exp
+#endif
