@@ -3,10 +3,10 @@
 
 #include "tacklelib.hpp"
 
-#include <utility/platform.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/static_assert.hpp>
-#include <utility/assert.hpp>
+#include "utility/platform.hpp"
+#include "utility/static_assert.hpp"
+#include "utility/type_traits.hpp"
+#include "utility/assert.hpp"
 
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/cat.hpp>
@@ -833,7 +833,7 @@ namespace tackle
             default: {
                 throw std::runtime_error(
                     (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
+                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i"))
                             ).str());
             }
         }
@@ -864,7 +864,7 @@ namespace tackle
             default: {
                 throw std::runtime_error(
                     (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
+                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i"))
                             ).str());
             }
         }
@@ -921,7 +921,7 @@ namespace tackle
                 throw std::runtime_error(
                     (boost::format(
                         BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_).str());
+                            m_type_index).str());
             }
         }
     }
@@ -1022,7 +1022,7 @@ namespace tackle
                 throw std::runtime_error(
                     (boost::format(
                         BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_).str());
+                            m_type_index).str());
             }
         }
 
@@ -1049,7 +1049,7 @@ namespace tackle
                 throw std::runtime_error(
                     (boost::format(
                         BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_).str());
+                            m_type_index).str());
             }
         }
 

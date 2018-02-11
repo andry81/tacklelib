@@ -3,18 +3,21 @@
 
 #include "tacklelib.hpp"
 
-#include <utility/utility.hpp>
-#include <utility/assert.hpp>
-#include <utility/math.hpp>
-#include <utility/algorithm.hpp>
+#include "utility/utility.hpp"
+#include "utility/static_assert.hpp"
+#include "utility/assert.hpp"
+#include "utility/math.hpp"
+#include "utility/algorithm.hpp"
 
-#include <tackle/aligned_storage.hpp>
+#include "tackle/aligned_storage.hpp"
 
 #include <boost/type_traits/is_pod.hpp>
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/push_front.hpp>
+
+#include <boost/scope_exit.hpp>
 
 #include <deque>
 #include <utility>
@@ -86,7 +89,7 @@ namespace tackle
         typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
         typedef typename mpl::size<storage_types_t>::type num_types_t;
 
-        static_assert(num_types_t::value > 0, "template must generate not empty mpl container");
+        STATIC_ASSERT_GT(num_types_t::value, 0, "template must generate not empty mpl container");
 
     public:
         class ChunkBufferCRef
@@ -129,7 +132,7 @@ namespace tackle
             typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
             typedef typename mpl::size<storage_types_t>::type num_types_t;
 
-            static_assert(num_types_t::value > 0, "template must generate not empty mpl container");
+            STATIC_ASSERT_GT(num_types_t::value, 0, "template must generate not empty mpl container");
 
             typedef max_aligned_storage_from_mpl_container<storage_types_t> iterator_storage_t;
 
@@ -175,7 +178,12 @@ namespace tackle
         FORCE_INLINE void push_back(const T * p, size_t size);
         FORCE_INLINE T & operator[](size_t offset);
         FORCE_INLINE const T & operator[](size_t offset) const;
+    protected:
+        template <typename C>
+        FORCE_INLINE size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t size) const;
+    public:
         FORCE_INLINE size_t copy_to(size_t offset_from, T * to_buf, size_t size) const;
+        FORCE_INLINE size_t stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width, size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size, size_t * in_stream_first_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const;
         FORCE_INLINE size_t erase_front(size_t size);
 
     private:
@@ -256,7 +264,7 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename  stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator ++(int)
+    FORCE_INLINE typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator ++(int)
     {
         const auto it = *this;
 
@@ -269,7 +277,7 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename  stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator ++()
+    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator ++()
     {
         m_iterator_storage.invoke<void>([](auto & chunks_it)
         {
@@ -468,46 +476,217 @@ namespace tackle
         });
     }
 
+    template <typename T> template <typename C>
+    FORCE_INLINE size_t stream_storage<T>::_copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
+    {
+        ASSERT_LT(0U, to_size);
+        ASSERT_LT(offset_from + to_size, size());
+
+        const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+
+        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
+        auto & chunk = chunks[chunk_divrem.quot];
+        size_t to_buf_offset = 0;
+        size_t from_buf_offset = chunk_divrem.rem;
+        if (chunk_size >= from_buf_offset + to_size) {
+            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, to_size);
+            to_buf_offset += to_size;
+        }
+        else {
+            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
+            const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+            to_buf_offset += first_chunk_size;
+
+            if (next_chunk_divrem.quot >= 1) {
+                if (next_chunk_divrem.quot >= 2) {
+                    for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
+                        const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
+                        UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+                    }
+                }
+                auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+                const size_t last_chunk_size = next_chunk_divrem.rem;
+                UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+                to_buf_offset += last_chunk_size;
+            }
+        }
+
+        return to_buf_offset;
+    }
+
     template <typename T>
     FORCE_INLINE size_t stream_storage<T>::copy_to(size_t offset_from, T * to_buf, size_t to_size) const
     {
-        ASSERT_LT(0U, to_size);
+        return m_chunks.invoke<size_t>([=](const auto & chunks)
+        {
+            return _copy_to_impl(chunks, offset_from, to_buf, to_size);
+        });
+    }
+
+    template <typename T>
+    FORCE_INLINE size_t stream_storage<T>::stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width, size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size, size_t * in_stream_first_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
+    {
+        ASSERT_TRUE(to_buf && max_slot_size);
+        ASSERT_LT(in_row_offset_from, stream_width);
+        ASSERT_GE(stream_width, slot_end_in_row_offset);
+        ASSERT_LT(slot_begin_in_row_offset, slot_end_in_row_offset);
         ASSERT_LT(offset_from, size());
-        ASSERT_GE(size(), offset_from + to_size);
 
         return m_chunks.invoke<size_t>([=](const auto & chunks)
         {
-            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+            const size_t slot_width = slot_end_in_row_offset - slot_begin_in_row_offset;
 
-            const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
-            auto & chunk = chunks[chunk_divrem.quot];
-            size_t to_buf_offset = 0;
-            size_t from_buf_offset = chunk_divrem.rem;
-            if (chunk_size >= from_buf_offset + to_size) {
-                UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, to_size);
-                to_buf_offset += to_size;
+            size_t in_row_offset_last = in_row_offset_from;
+
+            size_t iterated_stream_size = 0;
+            size_t slot_size = 0;
+
+            size_t stream_size_left = m_size - offset_from;
+            size_t slot_size_left = max_slot_size;
+
+            if (in_stream_first_slot_byte_offset_ptr) {
+                *in_stream_first_slot_byte_offset_ptr = 0;
             }
-            else {
-                const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-                const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-                UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
-                to_buf_offset += first_chunk_size;
 
-                if (next_chunk_divrem.quot >= 1) {
-                    if (next_chunk_divrem.quot >= 2) {
-                        for (size_t i = 0; i < next_chunk_divrem.quot - 1; i++, to_buf_offset += chunk_size) {
-                            const auto & chunk2 = chunks[chunk_divrem.quot + 1 + i];
-                            UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
-                        }
+            BOOST_SCOPE_EXIT(&offset_from, &iterated_stream_size, &end_stride_byte_offset_ptr) {
+                if (end_stride_byte_offset_ptr) {
+                    *end_stride_byte_offset_ptr = offset_from + iterated_stream_size;
+                }
+            } BOOST_SCOPE_EXIT_END
+
+            if (in_row_offset_from < slot_begin_in_row_offset) goto _first_row_left_segment;
+            else if (in_row_offset_from < slot_end_in_row_offset) goto _first_row_slot_segment;
+            else goto _first_row_right_segment;
+
+            _first_row_left_segment:;
+            {
+                const size_t iterate_size = (std::min)(slot_begin_in_row_offset - in_row_offset_last, stream_size_left);
+
+                iterated_stream_size += iterate_size;
+                ASSERT_GE(stream_size_left, iterate_size);
+                stream_size_left -= iterate_size;
+
+                if (!stream_size_left) return slot_size;
+
+                in_row_offset_last = slot_begin_in_row_offset;
+            }
+
+            _first_row_slot_segment:;
+            {
+                if(in_stream_first_slot_byte_offset_ptr) {
+                    *in_stream_first_slot_byte_offset_ptr = iterated_stream_size;
+                }
+
+                const size_t first_slot_row_bytes = slot_end_in_row_offset - in_row_offset_last;
+                const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
+                ASSERT_LT(0U, slot_size_to_copy);
+
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf, slot_size_to_copy);
+                ASSERT_EQ(copied_size, slot_size_to_copy);
+
+                slot_size += copied_size;
+                iterated_stream_size += slot_size_to_copy;
+
+                ASSERT_GE(slot_size_left, slot_size_to_copy);
+                slot_size_left -= slot_size_to_copy;
+                ASSERT_GE(stream_size_left, slot_size_to_copy);
+                stream_size_left -= slot_size_to_copy;
+
+                if (!slot_size_left || !stream_size_left) return slot_size;
+
+                in_row_offset_last = slot_end_in_row_offset;
+            }
+
+            _first_row_right_segment:;
+            {
+                if (!slot_size && in_stream_first_slot_byte_offset_ptr) {
+                    *in_stream_first_slot_byte_offset_ptr = (std::min)(stream_width, stream_size_left);
+                }
+
+                const size_t iterate_size = (std::min)(stream_width - in_row_offset_last, stream_size_left);
+
+                iterated_stream_size += iterate_size;
+                ASSERT_GE(stream_size_left, iterate_size);
+                stream_size_left -= iterate_size;
+
+                if (!stream_size_left) return slot_size;
+            }
+
+            const size_t num_whole_slot_rows = slot_size_left / slot_width;
+            const size_t num_whole_stream_rows = stream_size_left / stream_width;
+
+            const size_t num_whole_rows = (std::min)(num_whole_slot_rows, num_whole_stream_rows);
+            for (size_t i = 0; i < num_whole_rows; i++) {
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size + slot_begin_in_row_offset, to_buf, slot_width);
+                ASSERT_EQ(copied_size, slot_width);
+
+                slot_size += copied_size;
+                iterated_stream_size += stream_width;
+            }
+
+            const size_t iterate_size = num_whole_rows * stream_width;
+
+            ASSERT_GE(slot_size_left, num_whole_rows * slot_width);
+            slot_size_left -= num_whole_rows * slot_width;
+            ASSERT_GE(stream_size_left, iterate_size);
+            stream_size_left -= iterate_size;
+
+            if (!slot_size_left || !stream_size_left) return slot_size;
+
+            //_last_row_left_segment:;
+            {
+                const size_t iterate_size = (std::min)(slot_begin_in_row_offset, stream_size_left);
+
+                iterated_stream_size += iterate_size;
+                ASSERT_GE(stream_size_left, iterate_size);
+                stream_size_left -= iterate_size;
+
+                if (!stream_size_left) return slot_size;
+            }
+
+            //_last_row_slot_segment:;
+            {
+                const size_t slot_size_to_copy = (std::min)((std::min)(slot_width, slot_size_left), stream_size_left);
+                ASSERT_LT(0U, slot_size_to_copy);
+
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf, slot_size_to_copy);
+                ASSERT_EQ(copied_size, slot_size_to_copy);
+
+                slot_size += copied_size;
+                iterated_stream_size += slot_size_to_copy;
+
+                ASSERT_GE(slot_size_left, slot_size_to_copy);
+                slot_size_left -= slot_size_to_copy;
+                ASSERT_GE(stream_size_left, slot_size_to_copy);
+                stream_size_left -= slot_size_to_copy;
+
+                if (!slot_size_left) {
+                    // if last slot size to copy was slot width, then iterate offset either to the end of the stream row or to the end of the stream
+                    if (slot_size_to_copy == slot_width && stream_size_left && end_stride_byte_offset_ptr) { // has meaning only for `end_stride_byte_offset`
+                        const size_t iterate_size = (std::min)(stream_width - slot_end_in_row_offset, stream_size_left);
+
+                        iterated_stream_size += iterate_size;
+                        ASSERT_GE(stream_size_left, iterate_size); // just in case
                     }
-                    auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-                    const size_t last_chunk_size = next_chunk_divrem.rem;
-                    UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
-                    to_buf_offset += last_chunk_size;
+
+                    return slot_size;
                 }
             }
 
-            return to_buf_offset;
+            //_last_row_right_segment:;
+            {
+                const size_t iterate_size = (std::min)(stream_width - slot_end_in_row_offset, stream_size_left);
+
+                iterated_stream_size += iterate_size;
+                ASSERT_GE(stream_size_left, iterate_size);
+                stream_size_left -= iterate_size;
+
+                // end of stream
+                ASSERT_FALSE(stream_size_left);
+            }
+
+            return slot_size;
         });
     }
 

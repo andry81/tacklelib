@@ -3,7 +3,8 @@
 
 #include "tacklelib.hpp"
 
-#include <utility/preprocessor.hpp>
+#include "utility/preprocessor.hpp"
+#include "utility/static_assert.hpp"
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/type_traits/integral_constant.hpp>
@@ -435,9 +436,13 @@ namespace utility
     struct function_traits_extractable<T, false>
     {
         typedef typename boost::remove_reference<T>::type unref_type;
-        static_assert(boost::is_function<unref_type>::value || boost::is_class<unref_type>::value, "type must be at least a function/class type");
+        STATIC_ASSERT_TRUE2(boost::is_function<unref_type>::value || boost::is_class<unref_type>::value,
+            boost::is_function<unref_type>::value, boost::is_class<unref_type>::value,
+            "type must be at least a function/class type");
         static_assert(is_callable<unref_type>::value, "type is not callable");
-        static_assert(boost::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value, "type is not a function and does not contain regular operator()");
+        STATIC_ASSERT_TRUE2(boost::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value,
+            boost::is_function<unref_type>::value, has_regular_parenthesis_operator<unref_type>::value,
+            "type is not a function and does not contain regular operator()");
 
         // to reduce excessive compiler errors output
         template <size_t i>
