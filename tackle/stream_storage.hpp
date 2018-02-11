@@ -480,7 +480,7 @@ namespace tackle
     FORCE_INLINE size_t stream_storage<T>::_copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
     {
         ASSERT_LT(0U, to_size);
-        ASSERT_LT(offset_from + to_size, size());
+        ASSERT_GE(size(), offset_from + to_size);
 
         const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
 
@@ -582,7 +582,7 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf, slot_size_to_copy);
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
@@ -618,7 +618,7 @@ namespace tackle
 
             const size_t num_whole_rows = (std::min)(num_whole_slot_rows, num_whole_stream_rows);
             for (size_t i = 0; i < num_whole_rows; i++) {
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size + slot_begin_in_row_offset, to_buf, slot_width);
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
                 ASSERT_EQ(copied_size, slot_width);
 
                 slot_size += copied_size;
@@ -650,7 +650,7 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(slot_width, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf, slot_size_to_copy);
+                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;

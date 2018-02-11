@@ -43,11 +43,14 @@ namespace utility
 
     public:
         FORCE_INLINE Buffer(size_t size = 0)
+#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
+            : m_is_reallocating(false)
+#endif
         {
             reset(size);
         }
 
-        void reset(size_t size)
+        FORCE_INLINE void reset(size_t size)
         {
             if (size) {
                 if (m_size < size) {
@@ -61,40 +64,57 @@ namespace utility
             }
         }
 
-        size_t size() const
+        FORCE_INLINE size_t size() const
         {
             return m_size;
         }
 
-        uint8_t * get()
+        FORCE_INLINE uint8_t * get()
         {
             return m_buf_ptr.get();
         }
 
-        const uint8_t * get() const
+        FORCE_INLINE const uint8_t * get() const
         {
             return m_buf_ptr.get();
         }
 
-        uint8_t * realloc_get(size_t size)
+        FORCE_INLINE uint8_t * realloc_get(size_t size)
         {
             reset(size);
+
+#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
+            if (!m_is_reallocating)
+            {
+                Buffer local_buf;
+
+                local_buf.set_reallocating(true);
+
+                realloc(local_buf);
+            }
+#endif
+
             return m_buf_ptr.get();
         }
 
-        // for memory debugging on a moment of deallocation
-        void realloc()
+#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
+        FORCE_INLINE void set_reallocating(bool is_reallocating)
         {
-            Buffer local_buf;
+            m_is_reallocating = is_reallocating;
+        }
+#endif
 
-            uint8_t * buf_ptr = local_buf.realloc_get(m_size);
-            memcpy(buf_ptr, m_buf_ptr.get(), m_size);
+        // for memory debugging on a moment of deallocation
+        FORCE_INLINE void realloc(Buffer & to_buf)
+        {
+            uint8_t * to_buf_ptr = to_buf.realloc_get(m_size);
+            memcpy(to_buf_ptr, m_buf_ptr.get(), m_size);
 
-            *this = local_buf;
+            *this = to_buf;
         }
 
 #ifndef WIN64
-        uint8_t * realloc_get(uint64_t size)
+        FORCE_INLINE uint8_t * realloc_get(uint64_t size)
         {
             if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
                 const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
@@ -113,6 +133,9 @@ namespace utility
     private:
         size_t          m_size;
         BufSharedPtr    m_buf_ptr;
+#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
+        bool            m_is_reallocating;
+#endif
     };
 
     uint64_t get_file_size(const FileHandle & file_handle);
