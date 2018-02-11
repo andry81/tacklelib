@@ -61,58 +61,76 @@ namespace utility
     };
 
     template <typename T, T v, typename ...Params>
+    struct StaticAssertTrue;
+
+    template <typename T, T v>
+    struct StaticAssertTrue<T, v>
+    {
+        static const bool value = (v ? true : false);
+    };
+
+    template <typename T, T v, typename ...Params>
     struct StaticAssertTrue
     {
         static const bool value = (v ? true : false);
-        static_assert(v ? true : false, "StaticAssertTrue failed");
+        static_assert(v ? true : false, "StaticAssertTrue with parameters failed.");
+    };
+
+    template <typename T, T v, typename ...Params>
+    struct StaticAssertFalse;
+
+    template <typename T, T v>
+    struct StaticAssertFalse<T, v>
+    {
+        static const bool value = (v ? false : true);
     };
 
     template <typename T, T v, typename ...Params>
     struct StaticAssertFalse
     {
         static const bool value = (v ? false : true);
-        static_assert(v ? false : true, "StaticAssertFalse failed");
+        static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertEQ
     {
         static const bool value = (u == v);
-        static_assert(u == v, "StaticAssertEQ failed");
+        static_assert(u == v, "StaticAssertEQ failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertNE
     {
         static const bool value = (u != v);
-        static_assert(u != v, "StaticAssertNE failed");
+        static_assert(u != v, "StaticAssertNE failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertLE
     {
         static const bool value = (u <= v);
-        static_assert(u <= v, "StaticAssertLE failed");
+        static_assert(u <= v, "StaticAssertLE failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertLT
     {
         static const bool value = (u < v);
-        static_assert(u < v, "StaticAssertLT failed");
+        static_assert(u < v, "StaticAssertLT failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertGE
     {
         static const bool value = (u >= v);
-        static_assert(u >= v, "StaticAssertGE failed");
+        static_assert(u >= v, "StaticAssertGE failed.");
     };
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertGT
     {
         static const bool value = (u > v);
-        static_assert(u > v, "StaticAssertGT failed");
+        static_assert(u > v, "StaticAssertGT failed.");
     };
 }
