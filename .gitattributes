@@ -1,4 +1,5 @@
 * text=auto !eol
+/debug.hpp -text
 /optimization.hpp -text
 tackle/aligned_storage.hpp -text
 tackle/basic_iterator.hpp -text
