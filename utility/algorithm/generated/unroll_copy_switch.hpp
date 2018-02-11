@@ -1,6 +1,6 @@
 #pragma once
 
-static_assert(TACKLE_PP_MAX_UNROLLED_COPY_SIZE == 1024, "generated file is inconsistent to the limit declared by TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
+STATIC_ASSERT_EQ(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, 1024, "generated file is inconsistent to the limit declared by TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
 
 case 1: *reinterpret_cast<StaticArray<T, 1> *>(to) = *reinterpret_cast<const StaticArray<T, 1> *>(from); break;
 case 2: *reinterpret_cast<StaticArray<T, 2> *>(to) = *reinterpret_cast<const StaticArray<T, 2> *>(from); break;

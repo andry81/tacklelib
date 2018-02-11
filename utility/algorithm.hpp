@@ -2,8 +2,9 @@
 
 #include "tacklelib.hpp"
 
-#include <utility/utility.hpp>
-#include <utility/type_traits.hpp>
+#include "utility/utility.hpp"
+#include "utility/static_assert.hpp"
+#include "utility/type_traits.hpp"
 
 #include <boost/type_traits/is_pod.hpp>
 
@@ -20,7 +21,7 @@
     ::utility::copy(from, to, size, __VA_ARGS__)
 
 
-static_assert(TACKLE_PP_MAX_UNROLLED_COPY_SIZE >= TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
+STATIC_ASSERT_GE(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
 
 
 namespace utility
