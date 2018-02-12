@@ -2,6 +2,8 @@
 /debug.hpp -text
 /optimization.hpp -text
 tackle/aligned_storage.hpp -text
+tackle/aligned_storage_decl.hpp -text
+tackle/aligned_storage_impl.hpp -text
 tackle/basic_iterator.hpp -text
 tackle/file_handle.cpp -text
 tackle/file_handle.hpp -text

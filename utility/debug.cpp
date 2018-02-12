@@ -23,7 +23,7 @@ void debug_break(bool condition)
 bool is_under_debugger()
 {
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    return !!::IsDebuggerPresent();
+    return ::IsDebuggerPresent() ? true : false;
 #elif defined(UTILITY_PLATFORM_POSIX)
     return ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1;
 // another implementation from the StackOverflow site: http://stackoverflow.com/questions/3596781/detect-if-gdb-is-running
@@ -49,7 +49,7 @@ bool is_under_debugger()
 //        char *tracer_pid = strstr(buf, TracerPid);
 //
 //        if (tracer_pid)
-//            debugger_present = !!atoi(tracer_pid + sizeof(TracerPid) - 1);
+//            debugger_present = atoi(tracer_pid + sizeof(TracerPid) - 1) ? true : false;
 //    }
 //
 //    return debugger_present;
