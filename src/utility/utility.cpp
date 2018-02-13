@@ -1,6 +1,5 @@
-
-#include "utility/utility.hpp"
-#include "utility/assert.hpp"
+#include <utility/utility.hpp>
+#include <utility/assert.hpp>
 
 #include <boost/filesystem.hpp>
 

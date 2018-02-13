@@ -1,9 +1,8 @@
 #pragma once
 
+#include <tacklelib.hpp>
 
-#include "tacklelib.hpp"
-
-#include "utility/preprocessor.hpp"
+#include <utility/preprocessor.hpp>
 
 
 // linux, also other platforms (Hurd etc) that use GLIBC, should these really have their own config headers though?

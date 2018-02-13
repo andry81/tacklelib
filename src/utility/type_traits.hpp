@@ -1,10 +1,9 @@
 #pragma once
 
+#include <tacklelib.hpp>
 
-#include "tacklelib.hpp"
-
-#include "utility/preprocessor.hpp"
-#include "utility/static_assert.hpp"
+#include <utility/preprocessor.hpp>
+#include <utility/static_assert.hpp>
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/type_traits/integral_constant.hpp>
