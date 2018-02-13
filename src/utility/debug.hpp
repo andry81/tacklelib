@@ -1,10 +1,9 @@
 #pragma once
 
+#include <tacklelib.hpp>
 
-#include "tacklelib.hpp"
-
-#include "utility/preprocessor.hpp"
-#include "utility/platform.hpp"
+#include <utility/preprocessor.hpp>
+#include <utility/platform.hpp>
 
 #include <boost/type_traits/remove_reference.hpp>
 

@@ -1,13 +1,12 @@
 #pragma once
 
+#include <tacklelib.hpp>
 
-#include "tacklelib.hpp"
-
-#include "utility/platform.hpp"
-#include "utility/static_assert.hpp"
-#include "utility/type_traits.hpp"
-#include "utility/math.hpp"
-#include "tackle/file_handle.hpp"
+#include <utility/platform.hpp>
+#include <utility/static_assert.hpp>
+#include <utility/type_traits.hpp>
+#include <utility/math.hpp>
+#include <tackle/file_handle.hpp>
 
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>

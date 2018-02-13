@@ -1,11 +1,10 @@
 #pragma once
 
+#include <tacklelib.hpp>
 
-#include "tacklelib.hpp"
-
-#include "utility/preprocessor.hpp"
-#include "utility/platform.hpp"
-#include "utility/debug.hpp"
+#include <utility/preprocessor.hpp>
+#include <utility/platform.hpp>
+#include <utility/debug.hpp>
 
 #ifdef GTEST_FAIL
 #error <utility/assert.hpp> header must be included instead of the <gtest.h> header
