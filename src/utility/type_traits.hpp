@@ -56,6 +56,36 @@ namespace utility
         typedef T type;
     };
 
+    // `constexpr for` implementation.
+    // Based on: https://stackoverflow.com/questions/42005229/why-for-loop-isnt-a-compile-time-expression-and-extended-constexpr-allows-for-l
+    //
+
+    template <typename T>
+    constexpr size_t static_size(const T & container)
+    {
+        return std::size(container);
+    }
+
+    template <typename ...T>
+    constexpr size_t static_size(const std::tuple<T...> &)
+    {
+        return std::tuple_size<std::tuple<T...> >::value;
+    }
+
+    template<typename F>
+    constexpr void static_for_lt(F && function, size_t from, size_t to)
+    {
+        if (from < to) {
+            static_for_lt(std::forward<F>(function), from + 1, to);
+        }
+    }
+
+    template <typename IncrementalFunctor, typename T>
+    constexpr void static_foreach(T & container)
+    {
+        static_for_lt(IncrementalFunctor{ container }, 0, static_size(container));
+    }
+
     // `is_callable` implementation.
     // Based on: https://stackoverflow.com/questions/15393938/find-out-if-a-c-object-is-callable
     //
