@@ -56,14 +56,11 @@ namespace utility
         typedef T type;
     };
 
-    // `constexpr for` implementation.
-    // Based on: https://stackoverflow.com/questions/42005229/why-for-loop-isnt-a-compile-time-expression-and-extended-constexpr-allows-for-l
-    //
-
-    template <typename T>
-    constexpr size_t static_size(const T & container)
+    // std::size is supported from C++17
+    template <typename T, size_t N>
+    constexpr size_t static_size(const T (&)[N]) noexcept
     {
-        return std::size(container);
+        return N;
     }
 
     template <typename ...T>
@@ -72,18 +69,42 @@ namespace utility
         return std::tuple_size<std::tuple<T...> >::value;
     }
 
-    template<typename F>
-    constexpr void static_for_lt(F && function, size_t from, size_t to)
+    template<typename Functor>
+    void runtime_for_lt(Functor && function, size_t from, size_t to)
     {
         if (from < to) {
-            static_for_lt(std::forward<F>(function), from + 1, to);
+            function(from);
+            runtime_for_lt(std::forward<Functor>(function), from + 1, to);
         }
     }
 
-    template <typename IncrementalFunctor, typename T>
-    constexpr void static_foreach(T & container)
+    template <template <typename T_> class Functor, typename T>
+    void runtime_foreach(T & container)
     {
-        static_for_lt(IncrementalFunctor{ container }, 0, static_size(container));
+        runtime_for_lt(Functor<T>{ container }, 0, static_size(container));
+    }
+
+    template <typename Functor, typename T>
+    void runtime_foreach(T & container, Functor && functor)
+    {
+        runtime_for_lt(functor, 0, static_size(container));
+    }
+
+    // `constexpr for` implementation.
+    // Based on: https://stackoverflow.com/questions/42005229/why-for-loop-isnt-a-compile-time-expression-and-extended-constexpr-allows-for-l
+    //
+
+    template <typename T>
+    void static_consume(std::initializer_list<T>) {}
+
+    template<typename Functor, std::size_t... S>
+    constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>) {
+        return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
+    }
+
+    template<std::size_t Size, typename Functor>
+    constexpr void static_foreach(Functor && functor) {
+        return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
     }
 
     // `is_callable` implementation.
