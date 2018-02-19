@@ -147,7 +147,7 @@ namespace tackle
 
     // direct construction and destruction of the storage
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, bool reconstruct)
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, bool reconstruct)
     {
         if (reconstruct && m_type_index >= 0) { // if already been constructed
             destruct();
@@ -178,7 +178,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
-    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, Ref & r, bool reconstruct)
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, Ref & r, bool reconstruct)
     {
         if (reconstruct && m_type_index >= 0) { // if already been constructed
             destruct();
@@ -207,7 +207,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct)
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct)
     {
         if (s.m_type_index < 0) goto default_;
 
@@ -238,7 +238,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::destruct()
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::destruct()
     {
         switch (m_type_index)
         {
@@ -275,7 +275,7 @@ namespace tackle
         else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error)
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error)
     {
         // containers must be already constructed before the assign
         if (m_type_index < 0 || s.m_type_index < 0) goto default_;
@@ -305,7 +305,7 @@ namespace tackle
 
 
     template <typename Ref>
-    FORCE_INLINE void assign(Ref & r, bool throw_exceptions_on_type_error)
+    inline void assign(Ref & r, bool throw_exceptions_on_type_error)
     {
         // container must be already constructed before the assign
         if (m_type_index < 0) goto default_;
@@ -333,7 +333,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
-    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error)
+    inline R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error)
     {
         switch (m_type_index)
         {
@@ -360,7 +360,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
-    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error) const
+    inline R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error) const
     {
         switch (m_type_index)
         {
