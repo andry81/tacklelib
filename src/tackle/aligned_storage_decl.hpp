@@ -723,29 +723,29 @@ namespace tackle
         }
 
         // direct construction and destruction of the storage
-        FORCE_INLINE void construct(int type_index, bool reconstruct);
+        void construct(int type_index, bool reconstruct);
         template <typename Ref>
-        FORCE_INLINE void construct(int type_index, Ref & r, bool reconstruct);
+        void construct(int type_index, Ref & r, bool reconstruct);
 
     private:
-        FORCE_INLINE void _construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct);
+        void _construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct);
 
     public:
-        FORCE_INLINE void destruct();
+        void destruct();
 
         FORCE_INLINE int type_index() const;
 
-        template <typename Ref>
-        FORCE_INLINE void assign(Ref & r, bool throw_exceptions_on_type_error = true);
-
     private:
-        FORCE_INLINE void _assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error = true);
+        void _assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error = true);
 
     public:
+        template <typename Ref>
+        void assign(Ref & r, bool throw_exceptions_on_type_error = true);
+
         template <typename R, typename F>
-        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true);
+        R invoke(F && functor, bool throw_exceptions_on_type_error = true);
         template <typename R, typename F>
-        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true) const;
+        R invoke(F && functor, bool throw_exceptions_on_type_error = true) const;
 
         FORCE_INLINE void * address();
         FORCE_INLINE const void * address() const;
