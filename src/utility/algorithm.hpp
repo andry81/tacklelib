@@ -43,7 +43,7 @@ namespace utility
     // unrolls even in debug, useful to speedup not optimized code, where a call to function has unnecessary overhead
     // (for example, call to `memcpy` in a `for` with relatively small copy distance)
     template<typename T>
-    FORCE_INLINE void copy(const T * from, T * to, size_t size, size_t unroll_size = TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE)
+    inline void copy(const T * from, T * to, size_t size, size_t unroll_size = TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE)
     {
         const size_t unrolled_size = (std::min)(unroll_size, size_t(TACKLE_PP_MAX_UNROLLED_COPY_SIZE));
         if (unrolled_size >= size) {
