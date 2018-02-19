@@ -58,19 +58,19 @@ namespace utility
 
     // std::size is supported from C++17
     template <typename T, size_t N>
-    constexpr size_t static_size(const T (&)[N]) noexcept
+    FORCE_INLINE constexpr size_t static_size(const T (&)[N]) noexcept
     {
         return N;
     }
 
     template <typename ...T>
-    constexpr size_t static_size(const std::tuple<T...> &)
+    FORCE_INLINE constexpr size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
     }
 
     template<typename Functor>
-    void runtime_for_lt(Functor && function, size_t from, size_t to)
+    FORCE_INLINE void runtime_for_lt(Functor && function, size_t from, size_t to)
     {
         if (from < to) {
             function(from);
@@ -79,13 +79,13 @@ namespace utility
     }
 
     template <template <typename T_> class Functor, typename T>
-    void runtime_foreach(T & container)
+    FORCE_INLINE void runtime_foreach(T & container)
     {
         runtime_for_lt(Functor<T>{ container }, 0, static_size(container));
     }
 
     template <typename Functor, typename T>
-    void runtime_foreach(T & container, Functor && functor)
+    FORCE_INLINE void runtime_foreach(T & container, Functor && functor)
     {
         runtime_for_lt(functor, 0, static_size(container));
     }
@@ -95,15 +95,15 @@ namespace utility
     //
 
     template <typename T>
-    void static_consume(std::initializer_list<T>) {}
+    FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
     template<typename Functor, std::size_t... S>
-    constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>) {
+    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>) {
         return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
-    constexpr void static_foreach(Functor && functor) {
+    FORCE_INLINE constexpr void static_foreach(Functor && functor) {
         return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
     }
 
