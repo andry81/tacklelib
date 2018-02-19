@@ -182,7 +182,9 @@ namespace tackle
         FORCE_INLINE size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t size) const;
     public:
         FORCE_INLINE size_t copy_to(size_t offset_from, T * to_buf, size_t size) const;
-        FORCE_INLINE size_t stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width, size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size, size_t * in_stream_first_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const;
+        FORCE_INLINE size_t stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
+            size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
+            size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const;
         FORCE_INLINE size_t erase_front(size_t size);
 
     private:
@@ -524,7 +526,9 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE size_t stream_storage<T>::stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width, size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size, size_t * in_stream_first_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
+    FORCE_INLINE size_t stream_storage<T>::stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
+        size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
+        size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
     {
         ASSERT_TRUE(to_buf && max_slot_size);
         ASSERT_LT(in_row_offset_from, stream_width);
@@ -544,8 +548,11 @@ namespace tackle
             size_t stream_size_left = m_size - offset_from;
             size_t slot_size_left = max_slot_size;
 
-            if (in_stream_first_slot_byte_offset_ptr) {
-                *in_stream_first_slot_byte_offset_ptr = 0;
+            if (in_stream_slot_offset_ptr) {
+                *in_stream_slot_offset_ptr = 0;
+            }
+            if (in_slot_byte_offset_ptr) {
+                *in_slot_byte_offset_ptr = 0;
             }
 
             BOOST_SCOPE_EXIT(&offset_from, &iterated_stream_size, &end_stride_byte_offset_ptr) {
@@ -566,15 +573,21 @@ namespace tackle
                 ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
-                if (!stream_size_left) return slot_size;
+                if (!stream_size_left) {
+                    if (in_stream_slot_offset_ptr) {
+                        *in_stream_slot_offset_ptr = iterated_stream_size;
+                    }
+
+                    return slot_size;
+                }
 
                 in_row_offset_last = slot_begin_in_row_offset;
             }
 
             _first_row_slot_segment:;
             {
-                if(in_stream_first_slot_byte_offset_ptr) {
-                    *in_stream_first_slot_byte_offset_ptr = iterated_stream_size;
+                if(in_stream_slot_offset_ptr) {
+                    *in_stream_slot_offset_ptr = iterated_stream_size;
                 }
 
                 const size_t first_slot_row_bytes = slot_end_in_row_offset - in_row_offset_last;
@@ -592,6 +605,11 @@ namespace tackle
                 ASSERT_GE(stream_size_left, slot_size_to_copy);
                 stream_size_left -= slot_size_to_copy;
 
+                if (in_slot_byte_offset_ptr) {
+                    ASSERT_GE(in_row_offset_last, slot_begin_in_row_offset);
+                    *in_slot_byte_offset_ptr = in_row_offset_last - slot_begin_in_row_offset;
+                }
+
                 if (!slot_size_left || !stream_size_left) return slot_size;
 
                 in_row_offset_last = slot_end_in_row_offset;
@@ -599,17 +617,23 @@ namespace tackle
 
             _first_row_right_segment:;
             {
-                if (!slot_size && in_stream_first_slot_byte_offset_ptr) {
-                    *in_stream_first_slot_byte_offset_ptr = (std::min)(stream_width, stream_size_left);
-                }
-
                 const size_t iterate_size = (std::min)(stream_width - in_row_offset_last, stream_size_left);
 
                 iterated_stream_size += iterate_size;
                 ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
-                if (!stream_size_left) return slot_size;
+                if (!stream_size_left) {
+                    if (!slot_size && in_stream_slot_offset_ptr) {
+                        *in_stream_slot_offset_ptr = iterated_stream_size;
+                    }
+
+                    return slot_size;
+                }
+
+                if (!slot_size && in_stream_slot_offset_ptr) {
+                    *in_stream_slot_offset_ptr = iterated_stream_size + (std::min)(slot_begin_in_row_offset, stream_size_left);
+                }
             }
 
             const size_t num_whole_slot_rows = slot_size_left / slot_width;
