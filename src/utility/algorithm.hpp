@@ -23,6 +23,8 @@
 #define UTILITY_COPY(from, to, size, ...) \
     ::utility::copy(from, to, size, __VA_ARGS__)
 
+#define UTILITY_COPY_FORCE_INLINE(from, to, size, ...) \
+    ::utility::copy_forceinline(from, to, size, __VA_ARGS__)
 
 STATIC_ASSERT_GE(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
 
@@ -45,10 +47,32 @@ namespace utility
         T buf[S];
     };
 
-    // unrolls even in debug, useful to speedup not optimized code, where a call to function has unnecessary overhead
-    // (for example, call to `memcpy` in a `for` with relatively small copy distance)
+    // Unrolls even in debug, useful to speedup not optimized code, where a call to function has unnecessary overhead
+    // (for example, call to `memcpy` in a `for` with relatively small copy distance).
     template<typename T>
     inline void copy(const T * from, T * to, size_t size, size_t unroll_size = TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE)
+    {
+        const size_t unrolled_size = (std::min)(unroll_size, size_t(TACKLE_PP_MAX_UNROLLED_COPY_SIZE));
+        if (unrolled_size >= size) {
+            switch(size) {
+                case 0: break;
+                #include "utility/algorithm/generated/unroll_copy_switch.hpp"
+                default: ASSERT_TRUE(false);
+            }
+        }
+        else if (UTILITY_CONST_EXPR(boost::is_pod<T>::value)) {
+            memcpy(to, from, sizeof(T) * size);
+        }
+        else {
+            for (size_t i = 0; i < size; i++) {
+                to[i] = from[i];
+            }
+        }
+    }
+
+    // force inline version of unrolled copy
+    template<typename T>
+    FORCE_INLINE void copy_forceinline(const T * from, T * to, size_t size, size_t unroll_size = TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE)
     {
         const size_t unrolled_size = (std::min)(unroll_size, size_t(TACKLE_PP_MAX_UNROLLED_COPY_SIZE));
         if (unrolled_size >= size) {
