@@ -557,7 +557,7 @@ namespace tackle
 
             BOOST_SCOPE_EXIT(&offset_from, &iterated_stream_size, &end_stride_byte_offset_ptr) {
                 if (end_stride_byte_offset_ptr) {
-                    *end_stride_byte_offset_ptr = offset_from + iterated_stream_size;
+                    *end_stride_byte_offset_ptr = iterated_stream_size;
                 }
             } BOOST_SCOPE_EXIT_END
 
@@ -594,7 +594,7 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
+                const size_t copied_size = _copy_to_impl(chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
@@ -641,7 +641,7 @@ namespace tackle
 
             const size_t num_whole_rows = (std::min)(num_whole_slot_rows, num_whole_stream_rows);
             for (size_t i = 0; i < num_whole_rows; i++) {
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
+                const size_t copied_size = _copy_to_impl(chunks, offset_from + iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
                 ASSERT_EQ(copied_size, slot_width);
 
                 slot_size += copied_size;
@@ -673,7 +673,7 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(slot_width, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _copy_to_impl(chunks, iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
+                const size_t copied_size = _copy_to_impl(chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
