@@ -15,6 +15,8 @@
 #include <limits>
 #include <utility>
 
+#include <float.h>
+
 
 #define INT32_LOG2_FLOOR(x) ::utility::int_log2_floor<int32_t>(x)
 #define UINT32_LOG2_FLOOR(x) ::utility::int_log2_floor<uint32_t>(x)
@@ -389,5 +391,201 @@ namespace math
     {
         ASSERT_EQ(int_pof2_ceil(v), v);
         return int_log2_ceil(v);
+    }
+
+    // inclusion_direction:
+    //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
+    //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
+    //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
+    FORCE_INLINE double normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction)
+    {
+        ASSERT_LT(min_ang, max_ang);
+        ASSERT_GT(ang_period_mod, 0U); // must be always positive
+
+        ASSERT_GE(min_ang, -ang_period_mod);
+        ASSERT_GE(+ang_period_mod, max_ang);
+
+        if (!VERIFY_TRUE(inclusion_direction >= -1 && +1 >= inclusion_direction)) {
+            // just in case
+            inclusion_direction = 0; // prefer symmetric case
+        }
+
+        double ang_norm;
+
+        switch (inclusion_direction) {
+        case -1:
+            if (ang >= min_ang && max_ang > ang) {
+                return ang;
+            }
+
+            ang_norm = ang;
+
+            if (ang >= 0) {
+                if (ang < ang_period_mod) {
+                    const double ang_neg = ang - ang_period_mod;
+                    if (ang_neg >= min_ang && max_ang > ang_neg) {
+                        return ang_neg;
+                    }
+                    break;
+                }
+                else {
+                    ang_norm = fmod(ang, ang_period_mod);
+                    if (ang_norm >= min_ang && max_ang > ang_norm) {
+                        return ang_norm;
+                    }
+                    else {
+                        const double ang_neg = ang_norm - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang > ang_neg) {
+                            return ang_neg;
+                        }
+                    }
+                }
+            }
+            else if (-ang < ang_period_mod) {
+                const double ang_pos = ang + ang_period_mod;
+                if (ang_pos >= min_ang && max_ang > ang_pos) {
+                    return ang_pos;
+                }
+                // additional test in direction of inclusion
+                else {
+                    const double ang_neg = ang - ang_period_mod;
+                    if (ang_neg >= min_ang && max_ang > ang_neg) {
+                        return ang_neg;
+                    }
+                }
+            }
+            else {
+                ang_norm = fmod(ang, ang_period_mod);
+                if (ang_norm >= min_ang && max_ang > ang_norm) {
+                    return ang_norm;
+                }
+                else {
+                    const double ang_pos = ang_norm + ang_period_mod;
+                    if (ang_pos >= min_ang && max_ang > ang_pos) {
+                        return ang_pos;
+                    }
+                    // additional test in direction of inclusion
+                    else {
+                        const double ang_neg = ang_norm - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang > ang_neg) {
+                            return ang_neg;
+                        }
+                    }
+                }
+            }
+            break;
+
+        case 0:
+            if (ang >= min_ang && max_ang >= ang) {
+                return ang;
+            }
+
+            ang_norm = ang;
+
+            if (ang >= 0) {
+                if (ang < ang_period_mod) {
+                    const double ang_neg = ang - ang_period_mod;
+                    if (ang_neg >= min_ang && max_ang >= ang_neg) {
+                        return ang_neg;
+                    }
+                    break;
+                }
+                else {
+                    ang_norm = fmod(ang, ang_period_mod);
+                    if (ang_norm >= min_ang && max_ang >= ang_norm) {
+                        return ang_norm;
+                    }
+                    else {
+                        const double ang_neg = ang_norm - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang >= ang_neg) {
+                            return ang_neg;
+                        }
+                    }
+                }
+            }
+            else if (-ang < ang_period_mod) {
+                const double ang_pos = ang + ang_period_mod;
+                if (ang_pos >= min_ang && max_ang >= ang_pos) {
+                    return ang_pos;
+                }
+            }
+            else {
+                ang_norm = fmod(ang, ang_period_mod);
+                if (ang_norm >= min_ang && max_ang >= ang_norm) {
+                    return ang_norm;
+                }
+                else {
+                    const double ang_pos = ang_norm + ang_period_mod;
+                    if (ang_pos >= min_ang && max_ang >= ang_pos) {
+                        return ang_pos;
+                    }
+                }
+            }
+            break;
+
+        case +1:
+            if (ang > min_ang && max_ang >= ang) {
+                return ang;
+            }
+
+            ang_norm = ang;
+
+            if (ang >= 0) {
+                if (ang < ang_period_mod) {
+                    const double ang_neg = ang - ang_period_mod;
+                    if (ang_neg > min_ang && max_ang >= ang_neg) {
+                        return ang_neg;
+                    }
+                    // additional test in direction of inclusion
+                    else {
+                        const double ang_pos = ang + ang_period_mod;
+                        if (ang_pos > min_ang && max_ang >= ang_pos) {
+                            return ang_pos;
+                        }
+                    }
+                    break;
+                }
+                else {
+                    ang_norm = fmod(ang, ang_period_mod);
+                    if (ang_norm > min_ang && max_ang >= ang_norm) {
+                        return ang_norm;
+                    }
+                    else {
+                        const double ang_neg = ang_norm - ang_period_mod;
+                        if (ang_neg > min_ang && max_ang >= ang_neg) {
+                            return ang_neg;
+                        }
+                        // additional test in direction of inclusion
+                        else {
+                            const double ang_pos = ang_norm + ang_period_mod;
+                            if (ang_pos > min_ang && max_ang >= ang_pos) {
+                                return ang_pos;
+                            }
+                        }
+                    }
+                }
+            }
+            else if (-ang < ang_period_mod) {
+                const double ang_pos = ang + ang_period_mod;
+                if (ang_pos > min_ang && max_ang >= ang_pos) {
+                    return ang_pos;
+                }
+            }
+            else {
+                ang_norm = fmod(ang, ang_period_mod);
+                if (ang_norm > min_ang && max_ang >= ang_norm) {
+                    return ang_norm;
+                }
+                else {
+                    const double ang_pos = ang_norm + ang_period_mod;
+                    if (ang_pos > min_ang && max_ang >= ang_pos) {
+                        return ang_pos;
+                    }
+                }
+            }
+            break;
+        }
+
+        return ang_norm;
     }
 }
