@@ -36,30 +36,50 @@ namespace utility
     using namespace tackle;
 
     // simple buffer to reallocate memory on demand
+    //
+    //  CAUTION:
+    //      Because the buffer class does not reallocate memory if requested buffer size less than already existed, then out of size read/write access WOULD NOT BE CATCHED!
+    //      To workaround that we must AT LEAST do guard the end of the buffer in the DEBUG.
+    //
     class Buffer
     {
         typedef std::shared_ptr<uint8_t> BufSharedPtr;
 
+        static const char s_guard_sequence_str[4];
+
     public:
-        FORCE_INLINE Buffer(size_t size = 0)
+        FORCE_INLINE Buffer(size_t size = 0) :
+            m_size(0), m_reserve(0)
 #ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
-            : m_is_reallocating(false)
+            , m_is_reallocating(false)
 #endif
         {
             reset(size);
         }
 
+        void _check_buffer_guards();
+        void _fill_buffer_guards();
+
         FORCE_INLINE void reset(size_t size)
         {
+#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
+            _check_buffer_guards();
+#endif
+
+            // reallocate only if greater, deallocate only if 0
             if (size) {
                 if (m_size < size) {
                     m_buf_ptr = BufSharedPtr(new uint8_t[size], std::default_delete<uint8_t[]>());
-                    m_size = size;
+                    m_reserve = m_size = size;
                 }
+
+#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
+                _fill_buffer_guards();
+#endif
             }
             else {
                 m_buf_ptr.reset();
-                m_size = 0;
+                m_reserve = m_size = 0;
             }
         }
 
@@ -131,6 +151,7 @@ namespace utility
 
     private:
         size_t          m_size;
+        size_t          m_reserve;
         BufSharedPtr    m_buf_ptr;
 #ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
         bool            m_is_reallocating;

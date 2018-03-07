@@ -98,12 +98,14 @@ namespace utility
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
     template<typename Functor, std::size_t... S>
-    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>) {
+    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
+    {
         return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE constexpr void static_foreach(Functor && functor) {
+    FORCE_INLINE constexpr void static_foreach(Functor && functor)
+    {
         return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
     }
 

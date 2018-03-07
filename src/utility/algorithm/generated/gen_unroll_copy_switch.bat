@@ -2,7 +2,7 @@
 
 setlocal
 
-set MAX_UNROLL_SIZE=1024
+set MAX_UNROLL_SIZE=256
 set "GEN_FILE=%~dp0unroll_copy_switch.hpp"
 
 type nul>"%GEN_FILE%"

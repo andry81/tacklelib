@@ -12,6 +12,35 @@ namespace boost
 
 namespace utility
 {
+    const char Buffer::s_guard_sequence_str[4] = "XYZ";
+
+    void Buffer::_check_buffer_guards()
+    {
+        if (m_size < m_reserve) {
+            constexpr const size_t guard_sequence_str_len = std::size(s_guard_sequence_str) - 1;
+            uint8_t * buf_ptr = m_buf_ptr.get();
+            for (size_t i = m_size; i < m_reserve; i++) {
+                if (!VERIFY_EQ(buf_ptr[i], s_guard_sequence_str[i % guard_sequence_str_len])) {
+                    throw std::out_of_range(
+                        (boost::format(
+                            BOOST_PP_CAT(__FUNCTION__, ": out of buffer write: offset=%u reserve=%u size=%u buffer=%p")) %
+                                i % m_reserve % m_size % buf_ptr).str());
+                }
+            }
+        }
+    }
+
+    void Buffer::_fill_buffer_guards()
+    {
+        if (m_size < m_reserve) {
+            constexpr const size_t guard_sequence_str_len = std::size(s_guard_sequence_str) - 1;
+            uint8_t * buf_ptr = m_buf_ptr.get();
+            for (size_t i = m_size; i < m_reserve; i++) {
+                buf_ptr[i] = s_guard_sequence_str[i % guard_sequence_str_len];
+            }
+        }
+    }
+
     uint64_t get_file_size(const FileHandle & file_handle)
     {
         ASSERT_TRUE(file_handle.get());
