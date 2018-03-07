@@ -17,7 +17,7 @@
 
 
 #define TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE    256 // should not be greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE from `utility/algorithm/generated/unroll_copy_switch.hpp`
-#define TACKLE_PP_MAX_UNROLLED_COPY_SIZE        1024
+#define TACKLE_PP_MAX_UNROLLED_COPY_SIZE        256
 
 // copy with builtin unroll
 #define UTILITY_COPY(from, to, size, ...) \

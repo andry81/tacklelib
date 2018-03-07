@@ -80,58 +80,58 @@
 #ifndef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
 
 #define UNIT_ASSERT_TRUE(exp) \
-    {{ \
+    do {{ \
         if ((exp) ? true : false); \
         else UTILITY_GTEST_FAIL_TRUE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_FALSE(exp) \
-    {{ \
+    do {{ \
         if ((exp) ? false : true); \
         else UTILITY_GTEST_FAIL_FALSE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_EQ(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(exp_var_1)>::Compare(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_NE(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_LE(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_LT(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_GE(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #define UNIT_ASSERT_GT(v1, v2) \
-    {{ \
+    do {{ \
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-    }} (void)0
+    }} while(false)
 
 #endif
 
@@ -139,56 +139,56 @@
 
 #define UNIT_VERIFY_TRUE(exp) (( ::utility::AnsiAssertTrue(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_TRUE(exp) {{ ::utility::AnsiAssertTrue(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); }} (void)0
+    #define UNIT_ASSERT_TRUE(exp) do {{ ::utility::AnsiAssertTrue(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_FALSE(exp) (( ::utility::AnsiAssertFalse(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_FALSE(exp) {{ ::utility::AnsiAssertFalse(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); }} (void)0
+    #define UNIT_ASSERT_FALSE(exp) do {{ ::utility::AnsiAssertFalse(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_EQ(v1, v2) (( ::utility::AnsiAssertEQ(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_EQ(v1, v2) {{ ::utility::AnsiAssertEQ(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_EQ(v1, v2) do {{ ::utility::AnsiAssertEQ(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_NE(v1, v2) (( ::utility::AnsiAssertNE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_NE(v1, v2) {{ ::utility::AnsiAssertNE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_NE(v1, v2) do {{ ::utility::AnsiAssertNE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_LE(v1, v2) (( ::utility::AnsiAssertLE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LE(v1, v2) {{ ::utility::AnsiAssertLE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_LE(v1, v2) do {{ ::utility::AnsiAssertLE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_LT(v1, v2) (( ::utility::AnsiAssertLT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LT(v1, v2) {{ ::utility::AnsiAssertLT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_LT(v1, v2) do {{ ::utility::AnsiAssertLT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_GE(v1, v2) (( ::utility::AnsiAssertGE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GE(v1, v2) {{ ::utility::AnsiAssertGE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_GE(v1, v2) do {{ ::utility::AnsiAssertGE(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_GT(v1, v2) (( ::utility::AnsiAssertGT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GT(v1, v2) {{ ::utility::AnsiAssertGT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} (void)0
+    #define UNIT_ASSERT_GT(v1, v2) do {{ ::utility::AnsiAssertGT(UTILITY_PP_FILE, UTILITY_PP_LINE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); }} while(false)
 #endif
 
 #else
@@ -211,7 +211,7 @@
 
 #define UNIT_VERIFY_TRUE(exp) (( UNIT_VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_TRUE(exp) {{ UNIT_VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_TRUE(exp) do {{ UNIT_VERIFY_TRUE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 #define UNIT_VERIFY_FALSE_IMPL(exp) [&](const auto & exp_var, const char * exp_str, const char * file, unsigned int line) -> const auto & { \
@@ -222,7 +222,7 @@
 
 #define UNIT_VERIFY_FALSE(exp) (( UNIT_VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_FALSE(exp) {{ UNIT_VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_FALSE(exp) do {{ UNIT_VERIFY_FALSE_IMPL(exp)(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 #define UNIT_VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
@@ -233,7 +233,7 @@
 
 #define UNIT_VERIFY_EQ(v1, v2) (( UNIT_VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_EQ(v1, v2) {{ UNIT_VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_EQ(v1, v2) do {{ UNIT_VERIFY_EQ_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 ////
@@ -246,7 +246,7 @@
 
 #define UNIT_VERIFY_NE(v1, v2) (( UNIT_VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_NE(v1, v2) {{ UNIT_VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_NE(v1, v2) do {{ UNIT_VERIFY_NE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 ////
@@ -259,7 +259,7 @@
 
 #define UNIT_VERIFY_LE(v1, v2) (( UNIT_VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LE(v1, v2) {{ UNIT_VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_LE(v1, v2) do {{ UNIT_VERIFY_LE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 ////
@@ -272,7 +272,7 @@
 
 #define UNIT_VERIFY_LT(v1, v2) (( UNIT_VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LT(v1, v2) {{ UNIT_VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_LT(v1, v2) do {{ UNIT_VERIFY_LT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 ////
@@ -285,7 +285,7 @@
 
 #define UNIT_VERIFY_GE(v1, v2) (( UNIT_VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GE(v1, v2) {{ UNIT_VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_GE(v1, v2) do {{ UNIT_VERIFY_GE_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 ////
@@ -298,7 +298,7 @@
 
 #define UNIT_VERIFY_GT(v1, v2) (( UNIT_VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GT(v1, v2) {{ UNIT_VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} (void)0
+    #define UNIT_ASSERT_GT(v1, v2) do {{ UNIT_VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
 #endif
 
 #endif
@@ -322,108 +322,132 @@
 
 // `? true : false` to suppress: `warning C4127: conditional expression is constant`
 #define DEBUG_ASSERT_TRUE(exp) \
-    {{ \
+    do {{ \
         if ((exp) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((exp) ? true : false), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_FALSE(exp) \
-    {{ \
+    do {{ \
         if ((exp) ? false : true); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((exp) ? false : true), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_EQ(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) == (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) == (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_NE(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) != (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) != (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_LE(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) <= (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_LT(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) < (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) < (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_GE(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) >= (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #define DEBUG_ASSERT_GT(v1, v2) \
-    {{ \
+    do {{ \
         if ((v1) > (v2) ? true : false); \
         else { \
             DEBUG_BREAK(true); \
             _wassert(UTILITY_PP_STRINGIZE_WIDE((v1) > (v2)), UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE); \
         } \
-    }} (void)0
+    }} while(false)
 
 #else
 
 // additionally checks on respective operators existance
 
-#define RELEASE_VERIFY_TRUE(exp)    (( ::utility::unused_true(exp) ))
-#define RELEASE_VERIFY_FALSE(exp)   (( ::utility::unused_false(exp) ))
+#define RELEASE_VERIFY_TRUE(exp)    DISABLED_VERIFY_TRUE(exp)
+#define RELEASE_VERIFY_FALSE(exp)   DISABLED_VERIFY_FALSE(exp)
 
-#define RELEASE_VERIFY_EQ(v1, v2)   (( ::utility::unused_equal(v1, v2) ))
-#define RELEASE_VERIFY_NE(v1, v2)   (( ::utility::unused_not_equal(v1, v2) ))
-#define RELEASE_VERIFY_LE(v1, v2)   (( ::utility::unused_less_or_equal(v1, v2) ))
-#define RELEASE_VERIFY_LT(v1, v2)   (( ::utility::unused_less(v1, v2) ))
-#define RELEASE_VERIFY_GE(v1, v2)   (( ::utility::unused_greater_or_equal(v1, v2) ))
-#define RELEASE_VERIFY_GT(v1, v2)   (( ::utility::unused_greater(v1, v2) ))
+#define RELEASE_VERIFY_EQ(v1, v2)   DISABLED_VERIFY_EQ(v1, v2)
+#define RELEASE_VERIFY_NE(v1, v2)   DISABLED_VERIFY_NE(v1, v2)
+#define RELEASE_VERIFY_LE(v1, v2)   DISABLED_VERIFY_LE(v1, v2)
+#define RELEASE_VERIFY_LT(v1, v2)   DISABLED_VERIFY_LT(v1, v2)
+#define RELEASE_VERIFY_GE(v1, v2)   DISABLED_VERIFY_GE(v1, v2)
+#define RELEASE_VERIFY_GT(v1, v2)   DISABLED_VERIFY_GT(v1, v2)
 
-#define RELEASE_ASSERT_TRUE(exp)    {{ UTILITY_UNUSED_STATEMENT((exp) ? true : false); }} (void)0
-#define RELEASE_ASSERT_FALSE(exp)   {{ UTILITY_UNUSED_STATEMENT((exp) ? false : true); }} (void)0
+#define RELEASE_ASSERT_TRUE(exp)    DISABLED_ASSERT_TRUE(exp)
+#define RELEASE_ASSERT_FALSE(exp)   DISABLED_ASSERT_FALSE(exp)
 
 // `? true : false` to suppress: `warning C4127: conditional expression is constant`
-#define RELEASE_ASSERT_EQ(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) == (v2) ? true : false); }} (void)0
-#define RELEASE_ASSERT_NE(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) != (v2) ? true : false); }} (void)0
-#define RELEASE_ASSERT_LE(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) <= (v2) ? true : false); }} (void)0
-#define RELEASE_ASSERT_LT(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) < (v2) ? true : false); }} (void)0
-#define RELEASE_ASSERT_GE(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) >= (v2) ? true : false); }} (void)0
-#define RELEASE_ASSERT_GT(v1, v2)   {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) > (v2) ? true : false); }} (void)0
+#define RELEASE_ASSERT_EQ(v1, v2)   DISABLED_ASSERT_EQ(v1, v2)
+#define RELEASE_ASSERT_NE(v1, v2)   DISABLED_ASSERT_NE(v1, v2)
+#define RELEASE_ASSERT_LE(v1, v2)   DISABLED_ASSERT_LE(v1, v2)
+#define RELEASE_ASSERT_LT(v1, v2)   DISABLED_ASSERT_LT(v1, v2)
+#define RELEASE_ASSERT_GE(v1, v2)   DISABLED_ASSERT_GE(v1, v2)
+#define RELEASE_ASSERT_GT(v1, v2)   DISABLED_ASSERT_GT(v1, v2)
 
 #endif
+
+
+#define DISABLED_VERIFY_TRUE(exp)   (( ::utility::unused_true(exp) ))
+#define DISABLED_VERIFY_FALSE(exp)  (( ::utility::unused_false(exp) ))
+
+#define DISABLED_VERIFY_EQ(v1, v2)  (( ::utility::unused_equal(v1, v2) ))
+#define DISABLED_VERIFY_NE(v1, v2)  (( ::utility::unused_not_equal(v1, v2) ))
+#define DISABLED_VERIFY_LE(v1, v2)  (( ::utility::unused_less_or_equal(v1, v2) ))
+#define DISABLED_VERIFY_LT(v1, v2)  (( ::utility::unused_less(v1, v2) ))
+#define DISABLED_VERIFY_GE(v1, v2)  (( ::utility::unused_greater_or_equal(v1, v2) ))
+#define DISABLED_VERIFY_GT(v1, v2)  (( ::utility::unused_greater(v1, v2) ))
+
+#define DISABLED_ASSERT_TRUE(exp)   do {{ UTILITY_UNUSED_STATEMENT((exp) ? true : false); }} while(false)
+#define DISABLED_ASSERT_FALSE(exp)  do {{ UTILITY_UNUSED_STATEMENT((exp) ? false : true); }} while(false)
+
+// `? true : false` to suppress: `warning C4127: conditional expression is constant`
+#define DISABLED_ASSERT_EQ(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) == (v2) ? true : false); }} while(false)
+#define DISABLED_ASSERT_NE(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) != (v2) ? true : false); }} while(false)
+#define DISABLED_ASSERT_LE(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) <= (v2) ? true : false); }} while(false)
+#define DISABLED_ASSERT_LT(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) < (v2) ? true : false); }} while(false)
+#define DISABLED_ASSERT_GE(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) >= (v2) ? true : false); }} while(false)
+#define DISABLED_ASSERT_GT(v1, v2)  do {{ UTILITY_UNUSED_STATEMENT2(v1, v2); UTILITY_UNUSED_STATEMENT((v1) > (v2) ? true : false); }} while(false)
 
 
 // avoid usage unit test asserts in debug because of greater runtime slow down in respect to classic assert implementation
 
 #if !defined(USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT) && (defined(UNIT_TESTS) || defined(BENCH_TESTS)) && !defined(_DEBUG)
+
+#if defined(UNIT_TESTS)
 
 #define VERIFY_TRUE     UNIT_VERIFY_TRUE
 #define VERIFY_FALSE    UNIT_VERIFY_FALSE
@@ -446,6 +470,32 @@
 #define ASSERT_GT       UNIT_ASSERT_GT
 
 #define ASSERT_VERIFY_ENABLED 1
+
+#elif defined(BENCH_TESTS)
+
+#define VERIFY_TRUE     DISABLED_VERIFY_TRUE
+#define VERIFY_FALSE    DISABLED_VERIFY_FALSE
+
+#define VERIFY_EQ       DISABLED_VERIFY_EQ
+#define VERIFY_NE       DISABLED_VERIFY_NE
+#define VERIFY_LE       DISABLED_VERIFY_LE
+#define VERIFY_LT       DISABLED_VERIFY_LT
+#define VERIFY_GE       DISABLED_VERIFY_GE
+#define VERIFY_GT       DISABLED_VERIFY_GT
+
+#define ASSERT_TRUE     DISABLED_ASSERT_TRUE
+#define ASSERT_FALSE    DISABLED_ASSERT_FALSE
+
+#define ASSERT_EQ       DISABLED_ASSERT_EQ
+#define ASSERT_NE       DISABLED_ASSERT_NE
+#define ASSERT_LE       DISABLED_ASSERT_LE
+#define ASSERT_LT       DISABLED_ASSERT_LT
+#define ASSERT_GE       DISABLED_ASSERT_GE
+#define ASSERT_GT       DISABLED_ASSERT_GT
+
+#define ASSERT_VERIFY_ENABLED 0
+
+#endif
 
 #elif defined(_DEBUG)
 
