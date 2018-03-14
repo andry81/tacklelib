@@ -48,7 +48,7 @@
 namespace utility
 {
     // empty instruction for breakpoint placeholder
-    FORCE_INLINE void unused()
+    FORCE_INLINE_ALWAYS void unused()
     {
     }
 

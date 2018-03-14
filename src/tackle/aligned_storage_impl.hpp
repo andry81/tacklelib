@@ -333,7 +333,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
-    inline R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error)
+    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error)
     {
         switch (m_type_index)
         {
@@ -360,7 +360,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
-    inline R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error) const
+    FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke(F && functor, bool throw_exceptions_on_type_error) const
     {
         switch (m_type_index)
         {

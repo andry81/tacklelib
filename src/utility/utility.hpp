@@ -15,13 +15,13 @@
 #endif
 
 #include <boost/preprocessor/cat.hpp>
+#include <boost/type_traits/is_pod.hpp>
 #include <boost/format.hpp>
 
-#include <bitset>
 #include <limits>
-
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 
 #define if_break(x) if(!(x)); else switch(0) case 0: default:
@@ -45,33 +45,55 @@ namespace utility
     {
         typedef std::shared_ptr<uint8_t> BufSharedPtr;
 
-        static const char s_guard_sequence_str[4];
+#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
+        static const char s_guard_sequence_str[49];
+        static const size_t s_guard_max_len = 256; // to avoid comparison slowdown on big arrays
+#endif
 
     public:
         FORCE_INLINE Buffer(size_t size = 0) :
-            m_size(0), m_reserve(0)
-#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
-            , m_is_reallocating(false)
-#endif
+            m_offset(0), m_size(0), m_reserve(0), m_is_reallocating(false)
         {
             reset(size);
         }
 
-        void _check_buffer_guards();
-        void _fill_buffer_guards();
+        FORCE_INLINE ~Buffer()
+        {
+#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
+            check_buffer_guards();
+#endif
+        }
 
+#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
+        void check_buffer_guards();
+
+    private:
+        void _fill_buffer_guards();
+#endif
+
+    public:
         FORCE_INLINE void reset(size_t size)
         {
 #if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
-            _check_buffer_guards();
+            check_buffer_guards();
+
+            // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
+            const size_t offset = (std::min)((std::max)(size / 100, 16U), s_guard_max_len);
+            const size_t size_extra = size ? (size + offset * 2) : 0;
+#else
+            const size_t offset = 0;
+            const size_t size_extra = size;
 #endif
 
             // reallocate only if greater, deallocate only if 0
-            if (size) {
-                if (m_size < size) {
-                    m_buf_ptr = BufSharedPtr(new uint8_t[size], std::default_delete<uint8_t[]>());
-                    m_reserve = m_size = size;
+            if (size_extra) {
+                if (m_reserve < size_extra) {
+                    m_buf_ptr = BufSharedPtr(new uint8_t[size_extra], std::default_delete<uint8_t[]>());
+                    m_reserve = size_extra;
                 }
+
+                m_offset = offset;
+                m_size = size;
 
 #if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
                 _fill_buffer_guards();
@@ -79,7 +101,7 @@ namespace utility
             }
             else {
                 m_buf_ptr.reset();
-                m_reserve = m_size = 0;
+                m_offset = m_reserve = m_size = 0;
             }
         }
 
@@ -90,12 +112,14 @@ namespace utility
 
         FORCE_INLINE uint8_t * get()
         {
-            return m_buf_ptr.get();
+            ASSERT_TRUE(m_size);
+            return m_buf_ptr.get() + m_offset;
         }
 
         FORCE_INLINE const uint8_t * get() const
         {
-            return m_buf_ptr.get();
+            ASSERT_TRUE(m_size);
+            return m_buf_ptr.get() + m_offset;
         }
 
         FORCE_INLINE uint8_t * realloc_get(size_t size)
@@ -113,7 +137,7 @@ namespace utility
             }
 #endif
 
-            return m_buf_ptr.get();
+            return m_buf_ptr.get() + m_offset;
         }
 
 #ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
@@ -127,7 +151,7 @@ namespace utility
         FORCE_INLINE void realloc(Buffer & to_buf)
         {
             uint8_t * to_buf_ptr = to_buf.realloc_get(m_size);
-            memcpy(to_buf_ptr, m_buf_ptr.get(), m_size);
+            memcpy(to_buf_ptr - to_buf.m_offset, m_buf_ptr.get(), m_reserve);
 
             *this = to_buf;
         }
@@ -150,12 +174,11 @@ namespace utility
 #endif
 
     private:
+        size_t          m_offset;
         size_t          m_size;
         size_t          m_reserve;
         BufSharedPtr    m_buf_ptr;
-#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
         bool            m_is_reallocating;
-#endif
     };
 
     uint64_t get_file_size(const FileHandle & file_handle);
@@ -168,8 +191,7 @@ namespace utility
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
         std::stringstream stream;
-        stream << std::setfill('0') << std::setw(padding)
-            << std::hex << i;
+        stream << std::setfill('0') << std::setw(padding) << std::hex << i;
         return stream.str();
     }
 
@@ -177,23 +199,59 @@ namespace utility
     FORCE_INLINE std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
     {
         std::stringstream stream;
-        stream << std::setfill('0') << std::setw(padding)
-            << std::dec << i;
+        stream << std::setfill('0') << std::setw(padding) << std::dec << i;
         return stream.str();
     }
 
     template<typename T>
     FORCE_INLINE void int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
     {
-        std::bitset<sizeof(T) * CHAR_BIT> bs(i);
-        if (!first_bit_is_lowest_bit) {
-            ret = bs.to_string();
-            return;
-        }
+        STATIC_ASSERT_TRUE(boost::is_pod<T>::value, "T must be a POD type");
 
-        const std::string bs_str = bs.to_string();
-        ret = std::string(bs_str.rbegin(), bs_str.rend());
-        return;
+        constexpr const size_t num_bytes = sizeof(T);
+
+        ret.resize(num_bytes * CHAR_BIT);
+
+        char * data_ptr = &ret[0]; // faster than for-ed operator[] in the Debug
+
+        size_t char_offset;
+        const uint32_t * chunks_ptr = (const uint32_t *)&i;
+
+        const size_t num_whole_chunks = num_bytes / 4;
+        const size_t chunks_remainder = num_bytes % 4;
+
+        if (first_bit_is_lowest_bit) {
+            char_offset = 0;
+
+            for (size_t i = 0; i < num_whole_chunks; i++, chunks_ptr++) {
+                for (size_t j = 0; j < 32; j++, char_offset++) {
+                    data_ptr[char_offset] = (chunks_ptr[i] & (0x01U << j)) ? '1' : '0';
+                }
+            }
+            if (chunks_remainder) {
+                for (size_t j = 0; j < chunks_remainder * CHAR_BIT; j++, char_offset++) {
+                    data_ptr[char_offset] = (chunks_ptr[i] & (0x01U << j)) ? '1' : '0';
+                }
+            }
+
+            data_ptr[char_offset] = '\0';
+        }
+        else {
+            char_offset = num_bytes * CHAR_BIT;
+
+            data_ptr[char_offset] = '\0';
+
+            for (size_t i = 0; i < num_whole_chunks; i++, chunks_ptr++) {
+                for (size_t j = 0; j < 32; j++, char_offset--) {
+                    data_ptr[char_offset] = (chunks_ptr[i] & (0x01U << j)) ? '1' : '0';
+                }
+            }
+            if (chunks_remainder) {
+                for (size_t j = 0; j < chunks_remainder * CHAR_BIT; j++, char_offset--) {
+                    data_ptr[char_offset] = (chunks_ptr[i] & (0x01U << j)) ? '1' : '0';
+                }
+            }
+        }
     }
 
     template<typename T>
@@ -204,7 +262,7 @@ namespace utility
         return res;
     }
 
-    FORCE_INLINE uint8_t reverse(uint8_t byte)
+    FORCE_INLINE_ALWAYS uint8_t reverse(uint8_t byte)
     {
         byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
         byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
@@ -264,7 +322,7 @@ namespace utility
         return byte_mask & (((byte_mask & n) >> c) | (n << (mask & negate(c))));
     }
 
-    FORCE_INLINE uint32_t rotl8(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotl8(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotl8(unsigned char(n), unsigned char(c));
@@ -273,7 +331,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint32_t rotr8(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotr8(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotr8(unsigned char(n), unsigned char(c));
@@ -282,7 +340,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint32_t rotl16(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotl16(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotl16(unsigned short(n), unsigned char(c));
@@ -291,7 +349,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint32_t rotr16(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotr16(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotr16(unsigned short(n), unsigned char(c));
@@ -300,7 +358,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint32_t rotl32(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotl32(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotl(unsigned int(n), int(c));
@@ -309,7 +367,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint32_t rotr32(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t rotr32(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotr(unsigned int(n), int(c));
@@ -318,7 +376,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint64_t rotl64(uint64_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint64_t rotl64(uint64_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotl64(unsigned long long(n), int(c));
@@ -327,7 +385,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE uint64_t rotr64(uint64_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint64_t rotr64(uint64_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
         return _rotr64(unsigned long long(n), int(c));

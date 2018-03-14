@@ -92,7 +92,7 @@ namespace utility
         }
     }
 
-    FORCE_INLINE void spin_sleep(uint64_t wait_nsec)
+    FORCE_INLINE_ALWAYS void spin_sleep(uint64_t wait_nsec)
     {
         const auto begin_wait_time = high_resolution_clock::now();
 
