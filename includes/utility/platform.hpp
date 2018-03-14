@@ -67,14 +67,31 @@
 #   error "Unknown compiler"
 #endif
 
+#if !defined(DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE)
+
 #if !defined(_DEBUG) && defined(ENABLE_FORCE_INLINE) && !defined(DISABLE_FORCE_INLINE)
 #if defined(__GNUC__)
-#define FORCE_INLINE    __attribute__((always_inline))
+#define FORCE_INLINE                __attribute__((always_inline))
+#define FORCE_INLINE_ALWAYS         FORCE_INLINE
 #elif defined(_MSC_VER)
-#define FORCE_INLINE    __forceinline
+#define FORCE_INLINE                __forceinline
+#define FORCE_INLINE_ALWAYS         FORCE_INLINE
 #endif
 #else
-#define FORCE_INLINE    inline
+#define FORCE_INLINE                inline
+#define FORCE_INLINE_ALWAYS         FORCE_INLINE
+#endif
+
+#else
+
+#if defined(__GNUC__)
+#define FORCE_INLINE                __attribute__((noinline))
+#elif defined(_MSC_VER)
+#define FORCE_INLINE                __declspec(noinline)
+#endif
+
+#define FORCE_INLINE_ALWAYS         inline
+
 #endif
 
 #if !defined(_DEBUG) && defined(ENABLE_FORCE_NO_INLINE) && !defined(DISABLE_FORCE_NO_INLINE)

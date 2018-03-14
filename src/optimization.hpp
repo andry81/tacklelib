@@ -3,7 +3,7 @@
 //// common optimization
 
 // CAUTION:
-//  Imprudent usage of the ENABLE_FORCE_INLINE on each function can dramatically increase compilation times!
+//  Imprudent usage of the FORCE_INLINE on each function can dramatically increase compilation times!
 //
 #define ENABLE_FORCE_INLINE         // defines FORCE_INLINE in to builtin instruction to force entity to inline
 

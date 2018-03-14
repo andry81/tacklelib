@@ -37,9 +37,11 @@ namespace tackle
 #endif
 
     public:
-        // up to 8MB chunks (1, 2, 4, 8, 16, ..., 4 * 1024 * 1024, 8 * 1024 * 1024)
-        typedef mpl::size_t<24> num_chunk_variants_t;
+        // up to 256KB chunks (1, 2, 4, 8, 16, ..., 128 * 1024, 256 * 1024)
+        typedef mpl::size_t<19> num_chunk_variants_t;
         typedef mpl::size_t<(0x01U << (num_chunk_variants_t::value - 1))> max_chunk_size_t;
+
+        STATIC_ASSERT_LT(num_chunk_variants_t::value, BOOST_MPL_LIMIT_LIST_SIZE, "must be less than the limit");
 
     private:
         static FORCE_INLINE constexpr size_t _get_chunk_size(size_t type_index)
@@ -47,6 +49,7 @@ namespace tackle
             return (0x01U << type_index);
         }
 
+        // POD type, DO NOT USE constructors, the `buf` ending must be connected w/o gaps with the next element beginning in case of array usage as an underlaying container!
         template <size_t S>
         struct Chunk
         {
@@ -376,7 +379,14 @@ namespace tackle
     {
         ASSERT_TRUE(min_chunk_size);
 
-        const int chunk_type_index = max_chunk_size_t::value >= min_chunk_size ? math::int_log2_ceil(min_chunk_size) : math::int_log2_ceil(max_chunk_size_t::value);
+        const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
+        if (chunk_type_index >= num_chunk_variants_t::value) {
+            throw std::runtime_error(
+                (boost::format(
+                    BOOST_PP_CAT(__FUNCTION__, ": minimum chunk size is not supported: min_chunk_size=%i pof2=%i max=%i")) %
+                    min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
+        }
+
         if (chunk_type_index != m_chunks.type_index()) {
             m_chunks.construct(chunk_type_index, true);
         }
@@ -579,23 +589,23 @@ namespace tackle
                 to_buf_offset += chunks_size;
             }
 
-            //const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-            //const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-            //UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
-            //to_buf_offset += first_chunk_size;
-            //
-            //if (next_chunk_divrem.quot >= 2) {
-            //    for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
-            //        const auto & chunk2 = chunks[chunk_divrem.quot + i];
-            //        UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
-            //    }
-            //}
-            //if (next_chunk_divrem.rem) {
-            //    auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-            //    const size_t last_chunk_size = next_chunk_divrem.rem;
-            //    UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
-            //    to_buf_offset += last_chunk_size;
-            //}
+//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
+//            const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+//            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+//            to_buf_offset += first_chunk_size;
+//
+//            if (next_chunk_divrem.quot >= 2) {
+//                for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
+//                    const auto & chunk2 = chunks[chunk_divrem.quot + i];
+//                    UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+//                }
+//            }
+//            if (next_chunk_divrem.rem) {
+//                auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+//                const size_t last_chunk_size = next_chunk_divrem.rem;
+//                UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+//                to_buf_offset += last_chunk_size;
+//            }
         }
 
         return to_buf_offset;
@@ -659,23 +669,23 @@ namespace tackle
                 to_buf_offset += chunks_size;
             }
 
-            //const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-            //const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-            //UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
-            //to_buf_offset += first_chunk_size;
-            //
-            //if (next_chunk_divrem.quot >= 2) {
-            //    for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
-            //        const auto & chunk2 = chunks[chunk_divrem.quot + i];
-            //        UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, chunk_size);
-            //    }
-            //}
-            //if (next_chunk_divrem.rem) {
-            //    auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-            //    const size_t last_chunk_size = next_chunk_divrem.rem;
-            //    UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
-            //    to_buf_offset += last_chunk_size;
-            //}
+//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
+//            const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+//            UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+//            to_buf_offset += first_chunk_size;
+//            
+//            if (next_chunk_divrem.quot >= 2) {
+//                for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
+//                    const auto & chunk2 = chunks[chunk_divrem.quot + i];
+//                    UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+//                }
+//            }
+//            if (next_chunk_divrem.rem) {
+//                auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+//                const size_t last_chunk_size = next_chunk_divrem.rem;
+//                UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+//                to_buf_offset += last_chunk_size;
+//            }
         }
 
         return to_buf_offset;
@@ -747,6 +757,7 @@ namespace tackle
                 }
 
                 const size_t first_slot_row_bytes = slot_end_in_row_offset - in_row_offset_last;
+
                 const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 

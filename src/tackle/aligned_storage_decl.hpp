@@ -68,7 +68,7 @@ namespace tackle
 
     // CAUTION:
     //  Special tag pattern type to use the aligned storage with enabled (not deleted) copy constructor and assignment operator
-    //  with explicit flag of constructed state (it is dengerous w/o the flag because being copied or assigned type can be not yet constructed!).
+    //  with explicit flag of constructed state (it is dangerous w/o the flag because being copied or assigned type can be not yet constructed!).
     //
     typedef struct tag_pttn_control_lifetime_ tag_pttn_control_lifetime_t;
     typedef struct tag_pttn_default_ tag_pttn_default_t;
@@ -743,9 +743,9 @@ namespace tackle
         void assign(Ref & r, bool throw_exceptions_on_type_error = true);
 
         template <typename R, typename F>
-        R invoke(F && functor, bool throw_exceptions_on_type_error = true);
+        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true);
         template <typename R, typename F>
-        R invoke(F && functor, bool throw_exceptions_on_type_error = true) const;
+        FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true) const;
 
         FORCE_INLINE void * address();
         FORCE_INLINE const void * address() const;
