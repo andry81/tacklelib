@@ -89,6 +89,8 @@ namespace math
 
     const constexpr size_t size_max = (std::numeric_limits<size_t>::max)();
 
+    const constexpr double quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+
     template<typename T>
     struct divrem
     {
