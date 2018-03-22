@@ -7,7 +7,7 @@
 #include <utility/type_traits.hpp>
 #include <utility/math.hpp>
 
-#include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/has_trivial_copy.hpp>
 
 #include <boost/chrono.hpp>
 
@@ -60,7 +60,7 @@ namespace utility
                 default: ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONST_EXPR(boost::is_pod<T>::value)) {
+        else if (UTILITY_CONST_EXPR(boost::has_trivial_copy<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {
@@ -82,7 +82,7 @@ namespace utility
                 default: ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONST_EXPR(boost::is_pod<T>::value)) {
+        else if (UTILITY_CONST_EXPR(boost::has_trivial_copy<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {

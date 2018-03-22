@@ -10,8 +10,6 @@
 
 #include <tackle/aligned_storage.hpp>
 
-#include <boost/type_traits/is_pod.hpp>
-
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/push_front.hpp>

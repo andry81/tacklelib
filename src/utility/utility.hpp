@@ -15,7 +15,7 @@
 #endif
 
 #include <boost/preprocessor/cat.hpp>
-#include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/has_trivial_copy.hpp>
 #include <boost/format.hpp>
 
 #include <limits>
@@ -206,7 +206,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE void int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
     {
-        STATIC_ASSERT_TRUE(boost::is_pod<T>::value, "T must be a POD type");
+        STATIC_ASSERT_TRUE(boost::has_trivial_copy<T>::value, "T must be a trivial copy type");
 
         constexpr const size_t num_bytes = sizeof(T);
 
