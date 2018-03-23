@@ -117,3 +117,44 @@
 #else
 #define DEBUG_RELEASE_EXPR(debug_exp, release_exp) release_exp
 #endif
+
+#ifdef LIBRARY_API_EXPORTS
+#define LIBRARY_API __declspec(dllexport)
+#else
+#define LIBRARY_API __declspec(dllimport)
+#endif
+
+// to make the unique link with the implementation
+#define DECLARE_HEADER_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
+    class UTILITY_PP_CONCAT( \
+            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
+            token \
+          ) \
+    { \
+        static const char s_build_version_str[sizeof(BUILD_VERSION_DATE_TIME_STR)]; \
+    } \
+    UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT( \
+            UTILITY_PP_CONCAT(s_, class_name_prefix), \
+            __build_version_date_time_token__ \
+        ), \
+        token \
+    )
+
+// to make the unique link with the public headers
+#define IMPLEMENT_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix) \
+    UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
+        token \
+    ) \
+    UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT( \
+            UTILITY_PP_CONCAT(s_, class_name_prefix), \
+            __build_version_date_time_token__ \
+        ), \
+        token \
+    ); \
+    UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
+        token \
+    ) :: s_build_version_str = "**build_version**: " BUILD_VERSION_DATE_TIME_STR

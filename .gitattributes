@@ -1,4 +1,6 @@
 * text=auto !eol
+/configure.bat -text
+includes/.svnignore -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/platform.hpp -text
