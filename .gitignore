@@ -1,1 +1,4 @@
+/CMakeLists.txt.user
+/_out
+/environment_local.cmake
 includes/version.hpp
