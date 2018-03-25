@@ -126,30 +126,31 @@
 
 // to make the unique link with the static library (LIB) implementation
 #define DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
-    class UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-          ) \
+    class UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) \
     { public: \
-        UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-        )(); \
-        static const char s_build_version_str[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1]; \
+        UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token)(); \
+        static const char s_build_version_str_$[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1]; \
     }; \
-    static \
-        UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-        ) \
-        UTILITY_PP_CONCAT( \
-            s_, UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__) \
-        )
+    static UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) \
+        UTILITY_PP_CONCAT3(s_, class_name_prefix, __build_version_date_time_token__$)
 
 // to make the unique link with the static library (LIB) headers
 #define IMPLEMENT_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
-    const char UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-    ) :: s_build_version_str[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1] = "**build_version**: " BUILD_VERSION_DATE_TIME_STR; \
-    UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-    ) :: UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
-    )() {}
+    const char UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) :: \
+        s_build_version_str_$[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1] = "**build_version**: " BUILD_VERSION_DATE_TIME_STR; \
+    UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) :: \
+        UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token)() {}
+
+// to make the unique link with the static library (LIB) implementation
+#define DECLARE_HEADER_LIB_INSTANCE_TOKEN(class_name_prefix, token) \
+    class UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) \
+    { public: \
+        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)(); \
+    }; \
+    static UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) \
+        UTILITY_PP_CONCAT3(s_, class_name_prefix, __instance_token__$);
+
+// to make the unique link with the static library (LIB) headers
+#define IMPLEMENT_LIB_INSTANCE_TOKEN(scope, class_name_prefix, token) \
+    UTILITY_PP_CONCAT4(scope, class_name_prefix, __instance_token__, token) :: \
+        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}

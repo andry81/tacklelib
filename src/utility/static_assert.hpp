@@ -133,4 +133,10 @@ namespace utility
         static const bool value = (u > v);
         static_assert(u > v, "StaticAssertGT failed.");
     };
+
+    // to compare strings in static_assert (see for details: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time)
+    constexpr bool static_strings_equal(char const * a, char const * b)
+    {
+        return *a == *b && (*a == '\0' || static_strings_equal(a + 1, b + 1));
+    }
 }

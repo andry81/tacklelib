@@ -1,6 +1,12 @@
 #pragma once
 
+#include <utility/platform.hpp>
+
 #include <boost/aligned_storage.hpp>
+
+
+#define TACKLE_ALIGNED_STORAGE_BY_INSTANCE_TOKEN(size_of, align_of, tag_pttn_type) \
+    UTILITY_PP_CONCAT6(size_, size_of, _align_, align_of, _pttn_, tag_pttn_type)
 
 
 namespace tackle

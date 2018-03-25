@@ -45,6 +45,9 @@
 
 #define TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES 32 // for the builtin switch-case generator
 
+#define TACKLE_ALIGNED_STORAGE_BY_INSTANCE_TOKEN(size_of, align_of, tag_pttn_type) \
+    UTILITY_PP_CONCAT6(size_, size_of, _align_, align_of, _pttn_, tag_pttn_type)
+
 
 // alignof mpl style implementation (namespace injection) the same way as the `mpl::sizeof_` did
 namespace boost {
