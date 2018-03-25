@@ -548,62 +548,68 @@ namespace tackle
         }
         else {
             const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-            size_t chunks_size = chunk_size - chunk_divrem.rem;
-            const auto * prev_chunk_ptr = &chunk;
-            decltype(prev_chunk_ptr) next_chunk_ptr;
 
-            if (next_chunk_divrem.quot >= 2) {
-                // collect continuous chunks block
-                for (size_t i = 1; i < next_chunk_divrem.quot; i++) {
-                    next_chunk_ptr = &chunks[chunk_divrem.quot + i];
-                    if (next_chunk_ptr == prev_chunk_ptr + chunks_size) {
-                        chunks_size += chunk_size;
-                    }
-                    else {
-                        // next chunk is not continuous, copy collected chunks at once
-                        UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
-                        prev_chunk_ptr = next_chunk_ptr;
-                        from_buf_offset = 0;
-                        to_buf_offset += chunks_size;
-                        chunks_size = chunk_size;
+            // cycles overhead optimization
+            //if (256 < next_chunk_divrem.quot) {
+                size_t chunks_size = chunk_size - chunk_divrem.rem;
+
+                const auto * prev_chunk_ptr = &chunk;
+                decltype(prev_chunk_ptr) next_chunk_ptr;
+
+                if (next_chunk_divrem.quot >= 2) {
+                    // collect continuous chunks block
+                    for (size_t i = 1; i < next_chunk_divrem.quot; i++) {
+                        next_chunk_ptr = &chunks[chunk_divrem.quot + i];
+                        if (next_chunk_ptr == prev_chunk_ptr + chunks_size) {
+                            chunks_size += chunk_size;
+                        }
+                        else {
+                            // next chunk is not continuous, copy collected chunks at once
+                            UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+                            prev_chunk_ptr = next_chunk_ptr;
+                            from_buf_offset = 0;
+                            to_buf_offset += chunks_size;
+                            chunks_size = chunk_size;
+                        }
                     }
                 }
-            }
-            if (next_chunk_divrem.rem) {
-                next_chunk_ptr = &chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-                if (next_chunk_ptr == prev_chunk_ptr + chunk_size) {
-                    UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size + next_chunk_divrem.rem);
-                    to_buf_offset += chunks_size + next_chunk_divrem.rem;
+                if (next_chunk_divrem.rem) {
+                    next_chunk_ptr = &chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+                    if (next_chunk_ptr == prev_chunk_ptr + chunk_size) {
+                        UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size + next_chunk_divrem.rem);
+                        to_buf_offset += chunks_size + next_chunk_divrem.rem;
+                    }
+                    else {
+                        UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+                        to_buf_offset += chunks_size;
+                        UTILITY_COPY(next_chunk_ptr->buf, to_buf + to_buf_offset, next_chunk_divrem.rem);
+                        to_buf_offset += next_chunk_divrem.rem;
+                    }
                 }
                 else {
                     UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
                     to_buf_offset += chunks_size;
-                    UTILITY_COPY(next_chunk_ptr->buf, to_buf + to_buf_offset, next_chunk_divrem.rem);
-                    to_buf_offset += next_chunk_divrem.rem;
                 }
-            }
-            else {
-                UTILITY_COPY(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
-                to_buf_offset += chunks_size;
-            }
-
-//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-//            const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-//            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
-//            to_buf_offset += first_chunk_size;
-//
-//            if (next_chunk_divrem.quot >= 2) {
-//                for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
-//                    const auto & chunk2 = chunks[chunk_divrem.quot + i];
-//                    UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
-//                }
-//            }
-//            if (next_chunk_divrem.rem) {
-//                auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-//                const size_t last_chunk_size = next_chunk_divrem.rem;
-//                UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
-//                to_buf_offset += last_chunk_size;
-//            }
+            //}
+            //else {
+            //    const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+            //
+            //    UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+            //    to_buf_offset += first_chunk_size;
+            //
+            //    if (next_chunk_divrem.quot >= 2) {
+            //        for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
+            //            const auto & chunk2 = chunks[chunk_divrem.quot + i];
+            //            UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+            //        }
+            //    }
+            //    if (next_chunk_divrem.rem) {
+            //        auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+            //        const size_t last_chunk_size = next_chunk_divrem.rem;
+            //        UTILITY_COPY(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+            //        to_buf_offset += last_chunk_size;
+            //    }
+            //}
         }
 
         return to_buf_offset;
@@ -628,62 +634,68 @@ namespace tackle
         }
         else {
             const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-            size_t chunks_size = chunk_size - chunk_divrem.rem;
-            const auto * prev_chunk_ptr = &chunk;
-            decltype(prev_chunk_ptr) next_chunk_ptr;
 
-            if (next_chunk_divrem.quot >= 2) {
-                // collect continuous chunks block
-                for (size_t i = 1; i < next_chunk_divrem.quot; i++) {
-                    next_chunk_ptr = &chunks[chunk_divrem.quot + i];
-                    if (next_chunk_ptr == prev_chunk_ptr + chunks_size) {
-                        chunks_size += chunk_size;
-                    }
-                    else {
-                        // next chunk is not continuous, copy collected chunks at once
-                        UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
-                        prev_chunk_ptr = next_chunk_ptr;
-                        from_buf_offset = 0;
-                        to_buf_offset += chunks_size;
-                        chunks_size = chunk_size;
+            // cycles overhead optimization
+            //if (256 < next_chunk_divrem.quot) {
+                size_t chunks_size = chunk_size - chunk_divrem.rem;
+
+                const auto * prev_chunk_ptr = &chunk;
+                decltype(prev_chunk_ptr) next_chunk_ptr;
+
+                if (next_chunk_divrem.quot >= 2) {
+                    // collect continuous chunks block
+                    for (size_t i = 1; i < next_chunk_divrem.quot; i++) {
+                        next_chunk_ptr = &chunks[chunk_divrem.quot + i];
+                        if (next_chunk_ptr == prev_chunk_ptr + chunks_size) {
+                            chunks_size += chunk_size;
+                        }
+                        else {
+                            // next chunk is not continuous, copy collected chunks at once
+                            UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+                            prev_chunk_ptr = next_chunk_ptr;
+                            from_buf_offset = 0;
+                            to_buf_offset += chunks_size;
+                            chunks_size = chunk_size;
+                        }
                     }
                 }
-            }
-            if (next_chunk_divrem.rem) {
-                next_chunk_ptr = &chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-                if (next_chunk_ptr == prev_chunk_ptr + chunk_size) {
-                    UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size + next_chunk_divrem.rem);
-                    to_buf_offset += chunks_size + next_chunk_divrem.rem;
+                if (next_chunk_divrem.rem) {
+                    next_chunk_ptr = &chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+                    if (next_chunk_ptr == prev_chunk_ptr + chunk_size) {
+                        UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size + next_chunk_divrem.rem);
+                        to_buf_offset += chunks_size + next_chunk_divrem.rem;
+                    }
+                    else {
+                        UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+                        to_buf_offset += chunks_size;
+                        UTILITY_COPY_FORCE_INLINE(next_chunk_ptr->buf, to_buf + to_buf_offset, next_chunk_divrem.rem);
+                        to_buf_offset += next_chunk_divrem.rem;
+                    }
                 }
                 else {
                     UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
                     to_buf_offset += chunks_size;
-                    UTILITY_COPY_FORCE_INLINE(next_chunk_ptr->buf, to_buf + to_buf_offset, next_chunk_divrem.rem);
-                    to_buf_offset += next_chunk_divrem.rem;
                 }
-            }
-            else {
-                UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
-                to_buf_offset += chunks_size;
-            }
-
-//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
-//            const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
-//            UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
-//            to_buf_offset += first_chunk_size;
-//            
-//            if (next_chunk_divrem.quot >= 2) {
-//                for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
-//                    const auto & chunk2 = chunks[chunk_divrem.quot + i];
-//                    UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, chunk_size);
-//                }
-//            }
-//            if (next_chunk_divrem.rem) {
-//                auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
-//                const size_t last_chunk_size = next_chunk_divrem.rem;
-//                UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
-//                to_buf_offset += last_chunk_size;
-//            }
+            //}
+            //else {
+            //    const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+            //
+            //    UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+            //    to_buf_offset += first_chunk_size;
+            //
+            //    if (next_chunk_divrem.quot >= 2) {
+            //        for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
+            //            const auto & chunk2 = chunks[chunk_divrem.quot + i];
+            //            UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+            //        }
+            //    }
+            //    if (next_chunk_divrem.rem) {
+            //        auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+            //        const size_t last_chunk_size = next_chunk_divrem.rem;
+            //        UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+            //        to_buf_offset += last_chunk_size;
+            //    }
+            //}
         }
 
         return to_buf_offset;

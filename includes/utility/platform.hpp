@@ -124,37 +124,32 @@
 #define LIBRARY_API __declspec(dllimport)
 #endif
 
-// to make the unique link with the implementation
-#define DECLARE_HEADER_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
+// to make the unique link with the static library (LIB) implementation
+#define DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
     class UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
-            token \
+            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
           ) \
-    { \
-        static const char s_build_version_str[sizeof(BUILD_VERSION_DATE_TIME_STR)]; \
-    } \
-    UTILITY_PP_CONCAT( \
+    { public: \
         UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(s_, class_name_prefix), \
-            __build_version_date_time_token__ \
-        ), \
-        token \
-    )
+            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
+        )(); \
+        static const char s_build_version_str[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1]; \
+    }; \
+    static \
+        UTILITY_PP_CONCAT( \
+            UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
+        ) \
+        UTILITY_PP_CONCAT( \
+            s_, UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__) \
+        )
 
-// to make the unique link with the public headers
-#define IMPLEMENT_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix) \
+// to make the unique link with the static library (LIB) headers
+#define IMPLEMENT_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
+    const char UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
+    ) :: s_build_version_str[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1] = "**build_version**: " BUILD_VERSION_DATE_TIME_STR; \
     UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
-        token \
-    ) \
-    UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT( \
-            UTILITY_PP_CONCAT(s_, class_name_prefix), \
-            __build_version_date_time_token__ \
-        ), \
-        token \
-    ); \
-    UTILITY_PP_CONCAT( \
-        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), \
-        token \
-    ) :: s_build_version_str = "**build_version**: " BUILD_VERSION_DATE_TIME_STR
+        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
+    ) :: UTILITY_PP_CONCAT( \
+        UTILITY_PP_CONCAT(class_name_prefix, __build_version_date_time_token__), token \
+    )() {}
