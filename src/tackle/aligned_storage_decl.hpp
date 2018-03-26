@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_ALIGNED_STORAGE_DECL_HPP
+#define TACKLE_ALIGNED_STORAGE_DECL_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
@@ -804,3 +808,5 @@ namespace tackle
         return m_storage.address();
     }
 }
+
+#endif

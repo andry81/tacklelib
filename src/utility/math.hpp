@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef UTILITY_MATH_HPP
+#define UTILITY_MATH_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/utility.hpp>
@@ -607,3 +611,5 @@ namespace math
         return ang_norm;
     }
 }
+
+#endif

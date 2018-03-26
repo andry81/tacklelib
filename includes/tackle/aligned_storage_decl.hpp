@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_ALIGNED_STORAGE_DECL_HPP
+#define TACKLE_ALIGNED_STORAGE_DECL_HPP
+
 #include <utility/platform.hpp>
 
 #include <boost/aligned_storage.hpp>
@@ -22,3 +26,5 @@ namespace tackle
         boost::aligned_storage<t_size_value, t_alignment_value> m_storage;
     };
 }
+
+#endif
