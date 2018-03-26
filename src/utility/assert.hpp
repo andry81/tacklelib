@@ -1,5 +1,6 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
 #ifndef UTILITY_ASSERT_HPP
 #define UTILITY_ASSERT_HPP
 
