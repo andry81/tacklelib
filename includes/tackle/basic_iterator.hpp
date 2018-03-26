@@ -4,8 +4,7 @@
 
 #include <utility/platform.hpp>
 
-#include <boost/type_traits/remove_const.hpp>
-
+#include <type_traits>
 #include <utility>
 
 
@@ -75,7 +74,7 @@ namespace tackle
         FORCE_INLINE basic_map_const_iterator(const typename C::const_iterator & it);
 
     public:
-        typedef typename boost::remove_const<K>::type key_t;
+        typedef typename std::remove_const<K>::type key_t;
         typedef std::pair<const key_t, T> pair_t;
 
         FORCE_INLINE basic_map_const_iterator();
