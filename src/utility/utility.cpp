@@ -151,7 +151,17 @@ namespace utility
 
     FileHandle recreate_file(const std::string & file_path, const char * mode, int flags, size_t size, uint32_t fill_by)
     {
-        FILE * file_ptr = _fsopen(file_path.c_str(), mode, flags);
+        FILE * file_ptr =
+#if defined(UTILITY_PLATFORM_WINDOWS)
+            _fsopen(file_path.c_str(), mode, flags);
+#elif defined(UTILITY_PLATFORM_POSIX)
+            fopen(file_path.c_str(), mode);
+            // TODO:
+            //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
+#else
+#error platform is not implemented
+#endif
+
         FileHandle file_handle_ptr = FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             utility::debug_break();
@@ -203,7 +213,17 @@ namespace utility
             return recreate_file(file_path, mode, flags, creation_size, fill_by_on_creation);
         }
 
-        FILE * file_ptr = _fsopen(file_path.c_str(), mode, flags);
+        FILE * file_ptr =
+#if defined(UTILITY_PLATFORM_WINDOWS)
+            _fsopen(file_path.c_str(), mode, flags);
+#elif defined(UTILITY_PLATFORM_POSIX)
+            fopen(file_path.c_str(), mode);
+            // TODO:
+            //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
+#else
+#error platform is not implemented
+#endif
+
         FileHandle file_handle_ptr = FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             utility::debug_break();

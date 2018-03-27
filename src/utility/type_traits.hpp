@@ -97,6 +97,14 @@ namespace utility
     template <typename T>
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
+    // in case if not declared
+    namespace std
+    {
+        template<size_t... _Vals>
+        using index_sequence = ::std::integer_sequence<size_t, _Vals...>;
+    }
+
     template<typename Functor, std::size_t... S>
     FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
     {
@@ -108,6 +116,19 @@ namespace utility
     {
         return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
     }
+#else
+    template<typename Functor>
+    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, ...)
+    {
+        STATIC_ASSERT_TRUE(false, "not implemented");
+    }
+
+    template<std::size_t Size, typename Functor>
+    FORCE_INLINE constexpr void static_foreach(Functor && functor)
+    {
+        STATIC_ASSERT_TRUE(false, "not implemented");
+    }
+#endif
 
     // `is_callable` implementation.
     // Based on: https://stackoverflow.com/questions/15393938/find-out-if-a-c-object-is-callable
