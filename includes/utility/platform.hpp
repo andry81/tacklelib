@@ -5,6 +5,11 @@
 #include <utility/preprocessor.hpp>
 
 
+// based on: https://stackoverflow.com/questions/26089319/is-there-a-standard-definition-for-cplusplus-in-c14
+#if __cplusplus >= 201402L
+#define UTILITY_PLATFORM_CXX_STANDARD_CPP14 1
+#endif
+
 // linux, also other platforms (Hurd etc) that use GLIBC, should these really have their own config headers though?
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)
 #  define UTILITY_PLATFORM_LINUX
@@ -45,7 +50,7 @@
 #  define UTILITY_PLATFORM_POSIX
 #  define UTILITY_PLATFORM_SHORT_NAME "QNX"
 #elif defined(unix) || defined(__unix) || defined(_XOPEN_SOURCE) || defined(_POSIX_SOURCE)
-#  define UTILITY_PLATFORM_UNINX
+#  define UTILITY_PLATFORM_UNIX
 #  define UTILITY_PLATFORM_POSIX
 #  define UTILITY_PLATFORM_SHORT_NAME "Unix"
 #else
