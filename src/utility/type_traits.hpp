@@ -37,6 +37,15 @@
 #endif
 
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
+// in case if not declared
+namespace std
+{
+    template<size_t... _Vals>
+    using index_sequence = integer_sequence<size_t, _Vals...>;
+}
+#endif
+
 namespace utility
 {
     namespace mpl = boost::mpl;
@@ -98,13 +107,6 @@ namespace utility
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
 #ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
-    // in case if not declared
-    namespace std
-    {
-        template<size_t... _Vals>
-        using index_sequence = ::std::integer_sequence<size_t, _Vals...>;
-    }
-
     template<typename Functor, std::size_t... S>
     FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
     {

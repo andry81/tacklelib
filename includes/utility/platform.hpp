@@ -5,11 +5,6 @@
 #include <utility/preprocessor.hpp>
 
 
-// based on: https://stackoverflow.com/questions/26089319/is-there-a-standard-definition-for-cplusplus-in-c14
-#if __cplusplus >= 201402L
-#define UTILITY_PLATFORM_CXX_STANDARD_CPP14 1
-#endif
-
 // linux, also other platforms (Hurd etc) that use GLIBC, should these really have their own config headers though?
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)
 #  define UTILITY_PLATFORM_LINUX
@@ -70,6 +65,21 @@
 #   define UTILITY_COMPILER_CXX_VERSION _MSC_VER
 #else
 #   error "Unknown compiler"
+#endif
+
+// common implementation based on: https://stackoverflow.com/questions/26089319/is-there-a-standard-definition-for-cplusplus-in-c14
+// msvc implementation based on:
+//  https://stackoverflow.com/questions/37503029/cplusplus-is-equal-to-199711-in-msvc-does-it-support-c11
+//  and Microsoft `C++ 14 Core Language Features` for the `Visual Studio 2015` workaround
+#ifdef UTILITY_COMPILER_CXX_MSC
+// MSVC specific workaround, tested on Visual Studio 2015 Update 3
+#if UTILITY_COMPILER_CXX_VERSION >= 1900
+#define UTILITY_PLATFORM_CXX_STANDARD_CPP14 1
+#endif
+#else
+#if __cplusplus >= 201402L
+#define UTILITY_PLATFORM_CXX_STANDARD_CPP14 1
+#endif
 #endif
 
 #if !defined(DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE)
