@@ -8,11 +8,14 @@ call "%%~dp0__init__.bat" || goto :EOF
 
 set /A NEST_LVL+=1
 
-echo."%PROJECT_ROOT%/includes/version.hpp"
+call :CANONICAL_PATH "%%~dp0.."
+set "CONFIGURE_ROOT=%CANONICAL_PATH%"
+
+echo."%CONFIGURE_ROOT%/includes/version.hpp"
 (
   echo.#pragma once
   echo.
-) > "%PROJECT_ROOT%/includes/version.hpp"
+) > "%CONFIGURE_ROOT%/includes/version.hpp"
 
 :EXIT
 set /A NEST_LVL-=1
@@ -20,3 +23,7 @@ set /A NEST_LVL-=1
 if %NEST_LVL% EQU 0 pause
 
 exit /b
+
+:CANONICAL_PATH
+set "CANONICAL_PATH=%~dpf1"
+set "CANONICAL_PATH=%CANONICAL_PATH:\=/%"
