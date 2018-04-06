@@ -15,24 +15,22 @@ namespace tackle
         STATIC_ASSERT_EQ(alignment_value, boost::alignment_of<storage_type_t>::value, "the storage type alignment is different");
 
         if (enable_unconstructed_copy_) {
-            enable_unconstructed_copy();
+            base_t::enable_unconstructed_copy();
         }
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     FORCE_INLINE aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::aligned_storage_by(const aligned_storage_by & r) :
-        aligned_storage_base(r) // binding with the base
+        base_t(r) // binding with the base
     {
         // just in case
-        ASSERT_TRUE(has_construction_flag() && r.has_construction_flag());
-        ASSERT_TRUE(!is_constructed());
+        ASSERT_TRUE(base_t::has_construction_flag() && r.has_construction_flag());
+        ASSERT_TRUE(!base_t::is_constructed());
 
         // at first, check if storage is constructed
         if (!r.is_constructed()) {
-            if (!is_unconstructed_copy_allowed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                        ).str());
+            if (!base_t::is_unconstructed_copy_allowed()) {
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
             }
         }
         else {
@@ -40,7 +38,7 @@ namespace tackle
             ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(r.m_storage.address()));
 
             // flag construction
-            set_constructed(true);
+            base_t::set_constructed(true);
         }
     }
 
@@ -48,22 +46,18 @@ namespace tackle
     FORCE_INLINE aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type> &
         aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::operator =(const aligned_storage_by & r)
     {
-        this->aligned_storage_base::operator =(r); // binding with the base
+        this->base_t::operator =(r); // binding with the base
 
         // just in case
-        ASSERT_TRUE(has_construction_flag() && r.has_construction_flag());
+        ASSERT_TRUE(base_t::has_construction_flag() && r.has_construction_flag());
 
         // at first, check if both storages are constructed
-        if (!is_constructed()) {
-            throw std::runtime_error((boost::format(
-                BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                    ).str());
+        if (!base_t::is_constructed()) {
+            throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
         }
 
         if (!r.is_constructed()) {
-            throw std::runtime_error((boost::format(
-                BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                    ).str());
+            throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
         }
 
         // make assignment
@@ -75,32 +69,32 @@ namespace tackle
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::construct()
     {
-        ASSERT_TRUE(!has_construction_flag() || !is_constructed());
+        ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
         ::new (m_storage.address()) storage_type_t();
 
         // flag construction
-        set_constructed(true);
+        base_t::set_constructed(true);
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     template <typename Ref>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::construct(Ref & r)
     {
-        ASSERT_TRUE(!has_construction_flag() || !is_constructed());
+        ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
         ::new (m_storage.address()) storage_type_t(r);
 
         // flag construction
-        set_constructed(true);
+        base_t::set_constructed(true);
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::destruct()
     {
-        ASSERT_TRUE(!has_construction_flag() || is_constructed());
+        ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        set_constructed(false);
+        base_t::set_constructed(false);
 
         static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
     }
@@ -109,7 +103,7 @@ namespace tackle
     template <typename Ref>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(Ref & r)
     {
-        ASSERT_TRUE(!has_construction_flag() || is_constructed());
+        ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
         *static_cast<storage_type_t *>(m_storage.address()) = r;
     }
@@ -118,7 +112,7 @@ namespace tackle
     template <typename Ref>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(Ref & r) volatile
     {
-        ASSERT_TRUE(!has_construction_flag() || is_constructed());
+        ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
         *static_cast<storage_type_t *>(m_storage.address()) = r;
     }
@@ -128,14 +122,14 @@ namespace tackle
     //#undef UTILITY_PP_LINE_TERMINATOR
     #define TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
         case n: { UTILITY_PP_LINE_TERMINATOR\
-            typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type storage_type_t; UTILITY_PP_LINE_TERMINATOR\
+            using storage_type_t = typename mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type; UTILITY_PP_LINE_TERMINATOR\
             macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
         } break; UTILITY_PP_LINE_TERMINATOR
 
     // for binary operators
     #define TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX(z, n, macro_text) \
         case n: { UTILITY_PP_LINE_TERMINATOR\
-            typedef mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type right_storage_type_t; UTILITY_PP_LINE_TERMINATOR\
+            using right_storage_type_t = typename mpl::if_<mpl::less<mpl::size_t<n>, mpl::size_t<num_types_t::value> >, mpl::at<storage_types_t, mpl::int_<n> >, mpl::void_>::type::type; UTILITY_PP_LINE_TERMINATOR\
             macro_text(z, n); UTILITY_PP_LINE_TERMINATOR\
         } break; UTILITY_PP_LINE_TERMINATOR
 
@@ -159,10 +153,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i"))
-                            ).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % type_index).str());
             }
         }
     }
@@ -172,7 +163,8 @@ namespace tackle
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             if (construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct(m_storage.address(), r, BOOST_PP_CAT(__FUNCTION__, ": storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\""))) { \
+                construct(m_storage.address(), r, UTILITY_PP_FUNC, \
+                    "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
         } else goto default_
@@ -190,10 +182,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i"))
-                            ).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % type_index).str());
             }
         }
     }
@@ -222,9 +211,8 @@ namespace tackle
         default_:;
             default: {
                 throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid storage construction: to_type_index=%i from_type_index=%i")) %
-                            m_type_index % s.m_type_index).str());
+                    (boost::format("%s: invalid storage construction: to_type_index=%i from_type_index=%i") %
+                        UTILITY_PP_FUNC % m_type_index % s.m_type_index).str());
             }
         }
     }
@@ -246,10 +234,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
             }
         }
     }
@@ -287,9 +272,8 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid storage assign: to_type_index=%i from_type_index=%i")) %
-                            m_type_index % s.m_type_index).str());
+                    (boost::format("%s: invalid storage assign: to_type_index=%i from_type_index=%i") %
+                        UTILITY_PP_FUNC % m_type_index % s.m_type_index).str());
             }
         }
     }
@@ -304,8 +288,8 @@ namespace tackle
         } else goto default_
 
 
-    template <typename Ref>
-    inline void assign(Ref & r, bool throw_exceptions_on_type_error)
+    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::assign(Ref & r, bool throw_exceptions_on_type_error)
     {
         // container must be already constructed before the assign
         if (m_type_index < 0) goto default_;
@@ -316,10 +300,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid storage assign: type_index=%i")) %
-                            m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
             }
         }
     }
@@ -329,7 +310,8 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *static_cast<storage_type_t *>(m_storage.address()), BOOST_PP_CAT(__FUNCTION__, ": functor has not convertible first parameter type: From=\"%s\" To=\"%s\""), throw_exceptions_on_type_error); \
+                call(functor, *static_cast<storage_type_t *>(m_storage.address()), UTILITY_PP_FUNC, \
+                    "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
@@ -341,10 +323,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
             }
         }
 
@@ -356,7 +335,8 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *static_cast<const storage_type_t *>(m_storage.address()), BOOST_PP_CAT(__FUNCTION__, ": functor has not convertible first parameter type: From=\"%s\" To=\"%s\""), throw_exceptions_on_type_error); \
+                call(functor, *static_cast<const storage_type_t *>(m_storage.address()), UTILITY_PP_FUNC, \
+                    "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
@@ -368,10 +348,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error(
-                    (boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": invalid type index: type_index=%i")) %
-                            m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
             }
         }
 

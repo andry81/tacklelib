@@ -21,13 +21,13 @@
 
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl recurrent types
 #define UTILITY_TYPE_LOOKUP_BY_ERROR(type_name) \
-    typedef decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::dummy*)0)) _type_lookup_t
+    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::dummy*)0))
 
 // the macro only for msvc compiler which has more useful error output if a scope class and a type are separated from each other
 #ifdef _MSC_VER
 
 #define UTILITY_TYPE_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
-    typedef decltype((*(typename ::utility::type_lookup<class_name >::type_name*)0).operator ,(*(::utility::dummy*)0)) _type_lookup_t
+    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<class_name >::type_name*)0).operator ,(*(::utility::dummy*)0))
 
 #else
 
@@ -62,7 +62,7 @@ namespace utility
     template <typename T>
     struct type_lookup
     {
-        typedef T type;
+        using type = T;
     };
 
     // std::size is supported from C++17
@@ -122,13 +122,17 @@ namespace utility
     template<typename Functor>
     FORCE_INLINE constexpr void static_foreach_seq(Functor && function, ...)
     {
-        STATIC_ASSERT_TRUE(false, "not implemented");
+        // make static assert function template parameter dependent
+        // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
+        STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
     }
 
     template<std::size_t Size, typename Functor>
     FORCE_INLINE constexpr void static_foreach(Functor && functor)
     {
-        STATIC_ASSERT_TRUE(false, "not implemented");
+        // make static assert function template parameter dependent
+        // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
+        STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
     }
 #endif
 
@@ -250,7 +254,7 @@ namespace utility
         template <typename C> static yes_t test(decltype(&C::operator()));
         template <typename C> static no_t test(...);
 
-        typedef typename boost::remove_reference<T>::type unref_type;
+        using unref_type = typename boost::remove_reference<T>::type;
 
     public:
         static const bool value = (sizeof(test<unref_type>(0)) == sizeof(yes_t));
@@ -308,10 +312,12 @@ namespace utility
             {
                 static_assert(has_variadic_args<Args...>::value, "functor does not declare any arguments");
 
-                typedef typename mpl::if_<has_variadic_args<Args...>, std::tuple_element<i, std::tuple<Args...> >, mpl::void_>::type::type type;
+                using type = typename mpl::if_<has_variadic_args<Args...>, std::tuple_element<i, std::tuple<Args...> >, mpl::void_>::type::type;
             };
         };
     }
+
+    //// function_traits
 
     // function
     template <typename R, typename... Args>
@@ -501,7 +507,8 @@ namespace utility
     {
     };
 
-    //
+    //// function_traits_extractable
+
     template<typename T, bool IsExtractable>
     struct function_traits_extractable : function_traits<decltype(&T::operator())>
     {
@@ -510,7 +517,7 @@ namespace utility
     template<typename T>
     struct function_traits_extractable<T, false>
     {
-        typedef typename boost::remove_reference<T>::type unref_type;
+        using unref_type = typename boost::remove_reference<T>::type;
         STATIC_ASSERT_TRUE2(boost::is_function<unref_type>::value || boost::is_class<unref_type>::value,
             boost::is_function<unref_type>::value, boost::is_class<unref_type>::value,
             "type must be at least a function/class type");
@@ -523,19 +530,23 @@ namespace utility
         template <size_t i>
         struct arg
         {
-            typedef mpl::void_ type;
+            using type = mpl::void_;
         };
     };
+
+    //// function_traits
 
     template<typename T>
     struct function_traits : function_traits_extractable<typename boost::remove_reference<T>::type, is_function_traits_extractable<T>::value>
     {
     };
 
+    //// is_function_traits_extractable
+
     template <typename T>
     struct is_function_traits_extractable
     {
-        typedef typename boost::remove_reference<T>::type unref_type;
+        using unref_type = typename boost::remove_reference<T>::type;
         static const bool value = (boost::is_function<unref_type>::value || boost::is_class<unref_type>::value) && is_callable<unref_type>::value && (boost::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value);
     };
 }

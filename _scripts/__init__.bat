@@ -5,6 +5,9 @@ rem  In case of usage the QtCreator there is set of special broken cases you hav
 rem  1. Invalid characters in paths: `(`, `)` and `.`.
 rem  2. Non english locale in paths.
 
+rem execution guard
+if defined __INIT__ exit /b 0
+
 call :CANONICAL_PATH "%%~dp0.."
 set "PROJECT_ROOT=%PATH_VALUE%"
 

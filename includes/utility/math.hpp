@@ -25,8 +25,12 @@ namespace math
     const constexpr long long_max = (std::numeric_limits<long>::max)();
     const constexpr unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
     const constexpr long long longlong_max = (std::numeric_limits<long long>::max)();
+#endif
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
     const constexpr unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
+#endif
 
     const constexpr int8_t int8_max = (std::numeric_limits<int8_t>::max)();
     const constexpr uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
