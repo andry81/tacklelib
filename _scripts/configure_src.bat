@@ -17,6 +17,16 @@ echo."%CONFIGURE_ROOT%/includes/version.hpp"
   echo.
 ) > "%CONFIGURE_ROOT%/includes/version.hpp"
 
+echo."%CONFIGURE_ROOT%/src/debug.hpp.in" -^> "%CONFIGURE_ROOT%/src/debug.hpp"
+(
+  type "%CONFIGURE_ROOT:/=\%\src\debug.hpp.in"
+) > "%CONFIGURE_ROOT%/src/debug.hpp"
+
+echo."%CONFIGURE_ROOT%/src/optimization.hpp.in" -^> "%CONFIGURE_ROOT%/src/optimization.hpp"
+(
+  type "%CONFIGURE_ROOT:/=\%\src\optimization.hpp.in"
+) > "%CONFIGURE_ROOT%/src/optimization.hpp"
+
 :EXIT
 set /A NEST_LVL-=1
 

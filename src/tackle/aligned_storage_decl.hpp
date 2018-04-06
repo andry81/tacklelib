@@ -77,8 +77,8 @@ namespace tackle
     //  Special tag pattern type to use the aligned storage with enabled (not deleted) copy constructor and assignment operator
     //  with explicit flag of constructed state (it is dangerous w/o the flag because being copied or assigned type can be not yet constructed!).
     //
-    typedef struct tag_pttn_control_lifetime_ tag_pttn_control_lifetime_t;
-    typedef struct tag_pttn_default_ tag_pttn_default_t;
+    using tag_pttn_control_lifetime_t = struct tag_pttn_control_lifetime_;
+    using tag_pttn_default_t = struct tag_pttn_default_;
 
     template <typename tag_pttn>
     class aligned_storage_base
@@ -120,9 +120,7 @@ namespace tackle
 
         FORCE_INLINE void enable_unconstructed_copy()
         {
-            throw std::runtime_error((boost::format(
-                BOOST_PP_CAT(__FUNCTION__, ": not implemented"))
-                    ).str());
+            throw std::runtime_error((boost::format("%s: not implemented") % UTILITY_PP_FUNC).str());
         }
     };
 
@@ -193,41 +191,40 @@ namespace tackle
     class aligned_storage_from : public aligned_storage_base<t_tag_pttn_type>
     {
     public:
-        typedef t_storage_type storage_type_t;
+        using base_t = aligned_storage_base<t_tag_pttn_type>;
+        using storage_type_t = t_storage_type;
 
         static const size_t size_value = sizeof(storage_type_t);
         static const size_t alignment_value = boost::alignment_of<storage_type_t>::value;
 
-        typedef boost::aligned_storage<size_value, alignment_value> aligned_storage_t;
+        using aligned_storage_t = boost::aligned_storage<size_value, alignment_value>;
 
         FORCE_INLINE aligned_storage_from(bool enable_unconstructed_copy_ = false)
         {
             if (enable_unconstructed_copy_) {
-                enable_unconstructed_copy();
+                base_t::enable_unconstructed_copy();
             }
         }
 
         FORCE_INLINE ~aligned_storage_from()
         {
             // auto destruct ONLY if has lifetime control enabled
-            if (has_construction_flag() && is_constructed()) {
+            if (base_t::has_construction_flag() && base_t::is_constructed()) {
                 destruct();
             }
         }
 
         FORCE_INLINE aligned_storage_from(const aligned_storage_from & r) :
-            aligned_storage_base(r) // binding with the base
+            base_t(r) // binding with the base
         {
             // just in case
-            ASSERT_TRUE(has_construction_flag() && r.has_construction_flag());
-            ASSERT_TRUE(!is_constructed());
+            ASSERT_TRUE(base_t::has_construction_flag() && r.has_construction_flag());
+            ASSERT_TRUE(!base_t::is_constructed());
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                if (!is_unconstructed_copy_allowed()) {
-                    throw std::runtime_error((boost::format(
-                        BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                            ).str());
+                if (!base_t::is_unconstructed_copy_allowed()) {
+                    throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
                 }
             }
             else {
@@ -235,28 +232,24 @@ namespace tackle
                 ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(r.m_storage.address()));
 
                 // flag construction
-                set_constructed(true);
+                base_t::set_constructed(true);
             }
         }
 
         FORCE_INLINE aligned_storage_from & operator =(const aligned_storage_from & r)
         {
-            this->aligned_storage_base::operator =(r); // binding with the base
+            this->base_t::operator =(r); // binding with the base
 
             // just in case
-            ASSERT_TRUE(has_construction_flag() && r.has_construction_flag());
+            ASSERT_TRUE(base_t::has_construction_flag() && r.has_construction_flag());
 
             // at first, check if both storages are constructed
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             if (!r.is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                        ).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             // make assignment
@@ -268,30 +261,30 @@ namespace tackle
         // direct construction and destruction of the storage
         FORCE_INLINE void construct()
         {
-            ASSERT_TRUE(!has_construction_flag() || !is_constructed());
+            ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
             ::new (m_storage.address()) storage_type_t();
 
             // flag construction
-            set_constructed(true);
+            base_t::set_constructed(true);
         }
 
         template <typename Ref>
         FORCE_INLINE void construct(Ref & r)
         {
-            ASSERT_TRUE(!has_construction_flag() || !is_constructed());
+            ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
             ::new (m_storage.address()) storage_type_t(r);
 
             // flag construction
-            set_constructed(true);
+            base_t::set_constructed(true);
         }
 
         FORCE_INLINE void destruct()
         {
-            ASSERT_TRUE(!has_construction_flag() || is_constructed());
+            ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            set_constructed(false);
+            base_t::set_constructed(false);
 
             static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
         }
@@ -299,7 +292,7 @@ namespace tackle
         template <typename Ref>
         FORCE_INLINE void assign(Ref & r)
         {
-            ASSERT_TRUE(!has_construction_flag() || is_constructed());
+            ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
             *static_cast<storage_type_t *>(m_storage.address()) = r;
         }
@@ -307,7 +300,7 @@ namespace tackle
         template <typename Ref>
         FORCE_INLINE void assign(Ref & r) volatile
         {
-            ASSERT_TRUE(!has_construction_flag() || is_constructed());
+            ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
             *static_cast<storage_type_t *>(m_storage.address()) = r;
         }
@@ -315,10 +308,8 @@ namespace tackle
         // storage redirection
         FORCE_INLINE storage_type_t * this_()
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return static_cast<storage_type_t *>(m_storage.address());
@@ -326,10 +317,8 @@ namespace tackle
 
         FORCE_INLINE const storage_type_t * this_() const
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<const storage_type_t *>(m_storage.address());
@@ -337,10 +326,8 @@ namespace tackle
 
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<volatile storage_type_t *>(address());
@@ -348,10 +335,8 @@ namespace tackle
 
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<const volatile storage_type_t *>(address());
@@ -386,12 +371,13 @@ namespace tackle
     class aligned_storage_by : public aligned_storage_base<t_tag_pttn_type>
     {
     public:
-        typedef t_storage_type storage_type_t;
+        using base_t = aligned_storage_base<t_tag_pttn_type>;
+        using storage_type_t = t_storage_type;
 
         static const size_t size_value = t_size_value;
         static const size_t alignment_value = t_alignment_value;
 
-        typedef boost::aligned_storage<size_value, alignment_value> aligned_storage_t;
+        using aligned_storage_t = boost::aligned_storage<size_value, alignment_value>;
 
         STATIC_ASSERT_GT(size_value, 1, "size_value must be strictly positive value");
         STATIC_ASSERT_TRUE2(alignment_value > 1 && size_value >= alignment_value,
@@ -403,7 +389,7 @@ namespace tackle
         FORCE_INLINE ~aligned_storage_by()
         {
             // auto destruct ONLY if has lifetime control enabled
-            if (has_construction_flag() && is_constructed()) {
+            if (base_t::has_construction_flag() && base_t::is_constructed()) {
                 destruct();
             }
         }
@@ -424,10 +410,8 @@ namespace tackle
         // storage redirection
         FORCE_INLINE storage_type_t * this_()
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return static_cast<storage_type_t *>(m_storage.address());
@@ -435,10 +419,8 @@ namespace tackle
 
         FORCE_INLINE const storage_type_t * this_() const
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<const storage_type_t *>(m_storage.address());
@@ -446,10 +428,8 @@ namespace tackle
 
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<volatile storage_type_t *>(address());
@@ -457,10 +437,8 @@ namespace tackle
 
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
-            if (!is_constructed()) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+            if (!base_t::is_constructed()) {
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             return reinterpret_cast<const volatile storage_type_t *>(address());
@@ -515,7 +493,8 @@ namespace tackle
     class max_aligned_storage_from_mpl_container : public max_aligned_storage_from_mpl_container_base<t_tag_pttn_type>
     {
     public:
-        typedef typename t_mpl_container_types storage_types_t;
+        using base_t = max_aligned_storage_from_mpl_container_base<t_tag_pttn_type>;
+        using storage_types_t = t_mpl_container_types;
 
     private:
         // as reference
@@ -543,8 +522,10 @@ namespace tackle
         struct construct_if_convertible
         {
             template <typename Ref>
-            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
             {
+                UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
+
                 ::new (storage_ptr) Type(r);
 
                 return true;
@@ -555,12 +536,11 @@ namespace tackle
         struct construct_if_convertible<Type, false>
         {
             template <typename Ref>
-            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
             {
                 throw std::runtime_error(
-                    (boost::format(
-                        error_msg_fmt) %
-                            typeid(Type).raw_name() % typeid(Ref).raw_name()).str());
+                    (boost::format(error_msg_fmt) % func % typeid(Type).name() % typeid(Ref).name()).str()
+                );
 
                 return false;
             }
@@ -570,9 +550,9 @@ namespace tackle
         struct construct_dispatcher
         {
             template <typename Ref>
-            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
             {
-                return construct_if_convertible<Type, boost::is_convertible<Ref, Type>::value>::construct(storage_ptr, r, error_msg_fmt);
+                return construct_if_convertible<Type, boost::is_convertible<Ref, Type>::value>::construct(storage_ptr, r, func, error_msg_fmt);
             }
         };
 
@@ -580,8 +560,9 @@ namespace tackle
         struct construct_dispatcher<TypeIndex, Type, false>
         {
             template <typename Ref>
-            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * error_msg_fmt)
+            static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
             {
+                UTILITY_UNUSED_STATEMENT4(storage_ptr, r, func, error_msg_fmt);
                 return false;
             }
         };
@@ -590,8 +571,9 @@ namespace tackle
         struct invoke_if_convertible
         {
             template <typename F, typename Ref>
-            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
+                UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
                 return f(r);
             }
         };
@@ -600,13 +582,12 @@ namespace tackle
         struct invoke_if_convertible<Ret, From, To, false>
         {
             template <typename F, typename Ref>
-            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
                 if(throw_exceptions_on_type_error) {
                     throw std::runtime_error(
-                        (boost::format(
-                            error_msg_fmt) %
-                                typeid(From).raw_name() % typeid(To).raw_name()).str());
+                        (boost::format(error_msg_fmt) % func % typeid(From).name() % typeid(To).name()).str()
+                    );
                 }
 
                 return _default_construct_dummy(mpl::identity<Ret>());
@@ -617,16 +598,17 @@ namespace tackle
         struct invoke_dispatcher
         {
             template <typename F, typename Ref>
-            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                typedef typename boost::remove_cv<typename boost::remove_reference<typename utility::function_traits<F>::arg<0>::type>::type >::type unqual_arg0_type;
+                using unqual_arg0_type = typename boost::remove_cv<typename boost::remove_reference<typename utility::function_traits<F>::template arg<0>::type>::type>::type;
 
-                typedef typename mpl::find<TypeList, unqual_arg0_type>::type found_it_t;
+                using found_it_t = typename mpl::find<TypeList, unqual_arg0_type>::type;
 
                 static_assert(!boost::is_same<found_it_t, EndIt>::value,
                     "functor first unqualified parameter type is not declared by storage types list");
 
-                return invoke_if_convertible<Ret, Ref, unqual_arg0_type, boost::is_convertible<Ref, unqual_arg0_type>::value>::call(f, r, error_msg_fmt, throw_exceptions_on_type_error);
+                return invoke_if_convertible<Ret, Ref, unqual_arg0_type, boost::is_convertible<Ref, unqual_arg0_type>::value>::
+                    call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
             }
         };
 
@@ -634,9 +616,9 @@ namespace tackle
         struct invoke_dispatcher<TypeIndex, Ret, TypeList, EndIt, true, false>
         {
             template <typename F, typename Ref>
-            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                UTILITY_UNUSED_STATEMENT2(error_msg_fmt, throw_exceptions_on_type_error);
+                UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
                 return f(r); // call as generic or cast
             }
         };
@@ -645,32 +627,32 @@ namespace tackle
         struct invoke_dispatcher<TypeIndex, Ret, TypeList, EndIt, false, IsExtractable>
         {
             template <typename F, typename Ref>
-            static FORCE_INLINE Ret call(F & f, Ref & r, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                UTILITY_UNUSED_STATEMENT4(f, r, error_msg_fmt, throw_exceptions_on_type_error);
+                UTILITY_UNUSED_STATEMENT5(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
                 return _default_construct_dummy(mpl::identity<Ret>()); // disabled call
             }
         };
 
     private:
-        typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
-        typedef typename mpl::size<storage_types_t>::type num_types_t;
+        using storage_types_end_it_t = typename mpl::end<storage_types_t>::type;
+        using num_types_t = typename mpl::size<storage_types_t>::type;
 
         STATIC_ASSERT_GT(num_types_t::value, 0, "template must be specialized with not empty mpl container");
         STATIC_ASSERT_GE(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, num_types_t::value,
             "TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES has not enough value or storage_types_t is too big");
 
-        typedef typename mpl::deref<
+        using max_size_t = typename mpl::deref<
             typename mpl::max_element<
                 mpl::transform_view<storage_types_t, mpl::sizeof_<mpl::_1> >
             >::type
-        >::type max_size_t;
+        >::type;
 
-        typedef typename mpl::deref<
+        using max_alignment_t = typename mpl::deref<
             typename mpl::max_element<
                 mpl::transform_view<storage_types_t, mpl::alignof_<mpl::_1> >
             >::type
-        >::type max_alignment_t;
+        >::type;
 
     public:
         // use maximals
@@ -682,7 +664,7 @@ namespace tackle
             max_alignment_value, max_size_value,
             "max_alignment_value must be strictly positive value and not greater than max_size_value");
 
-        typedef boost::aligned_storage<max_size_value, max_alignment_value> max_aligned_storage_t;
+        using max_aligned_storage_t = boost::aligned_storage<max_size_value, max_alignment_value>;
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index = -1);
         template <typename Ref>
@@ -690,16 +672,14 @@ namespace tackle
         FORCE_INLINE ~max_aligned_storage_from_mpl_container();
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(const max_aligned_storage_from_mpl_container & r) :
-            max_aligned_storage_from_mpl_container_base(r) // binding with the base
+            base_t(r) // binding with the base
         {
             // just in case
             ASSERT_LT(type_index(), 0);
 
             // at first, check if storage is constructed
             if (r.type_index() < 0) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                        ).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             // make construction
@@ -708,19 +688,15 @@ namespace tackle
 
         FORCE_INLINE max_aligned_storage_from_mpl_container & operator =(const max_aligned_storage_from_mpl_container & r)
         {
-            this->max_aligned_storage_from_mpl_container_base::operator =(r); // binding with the base
+            this->base_t::operator =(r); // binding with the base
 
             // at first, check if both storages are constructed
             if (type_index() < 0) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": this type is not constructed"))
-                        ).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             if (r.type_index() < 0) {
-                throw std::runtime_error((boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": reference type is not constructed"))
-                        ).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
             // make assignment

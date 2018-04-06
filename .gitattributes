@@ -1,7 +1,11 @@
 * text=auto !eol
 /.svnignore -text
 _scripts/__init__.bat -text
+_scripts/__init__.sh -text
+_scripts/admin/chown_mod.sh -text
+_scripts/buildlib.sh -text
 _scripts/configure_src.bat -text
+_scripts/configure_src.sh -text
 includes/.svnignore -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
@@ -13,8 +17,8 @@ includes/utility/platform.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
 includes/utility/utility.hpp -text
-src/debug.hpp -text
-src/optimization.hpp -text
+src/debug.hpp.in -text
+src/optimization.hpp.in -text
 src/tackle/aligned_storage.hpp -text
 src/tackle/aligned_storage_decl.hpp -text
 src/tackle/aligned_storage_impl.hpp -text

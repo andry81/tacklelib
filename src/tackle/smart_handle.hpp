@@ -7,7 +7,7 @@
 
 namespace tackle
 {
-    typedef void ReleaseDeleterFunc(void *);
+    using ReleaseDeleterFunc = void(void *);
 
     // * not thread safe deleter with release support
     // * the deleter by user type together with the deleter by user value, deleter by user value has priority
@@ -20,7 +20,7 @@ namespace tackle
         //  3. if needs to avoid the deleter then must be true
         //  4. if needs to be thread safe with the holder, then must be either atomic or it's assignment should be
         //     strictly ordered before a call to the holder release function!
-        typedef boost::shared_ptr<R> ReleaseStateSharedPtr;
+        using ReleaseStateSharedPtr = boost::shared_ptr<R>;
 
     private:
         ReleaseStateSharedPtr release_state;
@@ -47,8 +47,8 @@ namespace tackle
     template<typename T>
     class SmartHandle
     {
-        typedef boost::shared_ptr<bool> ReleaseStateSharedPtr;
-        typedef boost::shared_ptr<void> SharedPtr;
+        using ReleaseStateSharedPtr = boost::shared_ptr<bool>;
+        using SharedPtr = boost::shared_ptr<void>;
 
         ReleaseStateSharedPtr   m_release; //at first because must be initialized before it's holder
         SharedPtr               m_pv;

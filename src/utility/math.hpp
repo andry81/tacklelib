@@ -20,6 +20,7 @@
 #include <utility>
 
 #include <float.h>
+#include <math.h>
 
 
 #define INT32_LOG2_FLOOR(x) ::utility::int_log2_floor<int32_t>(x)
@@ -76,8 +77,12 @@ namespace math
     const constexpr long long_max = (std::numeric_limits<long>::max)();
     const constexpr unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
     const constexpr long long longlong_max = (std::numeric_limits<long long>::max)();
+#endif
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
     const constexpr unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
+#endif
 
     const constexpr int8_t int8_max = (std::numeric_limits<int8_t>::max)();
     const constexpr uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
@@ -202,11 +207,11 @@ namespace math
     template<uint32_t x>
     struct uint32_pof2_floor
     {
-        typedef mpl::integral_c<uint32_t, x | (x >> 1)> x1_t;
-        typedef mpl::integral_c<uint32_t, x1_t::value | (x1_t::value >> 2)> x2_t;
-        typedef mpl::integral_c<uint32_t, x2_t::value | (x2_t::value >> 4)> x4_t;
-        typedef mpl::integral_c<uint32_t, x4_t::value | (x4_t::value >> 8)> x8_t;
-        typedef mpl::integral_c<uint32_t, x8_t::value | (x8_t::value >> 16)> x16_t;
+        using x1_t  = mpl::integral_c<uint32_t, x | (x >> 1)>;
+        using x2_t = mpl::integral_c<uint32_t, x1_t::value | (x1_t::value >> 2)>;
+        using x4_t = mpl::integral_c<uint32_t, x2_t::value | (x2_t::value >> 4)>;
+        using x8_t = mpl::integral_c<uint32_t, x4_t::value | (x4_t::value >> 8)>;
+        using x16_t = mpl::integral_c<uint32_t, x8_t::value | (x8_t::value >> 16)>;
 
         static const uint32_t value = (x16_t::value >> 1) + 1;
     };
@@ -221,7 +226,7 @@ namespace math
     template<uint32_t x>
     struct uint32_pof2_ceil
     {
-        typedef uint32_pof2_floor<x> uint32_pof2_floor_t;
+        using uint32_pof2_floor_t = uint32_pof2_floor<x>;
         static const uint32_t value = uint32_pof2_floor_t::value != x ? (uint32_pof2_floor_t::value << 1) : uint32_pof2_floor_t::value;
     };
 
@@ -235,18 +240,20 @@ namespace math
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
     FORCE_INLINE_ALWAYS unsigned int negate(unsigned int i)
     {
-        return unsigned int(-int(i));
+        return static_cast<unsigned int>(-static_cast<int>(i));
     }
 
     FORCE_INLINE_ALWAYS unsigned long negate(unsigned long i)
     {
-        return unsigned long(-long(i));
+        return static_cast<unsigned long>(-static_cast<long>(i));
     }
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
     FORCE_INLINE_ALWAYS unsigned long long negate(unsigned long long i)
     {
-        return unsigned long long(-long long(i));
+        return static_cast<unsigned long long>(-static_cast<long long>(i));
     }
+#endif
 
     FORCE_INLINE_ALWAYS int negate(int i)
     {
@@ -258,10 +265,12 @@ namespace math
         return -i;
     }
 
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
     FORCE_INLINE_ALWAYS long long negate(long long i)
     {
         return -i;
     }
+#endif
 
     template<typename R, typename T0, typename T1>
     FORCE_INLINE R t_add_no_overflow(T0 a, T1 b)
@@ -334,7 +343,7 @@ namespace math
     {
         ASSERT_GT(v, T(0));
 
-        typedef typename boost::make_unsigned<T>::type unsigned_type;
+        using unsigned_type = typename boost::make_unsigned<T>::type;
 
         unsigned_type unsigned_value = unsigned_type(v);
 

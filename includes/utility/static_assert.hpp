@@ -89,6 +89,7 @@ namespace utility
     struct StaticAssertFalse
     {
         static const bool value = (v ? false : true);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
 
@@ -96,6 +97,7 @@ namespace utility
     struct StaticAssertEQ
     {
         static const bool value = (u == v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u == v, "StaticAssertEQ failed.");
     };
 
@@ -103,6 +105,7 @@ namespace utility
     struct StaticAssertNE
     {
         static const bool value = (u != v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u != v, "StaticAssertNE failed.");
     };
 
@@ -110,6 +113,7 @@ namespace utility
     struct StaticAssertLE
     {
         static const bool value = (u <= v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u <= v, "StaticAssertLE failed.");
     };
 
@@ -117,6 +121,7 @@ namespace utility
     struct StaticAssertLT
     {
         static const bool value = (u < v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u < v, "StaticAssertLT failed.");
     };
 
@@ -124,6 +129,7 @@ namespace utility
     struct StaticAssertGE
     {
         static const bool value = (u >= v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u >= v, "StaticAssertGE failed.");
     };
 
@@ -131,6 +137,7 @@ namespace utility
     struct StaticAssertGT
     {
         static const bool value = (u > v);
+        // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u > v, "StaticAssertGT failed.");
     };
 

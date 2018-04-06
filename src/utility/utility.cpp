@@ -5,6 +5,7 @@
 
 #include <vector>
 
+
 namespace boost
 {
     namespace fs = filesystem;
@@ -18,7 +19,7 @@ namespace utility
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
-            constexpr const size_t guard_sequence_str_len = std::size(s_guard_sequence_str) - 1;
+            constexpr const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -63,16 +64,15 @@ namespace utility
 
         _error:;
             throw std::out_of_range(
-                (boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": out of buffer write: reserve=%u size=%u buffer=%p")) %
-                        m_reserve % m_size % buf_ptr).str());
+                (boost::format("%s : out of buffer write: reserve=%u size=%u buffer=%p") %
+                    UTILITY_PP_FUNC % m_reserve % m_size % buf_ptr).str());
         }
     }
 
     void Buffer::_fill_buffer_guards()
     {
         if (m_size < m_reserve) {
-            constexpr const size_t guard_sequence_str_len = std::size(s_guard_sequence_str) - 1;
+            constexpr const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -129,7 +129,7 @@ namespace utility
         if (left_file_size != right_file_size)
             return false;
 
-        typedef std::shared_ptr<uint8_t> LocalBufSharedPtr;
+        using LocalBufSharedPtr = std::shared_ptr<uint8_t>;
 
         const static size_t s_local_buf_size = 4 * 1024 * 1024; // 4MB
 

@@ -29,11 +29,13 @@
 #include <iomanip>
 #include <algorithm>
 
+#include <memory.h>
+
 
 #define if_break(x) if(!(x)); else switch(0) case 0: default:
 #define if_break2(label, x) if(!(x)) label:; else switch(0) case 0: default:
 
-#define SCOPED_TYPEDEF(type_, typedef_) typedef struct { typedef type_ type; } typedef_
+#define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { typedef type_ type; }
 
 
 namespace utility
@@ -49,7 +51,7 @@ namespace utility
     //
     class Buffer
     {
-        typedef std::shared_ptr<uint8_t> BufSharedPtr;
+        using BufSharedPtr = std::shared_ptr<uint8_t>;
 
 #if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
         static const char s_guard_sequence_str[49];
@@ -162,16 +164,15 @@ namespace utility
             *this = to_buf;
         }
 
-#ifndef WIN64
+#ifndef UTILITY_PLATFORM_X64
         FORCE_INLINE uint8_t * realloc_get(uint64_t size)
         {
             if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
                 const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
                 if (size > max_value) {
                     throw std::runtime_error(
-                        (boost::format(
-                            BOOST_PP_CAT(__FUNCTION__, ": size is out of memory: size=%llu max=%llu")) %
-                                size % max_value).str());
+                        (boost::format("%s: size is out of memory: size=%llu max=%llu") %
+                            UTILITY_PP_FUNC % size % max_value).str());
                 }
             }
 

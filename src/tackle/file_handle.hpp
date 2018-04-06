@@ -9,7 +9,7 @@ namespace tackle
 {
     class FileHandle : public SmartHandle<FILE>
     {
-        typedef SmartHandle base_type;
+        using base_type = SmartHandle;
 
     public:
         static const FileHandle s_null;

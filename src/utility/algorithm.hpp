@@ -26,12 +26,25 @@
 #define UTILITY_COPY_FORCE_INLINE(from, to, size, ...) \
     ::utility::copy_forceinline(from, to, size, __VA_ARGS__)
 
+// stride copy w/o unroll (already force inlined)
+#define UTILITY_STRIDE_COPY(to_buf_offset, from, from_size, stride_size, stride_step, to, to_size) \
+    ::utility::stride_copy(to_buf_offset, from, from_size, stride_size, stride_step, to, to_size)
+
 STATIC_ASSERT_GE(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
 
 
 namespace utility
 {
     using namespace boost::chrono;
+
+    // POD type, DO NOT USE constructors
+    template<typename T, size_t S>
+    struct StaticArray
+    {
+        static const size_t size = S;
+
+        T buf[S];
+    };
 
     // for iterators debugging
     template<typename T>
@@ -40,12 +53,6 @@ namespace utility
         T tmp = {};
         return !memcmp(&tmp, &it, sizeof(it));
     }
-
-    template<typename T, size_t S>
-    struct StaticArray
-    {
-        T buf[S];
-    };
 
     // Unrolls even in debug, useful to speedup not optimized code, where a call to function has unnecessary overhead
     // (for example, call to `memcpy` in a `for` with relatively small copy distance).
@@ -90,6 +97,188 @@ namespace utility
                 to[i] = from[i];
             }
         }
+    }
+
+    template<typename T>
+    FORCE_INLINE size_t stride_copy(size_t & to_buf_offset_ref, const T * from, size_t from_size, size_t stride_size, size_t stride_step, T * to, size_t to_size)
+    {
+        // TODO:
+        //  * UTILITY_STRIDE_COPY from the middle of slot byte instead of only from slot beginning byte
+
+        ASSERT_TRUE(from_size && to_size);
+        ASSERT_GE(stride_step, stride_size);
+
+        using chunk_type = StaticArray<T, 4>;
+
+        STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "StaticArray should contain pure static array inside with out any gaps or padding");
+
+        constexpr const size_t copy_chunk_size = sizeof(chunk_type);
+
+        STATIC_ASSERT_GE(copy_chunk_size, 4U, "must be at least 4 bytes");
+        STATIC_ASSERT_EQ(math::uint32_pof2_floor<copy_chunk_size / sizeof(T)>::value, copy_chunk_size / sizeof(T), "must be power of 2");
+
+        size_t from_buf_offset = 0;
+        size_t to_buf_offset = 0;
+
+        size_t left_buf_from_size = from_size;
+        size_t left_buf_to_size = to_size;
+
+        if (from_size >= copy_chunk_size) {
+            // reduced buffer size where we can copy the last byte by the chunk block size w/o access violation out of the buffer end bound
+            const size_t from_chunked_size = from_size + 1 - copy_chunk_size;
+
+            size_t num_whole_steps = from_chunked_size / stride_step;
+            size_t step_remainder = from_chunked_size % stride_step;
+
+            // prognose output buffer size, and recalculate steps and remainder
+            const size_t buf_size_to_copy = stride_size * num_whole_steps + (std::min)(step_remainder, stride_size);
+            if (to_size < buf_size_to_copy) {
+                num_whole_steps = to_size / stride_size;
+                step_remainder = to_size % stride_size;
+            }
+
+            const size_t num_whole_chunks_in_stride_size = stride_size / copy_chunk_size;
+            const size_t chunks_remainder_in_stride_size = stride_size % copy_chunk_size;
+
+            // remainder condition moved out of most inner loop
+            if (!chunks_remainder_in_stride_size) {
+                // simplified copy by chunk blocks w/o remainder
+                for (size_t i = 0; i < num_whole_steps; i++) {
+                    for (size_t j = 0; j < num_whole_chunks_in_stride_size; j++) {
+                        *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * j);
+                        to_buf_offset += copy_chunk_size;
+
+                        ASSERT_GE(left_buf_to_size, copy_chunk_size);
+                        left_buf_to_size -= copy_chunk_size;
+                    }
+
+                    from_buf_offset += stride_step;
+
+                    ASSERT_GE(left_buf_from_size, stride_step);
+                    left_buf_from_size -= stride_step;
+                }
+            }
+            else {
+                // copy by chunk blocks with remainder
+                for (size_t i = 0; i < num_whole_steps; i++) {
+                    for (size_t j = 0; j < num_whole_chunks_in_stride_size; j++) {
+                        *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * j);
+                        to_buf_offset += copy_chunk_size;
+
+                        ASSERT_GE(left_buf_to_size, copy_chunk_size);
+                        left_buf_to_size -= copy_chunk_size;
+                    }
+                    // remainder copy
+                    *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * num_whole_chunks_in_stride_size);
+                    to_buf_offset += chunks_remainder_in_stride_size;
+
+                    ASSERT_GE(left_buf_to_size, chunks_remainder_in_stride_size);
+                    left_buf_to_size -= chunks_remainder_in_stride_size;
+
+                    from_buf_offset += stride_step;
+
+                    ASSERT_GE(left_buf_from_size, stride_step);
+                    left_buf_from_size -= stride_step;
+                }
+            }
+
+            // rest of the buffer cannot be optimized, copy as is
+            const size_t left_buf_to_copy_remainder = step_remainder + copy_chunk_size - 1;
+
+            size_t num_left_whole_steps = left_buf_to_copy_remainder / stride_step;
+            size_t left_step_remainder = left_buf_to_copy_remainder % stride_step;
+
+            // prognose left output buffer size, and recalculate steps and remainder
+            const size_t left_buf_size_to_copy = stride_size * num_left_whole_steps + (std::min)(left_step_remainder, stride_size);
+            if (left_buf_to_size < left_buf_size_to_copy) {
+                num_left_whole_steps = left_buf_to_size / stride_size;
+                left_step_remainder = left_buf_to_size % stride_size;
+            }
+
+            for (size_t i = 0; i < num_left_whole_steps; i++) {
+                for (size_t j = 0; j < stride_size; j++) {
+                    to[to_buf_offset++] = from[from_buf_offset + j];
+                }
+
+                from_buf_offset += stride_step;
+
+                ASSERT_GE(left_buf_from_size, stride_step);
+                left_buf_from_size -= stride_step;
+
+                ASSERT_GE(left_buf_to_size, stride_size);
+                left_buf_to_size -= stride_size;
+            }
+
+            const size_t left_step_remain_size_to_copy = (std::min)(left_step_remainder, stride_size);
+            if (left_step_remain_size_to_copy) {
+                for (size_t i = 0; i < left_step_remain_size_to_copy; i++) {
+                    to[to_buf_offset++] = from[from_buf_offset + i];
+                }
+
+                const size_t buf_from_remain_size = (std::min)(left_buf_from_size, stride_step);
+
+                from_buf_offset += buf_from_remain_size;
+
+                ASSERT_GE(left_buf_from_size, buf_from_remain_size);
+                left_buf_from_size -= buf_from_remain_size;
+
+                ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
+                left_buf_to_size -= left_step_remain_size_to_copy;
+            }
+        }
+        else {
+            size_t num_whole_steps = from_size / stride_step;
+            size_t step_remainder = from_size % stride_step;
+
+            // prognose output buffer size, and recalculate steps and remainder
+            const size_t buf_size_to_copy = stride_size * num_whole_steps + (std::min)(step_remainder, stride_size);
+            if (to_size < buf_size_to_copy) {
+                num_whole_steps = to_size / stride_size;
+                step_remainder = to_size % stride_size;
+            }
+
+            for (size_t i = 0; i < num_whole_steps; i++) {
+                for (size_t j = 0; j < stride_size; j++) {
+                    to[to_buf_offset++] = from[from_buf_offset + j];
+                }
+
+                from_buf_offset += stride_step;
+
+                ASSERT_GE(left_buf_from_size, stride_step);
+                left_buf_from_size -= stride_step;
+
+                ASSERT_GE(left_buf_to_size, stride_size);
+                left_buf_to_size -= stride_size;
+            }
+
+            const size_t left_step_remain_size_to_copy = (std::min)(step_remainder, stride_size);
+            if (left_step_remain_size_to_copy) {
+                for (size_t i = 0; i < left_step_remain_size_to_copy; i++) {
+                    to[to_buf_offset++] = from[from_buf_offset + i];
+                }
+
+                const size_t buf_from_remain_size = (std::min)(left_buf_from_size, stride_step);
+
+                from_buf_offset += buf_from_remain_size;
+
+                ASSERT_GE(left_buf_from_size, buf_from_remain_size);
+                left_buf_from_size -= buf_from_remain_size;
+
+                ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
+                left_buf_to_size -= left_step_remain_size_to_copy;
+            }
+        }
+
+        ASSERT_TRUE(!left_buf_from_size || !left_buf_to_size); // at least one buffer must hit the end bound
+
+        // if out buffer has space after the copy, then put `\0` at the end of copied sequence to cut off trash bytes in the buffer which might be copeid in previous iterations
+        if (left_buf_to_size) {
+            to[to_buf_offset] = '\0';
+        }
+
+        to_buf_offset_ref = to_buf_offset;
+
+        return from_buf_offset;
     }
 
     FORCE_INLINE_ALWAYS void spin_sleep(uint64_t wait_nsec)
