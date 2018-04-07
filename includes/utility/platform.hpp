@@ -74,17 +74,17 @@
 
 
 #if defined(UTILITY_COMPILER_CXX_MSC)
-#   define UTILITY_PP_FUNCSIG_ __FUNCSIG__
+#   define UTILITY_PP_FUNCSIG_  __FUNCSIG__
 #elif defined(UTILITY_COMPILER_CXX_GCC)
-#   define UTILITY_PP_FUNCSIG_ __PRETTY_FUNCTION__
+#   define UTILITY_PP_FUNCSIG_  __PRETTY_FUNCTION__
 #else
-#   define UTILITY_PP_FUNCSIG_ __FUNCSIG__
+#   define UTILITY_PP_FUNCSIG_  __FUNCSIG__
 #endif
 
 #define UTILITY_PP_FUNCSIG UTILITY_PP_FUNCSIG_
 
-#define UTILITY_PP_FUNC_ __FUNCTION__
-#define UTILITY_PP_FUNC UTILITY_PP_FUNC_
+#define UTILITY_PP_FUNC_        __FUNCTION__
+#define UTILITY_PP_FUNC         UTILITY_PP_FUNC_
 
 #define UTILITY_PP_FUNCSIG_WIDE UTILITY_PP_CONCAT(L, UTILITY_PP_FUNCSIG)
 
@@ -93,14 +93,20 @@
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #   if defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #       define UTILITY_PLATFORM_X64
+#   elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#       define UTILITY_PLATFORM_X32
 #   endif
 #elif defined(UTILITY_COMPILER_CXX_GCC)
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
+#   elif __i386__
+#       define UTILITY_PLATFORM_X32
 #   endif
 #else
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
+#   elif __i386__
+#       define UTILITY_PLATFORM_X32
 #   endif
 #endif
 

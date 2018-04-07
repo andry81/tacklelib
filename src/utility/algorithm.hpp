@@ -21,10 +21,10 @@
 
 // copy with builtin unroll
 #define UTILITY_COPY(from, to, size, ...) \
-    ::utility::copy(from, to, size, __VA_ARGS__)
+    ::utility::copy(from, to, size, ## __VA_ARGS__)
 
 #define UTILITY_COPY_FORCE_INLINE(from, to, size, ...) \
-    ::utility::copy_forceinline(from, to, size, __VA_ARGS__)
+    ::utility::copy_forceinline(from, to, size, ## __VA_ARGS__)
 
 // stride copy w/o unroll (already force inlined)
 #define UTILITY_STRIDE_COPY(to_buf_offset, from, from_size, stride_size, stride_step, to, to_size) \

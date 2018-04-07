@@ -767,7 +767,7 @@ namespace utility
         template <typename T>
         FORCE_INLINE const T & gtest_verify(const T & exp_var, const char * exp_str) const {
             if (exp_var ? true : false); // to avoid `warning C4800: forcing value to bool 'true' or 'false' (performance warning)`
-            else UTILITY_GTEST_TRUE_FALSE_FUNC_INLINE(exp_str, file, line);
+            else UTILITY_GTEST_FAIL_TRUE_FUNC_INLINE(exp_str, file, line);
 
             UTILITY_DBG_HEAP_CHECK();
 
