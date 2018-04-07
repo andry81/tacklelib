@@ -116,7 +116,15 @@ namespace utility
         if (fgetpos(file_handle.get(), &last_pos)) return 0;
         if (fseek(file_handle.get(), 0, SEEK_END)) return 0;
 
-        const uint64_t size = _ftelli64(file_handle.get());
+        const uint64_t size =
+#if defined(UTILITY_PLATFORM_WINDOWS)
+            _ftelli64(file_handle.get());
+#elif defined(UTILITY_PLATFORM_POSIX)
+            ftello64(file_handle.get());
+#else
+#error platform is not implemented
+#endif
+
         fsetpos(file_handle.get(), &last_pos);
 
         return size;
@@ -149,11 +157,11 @@ namespace utility
         return true;
     }
 
-    FileHandle recreate_file(const std::string & file_path, const char * mode, int flags, size_t size, uint32_t fill_by)
+    FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
         FILE * file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            _fsopen(file_path.c_str(), mode, flags);
+            _fsopen(file_path.c_str(), mode, share_flags);
 #elif defined(UTILITY_PLATFORM_POSIX)
             fopen(file_path.c_str(), mode);
             // TODO:
@@ -194,7 +202,7 @@ namespace utility
         return file_handle_ptr;
     }
 
-    FileHandle create_file(const std::string & file_path, const char * mode, int flags, size_t size, uint32_t fill_by)
+    FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
         const bool file_existed = boost::fs::exists(file_path);
         if (file_existed) {
@@ -203,19 +211,19 @@ namespace utility
             throw std::system_error{ errno_, std::system_category(), file_path };
         }
 
-        return recreate_file(file_path, mode, flags, size, fill_by);
+        return recreate_file(file_path, mode, share_flags, size, fill_by);
     }
 
-    FileHandle open_file(const std::string & file_path, const char * mode, int flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
+    FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
     {
         const bool file_existed = boost::fs::exists(file_path);
         if (!file_existed) {
-            return recreate_file(file_path, mode, flags, creation_size, fill_by_on_creation);
+            return recreate_file(file_path, mode, share_flags, creation_size, fill_by_on_creation);
         }
 
         FILE * file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            _fsopen(file_path.c_str(), mode, flags);
+            _fsopen(file_path.c_str(), mode, share_flags);
 #elif defined(UTILITY_PLATFORM_POSIX)
             fopen(file_path.c_str(), mode);
             // TODO:
@@ -235,7 +243,18 @@ namespace utility
             file_handle_ptr.reset();
             boost::fs::resize_file(file_path, resize_if_existed);
             // reopen handle
-            file_handle_ptr = FileHandle(file_ptr = _fsopen(file_path.c_str(), mode, flags), file_path);
+            file_handle_ptr = FileHandle(file_ptr =
+#if defined(UTILITY_PLATFORM_WINDOWS)
+                _fsopen(file_path.c_str(), mode, share_flags),
+#elif defined(UTILITY_PLATFORM_POSIX)
+                fopen(file_path.c_str(), mode),
+                // TODO:
+                //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
+#else
+#error platform is not implemented
+#endif
+                file_path
+            );
             if (!file_ptr) {
                 utility::debug_break();
                 throw std::system_error{ errno, std::system_category(), file_path };

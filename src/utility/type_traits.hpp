@@ -79,7 +79,7 @@ namespace utility
     }
 
     template<typename Functor>
-    FORCE_INLINE void runtime_for_lt(Functor && function, size_t from, size_t to)
+    inline void runtime_for_lt(Functor && function, size_t from, size_t to)
     {
         if (from < to) {
             function(from);

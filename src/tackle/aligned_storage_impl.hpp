@@ -90,6 +90,18 @@ namespace tackle
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
+    template <typename Ref>
+    FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::construct(const Ref & r)
+    {
+        ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
+
+        ::new (m_storage.address()) storage_type_t(r);
+
+        // flag construction
+        base_t::set_constructed(true);
+    }
+
+    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::destruct()
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
@@ -110,7 +122,25 @@ namespace tackle
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     template <typename Ref>
+    FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(const Ref & r)
+    {
+        ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
+
+        *static_cast<storage_type_t *>(m_storage.address()) = r;
+    }
+
+    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
+    template <typename Ref>
     FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(Ref & r) volatile
+    {
+        ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
+
+        *static_cast<storage_type_t *>(m_storage.address()) = r;
+    }
+
+    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
+    template <typename Ref>
+    FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(const Ref & r) volatile
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
@@ -290,6 +320,23 @@ namespace tackle
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
     inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::assign(Ref & r, bool throw_exceptions_on_type_error)
+    {
+        // container must be already constructed before the assign
+        if (m_type_index < 0) goto default_;
+
+        switch (m_type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
+
+        default_:;
+            default: if(throw_exceptions_on_type_error) {
+                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+            }
+        }
+    }
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::assign(const Ref & r, bool throw_exceptions_on_type_error)
     {
         // container must be already constructed before the assign
         if (m_type_index < 0) goto default_;

@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <algorithm>
 
+#include <stdio.h>
 #include <memory.h>
 
 
@@ -188,11 +189,30 @@ namespace utility
         bool            m_is_reallocating;
     };
 
+    enum SharedAccess
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        SharedAccess_DenyRW     = _SH_DENYRW,   // deny read/write mode
+        SharedAccess_DenyWrite  = _SH_DENYWR,   // deny write mode
+        SharedAccess_DenyRead   = _SH_DENYRD,   // deny read mode
+        SharedAccess_DenyNone   = _SH_DENYNO,   // deny none mode
+        SharedAccess_Secure     = _SH_SECURE    // secure mode
+#elif defined(UTILITY_PLATFORM_POSIX)
+        SharedAccess_DenyRW     = 0x10,         // deny read/write mode
+        SharedAccess_DenyWrite  = 0x20,         // deny write mode
+        SharedAccess_DenyRead   = 0x30,         // deny read mode
+        SharedAccess_DenyNone   = 0x40,         // deny none mode
+        SharedAccess_Secure     = 0x80          // secure mode
+#else
+#error platform is not implemented
+#endif
+    };
+
     uint64_t get_file_size(const FileHandle & file_handle);
     bool is_files_equal(const FileHandle & left_file_handle, const FileHandle & right_file_handle);
-    FileHandle recreate_file(const std::string & file_path, const char * mode, int flags, size_t size = 0, uint32_t fill_by = 0);
-    FileHandle create_file(const std::string & file_path, const char * mode, int flags, size_t size = 0, uint32_t fill_by = 0);
-    FileHandle open_file(const std::string & file_path, const char * mode, int flags, size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+    FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
+    FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
+    FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
 
     template<typename T>
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)

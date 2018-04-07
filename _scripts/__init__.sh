@@ -33,15 +33,8 @@ fi
 
 source "${ScriptDirPath:-.}/buildlib.sh"
 
-# Special exit code value variable has used by the specific set of functions
-# like `Call` and `Exit` to hold the exit code over the builtin functions like
-# `pushd` and `popd` which are changes the real exit code.
-LastError=0
-
 export PROJECT_ROOT="`/bin/readlink -f "$ScriptDirPath/.."`"
 export CMAKE_OUTPUT_ROOT="$PROJECT_ROOT/_out"
-
-[[ -z "$NEST_LVL" ]] && NEST_LVL=0
 
 # drop exit code
 cd .

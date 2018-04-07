@@ -280,6 +280,17 @@ namespace tackle
             base_t::set_constructed(true);
         }
 
+        template <typename Ref>
+        FORCE_INLINE void construct(const Ref & r)
+        {
+            ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
+
+            ::new (m_storage.address()) storage_type_t(r);
+
+            // flag construction
+            base_t::set_constructed(true);
+        }
+
         FORCE_INLINE void destruct()
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
@@ -298,7 +309,23 @@ namespace tackle
         }
 
         template <typename Ref>
+        FORCE_INLINE void assign(const Ref & r)
+        {
+            ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
+
+            *static_cast<storage_type_t *>(m_storage.address()) = r;
+        }
+
+        template <typename Ref>
         FORCE_INLINE void assign(Ref & r) volatile
+        {
+            ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
+
+            *static_cast<storage_type_t *>(m_storage.address()) = r;
+        }
+
+        template <typename Ref>
+        FORCE_INLINE void assign(const Ref & r) volatile
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
@@ -401,11 +428,17 @@ namespace tackle
         FORCE_INLINE void construct();
         template <typename Ref>
         FORCE_INLINE void construct(Ref & r);
+        template <typename Ref>
+        FORCE_INLINE void construct(const Ref & r);
         FORCE_INLINE void destruct();
         template <typename Ref>
         FORCE_INLINE void assign(Ref & r);
         template <typename Ref>
+        FORCE_INLINE void assign(const Ref & r);
+        template <typename Ref>
         FORCE_INLINE void assign(Ref & r) volatile;
+        template <typename Ref>
+        FORCE_INLINE void assign(const Ref & r) volatile;
 
         // storage redirection
         FORCE_INLINE storage_type_t * this_()
@@ -724,6 +757,8 @@ namespace tackle
     public:
         template <typename Ref>
         void assign(Ref & r, bool throw_exceptions_on_type_error = true);
+        template <typename Ref>
+        void assign(const Ref & r, bool throw_exceptions_on_type_error = true);
 
         template <typename R, typename F>
         FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true);

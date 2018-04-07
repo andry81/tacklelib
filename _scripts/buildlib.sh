@@ -5,6 +5,13 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 
 SOURCE_BUILDLIB_SH=1 # including guard
 
+# Special exit code value variable has used by the specific set of functions
+# like `Call` and `Exit` to hold the exit code over the builtin functions like
+# `pushd` and `popd` which are changes the real exit code.
+LastError=0
+
+[[ -z "$NEST_LVL" ]] && export NEST_LVL=0
+
 function Pause()
 {
   local key
@@ -32,6 +39,11 @@ function Call()
   LastError=$?
 }
 
+function SetError()
+{
+  return $LastError
+}
+
 function Pushd()
 {
   pushd "$@" > /dev/null
@@ -40,6 +52,76 @@ function Pushd()
 function Popd()
 {
   popd "$@" > /dev/null
+}
+
+function Configure()
+{
+  export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+  export CMAKE_BIN_ROOT="$CMAKE_OUTPUT_ROOT/bin/$CMAKE_BUILD_TYPE"
+  export CMAKE_LIB_ROOT="$CMAKE_OUTPUT_ROOT/lib/$CMAKE_BUILD_TYPE"
+  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install/$CMAKE_BUILD_TYPE"
+  export CMAKE_CPACK_ROOT="$CMAKE_OUTPUT_ROOT/pack/$CMAKE_BUILD_TYPE"
+
+  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+  [[ ! -d "$CMAKE_BIN_ROOT" ]] && mkdir -p "$CMAKE_BIN_ROOT"
+  [[ ! -d "$CMAKE_LIB_ROOT" ]] && mkdir -p "$CMAKE_LIB_ROOT"
+  [[ ! -d "$CMAKE_CPACK_ROOT" ]] && mkdir -p "$CMAKE_CPACK_ROOT"
+
+  CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
+
+  MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"
+
+  CMAKE_CMD_LINE=("${RETURN_VALUE[@]}")
+
+  Pushd "$CMAKE_BUILD_ROOT" && {
+    Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
+}
+
+function Build()
+{
+  export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+
+  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+
+  Pushd "$CMAKE_BUILD_ROOT" && {
+    Call cmake --build . --config $CMAKE_BUILD_TYPE --target all || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
+}
+
+function Install()
+{
+  export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+
+  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+
+  Pushd "$CMAKE_BUILD_ROOT" && {
+    Call cmake --build . --config $CMAKE_BUILD_TYPE --target install || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
+}
+
+function Pack()
+{
+  export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+  export PATH="$PATH%:$NSIS_INSTALL_ROOT"
+
+  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+
+  Pushd "$CMAKE_BUILD_ROOT" && {
+    Call cmake --build . --config $CMAKE_BUILD_TYPE --target bundle || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
 }
 
 # Portable implementation between wide set of targets:

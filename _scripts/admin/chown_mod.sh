@@ -26,8 +26,8 @@ fi
 
 source "${ScriptDirPath:-.}/../buildlib.sh"
 
-USER=${1:-tester}
-GROUP=${2:-tester}
+USER="${1:-tester}"
+GROUP="${2:-$USER}"
 
 if [[ -z "${USER}" ]]; then
   echo "$ScriptFileName: error: USER argument is not set."
