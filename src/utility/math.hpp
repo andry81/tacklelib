@@ -428,7 +428,7 @@ namespace math
     //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
     //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
     //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
-    FORCE_INLINE_ALWAYS double normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction)
+    inline double normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction)
     {
         ASSERT_LT(min_ang, max_ang);
         ASSERT_GT(ang_period_mod, 0U); // must be always positive
