@@ -20,6 +20,7 @@ set "CMAKE_INSTALL_ROOT=%CMAKE_OUTPUT_ROOT%/install"
 set "CMAKE_CPACK_ROOT=%CMAKE_OUTPUT_ROOT%/pack"
 
 set "CMAKE_GENERATOR_TOOLSET=Visual Studio 14 2015"
+set "CMAKE_CONFIG_TYPES=Release Debug RelWithDebInfo MinSizeRel"
 
 if not defined NEST_LVL set NEST_LVL=0
 

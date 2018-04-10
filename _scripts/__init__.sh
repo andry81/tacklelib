@@ -34,7 +34,11 @@ fi
 source "${ScriptDirPath:-.}/buildlib.sh"
 
 export PROJECT_ROOT="`/bin/readlink -f "$ScriptDirPath/.."`"
+
 export CMAKE_OUTPUT_ROOT="$PROJECT_ROOT/_out"
+
+export CMAKE_GENERATOR_TOOLSET="Unix Makefiles"
+export CMAKE_CONFIG_TYPES="Release Debug RelWithDebInfo MinSizeRel"
 
 # drop exit code
 cd .

@@ -54,18 +54,96 @@ function Popd()
   popd "$@" > /dev/null
 }
 
+function ReadCommandLineFlags()
+{
+  local out_args_list_name_var="$1"
+  shift
+
+  local args
+  args=("$@")
+  local args_len=${#@}
+
+  local i
+  local j
+
+  j=0
+  for (( i=0; i < $args_len; i++ )); do
+    # collect all flag arguments until first not flag
+    if (( ${#args[i]} )); then
+      if [[ -z "${args[i]%%-*}" ]]; then
+        eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+        shift
+      else
+        break
+      fi
+    else
+      # stop on empty string too
+      break
+    fi
+  done
+}
+
+function MakeDir()
+{
+  local flag_args=()
+
+  ReadCommandLineFlags flag_args "$@"
+  (( ${#flag_args} )) && shift ${#flag_args}
+
+  local arg
+  for arg in "$@"; do
+    [[ ! -f "$arg" ]] && {
+      MakeCommandLine '' 1 "$arg"
+      echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
+      mkdir ${flag_args[@]} "$arg" || return $?
+    }
+  done
+
+  return $?
+}
+
+function MoveFile()
+{
+  local flag_args=()
+
+  ReadCommandLineFlags flag_args "$@"
+  (( ${#flag_args} )) && shift ${#flag_args}
+
+  local FILE_IN="$1"
+  shift
+
+  local file
+  local IFS=$' \t\r\n'
+
+  for file in `find . -type f -name "$FILE_IN" -o -type l -name "$FILE_IN"`; do
+    MakeCommandLine '' 1 "$file" "$@"
+    echo ">mv ${flag_args[@]} $RETURN_VALUE"
+    mv ${flag_args[@]} "$file" "$@" || return $?
+  done
+
+  return 0
+}
+
+function JoinArgs()
+{
+  local IFS="$1"
+  shift
+  RETURN_VALUE="$*"
+}
+
 function Configure()
 {
+  export CMAKE_BUILD_TYPE
   export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
   export CMAKE_BIN_ROOT="$CMAKE_OUTPUT_ROOT/bin/$CMAKE_BUILD_TYPE"
   export CMAKE_LIB_ROOT="$CMAKE_OUTPUT_ROOT/lib/$CMAKE_BUILD_TYPE"
-  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install/$CMAKE_BUILD_TYPE"
+  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install"
   export CMAKE_CPACK_ROOT="$CMAKE_OUTPUT_ROOT/pack/$CMAKE_BUILD_TYPE"
 
-  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
-  [[ ! -d "$CMAKE_BIN_ROOT" ]] && mkdir -p "$CMAKE_BIN_ROOT"
-  [[ ! -d "$CMAKE_LIB_ROOT" ]] && mkdir -p "$CMAKE_LIB_ROOT"
-  [[ ! -d "$CMAKE_CPACK_ROOT" ]] && mkdir -p "$CMAKE_CPACK_ROOT"
+  MakeDir -p "$CMAKE_BUILD_ROOT"
+  MakeDir -p "$CMAKE_BIN_ROOT"
+  MakeDir -p "$CMAKE_LIB_ROOT"
+  MakeDir -p "$CMAKE_CPACK_ROOT"
 
   CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
 
@@ -83,9 +161,10 @@ function Configure()
 
 function Build()
 {
+  export CMAKE_BUILD_TYPE
   export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
 
-  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+  MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake --build . --config $CMAKE_BUILD_TYPE --target all || { Popd; return $LastError; }
@@ -97,9 +176,10 @@ function Build()
 
 function Install()
 {
+  export CMAKE_BUILD_TYPE
   export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
 
-  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+  MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake --build . --config $CMAKE_BUILD_TYPE --target install || { Popd; return $LastError; }
@@ -109,12 +189,51 @@ function Install()
   return $LastError
 }
 
+function PostInstall()
+{
+  export CMAKE_BUILD_TYPE
+  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install/$CMAKE_BUILD_TYPE"
+
+  MakeDir -p "$CMAKE_BUILD_ROOT"
+
+  Pushd "$CMAKE_INSTALL_ROOT" && {
+    PostInstallImpl || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
+}
+
+function PostInstallImpl()
+{
+  local FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
+
+  # collect system dependencies
+  JoinArgs : "${FileDepsList[@]}"
+  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" . "$RETURN_VALUE" deps.lst .
+
+  # create symbol links
+  Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" .
+
+  # move all `.so` and `.a` files into `/lib` subdirectory
+  MakeDir "lib"
+
+  local file
+  local IFS=$' \t\r\n'
+
+  for file in ${FileDepsList}; do
+    MoveFile "${file}" lib/
+  done
+}
+
 function Pack()
 {
+  export CMAKE_BUILD_TYPE
   export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+
   export PATH="$PATH%:$NSIS_INSTALL_ROOT"
 
-  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+  MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake --build . --config $CMAKE_BUILD_TYPE --target bundle || { Popd; return $LastError; }
