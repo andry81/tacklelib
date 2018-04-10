@@ -56,10 +56,10 @@
 
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig, funcsig_w) _wassert(msg_w, file_w, line)
+#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) _wassert(msg_w, file_w, line)
 #define ASSERT_FAIL_WIDE(msg, file, line, funcsig) _wassert(msg, file, line)
 #elif defined(UTILITY_PLATFORM_POSIX)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig, funcsig_w) __assert_fail(msg, file, line, funcsig)
+#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_fail(msg, file, line, funcsig)
 #define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_fail(msg, file, line, funcsig)
 #else
 #error platform is not implemented
@@ -173,58 +173,58 @@
 
 #ifdef USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS
 
-#define UNIT_VERIFY_TRUE(exp) (( ::utility::UniAssertTrue(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
+#define UNIT_VERIFY_TRUE(exp) (( ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_TRUE(exp) do {{ ::utility::UniAssertTrue(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_TRUE(exp) do {{ ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_FALSE(exp) (( ::utility::UniAssertFalse(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
+#define UNIT_VERIFY_FALSE(exp) (( ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_FALSE(exp) do {{ ::utility::UniAssertFalse(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_FALSE(exp) do {{ ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_EQ(v1, v2) (( ::utility::UniAssertEQ(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_EQ(v1, v2) (( ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_EQ(v1, v2) do {{ ::utility::UniAssertEQ(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_EQ(v1, v2) /*do {{*/ ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK()//; }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_NE(v1, v2) (( ::utility::UniAssertNE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_NE(v1, v2) (( ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_NE(v1, v2) do {{ ::utility::UniAssertNE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_NE(v1, v2) do {{ ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_LE(v1, v2) (( ::utility::UniAssertLE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_LE(v1, v2) (( ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LE(v1, v2) do {{ ::utility::UniAssertLE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_LE(v1, v2) do {{ ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_LT(v1, v2) (( ::utility::UniAssertLT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_LT(v1, v2) (( ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_LT(v1, v2) do {{ ::utility::UniAssertLT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_LT(v1, v2) do {{ ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_GE(v1, v2) (( ::utility::UniAssertGE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_GE(v1, v2) (( ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GE(v1, v2) do {{ ::utility::UniAssertGE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_GE(v1, v2) do {{ ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 ////
 
-#define UNIT_VERIFY_GT(v1, v2) (( ::utility::UniAssertGT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
+#define UNIT_VERIFY_GT(v1, v2) (( ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
-    #define UNIT_ASSERT_GT(v1, v2) do {{ ::utility::UniAssertGT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_GT(v1, v2) do {{ ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
 #endif
 
 #else
@@ -352,70 +352,70 @@
 
 // always enabled basic asserts
 
-#define BASIC_VERIFY_TRUE(exp)      (( ::utility::UniAssertTrue(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_STRINGIZE_WIDE(exp)) ))
-#define BASIC_VERIFY_FALSE(exp)     (( ::utility::UniAssertFalse(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(exp, UTILITY_PP_STRINGIZE(!(exp)), UTILITY_PP_STRINGIZE_WIDE(!(exp))) ))
+#define BASIC_VERIFY_TRUE(exp)      (( ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(exp, UTILITY_PP_STRINGIZE(exp), UTILITY_PP_STRINGIZE_WIDE(exp)) ))
+#define BASIC_VERIFY_FALSE(exp)     (( ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(exp, UTILITY_PP_STRINGIZE(!(exp)), UTILITY_PP_STRINGIZE_WIDE(!(exp))) ))
 
-#define BASIC_VERIFY_EQ(v1, v2)     (( ::utility::UniAssertEQ(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) == (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) == (v2))) ))
-#define BASIC_VERIFY_NE(v1, v2)     (( ::utility::UniAssertNE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) != (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) != (v2))) ))
-#define BASIC_VERIFY_LE(v1, v2)     (( ::utility::UniAssertLE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) <= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2))) ))
-#define BASIC_VERIFY_LT(v1, v2)     (( ::utility::UniAssertLT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) < (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) < (v2))) ))
-#define BASIC_VERIFY_GE(v1, v2)     (( ::utility::UniAssertGE(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) >= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2))) ))
-#define BASIC_VERIFY_GT(v1, v2)     (( ::utility::UniAssertGT(UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE).verify(v1, v2, UTILITY_PP_STRINGIZE((v1) > (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) > (v2))) ))
+#define BASIC_VERIFY_EQ(v1, v2)     (( ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) == (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) == (v2))) ))
+#define BASIC_VERIFY_NE(v1, v2)     (( ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) != (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) != (v2))) ))
+#define BASIC_VERIFY_LE(v1, v2)     (( ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) <= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2))) ))
+#define BASIC_VERIFY_LT(v1, v2)     (( ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) < (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) < (v2))) ))
+#define BASIC_VERIFY_GE(v1, v2)     (( ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) >= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2))) ))
+#define BASIC_VERIFY_GT(v1, v2)     (( ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.verify(v1, v2, UTILITY_PP_STRINGIZE((v1) > (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) > (v2))) ))
 
 // `? true : false` to suppress: `warning C4127: conditional expression is constant`
 #define BASIC_ASSERT_TRUE(exp) \
     if ((exp) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? true : false), UTILITY_PP_STRINGIZE_WIDE((exp) ? true : false), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? true : false), UTILITY_PP_STRINGIZE_WIDE((exp) ? true : false), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_FALSE(exp) \
     if ((exp) ? false : true); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? false : true), UTILITY_PP_STRINGIZE_WIDE((exp) ? false : true), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? false : true), UTILITY_PP_STRINGIZE_WIDE((exp) ? false : true), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_EQ(v1, v2) \
     if ((v1) == (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) == (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) == (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) == (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) == (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_NE(v1, v2) \
     if ((v1) != (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) != (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) != (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) != (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) != (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_LE(v1, v2) \
     if ((v1) <= (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) <= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) <= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_LT(v1, v2) \
     if ((v1) < (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) < (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) < (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) < (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) < (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_GE(v1, v2) \
     if ((v1) >= (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) >= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) >= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
 #define BASIC_ASSERT_GT(v1, v2) \
     if ((v1) > (v2) ? true : false); else do {{ \
         DEBUG_BREAK(true); \
-        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) > (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) > (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG, UTILITY_PP_FUNCSIG_WIDE); \
+        ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) > (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) > (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
@@ -726,26 +726,8 @@ namespace utility
     }
 #endif
 
-    struct BasicUniAssert
+    struct UniAssertTrue
     {
-        FORCE_INLINE BasicUniAssert(const char * file_, const wchar_t * file_w_, unsigned int line_, const char * funcsig_, const wchar_t * funcsig_w_) :
-            file(file_), file_w(file_w_), line(line_), funcsig(funcsig_), funcsig_w(funcsig_w_)
-        {
-        }
-
-        const char *    file;
-        const wchar_t * file_w;
-        unsigned int    line;
-        const char *    funcsig;
-        const wchar_t * funcsig_w;
-    };
-
-    struct UniAssertTrue : BasicUniAssert {
-        FORCE_INLINE UniAssertTrue(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -755,7 +737,7 @@ namespace utility
             if (exp_var ? true : false);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -774,14 +756,15 @@ namespace utility
             return exp_var;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertFalse : BasicUniAssert {
-        FORCE_INLINE UniAssertFalse(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertFalse
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -791,7 +774,7 @@ namespace utility
             if (exp_var ? false : true);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -810,14 +793,15 @@ namespace utility
             return exp_var;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertEQ : BasicUniAssert {
-        FORCE_INLINE UniAssertEQ(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertEQ
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -827,7 +811,7 @@ namespace utility
             if (v1 == v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -846,14 +830,15 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertNE : BasicUniAssert {
-        FORCE_INLINE UniAssertNE(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertNE
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -863,7 +848,7 @@ namespace utility
             if (v1 != v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -882,14 +867,15 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertLE : BasicUniAssert {
-        FORCE_INLINE UniAssertLE(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertLE
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -899,7 +885,7 @@ namespace utility
             if (v1 <= v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -918,14 +904,15 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertLT : BasicUniAssert {
-        FORCE_INLINE UniAssertLT(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertLT
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -935,7 +922,7 @@ namespace utility
             if (v1 < v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -954,14 +941,15 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertGE : BasicUniAssert {
-        FORCE_INLINE UniAssertGE(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertGE
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -971,7 +959,7 @@ namespace utility
             if (v1 >= v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -990,14 +978,15 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
-    struct UniAssertGT : BasicUniAssert {
-        FORCE_INLINE UniAssertGT(const char * file, const wchar_t * file_w, unsigned int line, const char * funcsig, const wchar_t * funcsig_w) :
-            BasicUniAssert(file, file_w, line, funcsig, funcsig_w)
-        {
-        }
-
+    struct UniAssertGT
+    {
         // TIPS:
         // * to capture parameters by reference in macro definitions for single evaluation
         // * to suppress `unused variable` warnings like: `warning C4101: '...': unreferenced local variable`
@@ -1007,7 +996,7 @@ namespace utility
             if (v1 > v2);
             else {
                 DEBUG_BREAK(true);
-                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig, funcsig_w);
+                ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
             UTILITY_DBG_HEAP_CHECK();
@@ -1026,6 +1015,11 @@ namespace utility
             return v1;
         }
 #endif
+
+        const char *    file;
+        const wchar_t * file_w;
+        unsigned int    line;
+        const char *    funcsig;
     };
 
 }

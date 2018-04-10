@@ -14,6 +14,10 @@
 //// utility/assert.hpp
 
 // Do NOT use macro inline instead of function/lambda call for the UNIT_ASSERT_* macroses ONLY.
+//
+// WARNING:
+//  1. If not enabled, then compilation or linkage times can has increased slow down.
+//
 //#define DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
 
 // WARNING:
