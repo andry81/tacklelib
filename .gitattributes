@@ -20,6 +20,11 @@ _scripts/install_x86.sh -text
 _scripts/pack_x86.bat -text
 _scripts/pack_x86.sh -text
 _scripts/post_install_x86.sh -text
+/configure_gen.bat.in -text
+/configure_gen.sh.in -text
+/configure_nogen.bat.in -text
+/configure_nogen.sh.in -text
+/environment_local.cmake.in -text
 includes/.svnignore -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
