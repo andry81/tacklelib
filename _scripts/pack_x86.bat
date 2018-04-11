@@ -7,8 +7,10 @@ call "%%~dp0__init__.bat" || goto :EOF
 set /A NEST_LVL+=1
 
 set "CMAKE_BUILD_TYPE=%~1"
+set "CMAKE_BUILD_TARGET=%~2"
 
 if not defined CMAKE_BUILD_TYPE set "CMAKE_BUILD_TYPE=*"
+if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=BUNDLE"
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
 
@@ -25,7 +27,7 @@ goto EXIT
 
 :PACK
 pushd "%CMAKE_BUILD_ROOT%" && (
-  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target BUNDLE || ( popd & goto PACK_END )
+  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target "%CMAKE_BUILD_TARGET%" || ( popd & goto PACK_END )
   popd
 )
 

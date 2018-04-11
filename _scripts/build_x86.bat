@@ -6,12 +6,14 @@ call "%%~dp0__init__.bat" || goto :EOF
 
 set /A NEST_LVL+=1
 
-call "%%~dp0configure_gen.bat" || goto EXIT
-echo.
+rem call "%%~dp0configure_gen.bat" || goto EXIT
+rem echo.
 
 set "CMAKE_BUILD_TYPE=%~1"
+set "CMAKE_BUILD_TARGET=%~2"
 
 if not defined CMAKE_BUILD_TYPE set "CMAKE_BUILD_TYPE=*"
+if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=ALL_BUILD"
 
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES%) do (
@@ -26,7 +28,7 @@ goto EXIT
 
 :BUILD
 pushd "%CMAKE_BUILD_ROOT%" && (
-  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target ALL_BUILD || ( popd & goto BUILD_END )
+  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target "%CMAKE_BUILD_TARGET%" || ( popd & goto BUILD_END )
   popd
 )
 

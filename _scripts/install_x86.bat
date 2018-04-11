@@ -7,8 +7,10 @@ call "%%~dp0__init__.bat" || goto :EOF
 set /A NEST_LVL+=1
 
 set "CMAKE_BUILD_TYPE=%~1"
+set "CMAKE_BUILD_TARGET=%~2"
 
 if not defined CMAKE_BUILD_TYPE set "CMAKE_BUILD_TYPE=*"
+if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=INSTALL"
 
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES%) do (
@@ -23,7 +25,7 @@ goto EXIT
 
 :INSTALL
 pushd "%CMAKE_BUILD_ROOT%" && (
-  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target INSTALL || ( popd & goto INSTALL_END )
+  call :CMD cmake --build . --config "%CMAKE_BUILD_TYPE%" --target "%CMAKE_BUILD_TARGET%" || ( popd & goto INSTALL_END )
   popd
 )
 
