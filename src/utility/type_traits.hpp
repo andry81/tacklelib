@@ -6,7 +6,6 @@
 #include <utility/static_assert.hpp>
 
 #include <boost/preprocessor/cat.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/is_class.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -14,6 +13,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/void.hpp>
 
+#include <type_traits>
 #include <tuple>
 
 
@@ -106,7 +106,7 @@ namespace utility
     template <typename T>
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
+#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14 // for `std::index_sequence`
     template<typename Functor, std::size_t... S>
     FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
     {

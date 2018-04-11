@@ -57,7 +57,6 @@ src/utility/crc.hpp -text
 src/utility/crc_tables.hpp -text
 src/utility/debug.cpp -text
 src/utility/hash.hpp -text
-src/utility/math.hpp -text
 src/utility/type_traits.hpp -text
 src/utility/utility.cpp -text
 src/utility/utility.hpp -text

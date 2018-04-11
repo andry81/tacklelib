@@ -10,7 +10,9 @@
 #include <utility/platform.hpp>
 #include <utility/debug.hpp>
 
-#ifdef GTEST_FAIL
+#if !defined(GTEST_INCLUDE_FROM_TESTS)
+
+#if defined(GTEST_FAIL)
 #error <utility/assert.hpp> header must be included instead of the <gtest.h> header
 #endif
 
@@ -35,6 +37,8 @@
 #undef ASSERT_LT
 #undef ASSERT_GE
 #undef ASSERT_GT
+#endif
+
 #endif
 
 // enable assertion in the Release
@@ -109,18 +113,21 @@
 
 #ifndef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
 
+#define UNIT_VERIFY_TRUE(exp) (( ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
 #define UNIT_ASSERT_TRUE(exp) \
     if ((exp) ? true : false); else do {{ \
         UTILITY_GTEST_FAIL_TRUE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_FALSE(exp) (( ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
 #define UNIT_ASSERT_FALSE(exp) \
     if ((exp) ? false : true); else do {{ \
         UTILITY_GTEST_FAIL_FALSE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_EQ(v1, v2) (( ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_EQ(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -129,6 +136,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_NE(v1, v2) (( ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_NE(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -137,6 +145,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_LE(v1, v2) (( ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_LE(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -145,6 +154,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_LT(v1, v2) (( ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_LT(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -153,6 +163,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_GE(v1, v2) (( ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_GE(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -161,6 +172,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
+#define UNIT_VERIFY_GT(v1, v2) (( ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_GT(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
@@ -169,7 +181,7 @@
         UTILITY_DBG_HEAP_CHECK(); \
     }} while(false)
 
-#endif
+#else
 
 #ifdef USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS
 
@@ -343,6 +355,8 @@
 #define UNIT_VERIFY_GT(v1, v2) (( UNIT_VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE) ))
 #ifdef DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
     #define UNIT_ASSERT_GT(v1, v2) do {{ UNIT_VERIFY_GT_IMPL(v1, v2)(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), UTILITY_PP_FILE, UTILITY_PP_LINE); }} while(false)
+#endif
+
 #endif
 
 #endif
