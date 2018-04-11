@@ -37,6 +37,7 @@ function Call()
   echo ">$@"
   eval "$@"
   LastError=$?
+  return $LastError
 }
 
 function SetError()
@@ -70,7 +71,7 @@ function ReadCommandLineFlags()
   for (( i=0; i < $args_len; i++ )); do
     # collect all flag arguments until first not flag
     if (( ${#args[i]} )); then
-      if [[ -z "${args[i]%%-*}" ]]; then
+      if [[ "${args[i]#-}" != "${args[i]}" ]]; then
         eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
         shift
       else
@@ -83,19 +84,81 @@ function ReadCommandLineFlags()
   done
 }
 
+function RemoveEmptyArgs()
+{
+  RETURN_VALUE=()
+
+  local args
+  args=("$@")
+
+  local arg
+  local i
+  local j
+
+  local IFS=$' \t\r\n'
+
+  i=0
+  j=0
+  for arg in "${args[@]}"; do
+    if [[ -n "$arg" ]]; then
+      RETURN_VALUE[j++]="$arg"
+    fi
+    (( i++ ))
+  done
+}
+
+function GetCanonicalPath()
+{
+  local file_in="$1"
+  local file_in_abs
+
+  if [[ -n "$file_in" ]]; then
+    # Use `readlink` to convert a path from any not globbed path into canonical path, but
+    # use not existed path prefix to avoid convertion from a symlink.
+    if [[ "${file_in:0:1}" == "." || "${file_in:0:1}" != "/" ]]; then
+      file_in_abs=$(readlink -m "/::$(pwd)/$file_in")
+    else
+      file_in_abs=$(readlink -m "/::$file_in")
+    fi
+
+    RETURN_VALUE="${file_in_abs#/::}"
+  else
+    RETURN_VALUE="."
+  fi
+}
+
+function GetFileDir()
+{
+  local file_in="$1"
+
+  if [[ -n "$file_in" ]]; then
+    RETURN_VALUE="${file_in%/*}"
+    [[ -z "$RETURN_VALUE" ]] && RETURN_VALUE="/"
+  else
+    RETURN_VALUE="."
+  fi
+}
+
+function GetFileName()
+{
+  local file_in="$1"
+
+  RETURN_VALUE="${file_in##*/}"
+}
+
 function MakeDir()
 {
   local flag_args=()
 
   ReadCommandLineFlags flag_args "$@"
-  (( ${#flag_args} )) && shift ${#flag_args}
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
   local arg
   for arg in "$@"; do
     [[ ! -f "$arg" ]] && {
       MakeCommandLine '' 1 "$arg"
       echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
-      mkdir ${flag_args[@]} "$arg" || return $?
+      mkdir "${flag_args[@]}" "$arg" || return $?
     }
   done
 
@@ -105,20 +168,65 @@ function MakeDir()
 function MoveFile()
 {
   local flag_args=()
+  local IFS
 
   ReadCommandLineFlags flag_args "$@"
-  (( ${#flag_args} )) && shift ${#flag_args}
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+  local move_symlinks=0
+  local flag
+  local i
+
+  IFS=$' \t\r\n'
+
+  i=0
+  for flag in "${flag_args[@]}"; do
+    if [[ "${flag//L/}" != "$flag" ]]; then
+      move_symlinks=1
+      flag_args[i]="${flag//L/}" # remove external flag
+      if [[ -z "${flag_args[i]//-/}" ]]; then
+        flag_args[i]=""
+      fi
+      break
+    fi
+    (( i++ ))
+  done
+
+  RemoveEmptyArgs "${flag_args[@]}"
+  flag_args=("${RETURN_VALUE[@]}")
 
   local FILE_IN="$1"
   shift
 
-  local file
-  local IFS=$' \t\r\n'
+  if [[ -z "$FILE_IN" ]]; then
+    echo "MoveFile: error: input file is not set."
+    return 255
+  fi 1>&2
 
-  for file in `find . -type f -name "$FILE_IN" -o -type l -name "$FILE_IN"`; do
+  # convert to canonical path
+  GetCanonicalPath "$FILE_IN"
+  local file_in="$RETURN_VALUE"
+
+  # split canonical path into components
+  GetFileDir "$file_in"
+  local file_in_dir="$RETURN_VALUE"
+
+  GetFileName "$file_in"
+  local file_in_name="$RETURN_VALUE"
+
+  local find_cmd
+  if (( move_symlinks )); then
+    find_cmd="find \"\$file_in_dir\" -maxdepth 1 -type f -name \"\$file_in_name\" -o -type l -name \"\$file_in_name\""
+  else
+    find_cmd="find \"\$file_in_dir\" -maxdepth 1 -type f -name \"\$file_in_name\""
+  fi
+
+  IFS=$' \t\r\n'
+
+  for file in `eval $find_cmd`; do
     MakeCommandLine '' 1 "$file" "$@"
     echo ">mv ${flag_args[@]} $RETURN_VALUE"
-    mv ${flag_args[@]} "$file" "$@" || return $?
+    mv "${flag_args[@]}" "$file" "$@" || return $?
   done
 
   return 0
@@ -167,7 +275,7 @@ function Build()
   MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
-    Call cmake --build . --config $CMAKE_BUILD_TYPE --target all || { Popd; return $LastError; }
+    Call cmake --build . --config "$CMAKE_BUILD_TYPE" --target "$CMAKE_BUILD_TARGET" || { Popd; return $LastError; }
     Popd
   }
 
@@ -182,7 +290,7 @@ function Install()
   MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
-    Call cmake --build . --config $CMAKE_BUILD_TYPE --target install || { Popd; return $LastError; }
+    Call cmake --build . --config "$CMAKE_BUILD_TYPE" --target "$CMAKE_BUILD_TARGET" || { Popd; return $LastError; }
     Popd
   }
 
@@ -194,7 +302,7 @@ function PostInstall()
   export CMAKE_BUILD_TYPE
   export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install/$CMAKE_BUILD_TYPE"
 
-  MakeDir -p "$CMAKE_BUILD_ROOT"
+  MakeDir -p "$CMAKE_INSTALL_ROOT"
 
   Pushd "$CMAKE_INSTALL_ROOT" && {
     PostInstallImpl || { Popd; return $LastError; }
@@ -206,7 +314,8 @@ function PostInstall()
 
 function PostInstallImpl()
 {
-  local FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
+  local FileDepsList
+  FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
 
   # collect system dependencies
   JoinArgs : "${FileDepsList[@]}"
@@ -221,8 +330,8 @@ function PostInstallImpl()
   local file
   local IFS=$' \t\r\n'
 
-  for file in ${FileDepsList}; do
-    MoveFile "${file}" lib/
+  for file in "${FileDepsList[@]}"; do
+    MoveFile -L "$file" "lib/"
   done
 }
 
@@ -236,7 +345,7 @@ function Pack()
   MakeDir -p "$CMAKE_BUILD_ROOT"
 
   Pushd "$CMAKE_BUILD_ROOT" && {
-    Call cmake --build . --config $CMAKE_BUILD_TYPE --target bundle || { Popd; return $LastError; }
+    Call cmake --build . --config "$CMAKE_BUILD_TYPE" --target "$CMAKE_BUILD_TARGET" || { Popd; return $LastError; }
     Popd
   }
 

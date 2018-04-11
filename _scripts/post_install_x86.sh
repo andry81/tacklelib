@@ -31,9 +31,11 @@ let NEST_LVL+=1
 #Call "${ScriptDirPath:-.}/build_x86.sh" "$@" || Exit
 #echo
 
-export CMAKE_BUILD_TYPE="$1"
+CMAKE_BUILD_TYPE="$1"
+CMAKE_BUILD_TARGET="$2"
 
 [[ -z "${CMAKE_BUILD_TYPE}" ]] && CMAKE_BUILD_TYPE="*" # target all configurations
+[[ -z "${CMAKE_BUILD_TARGET}" ]] && CMAKE_BUILD_TARGET="*"
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
   for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
