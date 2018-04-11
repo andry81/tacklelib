@@ -45,7 +45,7 @@ fi
 pushd "$CONFIGURE_ROOT" > /dev/null && {
   while read -r LinkPath RefPath; do
     if [[ -n "$LinkPath" ]]; then
-      echo "'$LinkPath' -> '$RefPath'"
+      echo "  '$LinkPath' -> '$RefPath'"
       ln -s "$RefPath" "$LinkPath"
     fi
   done < "$ScriptDirPath/links.vars"
