@@ -40,17 +40,17 @@ OUT_DEPS_DIR="$4"       # directory there to copy found dependencies
 
 if [[ -n "$OUT_DEPS_FILE" ]]; then
   touch "$OUT_DEPS_FILE" 2> /dev/null || {
-    echo "$ScriptFileName: error: cannot create OUT_DEPS_FILE file: \"$OUT_DEPS_FILE\"".
+    echo "$ScriptFileName: error: cannot create OUT_DEPS_FILE file: \"$OUT_DEPS_FILE\"."
     exit 2
   } 1>&2
 fi
 
-if [[ -z "$OUT_DEPS_DIR" || ! -d "$OUT_DEPS_DIR" ]]; then
-  echo "$ScriptFileName: error: directory OUT_DEPS_DIR does not exist: \"$OUT_DEPS_DIR\"".
+if [[ ! -d "$OUT_DEPS_DIR" ]]; then
+  echo "$ScriptFileName: error: directory OUT_DEPS_DIR is not found: \"$OUT_DEPS_DIR\"." >&2
   exit 3
-fi 1>&2
+fi
 
-if [[ -z "$SEARCH_ROOT" || ! -d "$SEARCH_ROOT/" ]]; then
+if [[ ! -d "$SEARCH_ROOT" ]]; then
   SEARCH_ROOT="$APP_ROOT"
 else
   SEARCH_ROOT="`readlink -f "$SEARCH_ROOT"`"
@@ -59,7 +59,7 @@ fi
 function Call()
 {
   echo ">$@"
-  eval "$@"
+  "$@"
   LastError=$?
   return $LastError
 }
@@ -300,9 +300,9 @@ function CopyFile()
   shift
 
   if [[ -z "$FILE_IN" ]]; then
-    echo "CopyFile: error: input file is not set."
+    echo "CopyFile: error: input file is not set." >&2
     return 255
-  fi 1>&2
+  fi
 
   # convert to canonical path
   GetCanonicalPath "$FILE_IN"
@@ -426,7 +426,7 @@ function CollectLddDeps()
 
       # We must set `LD_LIBRARY_PATH=$SEARCH_ROOT` to resolve local dependencies and
       # enable to collect dependencies after the `ld-linux.so` module.
-      export LD_LIBRARY_PATH="$SEARCH_ROOT"
+      export LD_LIBRARY_PATH="$SEARCH_ROOT${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
       # first check the exit code because `ldd` prints an error to stdout instead of stderr
       $LDD_TOOL "$scan_file" > /dev/null || continue

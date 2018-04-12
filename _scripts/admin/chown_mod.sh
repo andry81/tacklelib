@@ -24,25 +24,31 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
   ScriptBaseInit "$@"
 fi
 
-source "${ScriptDirPath:-.}/../buildlib.sh"
-
 USER="${1:-tester}"
 GROUP="${2:-$USER}"
 
 if [[ -z "${USER}" ]]; then
-  echo "$ScriptFileName: error: USER argument is not set."
+  echo "$ScriptFileName: error: USER argument is not set." >&2
   Exit -255
-fi 1>&2
+fi
 
 if [[ -z "${GROUP}" ]]; then
-  echo "$ScriptFileName: error: GROUP argument is not set."
+  echo "$ScriptFileName: error: GROUP argument is not set." >&2
   Exit -254
-fi 1>&2
+fi
+
+function Call()
+{
+  echo ">$@"
+  "$@"
+  LastError=$?
+  return $LastError
+}
 
 CONFIGURE_ROOT="`/bin/readlink -f "$ScriptDirPath/../.."`"
 
 Call sudo chown -R ${USER}:${GROUP} "${CONFIGURE_ROOT}"
 Call sudo chmod -R ug+rw "${CONFIGURE_ROOT}"
-Call sudo chmod -R ug+x "${CONFIGURE_ROOT}/_scripts/*.sh"
+Call sudo chmod -R ug+x "${CONFIGURE_ROOT}/*.sh"
 
 fi

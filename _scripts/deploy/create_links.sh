@@ -24,32 +24,111 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
   ScriptBaseInit "$@"
 fi
 
-if [[ ! -f "$ScriptDirPath/links.vars" ]]; then
-  echo "$ScriptFileName: error: links.vars is not found: \"$ScriptDirPath/links.vars\""
+if [[ ! -f "$ScriptDirPath/user_links.lst" ]]; then
+  echo "$ScriptFileName: error: \"user_links.lst\" must exist in the script directory" >&2
   exit 1
-fi 1>&2
+fi
 
-APP_ROOT="`readlink -f "$ScriptDirPath/.."`"
+function ReadCommandLineFlags()
+{
+  local out_args_list_name_var="$1"
+  shift
+
+  local args
+  args=("$@")
+  local args_len=${#@}
+
+  local i
+  local j
+
+  j=0
+  for (( i=0; i < $args_len; i++ )); do
+    # collect all flag arguments until first not flag
+    if (( ${#args[i]} )); then
+      if [[ "${args[i]#-}" != "${args[i]}" ]]; then
+        eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+        shift
+      else
+        break
+      fi
+    else
+      # stop on empty string too
+      break
+    fi
+  done
+}
+
+flag_args=()
+
+ReadCommandLineFlags flag_args "$@"
+(( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+APP_ROOT="`readlink -f "$ScriptDirPath/../.."`"
+APP_DIR_LIST=("$APP_ROOT" "$APP_ROOT/lib")
 
 CONFIGURE_ROOT="$1"
 
-if [[ -z "$CONFIGURE_ROOT" || ! -d "$CONFIGURE_ROOT/" ]]; then
-  CONFIGURE_ROOT="$APP_ROOT/lib"
-  [[ ! -d "$CONFIGURE_ROOT" ]] && CONFIGURE_ROOT="$APP_ROOT"
-else
-  CONFIGURE_ROOT="`readlink -f "$CONFIGURE_ROOT"`"
+if [[ -n "$CONFIGURE_ROOT" ]]; then
+  if [[ -d "$CONFIGURE_ROOT" ]]; then
+    CONFIGURE_ROOT="`readlink -f "$CONFIGURE_ROOT"`"
+    APP_DIR_LIST=("$CONFIGURE_ROOT" "$CONFIGURE_ROOT/lib")
+  else
+    echo "$ScriptFileName: error: input directory is not found: \"$CONFIGURE_ROOT\"."
+    exit 2
+  fi
 fi
 
-[[ ! -d "$CONFIGURE_ROOT/" ]] && mkdir "$CONFIGURE_ROOT"
+create_user_symlinks_only=0
 
-pushd "$CONFIGURE_ROOT" > /dev/null && {
-  while read -r LinkPath RefPath; do
-    if [[ -n "$LinkPath" ]]; then
-      echo "  '$LinkPath' -> '$RefPath'"
-      ln -s "$RefPath" "$LinkPath"
-    fi
-  done < "$ScriptDirPath/links.vars"
-  popd > /dev/null
-}
+IFS=$' \t\r\n'
 
-fi 
+for flag in "${flag_args[@]}"; do
+  if [[ "${flag//u/}" != "$flag" ]]; then
+    create_user_symlinks_only=1
+    break
+  fi
+done
+
+if (( ! create_user_symlinks_only )) && [[ ! -f "$ScriptDirPath/gen_links.lst" ]]; then
+  echo "$ScriptFileName: error: \"gen_links.lst\" must exist in the script directory." >&2
+  exit 3
+fi
+
+IFS=$' \t\r\n'
+
+# create user links at first
+echo "Creating user links from \"$ScriptDirPath/user_links.lst\"..."
+for app_dir in "${APP_DIR_LIST[@]}"; do
+  [[ ! -d "$app_dir" ]] && continue
+  pushd "$app_dir" > /dev/null && {
+    while read -r LinkPath RefPath; do
+      if [[ -n "$LinkPath" && -f "$RefPath" ]]; then
+        echo "  '$LinkPath' -> '$RefPath'"
+        ln -s "$RefPath" "$LinkPath"
+      fi
+    done < "$ScriptDirPath/user_links.lst"
+    popd > /dev/null
+  }
+done
+
+echo
+
+if (( ! create_user_symlinks_only )); then
+  # create generated links
+  echo "Creating generated links from \"$ScriptDirPath/gen_links.lst\"..."
+  for app_dir in "${APP_DIR_LIST[@]}"; do
+    [[ ! -d "$app_dir" ]] && continue
+    pushd "$app_dir" > /dev/null && {
+      while read -r LinkPath RefPath; do
+        if [[ -n "$LinkPath" && -f "$RefPath" ]]; then
+          echo "  '$LinkPath' -> '$RefPath'"
+          ln -s "$RefPath" "$LinkPath"
+        fi
+      done < "$ScriptDirPath/gen_links.lst"
+      popd > /dev/null
+    }
+  done
+  echo
+fi
+
+fi

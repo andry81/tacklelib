@@ -14,7 +14,7 @@ _scripts/configure_src.bat -text
 _scripts/configure_src.sh -text
 _scripts/deploy/collect_ldd_deps.sh -text
 _scripts/deploy/create_links.sh -text
-_scripts/deploy/links.vars -text
+_scripts/deploy/user_links.lst -text
 _scripts/install_x86.bat -text
 _scripts/install_x86.sh -text
 _scripts/pack_x86.bat -text
@@ -25,6 +25,7 @@ _scripts/post_install_x86.sh -text
 /configure_nogen.bat.in -text
 /configure_nogen.sh.in -text
 /environment_local.cmake.in -text
+/environment_local.vars.in -text
 includes/.svnignore -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
