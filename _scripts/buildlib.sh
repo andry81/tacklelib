@@ -35,7 +35,7 @@ function Exit()
 function Call()
 {
   echo ">$@"
-  eval "$@"
+  "$@"
   LastError=$?
   return $LastError
 }
@@ -114,7 +114,7 @@ function GetCanonicalPath()
 
   if [[ -n "$file_in" ]]; then
     # Use `readlink` to convert a path from any not globbed path into canonical path, but
-    # use not existed path prefix to avoid convertion from a symlink.
+    # use not existed path prefix to avoid conversion from a symlink.
     if [[ "${file_in:0:1}" == "." || "${file_in:0:1}" != "/" ]]; then
       file_in_abs=$(readlink -m "/::$(pwd)/$file_in")
     else
@@ -155,14 +155,14 @@ function MakeDir()
 
   local arg
   for arg in "$@"; do
-    [[ ! -f "$arg" ]] && {
+    [[ ! -d "$arg" ]] && {
       MakeCommandLine '' 1 "$arg"
       echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
       mkdir "${flag_args[@]}" "$arg" || return $?
     }
   done
 
-  return $?
+  return 0
 }
 
 function MoveFile()
@@ -199,9 +199,9 @@ function MoveFile()
   shift
 
   if [[ -z "$FILE_IN" ]]; then
-    echo "MoveFile: error: input file is not set."
+    echo "MoveFile: error: input file is not set." >&2
     return 255
-  fi 1>&2
+  fi
 
   # convert to canonical path
   GetCanonicalPath "$FILE_IN"
@@ -317,22 +317,69 @@ function PostInstallImpl()
   local FileDepsList
   FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
 
-  # collect system dependencies
+  local cwd="$(pwd)"
+  local IFS
+
+  # create application directories at first
+  MakeDir _scripts _scripts/admin _scripts/deploy lib plugins plugins/platforms || return $?
+
+  # copy Qt plugins
+  Call cp -R "$QT5_ROOT/plugins/platforms/." "$cwd/plugins/platforms" || return $?
+
+  IFS=$' \t\r\n'
   JoinArgs : "${FileDepsList[@]}"
-  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" . "$RETURN_VALUE" deps.lst .
 
-  # create symbol links
-  Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" .
+  # add QT lib to enable copy dependencies from QT
+  export LD_LIBRARY_PATH="$QT5_ROOT/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-  # move all `.so` and `.a` files into `/lib` subdirectory
-  MakeDir "lib"
+  # collect system dependencies
+  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" . "$RETURN_VALUE" deps.libs.lst . || return $?
+  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" ./plugins/platforms "$RETURN_VALUE" deps.plugins.lst . || return $?
+
+  # create user symlinks
+  Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" -u . || return $?
+
+  # generate common links file from collected and created dependencies
+  Call "$PROJECT_ROOT/_scripts/deploy/gen_links.sh" . _scripts/deploy || return $?
+
+  # patch executables
+  Call patchelf --set-interpreter "./lib/ld-linux.so.2" --set-rpath "\$ORIGIN:\$ORIGIN/lib" "./$PROJECT_NAME" || return $?
+  Call patchelf --shrink-rpath "./$PROJECT_NAME" || return $?
 
   local file
-  local IFS=$' \t\r\n'
+
+  IFS=$' \t\r\n'
 
   for file in "${FileDepsList[@]}"; do
-    MoveFile -L "$file" "lib/"
+    MoveFile -L "$file" "lib/" || return $?
   done
+
+  # copy approot
+  Call cp -R "$PROJECT_ROOT/deploy/approot/." "$cwd" || return $?
+
+  # copy scripts
+  Call cp -R "$PROJECT_ROOT/_scripts/deploy" "$cwd/_scripts" || return $?
+  Call cp -R "$PROJECT_ROOT/_scripts/admin" "$cwd/_scripts" || return $?
+
+  local file_name
+
+  IFS=$' \t\r\n'
+
+  # rename files in the current directory beginning by the `$` character
+  for file in `find "$cwd" -type f -name "\\\$*"`; do
+    GetFileDir "$file"
+    file_dir="$RETURN_VALUE"
+
+    GetFileName "$file"
+
+    file_name_prefix=$(echo "$RETURN_VALUE" | { IFS=$'.\r\n'; read -r prefix suffix; echo "$prefix"; })
+    file_name_ext=$(echo "$RETURN_VALUE" | { IFS=$'.\r\n'; read -r prefix suffix; echo "$suffix"; })
+    file_name_to_rename="${file_name_prefix//\$\{PROJECT_NAME\}/$PROJECT_NAME}.$file_name_ext"
+
+    Call mv "$file" "$file_dir/$file_name_to_rename" || return $?
+  done
+
+  return 0
 }
 
 function Pack()

@@ -21,3 +21,4 @@ set(ENV{GTEST_ROOT} "${PROJECT_ROOT}/_3dparty/googletest")
 
 set(ENV{QT5_ROOT} "x:/Qt/Qt5_10_0/5.10.0/msvc2015")
 #set(ENV{QT5_ROOT} "/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/release")
+#set(ENV{QT5_ROOT} "/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/debug")

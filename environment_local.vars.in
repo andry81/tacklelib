@@ -1,0 +1,6 @@
+PROJECT_NAME=myproj
+CMAKE_CONFIG_TYPES=Release Debug RelWithDebInfo MinSizeRel
+# to post install QT plugins
+QT5_ROOT=x:/Qt/Qt5_10_0/5.10.0/msvc2015
+#QT5_ROOT=/opt/_3dparty/gcc_x86/qt/qt5_10_0/5.10.0/gcc_x86/release
+#QT5_ROOT=/opt/_3dparty/gcc_x86/qt/qt5_10_0/5.10.0/gcc_x86/debug

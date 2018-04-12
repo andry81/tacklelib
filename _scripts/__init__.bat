@@ -11,6 +11,26 @@ if defined __INIT__ exit /b 0
 call :CANONICAL_PATH "%%~dp0.."
 set "PROJECT_ROOT=%PATH_VALUE%"
 
+set "CONFIGURE_FILE_IN=%PROJECT_ROOT%/environment_local.vars.in"
+set "CONFIGURE_FILE=%PROJECT_ROOT%/environment_local.vars"
+
+if not exist "%CONFIGURE_FILE%" (
+  type "%CONFIGURE_FILE_IN:/=\%"
+) > "%CONFIGURE_FILE%"
+
+rem load external variables from file
+set "CMAKE_CMD_LINE="
+for /F "usebackq eol=# tokens=1,* delims==" %%i in ("%CONFIGURE_FILE_IN%") do (
+  if not "%%i" == "" (
+    if not "%%j" == "" (
+      call :CMD set "%%i=%%j"
+    ) else (
+      call :CMD set "%%i="
+    )
+  )
+)
+
+rem builtin variables
 set "CMAKE_OUTPUT_ROOT=%PROJECT_ROOT%/_out"
 
 set "CMAKE_BUILD_ROOT=%CMAKE_OUTPUT_ROOT%/build"
@@ -20,7 +40,6 @@ set "CMAKE_INSTALL_ROOT=%CMAKE_OUTPUT_ROOT%/install"
 set "CMAKE_CPACK_ROOT=%CMAKE_OUTPUT_ROOT%/pack"
 
 set "CMAKE_GENERATOR_TOOLSET=Visual Studio 14 2015"
-set "CMAKE_CONFIG_TYPES=Release Debug RelWithDebInfo MinSizeRel"
 
 if not defined NEST_LVL set NEST_LVL=0
 
