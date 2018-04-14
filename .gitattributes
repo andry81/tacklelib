@@ -37,6 +37,7 @@ includes/utility/platform.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
 includes/utility/utility.hpp -text
+src/.svnignore -text
 src/debug.hpp.in -text
 src/optimization.hpp.in -text
 src/tackle/aligned_storage.hpp -text
