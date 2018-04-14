@@ -1,3 +1,4 @@
 _out
+environment_local.vars
 environment_local.cmake
 CMakeLists.txt.user
