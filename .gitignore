@@ -3,3 +3,5 @@
 /environment_local.cmake
 /environment_local.vars
 includes/version.hpp
+src/debug.hpp
+src/optimization.hpp
