@@ -34,6 +34,7 @@ function Exit()
 
 function Call()
 {
+  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -47,11 +48,13 @@ function SetError()
 
 function Pushd()
 {
+  local IFS=$' \t\r\n'
   pushd "$@" > /dev/null
 }
 
 function Popd()
 {
+  local IFS=$' \t\r\n'
   popd "$@" > /dev/null
 }
 
@@ -60,6 +63,7 @@ function ReadCommandLineFlags()
   local out_args_list_name_var="$1"
   shift
 
+  local IFS=$' \t\r\n'
   local args
   args=("$@")
   local args_len=${#@}
@@ -70,16 +74,11 @@ function ReadCommandLineFlags()
   j=0
   for (( i=0; i < $args_len; i++ )); do
     # collect all flag arguments until first not flag
-    if (( ${#args[i]} )); then
-      if [[ "${args[i]#-}" != "${args[i]}" ]]; then
-        eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
-        shift
-      else
-        break
-      fi
+    if [[ "${args[i]//-/}" != "" && "${args[i]#-}" != "${args[i]}" ]]; then
+      eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+      shift
     else
-      # stop on empty string too
-      break
+      break # stop on empty string too
     fi
   done
 }
@@ -88,6 +87,7 @@ function RemoveEmptyArgs()
 {
   RETURN_VALUE=()
 
+  local IFS=$' \t\r\n'
   local args
   args=("$@")
 
@@ -95,11 +95,9 @@ function RemoveEmptyArgs()
   local i
   local j
 
-  local IFS=$' \t\r\n'
-
   i=0
   j=0
-  for arg in "${args[@]}"; do
+  IFS=$' \t\r\n'; for arg in "${args[@]}"; do
     if [[ -n "$arg" ]]; then
       RETURN_VALUE[j++]="$arg"
     fi
@@ -149,14 +147,16 @@ function GetFileName()
 function MakeDir()
 {
   local flag_args=()
+  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
   local arg
-  for arg in "$@"; do
+  IFS=$' \t\r\n'; for arg in "$@"; do
     [[ ! -d "$arg" ]] && {
       MakeCommandLine '' 1 "$arg"
+      IFS=$' \t\r\n'
       echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
       mkdir "${flag_args[@]}" "$arg" || return $?
     }
@@ -168,7 +168,7 @@ function MakeDir()
 function MoveFile()
 {
   local flag_args=()
-  local IFS
+  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -177,10 +177,8 @@ function MoveFile()
   local flag
   local i
 
-  IFS=$' \t\r\n'
-
   i=0
-  for flag in "${flag_args[@]}"; do
+  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
     if [[ "${flag//L/}" != "$flag" ]]; then
       move_symlinks=1
       flag_args[i]="${flag//L/}" # remove external flag
@@ -192,6 +190,7 @@ function MoveFile()
     (( i++ ))
   done
 
+  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -221,10 +220,9 @@ function MoveFile()
     find_cmd="find \"\$file_in_dir\" -maxdepth 1 -type f -name \"\$file_in_name\""
   fi
 
-  IFS=$' \t\r\n'
-
-  for file in `eval $find_cmd`; do
+  IFS=$' \t\r\n'; for file in `eval $find_cmd`; do
     MakeCommandLine '' 1 "$file" "$@"
+    IFS=$' \t\r\n'
     echo ">mv ${flag_args[@]} $RETURN_VALUE"
     mv "${flag_args[@]}" "$file" "$@" || return $?
   done
@@ -257,8 +255,7 @@ function Configure()
 
   MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"
 
-  CMAKE_CMD_LINE=("${RETURN_VALUE[@]}")
-
+  eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
   Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; return $LastError; }
     Popd
@@ -318,7 +315,7 @@ function PostInstallImpl()
   FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
 
   local cwd="$(pwd)"
-  local IFS
+  local IFS=$' \t\r\n'
 
   # create application directories at first
   MakeDir _scripts _scripts/admin _scripts/deploy lib plugins plugins/platforms || return $?
@@ -329,12 +326,8 @@ function PostInstallImpl()
   IFS=$' \t\r\n'
   JoinArgs : "${FileDepsList[@]}"
 
-  # add QT lib to enable copy dependencies from QT
-  export LD_LIBRARY_PATH="$QT5_ROOT/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-
-  # collect system dependencies
-  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" . "$RETURN_VALUE" deps.libs.lst . || return $?
-  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" ./plugins/platforms "$RETURN_VALUE" deps.plugins.lst . || return $?
+  # collect shared object dependencies
+  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" ".:./plugins/platforms" "$RETURN_VALUE" ".:./plugins/platforms:$QT5_ROOT/lib" deps.lst . || return $?
 
   # create user symlinks
   Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" -u . || return $?
@@ -348,9 +341,7 @@ function PostInstallImpl()
 
   local file
 
-  IFS=$' \t\r\n'
-
-  for file in "${FileDepsList[@]}"; do
+  IFS=$' \t\r\n'; for file in "${FileDepsList[@]}"; do
     MoveFile -L "$file" "lib/" || return $?
   done
 
@@ -363,10 +354,8 @@ function PostInstallImpl()
 
   local file_name
 
-  IFS=$' \t\r\n'
-
   # rename files in the current directory beginning by the `$` character
-  for file in `find "$cwd" -type f -name "\\\$*"`; do
+  IFS=$' \t\r\n'; for file in `find "$cwd" -type f -name "\\\$*"`; do
     GetFileDir "$file"
     file_dir="$RETURN_VALUE"
 
@@ -526,7 +515,7 @@ function MakeCommandArgumentsFromFile()
   local DoEval=0
   local AlwaysQuoting=0
 
-  if [[ "$Flags" != "-" && "${Flags#-*}" != "$Flags" ]]; then
+  if [[ "${Flags//-/}" != "" && "${Flags#-}" != "$Flags" ]]; then
     [[ "${Flags//e/}" != "$Flags" ]] && DoEval=1
     [[ "${Flags//q/}" != "$Flags" ]] && AlwaysQuoting=1
   fi
@@ -595,7 +584,7 @@ function MakeCommandArgumentsFromFile()
         fi
         EscapeString "$ConfigLine" '' 1
         ConfigLine="$RETURN_VALUE"
-        if (( AlwaysQuoting )) || [[ "${ConfigLine//[ $'\t\r\n']/}" != "$ConfigLine" ]]; then
+        if (( AlwaysQuoting )) || [[ "${ConfigLine//[$' \t\r\n'=]/}" != "$ConfigLine" ]]; then
           ConfigString="$ConfigString${ConfigString:+" "}'${ConfigLine}'"
         else
           ConfigString="$ConfigString${ConfigString:+" "}${ConfigLine}"
@@ -654,8 +643,7 @@ function MakeCommandLineEx()
 
   shift 4
 
-  local IFS=$' \t\n'
-
+  local IFS=$' \t\r\n'
   local Args
   Args=("$@")
 
@@ -669,7 +657,7 @@ function MakeCommandLineEx()
 
   case "$EscapeType" in
     0)
-      for arg in "${Args[@]}"; do
+      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
         EscapeString "$arg" "$EscapeChars" 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
@@ -684,7 +672,7 @@ function MakeCommandLineEx()
       ;;
 
     1)
-      for arg in "${Args[@]}"; do
+      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
         EscapeString "$arg" "$EscapeChars" 1
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
@@ -699,7 +687,7 @@ function MakeCommandLineEx()
       ;;
 
     2)
-      for arg in "${Args[@]}"; do
+      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
         EscapeString "$arg" "$EscapeChars" 2
         EscapeString "$RETURN_VALUE" '' 0
