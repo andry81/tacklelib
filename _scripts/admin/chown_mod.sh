@@ -21,10 +21,11 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
     ScriptFileName="${ScriptFilePath##*[/]}"
   }
 
+  IFS=$' \t\r\n'
   ScriptBaseInit "$@"
 fi
 
-USER="${1:-tester}"
+USER="${1:-$USER}"
 GROUP="${2:-$USER}"
 
 if [[ -z "${USER}" ]]; then
@@ -39,6 +40,7 @@ fi
 
 function Call()
 {
+  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -47,8 +49,16 @@ function Call()
 
 CONFIGURE_ROOT="`/bin/readlink -f "$ScriptDirPath/../.."`"
 
+echo "Updating permissions for user=\"$USER\" and group=\"$GROUP\"..."
+
 Call sudo chown -R ${USER}:${GROUP} "${CONFIGURE_ROOT}"
 Call sudo chmod -R ug+rw "${CONFIGURE_ROOT}"
-Call sudo chmod -R ug+x "${CONFIGURE_ROOT}/*.sh"
+
+IFS=$' \t\r\n'
+for file in `find "${CONFIGURE_ROOT}" -type f -name "*.sh"`; do
+  Call sudo chmod ug+x "$file"
+done
+
+echo "Done."
 
 fi

@@ -21,6 +21,7 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
     ScriptFileName="${ScriptFilePath##*[/]}"
   }
 
+  IFS=$' \t\r\n'
   ScriptBaseInit "$@"
 fi
 
@@ -32,10 +33,11 @@ fi
 
 APP_ROOT="`readlink -f "$ScriptDirPath/.."`"
 
-SEARCH_ROOT="$1"        # directory path where to search executable files not recursively
-FILE_LIST_TO_FIND="$2"  # `:`-separated list of wildcard case insensitive file names or file paths
-OUT_DEPS_FILE="$3"      # output dependencies text file
-OUT_DEPS_DIR="$4"       # directory there to copy found dependencies
+SEARCH_ROOT_LIST="$1"     # directory path list where to start search files dependencies not recursively
+FILE_LIST_TO_FIND="$2"    # `:`-separated list of wildcard case insensitive file names or file paths
+LD_LIBRARY_PATH_LIST="$3" # directory path list for the LD_LIBRARY_PATH
+OUT_DEPS_FILE="$4"        # output dependencies text file
+OUT_DEPS_DIR="$5"         # directory there to copy found dependencies
 
 
 if [[ -n "$OUT_DEPS_FILE" ]]; then
@@ -58,6 +60,7 @@ fi
 
 function Call()
 {
+  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -66,11 +69,13 @@ function Call()
 
 function Pushd()
 {
+  local IFS=$' \t\r\n'
   pushd "$@" > /dev/null
 }
 
 function Popd()
 {
+  local IFS=$' \t\r\n'
   popd "$@" > /dev/null
 }
 
@@ -81,30 +86,35 @@ function FindFiles()
   local file_list_to_find=()
 
   local IFS
+  local search_root
   local file
   local i
 
-  IFS=":"
-
   i=0
 
-  Pushd "$SEARCH_ROOT" && {
-    for file in $FILE_LIST_TO_FIND; do
-      if [[ -f "$file" ]]; then
-        file_list_to_find[i++]="$file"
-        echo "  $file"
-        (( i++ ))
-      fi
-    done
-    Popd
+  IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
+    if Pushd "$search_root"; then
+      IFS=":"; for file in $FILE_LIST_TO_FIND; do
+        if [[ -f "$file" ]]; then
+          file_list_to_find[i++]="$file"
+          echo "  $file"
+          (( i++ ))
+        fi
+      done
+      Popd
+    else
+      echo "$ScriptFileName: error: search root is not found: \"$search_root\"." >&2
+      return 1
+    fi
+  done
+
+  (( ! ${#file_list_to_find[@]} )) && {
+    echo "$ScriptFileName: error: file search list is empty." >&2
+    return 2
   }
 
-  (( ! ${#file_list_to_find[@]} )) && return 1
-
-  IFS=$' \t\r\n'
-
   local iname_cmd_line=""
-  for arg in "${file_list_to_find[@]}"; do
+  IFS=$' \t\r\n'; for arg in "${file_list_to_find[@]}"; do
     if [[ -n "$iname_cmd_line" ]]; then
       iname_cmd_line="$iname_cmd_line -o -iname \"$arg\""
     else
@@ -113,10 +123,13 @@ function FindFiles()
   done
 
   i=0
-  for file in `eval find "\$SEARCH_ROOT/" $iname_cmd_line`; do
-    RETURN_VALUE[i++]="$file"
-    echo "  -> $file"
-    (( i++ ))
+
+  IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
+    IFS=$' \t\r\n'; for file in `eval find "\$search_root/" $iname_cmd_line`; do
+      RETURN_VALUE[i++]="$file"
+      echo "  -> $file"
+      (( i++ ))
+    done
   done
 
   return 0
@@ -127,6 +140,7 @@ function ReadCommandLineFlags()
   local out_args_list_name_var="$1"
   shift
 
+  local IFS=$' \t\r\n'
   local args
   args=("$@")
   local args_len=${#@}
@@ -137,16 +151,11 @@ function ReadCommandLineFlags()
   j=0
   for (( i=0; i < $args_len; i++ )); do
     # collect all flag arguments until first not flag
-    if (( ${#args[i]} )); then
-      if [[ "${args[i]#-}" != "${args[i]}" ]]; then
-        eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
-        shift
-      else
-        break
-      fi
+    if [[ "${args[i]//-/}" != "" && "${args[i]#-}" != "${args[i]}" ]]; then
+      eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+      shift
     else
-      # stop on empty string too
-      break
+      break # stop on empty string too
     fi
   done
 }
@@ -155,6 +164,7 @@ function RemoveEmptyArgs()
 {
   RETURN_VALUE=()
 
+  local IFS=$' \t\r\n'
   local args
   args=("$@")
 
@@ -162,11 +172,9 @@ function RemoveEmptyArgs()
   local i
   local j
 
-  local IFS=$' \t\r\n'
-
   i=0
   j=0
-  for arg in "${args[@]}"; do
+  IFS=$' \t\r\n'; for arg in "${args[@]}"; do
     if [[ -n "$arg" ]]; then
       RETURN_VALUE[j++]="$arg"
     fi
@@ -216,7 +224,7 @@ function GetFileName()
 function MakeSymlink()
 {
   local flag_args=()
-  local IFS
+  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -225,10 +233,8 @@ function MakeSymlink()
   local flag
   local i
 
-  IFS=$' \t\r\n'
-
   i=0
-  for flag in "${flag_args[@]}"; do
+  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
     if [[ "${flag//I/}" != "$flag" ]]; then
       ignore_if_same_link_exist=1
       flag_args[i]="${flag//I/}" # remove external flag
@@ -240,6 +246,7 @@ function MakeSymlink()
     (( i++ ))
   done
 
+  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -260,6 +267,7 @@ function MakeSymlink()
     fi
   fi
 
+  IFS=$' \t\r\n'
   echo ">ln: ${flag_args[@]} \"$LinkPath\" -> \"$RefPath\""
   ln -s "${flag_args[@]}" "$Path" "$Name"
 
@@ -269,7 +277,7 @@ function MakeSymlink()
 function CopyFile()
 {
   local flag_args=()
-  local IFS
+  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -278,10 +286,8 @@ function CopyFile()
   local flag
   local i
 
-  IFS=$' \t\r\n'
-
   i=0
-  for flag in "${flag_args[@]}"; do
+  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
     if [[ "${flag//L/}" != "$flag" ]]; then
       create_symlinks=1
       flag_args[i]="${flag//L/}" # remove external flag
@@ -293,6 +299,7 @@ function CopyFile()
     (( i++ ))
   done
 
+  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -327,16 +334,14 @@ function CopyFile()
   local copy_to_list
   local i
 
-  IFS=$' \t\r\n'
-
-  for file in `find "$file_in_dir" -maxdepth 1 -type f -name "$file_in_name" -o -type l -name "$file_in_name"`; do
+  IFS=$' \t\r\n'; for file in `find "$file_in_dir" -maxdepth 1 -type f -name "$file_in_name" -o -type l -name "$file_in_name"`; do
     if [[ -f "$file" && ! -L "$file" ]]; then
       GetFileDir "$file"
       file_dir="$RETURN_VALUE"
 
       copy_to_list=()
       i=0
-      for copy_to_file in "$@"; do
+      IFS=$' \t\r\n'; for copy_to_file in "$@"; do
         GetCanonicalPath "$copy_to_file"
         copy_to_file_abs="$RETURN_VALUE"
 
@@ -352,6 +357,7 @@ function CopyFile()
         fi
       done
 
+      IFS=$' \t\r\n'
       if (( ${#copy_to_list[@]} )); then
         Call cp "${flag_args[@]}" "$file" "${copy_to_list[@]}" || return $?
       fi
@@ -364,13 +370,14 @@ function CopyFile()
           GetFileName "$link_file"
           link_file_name="$RETURN_VALUE"
 
+          IFS=$' \t\r\n'
           CopyFile "${flag_args[@]}" "$link_file" "$@" || return $?
 
           GetFileName "$file"
           file_name="$RETURN_VALUE"
 
           if [[ "$link_file_name" != "$file_name" ]]; then
-            for copy_to_file in "$@"; do
+            IFS=$' \t\r\n'; for copy_to_file in "$@"; do
               GetCanonicalPath "$copy_to_file"
               copy_to_file_abs="$RETURN_VALUE"
 
@@ -395,20 +402,67 @@ function CopyFile()
   return 0
 }
 
+function AppendItemToUArray()
+{
+  # drop return value
+  RETURN_VALUE=-1
+
+  local IFS=$' \t'
+
+  local i
+  local item
+  declare -a "UArraySize=(\${#$1[@]})"
+
+  for (( i=0; i<UArraySize; i++ )); do
+    eval "item=\"\${$1[i]}\""
+    if [[ "$item" == "$2" ]]; then
+      RETURN_VALUE=$i
+      return 1
+    fi
+  done
+
+  eval "$1[UArraySize]=\"\$2\""
+
+  RETURN_VALUE=$UArraySize
+
+  return 0
+}
+
+function RemoveItemFromUArray()
+{
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+
+  local i
+  local item
+  declare -a "UArraySize=(\${#$1[@]})"
+  for (( i=0; i<UArraySize; i++ )); do
+    eval "item=\"\${$1[i]}\""
+    if [[ "$item" == "$2" ]]; then
+      # remove it from the array
+      eval "$1=(\"\${$1[@]:0:\$i}\" \"\${$1[@]:\$i+1}\")"
+      return 0
+    fi
+  done
+
+  return 1
+} 
 function CollectLddDeps()
 {
   local LDD_TOOL=ldd #alternative: `lddtee`
 
   echo "Scanning for \"$FILE_LIST_TO_FIND\" files in \"$SEARCH_ROOT\"..."
 
-  FindFiles || return 10
+  FindFiles || return $?
 
-  (( ! ${#RETURN_VALUE[@]} )) && return 11
+  if (( ! ${#RETURN_VALUE[@]} )); then
+    echo "$ScriptFileName: info: nothing to search." >&2
+    return 10
+  fi
 
   echo
   echo "Reading and collecting dependencies..."
 
-  local IFS=$' \t\r\n'
+  local IFS
 
   local LinkName
   local Op
@@ -420,53 +474,148 @@ function CollectLddDeps()
   (
     # external shell process to isolate the change of exported variables
 
-    for scan_file in "${RETURN_VALUE[@]}"; do
+    function ctrl_c()
+    {
+        echo
+        echo "** search interrapted **"
+
+        return 255
+    }
+
+    trap ctrl_c INT
+
+    # We use `LD_LIBRARY_PATH` to resolve all dependencies.
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH_LIST${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    echo
+    echo "  LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+    echo
+
+    ldd_output_file=$(mktemp /tmp/ldd_output.XXXXXX)
+
+    function on_exit()
+    {
+      rm "$ldd_output_file"
+    }
+
+    function CheckCopyTo()
+    {
+      local FromFile="$1"
+      local ToDir="$2"
+
+      # read the link and if the end file has the same file in the destination but different content, then stop with error immediately
+      link_file="`readlink -f "$FromFile"`"
+
+      GetFileDir "$link_file"
+      link_file_dir="$RETURN_VALUE"
+
+      GetFileName "$link_file"
+      link_file_name="$RETURN_VALUE"
+
+      if [[ "$link_file_dir" != "$ToDir" ]]; then
+        if [[ -f "$ToDir/$link_file_name" ]]; then
+          if ! cmp "$link_file" "$ToDir/$link_file_name" > /dev/null; then
+            echo "$ScriptFileName: error: being copied dependency file is already exist with different content: \"$LinkName\" -> \"$link_file\" copy to \"$ToDir/\"" >&2
+            return 1
+          fi
+          return 255
+        fi
+      fi
+
+      return 0
+    }
+
+    # collect all not found dependencies to throw the error at the end of the search
+    not_found_lib_list=()
+
+    IFS=$' \t\r\n'; for scan_file in "${RETURN_VALUE[@]}"; do
       echo "  $scan_file"
       [[ -n "$OUT_DEPS_FILE" ]] && echo "#%% $scan_file" >> "$OUT_DEPS_FILE"
 
-      # We must set `LD_LIBRARY_PATH=$SEARCH_ROOT` to resolve local dependencies and
-      # enable to collect dependencies after the `ld-linux.so` module.
-      export LD_LIBRARY_PATH="$SEARCH_ROOT${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-
       # first check the exit code because `ldd` prints an error to stdout instead of stderr
-      $LDD_TOOL "$scan_file" > /dev/null || continue
+      $LDD_TOOL "$scan_file" > "$ldd_output_file" || continue
 
-      $LDD_TOOL "$scan_file" | while read -r LinkName Op RefPath Address; do
+      IFS=$' \t\r\n'; while read -r LinkName Op RefPath Address; do
         if [[ "$Op" != "=>" ]]; then
           Address="$RefPath"
           RefPath="$Op"
         fi
 
+        # ignore statical linkage message
+        if [[ "$LinkName" == "statically" && "$RefPath" == "linked" ]]; then
+          GetFileName "$scan_file"
+          # remove from not found
+          RemoveItemFromUArray not_found_lib_list "$RETURN_VALUE"
+          continue
+        fi
+
         if [[ -n "$RefPath" && "${RefPath:0:1}" != "/" ]]; then
           if [[ "${RefPath:0:1}" == "(" ]]; then
-            Address="${RefPath:1:-1}"
-            RefPath="."
-          else
-            Address=""
+            Address="$RefPath"
             RefPath=""
           fi
-        else
-          if [[ "${Address:0:1}" == "(" ]]; then
-            Address="${Address:1:-1}"
-          fi
+        fi
+
+        if [[ "${Address:0:1}" == "(" ]]; then
+          Address="${Address:1:-1}"
         fi
 
         [[ -n "$OUT_DEPS_FILE" ]] && echo "$LinkName:$RefPath:$Address" >> "$OUT_DEPS_FILE"
 
         if [[ -n "$RefPath" && -f "$RefPath" ]]; then
-          echo "    V $LinkName -> ${RefPath:-X} $Address"
-          CopyFile -L "$RefPath" "$OUT_DEPS_DIR/"
+          echo "    V $LinkName -> $RefPath $Address"
+          CheckCopyTo "$RefPath" "$OUT_DEPS_DIR"
+          LastError=$?
+          if (( LastError > 0 && LastError < 255 )); then
+            return 20
+          elif (( ! LastError )); then
+            CopyFile -L "$RefPath" "$OUT_DEPS_DIR/" || return 11
+          fi
+          # remove from not found
+          RemoveItemFromUArray not_found_lib_list "$LinkName"
         elif [[ -n "$LinkName" && -f "$LinkName" ]]; then
-          echo "    V $LinkName -> ${RefPath:-X} $Address"
-          CopyFile -L "$LinkName" "$OUT_DEPS_DIR/"
+          echo "    L $LinkName -> $LinkName $Address"
+          CheckCopyTo "$LinkName" "$OUT_DEPS_DIR"
+          LastError=$?
+          if (( LastError > 0 && LastError < 255 )); then
+            return 21
+          elif (( ! LastError )); then
+            CopyFile -L "$LinkName" "$OUT_DEPS_DIR/" || return 12
+          fi
+          # remove from not found
+          RemoveItemFromUArray not_found_lib_list "$LinkName"
         else
           echo "    X $LinkName -> ${RefPath:-X} $Address"
+          # append unique to not found list
+          AppendItemToUArray not_found_lib_list "$LinkName"
         fi
-      done
+      done < "$ldd_output_file"
+
+      echo
+
+      IFS=$' \t\r\n'
+      if (( ${#not_found_lib_list[@]} )); then
+        echo " * not found: ${not_found_lib_list[@]}"
+        echo
+      fi
     done
+
+    # remove specific not existed objects
+    RemoveItemFromUArray not_found_lib_list "linux-gate.so.1"
+
+    if (( ${#not_found_lib_list[@]} )); then
+      echo "$ScriptFileName: error: having not found dependencies." >&2
+      echo "$ScriptFileName: info: not found dependencies list:"
+
+      IFS=$' \t\r\n'; for link_name in "${not_found_lib_list[@]}"; do
+        echo "  ${link_name}"
+      done
+      echo
+
+      return 11
+    fi
   )
 
-  return 0
+  return $?
 }
 
 CollectLddDeps

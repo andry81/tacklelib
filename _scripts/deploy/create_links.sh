@@ -80,9 +80,7 @@ fi
 
 create_user_symlinks_only=0
 
-IFS=$' \t\r\n'
-
-for flag in "${flag_args[@]}"; do
+IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
   if [[ "${flag//u/}" != "$flag" ]]; then
     create_user_symlinks_only=1
     break
@@ -94,14 +92,12 @@ if (( ! create_user_symlinks_only )) && [[ ! -f "$ScriptDirPath/gen_links.lst" ]
   exit 3
 fi
 
-IFS=$' \t\r\n'
-
 # create user links at first
 echo "Creating user links from \"$ScriptDirPath/user_links.lst\"..."
-for app_dir in "${APP_DIR_LIST[@]}"; do
+IFS=$' \t\r\n'; for app_dir in "${APP_DIR_LIST[@]}"; do
   [[ ! -d "$app_dir" ]] && continue
   pushd "$app_dir" > /dev/null && {
-    while read -r LinkPath RefPath; do
+    IFS=$' \t\r\n'; while read -r LinkPath RefPath; do
       if [[ -n "$LinkPath" && -f "$RefPath" ]]; then
         echo "  '$LinkPath' -> '$RefPath'"
         ln -s "$RefPath" "$LinkPath"
@@ -116,7 +112,7 @@ echo
 if (( ! create_user_symlinks_only )); then
   # create generated links
   echo "Creating generated links from \"$ScriptDirPath/gen_links.lst\"..."
-  for app_dir in "${APP_DIR_LIST[@]}"; do
+  IFS=$' \t\r\n'; for app_dir in "${APP_DIR_LIST[@]}"; do
     [[ ! -d "$app_dir" ]] && continue
     pushd "$app_dir" > /dev/null && {
       while read -r LinkPath RefPath; do

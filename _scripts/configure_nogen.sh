@@ -37,16 +37,17 @@ source "${ScriptDirPath:-.}/__init__.sh" || exit $?
 
 let NEST_LVL+=1
 
-CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
+export CMAKE_BUILD_TYPE="$1"
 
-MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"
+[[ -z "${CMAKE_BUILD_TYPE}" ]] && CMAKE_BUILD_TYPE="*" # target all configurations
 
-CMAKE_CMD_LINE=("${RETURN_VALUE[@]}")
-
-Pushd "$CMAKE_BUILD_ROOT" && {
-  Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; Exit; }
-  Popd
-}
+if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
+  for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
+    Configure || Exit
+  done
+else
+  Configure
+fi
 
 Exit
 

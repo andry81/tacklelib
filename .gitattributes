@@ -14,6 +14,7 @@ _scripts/configure_src.bat -text
 _scripts/configure_src.sh -text
 _scripts/deploy/collect_ldd_deps.sh -text
 _scripts/deploy/create_links.sh -text
+_scripts/deploy/gen_links.sh -text
 _scripts/deploy/user_links.lst -text
 _scripts/install_x86.bat -text
 _scripts/install_x86.sh -text
