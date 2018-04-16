@@ -33,7 +33,8 @@ export CMAKE_BUILD_TYPE="$1"
 [[ -z "${CMAKE_BUILD_TYPE}" ]] && CMAKE_BUILD_TYPE="*" # target all configurations
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
-  for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
+  declare -a "CMAKE_CONFIG_TYPES_ARR=($CMAKE_CONFIG_TYPES)"
+  IFS=$' \t\r\n'; for CMAKE_BUILD_TYPE in "${CMAKE_CONFIG_TYPES_ARR[@]}"; do
     Configure || Exit
   done
 else

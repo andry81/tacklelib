@@ -51,6 +51,8 @@ namespace tackle
         template <size_t S>
         struct Chunk
         {
+            static const size_t size = S;
+
             T buf[S];
         };
 
@@ -60,26 +62,32 @@ namespace tackle
         template <typename V>
         struct deque_chunks_pof2_generator<0, V>
         {
-            typedef typename V type;
+            typedef V type;
         };
 
         template <size_t N, typename V>
         struct deque_chunks_pof2_generator
         {
-            typedef typename std::deque<Chunk<(size_t(0x01) << (N - 1))> > next_type_t;
+            typedef Chunk<(size_t(0x01) << (N - 1))> chunk_type;
+            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
+
+            typedef typename std::deque<chunk_type> next_type_t;
             typedef typename deque_chunks_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type type;
         };
 
         template <typename V>
         struct deque_chunk_const_iterators_pof2_generator<0, V>
         {
-            typedef typename V type;
+            typedef V type;
         };
 
         template <size_t N, typename V>
         struct deque_chunk_const_iterators_pof2_generator
         {
-            typedef typename std::deque<Chunk<(size_t(0x01) << (N - 1))> >::const_iterator next_type_t;
+            typedef Chunk<(size_t(0x01) << (N - 1))> chunk_type;
+            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
+
+            typedef typename std::deque<chunk_type>::const_iterator next_type_t;
             typedef typename deque_chunk_const_iterators_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type type;
         };
 
@@ -89,7 +97,7 @@ namespace tackle
         typedef typename deque_chunk_const_iterators_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type deque_const_iterators_mpl_container_t;
 
     public:
-        typedef typename deques_mpl_container_t storage_types_t;
+        typedef deques_mpl_container_t storage_types_t;
 
     private:
         typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
@@ -134,7 +142,7 @@ namespace tackle
         {
             friend class stream_storage;
 
-            typedef typename deque_const_iterators_mpl_container_t storage_types_t;
+            typedef deque_const_iterators_mpl_container_t storage_types_t;
             typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
             typedef typename mpl::size<storage_types_t>::type num_types_t;
 
@@ -142,7 +150,7 @@ namespace tackle
 
             typedef max_aligned_storage_from_mpl_container<storage_types_t> iterator_storage_t;
 
-            
+
         public:
             FORCE_INLINE basic_const_iterator();
             FORCE_INLINE basic_const_iterator(const basic_const_iterator & it);
@@ -186,9 +194,13 @@ namespace tackle
         FORCE_INLINE const T & operator[](size_t offset) const;
     protected:
         template <typename C>
-        FORCE_INLINE size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t size) const;
+        FORCE_INLINE size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const;
         template <typename C>
-        FORCE_INLINE size_t _copy_to_impl_innerforceinline(const C & chunks, size_t offset_from, T * to_buf, size_t size) const; // version with internal force inline
+        FORCE_INLINE size_t _copy_to_impl_innerforceinline(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const; // version with internal force inline
+
+//        template <typename C>
+//        FORCE_INLINE size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size,
+//            size_t stride_offset, size_t stride_size, T * to_buf, size_t to_size) const;
 
         template <bool InnerForceInline>
         FORCE_INLINE size_t _stride_copy_to_impl_innerforceinline(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
@@ -288,9 +300,8 @@ namespace tackle
         const int right_type_index = it.m_iterator_storage.type_index();
         if (left_type_index != right_type_index) {
             throw std::runtime_error(
-                (boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": incompatible iterator storages: left_type_index=%i right_type_index=%i")) %
-                        left_type_index % right_type_index).str());
+                (boost::format("%s: incompatible iterator storages: left_type_index=%i right_type_index=%i") %
+                    UTILITY_PP_FUNC % left_type_index % right_type_index).str());
         }
 
         return m_iterator_storage.invoke<bool>([&](const auto & chunks_it)
@@ -380,9 +391,8 @@ namespace tackle
         const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
         if (chunk_type_index >= num_chunk_variants_t::value) {
             throw std::runtime_error(
-                (boost::format(
-                    BOOST_PP_CAT(__FUNCTION__, ": minimum chunk size is not supported: min_chunk_size=%i pof2=%i max=%i")) %
-                    min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
+                (boost::format("%s: minimum chunk size is not supported: min_chunk_size=%i pof2=%i max=%i") %
+                    UTILITY_PP_FUNC % min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
         }
 
         if (chunk_type_index != m_chunks.type_index()) {
@@ -543,7 +553,7 @@ namespace tackle
         size_t to_buf_offset = 0;
         size_t from_buf_offset = chunk_divrem.rem;
         if (chunk_size >= from_buf_offset + to_size) {
-            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf + to_buf_offset, to_size);
+            UTILITY_COPY(chunk.buf + from_buf_offset, to_buf, to_size);
             to_buf_offset += to_size;
         }
         else {
@@ -629,7 +639,7 @@ namespace tackle
         size_t to_buf_offset = 0;
         size_t from_buf_offset = chunk_divrem.rem;
         if (chunk_size >= from_buf_offset + to_size) {
-            UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, to_size);
+            UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf, to_size);
             to_buf_offset += to_size;
         }
         else {
@@ -701,6 +711,94 @@ namespace tackle
         return to_buf_offset;
     }
 
+//    template <typename C>
+//    FORCE_INLINE size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size, size_t stride_size, size_t stride_step, T * to_buf, size_t to_size) const
+//    {
+//        ASSERT_TRUE(stride_size && stride_step && from_size && to_size);
+//        ASSERT_GE(stride_step, stride_size);
+//
+//        const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+//
+//        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
+//        const auto & chunk = chunks[chunk_divrem.quot];
+//        size_t to_buf_offset = 0;
+//        size_t from_buf_offset = chunk_divrem.rem;
+//
+//        if (chunk_size >= from_buf_offset + from_size) {
+//            UTILITY_STRIDE_COPY(to_buf_offset, chunk.buf + from_buf_offset, from_size, stride_size, stride_step, to_buf, to_size);
+//        }
+//        else {
+//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + from_size, chunk_size);
+//
+//            // TODO:
+//            //  * UTILITY_STRIDE_COPY from the middle of slot byte instead of only from slot beginning byte
+//
+//            // cycles overhead optimization
+//            //if (256 < next_chunk_divrem.quot) {
+//                size_t chunks_size = chunk_size - chunk_divrem.rem;
+//
+//                const auto * prev_chunk_ptr = &chunk;
+//                decltype(prev_chunk_ptr) next_chunk_ptr;
+//
+//                if (next_chunk_divrem.quot >= 2) {
+//                    // collect continuous chunks block
+//                    for (size_t i = 1; i < next_chunk_divrem.quot; i++) {
+//                        next_chunk_ptr = &chunks[chunk_divrem.quot + i];
+//                        if (next_chunk_ptr == prev_chunk_ptr + chunks_size) {
+//                            chunks_size += chunk_size;
+//                        }
+//                        else {
+//                            // next chunk is not continuous, copy collected chunks at once
+//                            UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+//                            prev_chunk_ptr = next_chunk_ptr;
+//                            from_buf_offset = 0;
+//                            to_buf_offset += chunks_size;
+//                            chunks_size = chunk_size;
+//                        }
+//                    }
+//                }
+//                if (next_chunk_divrem.rem) {
+//                    next_chunk_ptr = &chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+//                    if (next_chunk_ptr == prev_chunk_ptr + chunk_size) {
+//                        UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size + next_chunk_divrem.rem);
+//                        to_buf_offset += chunks_size + next_chunk_divrem.rem;
+//                    }
+//                    else {
+//                        UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+//                        to_buf_offset += chunks_size;
+//                        UTILITY_COPY_FORCE_INLINE(next_chunk_ptr->buf, to_buf + to_buf_offset, next_chunk_divrem.rem);
+//                        to_buf_offset += next_chunk_divrem.rem;
+//                    }
+//                }
+//                else {
+//                    UTILITY_COPY_FORCE_INLINE(prev_chunk_ptr->buf + from_buf_offset, to_buf + to_buf_offset, chunks_size);
+//                    to_buf_offset += chunks_size;
+//                }
+//            //}
+//            //else {
+//            //    const size_t first_chunk_size = chunk_size - chunk_divrem.rem;
+//            //
+//            //    UTILITY_COPY_FORCE_INLINE(chunk.buf + from_buf_offset, to_buf + to_buf_offset, first_chunk_size);
+//            //    to_buf_offset += first_chunk_size;
+//            //
+//            //    if (next_chunk_divrem.quot >= 2) {
+//            //        for (size_t i = 1; i < next_chunk_divrem.quot; i++, to_buf_offset += chunk_size) {
+//            //            const auto & chunk2 = chunks[chunk_divrem.quot + i];
+//            //            UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, chunk_size);
+//            //        }
+//            //    }
+//            //    if (next_chunk_divrem.rem) {
+//            //        auto & chunk2 = chunks[chunk_divrem.quot + next_chunk_divrem.quot];
+//            //        const size_t last_chunk_size = next_chunk_divrem.rem;
+//            //        UTILITY_COPY_FORCE_INLINE(chunk2.buf, to_buf + to_buf_offset, last_chunk_size);
+//            //        to_buf_offset += last_chunk_size;
+//            //    }
+//            //}
+//        }
+//
+//        return to_buf_offset;
+//    }
+
     template <typename T> template <bool InnerForceInline>
     FORCE_INLINE size_t stream_storage<T>::_stride_copy_to_impl_innerforceinline(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
         size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
@@ -712,7 +810,7 @@ namespace tackle
         ASSERT_LT(slot_begin_in_row_offset, slot_end_in_row_offset);
         ASSERT_LT(offset_from, size());
 
-        return m_chunks.invoke<size_t>([=](const auto & chunks)
+        const size_t slot_size = m_chunks.invoke<size_t>([=](const auto & chunks)
         {
             const size_t slot_width = slot_end_in_row_offset - slot_begin_in_row_offset;
 
@@ -762,7 +860,7 @@ namespace tackle
 
             _first_row_slot_segment:;
             {
-                if(in_stream_slot_offset_ptr) {
+                if (in_stream_slot_offset_ptr) {
                     *in_stream_slot_offset_ptr = iterated_stream_size;
                 }
 
@@ -888,6 +986,14 @@ namespace tackle
 
             return slot_size;
         });
+
+#if ASSERT_VERIFY_ENABLED
+        if (in_stream_slot_offset_ptr && in_slot_byte_offset_ptr) {
+            ASSERT_TRUE(!*in_stream_slot_offset_ptr && !*in_slot_byte_offset_ptr || (*in_stream_slot_offset_ptr ^ *in_slot_byte_offset_ptr)); // only one must be not zero at a time!
+        }
+#endif
+
+        return slot_size;
     }
 
     template <typename T> template <int InnerInlineLevel>
@@ -904,10 +1010,15 @@ namespace tackle
         size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
         size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
     {
+        if (slot_begin_in_row_offset != 0 || slot_end_in_row_offset != stream_width) {
+            return _stride_copy_to_impl_innerforceinline<InnerInlineLevel ? true : false>(
+                offset_from, in_row_offset_from, stream_width, slot_begin_in_row_offset, slot_end_in_row_offset,
+                to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
+        }
 
-        return _stride_copy_to_impl_innerforceinline<InnerInlineLevel ? true : false>(
-            offset_from, in_row_offset_from, stream_width, slot_begin_in_row_offset, slot_end_in_row_offset,
-            to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
+        ASSERT_GE(m_size, offset_from);
+        const uint32_t max_size_to_process = (std::min)(max_slot_size, m_size - offset_from);
+        return copy_to(offset_from, to_buf, max_size_to_process);
     }
 
     template <typename T> template <int InnerInlineLevel>
@@ -915,9 +1026,15 @@ namespace tackle
         size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
         size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
     {
-        return _stride_copy_to_impl_innerforceinline<InnerInlineLevel ? true : false>(
-            offset_from, in_row_offset_from, stream_width, slot_begin_in_row_offset, slot_end_in_row_offset,
-            to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
+        if (slot_begin_in_row_offset != 0 || slot_end_in_row_offset != stream_width) {
+            return _stride_copy_to_impl_innerforceinline<InnerInlineLevel ? true : false>(
+                offset_from, in_row_offset_from, stream_width, slot_begin_in_row_offset, slot_end_in_row_offset,
+                to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
+        }
+
+        ASSERT_GE(m_size, offset_from);
+        const uint32_t max_size_to_process = (std::min)(max_slot_size, m_size - offset_from);
+        return copy_to(offset_from, to_buf, max_size_to_process);
     }
 
     template <typename T>

@@ -24,18 +24,20 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
   ScriptBaseInit "$@"
 fi
 
-APP_ROOT="`readlink -f "$ScriptDirPath/.."`"
+APP_ROOT="`readlink -f "$ScriptDirPath/../.."`"
 APP_DIR_LIST=("$APP_ROOT" "$APP_ROOT/lib")
 
 CONFIGURE_ROOT="$1"
-OUT_GEN_DIR="$2"    # directory there to save generated file
+OUT_GEN_DIR="${2:-$ScriptDirPath}"  # directory there to save generated file
 
-if [[ -d "$CONFIGURE_ROOT" ]]; then
-  CONFIGURE_ROOT="`readlink -f "$CONFIGURE_ROOT"`"
-  APP_DIR_LIST=("$CONFIGURE_ROOT" "$CONFIGURE_ROOT/lib")
-else
-  echo "$ScriptFileName: error: input directory is not found: \"$CONFIGURE_ROOT\"."
-  exit 2
+if [[ -n "$CONFIGURE_ROOT" ]]; then
+  if [[ -d "$CONFIGURE_ROOT" ]]; then
+    CONFIGURE_ROOT="`readlink -f "$CONFIGURE_ROOT"`"
+    APP_DIR_LIST=("$CONFIGURE_ROOT" "$CONFIGURE_ROOT/lib")
+  else
+    echo "$ScriptFileName: error: input directory is not found: \"$CONFIGURE_ROOT\"."
+    exit 2
+  fi
 fi
 
 if [[ ! -d "$OUT_GEN_DIR" ]]; then
@@ -91,5 +93,9 @@ IFS=$' \t\r\n'; for app_dir in "${APP_DIR_LIST[@]}"; do
     popd > /dev/null
   }
 done
+
+echo "Done."
+
+exit 0
 
 fi

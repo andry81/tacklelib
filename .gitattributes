@@ -37,6 +37,7 @@ includes/utility/math.hpp -text
 includes/utility/platform.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
+includes/utility/type_traits.hpp -text
 includes/utility/utility.hpp -text
 src/.svnignore -text
 src/debug.hpp.in -text
@@ -60,6 +61,4 @@ src/utility/crc.hpp -text
 src/utility/crc_tables.hpp -text
 src/utility/debug.cpp -text
 src/utility/hash.hpp -text
-src/utility/type_traits.hpp -text
 src/utility/utility.cpp -text
-src/utility/utility.hpp -text

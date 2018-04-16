@@ -37,17 +37,7 @@ source "${ScriptDirPath:-.}/__init__.sh" || exit $?
 
 let NEST_LVL+=1
 
-export CMAKE_BUILD_TYPE="$1"
-
-[[ -z "${CMAKE_BUILD_TYPE}" ]] && CMAKE_BUILD_TYPE="*" # target all configurations
-
-if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
-  for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
-    Configure || Exit
-  done
-else
-  Configure
-fi
+ConfigureNoGen
 
 Exit
 

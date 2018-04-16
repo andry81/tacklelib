@@ -618,8 +618,10 @@ function CollectLddDeps()
   return $?
 }
 
-CollectLddDeps
+CollectLddDeps || exit $?
 
-exit $?
+echo "Done."
+
+exit 0
 
 fi

@@ -23,15 +23,15 @@ namespace tackle
     basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
 
     // for not associative containers
-    template <typename T, typename C, typename Friend>
+    template <typename T, typename C, class Friend>
     class basic_const_iterator
     {
-        friend typename Friend;
+        friend Friend;
 
-        template <typename T, typename C, typename Friend>
-        friend basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
-        template <typename T, typename C, typename Friend>
-        friend basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
+        template <typename T_, typename C_, typename Friend_>
+        friend basic_const_iterator<T_, C_, Friend_> operator ++(basic_const_iterator<T_, C_, Friend_> & r, int);
+        template <typename T_, typename C_, typename Friend_>
+        friend basic_const_iterator<T_, C_, Friend_> operator --(basic_const_iterator<T_, C_, Friend_> & r, int);
 
         FORCE_INLINE basic_const_iterator(const typename C::const_iterator & it);
 
@@ -64,12 +64,12 @@ namespace tackle
     template <typename K, typename T, typename C, typename Friend>
     class basic_map_const_iterator
     {
-        friend typename Friend;
+        friend Friend;
 
-        template <typename T, typename C, typename Friend>
-        friend basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
-        template <typename T, typename C, typename Friend>
-        friend basic_const_iterator<T, C, Friend> operator --(basic_const_iterator<T, C, Friend> & r, int);
+        template <typename T_, typename C_, typename Friend_>
+        friend basic_const_iterator<T_, C_, Friend_> operator ++(basic_const_iterator<T_, C_, Friend_> & r, int);
+        template <typename T_, typename C_, typename Friend_>
+        friend basic_const_iterator<T_, C_, Friend_> operator --(basic_const_iterator<T_, C_, Friend_> & r, int);
 
         FORCE_INLINE basic_map_const_iterator(const typename C::const_iterator & it);
 

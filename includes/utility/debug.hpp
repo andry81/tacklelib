@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef UTILITY_DEBUG_HPP
+#define UTILITY_DEBUG_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/preprocessor.hpp>
@@ -67,3 +71,5 @@ namespace utility
     void debug_break(bool condition = true);
     bool is_under_debugger();
 }
+
+#endif

@@ -23,7 +23,7 @@ function Exit()
 {
   let NEST_LVL-=1
 
-  [[ $NEST_LVL -eq 0 ]] && Pause
+  #[[ $NEST_LVL -eq 0 ]] && Pause
 
   if [[ $# -eq 0 ]]; then
     exit $LastError
@@ -251,6 +251,21 @@ function Configure()
   MakeDir -p "$CMAKE_LIB_ROOT"
   MakeDir -p "$CMAKE_CPACK_ROOT"
 
+  CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
+
+  MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"
+
+  eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
+  Pushd "$CMAKE_BUILD_ROOT" && {
+    Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; return $LastError; }
+    Popd
+  }
+
+  return $LastError
+}
+
+function ConfigureNoGen()
+{
   CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
 
   MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"
