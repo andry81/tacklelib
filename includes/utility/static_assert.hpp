@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef UTILITY_STATIC_ASSERT_HPP
+#define UTILITY_STATIC_ASSERT_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/preprocessor.hpp>
@@ -147,3 +151,5 @@ namespace utility
         return *a == *b && (*a == '\0' || static_strings_equal(a + 1, b + 1));
     }
 }
+
+#endif

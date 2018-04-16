@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef UTILITY_PLATFORM_HPP
+#define UTILITY_PLATFORM_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/preprocessor.hpp>
@@ -221,3 +225,5 @@
 #define IMPLEMENT_LIB_INSTANCE_TOKEN(scope, class_name_prefix, token) \
     scope :: UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) :: \
         UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}
+
+#endif

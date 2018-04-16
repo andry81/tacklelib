@@ -1,7 +1,10 @@
-#include <utility/crc.hpp>
+#include "utility/crc.hpp"
 #include <utility/crc_tables.hpp>
 #include <utility/assert.hpp>
 #include <utility/utility.hpp>
+
+#include <boost/format.hpp>
+
 
 namespace
 {

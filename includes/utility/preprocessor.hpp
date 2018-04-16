@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef UTILITY_PREPROCESSOR_HPP
+#define UTILITY_PREPROCESSOR_HPP
+
 #include <tacklelib.hpp>
 
 
@@ -46,3 +50,5 @@
 #define UTILITY_PP_IDENTITY8(v1, v2, v3, v4, v5, v6, v7, v8) UTILITY_PP_IDENTITY8_(v1, v2, v3, v4, v5, v6, v7, v8)
 
 #define UTILITY_PP_LINE_TERMINATOR
+
+#endif

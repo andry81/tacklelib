@@ -61,4 +61,6 @@ done
 
 echo "Done."
 
+exit 0
+
 fi

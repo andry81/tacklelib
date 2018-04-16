@@ -127,4 +127,8 @@ if (( ! create_user_symlinks_only )); then
   echo
 fi
 
+echo "Done."
+
+exit 0
+
 fi

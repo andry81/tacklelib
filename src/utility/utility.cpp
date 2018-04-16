@@ -1,7 +1,10 @@
-#include "utility/utility.hpp"
+#include <utility/utility.hpp>
 #include <utility/assert.hpp>
 
+#include <tackle/file_handle.hpp>
+
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 
 #include <vector>
 
@@ -108,7 +111,23 @@ namespace utility
     }
 #endif
 
-    uint64_t get_file_size(const FileHandle & file_handle)
+#ifndef UTILITY_PLATFORM_X64
+    uint8_t * Buffer::realloc_get(uint64_t size)
+    {
+        if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
+            const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
+            if (size > max_value) {
+                throw std::runtime_error(
+                    (boost::format("%s: size is out of memory: size=%llu max=%llu") %
+                        UTILITY_PP_FUNC % size % max_value).str());
+            }
+        }
+
+        return realloc_get(size_t(size));
+    }
+#endif
+
+    uint64_t get_file_size(const tackle::FileHandle & file_handle)
     {
         ASSERT_TRUE(file_handle.get());
 
@@ -130,7 +149,7 @@ namespace utility
         return size;
     }
 
-    bool is_files_equal(const FileHandle & left_file_handle, const FileHandle & right_file_handle)
+    bool is_files_equal(const tackle::FileHandle & left_file_handle, const tackle::FileHandle & right_file_handle)
     {
         const uint64_t left_file_size = get_file_size(left_file_handle);
         const uint64_t right_file_size = get_file_size(right_file_handle);
@@ -157,7 +176,7 @@ namespace utility
         return true;
     }
 
-    FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
+    tackle::FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
         FILE * file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -170,7 +189,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-        FileHandle file_handle_ptr = FileHandle(file_ptr, file_path);
+        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             utility::debug_break();
             throw std::system_error{ errno, std::system_category(), file_path };
@@ -202,7 +221,7 @@ namespace utility
         return file_handle_ptr;
     }
 
-    FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
+    tackle::FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
         const bool file_existed = boost::fs::exists(file_path);
         if (file_existed) {
@@ -214,7 +233,7 @@ namespace utility
         return recreate_file(file_path, mode, share_flags, size, fill_by);
     }
 
-    FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
+    tackle::FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
     {
         const bool file_existed = boost::fs::exists(file_path);
         if (!file_existed) {
@@ -232,7 +251,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-        FileHandle file_handle_ptr = FileHandle(file_ptr, file_path);
+        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             utility::debug_break();
             throw std::system_error{ errno, std::system_category(), file_path };
@@ -243,7 +262,7 @@ namespace utility
             file_handle_ptr.reset();
             boost::fs::resize_file(file_path, resize_if_existed);
             // reopen handle
-            file_handle_ptr = FileHandle(file_ptr =
+            file_handle_ptr = tackle::FileHandle(file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
                 _fsopen(file_path.c_str(), mode, share_flags),
 #elif defined(UTILITY_PLATFORM_POSIX)
