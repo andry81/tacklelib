@@ -222,7 +222,11 @@
         UTILITY_PP_CONCAT3(s_, class_name_prefix, __instance_token__$);
 
 // to make the unique link with the static library (LIB) headers
-#define IMPLEMENT_LIB_INSTANCE_TOKEN(scope, class_name_prefix, token) \
+#define IMPLEMENT_LIB_INSTANCE_TOKEN(class_name_prefix, token) \
+    UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) :: \
+        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}
+
+#define IMPLEMENT_LIB_INSTANCE_TOKEN_WITH_SCOPE(scope, class_name_prefix, token) \
     scope :: UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) :: \
         UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}
 

@@ -16,7 +16,7 @@
 #include <utility>
 
 #include <float.h>
-#include <math.h>
+#include <cmath>
 
 
 #define INT32_LOG2_FLOOR(x) ::math::int_log2_floor<int32_t>(x)
@@ -108,6 +108,9 @@ namespace math
         static const int32_t value = (int32_log2<x / 2>::value + 1);
     };
 
+    template<int32_t x>
+    const int32_t int32_log2<x>::value;
+
     template<>
     struct int32_log2<0>;
     template<>
@@ -120,6 +123,9 @@ namespace math
         STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const uint32_t value = (uint32_log2<x / 2>::value + 1);
     };
+
+    template<uint32_t x> 
+    const uint32_t uint32_log2<x>::value;
 
     template<>
     struct uint32_log2<0>;
@@ -135,6 +141,9 @@ namespace math
         static const int32_t value = (int32_log2_floor<x / 2>::value + 1);
     };
 
+    template<int32_t x>
+    const int32_t int32_log2_floor<x>::value;
+
     template<>
     struct int32_log2_floor<0>;
     template<>
@@ -146,6 +155,9 @@ namespace math
     struct uint32_log2_floor {
         static const uint32_t value = (uint32_log2_floor<x / 2>::value + 1);
     };
+
+    template<uint32_t x>
+    const uint32_t uint32_log2_floor<x>::value;
 
     template<>
     struct uint32_log2_floor<0>;
@@ -162,6 +174,9 @@ namespace math
         static const int32_t value = (int32_log2_floor<(x + x - 1) / 2>::value + 1);
     };
 
+    template<int32_t x>
+    const int32_t int32_log2_ceil<x>::value;
+
     template<>
     struct int32_log2_ceil<0>;
     template<>
@@ -174,6 +189,9 @@ namespace math
         STATIC_ASSERT_TRUE2(uint32_max / 2 >= x, uint32_max, x, "value is too big");
         static const uint32_t value = (uint32_log2_floor<(x + x - 1) / 2>::value + 1);
     };
+
+    template<uint32_t x>
+    const uint32_t uint32_log2_ceil<x>::value;
 
     template<>
     struct uint32_log2_ceil<0>;
@@ -190,12 +208,19 @@ namespace math
         static const int32_t value = x;
     };
 
+    template<int32_t x>
+    const int32_t int32_if_pof2<x>::value;
+
     template<uint32_t x>
     struct uint32_if_pof2
     {
         STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
         static const uint32_t value = x;
     };
+
+    template<uint32_t x>
+    const uint32_t uint32_if_pof2<x>::value;
+
 
     // closest lowest power of 2
     template<uint32_t x>
@@ -210,11 +235,17 @@ namespace math
         static const uint32_t value = (x16_t::value >> 1) + 1;
     };
 
+    template<uint32_t x>
+    const uint32_t uint32_pof2_floor<x>::value;
+
     template<int32_t x>
     struct int32_pof2_floor
     {
         static const int32_t value = int32_t(uint32_pof2_floor<uint32_t(x)>::value);
     };
+
+    template<int32_t x>
+    const int32_t int32_pof2_floor<x>::value;
 
     // closest greatest power of 2
     template<uint32_t x>
@@ -224,11 +255,17 @@ namespace math
         static const uint32_t value = uint32_pof2_floor_t::value != x ? (uint32_pof2_floor_t::value << 1) : uint32_pof2_floor_t::value;
     };
 
+    template<uint32_t x>
+    const uint32_t uint32_pof2_ceil<x>::value;
+
     template<int32_t x>
     struct int32_pof2_ceil
     {
         static const int32_t value = int32_t(uint32_pof2_ceil<uint32_t(x)>::value);
     };
+
+    template<int32_t x>
+    const int32_t int32_pof2_ceil<x>::value;
 
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`

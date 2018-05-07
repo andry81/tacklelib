@@ -21,6 +21,8 @@ _scripts/install_x86.sh -text
 _scripts/pack_x86.bat -text
 _scripts/pack_x86.sh -text
 _scripts/post_install_x86.sh -text
+_scripts/traplib.sh -text
+/changelog.txt -text
 /configure_gen.bat.in -text
 /configure_gen.sh.in -text
 /configure_nogen.bat.in -text
@@ -61,4 +63,5 @@ src/utility/crc.hpp -text
 src/utility/crc_tables.hpp -text
 src/utility/debug.cpp -text
 src/utility/hash.hpp -text
+src/utility/math.cpp -text
 src/utility/utility.cpp -text

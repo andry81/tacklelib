@@ -47,7 +47,8 @@ exec 9<> "$CONFIGURE_FILE"
 
 # load external variables from file
 IFS="="; while read -r -u 9 var value; do
-  [[ -n "$var" && "${var:0:1}" != "#" ]] && {
+  var="${var%%[#]*}" # cut off comments
+  [[ -n "${var//[[:space:]]/}" ]] && {
     value="${value//$'\r'/}" # cleanup from dos/windows text format
     Call export "$var=$value"
   }

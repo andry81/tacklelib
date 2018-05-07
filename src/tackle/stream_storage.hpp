@@ -26,6 +26,30 @@ namespace tackle
     namespace mpl = boost::mpl;
 
     template <typename T>
+    class stream_storage;
+
+    namespace detail
+    {
+        template <bool ForceInline>
+        struct _inline_dispatch
+        {
+            template <typename T, typename C>
+            static size_t _copy_to_impl(const stream_storage<T> & this_, const C & chunks, size_t offset_from, T * to_buf, size_t size) {
+                return this_._copy_to_impl(chunks, offset_from, to_buf, size);
+            }
+        };
+
+        template <>
+        struct _inline_dispatch<true>
+        {
+            template <typename T, typename C>
+            static size_t _copy_to_impl(const stream_storage<T> & this_, const C & chunks, size_t offset_from, T * to_buf, size_t size) {
+                return this_._copy_to_impl_innerforceinline(chunks, offset_from, to_buf, size);
+            }
+        };
+    }
+
+    template <typename T>
     class stream_storage
     {
 #if defined(ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE) && !defined(DISABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE)
@@ -36,13 +60,13 @@ namespace tackle
 
     public:
         // up to 256KB chunks (1, 2, 4, 8, 16, ..., 128 * 1024, 256 * 1024)
-        typedef mpl::size_t<19> num_chunk_variants_t;
-        typedef mpl::size_t<(0x01U << (num_chunk_variants_t::value - 1))> max_chunk_size_t;
+        using num_chunk_variants_t = mpl::size_t<19>;
+        using max_chunk_size_t = mpl::size_t<(0x01U << (num_chunk_variants_t::value - 1))>;
 
         STATIC_ASSERT_LT(num_chunk_variants_t::value, BOOST_MPL_LIMIT_LIST_SIZE, "must be less than the limit");
 
     private:
-        static FORCE_INLINE constexpr size_t _get_chunk_size(size_t type_index)
+        static constexpr size_t _get_chunk_size(size_t type_index)
         {
             return (0x01U << type_index);
         }
@@ -62,46 +86,46 @@ namespace tackle
         template <typename V>
         struct deque_chunks_pof2_generator<0, V>
         {
-            typedef V type;
+            using type = V;
         };
 
         template <size_t N, typename V>
         struct deque_chunks_pof2_generator
         {
-            typedef Chunk<(size_t(0x01) << (N - 1))> chunk_type;
+            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
             STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
 
-            typedef typename std::deque<chunk_type> next_type_t;
-            typedef typename deque_chunks_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type type;
+            using next_type_t = typename std::deque<chunk_type>;
+            using type = typename deque_chunks_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
         };
 
         template <typename V>
         struct deque_chunk_const_iterators_pof2_generator<0, V>
         {
-            typedef V type;
+            using type = V;
         };
 
         template <size_t N, typename V>
         struct deque_chunk_const_iterators_pof2_generator
         {
-            typedef Chunk<(size_t(0x01) << (N - 1))> chunk_type;
+            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
             STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
 
-            typedef typename std::deque<chunk_type>::const_iterator next_type_t;
-            typedef typename deque_chunk_const_iterators_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type type;
+            using next_type_t = typename std::deque<chunk_type>::const_iterator;
+            using type = typename deque_chunk_const_iterators_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
         };
 
-        typedef mpl::list<> mpl_empty_container_t; // begin of mpl container usage
+        using mpl_empty_container_t = mpl::list<>; // begin of mpl container usage
 
-        typedef typename deque_chunks_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type deques_mpl_container_t;
-        typedef typename deque_chunk_const_iterators_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type deque_const_iterators_mpl_container_t;
+        using deques_mpl_container_t = typename deque_chunks_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type;
+        using deque_const_iterators_mpl_container_t = typename deque_chunk_const_iterators_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type;
 
     public:
-        typedef deques_mpl_container_t storage_types_t;
+        using storage_types_t = deques_mpl_container_t;
 
     private:
-        typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
-        typedef typename mpl::size<storage_types_t>::type num_types_t;
+        using storage_types_end_it_t = typename mpl::end<storage_types_t>::type;
+        using num_types_t = typename mpl::size<storage_types_t>::type;
 
         STATIC_ASSERT_GT(num_types_t::value, 0, "template must generate not empty mpl container");
 
@@ -111,24 +135,24 @@ namespace tackle
             friend class stream_storage;
 
         private:
-            FORCE_INLINE ChunkBufferCRef() :
+            ChunkBufferCRef() :
                 m_buf(nullptr), m_size(0)
             {
             }
 
-            FORCE_INLINE ChunkBufferCRef(const T * buf, size_t size) :
+            ChunkBufferCRef(const T * buf, size_t size) :
                 m_buf(buf), m_size(size)
             {
                 ASSERT_TRUE(buf && size);
             }
 
         public:
-            FORCE_INLINE const T * get() const
+            const T * get() const
             {
                 return m_buf;
             }
 
-            FORCE_INLINE size_t size() const
+            size_t size() const
             {
                 return m_size;
             }
@@ -142,64 +166,64 @@ namespace tackle
         {
             friend class stream_storage;
 
-            typedef deque_const_iterators_mpl_container_t storage_types_t;
-            typedef typename mpl::end<storage_types_t>::type storage_types_end_it_t;
-            typedef typename mpl::size<storage_types_t>::type num_types_t;
+            using storage_types_t = deque_const_iterators_mpl_container_t;
+            using storage_types_end_it_t = typename mpl::end<storage_types_t>::type;
+            using num_types_t = typename mpl::size<storage_types_t>::type;
 
             STATIC_ASSERT_GT(num_types_t::value, 0, "template must generate not empty mpl container");
 
-            typedef max_aligned_storage_from_mpl_container<storage_types_t> iterator_storage_t;
+            using iterator_storage_t = max_aligned_storage_from_mpl_container<storage_types_t>;
 
 
         public:
-            FORCE_INLINE basic_const_iterator();
-            FORCE_INLINE basic_const_iterator(const basic_const_iterator & it);
+            basic_const_iterator();
+            basic_const_iterator(const basic_const_iterator & it);
 
         private:
-            FORCE_INLINE basic_const_iterator(const iterator_storage_t & iterator_storage);
+            basic_const_iterator(const iterator_storage_t & iterator_storage);
 
         public:
-            FORCE_INLINE basic_const_iterator & operator =(const basic_const_iterator & it);
+            basic_const_iterator & operator =(const basic_const_iterator & it);
 
-            FORCE_INLINE ChunkBufferCRef operator *() const;
-            FORCE_INLINE ChunkBufferCRef operator ->() const;
+            ChunkBufferCRef operator *() const;
+            ChunkBufferCRef operator ->() const;
 
-            FORCE_INLINE bool operator ==(const basic_const_iterator &) const;
-            FORCE_INLINE bool operator !=(const basic_const_iterator &) const;
+            bool operator ==(const basic_const_iterator &) const;
+            bool operator !=(const basic_const_iterator &) const;
 
-            FORCE_INLINE basic_const_iterator operator ++(int);
-            FORCE_INLINE basic_const_iterator & operator ++();
-            FORCE_INLINE basic_const_iterator operator --(int);
-            FORCE_INLINE basic_const_iterator & operator --();
+            basic_const_iterator operator ++(int);
+            basic_const_iterator & operator ++();
+            basic_const_iterator operator --(int);
+            basic_const_iterator & operator --();
 
         private:
             iterator_storage_t m_iterator_storage;
         };
 
     public:
-        typedef basic_const_iterator const_iterator;
+        using const_iterator = basic_const_iterator;
 
-        FORCE_INLINE stream_storage(size_t min_chunk_size);
-        FORCE_INLINE ~stream_storage();
+        stream_storage(size_t min_chunk_size);
+        ~stream_storage();
 
-        FORCE_INLINE void reset(size_t min_chunk_size);
-        FORCE_INLINE void clear();
-        FORCE_INLINE const_iterator begin() const;
-        FORCE_INLINE const_iterator end() const;
-        FORCE_INLINE size_t chunk_size() const;
-        FORCE_INLINE size_t size() const;
-        FORCE_INLINE size_t remainder() const;
-        FORCE_INLINE void push_back(const T * p, size_t size);
-        FORCE_INLINE T & operator[](size_t offset);
-        FORCE_INLINE const T & operator[](size_t offset) const;
+        void reset(size_t min_chunk_size);
+        void clear();
+        const_iterator begin() const;
+        const_iterator end() const;
+        size_t chunk_size() const;
+        size_t size() const;
+        size_t remainder() const;
+        void push_back(const T * p, size_t size);
+        T & operator[](size_t offset);
+        const T & operator[](size_t offset) const;
     protected:
         template <typename C>
-        FORCE_INLINE size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const;
+        size_t _copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const;
         template <typename C>
         FORCE_INLINE size_t _copy_to_impl_innerforceinline(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const; // version with internal force inline
 
 //        template <typename C>
-//        FORCE_INLINE size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size,
+//        size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size,
 //            size_t stride_offset, size_t stride_size, T * to_buf, size_t to_size) const;
 
         template <bool InnerForceInline>
@@ -209,32 +233,14 @@ namespace tackle
 
         // static member call dispatch, useful to expose only one function at a time for inline optimization
         template <bool ForceInline>
-        friend struct _inline_dispatch;
-
-        template <bool ForceInline>
-        struct _inline_dispatch
-        {
-            template <typename C>
-            static FORCE_INLINE size_t _copy_to_impl(const stream_storage & this_, const C & chunks, size_t offset_from, T * to_buf, size_t size) {
-                return this_._copy_to_impl(chunks, offset_from, to_buf, size);
-            }
-        };
-
-        template <>
-        struct _inline_dispatch<true>
-        {
-            template <typename C>
-            static FORCE_INLINE size_t _copy_to_impl(const stream_storage & this_, const C & chunks, size_t offset_from, T * to_buf, size_t size) {
-                return this_._copy_to_impl_innerforceinline(chunks, offset_from, to_buf, size);
-            }
-        };
+        friend struct detail::_inline_dispatch;
 
     public:
         template <int InnerInlineLevel = s_default_inner_inline_level>
-        FORCE_INLINE size_t copy_to(size_t offset_from, T * to_buf, size_t size) const;
+        size_t copy_to(size_t offset_from, T * to_buf, size_t size) const;
 
         template <int InnerInlineLevel = s_default_inner_inline_level>
-        FORCE_NO_INLINE size_t stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
+        size_t stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
             size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
             size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const;
 
@@ -243,7 +249,7 @@ namespace tackle
             size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
             size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const;
 
-        FORCE_INLINE size_t erase_front(size_t size);
+        size_t erase_front(size_t size);
 
     private:
         max_aligned_storage_from_mpl_container<storage_types_t> m_chunks;
@@ -254,24 +260,24 @@ namespace tackle
     //// stream_storage::basic_const_iterator
 
     template <typename T>
-    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator()
+    inline stream_storage<T>::basic_const_iterator::basic_const_iterator()
     {
     }
 
     template <typename T>
-    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator(const basic_const_iterator & it)
+    inline stream_storage<T>::basic_const_iterator::basic_const_iterator(const basic_const_iterator & it)
     {
         *this = it;
     }
 
     template <typename T>
-    FORCE_INLINE stream_storage<T>::basic_const_iterator::basic_const_iterator(const iterator_storage_t & iterator_storage)
+    inline stream_storage<T>::basic_const_iterator::basic_const_iterator(const iterator_storage_t & iterator_storage)
     {
         m_iterator_storage.construct(iterator_storage, false);
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator =(const basic_const_iterator & it)
+    inline typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator =(const basic_const_iterator & it)
     {
         m_iterator_storage.assign(it.m_iterator_storage);
 
@@ -279,22 +285,22 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator *() const
+    inline typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator *() const
     {
-        return m_iterator_storage.invoke<ChunkBufferCRef>([&](const auto & chunks_it)
+        return m_iterator_storage.template invoke<ChunkBufferCRef>([&](const auto & chunks_it)
         {
-            return ChunkBufferCRef{ chunks_it->buf, std::size(chunks_it->buf) };
+            return ChunkBufferCRef{ chunks_it->buf, utility::static_size(chunks_it->buf) };
         });
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator ->() const
+    inline typename stream_storage<T>::ChunkBufferCRef stream_storage<T>::basic_const_iterator::operator ->() const
     {
         return this->operator *();
     }
 
     template <typename T>
-    FORCE_INLINE bool stream_storage<T>::basic_const_iterator::operator ==(const basic_const_iterator & it) const
+    inline bool stream_storage<T>::basic_const_iterator::operator ==(const basic_const_iterator & it) const
     {
         const int left_type_index = m_iterator_storage.type_index();
         const int right_type_index = it.m_iterator_storage.type_index();
@@ -304,10 +310,10 @@ namespace tackle
                     UTILITY_PP_FUNC % left_type_index % right_type_index).str());
         }
 
-        return m_iterator_storage.invoke<bool>([&](const auto & chunks_it)
+        return m_iterator_storage.template invoke<bool>([&](const auto & chunks_it)
         {
-            typedef decltype(chunks_it) ref_chunk_it_t;
-            typedef boost::remove_reference<ref_chunk_it_t>::type chunk_it_t;
+            using ref_chunk_it_t = decltype(chunks_it);
+            using chunk_it_t = typename boost::remove_reference<ref_chunk_it_t>::type;
 
             const auto & right_chunk_it = *static_cast<const chunk_it_t *>(it.m_iterator_storage.address());
 
@@ -316,17 +322,17 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE bool stream_storage<T>::basic_const_iterator::operator !=(const basic_const_iterator & it) const
+    inline bool stream_storage<T>::basic_const_iterator::operator !=(const basic_const_iterator & it) const
     {
         return !this->operator ==(it);
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator ++(int)
+    inline typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator ++(int)
     {
         const auto it = *this;
 
-        m_iterator_storage.invoke<void>([](auto & chunks_it)
+        m_iterator_storage.template invoke<void>([](auto & chunks_it)
         {
             chunks_it++;
         });
@@ -335,9 +341,9 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator ++()
+    inline typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator ++()
     {
-        m_iterator_storage.invoke<void>([](auto & chunks_it)
+        m_iterator_storage.template invoke<void>([](auto & chunks_it)
         {
             ++chunks_it;
         });
@@ -346,11 +352,11 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator --(int)
+    inline typename stream_storage<T>::basic_const_iterator stream_storage<T>::basic_const_iterator::operator --(int)
     {
         const auto it = *this;
 
-        m_iterator_storage.invoke<void>([](auto & chunks_it)
+        m_iterator_storage.template invoke<void>([](auto & chunks_it)
         {
             chunks_it--;
         });
@@ -359,9 +365,9 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator --()
+    inline typename stream_storage<T>::basic_const_iterator & stream_storage<T>::basic_const_iterator::operator --()
     {
-        m_iterator_storage.invoke<void>([](auto & chunks_it)
+        m_iterator_storage.template invoke<void>([](auto & chunks_it)
         {
             --chunks_it;
         });
@@ -372,19 +378,19 @@ namespace tackle
     //// stream_storage
 
     template <typename T>
-    FORCE_INLINE stream_storage<T>::stream_storage(size_t min_chunk_size) :
+    inline stream_storage<T>::stream_storage(size_t min_chunk_size) :
         m_size(0), m_remainder(0)
     {
         reset(min_chunk_size);
     }
 
     template <typename T>
-    FORCE_INLINE stream_storage<T>::~stream_storage()
+    inline stream_storage<T>::~stream_storage()
     {
     }
 
     template <typename T>
-    FORCE_INLINE void stream_storage<T>::reset(size_t min_chunk_size)
+    inline void stream_storage<T>::reset(size_t min_chunk_size)
     {
         ASSERT_TRUE(min_chunk_size);
 
@@ -404,9 +410,9 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE void stream_storage<T>::clear()
+    inline void stream_storage<T>::clear()
     {
-        m_chunks.invoke<void>([this](auto & chunks)
+        m_chunks.template invoke<void>([this](auto & chunks)
         {
             m_size = 0;
             m_remainder = 0;
@@ -415,55 +421,55 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::const_iterator stream_storage<T>::begin() const
+    inline typename stream_storage<T>::const_iterator stream_storage<T>::begin() const
     {
-        return m_chunks.invoke<const_iterator>([this](const auto & chunks)
+        return m_chunks.template invoke<const_iterator>([this](const auto & chunks)
         {
             return const_iterator(basic_const_iterator::iterator_storage_t(m_chunks.type_index(), chunks.begin()));
         });
     }
 
     template <typename T>
-    FORCE_INLINE typename stream_storage<T>::const_iterator stream_storage<T>::end() const
+    inline typename stream_storage<T>::const_iterator stream_storage<T>::end() const
     {
-        return m_chunks.invoke<const_iterator>([this](const auto & chunks)
+        return m_chunks.template invoke<const_iterator>([this](const auto & chunks)
         {
             return const_iterator(basic_const_iterator::iterator_storage_t(m_chunks.type_index(), chunks.end()));
         });
     }
 
     template <typename T>
-    FORCE_INLINE size_t stream_storage<T>::chunk_size() const
+    inline size_t stream_storage<T>::chunk_size() const
     {
-        return m_chunks.invoke<size_t>([this](const auto & chunks) // to throw exception on invalid type index
+        return m_chunks.template invoke<size_t>([this](const auto & chunks) // to throw exception on invalid type index
         {
             return _get_chunk_size(m_chunks.type_index());
         });
     }
 
     template <typename T>
-    FORCE_INLINE size_t stream_storage<T>::size() const
+    inline size_t stream_storage<T>::size() const
     {
         return m_size;
     }
 
     template <typename T>
-    FORCE_INLINE size_t stream_storage<T>::remainder() const
+    inline size_t stream_storage<T>::remainder() const
     {
         return m_remainder;
     }
 
     template <typename T>
-    FORCE_INLINE void stream_storage<T>::push_back(const T * buf, size_t size)
+    inline void stream_storage<T>::push_back(const T * buf, size_t size)
     {
         ASSERT_TRUE(buf && size);
 
-        m_chunks.invoke<void>([=](auto & chunks)
+        m_chunks.template invoke<void>([=](auto & chunks)
         {
-            typedef decltype(chunks[0]) ref_chunk_t;
-            typedef boost::remove_reference<ref_chunk_t>::type chunk_t;
+            using ref_chunk_t = decltype(chunks[0]);
+            using chunk_t = typename boost::remove_reference<ref_chunk_t>::type;
 
-            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+            const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
             ASSERT_LT(m_remainder, chunk_size);
 
             size_t buf_offset = 0;
@@ -509,13 +515,13 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE T & stream_storage<T>::operator[](size_t offset)
+    inline T & stream_storage<T>::operator[](size_t offset)
     {
         ASSERT_LT(offset, size());
 
-        return m_chunks.invoke<T &>([=](auto & chunks)
+        return m_chunks.template invoke<T &>([=](auto & chunks)
         {
-            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+            const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
             const auto chunk_devrem = UINT32_DIVREM_POF2(offset, chunk_size);
             auto & chunk = chunks[chunk_devrem.quot];
@@ -525,13 +531,13 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE const T & stream_storage<T>::operator[](size_t offset) const
+    inline const T & stream_storage<T>::operator[](size_t offset) const
     {
         ASSERT_LT(offset, size());
 
-        return m_chunks.invoke<const T &>([=](const auto & chunks)
+        return m_chunks.template invoke<const T &>([=](const auto & chunks)
         {
-            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+            const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
             const auto chunk_devrem = UINT32_DIVREM_POF2(offset, chunk_size);
             const auto & chunk = chunks[chunk_devrem.quot];
@@ -541,12 +547,12 @@ namespace tackle
     }
 
     template <typename T> template <typename C>
-    FORCE_INLINE size_t stream_storage<T>::_copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
+    inline size_t stream_storage<T>::_copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
     {
         ASSERT_LT(0U, to_size);
         ASSERT_GE(size(), offset_from + to_size);
 
-        const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+        const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
         const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
         const auto & chunk = chunks[chunk_divrem.quot];
@@ -632,7 +638,7 @@ namespace tackle
         ASSERT_LT(0U, to_size);
         ASSERT_GE(size(), offset_from + to_size);
 
-        const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+        const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
         const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
         const auto & chunk = chunks[chunk_divrem.quot];
@@ -712,12 +718,12 @@ namespace tackle
     }
 
 //    template <typename C>
-//    FORCE_INLINE size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size, size_t stride_size, size_t stride_step, T * to_buf, size_t to_size) const
+//    inline size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size, size_t stride_size, size_t stride_step, T * to_buf, size_t to_size) const
 //    {
 //        ASSERT_TRUE(stride_size && stride_step && from_size && to_size);
 //        ASSERT_GE(stride_step, stride_size);
 //
-//        const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+//        const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 //
 //        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
 //        const auto & chunk = chunks[chunk_divrem.quot];
@@ -810,7 +816,7 @@ namespace tackle
         ASSERT_LT(slot_begin_in_row_offset, slot_end_in_row_offset);
         ASSERT_LT(offset_from, size());
 
-        const size_t slot_size = m_chunks.invoke<size_t>([=](const auto & chunks)
+        const size_t slot_size = m_chunks.template invoke<size_t>([=](const auto & chunks)
         {
             const size_t slot_width = slot_end_in_row_offset - slot_begin_in_row_offset;
 
@@ -869,7 +875,8 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _inline_dispatch<InnerForceInline>::_copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
+                const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
+                    _copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
@@ -916,7 +923,8 @@ namespace tackle
 
             const size_t num_whole_rows = (std::min)(num_whole_slot_rows, num_whole_stream_rows);
             for (size_t i = 0; i < num_whole_rows; i++) {
-                const size_t copied_size = _inline_dispatch<InnerForceInline>::_copy_to_impl(*this, chunks, offset_from + iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
+                const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
+                    _copy_to_impl(*this, chunks, offset_from + iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
                 ASSERT_EQ(copied_size, slot_width);
 
                 slot_size += copied_size;
@@ -948,7 +956,8 @@ namespace tackle
                 const size_t slot_size_to_copy = (std::min)((std::min)(slot_width, slot_size_left), stream_size_left);
                 ASSERT_LT(0U, slot_size_to_copy);
 
-                const size_t copied_size = _inline_dispatch<InnerForceInline>::_copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
+                const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
+                    _copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
                 ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
@@ -997,16 +1006,16 @@ namespace tackle
     }
 
     template <typename T> template <int InnerInlineLevel>
-    FORCE_INLINE size_t stream_storage<T>::copy_to(size_t offset_from, T * to_buf, size_t to_size) const
+    inline size_t stream_storage<T>::copy_to(size_t offset_from, T * to_buf, size_t to_size) const
     {
-        return m_chunks.invoke<size_t>([=](const auto & chunks)
+        return m_chunks.template invoke<size_t>([=](const auto & chunks)
         {
-            return _inline_dispatch<InnerInlineLevel ? true : false>::_copy_to_impl(*this, chunks, offset_from, to_buf, to_size);
+            return detail::_inline_dispatch<InnerInlineLevel ? true : false>::_copy_to_impl(*this, chunks, offset_from, to_buf, to_size);
         });
     }
 
     template <typename T> template <int InnerInlineLevel>
-    FORCE_NO_INLINE size_t stream_storage<T>::stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
+    inline size_t stream_storage<T>::stride_copy_to(size_t offset_from, size_t in_row_offset_from, size_t stream_width,
         size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
         size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
     {
@@ -1038,13 +1047,13 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE size_t stream_storage<T>::erase_front(size_t size)
+    inline size_t stream_storage<T>::erase_front(size_t size)
     {
         ASSERT_GE(m_size, size);
 
-        return m_chunks.invoke<size_t>([=](auto & chunks)
+        return m_chunks.template invoke<size_t>([=](auto & chunks)
         {
-            const size_t chunk_size = _get_chunk_size(m_chunks.type_index());
+            const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
             size_t erased_size;
 
@@ -1063,7 +1072,7 @@ namespace tackle
             else {
                 erased_size = m_size;
 
-                clear();
+                this->clear();
             }
 
             return erased_size;

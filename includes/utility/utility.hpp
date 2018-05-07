@@ -26,8 +26,20 @@
 #include <algorithm>
 #include <memory>
 
+#if defined(UTILITY_PLATFORM_POSIX)
+#include <termios.h>
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <memory.h>
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+#include <conio.h>
+#elif defined(UTILITY_PLATFORM_POSIX)
+#else
+#error platform is not implemented
+#endif
 
 
 #define if_break(x) if(!(x)); else switch(0) case 0: default:
@@ -405,6 +417,42 @@ namespace utility
         return _rotr64(unsigned long long(n), int(c));
 #else
         return t_rotr64<uint64_t>(n, c);
+#endif
+    }
+
+    // reads from keypress, doesn't echo
+    inline int getch()
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        return ::_getch();
+#elif defined(UTILITY_PLATFORM_POSIX)
+        struct termios oldattr, newattr;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldattr);
+        newattr = oldattr;
+        newattr.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+        return ch;
+#endif
+    }
+
+    // reads from keypress, echoes
+    inline int getche()
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        return ::_getche();
+#elif defined(UTILITY_PLATFORM_POSIX)
+        struct termios oldattr, newattr;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldattr);
+        newattr = oldattr;
+        newattr.c_lflag &= ~(ICANON);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+        return ch;
 #endif
     }
 }

@@ -94,20 +94,23 @@ fi
 
 # create user links at first
 echo "Creating user links from \"$ScriptDirPath/user_links.lst\"..."
+num_links=0
 IFS=$' \t\r\n'; for app_dir in "${APP_DIR_LIST[@]}"; do
   [[ ! -d "$app_dir" ]] && continue
   pushd "$app_dir" > /dev/null && {
     IFS=$' \t\r\n'; while read -r LinkPath RefPath; do
-      if [[ -n "$LinkPath" && -f "$RefPath" ]]; then
+      LinkPath="${LinkPath%%[#]*}" # cut off comments
+      if [[ -n "${LinkPath//[[:space:]]/}" && -f "$RefPath" ]]; then
         echo "  '$LinkPath' -> '$RefPath'"
         ln -s "$RefPath" "$LinkPath"
+        (( num_links++ ))
       fi
     done < "$ScriptDirPath/user_links.lst"
     popd > /dev/null
   }
 done
 
-echo
+(( num_links )) && echo
 
 if (( ! create_user_symlinks_only )); then
   # create generated links
@@ -128,6 +131,7 @@ if (( ! create_user_symlinks_only )); then
 fi
 
 echo "Done."
+echo
 
 exit 0
 

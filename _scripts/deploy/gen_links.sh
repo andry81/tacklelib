@@ -95,6 +95,7 @@ IFS=$' \t\r\n'; for app_dir in "${APP_DIR_LIST[@]}"; do
 done
 
 echo "Done."
+echo
 
 exit 0
 
