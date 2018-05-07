@@ -34,10 +34,11 @@ fi
 APP_ROOT="`readlink -f "$ScriptDirPath/.."`"
 
 SEARCH_ROOT_LIST="$1"     # directory path list where to start search files dependencies not recursively
-FILE_LIST_TO_FIND="$2"    # `:`-separated list of wildcard case insensitive file names or file paths
-LD_LIBRARY_PATH_LIST="$3" # directory path list for the LD_LIBRARY_PATH
-OUT_DEPS_FILE="$4"        # output dependencies text file
-OUT_DEPS_DIR="$5"         # directory there to copy found dependencies
+FILE_LIST_TO_FIND="$2"    # `:`-separated list of wildcard case insensitive file names or file paths to find
+FILE_LIST_TO_EXCLUDE="$3" # `:`-separated list of wildcard case insensitive file names or file paths to exclude
+LD_LIBRARY_PATH_LIST="$4" # directory path list for the LD_LIBRARY_PATH
+OUT_DEPS_FILE="$5"        # output dependencies text file
+OUT_DEPS_DIR="$6"         # directory there to copy found dependencies
 
 
 if [[ -n "$OUT_DEPS_FILE" ]]; then
@@ -52,10 +53,10 @@ if [[ ! -d "$OUT_DEPS_DIR" ]]; then
   exit 3
 fi
 
-if [[ ! -d "$SEARCH_ROOT" ]]; then
-  SEARCH_ROOT="$APP_ROOT"
+if [[ ! -d "$CWD" ]]; then
+  CWD="$APP_ROOT"
 else
-  SEARCH_ROOT="`readlink -f "$SEARCH_ROOT"`"
+  CWD="`readlink -f "$CWD"`"
 fi
 
 function Call()
@@ -81,23 +82,23 @@ function Popd()
 
 function FindFiles()
 {
-  RETURN_VALUE=()
-
-  local file_list_to_find=()
+  file_list_to_find=()
+  file_list_to_exclude=()
+  file_list_found=()
 
   local IFS
   local search_root
   local file
+  local file2
   local i
 
   i=0
-
   IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
     if Pushd "$search_root"; then
       IFS=":"; for file in $FILE_LIST_TO_FIND; do
         if [[ -f "$file" ]]; then
           file_list_to_find[i++]="$file"
-          echo "  $file"
+          echo "  +$file"
           (( i++ ))
         fi
       done
@@ -109,24 +110,55 @@ function FindFiles()
   done
 
   (( ! ${#file_list_to_find[@]} )) && {
-    echo "$ScriptFileName: error: file search list is empty." >&2
+    echo "$ScriptFileName: warning: file search list is empty." >&2
     return 2
   }
 
+  i=0
+
+  IFS=":"; for file in $FILE_LIST_TO_EXCLUDE; do
+    file_list_to_exclude[i++]="$file"
+    echo "  -$file"
+    (( i++ ))
+  done
+
+  # for lowercase comparison globbing
+  local SHELLNOCASEMATCH=`shopt -p nocasematch`
+  shopt -s nocasematch
+
+  local file_name
+  local file_name2
+  local is_file_excluded
   local iname_cmd_line=""
-  IFS=$' \t\r\n'; for arg in "${file_list_to_find[@]}"; do
-    if [[ -n "$iname_cmd_line" ]]; then
-      iname_cmd_line="$iname_cmd_line -o -iname \"$arg\""
-    else
-      iname_cmd_line="-type f -iname \"$arg\""
+  IFS=$' \t\r\n'; for file in "${file_list_to_find[@]}"; do
+    GetFileName "$file"
+    file_name="$RETURN_VALUE"
+    is_file_excluded=0
+    for file2 in "${file_list_to_exclude[@]}"; do
+      GetFileName "$file2"
+      file_name2="$RETURN_VALUE"
+      if [[ "$file_name" == "$file_name2" ]]; then
+        is_file_excluded=1
+        break # excluded
+      fi
+    done
+    if (( !is_file_excluded )); then
+      if [[ -n "$iname_cmd_line" ]]; then
+        iname_cmd_line="$iname_cmd_line -o -iname \"$file\""
+      else
+        iname_cmd_line="-type f -iname \"$file\""
+      fi
     fi
   done
+
+  # restore previous case comparison globbing
+  shopt -s nocasematch
 
   i=0
 
   IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
     IFS=$' \t\r\n'; for file in `eval find "\$search_root/" $iname_cmd_line`; do
-      RETURN_VALUE[i++]="$file"
+      file_list_found[i++]="$file"
       echo "  -> $file"
       (( i++ ))
     done
@@ -450,11 +482,19 @@ function CollectLddDeps()
 {
   local LDD_TOOL=ldd #alternative: `lddtee`
 
-  echo "Scanning for \"$FILE_LIST_TO_FIND\" files in \"$SEARCH_ROOT\"..."
+  echo "Scanning for \"$FILE_LIST_TO_FIND\" with current working directory in \"$CWD\"..."
 
-  FindFiles || return $?
+  local file_list_to_find
+  local file_list_to_exclude
+  local file_list_found
 
-  if (( ! ${#RETURN_VALUE[@]} )); then
+  FindFiles
+  local LastError=$?
+
+  (( LastError != 0 && LastError != 2 )) && return $LastError
+  (( LastError == 2 )) && return 0
+
+  if (( ! ${#file_list_found[@]} )); then
     echo "$ScriptFileName: info: nothing to search." >&2
     return 10
   fi
@@ -497,6 +537,8 @@ function CollectLddDeps()
       rm "$ldd_output_file"
     }
 
+    trap on_exit EXIT
+
     function CheckCopyTo()
     {
       local FromFile="$1"
@@ -527,7 +569,7 @@ function CollectLddDeps()
     # collect all not found dependencies to throw the error at the end of the search
     not_found_lib_list=()
 
-    IFS=$' \t\r\n'; for scan_file in "${RETURN_VALUE[@]}"; do
+    IFS=$' \t\r\n'; for scan_file in "${file_list_found[@]}"; do
       echo "  $scan_file"
       [[ -n "$OUT_DEPS_FILE" ]] && echo "#%% $scan_file" >> "$OUT_DEPS_FILE"
 
@@ -599,8 +641,22 @@ function CollectLddDeps()
       fi
     done
 
-    # remove specific not existed objects
-    RemoveItemFromUArray not_found_lib_list "linux-gate.so.1"
+    # for lowercase comparison globbing
+    local SHELLNOCASEMATCH=`shopt -p nocasematch`
+    shopt -s nocasematch
+
+    local file
+    local file_name
+    IFS=$' \t\r\n'; for file in "${file_list_to_exclude[@]}"; do
+      GetFileName "$file"
+      file_name="$RETURN_VALUE"
+
+      # remove specific not existed objects
+      RemoveItemFromUArray not_found_lib_list "$file_name"
+    done
+
+    # restore previous case comparison globbing
+    shopt -s nocasematch
 
     if (( ${#not_found_lib_list[@]} )); then
       echo "$ScriptFileName: error: having not found dependencies." >&2
@@ -621,6 +677,7 @@ function CollectLddDeps()
 CollectLddDeps || exit $?
 
 echo "Done."
+echo
 
 exit 0
 

@@ -4,7 +4,7 @@
 #include <utility/assert.hpp>
 #include <utility/math.hpp>
 
-#include <boost/preprocessor/cat.hpp>
+#include <boost/format.hpp>
 
 #include <stdio.h>
 
@@ -59,7 +59,9 @@ namespace tackle
     uint64_t FileReader::do_read(void * user_data, const ChunkSizes & chunk_sizes, uint64_t min_buf_size, uint64_t max_buf_size)
     {
         if (!m_file_handle.get()) {
-            throw std::runtime_error(BOOST_PP_CAT(__FUNCTION__, ": file handle is not set"));
+            throw std::runtime_error(
+                (boost::format("%s: file handle is not set") %
+                    UTILITY_PP_FUNC).str());
         }
 
         int is_eof = feof(m_file_handle.get());

@@ -5,6 +5,8 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 
 SOURCE_BUILDLIB_SH=1 # including guard
 
+source "${ScriptDirPath:-.}/traplib.sh" || exit $?
+
 # Special exit code value variable has used by the specific set of functions
 # like `Call` and `Exit` to hold the exit code over the builtin functions like
 # `pushd` and `popd` which are changes the real exit code.
@@ -49,6 +51,10 @@ function SetError()
 function Pushd()
 {
   local IFS=$' \t\r\n'
+  if [[ -z "$@" ]]; then
+    echo "Pushd: error: directory is not set." >&2
+    return 254
+  fi
   pushd "$@" > /dev/null
 }
 
@@ -317,7 +323,7 @@ function PostInstall()
   MakeDir -p "$CMAKE_INSTALL_ROOT"
 
   Pushd "$CMAKE_INSTALL_ROOT" && {
-    PostInstallImpl || { Popd; return $LastError; }
+    PostInstallImpl "$@" || { Popd; return $LastError; }
     Popd
   }
 
@@ -326,23 +332,47 @@ function PostInstall()
 
 function PostInstallImpl()
 {
-  local FileDepsList
-  FileDepsList=("*.so" "*.so.*" "*.a" "*.a.*")
+  # check global variables existence
+  if [[ -z "$FILE_DEPS_ROOT_LIST" ]]; then
+    echo "PostInstallImpl: error: FILE_DEPS_ROOT_LIST variable is not set." >&2
+    return 254
+  fi
 
-  local cwd="$(pwd)"
-  local IFS=$' \t\r\n'
+  if [[ -z "$FILE_DEPS_LIST_TO_FIND" ]]; then
+    echo "PostInstallImpl: error: FILE_DEPS_LIST_TO_FIND variable is not set." >&2
+    return 253
+  fi
+
+  local IFS
+  local dir
+  local from_dir
+  local i
+
+  # command parameters for the `collect_ldd_deps.sh` scripts
+  local file_deps_root_list
+  local file_deps_mkdir_list
+  local file_deps_cpdir_list
+  IFS=":"
+  declare -a "file_deps_root_list=(\$FILE_DEPS_ROOT_LIST)"
+  declare -a "file_deps_mkdir_list=(\$FILE_DEPS_MKDIR_LIST)"
+  declare -a "file_deps_cpdir_list=(\$FILE_DEPS_CPDIR_LIST)"
 
   # create application directories at first
-  MakeDir _scripts _scripts/admin _scripts/deploy lib plugins plugins/platforms || return $?
+  MakeDir "${file_deps_mkdir_list[@]}" || Exit
 
-  # copy Qt plugins
-  Call cp -R "$QT5_ROOT/plugins/platforms/." "$cwd/plugins/platforms" || return $?
-
-  IFS=$' \t\r\n'
-  JoinArgs : "${FileDepsList[@]}"
+  # copy directories recursively
+  i=0
+  IFS=$' \t\r\n'; for dir in "${file_deps_cpdir_list[@]}"; do
+    (( i == 0 )) && from_dir="$dir"
+    if (( (i % 2) == 1 )); then
+      Call cp -R "$from_dir" "$dir" || return Exit
+    fi
+    (( i++ ))
+  done
 
   # collect shared object dependencies
-  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" ".:./plugins/platforms" "$RETURN_VALUE" ".:./plugins/platforms:$QT5_ROOT/lib" deps.lst . || return $?
+  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" "$FILE_DEPS_LIST_TO_FIND" "$FILE_DEPS_ROOT_LIST" \
+    "$FILE_DEPS_LIST_TO_EXCLUDE" "$FILE_DEPS_LD_PATH_LIST" deps.lst . || return $?
 
   # create user symlinks
   Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" -u . || return $?
@@ -356,21 +386,27 @@ function PostInstallImpl()
 
   local file
 
-  IFS=$' \t\r\n'; for file in "${FileDepsList[@]}"; do
+  IFS=$' \t\r\n'; for file in "${file_deps_root_list[@]}"; do
     MoveFile -L "$file" "lib/" || return $?
   done
 
-  # copy approot
-  Call cp -R "$PROJECT_ROOT/deploy/approot/." "$cwd" || return $?
+  # copy approot if exists
+  if [[ -d "$PROJECT_ROOT/deploy/approot" ]]; then
+    Call cp -R "$PROJECT_ROOT/deploy/approot/." "$PWD" || return $?
+  fi
 
-  # copy scripts
-  Call cp -R "$PROJECT_ROOT/_scripts/deploy" "$cwd/_scripts" || return $?
-  Call cp -R "$PROJECT_ROOT/_scripts/admin" "$cwd/_scripts" || return $?
+  # copy specific scripts if exists
+  if [[ -d "$PROJECT_ROOT/_scripts/deploy" ]]; then
+    Call cp -R "$PROJECT_ROOT/_scripts/deploy" "$PWD/_scripts" || return $?
+  fi
+  if [[ -d "$PROJECT_ROOT/_scripts/admin" ]]; then
+    Call cp -R "$PROJECT_ROOT/_scripts/admin" "$PWD/_scripts" || return $?
+  fi
 
   local file_name
 
   # rename files in the current directory beginning by the `$` character
-  IFS=$' \t\r\n'; for file in `find "$cwd" -type f -name "\\\$*"`; do
+  IFS=$' \t\r\n'; for file in `find "$PWD" -type f -name "\\\$*"`; do
     GetFileDir "$file"
     file_dir="$RETURN_VALUE"
 

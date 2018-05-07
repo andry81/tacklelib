@@ -484,6 +484,8 @@
 
 #define DEBUG_ASSERT_VERIFY_ENABLED 1
 
+#define IF_DEBUG_ASSERT_VERIFY_ENABLED(x) if(x)
+
 #else
 
 #define DEBUG_VERIFY_TRUE       DISABLED_VERIFY_TRUE
@@ -507,6 +509,8 @@
 #define DEBUG_ASSERT_GT         DISABLED_ASSERT_GT
 
 #define DEBUG_ASSERT_VERIFY_ENABLED 0
+
+#define IF_DEBUG_ASSERT_VERIFY_ENABLED(x) if(false)
 
 #endif
 
@@ -567,6 +571,8 @@
 
 #define ASSERT_VERIFY_ENABLED 1
 
+#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+
 #elif defined(DISABLE_VERIFY_ASSERT) || defined(BENCH_TESTS)
 
 #define VERIFY_TRUE     DISABLED_VERIFY_TRUE
@@ -590,6 +596,8 @@
 #define ASSERT_GT       DISABLED_ASSERT_GT
 
 #define ASSERT_VERIFY_ENABLED 0
+
+#define IF_ASSERT_VERIFY_ENABLED(x) if(false)
 
 #endif
 
@@ -617,6 +625,8 @@
 
 #define ASSERT_VERIFY_ENABLED 1
 
+#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+
 #else
 
 #define VERIFY_TRUE     DISABLED_VERIFY_TRUE
@@ -640,6 +650,8 @@
 #define ASSERT_GT       DISABLED_ASSERT_GT
 
 #define ASSERT_VERIFY_ENABLED 0
+
+#define IF_ASSERT_VERIFY_ENABLED(x) if(false)
 
 #endif
 

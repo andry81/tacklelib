@@ -4,6 +4,7 @@
 
 #include <utility/platform.hpp>
 
+#include <cstdlib>
 #include <cstdint>
 
 #include <utility>

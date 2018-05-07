@@ -1,0 +1,7 @@
+2018.05.07:
+* fixed: postinstall fix
+* fixed: application main startup helper shell script fix
+* fixed: complete build under linux mint
+* new: traplib.sh build script
+* new: in sources changelog
+* other multiple fixes, changes and refactor

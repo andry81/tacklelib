@@ -18,6 +18,7 @@ namespace utility
 {
 #if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
     const char Buffer::s_guard_sequence_str[49] = "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
+    const size_t Buffer::s_guard_max_len;
 
     void Buffer::check_buffer_guards()
     {
