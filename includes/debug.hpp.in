@@ -1,0 +1,13 @@
+#pragma once
+
+
+//// public headers common debug symbols
+
+// Converts all FORCE_INLINE into `force no inline` both in debug and release.
+//#define DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE
+
+// Disables all verification and asserts.
+//#define DISABLE_VERIFY_ASSERT
+
+// increases chances to catch a memory corruption place.
+//#define USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT

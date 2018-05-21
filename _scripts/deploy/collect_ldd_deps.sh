@@ -152,7 +152,7 @@ function FindFiles()
   done
 
   # restore previous case comparison globbing
-  shopt -s nocasematch
+  eval $SHELLNOCASEMATCH
 
   i=0
 
@@ -656,7 +656,7 @@ function CollectLddDeps()
     done
 
     # restore previous case comparison globbing
-    shopt -s nocasematch
+    eval $SHELLNOCASEMATCH
 
     if (( ${#not_found_lib_list[@]} )); then
       echo "$ScriptFileName: error: having not found dependencies." >&2
