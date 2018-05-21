@@ -50,8 +50,8 @@
 #define INT32_DIV_POF2(x, y) int32_t(int32_t(x) / INT32_POF2_FLOOR_ASSERT(y))
 #define UINT32_DIV_POF2(x, y) uint32_t(uint32_t(x) / UINT32_POF2_FLOOR_ASSERT(y))
 
-#define INT32_DIVREM_POF2(x, y) ::math::divrem<int32_t>{ int32_t(x) / INT32_POF2_FLOOR_ASSERT(y), int32_t(x) % (INT32_POF2_FLOOR_ASSERT(y) - 1) }
-#define UINT32_DIVREM_POF2(x, y) ::math::divrem<uint32_t>{ uint32_t(x) / UINT32_POF2_FLOOR_ASSERT(y), uint32_t(x) % (UINT32_POF2_FLOOR_ASSERT(y) - 1) }
+#define INT32_DIVREM_POF2(x, y) ::math::divrem<int32_t>{ int32_t(x) / INT32_POF2_FLOOR_ASSERT(y), int32_t(x) % INT32_POF2_FLOOR_ASSERT(y) }
+#define UINT32_DIVREM_POF2(x, y) ::math::divrem<uint32_t>{ uint32_t(x) / UINT32_POF2_FLOOR_ASSERT(y), uint32_t(x) % UINT32_POF2_FLOOR_ASSERT(y) }
 
 #endif
 

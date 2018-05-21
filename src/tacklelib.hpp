@@ -1,7 +1,7 @@
 #pragma once
 
-#include <debug.hpp>        // debug switches
-#include <optimization.hpp> // optimization switches
+#include "debug.hpp"        // debug symbols
+#include "optimization.hpp" // optimization symbols
 
 #include <utility/platform.hpp>
 

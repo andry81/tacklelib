@@ -1,3 +1,9 @@
+2018.05.21:
+* fixed: private definitions interference with public headers
+* fixed: aligned_storage_by incorrect declaration header (ODR violation)
+* fixed: no case match globbing restore in the `collect_ldd_deps.sh` script
+* new: memory functions header
+
 2018.05.07:
 * fixed: postinstall fix
 * fixed: application main startup helper shell script fix

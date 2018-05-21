@@ -65,10 +65,8 @@ namespace utility
     {
         using BufSharedPtr = std::shared_ptr<uint8_t>;
 
-#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
         static const char s_guard_sequence_str[49];
         static const size_t s_guard_max_len = 256; // to avoid comparison slowdown on big arrays
-#endif
 
     public:
         FORCE_INLINE Buffer(size_t size = 0) :
@@ -77,53 +75,15 @@ namespace utility
             reset(size);
         }
 
-        FORCE_INLINE ~Buffer()
-        {
-#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
-            check_buffer_guards();
-#endif
-        }
+        ~Buffer();
 
-#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
         void check_buffer_guards();
 
     private:
         void _fill_buffer_guards();
-#endif
 
     public:
-        FORCE_INLINE void reset(size_t size)
-        {
-#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
-            check_buffer_guards();
-
-            // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
-            const size_t offset = (std::min)((std::max)(size / 100, 16U), s_guard_max_len);
-            const size_t size_extra = size ? (size + offset * 2) : 0;
-#else
-            const size_t offset = 0;
-            const size_t size_extra = size;
-#endif
-
-            // reallocate only if greater, deallocate only if 0
-            if (size_extra) {
-                if (m_reserve < size_extra) {
-                    m_buf_ptr = BufSharedPtr(new uint8_t[size_extra], std::default_delete<uint8_t[]>());
-                    m_reserve = size_extra;
-                }
-
-                m_offset = offset;
-                m_size = size;
-
-#if defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG)
-                _fill_buffer_guards();
-#endif
-            }
-            else {
-                m_buf_ptr.reset();
-                m_offset = m_reserve = m_size = 0;
-            }
-        }
+        void reset(size_t size);
 
         FORCE_INLINE size_t size() const
         {
@@ -142,30 +102,16 @@ namespace utility
             return m_buf_ptr.get() + m_offset;
         }
 
-        FORCE_INLINE uint8_t * realloc_get(size_t size)
-        {
-            reset(size);
+        uint8_t * realloc_get(size_t size);
 
-#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
-            if (!m_is_reallocating)
-            {
-                Buffer local_buf;
-
-                local_buf.set_reallocating(true);
-
-                realloc(local_buf);
-            }
+#ifndef UTILITY_PLATFORM_X64
+        uint8_t * realloc_get(uint64_t size);
 #endif
 
-            return m_buf_ptr.get() + m_offset;
-        }
-
-#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
         FORCE_INLINE void set_reallocating(bool is_reallocating)
         {
             m_is_reallocating = is_reallocating;
         }
-#endif
 
         // for memory debugging on a moment of deallocation
         FORCE_INLINE void realloc(Buffer & to_buf)
@@ -175,10 +121,6 @@ namespace utility
 
             *this = to_buf;
         }
-
-#ifndef UTILITY_PLATFORM_X64
-        uint8_t * realloc_get(uint64_t size);
-#endif
 
     private:
         size_t          m_offset;

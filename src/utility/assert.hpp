@@ -541,39 +541,7 @@
 #define LOCAL_ASSERT_GT(is_local, v1, v2)  do {{ if(is_local) BASIC_ASSERT_GT(v1, v2); else ASSERT_GT(v1, v2); }} while(false)
 
 
-// TIPS:
-//  * avoid usage the unit test asserts in debug because of greater runtime slow down in respect to basic assert implementation
-//
-
-#if !defined(USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT) && (defined(UNIT_TESTS) || defined(BENCH_TESTS)) && !defined(_DEBUG)
-
-#if !defined(DISABLE_VERIFY_ASSERT) && defined(UNIT_TESTS)
-
-#define VERIFY_TRUE     UNIT_VERIFY_TRUE
-#define VERIFY_FALSE    UNIT_VERIFY_FALSE
-
-#define VERIFY_EQ       UNIT_VERIFY_EQ
-#define VERIFY_NE       UNIT_VERIFY_NE
-#define VERIFY_LE       UNIT_VERIFY_LE
-#define VERIFY_LT       UNIT_VERIFY_LT
-#define VERIFY_GE       UNIT_VERIFY_GE
-#define VERIFY_GT       UNIT_VERIFY_GT
-
-#define ASSERT_TRUE     UNIT_ASSERT_TRUE
-#define ASSERT_FALSE    UNIT_ASSERT_FALSE
-
-#define ASSERT_EQ       UNIT_ASSERT_EQ
-#define ASSERT_NE       UNIT_ASSERT_NE
-#define ASSERT_LE       UNIT_ASSERT_LE
-#define ASSERT_LT       UNIT_ASSERT_LT
-#define ASSERT_GE       UNIT_ASSERT_GE
-#define ASSERT_GT       UNIT_ASSERT_GT
-
-#define ASSERT_VERIFY_ENABLED 1
-
-#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
-
-#elif defined(DISABLE_VERIFY_ASSERT) || defined(BENCH_TESTS)
+#if defined(DISABLE_VERIFY_ASSERT) || defined(BENCH_TESTS)
 
 #define VERIFY_TRUE     DISABLED_VERIFY_TRUE
 #define VERIFY_FALSE    DISABLED_VERIFY_FALSE
@@ -599,9 +567,13 @@
 
 #define IF_ASSERT_VERIFY_ENABLED(x) if(false)
 
-#endif
+#else
 
-#elif !defined(DISABLE_VERIFY_ASSERT) && defined(_DEBUG)
+// TIPS:
+//  * avoid usage the unit test asserts in debug because of greater runtime slow down in respect to basic assert implementation
+//
+
+#if defined(_DEBUG)
 
 #define VERIFY_TRUE     DEBUG_VERIFY_TRUE
 #define VERIFY_FALSE    DEBUG_VERIFY_FALSE
@@ -623,9 +595,65 @@
 #define ASSERT_GE       DEBUG_ASSERT_GE
 #define ASSERT_GT       DEBUG_ASSERT_GT
 
+#define ASSERT_VERIFY_ENABLED DEBUG_ASSERT_VERIFY_ENABLED
+
+#define IF_ASSERT_VERIFY_ENABLED(x) IF_DEBUG_ASSERT_VERIFY_ENABLED(x)
+
+#elif defined(UNIT_TESTS)
+
+#if defined(USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT)
+
+#define VERIFY_TRUE     BASIC_VERIFY_TRUE
+#define VERIFY_FALSE    BASIC_VERIFY_FALSE
+
+#define VERIFY_EQ       BASIC_VERIFY_EQ
+#define VERIFY_NE       BASIC_VERIFY_NE
+#define VERIFY_LE       BASIC_VERIFY_LE
+#define VERIFY_LT       BASIC_VERIFY_LT
+#define VERIFY_GE       BASIC_VERIFY_GE
+#define VERIFY_GT       BASIC_VERIFY_GT
+
+#define ASSERT_TRUE     BASIC_ASSERT_TRUE
+#define ASSERT_FALSE    BASIC_ASSERT_FALSE
+
+#define ASSERT_EQ       BASIC_ASSERT_EQ
+#define ASSERT_NE       BASIC_ASSERT_NE
+#define ASSERT_LE       BASIC_ASSERT_LE
+#define ASSERT_LT       BASIC_ASSERT_LT
+#define ASSERT_GE       BASIC_ASSERT_GE
+#define ASSERT_GT       BASIC_ASSERT_GT
+
 #define ASSERT_VERIFY_ENABLED 1
 
 #define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+
+#else
+
+#define VERIFY_TRUE     UNIT_VERIFY_TRUE
+#define VERIFY_FALSE    UNIT_VERIFY_FALSE
+
+#define VERIFY_EQ       UNIT_VERIFY_EQ
+#define VERIFY_NE       UNIT_VERIFY_NE
+#define VERIFY_LE       UNIT_VERIFY_LE
+#define VERIFY_LT       UNIT_VERIFY_LT
+#define VERIFY_GE       UNIT_VERIFY_GE
+#define VERIFY_GT       UNIT_VERIFY_GT
+
+#define ASSERT_TRUE     UNIT_ASSERT_TRUE
+#define ASSERT_FALSE    UNIT_ASSERT_FALSE
+
+#define ASSERT_EQ       UNIT_ASSERT_EQ
+#define ASSERT_NE       UNIT_ASSERT_NE
+#define ASSERT_LE       UNIT_ASSERT_LE
+#define ASSERT_LT       UNIT_ASSERT_LT
+#define ASSERT_GE       UNIT_ASSERT_GE
+#define ASSERT_GT       UNIT_ASSERT_GT
+
+#define ASSERT_VERIFY_ENABLED 1
+
+#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+
+#endif
 
 #else
 
@@ -655,6 +683,8 @@
 
 #endif
 
+#endif
+
 
 namespace utility
 {
@@ -665,14 +695,14 @@ namespace utility
     FORCE_INLINE const T & unused_true(const T & exp_var)
     {
         UTILITY_DBG_HEAP_CHECK();
-        return (exp_var ? exp_var : exp_var); // to avoid warnings of truncation to bool
+        return (exp_var ? exp_var : exp_var); // to test expression for conversion into boolean
     }
 
     template<typename T>
     FORCE_INLINE const T & unused_false(const T & exp_var)
     {
         UTILITY_DBG_HEAP_CHECK();
-        return (exp_var ? exp_var : exp_var); // to avoid warnings of truncation to bool
+        return (exp_var ? exp_var : exp_var); // to test expression for conversion into boolean
     }
 
     template<typename T1, typename T2>
