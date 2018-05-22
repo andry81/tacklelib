@@ -7,6 +7,20 @@
 #include <tacklelib.hpp>
 
 
+// Not empty definitions filter with ability to raise a preprocessor error on not defined definitions or empty definitions:
+//  MSVC (2017) utilized errors:
+//  * not defined:   `C2124: divide or mod by zero`
+//  * defined empty: `C1017: invalid integer constant expression`
+//  GCC (5.4) utilized errors:
+//  * not defined:   `division by zero in #if`
+//  * defined empty: `operator '||' has no left operand`
+//
+#if defined(__GNUC__) && __GNUC__ >= 3
+#define ERROR_IF_EMPTY_PP_DEF(x, args...) (x || (!defined(x ## args) && 0/x))
+#else
+#define ERROR_IF_EMPTY_PP_DEF(x) (x || (!defined (## x ##) && 0/x))
+#endif
+
 #define UTILITY_PP_STRINGIZE_(x) #x
 #define UTILITY_PP_STRINGIZE(x) UTILITY_PP_STRINGIZE_(x)
 

@@ -1,3 +1,8 @@
+2018.05.22:
+* changed: debug.hpp/optimization.hpp definitions check changed from #ifdef/#ifndef into #if/#if! as more safe
+* changed: minor improvement
+* new: `ERROR_IF_EMPTY_PP_DEF` macro for self filter only not empty defined definitions in `#if` blocks, otherwise through an error
+
 2018.05.21:
 * fixed: private definitions interference with public headers
 * fixed: aligned_storage_by incorrect declaration header (ODR violation)

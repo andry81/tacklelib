@@ -138,9 +138,9 @@
 #  endif
 #endif
 
-#if !defined(DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE)
+#if !ERROR_IF_EMPTY_PP_DEF(DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE)
 
-#if !defined(_DEBUG) && defined(ENABLE_FORCE_INLINE) && !defined(DISABLE_FORCE_INLINE)
+#if !defined(_DEBUG) && ERROR_IF_EMPTY_PP_DEF(ENABLE_FORCE_INLINE)
 #   if defined(UTILITY_COMPILER_CXX_GCC)
 #       define FORCE_INLINE           __attribute__((always_inline)) inline
 #       define FORCE_INLINE_ALWAYS    FORCE_INLINE
@@ -165,7 +165,7 @@
 
 #endif
 
-#if !defined(_DEBUG) && defined(ENABLE_FORCE_NO_INLINE) && !defined(DISABLE_FORCE_NO_INLINE)
+#if !defined(_DEBUG) && ERROR_IF_EMPTY_PP_DEF(ENABLE_FORCE_NO_INLINE)
 #   if defined(UTILITY_COMPILER_CXX_GCC)
 #      define FORCE_NO_INLINE __attribute__((noinline))
 #   elif defined(UTILITY_COMPILER_CXX_MSC)

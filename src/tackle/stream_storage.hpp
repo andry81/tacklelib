@@ -52,7 +52,7 @@ namespace tackle
     template <typename T>
     class stream_storage
     {
-#if defined(ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE) && !defined(DISABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE)
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE)
         static const int s_default_inner_inline_level = 1;
 #else
         static const int s_default_inner_inline_level = 0;

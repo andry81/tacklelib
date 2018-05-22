@@ -13,15 +13,15 @@
 // WARNING:
 //  1. If not enabled, then compilation or linkage times can has increased slow down.
 //
-//#define DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE
+#define DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE 0
 
 // WARNING:
 //  1. You must define DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE to fully switch the implementation.
 //  2. Compilation or linkage times has noticable slow down about 2x times.
-//#define USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS
+//#define USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS 1
 
 // use basic verify/assert implementation instead unit test implementation (just to measure time spent in unit tests)
-//#define USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT
+#define USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT 0
 
 //// utility/stream_storage.hpp
 
@@ -30,4 +30,4 @@
 // CAUTION:
 //  Can dramatically increase compilation time!
 //
-//#define ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE
+#define ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE 0
