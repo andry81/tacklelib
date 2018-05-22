@@ -18,7 +18,7 @@ namespace utility
 {
     Buffer::~Buffer()
     {
-#if !defined(DISABLE_BUFFER_GUARD_CHECK) && (defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
         check_buffer_guards();
 #endif
     }
@@ -119,7 +119,7 @@ namespace utility
 
     void Buffer::reset(size_t size)
     {
-#if !defined(DISABLE_BUFFER_GUARD_CHECK) && (defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
         check_buffer_guards();
 
         // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
@@ -140,7 +140,7 @@ namespace utility
             m_offset = offset;
             m_size = size;
 
-#if !defined(DISABLE_BUFFER_GUARD_CHECK) && (defined(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
             _fill_buffer_guards();
 #endif
         }
@@ -154,7 +154,7 @@ namespace utility
     {
         reset(size);
 
-#ifdef ENABLE_BUFFER_REALLOC_AFTER_ALLOC
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_BUFFER_REALLOC_AFTER_ALLOC)
         if (!m_is_reallocating)
         {
             Buffer local_buf;

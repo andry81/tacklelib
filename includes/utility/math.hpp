@@ -31,7 +31,7 @@
 #define INT32_POF2_FLOOR_ASSERT(x) ::math::int_pof2_floor_assert<int32_t>(x)
 #define UINT32_POF2_FLOOR_ASSERT(x) ::math::int_pof2_floor_assert<uint32_t>(x)
 
-#if defined(ENABLE_POF2_DEFINITIONS) && !defined(DISABLE_POF2_DEFINITIONS)
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_POF2_DEFINITIONS)
 
 #define INT32_MULT_POF2(x, y) int32_t(int32_t(x) << INT32_LOG2_FLOOR_ASSERT(y))
 #define UINT32_MULT_POF2(x, y) uint32_t(uint32_t(x) << UINT32_LOG2_FLOOR_ASSERT(y))
@@ -235,14 +235,33 @@ namespace math
         static const uint32_t value = (x16_t::value >> 1) + 1;
     };
 
+    template<>
+    struct uint32_pof2_floor<0>;
+
     template<uint32_t x>
     const uint32_t uint32_pof2_floor<x>::value;
+
+    FORCE_INLINE uint32_t pof2_floor(uint32_t x)
+    {
+        if (!VERIFY_TRUE(x)) return 0;
+
+        uint32_t x_ = x | (x >> 1);
+        x_ |= (x_ >> 2);
+        x_ |= (x_ >> 4);
+        x_ |= (x_ >> 8);
+        x_ |= (x_ >> 16);
+
+        return (x_ >> 1) + 1;
+    }
 
     template<int32_t x>
     struct int32_pof2_floor
     {
         static const int32_t value = int32_t(uint32_pof2_floor<uint32_t(x)>::value);
     };
+
+    template<>
+    struct int32_pof2_floor<0>;
 
     template<int32_t x>
     const int32_t int32_pof2_floor<x>::value;
@@ -257,6 +276,12 @@ namespace math
 
     template<uint32_t x>
     const uint32_t uint32_pof2_ceil<x>::value;
+
+    FORCE_INLINE uint32_t pof2_ceil(uint32_t x)
+    {
+        const uint32_t x_po2_floor = pof2_floor(x);
+        return x_po2_floor != x ? x_po2_floor << 1 : x_po2_floor;
+    }
 
     template<int32_t x>
     struct int32_pof2_ceil

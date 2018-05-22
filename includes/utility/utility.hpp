@@ -292,7 +292,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotl8(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl8(unsigned char(n), unsigned char(c));
 #else
         return t_rotl32<uint8_t>(n, c);
@@ -301,7 +301,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotr8(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr8(unsigned char(n), unsigned char(c));
 #else
         return t_rotr32<uint8_t>(n, c);
@@ -310,7 +310,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotl16(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl16(unsigned short(n), unsigned char(c));
 #else
         return t_rotl32<uint16_t>(n, c);
@@ -319,7 +319,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotr16(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr16(unsigned short(n), unsigned char(c));
 #else
         return t_rotr32<uint16_t>(n, c);
@@ -328,7 +328,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotl32(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl(unsigned int(n), int(c));
 #else
         return t_rotl32<uint32_t>(n, c);
@@ -337,7 +337,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint32_t rotr32(uint32_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr(unsigned int(n), int(c));
 #else
         return t_rotr32<uint32_t>(n, c);
@@ -346,7 +346,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint64_t rotl64(uint64_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl64(unsigned long long(n), int(c));
 #else
         return t_rotl64<uint64_t>(n, c);
@@ -355,7 +355,7 @@ namespace utility
 
     FORCE_INLINE_ALWAYS uint64_t rotr64(uint64_t n, unsigned int c)
     {
-#if defined(UTILITY_COMPILER_CXX_MSC) && defined(ENABLE_INTRINSIC)
+#if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr64(unsigned long long(n), int(c));
 #else
         return t_rotr64<uint64_t>(n, c);

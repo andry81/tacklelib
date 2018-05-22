@@ -21,7 +21,7 @@
 
 
 // heap corruption simple check
-#ifdef USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT
+#if ERROR_IF_EMPTY_PP_DEF(USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT)
 #define UTILITY_DBG_HEAP_CHECK() delete [] (new char [1])
 #else
 #define UTILITY_DBG_HEAP_CHECK() (void)0
@@ -216,7 +216,7 @@
 #define LOCAL_ASSERT_GT(is_local, v1, v2)  do {{ if(is_local) BASIC_ASSERT_GT(v1, v2); else ASSERT_GT(v1, v2); }} while(false)
 
 
-#if defined(DISABLE_VERIFY_ASSERT)
+#if ERROR_IF_EMPTY_PP_DEF(DISABLE_VERIFY_ASSERT)
 
 #define VERIFY_TRUE     DISABLED_VERIFY_TRUE
 #define VERIFY_FALSE    DISABLED_VERIFY_FALSE
