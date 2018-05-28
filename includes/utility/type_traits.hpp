@@ -32,6 +32,9 @@
 
 #endif
 
+#define UTILITY_SIZE_LOOKUP_BY_ERROR(size) \
+    char * __integral_lookup[size] = 1
+
 
 #ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
 // in case if not declared

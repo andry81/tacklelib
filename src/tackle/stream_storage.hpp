@@ -523,7 +523,7 @@ namespace tackle
         {
             const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
-            const auto chunk_devrem = UINT32_DIVREM_POF2(offset, chunk_size);
+            const auto chunk_devrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(offset, chunk_size);
             auto & chunk = chunks[chunk_devrem.quot];
 
             return chunk.buf[chunk_devrem.rem];
@@ -539,7 +539,7 @@ namespace tackle
         {
             const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
-            const auto chunk_devrem = UINT32_DIVREM_POF2(offset, chunk_size);
+            const auto chunk_devrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(offset, chunk_size);
             const auto & chunk = chunks[chunk_devrem.quot];
 
             return chunk.buf[chunk_devrem.rem];
@@ -554,7 +554,7 @@ namespace tackle
 
         const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
-        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
+        const auto chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(offset_from, chunk_size);
         const auto & chunk = chunks[chunk_divrem.quot];
         size_t to_buf_offset = 0;
         size_t from_buf_offset = chunk_divrem.rem;
@@ -563,7 +563,7 @@ namespace tackle
             to_buf_offset += to_size;
         }
         else {
-            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
+            const auto next_chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(chunk_divrem.rem + to_size, chunk_size);
 
             // cycles overhead optimization
             //if (256 < next_chunk_divrem.quot) {
@@ -640,7 +640,7 @@ namespace tackle
 
         const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
-        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
+        const auto chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(offset_from, chunk_size);
         const auto & chunk = chunks[chunk_divrem.quot];
         size_t to_buf_offset = 0;
         size_t from_buf_offset = chunk_divrem.rem;
@@ -649,7 +649,7 @@ namespace tackle
             to_buf_offset += to_size;
         }
         else {
-            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + to_size, chunk_size);
+            const auto next_chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(chunk_divrem.rem + to_size, chunk_size);
 
             // cycles overhead optimization
             //if (256 < next_chunk_divrem.quot) {
@@ -725,7 +725,7 @@ namespace tackle
 //
 //        const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 //
-//        const auto chunk_divrem = UINT32_DIVREM_POF2(offset_from, chunk_size);
+//        const auto chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(offset_from, chunk_size);
 //        const auto & chunk = chunks[chunk_divrem.quot];
 //        size_t to_buf_offset = 0;
 //        size_t from_buf_offset = chunk_divrem.rem;
@@ -734,7 +734,7 @@ namespace tackle
 //            UTILITY_STRIDE_COPY(to_buf_offset, chunk.buf + from_buf_offset, from_size, stride_size, stride_step, to_buf, to_size);
 //        }
 //        else {
-//            const auto next_chunk_divrem = UINT32_DIVREM_POF2(chunk_divrem.rem + from_size, chunk_size);
+//            const auto next_chunk_divrem = UINT32_DIVREM_POF2_FLOOR_VERIFY(chunk_divrem.rem + from_size, chunk_size);
 //
 //            // TODO:
 //            //  * UTILITY_STRIDE_COPY from the middle of slot byte instead of only from slot beginning byte

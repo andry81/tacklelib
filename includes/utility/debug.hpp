@@ -46,6 +46,8 @@
 // break point placeholder, useful inside custom user macroses to emulate function call break points
 #define BREAK_POINT_PLACEHOLDER() ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
 
+#define UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(var)   ::utility::unused_param(&var)
+
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
 #define DEBUG_BREAK(exp) \
@@ -63,10 +65,15 @@
 
 namespace utility
 {
+    extern const volatile void * volatile g_unused_param_storage_ptr;
+
     // empty instruction for breakpoint placeholder
     FORCE_INLINE_ALWAYS void unused()
     {
     }
+
+    // external function to suppress optimization over unused variables and return values in the Release through use them in an external function
+    extern FORCE_NO_INLINE void UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION unused_param(const volatile void * p);
 
     void debug_break(bool condition = true);
     bool is_under_debugger();

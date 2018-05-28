@@ -3,7 +3,7 @@
 
 //// public headers common debug symbols
 
-// Converts all FORCE_INLINE into `force no inline` both in debug and release.
+// Converts all FORCE_INLINE into `force no inline` both in debug and release (useful when want to profile each function).
 #define DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE 0
 
 // Disables all verification and asserts.

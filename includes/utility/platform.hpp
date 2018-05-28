@@ -98,18 +98,21 @@
 #   elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #       define UTILITY_PLATFORM_X32
 #   endif
+#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
 #elif defined(UTILITY_COMPILER_CXX_GCC)
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
+#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION __attribute__((optimize("O0")))
 #else
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
+#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
 #endif
 
 
@@ -156,9 +159,9 @@
 #else
 
 #if defined(UTILITY_COMPILER_CXX_GCC)
-#   define FORCE_INLINE               __attribute__((noinline))
+#   define FORCE_INLINE               inline __attribute__((noinline))
 #elif defined(UTILITY_COMPILER_CXX_MSC)
-#   define FORCE_INLINE               __declspec(noinline)
+#   define FORCE_INLINE               inline __declspec(noinline)
 #endif
 
 #define FORCE_INLINE_ALWAYS           inline

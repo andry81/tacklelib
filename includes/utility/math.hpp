@@ -19,41 +19,103 @@
 #include <cmath>
 
 
-#define INT32_LOG2_FLOOR(x) ::math::int_log2_floor<int32_t>(x)
-#define UINT32_LOG2_FLOOR(x) ::math::int_log2_floor<uint32_t>(x)
+#define INT32_LOG2_FLOOR_CONSTEXPR(x)               ::math::int32_log2_floor<x>::value
+#define UINT32_LOG2_FLOOR_CONSTEXPR(x)              ::math::uint32_log2_floor<x>::value
+#define INT32_LOG2_CEIL_CONSTEXPR(x)                ::math::int32_log2_ceil<x>::value
+#define UINT32_LOG2_CEIL_CONSTEXPR(x)               ::math::uint32_log2_ceil<x>::value
 
-#define INT32_POF2_FLOOR(x) ::math::int_pof2_floor<int32_t>(x)
-#define UINT32_POF2_FLOOR(x) ::math::int_pof2_floor<uint32_t>(x)
+#define INT32_POF2_FLOOR_CONSTEXPR(x)               ::math::int32_pof2_floor<x>::value
+#define UINT32_POF2_FLOOR_CONSTEXPR(x)              ::math::uint32_pof2_floor<x>::value
+#define INT32_POF2_CEIL_CONSTEXPR(x)                ::math::int32_pof2_ceil<x>::value
+#define UINT32_POF2_CEIL_CONSTEXPR(x)               ::math::uint32_pof2_ceil<x>::value
 
-#define INT32_LOG2_FLOOR_ASSERT(x) ::math::int_log2_floor_assert<int32_t>(x)
-#define UINT32_LOG2_FLOOR_ASSERT(x) ::math::int_log2_floor_assert<uint32_t>(x)
+#define INT32_LOG2_CONSTEXPR_VERIFY(x)              ::math::int32_log2_verify<x>::value
+#define UINT32_LOG2_CONSTEXPR_VERIFY(x)             ::math::uint32_log2_verify<x>::value
 
-#define INT32_POF2_FLOOR_ASSERT(x) ::math::int_pof2_floor_assert<int32_t>(x)
-#define UINT32_POF2_FLOOR_ASSERT(x) ::math::int_pof2_floor_assert<uint32_t>(x)
+#define INT32_POF2_CONSTEXPR_VERIFY(x)              ::math::int32_pof2_verify<x>::value
+#define UINT32_POF2_CONSTEXPR_VERIFY(x)             ::math::uint32_pof2_verify<x>::value
 
-#if ERROR_IF_EMPTY_PP_DEF(ENABLE_POF2_DEFINITIONS)
 
-#define INT32_MULT_POF2(x, y) int32_t(int32_t(x) << INT32_LOG2_FLOOR_ASSERT(y))
-#define UINT32_MULT_POF2(x, y) uint32_t(uint32_t(x) << UINT32_LOG2_FLOOR_ASSERT(y))
+#define INT32_LOG2_FLOOR(x)                         ::math::int_log2_floor<int32_t>(x)
+#define UINT32_LOG2_FLOOR(x)                        ::math::int_log2_floor<uint32_t>(x)
+#define INT32_LOG2_CEIL(x)                          ::math::int_log2_ceil<int32_t>(x)
+#define UINT32_LOG2_CEIL(x)                         ::math::int_log2_ceil<uint32_t>(x)
 
-#define INT32_DIV_POF2(x, y) int32_t(int32_t(x) >> INT32_LOG2_FLOOR_ASSERT(y))
-#define UINT32_DIV_POF2(x, y) uint32_t(uint32_t(x) >> UINT32_LOG2_FLOOR_ASSERT(y))
+#define INT32_POF2_FLOOR(x)                         ::math::int_pof2_floor<int32_t>(x)
+#define UINT32_POF2_FLOOR(x)                        ::math::int_pof2_floor<uint32_t>(x)
+#define INT32_POF2_CEIL(x)                          ::math::int_pof2_ceil<int32_t>(x)
+#define UINT32_POF2_CEIL(x)                         ::math::int_pof2_ceil<uint32_t>(x)
 
-#define INT32_DIVREM_POF2(x, y) ::math::divrem<int32_t>{ int32_t(x) >> INT32_LOG2_FLOOR_ASSERT(y), int32_t(x) & (INT32_POF2_FLOOR_ASSERT(y) - 1) }
-#define UINT32_DIVREM_POF2(x, y) ::math::divrem<uint32_t>{ uint32_t(x) >> UINT32_LOG2_FLOOR_ASSERT(y), uint32_t(x) & (UINT32_POF2_FLOOR_ASSERT(y) - 1) }
+#define INT32_LOG2_FLOOR_VERIFY(x)                  ::math::int_log2_floor_verify<int32_t>(x)
+#define UINT32_LOG2_FLOOR_VERIFY(x)                 ::math::int_log2_floor_verify<uint32_t>(x)
+#define INT32_LOG2_CEIL_VERIFY(x)                   ::math::int_log2_ceil_verify<int32_t>(x)
+#define UINT32_LOG2_CEIL_VERIFY(x)                  ::math::int_log2_ceil_verify<uint32_t>(x)
 
-#else
+#define INT32_POF2_FLOOR_VERIFY(x)                  ::math::int_pof2_floor_verify<int32_t>(x)
+#define UINT32_POF2_FLOOR_VERIFY(x)                 ::math::int_pof2_floor_verify<uint32_t>(x)
+#define INT32_POF2_CEIL_VERIFY(x)                   ::math::int_pof2_ceil_verify<int32_t>(x)
+#define UINT32_POF2_CEIL_VERIFY(x)                  ::math::int_pof2_ceil_verify<uint32_t>(x)
 
-#define INT32_MULT_POF2(x, y) int32_t(int32_t(x) * INT32_POF2_FLOOR_ASSERT(y))
-#define UINT32_MULT_POF2(x, y) uint32_t(uint32_t(x) * UINT32_POF2_FLOOR_ASSERT(y))
 
-#define INT32_DIV_POF2(x, y) int32_t(int32_t(x) / INT32_POF2_FLOOR_ASSERT(y))
-#define UINT32_DIV_POF2(x, y) uint32_t(uint32_t(x) / UINT32_POF2_FLOOR_ASSERT(y))
+#define INT32_MULT_POF2_FLOOR_CONSTEXPR(x, y)       int32_t(int32_t(x) << INT32_LOG2_FLOOR_CONSTEXPR(y))
+#define UINT32_MULT_POF2_FLOOR_CONSTEXPR(x, y)      uint32_t(uint32_t(x) << UINT32_LOG2_FLOOR_CONSTEXPR(y))
+#define INT32_MULT_POF2_CEIL_CONSTEXPR(x, y)        int32_t(int32_t(x) << INT32_LOG2_CEIL_CONSTEXPR(y))
+#define UINT32_MULT_POF2_CEIL_CONSTEXPR(x, y)       uint32_t(uint32_t(x) << UINT32_LOG2_CEIL_CONSTEXPR(y))
 
-#define INT32_DIVREM_POF2(x, y) ::math::divrem<int32_t>{ int32_t(x) / INT32_POF2_FLOOR_ASSERT(y), int32_t(x) % INT32_POF2_FLOOR_ASSERT(y) }
-#define UINT32_DIVREM_POF2(x, y) ::math::divrem<uint32_t>{ uint32_t(x) / UINT32_POF2_FLOOR_ASSERT(y), uint32_t(x) % UINT32_POF2_FLOOR_ASSERT(y) }
+#define INT32_MULT_POF2_CONSTEXPR_VERIFY(x, y)      int32_t(int32_t(x) << INT32_LOG2_CONSTEXPR_VERIFY(y))
+#define UINT32_MULT_POF2_CONSTEXPR_VERIFY(x, y)     uint32_t(uint32_t(x) << UINT32_LOG2_CONSTEXPR_VERIFY(y))
 
-#endif
+#define INT32_DIV_POF2_FLOOR_CONSTEXPR(x, y)        int32_t(int32_t(x) >> INT32_LOG2_FLOOR_CONSTEXPR(y))
+#define UINT32_DIV_POF2_FLOOR_CONSTEXPR(x, y)       uint32_t(uint32_t(x) >> UINT32_LOG2_FLOOR_CONSTEXPR(y))
+#define INT32_DIV_POF2_CEIL_CONSTEXPR(x, y)         int32_t(int32_t(x) >> INT32_LOG2_CEIL_CONSTEXPR(y))
+#define UINT32_DIV_POF2_CEIL_CONSTEXPR(x, y)        uint32_t(uint32_t(x) >> UINT32_LOG2_CEIL_CONSTEXPR(y))
+
+#define INT32_DIV_POF2_CONSTEXPR_VERIFY(x, y)       int32_t(int32_t(x) >> INT32_LOG2_CONSTEXPR_VERIFY(y))
+#define UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y)      uint32_t(uint32_t(x) >> UINT32_LOG2_CONSTEXPR_VERIFY(y))
+
+#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
+#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
+#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)    ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)   ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+
+#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y)  ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
+#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y) ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
+#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+
+#define INT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), int32_t(x) & (INT32_POF2_CONSTEXPR_VERIFY(y) - 1) }
+#define UINT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CONSTEXPR_VERIFY(y) - 1) }
+
+
+#define INT32_MULT_POF2_FLOOR(x, y)                 int32_t(int32_t(x) << INT32_LOG2_FLOOR(y))
+#define UINT32_MULT_POF2_FLOOR(x, y)                uint32_t(uint32_t(x) << UINT32_LOG2_FLOOR(y))
+#define INT32_MULT_POF2_CEIL(x, y)                  int32_t(int32_t(x) << INT32_LOG2_CEIL(y))
+#define UINT32_MULT_POF2_CEIL(x, y)                 uint32_t(uint32_t(x) << UINT32_LOG2_CEIL(y))
+
+#define INT32_MULT_POF2_FLOOR_VERIFY(x, y)          int32_t(int32_t(x) << INT32_LOG2_FLOOR_VERIFY(y))
+#define UINT32_MULT_POF2_FLOOR_VERIFY(x, y)         uint32_t(uint32_t(x) << UINT32_LOG2_FLOOR_VERIFY(y))
+#define INT32_MULT_POF2_CEIL_VERIFY(x, y)           int32_t(int32_t(x) << INT32_LOG2_CEIL_VERIFY(y))
+#define UINT32_MULT_POF2_CEIL_VERIFY(x, y)          uint32_t(uint32_t(x) << UINT32_LOG2_CEIL_VERIFY(y))
+
+#define INT32_DIV_POF2_FLOOR(x, y)                  int32_t(int32_t(x) >> INT32_LOG2_FLOOR(y))
+#define UINT32_DIV_POF2_FLOOR(x, y)                 uint32_t(uint32_t(x) >> UINT32_LOG2_FLOOR(y))
+#define INT32_DIV_POF2_CEIL(x, y)                   int32_t(int32_t(x) >> INT32_LOG2_CEIL(y))
+#define UINT32_DIV_POF2_CEIL(x, y)                  uint32_t(uint32_t(x) >> UINT32_LOG2_CEIL(y))
+
+#define INT32_DIV_POF2_FLOOR_VERIFY(x, y)           int32_t(int32_t(x) >> INT32_LOG2_FLOOR_VERIFY(y))
+#define UINT32_DIV_POF2_FLOOR_VERIFY(x, y)          uint32_t(uint32_t(x) >> UINT32_LOG2_FLOOR_VERIFY(y))
+#define INT32_DIV_POF2_CEIL_VERIFY(x, y)            int32_t(int32_t(x) >> INT32_LOG2_CEIL_VERIFY(y))
+#define UINT32_DIV_POF2_CEIL_VERIFY(x, y)           uint32_t(uint32_t(x) >> UINT32_LOG2_CEIL_VERIFY(y))
+
+#define INT32_DIVREM_POF2_FLOOR(x, y)               ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR(y) - 1) }
+#define UINT32_DIVREM_POF2_FLOOR(x, y)              ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR(y) - 1) }
+#define INT32_DIVREM_POF2_CEIL(x, y)                ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL(y) - 1) }
+#define UINT32_DIVREM_POF2_CEIL(x, y)               ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL(y) - 1) }
+
+#define INT32_DIVREM_POF2_FLOOR_VERIFY(x, y)        ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_VERIFY(x, y), int32_t(x) & (INT32_POF2_FLOOR_VERIFY(y) - 1) }
+#define UINT32_DIVREM_POF2_FLOOR_VERIFY(x, y)       ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_VERIFY(y) - 1) }
+#define INT32_DIVREM_POF2_CEIL_VERIFY(x, y)         ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_VERIFY(x, y), int32_t(x) & (INT32_POF2_CEIL_VERIFY(y) - 1) }
+#define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) }
 
 
 namespace math
@@ -101,42 +163,11 @@ namespace math
         T rem;
     };
 
-    template<int32_t x>
-    struct int32_log2 {
-        STATIC_ASSERT_GT(x, 0, "value must be positive");
-        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
-        static const int32_t value = (int32_log2<x / 2>::value + 1);
-    };
+    //// constexpr log2 floor
 
     template<int32_t x>
-    const int32_t int32_log2<x>::value;
-
-    template<>
-    struct int32_log2<0>;
-    template<>
-    struct int32_log2<1> {
-        static const int32_t value = 0;
-    };
-
-    template<uint32_t x>
-    struct uint32_log2 {
-        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
-        static const uint32_t value = (uint32_log2<x / 2>::value + 1);
-    };
-
-    template<uint32_t x> 
-    const uint32_t uint32_log2<x>::value;
-
-    template<>
-    struct uint32_log2<0>;
-    template<>
-    struct uint32_log2<1> {
-        static const uint32_t value = 0;
-    };
-
-
-    template<int32_t x>
-    struct int32_log2_floor {
+    struct int32_log2_floor
+    {
         STATIC_ASSERT_GT(x, 0, "value must be positive");
         static const int32_t value = (int32_log2_floor<x / 2>::value + 1);
     };
@@ -147,12 +178,14 @@ namespace math
     template<>
     struct int32_log2_floor<0>;
     template<>
-    struct int32_log2_floor<1> {
+    struct int32_log2_floor<1>
+    {
         static const int32_t value = 0;
     };
 
     template<uint32_t x>
-    struct uint32_log2_floor {
+    struct uint32_log2_floor
+    {
         static const uint32_t value = (uint32_log2_floor<x / 2>::value + 1);
     };
 
@@ -162,13 +195,16 @@ namespace math
     template<>
     struct uint32_log2_floor<0>;
     template<>
-    struct uint32_log2_floor<1> {
+    struct uint32_log2_floor<1>
+    {
         static const uint32_t value = 0;
     };
 
+    //// constexpr log2 ceil
 
     template<int32_t x>
-    struct int32_log2_ceil {
+    struct int32_log2_ceil
+    {
         STATIC_ASSERT_GT(x, 0, "value must be positive");
         STATIC_ASSERT_TRUE2(int32_max / 2 >= x, int32_max, x, "value is too big");
         static const int32_t value = (int32_log2_floor<(x + x - 1) / 2>::value + 1);
@@ -180,12 +216,14 @@ namespace math
     template<>
     struct int32_log2_ceil<0>;
     template<>
-    struct int32_log2_ceil<1> {
+    struct int32_log2_ceil<1>
+    {
         static const int32_t value = 0;
     };
 
     template<uint32_t x>
-    struct uint32_log2_ceil {
+    struct uint32_log2_ceil
+    {
         STATIC_ASSERT_TRUE2(uint32_max / 2 >= x, uint32_max, x, "value is too big");
         static const uint32_t value = (uint32_log2_floor<(x + x - 1) / 2>::value + 1);
     };
@@ -196,33 +234,47 @@ namespace math
     template<>
     struct uint32_log2_ceil<0>;
     template<>
-    struct uint32_log2_ceil<1> {
+    struct uint32_log2_ceil<1>
+    {
         static const uint32_t value = 0;
     };
 
+    //// constexpr log2 assert
 
     template<int32_t x>
-    struct int32_if_pof2
+    struct int32_log2_verify
     {
         STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
-        static const int32_t value = x;
+        static const int32_t value = int32_log2_floor<x>::value;
     };
 
     template<int32_t x>
-    const int32_t int32_if_pof2<x>::value;
+    const int32_t int32_log2_verify<x>::value;
 
     template<uint32_t x>
-    struct uint32_if_pof2
+    struct uint32_log2_verify
     {
         STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
-        static const uint32_t value = x;
+        static const uint32_t value = uint32_log2_floor<x>::value;;
     };
 
     template<uint32_t x>
-    const uint32_t uint32_if_pof2<x>::value;
+    const uint32_t uint32_log2_verify<x>::value;
 
+    //// constexpr pof2 floor
 
-    // closest lowest power of 2
+    template<int32_t x>
+    struct int32_pof2_floor
+    {
+        static const int32_t value = int32_t(uint32_pof2_floor<uint32_t(x)>::value);
+    };
+
+    template<>
+    struct int32_pof2_floor<0>;
+
+    template<int32_t x>
+    const int32_t int32_pof2_floor<x>::value;
+
     template<uint32_t x>
     struct uint32_pof2_floor
     {
@@ -241,32 +293,17 @@ namespace math
     template<uint32_t x>
     const uint32_t uint32_pof2_floor<x>::value;
 
-    FORCE_INLINE uint32_t pof2_floor(uint32_t x)
-    {
-        if (!VERIFY_TRUE(x)) return 0;
-
-        uint32_t x_ = x | (x >> 1);
-        x_ |= (x_ >> 2);
-        x_ |= (x_ >> 4);
-        x_ |= (x_ >> 8);
-        x_ |= (x_ >> 16);
-
-        return (x_ >> 1) + 1;
-    }
+    //// constexpr pof2 ceil
 
     template<int32_t x>
-    struct int32_pof2_floor
+    struct int32_pof2_ceil
     {
-        static const int32_t value = int32_t(uint32_pof2_floor<uint32_t(x)>::value);
+        static const int32_t value = int32_t(uint32_pof2_ceil<uint32_t(x)>::value);
     };
 
-    template<>
-    struct int32_pof2_floor<0>;
-
     template<int32_t x>
-    const int32_t int32_pof2_floor<x>::value;
+    const int32_t int32_pof2_ceil<x>::value;
 
-    // closest greatest power of 2
     template<uint32_t x>
     struct uint32_pof2_ceil
     {
@@ -277,20 +314,28 @@ namespace math
     template<uint32_t x>
     const uint32_t uint32_pof2_ceil<x>::value;
 
-    FORCE_INLINE uint32_t pof2_ceil(uint32_t x)
-    {
-        const uint32_t x_po2_floor = pof2_floor(x);
-        return x_po2_floor != x ? x_po2_floor << 1 : x_po2_floor;
-    }
+    //// constexpr pof2 assert
 
     template<int32_t x>
-    struct int32_pof2_ceil
+    struct int32_pof2_verify
     {
-        static const int32_t value = int32_t(uint32_pof2_ceil<uint32_t(x)>::value);
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
+        static const int32_t value = x;
     };
 
     template<int32_t x>
-    const int32_t int32_pof2_ceil<x>::value;
+    const int32_t int32_pof2_verify<x>::value;
+
+    template<uint32_t x>
+    struct uint32_pof2_verify
+    {
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
+        static const uint32_t value = x;
+    };
+
+    template<uint32_t x>
+    const uint32_t uint32_pof2_verify<x>::value;
+
 
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
@@ -394,10 +439,33 @@ namespace math
         return sum_naturals(to) - sum_naturals(from - 1);
     }
 
+    //// runtime pof2 floor
+
+    FORCE_INLINE uint32_t pof2_floor(uint32_t x)
+    {
+        if (!VERIFY_TRUE(x)) return 0;
+
+        uint32_t x_ = x | (x >> 1);
+        x_ |= (x_ >> 2);
+        x_ |= (x_ >> 4);
+        x_ |= (x_ >> 8);
+        x_ |= (x_ >> 16);
+
+        return (x_ >> 1) + 1;
+    }
+
+    FORCE_INLINE uint32_t pof2_ceil(uint32_t x)
+    {
+        const uint32_t pof2_floor_value = pof2_floor(x);
+
+        return pof2_floor_value != x ? pof2_floor_value << 1 : pof2_floor_value;
+    }
+
     template <typename T>
     FORCE_INLINE T int_pof2_floor(T v)
     {
-        BASIC_ASSERT_GT(v, T(0));
+        STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes");
+        DEBUG_ASSERT_GT(v, T(0));
 
         using unsigned_type = typename std::make_unsigned<T>::type;
 
@@ -415,70 +483,151 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_pof2_ceil(T v)
     {
-        BASIC_ASSERT_GT(v, T(0));
-        BASIC_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
+        DEBUG_ASSERT_GT(v, T(0));
+        DEBUG_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
 
-        const auto floor_value = int_pof2_floor(v);
-        return T(floor_value != v ? (floor_value << 1) : floor_value);
+        const auto pof2_floor_value = int_pof2_floor(v);
+
+        return T(pof2_floor_value != v ? (pof2_floor_value << 1) : pof2_floor_value);
     }
 
+    //// runtime pof2 floor assert
+
     template <typename T>
-    FORCE_INLINE T int_pof2_floor_assert(T v)
+    FORCE_INLINE T int_pof2_floor_verify(T v)
     {
-        BASIC_ASSERT_EQ(int_pof2_floor(v), v);
+        DEBUG_ASSERT_EQ(int_pof2_floor(v), v);
         return int_pof2_floor(v);
     }
 
+    //// runtime pof2 ceil assert
+
     template <typename T>
-    FORCE_INLINE T int_pof2_ceil_assert(T v)
+    FORCE_INLINE T int_pof2_ceil_verify(T v)
     {
-        BASIC_ASSERT_EQ(int_pof2_ceil(v), v);
+        DEBUG_ASSERT_EQ(int_pof2_ceil(v), v);
         return int_pof2_ceil(v);
     }
 
-    template <typename T>
-    FORCE_INLINE T int_log2_floor(T v)
-    {
-        BASIC_ASSERT_GT(v, T(0));
+    //// runtime log2 floor
 
-        if (1 >= v) return 0;
+    template <typename T>
+    FORCE_INLINE T int_log2_floor(T v, T * pof2_value_ptr = nullptr)
+    {
+        STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes");
+        DEBUG_ASSERT_GT(v, T(0));
+
+        if (1 >= v) {
+            if (pof2_value_ptr) {
+                if (v >= 0) {
+                    *pof2_value_ptr = v;
+                }
+                else {
+                    *pof2_value_ptr = 0;
+                }
+            }
+            return 0;
+        }
+
+        T pof2_prev_value = int_pof2_floor(v);
+        if (pof2_value_ptr) {
+            *pof2_value_ptr = pof2_prev_value;
+        }
 
         T ret = 0;
-        T i = v;
 
-        // unrolled recursion
-        do {
-            ++ret;
-            i /= 2;
-        } while (i >= 2);
+        // unrolled recursion including unrolled loops
+        T pof2_next_value = (pof2_prev_value >> 16);
+
+        if (pof2_next_value) {
+            ret += 16;
+            pof2_prev_value = pof2_next_value;
+            pof2_next_value >>= 8;
+        }
+        else pof2_next_value = (pof2_prev_value >> 8);
+
+        if (pof2_next_value) {
+            ret += 8;
+            pof2_prev_value = pof2_next_value;
+            pof2_next_value >>= 4;
+        }
+        else {
+            pof2_next_value = (pof2_prev_value >> 4);
+        }
+
+        if (pof2_next_value) {
+            ret += 4;
+            pof2_prev_value = pof2_next_value;
+            pof2_next_value >>= 2;
+        }
+        else {
+            pof2_next_value = (pof2_prev_value >> 2);
+        }
+
+        if (pof2_next_value) {
+            ret += 2;
+            pof2_next_value >>= 1;
+        }
+        else {
+            pof2_next_value = (pof2_prev_value >> 1);
+        }
+
+        if (pof2_next_value) ret++;
 
         return ret;
     }
 
+    //// runtime log2 ceil
+
     template <typename T>
-    FORCE_INLINE T int_log2_ceil(T v)
+    FORCE_INLINE T int_log2_ceil(T v, T * pof2_value_ptr = nullptr)
     {
-        BASIC_ASSERT_GT(v, T(0));
-        BASIC_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
+        DEBUG_ASSERT_GT(v, T(0));
+        DEBUG_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
 
-        if (1 >= v) return 0;
+        if (1 >= v) {
+            if (pof2_value_ptr) {
+                if (v >= 0) {
+                    *pof2_value_ptr = v;
+                }
+                else {
+                    *pof2_value_ptr = 0;
+                }
+            }
+            return 0;
+        }
 
-        return T((v >= 2 ? int_log2_floor((v + v - 1) / 2) : 0) + 1);
+        if (pof2_value_ptr) {
+            T pof2_floor_value;
+
+            const T log2_floor_value = int_log2_floor(v - 1, &pof2_floor_value);
+
+            *pof2_value_ptr = T(pof2_floor_value << 1);
+
+            return log2_floor_value + 1;
+        }
+
+        return T(int_log2_floor(v - 1) + 1);
     }
 
+    //// runtime log2 floor assert
+
     template <typename T>
-    FORCE_INLINE T int_log2_floor_assert(T v)
+    FORCE_INLINE T int_log2_floor_verify(T v)
     {
-        BASIC_ASSERT_EQ(int_pof2_floor(v), v);
+        DEBUG_ASSERT_EQ(int_pof2_floor(v), v);
         return int_log2_floor(v);
     }
 
+    //// runtime log2 ceil assert
+
     template <typename T>
-    FORCE_INLINE T int_log2_ceil_assert(T v)
+    FORCE_INLINE T int_log2_ceil_verify(T v)
     {
-        BASIC_ASSERT_EQ(int_pof2_ceil(v), v);
+        DEBUG_ASSERT_EQ(int_pof2_ceil(v), v);
         return int_log2_ceil(v);
     }
+
 
     // inclusion_direction:
     //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
@@ -486,11 +635,11 @@ namespace math
     //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
     extern inline double normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction)
     {
-        BASIC_ASSERT_LT(min_ang, max_ang);
-        BASIC_ASSERT_GT(ang_period_mod, 0U); // must be always positive
+        DEBUG_ASSERT_LT(min_ang, max_ang);
+        DEBUG_ASSERT_GT(ang_period_mod, 0U); // must be always positive
 
-        BASIC_ASSERT_GE(min_ang, -ang_period_mod);
-        BASIC_ASSERT_GE(+ang_period_mod, max_ang);
+        DEBUG_ASSERT_GE(min_ang, -ang_period_mod);
+        DEBUG_ASSERT_GE(+ang_period_mod, max_ang);
 
         if (!BASIC_VERIFY_TRUE(inclusion_direction >= -1 && +1 >= inclusion_direction)) {
             // just in case

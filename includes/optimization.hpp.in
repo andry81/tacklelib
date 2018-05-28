@@ -11,5 +11,3 @@
 #define ENABLE_FORCE_NO_INLINE 1    // defines FORCE_NO_INLINE in to builtin instruction to force entity to not inline
 
 #define ENABLE_INTRINSIC 1          // use builtin implementation (intrinsic) instead externally linked
-
-#define ENABLE_POF2_DEFINITIONS 1   // enables optimized version of the power-of-2 macroses instead of straight implementation

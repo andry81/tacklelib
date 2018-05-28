@@ -73,12 +73,18 @@ namespace utility
         static const bool value = (v ? true : false);
     };
 
+    template <typename T, T v>
+    const bool StaticAssertTrue<T, v>::value;
+
     template <typename T, T v, typename ...Params>
     struct StaticAssertTrue
     {
         static const bool value = (v ? true : false);
         static_assert(v ? true : false, "StaticAssertTrue with parameters failed.");
     };
+
+    template <typename T, T v, typename ...Params>
+    const bool StaticAssertTrue<T, v, Params...>::value;
 
     template <typename T, T v, typename ...Params>
     struct StaticAssertFalse;
@@ -89,6 +95,9 @@ namespace utility
         static const bool value = (v ? false : true);
     };
 
+    template <typename T, T v>
+    const bool StaticAssertFalse<T, v>::value;
+
     template <typename T, T v, typename ...Params>
     struct StaticAssertFalse
     {
@@ -96,6 +105,9 @@ namespace utility
         // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
+
+    template <typename T, T v, typename ...Params>
+    const bool StaticAssertFalse<T, v, Params...>::value;
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertEQ
@@ -106,12 +118,18 @@ namespace utility
     };
 
     template <typename U, typename V, U u, V v>
+    const bool StaticAssertEQ<U, V, u, v>::value;
+
+    template <typename U, typename V, U u, V v>
     struct StaticAssertNE
     {
         static const bool value = (u != v);
         // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u != v, "StaticAssertNE failed.");
     };
+
+    template <typename U, typename V, U u, V v>
+    const bool StaticAssertNE<U, V, u, v>::value;
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertLE
@@ -122,12 +140,18 @@ namespace utility
     };
 
     template <typename U, typename V, U u, V v>
+    const bool StaticAssertLE<U, V, u, v>::value;
+
+    template <typename U, typename V, U u, V v>
     struct StaticAssertLT
     {
         static const bool value = (u < v);
         // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u < v, "StaticAssertLT failed.");
     };
+
+    template <typename U, typename V, U u, V v>
+    const bool StaticAssertLT<U, V, u, v>::value;
 
     template <typename U, typename V, U u, V v>
     struct StaticAssertGE
@@ -138,12 +162,18 @@ namespace utility
     };
 
     template <typename U, typename V, U u, V v>
+    const bool StaticAssertGE<U, V, u, v>::value;
+
+    template <typename U, typename V, U u, V v>
     struct StaticAssertGT
     {
         static const bool value = (u > v);
         // doublicate the error, to provoke compiler include complete error stack from here
         static_assert(u > v, "StaticAssertGT failed.");
     };
+
+    template <typename U, typename V, U u, V v>
+    const bool StaticAssertGT<U, V, u, v>::value;
 
     // to compare strings in static_assert (see for details: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time)
     constexpr bool static_strings_equal(char const * a, char const * b)

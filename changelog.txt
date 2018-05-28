@@ -1,3 +1,15 @@
+2018.05.29:
+* fixed: missed implementation in the static assert header
+* fixed: invalid assert usage in math functions (`BASIC_ASSERT_*` instead of `DEBUG_ASSERT_*`)
+* new: `UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR` macros to suppress optimizations around variables or return values in the Release
+* changed: `int_log2_floor` function loop unroll (debug builtin optimization)
+* changed: permanently enabled POF2 definitions
+* changed: `boost::aligned_storage` usage replaced by `std::aligned_storage` to detach public headers from boost headers (C++11)
+* refactor: more optimized POF2 definitions for constexpr and runtime cases
+
+2018.05.27:
+* fixed: `DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE` usage
+
 2018.05.22:
 * changed: debug.hpp/optimization.hpp definitions check changed from #ifdef/#ifndef into #if/#if! as more safe
 * changed: minor improvement

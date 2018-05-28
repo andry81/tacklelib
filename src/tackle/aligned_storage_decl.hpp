@@ -16,8 +16,6 @@
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/cat.hpp>
 
-#include <boost/aligned_storage.hpp>
-
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_convertible.hpp>
@@ -45,6 +43,7 @@
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
 
+#include <type_traits>
 #include <new>
 #include <stdexcept>
 
@@ -83,7 +82,7 @@ namespace tackle
         static const size_t size_value = sizeof(storage_type_t);
         static const size_t alignment_value = boost::alignment_of<storage_type_t>::value;
 
-        using aligned_storage_t = boost::aligned_storage<size_value, alignment_value>;
+        using aligned_storage_t = std::aligned_storage<size_value, alignment_value>;
 
         FORCE_INLINE aligned_storage_from(bool enable_unconstructed_copy_ = false)
         {
@@ -290,7 +289,7 @@ namespace tackle
         static const size_t size_value = t_size_value;
         static const size_t alignment_value = t_alignment_value;
 
-        using aligned_storage_t = boost::aligned_storage<size_value, alignment_value>;
+        using aligned_storage_t = std::aligned_storage<size_value, alignment_value>;
 
         STATIC_ASSERT_GT(size_value, 1, "size_value must be strictly positive value");
         STATIC_ASSERT_TRUE2(alignment_value > 1 && size_value >= alignment_value,
@@ -583,7 +582,7 @@ namespace tackle
             max_alignment_value, max_size_value,
             "max_alignment_value must be strictly positive value and not greater than max_size_value");
 
-        using max_aligned_storage_t = boost::aligned_storage<max_size_value, max_alignment_value>;
+        using max_aligned_storage_t = std::aligned_storage<max_size_value, max_alignment_value>;
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index = -1);
         template <typename Ref>
