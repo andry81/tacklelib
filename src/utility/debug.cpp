@@ -15,6 +15,13 @@ static void signal_handler(int) { }
 
 namespace utility {
 
+const volatile void * volatile g_unused_param_storage_ptr = nullptr;
+
+void UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION unused_param(const volatile void * p)
+{
+    g_unused_param_storage_ptr = p;
+}
+
 void debug_break(bool condition)
 {
     DEBUG_BREAK(condition && is_under_debugger()); // avoid signal if not under debugger
