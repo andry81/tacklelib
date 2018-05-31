@@ -4,6 +4,8 @@
 #ifndef TACKLE_ALIGNED_STORAGE_BASE_HPP
 #define TACKLE_ALIGNED_STORAGE_BASE_HPP
 
+#include <tacklelib.hpp>
+
 #include <utility/platform.hpp>
 #include <utility/utility.hpp>
 

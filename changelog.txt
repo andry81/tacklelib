@@ -1,3 +1,6 @@
+2018.05.30:
+* new: `compressed_type` and `call_traits` based on `boost` library implementation
+
 2018.05.29:
 * fixed: missed implementation in the static assert header
 * fixed: invalid assert usage in math functions (`BASIC_ASSERT_*` instead of `DEBUG_ASSERT_*`)

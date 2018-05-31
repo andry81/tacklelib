@@ -35,7 +35,7 @@ namespace tackle
         }
         else {
             // make construction
-            ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(r.m_storage.address()));
+            ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
 
             // flag construction
             base_t::set_constructed(true);
@@ -61,7 +61,7 @@ namespace tackle
         }
 
         // make assignment
-        *static_cast<storage_type_t *>(m_storage.address()) = *static_cast<const storage_type_t *>(r.m_storage.address());
+        *utility::cast_addressof<storage_type_t *>(m_storage) = *utility::cast_addressof<const storage_type_t *>(r.m_storage);
 
         return *this;
     }
@@ -71,7 +71,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (m_storage.address()) storage_type_t();
+        ::new (std::addressof(m_storage)) storage_type_t();
 
         // flag construction
         base_t::set_constructed(true);
@@ -83,7 +83,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (m_storage.address()) storage_type_t(r);
+        ::new (std::addressof(m_storage)) storage_type_t(r);
 
         // flag construction
         base_t::set_constructed(true);
@@ -95,7 +95,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (m_storage.address()) storage_type_t(r);
+        ::new (std::addressof(m_storage)) storage_type_t(r);
 
         // flag construction
         base_t::set_constructed(true);
@@ -108,7 +108,7 @@ namespace tackle
 
         base_t::set_constructed(false);
 
-        static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
+        utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t();
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
@@ -117,7 +117,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *static_cast<storage_type_t *>(m_storage.address()) = r;
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
@@ -126,7 +126,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *static_cast<storage_type_t *>(m_storage.address()) = r;
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
@@ -135,7 +135,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *static_cast<storage_type_t *>(m_storage.address()) = r;
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
@@ -144,7 +144,7 @@ namespace tackle
     {
         ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *static_cast<storage_type_t *>(m_storage.address()) = r;
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
     }
 
     //// max_aligned_storage_from_mpl_container
@@ -165,7 +165,7 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            ::new (m_storage.address()) storage_type_t(); \
+            ::new (std::addressof(m_storage)) storage_type_t(); \
             m_type_index = type_index; \
         } else goto default_
 
@@ -193,7 +193,7 @@ namespace tackle
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             if (construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct(m_storage.address(), r, UTILITY_PP_FUNC, \
+                construct(std::addressof(m_storage), r, UTILITY_PP_FUNC, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -221,7 +221,7 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(s.address())); \
+            ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(s)); \
             m_type_index = s.m_type_index; \
         } else goto default_
 
@@ -252,7 +252,7 @@ namespace tackle
     #define TACKLE_PP_DESTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             m_type_index = -1; \
-            static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t(); \
+            utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t(); \
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
@@ -273,7 +273,7 @@ namespace tackle
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            auto & left_value = *static_cast<storage_type_t *>(m_storage.address()); \
+            auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             switch (s.type_index()) \
             { \
                 BOOST_PP_CAT(BOOST_PP_REPEAT_, z)(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_RIGHT) \
@@ -284,7 +284,7 @@ namespace tackle
 
     #define TACKLE_PP_ASSIGN_MACRO_RIGHT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            auto & right_value = *static_cast<const right_storage_type_t *>(s.address()); \
+            auto & right_value = *utility::cast_addressof<const right_storage_type_t *>(s); \
             left_value = right_value; \
         } \
         else goto default_
@@ -313,7 +313,7 @@ namespace tackle
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            auto & left_value = *static_cast<storage_type_t *>(m_storage.address()); \
+            auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             left_value = r; \
         } else goto default_
 
@@ -357,7 +357,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *static_cast<storage_type_t *>(m_storage.address()), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -382,7 +382,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return invoke_dispatcher<n, R, storage_types_t, storage_types_end_it_t, n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *static_cast<const storage_type_t *>(m_storage.address()), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 

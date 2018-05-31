@@ -35,6 +35,7 @@ includes/optimization.hpp.in -text
 includes/tackle/aligned_storage_base.hpp -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
+includes/tackle/compressed_pair.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
