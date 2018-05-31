@@ -12,6 +12,7 @@
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
+#include <utility/memory.hpp>
 
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/cat.hpp>
@@ -82,7 +83,7 @@ namespace tackle
         static const size_t size_value = sizeof(storage_type_t);
         static const size_t alignment_value = boost::alignment_of<storage_type_t>::value;
 
-        using aligned_storage_t = std::aligned_storage<size_value, alignment_value>;
+        using aligned_storage_t = typename std::aligned_storage<size_value, alignment_value>::type;
 
         FORCE_INLINE aligned_storage_from(bool enable_unconstructed_copy_ = false)
         {
@@ -114,7 +115,7 @@ namespace tackle
             }
             else {
                 // make construction
-                ::new (m_storage.address()) storage_type_t(*static_cast<const storage_type_t *>(r.m_storage.address()));
+                ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
 
                 // flag construction
                 base_t::set_constructed(true);
@@ -138,7 +139,7 @@ namespace tackle
             }
 
             // make assignment
-            *static_cast<storage_type_t *>(m_storage.address()) = *static_cast<const storage_type_t *>(r.m_storage.address());
+            *utility::cast_addressof<storage_type_t *>(m_storage) = *utility::cast_addressof<const storage_type_t *>(r.m_storage);
 
             return *this;
         }
@@ -148,7 +149,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (m_storage.address()) storage_type_t();
+            ::new (std::addressof(m_storage)) storage_type_t();
 
             // flag construction
             base_t::set_constructed(true);
@@ -159,7 +160,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (m_storage.address()) storage_type_t(r);
+            ::new (std::addressof(m_storage)) storage_type_t(r);
 
             // flag construction
             base_t::set_constructed(true);
@@ -170,7 +171,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (m_storage.address()) storage_type_t(r);
+            ::new (std::addressof(m_storage)) storage_type_t(r);
 
             // flag construction
             base_t::set_constructed(true);
@@ -182,7 +183,7 @@ namespace tackle
 
             base_t::set_constructed(false);
 
-            static_cast<storage_type_t *>(m_storage.address())->storage_type_t::~storage_type_t();
+            utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t();
         }
 
         template <typename Ref>
@@ -190,7 +191,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            *static_cast<storage_type_t *>(m_storage.address()) = r;
+            *utility::cast_addressof<storage_type_t *>(m_storage) = r;
         }
 
         template <typename Ref>
@@ -198,7 +199,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            *static_cast<storage_type_t *>(m_storage.address()) = r;
+            *utility::cast_addressof<storage_type_t *>(m_storage) = r;
         }
 
         template <typename Ref>
@@ -206,7 +207,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            *static_cast<storage_type_t *>(m_storage.address()) = r;
+            *utility::cast_addressof<storage_type_t *>(m_storage) = r;
         }
 
         template <typename Ref>
@@ -214,7 +215,7 @@ namespace tackle
         {
             ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            *static_cast<storage_type_t *>(m_storage.address()) = r;
+            *utility::cast_addressof<storage_type_t *>(m_storage) = r;
         }
 
         // storage redirection
@@ -224,7 +225,7 @@ namespace tackle
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
-            return static_cast<storage_type_t *>(m_storage.address());
+            return static_cast<storage_type_t *>(address());
         }
 
         FORCE_INLINE const storage_type_t * this_() const
@@ -233,7 +234,7 @@ namespace tackle
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
-            return reinterpret_cast<const storage_type_t *>(m_storage.address());
+            return reinterpret_cast<const storage_type_t *>(address());
         }
 
         FORCE_INLINE volatile storage_type_t * this_() volatile
@@ -256,22 +257,22 @@ namespace tackle
 
         FORCE_INLINE void * address()
         {
-            return m_storage.address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE const void * address() const
         {
-            return m_storage.address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE volatile void * address() volatile
         {
-            return const_cast<aligned_storage_t &>(m_storage).address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE const volatile void * address() const volatile
         {
-            return const_cast<const aligned_storage_t &>(m_storage).address();
+            return std::addressof(m_storage);
         }
 
     private:
@@ -289,7 +290,7 @@ namespace tackle
         static const size_t size_value = t_size_value;
         static const size_t alignment_value = t_alignment_value;
 
-        using aligned_storage_t = std::aligned_storage<size_value, alignment_value>;
+        using aligned_storage_t = typename std::aligned_storage<size_value, alignment_value>::type;
 
         STATIC_ASSERT_GT(size_value, 1, "size_value must be strictly positive value");
         STATIC_ASSERT_TRUE2(alignment_value > 1 && size_value >= alignment_value,
@@ -332,7 +333,7 @@ namespace tackle
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
-            return static_cast<storage_type_t *>(m_storage.address());
+            return static_cast<storage_type_t *>(address());
         }
 
         FORCE_INLINE const storage_type_t * this_() const
@@ -341,7 +342,7 @@ namespace tackle
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
             }
 
-            return reinterpret_cast<const storage_type_t *>(m_storage.address());
+            return reinterpret_cast<const storage_type_t *>(address());
         }
 
         FORCE_INLINE volatile storage_type_t * this_() volatile
@@ -364,22 +365,22 @@ namespace tackle
 
         FORCE_INLINE void * address()
         {
-            return m_storage.address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE const void * address() const
         {
-            return m_storage.address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE volatile void * address() volatile
         {
-            return const_cast<aligned_storage_t &>(m_storage).address();
+            return std::addressof(m_storage);
         }
 
         FORCE_INLINE const volatile void * address() const volatile
         {
-            return const_cast<const aligned_storage_t &>(m_storage).address();
+            return std::addressof(m_storage);
         }
 
     private:
@@ -582,7 +583,7 @@ namespace tackle
             max_alignment_value, max_size_value,
             "max_alignment_value must be strictly positive value and not greater than max_size_value");
 
-        using max_aligned_storage_t = std::aligned_storage<max_size_value, max_alignment_value>;
+        using max_aligned_storage_t = typename std::aligned_storage<max_size_value, max_alignment_value>::type;
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index = -1);
         template <typename Ref>
@@ -652,6 +653,8 @@ namespace tackle
 
         FORCE_INLINE void * address();
         FORCE_INLINE const void * address() const;
+        FORCE_INLINE volatile void * address() volatile;
+        FORCE_INLINE const volatile void * address() const volatile;
 
     private:
         int m_type_index;
@@ -695,13 +698,25 @@ namespace tackle
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address()
     {
-        return m_storage.address();
+        return std::addressof(m_storage);
     }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE const void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() const
     {
-        return m_storage.address();
+        return std::addressof(m_storage);
+    }
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type>
+    FORCE_INLINE volatile void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() volatile
+    {
+        return std::addressof(m_storage);
+    }
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type>
+    FORCE_INLINE const volatile void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() const volatile
+    {
+        return std::addressof(m_storage);
     }
 }
 
