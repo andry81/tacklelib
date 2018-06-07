@@ -136,7 +136,7 @@ namespace tackle
             protected std::remove_cv<T0>::type
         {
         public:
-            using base_type = std::remove_cv<T0>::type;
+            using base_type                 = typename std::remove_cv<T0>::type;
 
             using first_type                = T0;
             using second_type               = T1;
@@ -203,7 +203,7 @@ namespace tackle
             protected std::remove_cv<T1>::type
         {
         public:
-            using base_type = std::remove_cv<T1>::type;
+            using base_type                 = typename std::remove_cv<T1>::type;
 
             using first_type                = T0;
             using second_type               = T1;
@@ -271,8 +271,8 @@ namespace tackle
             protected std::remove_cv<T1>::type
         {
         public:
-            using base_type0                = std::remove_cv<T0>::type;
-            using base_type1                = std::remove_cv<T1>::type;
+            using base_type0                = typename std::remove_cv<T0>::type;
+            using base_type1                = typename std::remove_cv<T1>::type;
 
             using first_type                = T0;
             using second_type               = T1;
@@ -334,7 +334,7 @@ namespace tackle
         private details::compressed_pair_imp<T0, T1, details::compressed_pair_selector<
             T0,
             T1,
-            std::is_same<typename remove_cv<T0>::type, typename remove_cv<T1>::type>::value,
+            std::is_same<typename std::remove_cv<T0>::type, typename std::remove_cv<T1>::type>::value,
             std::is_empty<T0>::value,
             std::is_empty<T1>::value>::value
         >
@@ -343,7 +343,7 @@ namespace tackle
         using base_type = details::compressed_pair_imp<T0, T1, details::compressed_pair_selector<
             T0,
             T1,
-            std::is_same<typename remove_cv<T0>::type, typename remove_cv<T1>::type>::value,
+            std::is_same<typename std::remove_cv<T0>::type, typename std::remove_cv<T1>::type>::value,
             std::is_empty<T0>::value,
             std::is_empty<T1>::value>::value
         >;
@@ -409,7 +409,7 @@ namespace tackle
         private details::compressed_pair_imp<T, T, details::compressed_pair_selector<
             T,
             T,
-            std::is_same<typename remove_cv<T>::type, typename remove_cv<T>::type>::value,
+            std::is_same<typename std::remove_cv<T>::type, typename std::remove_cv<T>::type>::value,
             std::is_empty<T>::value,
             std::is_empty<T>::value>::value
         >
@@ -418,14 +418,14 @@ namespace tackle
        using base_type = details::compressed_pair_imp<T, T, details::compressed_pair_selector<
             T,
             T,
-            std::is_same<typename remove_cv<T>::type, typename remove_cv<T>::type>::value,
+            std::is_same<typename std::remove_cv<T>::type, typename std::remove_cv<T>::type>::value,
             std::is_empty<T>::value,
             std::is_empty<T>::value>::value
         >;
 
     public:
-        using first_type                = T0;
-        using second_type               = T1;
+        using first_type                = T;
+        using second_type               = T;
         using first_param_type          = typename utility::call_traits<first_type>::param_type;
         using second_param_type         = typename utility::call_traits<second_type>::param_type;
         using first_reference           = typename utility::call_traits<first_type>::reference;
@@ -468,9 +468,9 @@ namespace tackle
             return base_type::second();
         }
 
-        FORCE_INLINE void swap(::boost::compressed_pair<T,T> & p)
+        FORCE_INLINE void swap(compressed_pair<T,T> & p)
         {
-            base::swap(p);
+            base_type::swap(p);
         }
     };
 

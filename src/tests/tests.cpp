@@ -114,6 +114,8 @@ const test::TestCaseGtestFlags g_test_cases_gtest_flags[] = {
 #ifdef UNIT_TESTS
     DECLARE_TEST_CASE_FUNC(FunctionsTest, *, "", nullptr, 0),
 
+    DECLARE_TEST_CASE_FUNC(TackleDequeTest, *, "", nullptr, 0),
+
 // examples here...
 //
 //    DECLARE_TEST_CASE_CLASS(TestParseFromRefFile, test_00_from_file_name_pttn, parse_from_ref_file,

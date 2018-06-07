@@ -4,11 +4,13 @@
 
 #include <utility/utility.hpp>
 #include <utility/static_assert.hpp>
+#include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 #include <utility/math.hpp>
 #include <utility/algorithm.hpp>
 
 #include <tackle/aligned_storage.hpp>
+#include <tackle/deque.hpp>
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/list.hpp>
@@ -19,6 +21,7 @@
 #include <deque>
 #include <utility>
 #include <algorithm>
+#include <type_traits>
 
 
 namespace tackle
@@ -80,52 +83,128 @@ namespace tackle
             T buf[S];
         };
 
-        template <size_t, typename> struct deque_chunks_pof2_generator; // generator of the deque with the power of 2 sized chunks
-        template <size_t, typename> struct deque_chunk_const_iterators_pof2_generator; // generator of the deque const iterators from the power of 2 sized chunks
+    public:
+        using max_sizeof_t = mpl::size_t<(0x01U << (num_chunk_variants_t::value - 1))>;
 
-        template <typename V>
-        struct deque_chunks_pof2_generator<0, V>
+        // generator of the deque with the power of 2 sized chunks
+        template <template <typename, typename, typename> class, size_t, typename> struct tackle_deque_chunks_pof2_generator;
+        template <template <typename, typename> class, size_t, typename> struct std_deque_chunks_pof2_generator;
+
+        // generator of the deque const iterators from the power of 2 sized chunks
+        template <template <typename, typename, typename> class, size_t, typename> struct tackle_deque_chunk_const_iterators_pof2_generator;
+        template <template <typename, typename> class, size_t, typename> struct std_deque_chunk_const_iterators_pof2_generator;
+
+        template <template <typename, typename, typename> class TDequeContainer, typename V>
+        struct tackle_deque_chunks_pof2_generator<TDequeContainer, 0, V>
         {
             using type = V;
         };
 
-        template <size_t N, typename V>
-        struct deque_chunks_pof2_generator
-        {
-            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
-            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
-
-            using next_type_t = typename std::deque<chunk_type>;
-            using type = typename deque_chunks_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
-        };
-
-        template <typename V>
-        struct deque_chunk_const_iterators_pof2_generator<0, V>
+        template <template <typename, typename> class TDequeContainer, typename V>
+        struct std_deque_chunks_pof2_generator<TDequeContainer, 0, V>
         {
             using type = V;
         };
 
-        template <size_t N, typename V>
-        struct deque_chunk_const_iterators_pof2_generator
+        template <template <typename T_, typename Allocator0, typename Allocator1> class TDequeContainer, size_t N, typename V>
+        struct tackle_deque_chunks_pof2_generator
         {
             using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
             STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
 
-            using next_type_t = typename std::deque<chunk_type>::const_iterator;
-            using type = typename deque_chunk_const_iterators_pof2_generator<N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
+            using base_type = tackle::deque_base<chunk_type>;
+
+            using next_type_t = TDequeContainer<chunk_type, typename base_type::default_allocator_type0, typename base_type::default_allocator_type1>;
+            using type = typename tackle_deque_chunks_pof2_generator<TDequeContainer, N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
+        };
+
+        template <template <typename, typename> class TDequeContainer, size_t N, typename V>
+        struct std_deque_chunks_pof2_generator
+        {
+            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
+            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
+
+            using next_type_t = TDequeContainer<chunk_type, typename std::deque<chunk_type>::allocator_type>;
+            using type = typename std_deque_chunks_pof2_generator<TDequeContainer, N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
+        };
+
+
+        template <template <typename, typename, typename> class TDequeContainer, typename V>
+        struct tackle_deque_chunk_const_iterators_pof2_generator<TDequeContainer, 0, V>
+        {
+            using type = V;
+        };
+
+        template <template <typename, typename> class TDequeContainer, typename V>
+        struct std_deque_chunk_const_iterators_pof2_generator<TDequeContainer, 0, V>
+        {
+            using type = V;
+        };
+
+        template <template <typename, typename, typename> class TDequeContainer, size_t N, typename V>
+        struct tackle_deque_chunk_const_iterators_pof2_generator
+        {
+            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
+            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
+
+            using base_type = tackle::deque_base<chunk_type>;
+
+            using next_type_t = typename TDequeContainer<chunk_type, typename base_type::default_allocator_type0, typename base_type::default_allocator_type1>::const_iterator;
+            using type = typename tackle_deque_chunk_const_iterators_pof2_generator<TDequeContainer, N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
+        };
+
+        template <template <typename, typename> class TDequeContainer, size_t N, typename V>
+        struct std_deque_chunk_const_iterators_pof2_generator
+        {
+            using chunk_type = Chunk<(size_t(0x01) << (N - 1))>;
+            STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "Chunk should contain pure static array inside with out any gaps or padding");
+
+            using next_type_t = typename TDequeContainer<chunk_type, typename std::deque<chunk_type>::allocator_type>::const_iterator;
+            using type = typename std_deque_chunk_const_iterators_pof2_generator<TDequeContainer, N - 1, typename mpl::push_front<V, next_type_t>::type>::type;
         };
 
         using mpl_empty_container_t = mpl::list<>; // begin of mpl container usage
 
-        using deques_mpl_container_t = typename deque_chunks_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type;
-        using deque_const_iterators_mpl_container_t = typename deque_chunk_const_iterators_pof2_generator<num_chunk_variants_t::value, mpl_empty_container_t>::type;
+        using tackle_deques_mpl_container_t =
+            typename tackle_deque_chunks_pof2_generator<tackle::deque, num_chunk_variants_t::value, mpl_empty_container_t>::type;
+        using tackle_deque_const_iterators_mpl_container_t =
+            typename tackle_deque_chunk_const_iterators_pof2_generator<tackle::deque, num_chunk_variants_t::value, mpl_empty_container_t>::type;
+
+        using std_deques_mpl_container_t =
+            typename std_deque_chunks_pof2_generator<std::deque, num_chunk_variants_t::value, mpl_empty_container_t>::type;
+        using std_deque_const_iterators_mpl_container_t =
+            typename std_deque_chunk_const_iterators_pof2_generator<std::deque, num_chunk_variants_t::value, mpl_empty_container_t>::type;
+
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE)
+        using deque_const_iterators_mpl_container_t = tackle_deque_const_iterators_mpl_container_t;
+#else
+        using deque_const_iterators_mpl_container_t = std_deque_const_iterators_mpl_container_t;
+#endif
+
 
     public:
-        using storage_types_t = deques_mpl_container_t;
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE)
+        using storage_types_t = tackle_deques_mpl_container_t;
+#else
+        using storage_types_t = std_deques_mpl_container_t;
+#endif
 
     private:
-        using storage_types_end_it_t = typename mpl::end<storage_types_t>::type;
-        using num_types_t = typename mpl::size<storage_types_t>::type;
+        using max_aligned_storage_from_mpl_container_t  = max_aligned_storage_from_mpl_container<storage_types_t>;
+        using max_aligned_storage_for_tackle_deques_t   = max_aligned_storage_from_mpl_container<tackle_deques_mpl_container_t>;
+        using max_aligned_storage_for_std_deques_t      = max_aligned_storage_from_mpl_container<std_deques_mpl_container_t>;
+
+    public:
+        static const size_t max_size_value              = utility::static_if
+            <UTILITY_CONST_EXPR(max_aligned_storage_for_tackle_deques_t::max_size_value >= max_aligned_storage_for_std_deques_t::max_size_value)>
+            (max_aligned_storage_for_tackle_deques_t::max_size_value, max_aligned_storage_for_std_deques_t::max_size_value);
+        static const size_t max_alignment_value         = utility::static_if
+            <UTILITY_CONST_EXPR(max_aligned_storage_for_tackle_deques_t::max_alignment_value >= max_aligned_storage_for_std_deques_t::max_alignment_value)>
+            (max_aligned_storage_for_tackle_deques_t::max_alignment_value, max_aligned_storage_for_std_deques_t::max_alignment_value);
+
+    private:
+        using storage_types_end_it_t                    = typename mpl::end<storage_types_t>::type;
+        using num_types_t                               = typename mpl::size<storage_types_t>::type;
 
         STATIC_ASSERT_GT(num_types_t::value, 0, "template must generate not empty mpl container");
 
@@ -203,10 +282,16 @@ namespace tackle
     public:
         using const_iterator = basic_const_iterator;
 
-        stream_storage(size_t min_chunk_size);
+        stream_storage(size_t min_chunk_size, size_t min_arr0_capacity, size_t min_arr1_capacity);
         ~stream_storage();
 
-        void reset(size_t min_chunk_size);
+        void reset(size_t min_chunk_size, size_t min_arr0_capacity, size_t min_arr1_capacity);
+
+    protected:
+        template <typename T_>
+        void _clear(T_ & chunks);
+
+    public:
         void clear();
         const_iterator begin() const;
         const_iterator end() const;
@@ -252,9 +337,9 @@ namespace tackle
         size_t erase_front(size_t size);
 
     private:
-        max_aligned_storage_from_mpl_container<storage_types_t> m_chunks;
-        size_t                                                  m_size;
-        size_t                                                  m_remainder;
+        max_aligned_storage_from_mpl_container_t    m_chunks;
+        size_t                                      m_size;
+        size_t                                      m_remainder;
     };
 
     //// stream_storage::basic_const_iterator
@@ -378,10 +463,10 @@ namespace tackle
     //// stream_storage
 
     template <typename T>
-    inline stream_storage<T>::stream_storage(size_t min_chunk_size) :
+    inline stream_storage<T>::stream_storage(size_t min_chunk_size, size_t min_arr0_capacity, size_t min_arr1_capacity) :
         m_size(0), m_remainder(0)
     {
-        reset(min_chunk_size);
+        reset(min_chunk_size, min_arr0_capacity, min_arr1_capacity);
     }
 
     template <typename T>
@@ -390,7 +475,7 @@ namespace tackle
     }
 
     template <typename T>
-    inline void stream_storage<T>::reset(size_t min_chunk_size)
+    inline void stream_storage<T>::reset(size_t min_chunk_size, size_t min_arr0_capacity, size_t min_arr1_capacity)
     {
         ASSERT_TRUE(min_chunk_size);
 
@@ -403,10 +488,41 @@ namespace tackle
 
         if (chunk_type_index != m_chunks.type_index()) {
             m_chunks.construct(chunk_type_index, true);
+
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE)
+            m_chunks.template invoke<void>([=](auto & chunks)
+            {
+                using storage_type_t = typename std::remove_reference<decltype(chunks)>::type;
+
+                // available in the tackle implementation
+                chunks.reset(typename storage_type_t::optional_params{ min_arr0_capacity, min_arr1_capacity });
+            });
+#endif
         }
         else {
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE)
+            m_chunks.template invoke<void>([=](auto & chunks)
+            {
+                using storage_type_t = typename std::remove_reference<decltype(chunks)>::type;
+
+                this->_clear(chunks);
+
+                // available in the tackle implementation
+                chunks.reset(typename storage_type_t::optional_params{ min_arr0_capacity, min_arr1_capacity });
+            });
+#else
             clear();
+#endif
         }
+    }
+
+    template <typename T>
+    template <typename T_>
+    inline void stream_storage<T>::_clear(T_ & chunks)
+    {
+        m_size = 0;
+        m_remainder = 0;
+        chunks.clear(); // at last in case if throw an exception
     }
 
     template <typename T>
@@ -414,9 +530,7 @@ namespace tackle
     {
         m_chunks.template invoke<void>([this](auto & chunks)
         {
-            m_size = 0;
-            m_remainder = 0;
-            chunks.clear(); // at last in case if throw an exception
+            this->_clear(chunks);
         });
     }
 

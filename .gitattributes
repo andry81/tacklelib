@@ -36,6 +36,7 @@ includes/tackle/aligned_storage_base.hpp -text
 includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
 includes/tackle/compressed_pair.hpp -text
+includes/tackle/deque.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
@@ -68,6 +69,7 @@ src/tests/test_main.hpp -text
 src/tests/test_tacklelib.hpp -text
 src/tests/tests.cpp -text
 src/tests/unit/pch.cpp -text
+src/tests/unit/test_deque.cpp -text
 src/tests/unit/test_funcs.cpp -text
 src/utility/algorithm.hpp -text
 src/utility/algorithm/generated/gen_unroll_copy_switch.bat -text

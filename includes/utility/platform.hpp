@@ -93,57 +93,81 @@
 
 // x86 or x64
 #if defined(UTILITY_PLATFORM_WINDOWS)
+
 #   if defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #       define UTILITY_PLATFORM_X64
 #   elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #       define UTILITY_PLATFORM_X32
 #   endif
+
 #   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
+
 #elif defined(UTILITY_COMPILER_CXX_GCC)
+
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
+
 #   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION __attribute__((optimize("O0")))
+
 #else
+
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
+
 #   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
+
 #endif
 
+// COMPILER WORKAROUND
 
 // common implementation based on: https://stackoverflow.com/questions/26089319/is-there-a-standard-definition-for-cplusplus-in-c14
 // msvc implementation based on:
 //  https://stackoverflow.com/questions/37503029/cplusplus-is-equal-to-199711-in-msvc-does-it-support-c11
 //  and Microsoft `C++ 14 Core Language Features` for the `Visual Studio 2015` workaround
 #ifdef UTILITY_COMPILER_CXX_MSC
+
+#   if UTILITY_COMPILER_CXX_VERSION >= 1915
+#       define TEMPLATE_SCOPE template
+#   else
+#       define TEMPLATE_SCOPE
+#   endif
+
 // MSVC specific workaround, tested on Visual Studio 2015 Update 3
-#  if UTILITY_COMPILER_CXX_VERSION >= 1900
-#     define UTILITY_PLATFORM_CXX_STANDARD_CPP14
-#  endif
-#  if UTILITY_COMPILER_CXX_VERSION >= 1310
-#     define UTILITY_PLATFORM_CXX_STANDARD_LLONG
-#     define UTILITY_PLATFORM_CXX_STANDARD_ULLONG
-#  endif
+#   if UTILITY_COMPILER_CXX_VERSION >= 1900
+#       define UTILITY_PLATFORM_CXX_STANDARD_CPP14
+#   endif
+#   if UTILITY_COMPILER_CXX_VERSION >= 1310
+#       define UTILITY_PLATFORM_CXX_STANDARD_LLONG
+#       define UTILITY_PLATFORM_CXX_STANDARD_ULLONG
+#   endif
+
 #else
-#  if __cplusplus >= 201402L
-#     define UTILITY_PLATFORM_CXX_STANDARD_CPP14
-#  endif
-#  ifdef LLONG_MAX
-#     define UTILITY_PLATFORM_CXX_STANDARD_LLONG
-#  endif
-#  ifdef ULLONG_MAX
-#     define UTILITY_PLATFORM_CXX_STANDARD_ULLONG
-#  endif
+
+#   define TEMPLATE_SCOPE template
+
+#   if __cplusplus >= 201402L
+#       define UTILITY_PLATFORM_CXX_STANDARD_CPP14
+#   endif
+
+#   ifdef LLONG_MAX
+#       define UTILITY_PLATFORM_CXX_STANDARD_LLONG
+#   endif
+#   ifdef ULLONG_MAX
+#       define UTILITY_PLATFORM_CXX_STANDARD_ULLONG
+#   endif
+
 #endif
 
 #if !ERROR_IF_EMPTY_PP_DEF(DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE)
 
 #if !defined(_DEBUG) && ERROR_IF_EMPTY_PP_DEF(ENABLE_FORCE_INLINE)
+
 #   if defined(UTILITY_COMPILER_CXX_GCC)
 #       define FORCE_INLINE           __attribute__((always_inline)) inline
 #       define FORCE_INLINE_ALWAYS    FORCE_INLINE
@@ -151,9 +175,12 @@
 #       define FORCE_INLINE           __forceinline
 #       define FORCE_INLINE_ALWAYS    FORCE_INLINE
 #   endif
+
 #else
+
 #   define FORCE_INLINE               inline
 #   define FORCE_INLINE_ALWAYS        FORCE_INLINE
+
 #endif
 
 #else
@@ -169,11 +196,13 @@
 #endif
 
 #if !defined(_DEBUG) && ERROR_IF_EMPTY_PP_DEF(ENABLE_FORCE_NO_INLINE)
+
 #   if defined(UTILITY_COMPILER_CXX_GCC)
-#      define FORCE_NO_INLINE __attribute__((noinline))
+#       define FORCE_NO_INLINE __attribute__((noinline))
 #   elif defined(UTILITY_COMPILER_CXX_MSC)
-#      define FORCE_NO_INLINE __declspec(noinline)
+#       define FORCE_NO_INLINE __declspec(noinline)
 #   endif
+
 #else
 #   define FORCE_NO_INLINE
 #endif

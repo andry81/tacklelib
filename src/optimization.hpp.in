@@ -31,3 +31,7 @@
 //  Can dramatically increase compilation time!
 //
 #define ENABLE_INTERNAL_FORCE_INLINE_IN_STREAM_STORAGE 0
+
+// Switches internal deque container usage from the std implementation to the tackle implementation
+//
+#define ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE 0

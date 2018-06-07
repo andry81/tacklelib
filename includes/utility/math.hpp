@@ -11,6 +11,7 @@
 #include <utility/assert.hpp>
 
 #include <type_traits>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <utility>
@@ -26,11 +27,13 @@
 
 #define INT32_POF2_FLOOR_CONSTEXPR(x)               ::math::int32_pof2_floor<x>::value
 #define UINT32_POF2_FLOOR_CONSTEXPR(x)              ::math::uint32_pof2_floor<x>::value
+
 #define INT32_POF2_CEIL_CONSTEXPR(x)                ::math::int32_pof2_ceil<x>::value
 #define UINT32_POF2_CEIL_CONSTEXPR(x)               ::math::uint32_pof2_ceil<x>::value
 
 #define INT32_LOG2_CONSTEXPR_VERIFY(x)              ::math::int32_log2_verify<x>::value
 #define UINT32_LOG2_CONSTEXPR_VERIFY(x)             ::math::uint32_log2_verify<x>::value
+#define STDSIZE_LOG2_CONSTEXPR_VERIFY(x)            ::math::stdsize_log2_verify<x>::value
 
 #define INT32_POF2_CONSTEXPR_VERIFY(x)              ::math::int32_pof2_verify<x>::value
 #define UINT32_POF2_CONSTEXPR_VERIFY(x)             ::math::uint32_pof2_verify<x>::value
@@ -72,6 +75,7 @@
 
 #define INT32_DIV_POF2_CONSTEXPR_VERIFY(x, y)       int32_t(int32_t(x) >> INT32_LOG2_CONSTEXPR_VERIFY(y))
 #define UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y)      uint32_t(uint32_t(x) >> UINT32_LOG2_CONSTEXPR_VERIFY(y))
+#define STDSIZE_DIV_POF2_CONSTEXPR_VERIFY(x, y)     std::size_t(std::size_t(x) >> STDSIZE_LOG2_CONSTEXPR_VERIFY(y))
 
 #define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
 #define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
@@ -200,6 +204,23 @@ namespace math
         static const uint32_t value = 0;
     };
 
+    template<std::size_t x>
+    struct stdsize_log2_floor
+    {
+        static const std::size_t value = (stdsize_log2_floor<x / 2>::value + 1);
+    };
+
+    template<std::size_t x>
+    const std::size_t stdsize_log2_floor<x>::value;
+
+    template<>
+    struct stdsize_log2_floor<0>;
+    template<>
+    struct stdsize_log2_floor<1>
+    {
+        static const std::size_t value = 0;
+    };
+
     //// constexpr log2 ceil
 
     template<int32_t x>
@@ -255,13 +276,26 @@ namespace math
     struct uint32_log2_verify
     {
         STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
-        static const uint32_t value = uint32_log2_floor<x>::value;;
+        static const uint32_t value = uint32_log2_floor<x>::value;
     };
 
     template<uint32_t x>
     const uint32_t uint32_log2_verify<x>::value;
 
+    template<std::size_t x>
+    struct stdsize_log2_verify
+    {
+        STATIC_ASSERT_TRUE1(x && !(x & (x - 1)), x, "value must be power of 2");
+        static const std::size_t value = stdsize_log2_floor<x>::value;
+    };
+
+    template<std::size_t x>
+    const std::size_t stdsize_log2_verify<x>::value;
+
     //// constexpr pof2 floor
+
+    template<uint32_t x>
+    struct uint32_pof2_floor;
 
     template<int32_t x>
     struct int32_pof2_floor
@@ -294,6 +328,9 @@ namespace math
     const uint32_t uint32_pof2_floor<x>::value;
 
     //// constexpr pof2 ceil
+
+    template<uint32_t x>
+    struct uint32_pof2_ceil;
 
     template<int32_t x>
     struct int32_pof2_ceil
@@ -646,7 +683,7 @@ namespace math
             inclusion_direction = 0; // prefer symmetric case
         }
 
-        double ang_norm;
+        double ang_norm = ang;
 
         switch (inclusion_direction) {
         case -1:
@@ -820,6 +857,9 @@ namespace math
                 }
             }
             break;
+
+        default:
+            DEBUG_ASSERT_TRUE(false);
         }
 
         return ang_norm;

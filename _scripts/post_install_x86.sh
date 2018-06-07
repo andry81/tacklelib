@@ -32,10 +32,12 @@ let NEST_LVL+=1
 #echo
 
 CMAKE_BUILD_TYPE="$1"
-CMAKE_BUILD_TARGET="$2"
+# post install use target `all` to make postinstall
+# CMAKE_BUILD_TARGET="$2"
 
 [[ -z "${CMAKE_BUILD_TYPE}" ]] && CMAKE_BUILD_TYPE="*" # target all configurations
-[[ -z "${CMAKE_BUILD_TARGET}" ]] && CMAKE_BUILD_TARGET="*"
+#[[ -z "${CMAKE_BUILD_TARGET}" ]] && CMAKE_BUILD_TARGET="*"
+CMAKE_BUILD_TARGET="*"
 
 FILE_DEPS_ROOT_LIST="*.so:*.so.*:*.a:*.a.*"
 FILE_DEPS_LIST_TO_FIND="." #":./plugins/platforms"

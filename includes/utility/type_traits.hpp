@@ -13,6 +13,7 @@
 #include <tuple>
 
 
+// to suppress warnings around compile time expression or values
 #define UTILITY_CONST_EXPR(exp) ::utility::const_expr<(exp) ? true : false>::value
 
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
@@ -32,6 +33,11 @@
 
 #endif
 
+// lookup compile time template typename value
+#define UTILITY_PARAM_LOOKUP_BY_ERROR(static_param) \
+    UTILITY_TYPE_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(static_param))
+
+// lookup compile time size value
 #define UTILITY_SIZE_LOOKUP_BY_ERROR(size) \
     char * __integral_lookup[size] = 1
 
@@ -76,6 +82,34 @@ namespace utility
     FORCE_INLINE constexpr size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
+    }
+
+    // `static if` implementation
+    // Based on: https://stackoverflow.com/questions/37617677/implementing-a-compile-time-static-if-logic-for-different-string-types-in-a-co
+    //
+
+    template <typename T, typename F>
+    FORCE_INLINE constexpr auto static_if(std::true_type, T t, F f)
+    {
+        return t;
+    }
+
+    template <typename T, typename F>
+    FORCE_INLINE constexpr auto static_if(std::false_type, T t, F f)
+    {
+        return f;
+    }
+
+    template <bool B, typename T, typename F>
+    FORCE_INLINE constexpr auto static_if(T t, F f)
+    {
+        return static_if(std::integral_constant<bool, B>{}, t, f);
+    }
+
+    template <bool B, typename T>
+    FORCE_INLINE constexpr auto static_if(T t)
+    {
+        return static_if(std::integral_constant<bool, B>{}, t, [](auto&&...) {});
     }
 
     // Type qualification adaptor for a function parameter.

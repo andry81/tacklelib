@@ -20,7 +20,7 @@ if not exist "%CONFIGURE_FILE%" (
 
 rem load external variables from file
 set "CMAKE_CMD_LINE="
-for /F "usebackq eol=# tokens=1,* delims==" %%i in ("%CONFIGURE_FILE_IN%") do (
+for /F "usebackq eol=# tokens=1,* delims==" %%i in ("%CONFIGURE_FILE%") do (
   if not "%%i" == "" (
     if not "%%j" == "" (
       call :CMD set "%%i=%%j"
@@ -39,7 +39,7 @@ set "CMAKE_LIB_ROOT=%CMAKE_OUTPUT_ROOT%/lib"
 set "CMAKE_INSTALL_ROOT=%CMAKE_OUTPUT_ROOT%/install"
 set "CMAKE_CPACK_ROOT=%CMAKE_OUTPUT_ROOT%/pack"
 
-set "CMAKE_GENERATOR_TOOLSET=Visual Studio 14 2015"
+set "CMAKE_GENERATOR_TOOLSET=%CMAKE_GENERATOR_WINBAT_TOOLSET%"
 
 if not defined NEST_LVL set NEST_LVL=0
 
