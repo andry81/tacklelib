@@ -16,7 +16,7 @@ namespace tackle
     template <typename K, typename T, typename C, typename Friend>
     class basic_map_const_iterator;
 
-    // externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
+    // WORKQROUND: externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
     template <typename T, typename C, typename Friend>
     basic_const_iterator<T, C, Friend> operator ++(basic_const_iterator<T, C, Friend> & r, int);
     template <typename T, typename C, typename Friend>
@@ -54,7 +54,7 @@ namespace tackle
         typename C::const_iterator m_it;
     };
 
-    // externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
+    // WORKAROUND: externally because the MSVC2015 compiler for some reason does not want to inline it when defined inside the class!
     template <typename K, typename T, typename C, typename Friend>
     basic_map_const_iterator<K, T, C, Friend> operator ++(basic_map_const_iterator<K, T, C, Friend> & r, int);
     template <typename K, typename T, typename C, typename Friend>

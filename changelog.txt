@@ -1,3 +1,26 @@
+2018.05.07:
+* fixed: valgrind illegal instruction error under Linux (__builtin_trap())
+* fixed: build script minor fixes
+* fixed: unit tests
+* refactor: deque unit tests
+* refactor: type traits
+* refactor: stream storage
+
+2018.05.06:
+* fixed: deque implementation/tests bug fix
+
+2018.05.05:
+* fixed: deque implementation/tests bug fix
+* fixed: minor build fix under Visual Studio 2017 15.7.3
+* new: more deque implementation/tests
+* changed: cmake toolset switch adoptation for the Visual Studio 2017
+
+2018.05.04:
+* fixed: gcc build under linux mint
+* fixed: minor bug fix
+* new: `tackle/deque.hpp` partial implementation
+* new: tests for `tackle/deque.hpp` partial implementation
+
 2018.05.30:
 * new: `compressed_type` and `call_traits` based on `boost` library implementation
 

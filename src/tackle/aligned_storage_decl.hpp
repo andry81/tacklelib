@@ -519,7 +519,7 @@ namespace tackle
             template <typename F, typename Ref>
             static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
             {
-                using unqual_arg0_type = typename boost::remove_cv<typename boost::remove_reference<typename utility::function_traits<F>::template arg<0>::type>::type>::type;
+                using unqual_arg0_type = typename boost::remove_cv<typename boost::remove_reference<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type>::type;
 
                 using found_it_t = typename mpl::find<TypeList, unqual_arg0_type>::type;
 

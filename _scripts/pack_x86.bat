@@ -7,10 +7,12 @@ call "%%~dp0__init__.bat" || goto :EOF
 set /A NEST_LVL+=1
 
 set "CMAKE_BUILD_TYPE=%~1"
-set "CMAKE_BUILD_TARGET=%~2"
+rem cmake pack does not support particular target enpackage
+rem set "CMAKE_BUILD_TARGET=%~2"
 
 if not defined CMAKE_BUILD_TYPE set "CMAKE_BUILD_TYPE=*"
-if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=BUNDLE"
+rem if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=BUNDLE"
+set "CMAKE_BUILD_TARGET=BUNDLE"
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
 

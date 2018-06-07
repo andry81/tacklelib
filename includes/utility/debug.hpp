@@ -14,6 +14,7 @@
 #include <intrin.h>
 #else
 #include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc
+#include <signal.h>
 #endif
 
 
@@ -55,8 +56,13 @@
 
 #elif defined(UTILITY_PLATFORM_POSIX)
 
+// CAUTION:
+//
+// `__builtin_trap()` leads to `vex x86->IR: unhandled instruction bytes: 0xF 0xB 0x83 0xEC` under the valgrind execution!
+// See for details: https://stackoverflow.com/questions/6859267/valgrind-unhandled-instruction-bytes-0xf-0xb-0xff-0x85
+//
 #define DEBUG_BREAK(exp) \
-    if((exp) ? false : true); else __builtin_trap() //or: signal(SIGTRAP, signal_handler)
+    if((exp) ? false : true); else raise(SIGTRAP) // or: __builtin_trap()
 
 #else
 #error debug_break is not supported for this platform

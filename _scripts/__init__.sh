@@ -59,7 +59,7 @@ exec 9>&-
 
 export CMAKE_OUTPUT_ROOT="$PROJECT_ROOT/_out"
 
-export CMAKE_GENERATOR_TOOLSET="Unix Makefiles"
+export CMAKE_GENERATOR_TOOLSET="$CMAKE_GENERATOR_SHELL_TOOLSET"
 export CMAKE_CONFIG_TYPES
 
 # drop exit code
