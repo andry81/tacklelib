@@ -7,10 +7,9 @@
 #include <utility/type_traits.hpp>
 #include <utility/math.hpp>
 
-#include <boost/type_traits/has_trivial_copy.hpp>
-
 #include <boost/chrono.hpp>
 
+#include <type_traits>
 #include <limits>
 #include <memory>
 #include <algorithm>
@@ -27,8 +26,8 @@
     ::utility::copy_forceinline(from, to, size, ## __VA_ARGS__)
 
 // stride copy w/o unroll (already force inlined)
-#define UTILITY_STRIDE_COPY(to_buf_offset, from, from_size, stride_size, stride_step, to, to_size) \
-    ::utility::stride_copy(to_buf_offset, from, from_size, stride_size, stride_step, to, to_size)
+#define UTILITY_STRIDE_COPY(to_buf_offset, from, from_size, copy_size, stride_step, to, to_size) \
+    ::utility::stride_copy(to_buf_offset, from, from_size, copy_size, stride_step, to, to_size)
 
 STATIC_ASSERT_GE(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE, "TACKLE_PP_DEFAULT_UNROLLED_COPY_SIZE must be not greater than TACKLE_PP_MAX_UNROLLED_COPY_SIZE");
 
@@ -64,10 +63,10 @@ namespace utility
             switch(size) {
                 case 0: break;
                 #include "utility/algorithm/generated/unroll_copy_switch.hpp"
-                default: ASSERT_TRUE(false);
+                default: DEBUG_ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONST_EXPR(boost::has_trivial_copy<T>::value)) {
+        else if (UTILITY_CONST_EXPR(std::is_trivially_copyable<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {
@@ -86,10 +85,10 @@ namespace utility
             switch(size) {
                 case 0: break;
                 #include "utility/algorithm/generated/unroll_copy_switch.hpp"
-                default: ASSERT_TRUE(false);
+                default: DEBUG_ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONST_EXPR(boost::has_trivial_copy<T>::value)) {
+        else if (UTILITY_CONST_EXPR(std::is_trivially_copyable<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {
@@ -100,13 +99,13 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE size_t stride_copy(size_t & to_buf_offset_ref, const T * from, size_t from_size, size_t stride_size, size_t stride_step, T * to, size_t to_size)
+    FORCE_INLINE size_t stride_copy(size_t & to_buf_offset_ref, const T * from, size_t from_size, size_t copy_size, size_t stride_step, T * to, size_t to_size)
     {
         // TODO:
         //  * UTILITY_STRIDE_COPY from the middle of slot byte instead of only from slot beginning byte
 
-        ASSERT_TRUE(from_size && to_size);
-        ASSERT_GE(stride_step, stride_size);
+        DEBUG_ASSERT_TRUE(from_size && to_size);
+        DEBUG_ASSERT_GE(stride_step, copy_size); // step begins from copy begin byte!
 
         using chunk_type = StaticArray<T, 4>;
 
@@ -131,53 +130,53 @@ namespace utility
             size_t step_remainder = from_chunked_size % stride_step;
 
             // prognose output buffer size, and recalculate steps and remainder
-            const size_t buf_size_to_copy = stride_size * num_whole_steps + (std::min)(step_remainder, stride_size);
+            const size_t buf_size_to_copy = copy_size * num_whole_steps + (std::min)(step_remainder, copy_size);
             if (to_size < buf_size_to_copy) {
-                num_whole_steps = to_size / stride_size;
-                step_remainder = to_size % stride_size;
+                num_whole_steps = to_size / copy_size;
+                step_remainder = to_size % copy_size;
             }
 
-            const size_t num_whole_chunks_in_stride_size = stride_size / copy_chunk_size;
-            const size_t chunks_remainder_in_stride_size = stride_size % copy_chunk_size;
+            const size_t num_whole_chunks_in_copy_size = copy_size / copy_chunk_size;
+            const size_t chunks_remainder_in_copy_size = copy_size % copy_chunk_size;
 
             // remainder condition moved out of most inner loop
-            if (!chunks_remainder_in_stride_size) {
+            if (!chunks_remainder_in_copy_size) {
                 // simplified copy by chunk blocks w/o remainder
                 for (size_t i = 0; i < num_whole_steps; i++) {
-                    for (size_t j = 0; j < num_whole_chunks_in_stride_size; j++) {
+                    for (size_t j = 0; j < num_whole_chunks_in_copy_size; j++) {
                         *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * j);
                         to_buf_offset += copy_chunk_size;
 
-                        ASSERT_GE(left_buf_to_size, copy_chunk_size);
+                        DEBUG_ASSERT_GE(left_buf_to_size, copy_chunk_size);
                         left_buf_to_size -= copy_chunk_size;
                     }
 
                     from_buf_offset += stride_step;
 
-                    ASSERT_GE(left_buf_from_size, stride_step);
+                    DEBUG_ASSERT_GE(left_buf_from_size, stride_step);
                     left_buf_from_size -= stride_step;
                 }
             }
             else {
                 // copy by chunk blocks with remainder
                 for (size_t i = 0; i < num_whole_steps; i++) {
-                    for (size_t j = 0; j < num_whole_chunks_in_stride_size; j++) {
+                    for (size_t j = 0; j < num_whole_chunks_in_copy_size; j++) {
                         *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * j);
                         to_buf_offset += copy_chunk_size;
 
-                        ASSERT_GE(left_buf_to_size, copy_chunk_size);
+                        DEBUG_ASSERT_GE(left_buf_to_size, copy_chunk_size);
                         left_buf_to_size -= copy_chunk_size;
                     }
                     // remainder copy
-                    *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * num_whole_chunks_in_stride_size);
-                    to_buf_offset += chunks_remainder_in_stride_size;
+                    *reinterpret_cast<chunk_type *>(to + to_buf_offset) = *reinterpret_cast<const chunk_type *>(from + from_buf_offset + copy_chunk_size * num_whole_chunks_in_copy_size);
+                    to_buf_offset += chunks_remainder_in_copy_size;
 
-                    ASSERT_GE(left_buf_to_size, chunks_remainder_in_stride_size);
-                    left_buf_to_size -= chunks_remainder_in_stride_size;
+                    DEBUG_ASSERT_GE(left_buf_to_size, chunks_remainder_in_copy_size);
+                    left_buf_to_size -= chunks_remainder_in_copy_size;
 
                     from_buf_offset += stride_step;
 
-                    ASSERT_GE(left_buf_from_size, stride_step);
+                    DEBUG_ASSERT_GE(left_buf_from_size, stride_step);
                     left_buf_from_size -= stride_step;
                 }
             }
@@ -189,27 +188,27 @@ namespace utility
             size_t left_step_remainder = left_buf_to_copy_remainder % stride_step;
 
             // prognose left output buffer size, and recalculate steps and remainder
-            const size_t left_buf_size_to_copy = stride_size * num_left_whole_steps + (std::min)(left_step_remainder, stride_size);
+            const size_t left_buf_size_to_copy = copy_size * num_left_whole_steps + (std::min)(left_step_remainder, copy_size);
             if (left_buf_to_size < left_buf_size_to_copy) {
-                num_left_whole_steps = left_buf_to_size / stride_size;
-                left_step_remainder = left_buf_to_size % stride_size;
+                num_left_whole_steps = left_buf_to_size / copy_size;
+                left_step_remainder = left_buf_to_size % copy_size;
             }
 
             for (size_t i = 0; i < num_left_whole_steps; i++) {
-                for (size_t j = 0; j < stride_size; j++) {
+                for (size_t j = 0; j < copy_size; j++) {
                     to[to_buf_offset++] = from[from_buf_offset + j];
                 }
 
                 from_buf_offset += stride_step;
 
-                ASSERT_GE(left_buf_from_size, stride_step);
+                DEBUG_ASSERT_GE(left_buf_from_size, stride_step);
                 left_buf_from_size -= stride_step;
 
-                ASSERT_GE(left_buf_to_size, stride_size);
-                left_buf_to_size -= stride_size;
+                DEBUG_ASSERT_GE(left_buf_to_size, copy_size);
+                left_buf_to_size -= copy_size;
             }
 
-            const size_t left_step_remain_size_to_copy = (std::min)(left_step_remainder, stride_size);
+            const size_t left_step_remain_size_to_copy = (std::min)(left_step_remainder, copy_size);
             if (left_step_remain_size_to_copy) {
                 for (size_t i = 0; i < left_step_remain_size_to_copy; i++) {
                     to[to_buf_offset++] = from[from_buf_offset + i];
@@ -219,10 +218,10 @@ namespace utility
 
                 from_buf_offset += buf_from_remain_size;
 
-                ASSERT_GE(left_buf_from_size, buf_from_remain_size);
+                DEBUG_ASSERT_GE(left_buf_from_size, buf_from_remain_size);
                 left_buf_from_size -= buf_from_remain_size;
 
-                ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
+                DEBUG_ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
                 left_buf_to_size -= left_step_remain_size_to_copy;
             }
         }
@@ -231,27 +230,27 @@ namespace utility
             size_t step_remainder = from_size % stride_step;
 
             // prognose output buffer size, and recalculate steps and remainder
-            const size_t buf_size_to_copy = stride_size * num_whole_steps + (std::min)(step_remainder, stride_size);
+            const size_t buf_size_to_copy = copy_size * num_whole_steps + (std::min)(step_remainder, copy_size);
             if (to_size < buf_size_to_copy) {
-                num_whole_steps = to_size / stride_size;
-                step_remainder = to_size % stride_size;
+                num_whole_steps = to_size / copy_size;
+                step_remainder = to_size % copy_size;
             }
 
             for (size_t i = 0; i < num_whole_steps; i++) {
-                for (size_t j = 0; j < stride_size; j++) {
+                for (size_t j = 0; j < copy_size; j++) {
                     to[to_buf_offset++] = from[from_buf_offset + j];
                 }
 
                 from_buf_offset += stride_step;
 
-                ASSERT_GE(left_buf_from_size, stride_step);
+                DEBUG_ASSERT_GE(left_buf_from_size, stride_step);
                 left_buf_from_size -= stride_step;
 
-                ASSERT_GE(left_buf_to_size, stride_size);
-                left_buf_to_size -= stride_size;
+                DEBUG_ASSERT_GE(left_buf_to_size, copy_size);
+                left_buf_to_size -= copy_size;
             }
 
-            const size_t left_step_remain_size_to_copy = (std::min)(step_remainder, stride_size);
+            const size_t left_step_remain_size_to_copy = (std::min)(step_remainder, copy_size);
             if (left_step_remain_size_to_copy) {
                 for (size_t i = 0; i < left_step_remain_size_to_copy; i++) {
                     to[to_buf_offset++] = from[from_buf_offset + i];
@@ -261,17 +260,17 @@ namespace utility
 
                 from_buf_offset += buf_from_remain_size;
 
-                ASSERT_GE(left_buf_from_size, buf_from_remain_size);
+                DEBUG_ASSERT_GE(left_buf_from_size, buf_from_remain_size);
                 left_buf_from_size -= buf_from_remain_size;
 
-                ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
+                DEBUG_ASSERT_GE(left_buf_to_size, left_step_remain_size_to_copy);
                 left_buf_to_size -= left_step_remain_size_to_copy;
             }
         }
 
-        ASSERT_TRUE(!left_buf_from_size || !left_buf_to_size); // at least one buffer must hit the end bound
+        DEBUG_ASSERT_TRUE(!left_buf_from_size || !left_buf_to_size); // at least one buffer must hit the end bound
 
-        // if out buffer has space after the copy, then put `\0` at the end of copied sequence to cut off trash bytes in the buffer which might be copeid in previous iterations
+        // if out buffer has space after the copy, then put `\0` at the end of copied sequence to cut off trash bytes in the buffer which might be copied in previous iterations
         if (left_buf_to_size) {
             to[to_buf_offset] = '\0';
         }

@@ -115,7 +115,7 @@ namespace tackle
                 read_size = fread(m_buf.realloc_get(buf_read_size), 1, size_t(next_read_size), m_file_handle.get());
                 const int file_in_read_err = ferror(m_file_handle.get());
                 is_eof = feof(m_file_handle.get());
-                ASSERT_TRUE(!file_in_read_err && read_size == next_read_size || is_eof);
+                DEBUG_ASSERT_TRUE(!file_in_read_err && read_size == next_read_size || is_eof);
 
                 if (read_size) {
                     if (m_read_pred) {

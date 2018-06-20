@@ -1,5 +1,6 @@
 #include <utility/memory.hpp>
 #include <utility/assert.hpp>
+#include <utility/type_traits.hpp>
 #include <utility/utility.hpp>
 
 #include <tackle/file_handle.hpp>
@@ -51,17 +52,17 @@ namespace utility
 #elif defined(UTILITY_PLATFORM_POSIX)
             char tmp_buf[256];
             if (proc_id) {
-                snprintf(tmp_buf, utility::static_size(tmp_buf), "/proc/%zu/status", proc_id);
+                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(tmp_buf), "/proc/%zu/status", proc_id);
             }
             else {
-                strncpy(tmp_buf, "/proc/self/status", utility::static_size("/proc/self/status"));
+                strncpy(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("/proc/self/status"));
             }
             const tackle::FileHandle proc_file_handle = utility::open_file(tmp_buf, "r", utility::SharedAccess_DenyNone);
 
             uint64_t mem_size = 0;
 
             while (fgets(tmp_buf, utility::static_size(tmp_buf), proc_file_handle.get())) {
-                if (!strncmp(tmp_buf, "VmSize:", utility::static_size("VmSize:"))) {
+                if (!strncmp(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("VmSize:"))) {
                     mem_size = strlen(tmp_buf);
                     const char* p = tmp_buf;
                     while (*p <'0' || *p > '9') p++;
@@ -76,11 +77,11 @@ namespace utility
         } break;
 
         case MemType_PhysicalMemory: {
-            ASSERT_TRUE(0); // not implemented
+            DEBUG_ASSERT_TRUE(0); // not implemented
         } break;
 
         default:
-            ASSERT_TRUE(0);
+            DEBUG_ASSERT_TRUE(0);
         }
 
         return 0;

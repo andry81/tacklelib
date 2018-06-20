@@ -10,13 +10,13 @@
 #include <utility/platform.hpp>
 #include <utility/debug.hpp>
 
-#if !defined(GTEST_INCLUDE_FROM_TESTS)
+#if !defined(GTEST_INCLUDE_FROM_EXTERNAL)
 
 #if defined(GTEST_FAIL)
 #error <utility/assert.hpp> header must be included instead of the <gtest.h> header
 #endif
 
-#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
+#if defined(TACKLE_TESTLIB) || defined(UNIT_TESTS) || defined(BENCH_TESTS)
 #define GTEST_DONT_DEFINE_ASSERT_TRUE 1
 #define GTEST_DONT_DEFINE_ASSERT_FALSE 1
 #define GTEST_DONT_DEFINE_ASSERT_EQ 1
@@ -183,7 +183,7 @@
 
 #else
 
-#ifdef USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS
+#if ERROR_IF_EMPTY_PP_DEF(USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS)
 
 #define UNIT_VERIFY_TRUE(exp) (( ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
@@ -460,7 +460,7 @@
 
 // classic debug assert
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && !ERROR_IF_EMPTY_PP_DEF(DISABLE_DEBUG_VERIFY_ASSERT)
 
 #define DEBUG_VERIFY_TRUE       BASIC_VERIFY_TRUE
 #define DEBUG_VERIFY_FALSE      BASIC_VERIFY_FALSE

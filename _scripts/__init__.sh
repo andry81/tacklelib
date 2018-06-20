@@ -35,15 +35,45 @@ source "${ScriptDirPath:-.}/buildlib.sh"
 
 export PROJECT_ROOT="`/bin/readlink -f "$ScriptDirPath/.."`"
 
-CONFIGURE_FILE_IN="$PROJECT_ROOT/environment_local.vars.in"
-CONFIGURE_FILE="$PROJECT_ROOT/environment_local.vars"
+CONFIGURE_VARS_FILE_IN="$PROJECT_ROOT/environment_local.vars.in"
+CONFIGURE_VARS_FILE="$PROJECT_ROOT/environment_local.vars"
+CONFIGURE_CMAKE_FILE_IN="$PROJECT_ROOT/environment_local.cmake.in"
+CONFIGURE_CMAKE_FILE="$PROJECT_ROOT/environment_local.cmake"
 
-if [[ ! -f "$CONFIGURE_FILE" ]]; then
-  cat "$CONFIGURE_FILE_IN" > "$CONFIGURE_FILE"
+if [[ -f "$CONFIGURE_VARS_FILE" ]]; then
+  # Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
+  IFS=$' \t\r\n'
+  read -r CONFIGURE_VARS_FILE_IN_VER_LINE < "$CONFIGURE_VARS_FILE_IN"
+  read -r CONFIGURE_VARS_FILE_VER_LINE < "$CONFIGURE_VARS_FILE"
+
+  if [[ "${CONFIGURE_VARS_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
+    if [[ "${CONFIGURE_VARS_FILE_IN_VER_LINE:13}" == "${CONFIGURE_VARS_FILE_VER_LINE:13}" ]]; then
+      echo "$0: error: version of `$CONFIGURE_VARS_FILE_IN` is not equal to version of `$CONFIGURE_VARS_FILE`, use must merge changes by yourself!" >&2
+      exit 255
+    fi
+  fi
+fi
+
+if [[ -f "$CONFIGURE_CMAKE_FILE" ]]; then
+  # Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
+  IFS=$' \t\r\n'
+  read -r CONFIGURE_CMAKE_FILE_IN_VER_LINE < "$CONFIGURE_CMAKE_FILE_IN"
+  read -r CONFIGURE_CMAKE_FILE_VER_LINE < "$CONFIGURE_CMAKE_FILE"
+
+  if [[ "${CONFIGURE_CMAKE_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
+    if [[ "${CONFIGURE_CMAKE_FILE_IN_VER_LINE:13}" == "${CONFIGURE_CMAKE_FILE_VER_LINE:13}" ]]; then
+      echo "$0: error: version of `$CONFIGURE_CMAKE_FILE_IN` is not equal to version of `$CONFIGURE_CMAKE_FILE`, use must merge changes by yourself!" >&2
+      exit 255
+    fi
+  fi
+fi
+
+if [[ ! -f "$CONFIGURE_VARS_FILE" ]]; then
+  cat "$CONFIGURE_VARS_FILE_IN" > "$CONFIGURE_VARS_FILE"
 fi
 
 # open file for direct reading by the `read` in the same shell process
-exec 9<> "$CONFIGURE_FILE"
+exec 9<> "$CONFIGURE_VARS_FILE"
 
 # load external variables from file
 IFS="="; while read -r -u 9 var value; do

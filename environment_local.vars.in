@@ -1,3 +1,4 @@
+#%% version: 1
 PROJECT_NAME=myproj
 
 CMAKE_CONFIG_TYPES=Release Debug RelWithDebInfo MinSizeRel

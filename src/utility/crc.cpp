@@ -11,7 +11,7 @@ namespace
     template <typename T>
     FORCE_INLINE T _t_crc(size_t width, const T * table, T crc, const void * buf, size_t size, T crc_init, T xor_in, T xor_out, bool input_reflected, bool result_reflected)
     {
-        ASSERT_GE(sizeof(crc) * CHAR_BIT, width);
+        DEBUG_ASSERT_GE(sizeof(crc) * CHAR_BIT, width);
 
         const uint8_t * p = (const uint8_t *)buf;
 
@@ -74,7 +74,7 @@ namespace utility
             break;
         }
 
-        ASSERT_TRUE(0); // not implemented
+        DEBUG_ASSERT_TRUE(0); // not implemented
 
         throw std::runtime_error(
             (boost::format("%s: unimplemented crc polynomial: width=%u polynomial=%08X") %

@@ -11,16 +11,48 @@ if defined __INIT__ exit /b 0
 call :CANONICAL_PATH "%%~dp0.."
 set "PROJECT_ROOT=%PATH_VALUE%"
 
-set "CONFIGURE_FILE_IN=%PROJECT_ROOT%/environment_local.vars.in"
-set "CONFIGURE_FILE=%PROJECT_ROOT%/environment_local.vars"
+set "CONFIGURE_VARS_FILE_IN=%PROJECT_ROOT%/environment_local.vars.in"
+set "CONFIGURE_VARS_FILE=%PROJECT_ROOT%/environment_local.vars"
+set "CONFIGURE_CMAKE_FILE_IN=%PROJECT_ROOT%/environment_local.cmake.in"
+set "CONFIGURE_CMAKE_FILE=%PROJECT_ROOT%/environment_local.cmake"
 
-if not exist "%CONFIGURE_FILE%" (
-  type "%CONFIGURE_FILE_IN:/=\%"
-) > "%CONFIGURE_FILE%"
+if not exist "%CONFIGURE_VARS_FILE%" goto CONFIGURE_VARS_FILE_NOT_EXISTS
+
+rem Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
+set /P CONFIGURE_VARS_FILE_IN_VER_LINE=<"%CONFIGURE_VARS_FILE_IN%"
+set /P CONFIGURE_VARS_FILE_VER_LINE=<"%CONFIGURE_VARS_FILE%"
+
+if /i "%CONFIGURE_VARS_FILE_IN_VER_LINE:~0,12%" == "#%%%% version:" (
+  if not "%CONFIGURE_VARS_FILE_IN_VER_LINE:~13%" == "%CONFIGURE_VARS_FILE_VER_LINE:~13%" (
+    echo. %~nx0: error: version of "%CONFIGURE_VARS_FILE_IN%" is not equal to version of "%CONFIGURE_VARS_FILE%", use must merge changes by yourself!
+    goto EXIT_WITH_ERROR
+  ) >&2
+)
+
+:CONFIGURE_VARS_FILE_NOT_EXISTS
+
+if not exist "%CONFIGURE_CMAKE_FILE%" goto CONFIGURE_CMAKE_FILE_NOT_EXISTS
+
+rem Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
+set /P CONFIGURE_CMAKE_FILE_IN_VER_LINE=<"%CONFIGURE_CMAKE_FILE_IN%"
+set /P CONFIGURE_CMAKE_FILE_VER_LINE=<"%CONFIGURE_CMAKE_FILE%"
+
+if /i "%CONFIGURE_CMAKE_FILE_IN_VER_LINE:~0,12%" == "#%%%% version:" (
+  if not "%CONFIGURE_CMAKE_FILE_IN_VER_LINE:~13%" == "%CONFIGURE_CMAKE_FILE_VER_LINE:~13%" (
+    echo. %~nx0: error: version of "%CONFIGURE_CMAKE_FILE_IN%" is not equal to version of "%CONFIGURE_CMAKE_FILE%", use must merge changes by yourself!
+    goto EXIT_WITH_ERROR
+  ) >&2
+)
+
+:CONFIGURE_CMAKE_FILE_NOT_EXISTS
+
+if not exist "%CONFIGURE_VARS_FILE%" (
+  type "%CONFIGURE_VARS_FILE_IN:/=\%"
+) > "%CONFIGURE_VARS_FILE%"
 
 rem load external variables from file
 set "CMAKE_CMD_LINE="
-for /F "usebackq eol=# tokens=1,* delims==" %%i in ("%CONFIGURE_FILE%") do (
+for /F "usebackq eol=# tokens=1,* delims==" %%i in ("%CONFIGURE_VARS_FILE%") do (
   if not "%%i" == "" (
     if not "%%j" == "" (
       call :CMD set "%%i=%%j"
@@ -61,3 +93,7 @@ echo.^>%*
   %*
 )
 exit /b
+
+:EXIT_WITH_ERROR
+pause
+exit /b -1

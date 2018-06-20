@@ -43,11 +43,14 @@
 #define UTILITY_PP_LINE_ __LINE__
 #define UTILITY_PP_LINE UTILITY_PP_LINE_
 
+#define UTILITY_PP_LINE_STR UTILITY_PP_STRINGIZE(UTILITY_PP_LINE)
+#define UTILITY_PP_LINE_STR_WIDE UTILITY_PP_STRINGIZE_WIDE(UTILITY_PP_LINE)
+
 #define UTILITY_PP_EMPTY_
 #define UTILITY_PP_EMPTY UTILITY_PP_EMPTY_
 
-#define UTILITY_PP_IDENTITY(x) x
-#define UTILITY_PP_IDENTITY_(x) UTILITY_PP_IDENTITY_(x)
+#define UTILITY_PP_IDENTITY_(x) x
+#define UTILITY_PP_IDENTITY(x) UTILITY_PP_IDENTITY_(x)
 #define UTILITY_PP_IDENTITY2_(v1, v2) v1, v2
 #define UTILITY_PP_IDENTITY2(v1, v2) UTILITY_PP_IDENTITY2_(v1, v2)
 #define UTILITY_PP_IDENTITY3_(v1, v2, v3) v1, v2, v3
@@ -64,5 +67,10 @@
 #define UTILITY_PP_IDENTITY8(v1, v2, v3, v4, v5, v6, v7, v8) UTILITY_PP_IDENTITY8_(v1, v2, v3, v4, v5, v6, v7, v8)
 
 #define UTILITY_PP_LINE_TERMINATOR
+
+#define if_break(x) if(!(x)); else switch(0) case 0: default:
+#define if_break2(label, x) if(!(x)) label:; else switch(0) case 0: default:
+
+#define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { using type = type_; }
 
 #endif

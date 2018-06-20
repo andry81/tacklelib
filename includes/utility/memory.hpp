@@ -17,25 +17,25 @@ namespace utility
     template <typename To, typename From>
     FORCE_INLINE To cast_addressof(From & v)
     {
-        return static_cast<To>((void *)std::addressof(v));
+        return static_cast<To>(static_cast<void *>(std::addressof(v)));
     }
 
     template <typename To, typename From>
     FORCE_INLINE To cast_addressof(const From & v)
     {
-        return static_cast<To>((const void *)std::addressof(v));
+        return static_cast<To>(static_cast<const void *>(std::addressof(v)));
     }
 
     template <typename To, typename From>
     FORCE_INLINE To cast_addressof(volatile From & v)
     {
-        return static_cast<To>((volatile void *)std::addressof(v));
+        return static_cast<To>(static_cast<volatile void *>(std::addressof(v)));
     }
 
     template <typename To, typename From>
     FORCE_INLINE To cast_addressof(const volatile From & v)
     {
-        return static_cast<To>((const volatile void *)std::addressof(v));
+        return static_cast<To>(static_cast<const volatile void *>(std::addressof(v)));
     }
 
     enum MemoryType

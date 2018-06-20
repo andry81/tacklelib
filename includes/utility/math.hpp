@@ -6,6 +6,7 @@
 
 #include <tacklelib.hpp>
 
+#include <utility/preprocessor.hpp>
 #include <utility/platform.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/assert.hpp>
@@ -122,6 +123,146 @@
 #define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) }
 
 
+// implementation through the define to reuse code in debug and avoid performance slow down in particular usage places
+#define INT32_POF2_FLOOR_MACRO_INLINE(return_exp, type_, v) \
+{ \
+    STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes"); \
+    DEBUG_VERIFY_GT(v, (type_)(0)); \
+    \
+    using unsigned_type = typename ::std::make_unsigned<type_>::type; \
+    unsigned_type unsigned_value = unsigned_type(v); \
+    \
+    unsigned_value |= (unsigned_value >> 1); \
+    unsigned_value |= (unsigned_value >> 2); \
+    unsigned_value |= (unsigned_value >> 4); \
+    unsigned_value |= (unsigned_value >> 8); \
+    unsigned_value |= (unsigned_value >> 16); \
+    \
+    const type_ shifted_value = (type_)(unsigned_value >> 1); \
+    \
+    return_exp (type_)(shifted_value + 1); \
+} (void)0
+
+#define INT32_POF2_CEIL_MACRO_INLINE(return_exp, type, v) \
+{ \
+    DEBUG_ASSERT_GT(v, (type)(0)); \
+    DEBUG_ASSERT_GE(::std::is_unsigned<type>::value ? v : ((::std::numeric_limits<type>::max)() / 2), v); \
+    \
+    type pof2_floor_value; \
+    INT32_POF2_FLOOR_MACRO_INLINE(pof2_floor_value =, type, v); \
+    \
+    return_exp (pof2_floor_value != v ? (type)(pof2_floor_value << 1) : pof2_floor_value); \
+} (void)0
+
+#define INT32_LOG2_FLOOR_MACRO_INLINE(return_exp, type, v, pof2_value_ptr) \
+if_break(true) \
+{ \
+    STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes"); \
+    DEBUG_ASSERT_GT(v, (type)(0)); \
+    \
+    type * pof2_value_ptr_ = (pof2_value_ptr); \
+    \
+    if ((type)(1) >= v) { \
+        if (pof2_value_ptr_) { \
+            if (v >= (type)(0)) { \
+                *pof2_value_ptr_ = v; \
+            } \
+            else { \
+                *pof2_value_ptr_ = (type)(0); \
+            } \
+        } \
+        return_exp (type)(0); \
+        break; \
+    } \
+    \
+    type pof2_prev_value; \
+    INT32_POF2_FLOOR_MACRO_INLINE(pof2_prev_value =, type, v); \
+    \
+    if (pof2_value_ptr_) { \
+        *pof2_value_ptr_ = pof2_prev_value; \
+    } \
+    \
+    type ret = (type)(0); \
+    \
+    /* unrolled recursion including unrolled loops */ \
+    type pof2_next_value = (pof2_prev_value >> 16); \
+    \
+    if (pof2_next_value) { \
+        ret += 16; \
+        pof2_prev_value = pof2_next_value; \
+        pof2_next_value >>= 8; \
+    } \
+    else pof2_next_value = (pof2_prev_value >> 8); \
+    \
+    if (pof2_next_value) { \
+        ret += 8; \
+        pof2_prev_value = pof2_next_value; \
+        pof2_next_value >>= 4; \
+    } \
+    else { \
+        pof2_next_value = (pof2_prev_value >> 4); \
+    } \
+    \
+    if (pof2_next_value) { \
+        ret += 4; \
+        pof2_prev_value = pof2_next_value; \
+        pof2_next_value >>= 2; \
+    } \
+    else { \
+        pof2_next_value = (pof2_prev_value >> 2); \
+    } \
+    \
+    if (pof2_next_value) { \
+        ret += 2; \
+        pof2_next_value >>= 1; \
+    } \
+    else { \
+        pof2_next_value = (pof2_prev_value >> 1); \
+    } \
+    \
+    if (pof2_next_value) ret++; \
+    \
+    return_exp ret; \
+} (void)0
+
+#define INT32_LOG2_CEIL_MACRO_INLINE(return_exp, type, v, pof2_value_ptr) \
+if_break(true) \
+{ \
+    DEBUG_ASSERT_GT(v, (type)(0)); \
+    DEBUG_ASSERT_GE(::std::is_unsigned<type>::value ? v : ((::std::numeric_limits<type>::max)() / 2), v); \
+    \
+    type * pof2_value_ptr_ = (pof2_value_ptr); \
+    \
+    if ((type)(1) >= v) { \
+        if (pof2_value_ptr_) { \
+            if (v >= (type)(0)) { \
+                *pof2_value_ptr_ = v; \
+            } \
+            else { \
+                *pof2_value_ptr_ = (type)(0); \
+            } \
+        } \
+        return_exp (type)(0); \
+        break; \
+    } \
+    \
+    type log2_prev_value = (type)(v - 1); \
+    type log2_floor_value; \
+    \
+    if (!pof2_value_ptr_) { \
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type, log2_prev_value, nullptr); \
+    } \
+    else { \
+        type pof2_floor_value; \
+        \
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type, log2_prev_value, &pof2_floor_value); \
+        \
+        *pof2_value_ptr_ = (type)(pof2_floor_value << 1); \
+    } \
+    \
+    return_exp (type)(log2_floor_value + 1); \
+} (void)0
+
 namespace math
 {
     // shortcuts
@@ -159,6 +300,8 @@ namespace math
     const constexpr size_t size_max = (std::numeric_limits<size_t>::max)();
 
     const constexpr double quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+
+    const constexpr double pi = 3.14159265358979323846264338327950288419716939937510582;
 
     template<typename T>
     struct divrem
@@ -480,52 +623,24 @@ namespace math
 
     FORCE_INLINE uint32_t pof2_floor(uint32_t x)
     {
-        if (!VERIFY_TRUE(x)) return 0;
-
-        uint32_t x_ = x | (x >> 1);
-        x_ |= (x_ >> 2);
-        x_ |= (x_ >> 4);
-        x_ |= (x_ >> 8);
-        x_ |= (x_ >> 16);
-
-        return (x_ >> 1) + 1;
+        INT32_POF2_FLOOR_MACRO_INLINE(return, uint32_t, x);
     }
 
     FORCE_INLINE uint32_t pof2_ceil(uint32_t x)
     {
-        const uint32_t pof2_floor_value = pof2_floor(x);
-
-        return pof2_floor_value != x ? pof2_floor_value << 1 : pof2_floor_value;
+        INT32_POF2_CEIL_MACRO_INLINE(return, uint32_t, x);
     }
 
     template <typename T>
     FORCE_INLINE T int_pof2_floor(T v)
     {
-        STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes");
-        DEBUG_ASSERT_GT(v, T(0));
-
-        using unsigned_type = typename std::make_unsigned<T>::type;
-
-        unsigned_type unsigned_value = unsigned_type(v);
-
-        unsigned_value |= (unsigned_value >> 1);
-        unsigned_value |= (unsigned_value >> 2);
-        unsigned_value |= (unsigned_value >> 4);
-        unsigned_value |= (unsigned_value >> 8);
-        unsigned_value |= (unsigned_value >> 16);
-
-        return T((unsigned_value >> 1) + 1);
+        INT32_POF2_FLOOR_MACRO_INLINE(return, T, v);
     }
 
     template <typename T>
     FORCE_INLINE T int_pof2_ceil(T v)
     {
-        DEBUG_ASSERT_GT(v, T(0));
-        DEBUG_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
-
-        const auto pof2_floor_value = int_pof2_floor(v);
-
-        return T(pof2_floor_value != v ? (pof2_floor_value << 1) : pof2_floor_value);
+        INT32_POF2_CEIL_MACRO_INLINE(return, T, v);
     }
 
     //// runtime pof2 floor assert
@@ -533,8 +648,12 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_pof2_floor_verify(T v)
     {
-        DEBUG_ASSERT_EQ(int_pof2_floor(v), v);
-        return int_pof2_floor(v);
+        T pof2_value;
+        INT32_POF2_FLOOR_MACRO_INLINE(pof2_value =, T, v);
+
+        DEBUG_ASSERT_EQ(pof2_value, v);
+
+        return pof2_value;
     }
 
     //// runtime pof2 ceil assert
@@ -542,8 +661,12 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_pof2_ceil_verify(T v)
     {
-        DEBUG_ASSERT_EQ(int_pof2_ceil(v), v);
-        return int_pof2_ceil(v);
+        T pof2_value;
+        INT32_POF2_CEIL_MACRO_INLINE(pof2_value =, T, v);
+
+        DEBUG_ASSERT_EQ(pof2_value, v);
+
+        return pof2_value;
     }
 
     //// runtime log2 floor
@@ -551,67 +674,7 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_log2_floor(T v, T * pof2_value_ptr = nullptr)
     {
-        STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes");
-        DEBUG_ASSERT_GT(v, T(0));
-
-        if (1 >= v) {
-            if (pof2_value_ptr) {
-                if (v >= 0) {
-                    *pof2_value_ptr = v;
-                }
-                else {
-                    *pof2_value_ptr = 0;
-                }
-            }
-            return 0;
-        }
-
-        T pof2_prev_value = int_pof2_floor(v);
-        if (pof2_value_ptr) {
-            *pof2_value_ptr = pof2_prev_value;
-        }
-
-        T ret = 0;
-
-        // unrolled recursion including unrolled loops
-        T pof2_next_value = (pof2_prev_value >> 16);
-
-        if (pof2_next_value) {
-            ret += 16;
-            pof2_prev_value = pof2_next_value;
-            pof2_next_value >>= 8;
-        }
-        else pof2_next_value = (pof2_prev_value >> 8);
-
-        if (pof2_next_value) {
-            ret += 8;
-            pof2_prev_value = pof2_next_value;
-            pof2_next_value >>= 4;
-        }
-        else {
-            pof2_next_value = (pof2_prev_value >> 4);
-        }
-
-        if (pof2_next_value) {
-            ret += 4;
-            pof2_prev_value = pof2_next_value;
-            pof2_next_value >>= 2;
-        }
-        else {
-            pof2_next_value = (pof2_prev_value >> 2);
-        }
-
-        if (pof2_next_value) {
-            ret += 2;
-            pof2_next_value >>= 1;
-        }
-        else {
-            pof2_next_value = (pof2_prev_value >> 1);
-        }
-
-        if (pof2_next_value) ret++;
-
-        return ret;
+        INT32_LOG2_FLOOR_MACRO_INLINE(return, T, v, pof2_value_ptr);
     }
 
     //// runtime log2 ceil
@@ -619,32 +682,7 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_log2_ceil(T v, T * pof2_value_ptr = nullptr)
     {
-        DEBUG_ASSERT_GT(v, T(0));
-        DEBUG_ASSERT_GE(std::is_unsigned<T>::value ? v : ((std::numeric_limits<T>::max)() / 2), v);
-
-        if (1 >= v) {
-            if (pof2_value_ptr) {
-                if (v >= 0) {
-                    *pof2_value_ptr = v;
-                }
-                else {
-                    *pof2_value_ptr = 0;
-                }
-            }
-            return 0;
-        }
-
-        if (pof2_value_ptr) {
-            T pof2_floor_value;
-
-            const T log2_floor_value = int_log2_floor(v - 1, &pof2_floor_value);
-
-            *pof2_value_ptr = T(pof2_floor_value << 1);
-
-            return log2_floor_value + 1;
-        }
-
-        return T(int_log2_floor(v - 1) + 1);
+        INT32_LOG2_CEIL_MACRO_INLINE(return, T, v, pof2_value_ptr);
     }
 
     //// runtime log2 floor assert
@@ -652,8 +690,18 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_log2_floor_verify(T v)
     {
-        DEBUG_ASSERT_EQ(int_pof2_floor(v), v);
-        return int_log2_floor(v);
+        T log2_value;
+
+#if ERROR_IF_EMPTY_PP_DEF(DEBUG_ASSERT_VERIFY_ENABLED)
+        T pof2_value;
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_value =, T, v, &pof2_value);
+
+        DEBUG_ASSERT_EQ(pof2_value, v);
+#else
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_value =, T, v, nullptr);
+#endif
+
+        return log2_value;
     }
 
     //// runtime log2 ceil assert
@@ -661,8 +709,19 @@ namespace math
     template <typename T>
     FORCE_INLINE T int_log2_ceil_verify(T v)
     {
-        DEBUG_ASSERT_EQ(int_pof2_ceil(v), v);
-        return int_log2_ceil(v);
+        T log2_value;
+
+#if ERROR_IF_EMPTY_PP_DEF(DEBUG_ASSERT_VERIFY_ENABLED)
+        T pof2_value;
+
+        INT32_LOG2_CEIL_MACRO_INLINE(log2_value =, T, v, &pof2_value);
+
+        DEBUG_ASSERT_EQ(pof2_value, v);
+#else
+        INT32_LOG2_CEIL_MACRO_INLINE(log2_value =, T, v, nullptr);
+#endif
+
+        return log2_value;
     }
 
 

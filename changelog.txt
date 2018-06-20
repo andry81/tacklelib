@@ -1,3 +1,25 @@
+2018.06.20:
+* fixed: aligned storage types compilation and cast fixes
+* fixed: build scripts init error on unexisted configuration files
+* fixed: std::identity replaced because of deprecation in the msvc2017
+* new: tackle variant class to get/set multitype container at runtime
+
+2018.06.19:
+* refactor: type traits refactor
+
+2018.06.18:
+* new: vars and cmake file generator stop with error if files already existed but input and output file versions are different
+
+2018.06.15:
+* refactor: moved gtest wrapper functions and symbols into standalone library - testlib
+
+2018.06.10:
+* refactor: math.hpp debug performance partial optimization
+
+2018.06.08:
+* refactor: replaced ASSERT_*/VERIFY_* macroses in various non test headers/translation files by the DEBUG_ASSERT_*/DEBUG_VERIFY_* macroses to reduce slowdown unit/bench tests in the release configuration
+* refactor: other minor refactor
+
 2018.05.07:
 * fixed: valgrind illegal instruction error under Linux (__builtin_trap())
 * fixed: build script minor fixes
