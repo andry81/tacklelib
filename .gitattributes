@@ -30,6 +30,7 @@ _scripts/traplib.sh -text
 /environment_local.cmake.in -text
 /environment_local.vars.in -text
 includes/.svnignore -text
+includes/common_types.hpp -text
 includes/debug.hpp.in -text
 includes/optimization.hpp.in -text
 includes/tackle/aligned_storage_base.hpp -text
@@ -45,6 +46,7 @@ includes/utility/memory.hpp -text
 includes/utility/platform.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
+includes/utility/time.hpp -text
 includes/utility/type_traits.hpp -text
 includes/utility/utility.hpp -text
 src/.svnignore -text
@@ -61,8 +63,10 @@ src/tackle/file_reader.cpp -text
 src/tackle/file_reader.hpp -text
 src/tackle/smart_handle.hpp -text
 src/tackle/stream_storage.hpp -text
+src/tackle/variant.hpp -text
 src/tacklelib.hpp -text
-src/tests/test_common.cpp -text
+src/testlib/testlib.cpp -text
+src/testlib/testlib.hpp -text
 src/tests/test_common.hpp -text
 src/tests/test_main.cpp -text
 src/tests/test_main.hpp -text

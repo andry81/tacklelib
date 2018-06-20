@@ -18,7 +18,7 @@
 // WARNING:
 //  1. You must define DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE to fully switch the implementation.
 //  2. Compilation or linkage times has noticable slow down about 2x times.
-//#define USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS 1
+#define USE_UNIT_ASSERT_CALL_THROUGH_TEMPLATE_FUNCTION_INSTEAD_LAMBDAS 0
 
 // use basic verify/assert implementation instead unit test implementation (just to measure time spent in unit tests)
 #define USE_BASIC_ASSERT_INSTEAD_UNIT_ASSERT 0

@@ -6,8 +6,11 @@
 // Converts all FORCE_INLINE into `force no inline` both in debug and release (useful when want to profile each function).
 #define DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE 0
 
-// Disables all verification and asserts.
+// Disables VERIFY_*/ASSERT_* macroses ONLY.
 #define DISABLE_VERIFY_ASSERT 0
+
+// Disables DEBUG_VERIFY_*/DEBUG_ASSERT_* macroses ONLY.
+#define DISABLE_DEBUG_VERIFY_ASSERT 0
 
 // increases chances to catch a memory corruption place.
 #define USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT 0

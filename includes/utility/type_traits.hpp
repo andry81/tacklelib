@@ -8,9 +8,13 @@
 
 #include <utility/preprocessor.hpp>
 #include <utility/static_assert.hpp>
+#include <utility/memory.hpp>
 
 #include <type_traits>
 #include <tuple>
+
+#include <cstdint>
+#include <cstring>
 
 
 // to suppress warnings around compile time expression or values
@@ -40,6 +44,8 @@
 // lookup compile time size value
 #define UTILITY_SIZE_LOOKUP_BY_ERROR(size) \
     char * __integral_lookup[size] = 1
+
+#define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
 
 
 #ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
@@ -71,6 +77,33 @@ namespace utility
         using type = T;
     };
 
+    // std::identity is depricated in msvc2017
+
+    template <typename T>
+    struct identity
+    {
+        using type = T;
+    };
+
+    // type-by-value identity
+
+    template <typename T, T v>
+    struct value_identity
+    {
+        using type = T;
+        static constexpr const T value = v;
+    };
+
+    template <typename T, T v>
+    constexpr const T value_identity<T, v>::value = v;
+
+    template <int v>
+    struct int_identity
+    {
+        using type = int;
+        static constexpr const int value = v;
+    };
+
     // std::size is supported from C++17
     template <typename T, size_t N>
     FORCE_INLINE constexpr size_t static_size(const T (&)[N]) noexcept
@@ -82,6 +115,29 @@ namespace utility
     FORCE_INLINE constexpr size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
+    }
+
+    // Represents unconstructed decayed type value, to suppress compilation error on return types which default constructor has been deleted.
+    //
+
+    template<typename T>
+    FORCE_INLINE typename std::decay<T>::type & unconstructed_value(utility::identity<T>)
+    {
+        using T_decay = typename std::decay<T>::type;
+
+        static std::aligned_storage<sizeof(T_decay), boost::alignment_of<T_decay>::value>::type T_aligned_storage{};
+
+        // CAUTION:
+        //  After this point any usage of the return value is UB!
+        //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+        //  storage of the type can be a late construction container.
+        //
+
+        return *utility::cast_addressof<T_decay *>(T_aligned_storage);
+    }
+
+    FORCE_INLINE void unconstructed_value(...)
+    {
     }
 
     // `static if` implementation
@@ -646,6 +702,249 @@ namespace utility
     {
         using unref_type = typename std::remove_reference<T>::type;
         static const bool value = (std::is_function<unref_type>::value || std::is_class<unref_type>::value) && is_callable<unref_type>::value && (std::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value);
+    };
+
+    //// construct_if_constructible
+
+    template <typename Type, bool Constructible>
+    struct construct_if_constructible
+    {
+        static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
+
+            ::new (storage_ptr) Type();
+
+            return true;
+        }
+    };
+
+    template <typename Type>
+    struct construct_if_constructible<Type, false>
+    {
+        static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
+        {
+            throw std::runtime_error(
+                (boost::format(error_msg_fmt) % func % typeid(Type).name()).str()
+            );
+
+            return false;
+        }
+    };
+
+    //// construct_if_convertible
+
+    template <typename Type, bool Convertable>
+    struct construct_if_convertible
+    {
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
+
+            ::new (storage_ptr) Type(r);
+
+            return true;
+        }
+    };
+
+    template <typename Type>
+    struct construct_if_convertible<Type, false>
+    {
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            throw std::runtime_error(
+                (boost::format(error_msg_fmt) % func % typeid(Type).name() % typeid(Ref).name()).str()
+            );
+
+            return false;
+        }
+    };
+
+    //// construct_dispatcher
+
+    template <int TypeIndex, typename Type, bool IsEnabled>
+    struct construct_dispatcher
+    {
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            return construct_if_convertible<Type, std::is_convertible<Ref, Type>::value>::construct(storage_ptr, r, func, error_msg_fmt);
+        }
+
+        static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
+        {
+            return construct_if_constructible<Type, std::is_constructible<Type>::value>::construct_default(storage_ptr, func, error_msg_fmt);
+        }
+    };
+
+    template <int TypeIndex, typename Type>
+    struct construct_dispatcher<TypeIndex, Type, false>
+    {
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT4(storage_ptr, r, func, error_msg_fmt);
+            return false;
+        }
+
+        static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT3(storage_ptr, func, error_msg_fmt);
+            return false;
+        }
+    };
+
+    //// invoke_if_convertible
+
+    template <typename Ret, typename From, typename To, bool Convertable>
+    struct invoke_if_convertible
+    {
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return f(r);
+        }
+    };
+
+    template <typename Ret, typename From, typename To>
+    struct invoke_if_convertible<Ret, From, To, false>
+    {
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            if(throw_exceptions_on_type_error) {
+                char buf[1024];
+                buf[0] = '\0';
+                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
+                throw std::runtime_error(buf);
+            }
+
+            // CAUTION:
+            //  After this point any usage of the return value is UB!
+            //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+            //  storage of the type can be a late construction container.
+            //
+
+            return utility::unconstructed_value(utility::identity<Ret>());
+        }
+    };
+
+    // invoke_dispatcher
+
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled, bool IsExtractable>
+    struct invoke_dispatcher
+    {
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            using return_type = typename std::remove_cv<typename std::remove_reference<typename utility::function_traits<F>::return_type>::type>::type;
+            using unqual_arg0_type = typename std::remove_cv<typename std::remove_reference<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type>::type;
+            using found_it_t = typename TypeFind<TypeList, unqual_arg0_type>::type;
+
+            static_assert(!std::is_same<found_it_t, EndIt>::value,
+                "functor first unqualified parameter type is not declared by storage types list");
+
+            return invoke_if_convertible<Ret, Ref, unqual_arg0_type,
+                std::is_convertible<Ref, unqual_arg0_type>::value && std::is_convertible<return_type, Ret>::value>::
+                call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+    };
+
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt>
+    struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, true, false>
+    {
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return f(r); // call as generic or cast
+        }
+    };
+
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsExtractable>
+    struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, false, IsExtractable>
+    {
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return invoke_if_convertible<Ret, Ref, Ret, false>::
+                call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+    };
+
+    // invoke_if_returnable_dispatcher
+
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled>
+    struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled, true>
+    {
+    };
+
+    //// assign_if_convertible
+
+    template <bool Convertable>
+    struct assign_if_convertible
+    {
+        template <typename From, typename To>
+        static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return to = from;
+        }
+    };
+
+    template <>
+    struct assign_if_convertible<false>
+    {
+        template <typename From, typename To>
+        static FORCE_INLINE To & call(To & to, From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            if (throw_exceptions_on_type_error) {
+                char buf[1024];
+                buf[0] = '\0';
+                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
+                throw std::runtime_error(buf);
+            }
+
+            return to;
+        }
+    };
+
+    //// assign_dispatcher
+
+    template <typename From, typename To, bool IsEnabled>
+    struct assign_dispatcher
+    {
+        template <bool IsEnabled_>
+        struct assign_if_enabled
+        {
+            template <typename From, typename To>
+            static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            {
+                return assign_if_convertible<std::is_convertible<From, To>::value>::
+                    call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+            }
+        };
+
+        template <>
+        struct assign_if_enabled<false>
+        {
+            template <typename From, typename To>
+            static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+            {
+                UTILITY_UNUSED_STATEMENT5(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+                return to;
+            }
+        };
+
+        template <typename From, typename To>
+        static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return assign_if_enabled<IsEnabled>::
+                call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
     };
 }
 

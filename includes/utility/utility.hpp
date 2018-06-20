@@ -31,7 +31,7 @@
 #include <unistd.h>
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include <memory.h>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -40,12 +40,6 @@
 #else
 #error platform is not implemented
 #endif
-
-
-#define if_break(x) if(!(x)); else switch(0) case 0: default:
-#define if_break2(label, x) if(!(x)) label:; else switch(0) case 0: default:
-
-#define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { using type = type_; }
 
 
 namespace tackle
@@ -92,13 +86,13 @@ namespace utility
 
         FORCE_INLINE uint8_t * get()
         {
-            ASSERT_TRUE(m_size);
+            DEBUG_ASSERT_TRUE(m_size);
             return m_buf_ptr.get() + m_offset;
         }
 
         FORCE_INLINE const uint8_t * get() const
         {
-            ASSERT_TRUE(m_size);
+            DEBUG_ASSERT_TRUE(m_size);
             return m_buf_ptr.get() + m_offset;
         }
 

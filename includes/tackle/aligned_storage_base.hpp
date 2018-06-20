@@ -23,8 +23,8 @@ namespace tackle
     //  Special tag pattern type to use the aligned storage with enabled (not deleted) copy constructor and assignment operator
     //  with explicit flag of constructed state (it is dangerous w/o the flag because being copied or assigned type can be not yet constructed!).
     //
-    using tag_pttn_control_lifetime_t = struct tag_pttn_control_lifetime_;
-    using tag_pttn_default_t = struct tag_pttn_default_;
+    using tag_pttn_control_lifetime_t   = struct tag_pttn_control_lifetime_;
+    using tag_pttn_default_t            = struct tag_pttn_default_;
 
     template <typename tag_pttn>
     class aligned_storage_base

@@ -222,7 +222,7 @@ namespace tackle
             ChunkBufferCRef(const T * buf, size_t size) :
                 m_buf(buf), m_size(size)
             {
-                ASSERT_TRUE(buf && size);
+                DEBUG_ASSERT_TRUE(buf && size);
             }
 
         public:
@@ -477,7 +477,7 @@ namespace tackle
     template <typename T>
     inline void stream_storage<T>::reset(size_t min_chunk_size, size_t min_arr0_capacity, size_t min_arr1_capacity)
     {
-        ASSERT_TRUE(min_chunk_size);
+        DEBUG_ASSERT_TRUE(min_chunk_size);
 
         const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
         if (chunk_type_index >= num_chunk_variants_t::value) {
@@ -487,7 +487,7 @@ namespace tackle
         }
 
         if (chunk_type_index != m_chunks.type_index()) {
-            m_chunks.construct(chunk_type_index, true);
+            m_chunks.construct_default(chunk_type_index, true);
 
 #if ERROR_IF_EMPTY_PP_DEF(ENABLE_INTERNAL_TACKLE_DEQUE_IN_STREAM_STORAGE)
             m_chunks.template invoke<void>([=](auto & chunks)
@@ -576,7 +576,7 @@ namespace tackle
     template <typename T>
     inline void stream_storage<T>::push_back(const T * buf, size_t size)
     {
-        ASSERT_TRUE(buf && size);
+        DEBUG_ASSERT_TRUE(buf && size);
 
         m_chunks.template invoke<void>([=](auto & chunks)
         {
@@ -584,7 +584,7 @@ namespace tackle
             using chunk_t = typename boost::remove_reference<ref_chunk_t>::type;
 
             const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
-            ASSERT_LT(m_remainder, chunk_size);
+            DEBUG_ASSERT_LT(m_remainder, chunk_size);
 
             size_t buf_offset = 0;
             size_t left_size = size;
@@ -631,7 +631,7 @@ namespace tackle
     template <typename T>
     inline T & stream_storage<T>::operator[](size_t offset)
     {
-        ASSERT_LT(offset, size());
+        DEBUG_ASSERT_LT(offset, size());
 
         return m_chunks.template invoke<T &>([=](auto & chunks)
         {
@@ -647,7 +647,7 @@ namespace tackle
     template <typename T>
     inline const T & stream_storage<T>::operator[](size_t offset) const
     {
-        ASSERT_LT(offset, size());
+        DEBUG_ASSERT_LT(offset, size());
 
         return m_chunks.template invoke<const T &>([=](const auto & chunks)
         {
@@ -663,8 +663,8 @@ namespace tackle
     template <typename T> template <typename C>
     inline size_t stream_storage<T>::_copy_to_impl(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
     {
-        ASSERT_LT(0U, to_size);
-        ASSERT_GE(size(), offset_from + to_size);
+        DEBUG_ASSERT_LT(0U, to_size);
+        DEBUG_ASSERT_GE(size(), offset_from + to_size);
 
         const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
@@ -749,8 +749,8 @@ namespace tackle
     template <typename T> template <typename C>
     FORCE_INLINE size_t stream_storage<T>::_copy_to_impl_innerforceinline(const C & chunks, size_t offset_from, T * to_buf, size_t to_size) const
     {
-        ASSERT_LT(0U, to_size);
-        ASSERT_GE(size(), offset_from + to_size);
+        DEBUG_ASSERT_LT(0U, to_size);
+        DEBUG_ASSERT_GE(size(), offset_from + to_size);
 
         const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 
@@ -834,8 +834,8 @@ namespace tackle
 //    template <typename C>
 //    inline size_t _inner_stride_copy_to_impl(const C & chunks, size_t offset_from, size_t from_size, size_t stride_size, size_t stride_step, T * to_buf, size_t to_size) const
 //    {
-//        ASSERT_TRUE(stride_size && stride_step && from_size && to_size);
-//        ASSERT_GE(stride_step, stride_size);
+//        DEBUG_ASSERT_TRUE(stride_size && stride_step && from_size && to_size);
+//        DEBUG_ASSERT_GE(stride_step, stride_size);
 //
 //        const size_t chunk_size = this->_get_chunk_size(m_chunks.type_index());
 //
@@ -924,11 +924,11 @@ namespace tackle
         size_t slot_begin_in_row_offset, size_t slot_end_in_row_offset, T * to_buf, size_t max_slot_size,
         size_t * in_stream_slot_offset_ptr, size_t * in_slot_byte_offset_ptr, size_t * end_stride_byte_offset_ptr) const
     {
-        ASSERT_TRUE(to_buf && max_slot_size);
-        ASSERT_LT(in_row_offset_from, stream_width);
-        ASSERT_GE(stream_width, slot_end_in_row_offset);
-        ASSERT_LT(slot_begin_in_row_offset, slot_end_in_row_offset);
-        ASSERT_LT(offset_from, size());
+        DEBUG_ASSERT_TRUE(to_buf && max_slot_size);
+        DEBUG_ASSERT_LT(in_row_offset_from, stream_width);
+        DEBUG_ASSERT_GE(stream_width, slot_end_in_row_offset);
+        DEBUG_ASSERT_LT(slot_begin_in_row_offset, slot_end_in_row_offset);
+        DEBUG_ASSERT_LT(offset_from, size());
 
         const size_t slot_size = m_chunks.template invoke<size_t>([=](const auto & chunks)
         {
@@ -964,7 +964,7 @@ namespace tackle
                 const size_t iterate_size = (std::min)(slot_begin_in_row_offset - in_row_offset_last, stream_size_left);
 
                 iterated_stream_size += iterate_size;
-                ASSERT_GE(stream_size_left, iterate_size);
+                DEBUG_ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
                 if (!stream_size_left) {
@@ -987,22 +987,22 @@ namespace tackle
                 const size_t first_slot_row_bytes = slot_end_in_row_offset - in_row_offset_last;
 
                 const size_t slot_size_to_copy = (std::min)((std::min)(first_slot_row_bytes, slot_size_left), stream_size_left);
-                ASSERT_LT(0U, slot_size_to_copy);
+                DEBUG_ASSERT_LT(0U, slot_size_to_copy);
 
                 const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
                     _copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
-                ASSERT_EQ(copied_size, slot_size_to_copy);
+                DEBUG_ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
                 iterated_stream_size += slot_size_to_copy;
 
-                ASSERT_GE(slot_size_left, slot_size_to_copy);
+                DEBUG_ASSERT_GE(slot_size_left, slot_size_to_copy);
                 slot_size_left -= slot_size_to_copy;
-                ASSERT_GE(stream_size_left, slot_size_to_copy);
+                DEBUG_ASSERT_GE(stream_size_left, slot_size_to_copy);
                 stream_size_left -= slot_size_to_copy;
 
                 if (in_slot_byte_offset_ptr) {
-                    ASSERT_GE(in_row_offset_last, slot_begin_in_row_offset);
+                    DEBUG_ASSERT_GE(in_row_offset_last, slot_begin_in_row_offset);
                     *in_slot_byte_offset_ptr = in_row_offset_last - slot_begin_in_row_offset;
                 }
 
@@ -1016,7 +1016,7 @@ namespace tackle
                 const size_t iterate_size = (std::min)(stream_width - in_row_offset_last, stream_size_left);
 
                 iterated_stream_size += iterate_size;
-                ASSERT_GE(stream_size_left, iterate_size);
+                DEBUG_ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
                 if (!stream_size_left) {
@@ -1039,7 +1039,7 @@ namespace tackle
             for (size_t i = 0; i < num_whole_rows; i++) {
                 const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
                     _copy_to_impl(*this, chunks, offset_from + iterated_stream_size + slot_begin_in_row_offset, to_buf + slot_size, slot_width);
-                ASSERT_EQ(copied_size, slot_width);
+                DEBUG_ASSERT_EQ(copied_size, slot_width);
 
                 slot_size += copied_size;
                 iterated_stream_size += stream_width;
@@ -1047,9 +1047,9 @@ namespace tackle
 
             const size_t iterate_size = num_whole_rows * stream_width;
 
-            ASSERT_GE(slot_size_left, num_whole_rows * slot_width);
+            DEBUG_ASSERT_GE(slot_size_left, num_whole_rows * slot_width);
             slot_size_left -= num_whole_rows * slot_width;
-            ASSERT_GE(stream_size_left, iterate_size);
+            DEBUG_ASSERT_GE(stream_size_left, iterate_size);
             stream_size_left -= iterate_size;
 
             if (!slot_size_left || !stream_size_left) return slot_size;
@@ -1059,7 +1059,7 @@ namespace tackle
                 const size_t iterate_size = (std::min)(slot_begin_in_row_offset, stream_size_left);
 
                 iterated_stream_size += iterate_size;
-                ASSERT_GE(stream_size_left, iterate_size);
+                DEBUG_ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
                 if (!stream_size_left) return slot_size;
@@ -1068,18 +1068,18 @@ namespace tackle
             //_last_row_slot_segment:;
             {
                 const size_t slot_size_to_copy = (std::min)((std::min)(slot_width, slot_size_left), stream_size_left);
-                ASSERT_LT(0U, slot_size_to_copy);
+                DEBUG_ASSERT_LT(0U, slot_size_to_copy);
 
                 const size_t copied_size = detail::_inline_dispatch<InnerForceInline>::
                     _copy_to_impl(*this, chunks, offset_from + iterated_stream_size, to_buf + slot_size, slot_size_to_copy);
-                ASSERT_EQ(copied_size, slot_size_to_copy);
+                DEBUG_ASSERT_EQ(copied_size, slot_size_to_copy);
 
                 slot_size += copied_size;
                 iterated_stream_size += slot_size_to_copy;
 
-                ASSERT_GE(slot_size_left, slot_size_to_copy);
+                DEBUG_ASSERT_GE(slot_size_left, slot_size_to_copy);
                 slot_size_left -= slot_size_to_copy;
-                ASSERT_GE(stream_size_left, slot_size_to_copy);
+                DEBUG_ASSERT_GE(stream_size_left, slot_size_to_copy);
                 stream_size_left -= slot_size_to_copy;
 
                 if (!slot_size_left) {
@@ -1088,7 +1088,7 @@ namespace tackle
                         const size_t iterate_size = (std::min)(stream_width - slot_end_in_row_offset, stream_size_left);
 
                         iterated_stream_size += iterate_size;
-                        ASSERT_GE(stream_size_left, iterate_size); // just in case
+                        DEBUG_ASSERT_GE(stream_size_left, iterate_size); // just in case
                     }
 
                     return slot_size;
@@ -1100,19 +1100,19 @@ namespace tackle
                 const size_t iterate_size = (std::min)(stream_width - slot_end_in_row_offset, stream_size_left);
 
                 iterated_stream_size += iterate_size;
-                ASSERT_GE(stream_size_left, iterate_size);
+                DEBUG_ASSERT_GE(stream_size_left, iterate_size);
                 stream_size_left -= iterate_size;
 
                 // end of stream
-                ASSERT_FALSE(stream_size_left);
+                DEBUG_ASSERT_FALSE(stream_size_left);
             }
 
             return slot_size;
         });
 
-#if ASSERT_VERIFY_ENABLED
+#if DEBUG_ASSERT_VERIFY_ENABLED
         if (in_stream_slot_offset_ptr && in_slot_byte_offset_ptr) {
-            ASSERT_TRUE(!*in_stream_slot_offset_ptr && !*in_slot_byte_offset_ptr || (*in_stream_slot_offset_ptr ^ *in_slot_byte_offset_ptr)); // only one must be not zero at a time!
+            DEBUG_ASSERT_TRUE(!*in_stream_slot_offset_ptr && !*in_slot_byte_offset_ptr || (*in_stream_slot_offset_ptr ^ *in_slot_byte_offset_ptr)); // only one must be not zero at a time!
         }
 #endif
 
@@ -1139,7 +1139,7 @@ namespace tackle
                 to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
         }
 
-        ASSERT_GE(m_size, offset_from);
+        DEBUG_ASSERT_GE(m_size, offset_from);
         const uint32_t max_size_to_process = (std::min)(max_slot_size, m_size - offset_from);
         return copy_to(offset_from, to_buf, max_size_to_process);
     }
@@ -1155,7 +1155,7 @@ namespace tackle
                 to_buf, max_slot_size, in_stream_slot_offset_ptr, in_slot_byte_offset_ptr, end_stride_byte_offset_ptr);
         }
 
-        ASSERT_GE(m_size, offset_from);
+        DEBUG_ASSERT_GE(m_size, offset_from);
         const uint32_t max_size_to_process = (std::min)(max_slot_size, m_size - offset_from);
         return copy_to(offset_from, to_buf, max_size_to_process);
     }
@@ -1163,7 +1163,7 @@ namespace tackle
     template <typename T>
     inline size_t stream_storage<T>::erase_front(size_t size)
     {
-        ASSERT_GE(m_size, size);
+        DEBUG_ASSERT_GE(m_size, size);
 
         return m_chunks.template invoke<size_t>([=](auto & chunks)
         {
@@ -1180,7 +1180,7 @@ namespace tackle
 
                 erased_size = chunk_index * chunk_size;
 
-                ASSERT_GE(m_size, erased_size);
+                DEBUG_ASSERT_GE(m_size, erased_size);
                 m_size -= erased_size;
             }
             else {

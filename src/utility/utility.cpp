@@ -186,7 +186,7 @@ namespace utility
 
     uint64_t get_file_size(const tackle::FileHandle & file_handle)
     {
-        ASSERT_TRUE(file_handle.get());
+        DEBUG_ASSERT_TRUE(file_handle.get());
 
         fpos_t last_pos;
         if (fgetpos(file_handle.get(), &last_pos)) return 0;

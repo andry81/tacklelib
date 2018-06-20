@@ -20,6 +20,11 @@
 #endif
 
 
+#if defined(UNIT_TESTS) || defined(BENCH_TESTS)
+#pragma message(UTILITY_PP_FILE "(" UTILITY_PP_LINE_STR "): warning: public header \"assert.hpp\" has been included under tests environment, this might indicate invalid header's inclusion search order!")
+#endif
+
+
 // heap corruption simple check
 #if ERROR_IF_EMPTY_PP_DEF(USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT)
 #define UTILITY_DBG_HEAP_CHECK() delete [] (new char [1])
@@ -135,7 +140,7 @@
 
 // classic debug assert
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && !ERROR_IF_EMPTY_PP_DEF(DISABLE_DEBUG_VERIFY_ASSERT)
 
 #define DEBUG_VERIFY_TRUE       BASIC_VERIFY_TRUE
 #define DEBUG_VERIFY_FALSE      BASIC_VERIFY_FALSE
@@ -216,35 +221,7 @@
 #define LOCAL_ASSERT_GT(is_local, v1, v2)  do {{ if(is_local) BASIC_ASSERT_GT(v1, v2); else ASSERT_GT(v1, v2); }} while(false)
 
 
-#if ERROR_IF_EMPTY_PP_DEF(DISABLE_VERIFY_ASSERT)
-
-#define VERIFY_TRUE     DISABLED_VERIFY_TRUE
-#define VERIFY_FALSE    DISABLED_VERIFY_FALSE
-
-#define VERIFY_EQ       DISABLED_VERIFY_EQ
-#define VERIFY_NE       DISABLED_VERIFY_NE
-#define VERIFY_LE       DISABLED_VERIFY_LE
-#define VERIFY_LT       DISABLED_VERIFY_LT
-#define VERIFY_GE       DISABLED_VERIFY_GE
-#define VERIFY_GT       DISABLED_VERIFY_GT
-
-#define ASSERT_TRUE     DISABLED_ASSERT_TRUE
-#define ASSERT_FALSE    DISABLED_ASSERT_FALSE
-
-#define ASSERT_EQ       DISABLED_ASSERT_EQ
-#define ASSERT_NE       DISABLED_ASSERT_NE
-#define ASSERT_LE       DISABLED_ASSERT_LE
-#define ASSERT_LT       DISABLED_ASSERT_LT
-#define ASSERT_GE       DISABLED_ASSERT_GE
-#define ASSERT_GT       DISABLED_ASSERT_GT
-
-#define ASSERT_VERIFY_ENABLED 0
-
-#define IF_ASSERT_VERIFY_ENABLED(x) if(false)
-
-#else
-
-#if defined(_DEBUG)
+#if defined(_DEBUG) && !ERROR_IF_EMPTY_PP_DEF(DISABLE_VERIFY_ASSERT)
 
 #define VERIFY_TRUE     DEBUG_VERIFY_TRUE
 #define VERIFY_FALSE    DEBUG_VERIFY_FALSE
@@ -295,8 +272,6 @@
 #define ASSERT_VERIFY_ENABLED 0
 
 #define IF_ASSERT_VERIFY_ENABLED(x) if(false)
-
-#endif
 
 #endif
 
