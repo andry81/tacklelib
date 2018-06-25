@@ -2,6 +2,8 @@
 
 #include <tacklelib.hpp>
 
+#include <utility/platform.hpp>
+
 #include <boost/smart_ptr.hpp>
 
 
@@ -27,12 +29,12 @@ namespace tackle
         ReleaseDeleterFunc * deleter;
 
     public:
-        ReleaseDeleter(const ReleaseStateSharedPtr release_state_, ReleaseDeleterFunc deleter_ = nullptr) :
+        FORCE_INLINE ReleaseDeleter(const ReleaseStateSharedPtr release_state_, ReleaseDeleterFunc deleter_ = nullptr) :
             release_state(release_state_),
             deleter(deleter_)
         {}
 
-        void operator()(T* ptr)
+        FORCE_INLINE void operator()(T* ptr)
         {
             if (*release_state.get()) return; // pointer has been released
             if (deleter) {
@@ -54,47 +56,47 @@ namespace tackle
         SharedPtr               m_pv;
 
     protected:
-        SmartHandle(T * p = 0, ReleaseDeleterFunc deleter = nullptr);
+        FORCE_INLINE SmartHandle(T * p = 0, ReleaseDeleterFunc deleter = nullptr);
     public:
-        SmartHandle(const SmartHandle &) = default;
-        ~SmartHandle();
+        FORCE_INLINE SmartHandle(const SmartHandle &) = default;
+        FORCE_INLINE ~SmartHandle();
 
     protected:
-        void reset(T * p = 0, ReleaseDeleterFunc deleter = nullptr);
+        FORCE_INLINE void reset(T * p = 0, ReleaseDeleterFunc deleter = nullptr);
     public:
-        operator bool() const;
+        FORCE_INLINE operator bool() const;
 
-        T * detach();
-        T * get() const;
+        FORCE_INLINE T * detach();
+        FORCE_INLINE T * get() const;
     };
 
     template<typename T>
-    SmartHandle<T>::SmartHandle(T * p, ReleaseDeleterFunc deleter) :
+    FORCE_INLINE SmartHandle<T>::SmartHandle(T * p, ReleaseDeleterFunc deleter) :
         m_release(ReleaseStateSharedPtr(new bool(false))), // does not release by default
         m_pv(p, ReleaseDeleter<T>(m_release, deleter))
     {
     }
 
     template<typename T>
-    SmartHandle<T>::~SmartHandle()
+    FORCE_INLINE SmartHandle<T>::~SmartHandle()
     {
     }
 
     template<typename T>
-    void SmartHandle<T>::reset(T * p, ReleaseDeleterFunc deleter)
+    FORCE_INLINE void SmartHandle<T>::reset(T * p, ReleaseDeleterFunc deleter)
     {
         m_pv.reset(p, ReleaseDeleter<T>(m_release, deleter));
         *m_release.get() = false; // reset to default
     }
 
     template<typename T>
-    SmartHandle<T>::operator bool() const
+    FORCE_INLINE SmartHandle<T>::operator bool() const
     {
         return m_pv.get() ? true : false;
     }
 
     template<typename T>
-    T * SmartHandle<T>::detach()
+    FORCE_INLINE T * SmartHandle<T>::detach()
     {
         *m_release.get() = true; // if needs to be thread safe, then this line must be either atomic or strictly ordered before the release call!
         T * p_detached = (T *)m_pv.get();
@@ -103,7 +105,7 @@ namespace tackle
     }
 
     template<typename T>
-    T * SmartHandle<T>::get() const
+    FORCE_INLINE T * SmartHandle<T>::get() const
     {
         return (T *)m_pv.get();
     }

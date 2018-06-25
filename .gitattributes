@@ -30,7 +30,6 @@ _scripts/traplib.sh -text
 /environment_local.cmake.in -text
 /environment_local.vars.in -text
 includes/.svnignore -text
-includes/common_types.hpp -text
 includes/debug.hpp.in -text
 includes/optimization.hpp.in -text
 includes/tackle/aligned_storage_base.hpp -text
@@ -55,12 +54,12 @@ src/common.hpp -text
 src/debug.hpp.in -text
 src/optimization.hpp.in -text
 src/tackle/aligned_storage.hpp -text
-src/tackle/aligned_storage_decl.hpp -text
-src/tackle/aligned_storage_impl.hpp -text
 src/tackle/file_handle.cpp -text
 src/tackle/file_handle.hpp -text
 src/tackle/file_reader.cpp -text
 src/tackle/file_reader.hpp -text
+src/tackle/private/aligned_storage_decl.hpp -text
+src/tackle/private/aligned_storage_impl.hpp -text
 src/tackle/smart_handle.hpp -text
 src/tackle/stream_storage.hpp -text
 src/tackle/variant.hpp -text

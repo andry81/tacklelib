@@ -4,15 +4,16 @@
 #error This header must be used explicitly in a test declared environment. Use respective definitions to declare a test environment.
 #endif
 
-#include <tacklelib.hpp>
+#include <tacklelib_private.hpp>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #include <windows.h>
 #endif
 
+#include <utility/assert_private.hpp>   // must uses private `assert.hpp` implementation!
+
 #include <utility/utility.hpp>
 #include <utility/platform.hpp>
-#include <utility/assert.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
 #include <utility/math.hpp>
@@ -69,7 +70,13 @@
 //   - `out`
 //
 #define TEST_CASE_GET_DIR(scope, func, ref_name) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func))
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func), nullptr, nullptr)
+
+#define TEST_CASE_GET_DIR2(scope, func, ref_name, sub_dir) \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func), sub_dir, nullptr)
+
+#define TEST_CASE_GET_DIR3(scope, func, ref_name, sub_dir, sub_dir2) \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func), sub_dir, sub_dir2)
 
 #define TEST_INTERRUPT() \
     { ::test::interrupt_test(); return; } (void)0
@@ -177,7 +184,7 @@
     { \
     public: \
         TEST_IMPL_DECLARE_ENV_VAR(var_name); \
-        static std::string UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(const char * scope_str, const char * func_str); \
+        static std::string UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(const char * scope_str, const char * func_str, const char * sub_dir, const char * sub_dir2); \
     protected: \
         class_name(); \
     }

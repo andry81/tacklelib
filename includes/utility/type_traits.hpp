@@ -95,7 +95,7 @@ namespace utility
     };
 
     template <typename T, T v>
-    constexpr const T value_identity<T, v>::value = v;
+    constexpr const T value_identity<T, v>::value;
 
     template <int v>
     struct int_identity
@@ -125,7 +125,7 @@ namespace utility
     {
         using T_decay = typename std::decay<T>::type;
 
-        static std::aligned_storage<sizeof(T_decay), boost::alignment_of<T_decay>::value>::type T_aligned_storage{};
+        static typename std::aligned_storage<sizeof(T_decay), std::alignment_of<T_decay>::value>::type T_aligned_storage{};
 
         // CAUTION:
         //  After this point any usage of the return value is UB!
@@ -475,147 +475,147 @@ namespace utility
 
     // function
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...) const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...) volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...) const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // pointer-to-function
     template <typename R, typename... Args>
-    struct function_traits<R(*)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (*)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     // reference-to-function
     template <typename R, typename... Args>
-    struct function_traits<R(&)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (&)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     // pointer-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R(*)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (*)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     // reference-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R(&)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (&)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R(Args..., ...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
@@ -626,17 +626,17 @@ namespace utility
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
@@ -647,17 +647,17 @@ namespace utility
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args..., ...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args..., ...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R(C::*)(Args..., ...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
@@ -701,7 +701,7 @@ namespace utility
     struct is_function_traits_extractable
     {
         using unref_type = typename std::remove_reference<T>::type;
-        static const bool value = (std::is_function<unref_type>::value || std::is_class<unref_type>::value) && is_callable<unref_type>::value && (std::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value);
+        static const bool value = is_callable<unref_type>::value && (std::is_function<unref_type>::value || std::is_class<unref_type>::value && has_regular_parenthesis_operator<unref_type>::value);
     };
 
     //// construct_if_constructible
@@ -724,9 +724,10 @@ namespace utility
     {
         static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
         {
-            throw std::runtime_error(
-                (boost::format(error_msg_fmt) % func % typeid(Type).name()).str()
-            );
+            char buf[1024];
+            buf[0] = '\0';
+            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name());
+            throw std::runtime_error(buf);
 
             return false;
         }
@@ -754,9 +755,10 @@ namespace utility
         template <typename Ref>
         static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
         {
-            throw std::runtime_error(
-                (boost::format(error_msg_fmt) % func % typeid(Type).name() % typeid(Ref).name()).str()
-            );
+            char buf[1024];
+            buf[0] = '\0';
+            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
+            throw std::runtime_error(buf);
 
             return false;
         }
@@ -878,7 +880,7 @@ namespace utility
     // invoke_if_returnable_dispatcher
 
     template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled>
-    struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled, true>
+    struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled, false>
     {
     };
 
@@ -912,40 +914,40 @@ namespace utility
         }
     };
 
+    //// assign_if_enabled
+
+    template <typename From, typename To, bool IsEnabled>
+    struct assign_if_enabled
+    {
+        static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return assign_if_convertible<std::is_convertible<From, To>::value>::
+                call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+    };
+
+    template <typename From, typename To>
+    struct assign_if_enabled<From, To, false>
+    {
+        static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT5(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+            return to;
+        }
+    };
+
     //// assign_dispatcher
 
     template <typename From, typename To, bool IsEnabled>
     struct assign_dispatcher
     {
-        template <bool IsEnabled_>
-        struct assign_if_enabled
-        {
-            template <typename From, typename To>
-            static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
-            {
-                return assign_if_convertible<std::is_convertible<From, To>::value>::
-                    call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
-            }
-        };
-
-        template <>
-        struct assign_if_enabled<false>
-        {
-            template <typename From, typename To>
-            static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
-            {
-                UTILITY_UNUSED_STATEMENT5(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
-                return to;
-            }
-        };
-
-        template <typename From, typename To>
         static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
-            return assign_if_enabled<IsEnabled>::
+            return assign_if_enabled<From, To, IsEnabled>::
                 call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
+
 }
 
 #endif

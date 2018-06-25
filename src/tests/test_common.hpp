@@ -11,8 +11,16 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/range/combine.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
+
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+
 
 namespace boost
 {
     namespace fs = filesystem;
+    namespace ios = boost::iostreams;
 }

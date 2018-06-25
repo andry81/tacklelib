@@ -7,6 +7,7 @@
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
+#include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 
 #include <cstdint>
@@ -15,17 +16,23 @@
 #include <limits>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
-#include <winnt.h>
+// windows includes must be ordered here!
+#include <windef.h>
 #include <winbase.h>
-#elif UTILITY_PLATFORM_POSIX
+#include <winnt.h>
+#elif defined(UTILITY_PLATFORM_POSIX)
 #include <time.h>
 #else
 #error platform is not implemented
 #endif
 
 
-namespace utility
-{
+namespace utility {
+namespace time {
+
+    static constexpr const uint64_t unix_epoch_mcsecs                       =  62135596800000000ULL;
+    static constexpr const uint64_t from_1_jan1601_to_1_jan1970_100nsecs    = 116444736000000000ULL;   //1.jan1601 to 1.jan1970
+
 #ifdef UTILITY_PLATFORM_WINDOWS
     using clockid_t = int;
 
@@ -41,18 +48,16 @@ namespace utility
     const clockid_t CLOCK_BOOTTIME_ALARM        = 9;    // Like CLOCK_BOOTTIME but also wakes suspended system.
     const clockid_t CLOCK_TAI                   = 11;   // Like CLOCK_REALTIME but in International Atomic Time.
 
-    void unix_time(struct timespec *spec)
+    FORCE_INLINE void unix_time(struct timespec *spec)
     {
-        constexpr const int64_t w2ux = 116444736000000000i64; //1.jan1601 to 1.jan1970
-
         int64_t wintime;
         GetSystemTimeAsFileTime((FILETIME *)&wintime);
-        wintime -= w2ux;
+        wintime -= from_1_jan1601_to_1_jan1970_100nsecs;
         spec->tv_sec = wintime / 10000000i64;
         spec->tv_nsec = wintime % 10000000i64 * 100;
     }
 
-    int clock_gettime(clockid_t clk_id, struct timespec * ct)
+    FORCE_INLINE int clock_gettime(clockid_t clk_id, struct timespec * ct)
     {
         UTILITY_UNUSED_STATEMENT(clk_id);
 
@@ -89,6 +94,20 @@ namespace utility
         return 0;
     }
 #endif
+
+    FORCE_INLINE bool is_leap_year(size_t year)
+    {
+        return !(year % 4) && (year % 100) || !(year % 400);
+    }
+
+    FORCE_INLINE size_t get_leap_days(size_t year)
+    {
+        ASSERT_GE(year, 1800U);
+        const size_t prev_year = year - 1;
+        return prev_year / 4 - prev_year / 100 + prev_year / 400;
+    }
+
+}
 }
 
 #endif
