@@ -1,6 +1,6 @@
 #pragma once
 
-// "tackle/aligned_storage_decl.hpp" must be already included here!
+// "aligned_storage_decl.hpp" must be already included here!
 
 
 namespace tackle
@@ -235,7 +235,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct)
+    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct)
     {
         if (!s.is_constructed()) goto default_;
 
@@ -266,7 +266,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
-    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::destruct()
+    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::destruct()
     {
         switch (m_type_index)
         {
@@ -444,7 +444,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
-                (n < num_types_t::value) && utility::is_function_traits_extractable<decltype(functor)>::value>:: \
+                (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
@@ -476,7 +476,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
-                (n < num_types_t::value) && utility::is_function_traits_extractable<decltype(functor)>::value>:: \
+                (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_

@@ -336,14 +336,17 @@ TestCaseWithDataReference::TestCaseWithDataReference()
 {
 }
 
-std::string TestCaseWithDataReference::get_ref_dir(const char * scope_str, const char * func_str)
+std::string TestCaseWithDataReference::get_ref_dir(const char * scope_str, const char * func_str, const char * sub_dir, const char * sub_dir2)
 {
     UTILITY_UNUSED_STATEMENT(func_str);
 
     if (s_TESTS_REF_DIR.empty())
         throw std::runtime_error((boost::format("%s: TESTS_REF_DIR does not exist") % UTILITY_PP_FUNC).str());
 
-    return s_TESTS_REF_DIR + "/" + scope_str + "/ref";
+    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
+    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
+    return s_TESTS_REF_DIR + "/" + scope_str + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "ref" +
+        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
 }
 
 //TestCaseWithDataGenerator
@@ -351,14 +354,17 @@ TestCaseWithDataGenerator::TestCaseWithDataGenerator()
 {
 }
 
-std::string TestCaseWithDataGenerator::get_gen_dir(const char * scope_str, const char * func_str)
+std::string TestCaseWithDataGenerator::get_gen_dir(const char * scope_str, const char * func_str, const char * sub_dir, const char * sub_dir2)
 {
     UTILITY_UNUSED_STATEMENT(func_str);
 
     if (!s_is_TESTS_GEN_DIR_exists)
         throw std::runtime_error((boost::format("%s: TESTS_GEN_DIR does not exist") % UTILITY_PP_FUNC).str());
 
-    const std::string gen_dir = s_TESTS_GEN_DIR + "/" + scope_str + "/gen";
+    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
+    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
+    const std::string gen_dir = s_TESTS_GEN_DIR + "/" + scope_str + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "gen" +
+        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
 
     // generated direcory must already exists on first request
     if (!boost::fs::exists(gen_dir))
@@ -372,14 +378,17 @@ TestCaseWithDataOutput::TestCaseWithDataOutput()
 {
 }
 
-std::string TestCaseWithDataOutput::get_out_dir(const char * scope_ptr, const char * func_str)
+std::string TestCaseWithDataOutput::get_out_dir(const char * scope_ptr, const char * func_str, const char * sub_dir, const char * sub_dir2)
 {
     UTILITY_UNUSED_STATEMENT(func_str);
 
     if (s_TESTS_OUT_DIR.empty())
         throw std::runtime_error((boost::format("%s: TESTS_OUT_DIR does not exist") % UTILITY_PP_FUNC).str());
 
-    const std::string out_dir = s_TESTS_OUT_DIR + "/" + scope_ptr + "/out";
+    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
+    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
+    const std::string out_dir = s_TESTS_OUT_DIR + "/" + scope_ptr + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "out" +
+        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
 
     // output direcory must already exists on first request
     if (!boost::fs::exists(out_dir))

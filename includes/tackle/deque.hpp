@@ -35,14 +35,14 @@ namespace tackle
         static const size_type0 default_min_arr0_capacity           = 16;
         static const size_type1 default_min_arr1_capacity_bytes     = 256 * 1024;
         static const size_type0 default_grow_by_numerator           = 384;  // 1.5 grow factor
-        static const size_type0 default_grow_by_denumerator         = 256;
+        static const size_type0 default_grow_by_denominator         = 256;
         static const size_type0 default_grow_if_arr0_size_greater_numerator     = 256; // grow if size has greater than 66.6% of capacity, otherwise relocate
-        static const size_type0 default_grow_if_arr0_size_greater_denumerator   = 384;
+        static const size_type0 default_grow_if_arr0_size_greater_denominator   = 384;
 
-        STATIC_ASSERT_GT(default_grow_by_numerator, default_grow_by_denumerator,
-            "numerator must be greater than the denumerator");
-        STATIC_ASSERT_LT(default_grow_if_arr0_size_greater_numerator, default_grow_if_arr0_size_greater_denumerator,
-            "numerator must be less than the denumerator");
+        STATIC_ASSERT_GT(default_grow_by_numerator, default_grow_by_denominator,
+            "numerator must be greater than the denominator");
+        STATIC_ASSERT_LT(default_grow_if_arr0_size_greater_numerator, default_grow_if_arr0_size_greater_denominator,
+            "numerator must be less than the denominator");
 
         FORCE_INLINE deque_params()
         {
@@ -1174,8 +1174,8 @@ namespace tackle
                 if (this_.end_index == this_.arr0_capacity) {
                     const size_type0 size = this_.end_index - this_.begin_index;
                     const size_type0 arr0_relocate_size =
-                        size_type0(uint64_t(this_.arr0_capacity) * deque_params::default_grow_if_arr0_size_greater_numerator + deque_params::default_grow_if_arr0_size_greater_denumerator / 2) /
-                        deque_params::default_grow_if_arr0_size_greater_denumerator;
+                        size_type0(uint64_t(this_.arr0_capacity) * deque_params::default_grow_if_arr0_size_greater_numerator + deque_params::default_grow_if_arr0_size_greater_denominator / 2) /
+                        deque_params::default_grow_if_arr0_size_greater_denominator;
 
                     bool is_relocated = false;
                     if (arr0_relocate_size >= size && arr0_relocate_size < this_.arr0_capacity) {
@@ -1184,8 +1184,8 @@ namespace tackle
 
                     if (!is_relocated) {
                         arr0_ptr = _reallocate_arr0_increase(
-                            size_type0((uint64_t(this_.arr0_capacity) * deque_params::default_grow_by_numerator + deque_params::default_grow_by_denumerator - 1) /
-                                deque_params::default_grow_by_denumerator), false);
+                            size_type0((uint64_t(this_.arr0_capacity) * deque_params::default_grow_by_numerator + deque_params::default_grow_by_denominator - 1) /
+                                deque_params::default_grow_by_denominator), false);
                     }
                 }
 
@@ -1350,8 +1350,8 @@ namespace tackle
                 if (!this_.begin_index) {
                     const size_type0 size = this_.end_index - this_.begin_index;
                     const size_type0 arr0_relocate_size =
-                        size_type0(uint64_t(this_.arr0_capacity) * deque_params::default_grow_if_arr0_size_greater_numerator + deque_params::default_grow_if_arr0_size_greater_denumerator / 2) /
-                        deque_params::default_grow_if_arr0_size_greater_denumerator;
+                        size_type0(uint64_t(this_.arr0_capacity) * deque_params::default_grow_if_arr0_size_greater_numerator + deque_params::default_grow_if_arr0_size_greater_denominator / 2) /
+                        deque_params::default_grow_if_arr0_size_greater_denominator;
 
                     bool is_relocated = false;
                     if (arr0_relocate_size >= size && arr0_relocate_size < this_.arr0_capacity) {
@@ -1360,8 +1360,8 @@ namespace tackle
 
                     if (!is_relocated) {
                         arr0_ptr = _reallocate_arr0_increase(
-                            size_type0((uint64_t(this_.arr0_capacity) * deque_params::default_grow_by_numerator + deque_params::default_grow_by_denumerator - 1) /
-                                deque_params::default_grow_by_denumerator), true);
+                            size_type0((uint64_t(this_.arr0_capacity) * deque_params::default_grow_by_numerator + deque_params::default_grow_by_denominator - 1) /
+                                deque_params::default_grow_by_denominator), true);
                     }
                 }
 

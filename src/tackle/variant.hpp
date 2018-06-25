@@ -12,7 +12,7 @@
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
 
-#include <tackle/variant.hpp>
+#include <tackle/aligned_storage.hpp>
 
 #include <boost/mpl/vector.hpp>
 

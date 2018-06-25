@@ -6,8 +6,9 @@
 
 #include <tacklelib.hpp>
 
+#include <utility/assert.hpp>   // must uses private `assert.hpp` implementation!
+
 #include <utility/platform.hpp>
-#include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
@@ -501,10 +502,10 @@ namespace tackle
         }
 
     private:
-        void _construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct);
+        FORCE_INLINE void _construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct);
 
     public:
-        void destruct();
+        FORCE_INLINE void destruct();
 
         FORCE_INLINE int type_index() const;
 
