@@ -2,12 +2,11 @@
 
 #include "testlib.hpp"
 
-#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
 
 #define TEST_IMPL_DEFINE_ENV_VAR(class_name, var_name) \
-    std::string class_name::UTILITY_PP_CONCAT(s_, var_name); \
+    tackle::path_string class_name::UTILITY_PP_CONCAT(s_, var_name); \
     bool class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = false; \
     bool class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _disabled) = false
 
@@ -16,7 +15,7 @@
 #define TEST_BASE_INIT_ENV_VAR(class_name, var_name) \
     if_break(1) { \
         if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty()) { \
-            if(boost::fs::is_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)) && boost::fs::exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
+            if(utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
                 class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
             } \
             break; \
@@ -25,7 +24,7 @@
         char buf[4096] = {0}; \
         if (!getenv_s(&var_size, buf, utility::static_size(buf), UTILITY_PP_STRINGIZE(var_name))) { \
             class_name::UTILITY_PP_CONCAT(s_, var_name) = buf; \
-            if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty() && boost::fs::is_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)) && boost::fs::exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) \
+            if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty() && utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) \
                 class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
         } \
     } (void)0
@@ -35,7 +34,7 @@
 #define TEST_BASE_INIT_ENV_VAR(class_name, var_name) \
     if_break(1) { \
         if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty()) { \
-            if(boost::fs::is_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)) && boost::fs::exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
+            if(utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
                 class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
             } \
             break; \
@@ -43,7 +42,7 @@
         const char * var_str = getenv(UTILITY_PP_STRINGIZE(var_name)); \
         if (var_str) { \
             class_name::UTILITY_PP_CONCAT(s_, var_name) = var_str; \
-            if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty() && boost::fs::is_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)) && boost::fs::exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) \
+            if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty() && utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) \
                 class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
         } \
     } (void)0
@@ -55,12 +54,12 @@
 #define TEST_INIT_ENV_VAR(base_name, class_name, var_name, base_var_name, suffix_path) \
     if (class_name::UTILITY_PP_CONCAT(s_, var_name).empty()) { \
         class_name::UTILITY_PP_CONCAT(s_, var_name) = base_name::UTILITY_PP_CONCAT(s_, base_var_name) + suffix_path; \
-        if (!boost::fs::exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
-            boost::fs::create_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)); \
+        if (!utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
+            utility::create_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)); \
             class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
         } \
         else { \
-            class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = boost::fs::is_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)); \
+            class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = utility::is_directory_path(class_name::UTILITY_PP_CONCAT(s_, var_name)); \
         } \
     } else (void)0
 
@@ -78,11 +77,6 @@ bool TestCaseStaticBase::s_enable_interactive_tests = false;
 bool TestCaseStaticBase::s_enable_only_interactive_tests = false; // overrides all enable_*_tests flags
 bool TestCaseStaticBase::s_enable_combinator_tests = false;
 
-
-namespace boost
-{
-    namespace fs = filesystem;
-}
 
 namespace test
 {
@@ -136,8 +130,8 @@ namespace test
                 }
                 else if (v.data_in_subdir && !std::string(v.data_in_subdir).empty()) { // filter by subdir
                     // test on existance, disable test case if not found
-                    const std::string data_in_subdir = TestCaseWithDataReference::s_TESTS_REF_DIR + "/" + v.data_in_subdir;
-                    if (!boost::fs::exists(data_in_subdir) || !boost::fs::is_directory(data_in_subdir)) {
+                    const tackle::path_string data_in_subdir = TestCaseWithDataReference::s_TESTS_REF_DIR + v.data_in_subdir;
+                    if (!utility::is_path_exists(data_in_subdir) || !utility::is_directory_path(data_in_subdir)) {
                         TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
                             "tests input data subdirectory is not found: \"%s\".\n", data_in_subdir.c_str());
                         do_exclude = true;
@@ -291,20 +285,34 @@ namespace test
         }
     }
 
-    const char * get_data_in_subdir(const char * scope_str, const char * func_str)
+    tackle::path_string get_data_in_subdir(const tackle::path_string & scope_str, const tackle::path_string & func_str)
     {
         for (const auto & v : g_test_cases) {
-            if (std::string(scope_str) == v.scope_str && (!func_str || std::string(func_str).empty() ||
-                std::string(func_str) == "*" || std::string(func_str) == v.func_str)) {
+            if (scope_str == v.scope_str && (func_str.empty() || func_str == "*" || func_str == v.func_str)) {
                 if (v.data_in_subdir && !std::string(v.data_in_subdir).empty()) {
                     return v.data_in_subdir;
                 }
 
-                return nullptr;
+                return tackle::path_string{};
             }
         }
 
-        return nullptr;
+        return tackle::path_string{};
+    }
+
+    tackle::path_string get_data_out_subdir(const tackle::path_string & scope_str, const tackle::path_string & func_str)
+    {
+        for (const auto & v : g_test_cases) {
+            if (scope_str == v.scope_str && (func_str.empty() || func_str == "*" || func_str == v.func_str)) {
+                if (v.data_out_subdir && !std::string(v.data_out_subdir).empty()) {
+                    return v.data_out_subdir;
+                }
+
+                return tackle::path_string{};
+            }
+        }
+
+        return tackle::path_string{};
     }
 
     void interrupt_test()
@@ -318,17 +326,82 @@ TestCaseStaticBase::TestCaseStaticBase()
 {
 }
 
-std::string TestCaseStaticBase::get_data_in_root(const char * scope_str, const char * func_str)
+const tackle::path_string & TestCaseStaticBase::get_data_in_var(const char * error_msg_prefix)
 {
-    const char * data_in_subdir = test::get_data_in_subdir(scope_str, func_str);
-    return s_TESTS_DATA_IN_ROOT + (data_in_subdir ? std::string("/") + data_in_subdir : "");
+    if (s_TESTS_DATA_IN_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_IN_ROOT)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: s_TESTS_DATA_IN_ROOT directory does not exist: \"%s\"") %
+            error_msg_prefix % s_TESTS_DATA_IN_ROOT).str());
+    }
+
+    return s_TESTS_DATA_IN_ROOT;
 }
 
-std::string TestCaseStaticBase::get_data_out_root(const char * scope_str, const char * func_str)
+const tackle::path_string & TestCaseStaticBase::get_data_out_var(const char * error_msg_prefix)
 {
-    (void)scope_str;
-    (void)func_str;
+    if (s_TESTS_DATA_OUT_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_OUT_ROOT)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: s_TESTS_DATA_OUT_ROOT directory does not exist: \"%s\"") %
+            error_msg_prefix % s_TESTS_DATA_OUT_ROOT).str());
+    }
+
     return s_TESTS_DATA_OUT_ROOT;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_in_root(const char * error_msg_prefix, const tackle::path_string & scope_str, const tackle::path_string & func_str)
+{
+    const tackle::path_string & data_in_subdir = test::get_data_in_subdir(scope_str, func_str);
+    return get_data_in_var(error_msg_prefix) + data_in_subdir;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_out_root(const char * error_msg_prefix, const tackle::path_string & scope_str, const tackle::path_string & func_str)
+{
+    const tackle::path_string & data_in_subdir = test::get_data_out_subdir(scope_str, func_str);
+    return get_data_in_var(error_msg_prefix) + data_in_subdir;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_directory_path(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_out_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_directory_path(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_in_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_regular_file(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseStaticBase::get_data_out_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_regular_file(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
 }
 
 //TestCaseWithDataReference
@@ -336,17 +409,61 @@ TestCaseWithDataReference::TestCaseWithDataReference()
 {
 }
 
-std::string TestCaseWithDataReference::get_ref_dir(const char * scope_str, const char * func_str, const char * sub_dir, const char * sub_dir2)
+const tackle::path_string & TestCaseWithDataReference::get_ref_var(const char * error_msg_prefix)
 {
-    UTILITY_UNUSED_STATEMENT(func_str);
+    if (s_TESTS_REF_DIR.empty() || !utility::is_directory_path(s_TESTS_REF_DIR)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: s_TESTS_REF_DIR directory does not exist: \"%s\"") %
+            error_msg_prefix % s_TESTS_REF_DIR).str());
+    }
 
-    if (s_TESTS_REF_DIR.empty())
-        throw std::runtime_error((boost::format("%s: TESTS_REF_DIR does not exist") % UTILITY_PP_FUNC).str());
+    return s_TESTS_REF_DIR;
+}
 
-    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
-    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
-    return s_TESTS_REF_DIR + "/" + scope_str + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "ref" +
-        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
+tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_msg_prefix, const char * prefix_dir, const char * suffix_dir)
+{
+    return get_ref_dir(error_msg_prefix,
+        tackle::path_string((prefix_dir && *prefix_dir != '\0') ? prefix_dir : ""),
+        tackle::path_string((suffix_dir && *suffix_dir != '\0') ? suffix_dir : ""));
+}
+
+tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_msg_prefix, const tackle::path_string & prefix_dir, const tackle::path_string & suffix_dir)
+{
+    const tackle::path_string & root_dir_var = get_ref_var(error_msg_prefix);
+
+    const bool has_prefix_dir = !prefix_dir.empty();
+    const tackle::path_string ref_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "ref" : "") + suffix_dir;
+
+    // reference directory must already exist at first request
+    if (!utility::is_directory_path(ref_dir)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: test reference directory does not exist: \"%s\"") %
+            error_msg_prefix % ref_dir).str());
+    }
+
+    return ref_dir;
+}
+
+tackle::path_string TestCaseWithDataReference::get_ref_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_directory_path(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseWithDataReference::get_ref_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_regular_file(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
 }
 
 //TestCaseWithDataGenerator
@@ -354,23 +471,59 @@ TestCaseWithDataGenerator::TestCaseWithDataGenerator()
 {
 }
 
-std::string TestCaseWithDataGenerator::get_gen_dir(const char * scope_str, const char * func_str, const char * sub_dir, const char * sub_dir2)
+const tackle::path_string & TestCaseWithDataGenerator::get_gen_var(const char * error_msg_prefix)
 {
-    UTILITY_UNUSED_STATEMENT(func_str);
+    if (s_TESTS_GEN_DIR.empty() || !utility::is_directory_path(s_TESTS_GEN_DIR)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: s_TESTS_GEN_DIR directory does not exist: \"%s\"") %
+            error_msg_prefix % s_TESTS_GEN_DIR).str());
+    }
 
-    if (!s_is_TESTS_GEN_DIR_exists)
-        throw std::runtime_error((boost::format("%s: TESTS_GEN_DIR does not exist") % UTILITY_PP_FUNC).str());
+    return s_TESTS_GEN_DIR;
+}
 
-    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
-    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
-    const std::string gen_dir = s_TESTS_GEN_DIR + "/" + scope_str + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "gen" +
-        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
+tackle::path_string TestCaseWithDataGenerator::get_gen_dir(const char * error_msg_prefix, const char * prefix_dir, const char * suffix_dir)
+{
+    return get_gen_dir(error_msg_prefix,
+        tackle::path_string((prefix_dir && *prefix_dir != '\0') ? prefix_dir : ""),
+        tackle::path_string((suffix_dir && *suffix_dir != '\0') ? suffix_dir : ""));
+}
 
-    // generated direcory must already exists on first request
-    if (!boost::fs::exists(gen_dir))
-        boost::fs::create_directories(gen_dir);
+tackle::path_string TestCaseWithDataGenerator::get_gen_dir(const char * error_msg_prefix, const tackle::path_string & prefix_dir, const tackle::path_string & suffix_dir)
+{
+    const tackle::path_string & root_dir_var = get_gen_var(error_msg_prefix);
+
+    const bool has_prefix_dir = !prefix_dir.empty();
+    const tackle::path_string gen_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "gen" : "") + suffix_dir;
+
+    // generated direcory must be created if not done yet
+    if (!utility::is_path_exists(gen_dir)) {
+        utility::create_directories(gen_dir);
+    }
 
     return gen_dir;
+}
+
+tackle::path_string TestCaseWithDataGenerator::get_gen_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_directory_path(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: directory path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseWithDataGenerator::get_gen_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_regular_file(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
 }
 
 //TestCaseWithDataOutput
@@ -378,23 +531,59 @@ TestCaseWithDataOutput::TestCaseWithDataOutput()
 {
 }
 
-std::string TestCaseWithDataOutput::get_out_dir(const char * scope_ptr, const char * func_str, const char * sub_dir, const char * sub_dir2)
+const tackle::path_string & TestCaseWithDataOutput::get_out_var(const char * error_msg_prefix)
 {
-    UTILITY_UNUSED_STATEMENT(func_str);
+    if (s_TESTS_OUT_DIR.empty() || !utility::is_directory_path(s_TESTS_OUT_DIR)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: s_TESTS_OUT_DIR does not exist: \"%s\"") %
+            error_msg_prefix % s_TESTS_OUT_DIR).str());
+    }
 
-    if (s_TESTS_OUT_DIR.empty())
-        throw std::runtime_error((boost::format("%s: TESTS_OUT_DIR does not exist") % UTILITY_PP_FUNC).str());
+    return s_TESTS_OUT_DIR;
+}
 
-    const bool has_sub_dir = sub_dir && *sub_dir != '\0';
-    const bool has_sub_dir2 = sub_dir2 && *sub_dir2 != '\0';
-    const std::string out_dir = s_TESTS_OUT_DIR + "/" + scope_ptr + "/" + (has_sub_dir ? sub_dir : "") + (has_sub_dir ? "/" : "") + "out" +
-        (has_sub_dir2 ? "/" : "") + (has_sub_dir2 ? sub_dir2 : "");
+tackle::path_string TestCaseWithDataOutput::get_out_dir(const char * error_msg_prefix, const char * prefix_dir, const char * suffix_dir)
+{
+    return get_out_dir(error_msg_prefix,
+        tackle::path_string((prefix_dir && *prefix_dir != '\0') ? prefix_dir : ""),
+        tackle::path_string((suffix_dir && *suffix_dir != '\0') ? suffix_dir : ""));
+}
 
-    // output direcory must already exists on first request
-    if (!boost::fs::exists(out_dir))
-        boost::fs::create_directories(out_dir);
+tackle::path_string TestCaseWithDataOutput::get_out_dir(const char * error_msg_prefix, const tackle::path_string & prefix_dir, const tackle::path_string & suffix_dir)
+{
+    const tackle::path_string & root_dir_var = get_out_var(error_msg_prefix);
+
+    const bool has_prefix_dir = !prefix_dir.empty();
+    const tackle::path_string out_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "out" : "") + suffix_dir;
+
+    // output direcory must be created if not done yet
+    if (!utility::is_path_exists(out_dir)) {
+        utility::create_directories(out_dir);
+    }
 
     return out_dir;
+}
+
+tackle::path_string TestCaseWithDataOutput::get_out_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_directory_path(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: directory path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
+}
+
+tackle::path_string TestCaseWithDataOutput::get_out_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
+{
+    const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
+    if (!::utility::is_regular_file(path)) {
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
+            error_msg_prefix % path).str());
+    }
+    return path;
 }
 
 #else

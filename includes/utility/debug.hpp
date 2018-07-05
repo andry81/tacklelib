@@ -51,8 +51,8 @@
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
-#define DEBUG_BREAK(exp) \
-    if((exp) ? false : true); else __debugbreak() // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly)
+#define DEBUG_BREAK(cond) \
+    if((cond) ? false : true); else __debugbreak() // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly)
 
 #elif defined(UTILITY_PLATFORM_POSIX)
 
@@ -68,6 +68,8 @@
 #error debug_break is not supported for this platform
 #endif
 
+#define DEBUG_BREAK_IN_DEBUGGER(cond) DEBUG_BREAK((cond) && ::utility::is_under_debugger())
+
 
 namespace utility
 {
@@ -81,7 +83,8 @@ namespace utility
     // external function to suppress optimization over unused variables and return values in the Release through use them in an external function
     extern FORCE_NO_INLINE void UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION unused_param(const volatile void * p);
 
-    void debug_break(bool condition = true);
+    // break on true
+    void debug_break(bool condition = false);
     bool is_under_debugger();
 }
 

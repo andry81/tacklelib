@@ -123,6 +123,37 @@
 #define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) }
 
 
+#define ANGLE_DEG_IN_RAD(angle_deg)                 ((angle_deg) * ::math::pi / 180)
+#define ANGLE_DEG_IN_RAD_IF(in_radians, angle_deg)  ((in_radians) ? ANGLE_DEG_IN_RAD(angle_deg) : (angle_deg))
+
+#define ANGLE_RAD_IN_DEG(angle_rad)                 ((angle_rad) * 180 / ::math::pi)
+#define ANGLE_RAD_IN_DEG_IF(in_degrees, angle_rad)  ((in_degrees) ? ANGLE_RAD_IN_DEG(angle_rad) : (angle_rad))
+
+#define DEG_45_IN_RAD                               (::math::pi / 4)
+#define DEG_45_IN_RAD_IF(in_radians)                ((in_radians) ? DEG_45_IN_RAD : 45)
+
+#define DEG_90_IN_RAD                               (::math::pi / 2)
+#define DEG_90_IN_RAD_IF(in_radians)                ((in_radians) ? DEG_90_IN_RAD : 90)
+
+#define DEG_135_IN_RAD                              (::math::pi * 3 / 4)
+#define DEG_135_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_135_IN_RAD : 135)
+
+#define DEG_180_IN_RAD                              (::math::pi)
+#define DEG_180_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_180_IN_RAD : 180)
+
+#define DEG_225_IN_RAD                              (::math::pi * 5 / 4)
+#define DEG_225_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_225_IN_RAD : 225)
+
+#define DEG_270_IN_RAD                              (::math::pi * 3 / 2)
+#define DEG_270_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_270_IN_RAD : 270)
+
+#define DEG_315_IN_RAD                              (::math::pi * 7 / 4)
+#define DEG_315_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_315_IN_RAD : 315)
+
+#define DEG_360_IN_RAD                              (::math::pi * 2)
+#define DEG_360_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_360_IN_RAD : 360)
+
+
 // implementation through the define to reuse code in debug and avoid performance slow down in particular usage places
 #define INT32_POF2_FLOOR_MACRO_INLINE(return_exp, type_, v) \
 { \
@@ -266,40 +297,64 @@ if_break(true) \
 namespace math
 {
     // shortcuts
+    const constexpr char char_min = (std::numeric_limits<char>::min)();
     const constexpr char char_max = (std::numeric_limits<char>::max)();
+
     const constexpr unsigned char uchar_max = (std::numeric_limits<unsigned char>::max)();
 
+    const constexpr short short_min = (std::numeric_limits<short>::min)();
     const constexpr short short_max = (std::numeric_limits<short>::max)();
+
     const constexpr unsigned short ushort_max = (std::numeric_limits<unsigned short>::max)();
 
+    const constexpr int int_min = (std::numeric_limits<int>::min)();
     const constexpr int int_max = (std::numeric_limits<int>::max)();
+
     const constexpr unsigned int uint_max = (std::numeric_limits<unsigned int>::max)();
 
+    const constexpr long long_min = (std::numeric_limits<long>::min)();
     const constexpr long long_max = (std::numeric_limits<long>::max)();
+
     const constexpr unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
 
 #ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
+    const constexpr long long longlong_min = (std::numeric_limits<long long>::min)();
     const constexpr long long longlong_max = (std::numeric_limits<long long>::max)();
 #endif
 #ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
     const constexpr unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
 #endif
 
+    const constexpr int8_t int8_min = (std::numeric_limits<int8_t>::min)();
     const constexpr int8_t int8_max = (std::numeric_limits<int8_t>::max)();
+
     const constexpr uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
 
+    const constexpr int16_t int16_min = (std::numeric_limits<int16_t>::min)();
     const constexpr int16_t int16_max = (std::numeric_limits<int16_t>::max)();
+
     const constexpr uint16_t uint16_max = (std::numeric_limits<uint16_t>::max)();
 
+    const constexpr int32_t int32_min = (std::numeric_limits<int32_t>::min)();
     const constexpr int32_t int32_max = (std::numeric_limits<int32_t>::max)();
+
     const constexpr uint32_t uint32_max = (std::numeric_limits<uint32_t>::max)();
 
+    const constexpr int64_t int64_min = (std::numeric_limits<int64_t>::min)();
     const constexpr int64_t int64_max = (std::numeric_limits<int64_t>::max)();
+
     const constexpr uint64_t uint64_max = (std::numeric_limits<uint64_t>::max)();
 
     const constexpr size_t size_max = (std::numeric_limits<size_t>::max)();
 
-    const constexpr double quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+    const constexpr double float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
+    const constexpr double double_quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+
+    const constexpr double float_min = (std::numeric_limits<float>::min)();
+    const constexpr double float_max = (std::numeric_limits<float>::max)();
+
+    const constexpr double double_min = (std::numeric_limits<double>::min)();
+    const constexpr double double_max = (std::numeric_limits<double>::max)();
 
     const constexpr double pi = 3.14159265358979323846264338327950288419716939937510582;
 
@@ -516,6 +571,20 @@ namespace math
     template<uint32_t x>
     const uint32_t uint32_pof2_verify<x>::value;
 
+
+    // sign convertion into -1,0,+1 integer
+    template <typename T>
+    FORCE_INLINE int sign_to_int(T v)
+    {
+        if (v > 0) {
+            return +1;
+        }
+        else if (v < 0) {
+            return -1;
+        }
+
+        return 0;
+    }
 
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`

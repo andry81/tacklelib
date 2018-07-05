@@ -1,3 +1,21 @@
+2018.07.06:
+* fixed: math::normalize_angle test missed
+
+2018.07.05:
+* refactor: testlib refactor, moved macro code into functions
+* minor fixup and cleanup
+
+2018.07.04:
+* fixed: always use radians for internal representation (better precision)
+* minor fixup and cleanup
+
+2018.07.03:
+* new: tackle::path_string instead of std::string in the filesystem manipulation functions
+* refactor: testlib refactor
+
+2018.07.02:
+* fixed: linux build fix
+
 2018.06.25:
 * fixed: fixed not linkable destruct() function issue
 * fixed: full build fix
