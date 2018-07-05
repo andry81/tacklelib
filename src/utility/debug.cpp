@@ -24,7 +24,7 @@ void UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION unused_param(const volatile
 
 void debug_break(bool condition)
 {
-    DEBUG_BREAK(condition && is_under_debugger()); // avoid signal if not under debugger
+    DEBUG_BREAK_IN_DEBUGGER(condition); // avoid signal if not under debugger
 }
 
 bool is_under_debugger()

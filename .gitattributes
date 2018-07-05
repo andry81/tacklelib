@@ -37,6 +37,7 @@ includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
 includes/tackle/compressed_pair.hpp -text
 includes/tackle/deque.hpp -text
+includes/tackle/path_string.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
@@ -78,6 +79,7 @@ src/utility/algorithm.hpp -text
 src/utility/algorithm/generated/gen_unroll_copy_switch.bat -text
 src/utility/algorithm/generated/unroll_copy_switch.hpp -text
 src/utility/assert.hpp -text
+src/utility/assert_private.hpp -text
 src/utility/crc.cpp -text
 src/utility/crc.hpp -text
 src/utility/crc_tables.hpp -text

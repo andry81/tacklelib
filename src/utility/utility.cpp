@@ -201,7 +201,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-        fsetpos(file_handle.get(), &last_pos);
+            fsetpos(file_handle.get(), &last_pos);
 
         return size;
     }
@@ -233,22 +233,22 @@ namespace utility
         return true;
     }
 
-    tackle::FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
+    tackle::FileHandle recreate_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
         FILE * file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
             _fsopen(file_path.c_str(), mode, share_flags);
 #elif defined(UTILITY_PLATFORM_POSIX)
             fopen(file_path.c_str(), mode);
-            // TODO:
-            //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
+        // TODO:
+        //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
 #else
 #error platform is not implemented
 #endif
 
-        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
+            tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
-            utility::debug_break();
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::system_error{ errno, std::system_category(), file_path };
         }
 
@@ -261,7 +261,7 @@ namespace utility
                 const size_t write_size = fwrite(&chunk[0], 1, chunk.size(), file_ptr);
                 const int file_err = ferror(file_ptr);
                 if (write_size < chunk.size()) {
-                    utility::debug_break();
+                    DEBUG_BREAK_IN_DEBUGGER(true);
                     throw std::system_error{ file_err, std::system_category(), file_path };
                 }
             }
@@ -270,7 +270,7 @@ namespace utility
             const size_t write_size = fwrite(&chunk[0], 1, chunk_reminder, file_ptr);
             const int file_err = ferror(file_ptr);
             if (write_size < chunk_reminder) {
-                utility::debug_break();
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::system_error{ file_err, std::system_category(), file_path };
             }
         }
@@ -278,21 +278,21 @@ namespace utility
         return file_handle_ptr;
     }
 
-    tackle::FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
+    tackle::FileHandle create_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size, uint32_t fill_by)
     {
-        const bool file_existed = boost::fs::exists(file_path);
+        const bool file_existed = boost::fs::exists(file_path.str());
         if (file_existed) {
             const int errno_ = 3; // file already exist
-            utility::debug_break();
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::system_error{ errno_, std::system_category(), file_path };
         }
 
         return recreate_file(file_path, mode, share_flags, size, fill_by);
     }
 
-    tackle::FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
+    tackle::FileHandle open_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation)
     {
-        const bool file_existed = boost::fs::exists(file_path);
+        const bool file_existed = boost::fs::exists(file_path.str());
         if (!file_existed) {
             return recreate_file(file_path, mode, share_flags, creation_size, fill_by_on_creation);
         }
@@ -302,22 +302,22 @@ namespace utility
             _fsopen(file_path.c_str(), mode, share_flags);
 #elif defined(UTILITY_PLATFORM_POSIX)
             fopen(file_path.c_str(), mode);
-            // TODO:
-            //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
+        // TODO:
+        //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
 #else
 #error platform is not implemented
 #endif
 
-        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
+            tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
-            utility::debug_break();
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::system_error{ errno, std::system_category(), file_path };
         }
 
         if (resize_if_existed != size_t(-1)) {
             // close handle before resize
             file_handle_ptr.reset();
-            boost::fs::resize_file(file_path, resize_if_existed);
+            boost::fs::resize_file(file_path.str(), resize_if_existed);
             // reopen handle
             file_handle_ptr = tackle::FileHandle(file_ptr =
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -332,11 +332,46 @@ namespace utility
                 file_path
             );
             if (!file_ptr) {
-                utility::debug_break();
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::system_error{ errno, std::system_category(), file_path };
             }
         }
 
         return file_handle_ptr;
+    }
+
+    bool is_directory_path(const tackle::path_string & path)
+    {
+        return boost::fs::is_directory(path.str());
+    }
+
+    bool is_regular_file(const tackle::path_string & path)
+    {
+        return boost::fs::is_regular_file(path.str());
+    }
+
+    bool is_symlink_path(const tackle::path_string & path)
+    {
+        return boost::fs::is_symlink(path.str());
+    }
+
+    bool is_path_exists(const tackle::path_string & path)
+    {
+        return boost::fs::exists(path.str());
+    }
+
+    bool create_directory(const tackle::path_string & path)
+    {
+        return boost::fs::create_directory(path.str());
+    }
+
+    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from)
+    {
+        return boost::fs::create_directory_symlink(to.str(), from.str());
+    }
+
+    bool create_directories(const tackle::path_string & path)
+    {
+        return boost::fs::create_directories(path.str());
     }
 }

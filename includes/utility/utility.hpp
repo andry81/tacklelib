@@ -12,6 +12,7 @@
 #include <utility/assert.hpp>
 #include <utility/math.hpp>
 
+#include <tackle/path_string.hpp>
 
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>
@@ -145,9 +146,18 @@ namespace utility
 
     uint64_t get_file_size(const tackle::FileHandle & file_handle);
     bool is_files_equal(const tackle::FileHandle & left_file_handle, const tackle::FileHandle & right_file_handle);
-    tackle::FileHandle recreate_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandle create_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandle open_file(const std::string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+    tackle::FileHandle recreate_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
+    tackle::FileHandle create_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
+    tackle::FileHandle open_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+
+    bool is_directory_path(const tackle::path_string & path);
+    bool is_regular_file(const tackle::path_string & path);
+    bool is_symlink_path(const tackle::path_string & path);
+    bool is_path_exists(const tackle::path_string & path);
+
+    bool create_directory(const tackle::path_string & path);
+    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from);
+    bool create_directories(const tackle::path_string & path);
 
     template<typename T>
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
@@ -390,6 +400,18 @@ namespace utility
         tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
         return ch;
 #endif
+    }
+
+    // reset std::stringstream object
+    // Based on: https://stackoverflow.com/questions/7623650/resetting-a-stringstream
+    //
+    FORCE_INLINE void reset_stringstream(std::stringstream & ss)
+    {
+        const static std::stringstream initial;
+
+        ss.str(std::string{});
+        ss.clear();
+        ss.copyfmt(initial);
     }
 }
 

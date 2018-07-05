@@ -2,11 +2,6 @@
 
 #include <utility/math.hpp>
 
-#include <tackle/deque.hpp>
-
-#include <vector>
-#include <deque>
-
 
 TEST(FunctionsTest, ROTL)
 {
@@ -271,6 +266,480 @@ TEST(FunctionsTest, stride_copy)
     //test_stride_copy(5, 7, 16, 16, ref, 10, { 1, 2, 3, 4, 5, 8, 9, 10, 11, 12 });
     //test_stride_copy(6, 6, 16, 10, ref, 10, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
     //test_stride_copy(6, 7, 16, 16, ref, 10, { 1, 2, 3, 4, 5, 6, 8, 9, 10, 11 });
+}
+
+//// test_normalize_angle
+
+void test_normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction, double eta_angle)
+{
+    ASSERT_EQ(math::normalize_angle(ang, min_ang, max_ang, ang_period_mod, inclusion_direction), eta_angle);
+}
+
+TEST(FunctionsTest, normalize_angle)
+{
+    //// 0..+360
+
+    // 0..720 -> [0..+360)
+    test_normalize_angle(   0,    0, +360, 360, -1,    0);
+    test_normalize_angle(  90,    0, +360, 360, -1,   90);
+    test_normalize_angle( 179,    0, +360, 360, -1,  179);
+    test_normalize_angle( 180,    0, +360, 360, -1,  180);
+    test_normalize_angle( 181,    0, +360, 360, -1,  181);
+    test_normalize_angle( 270,    0, +360, 360, -1,  270);
+    test_normalize_angle( 359,    0, +360, 360, -1,  359);
+    test_normalize_angle( 360,    0, +360, 360, -1,    0);
+    test_normalize_angle( 361,    0, +360, 360, -1,    1);
+    test_normalize_angle( 450,    0, +360, 360, -1,   90);
+    test_normalize_angle( 539,    0, +360, 360, -1,  179);
+    test_normalize_angle( 540,    0, +360, 360, -1,  180);
+    test_normalize_angle( 541,    0, +360, 360, -1,  181);
+    test_normalize_angle( 630,    0, +360, 360, -1,  270);
+    test_normalize_angle( 719,    0, +360, 360, -1,  359);
+    test_normalize_angle( 720,    0, +360, 360, -1,    0);
+
+    // 0..-720 -> [0..+360)
+    test_normalize_angle(   0,    0, +360, 360, -1,    0);
+    test_normalize_angle(- 90,    0, +360, 360, -1,  270);
+    test_normalize_angle(-179,    0, +360, 360, -1,  181);
+    test_normalize_angle(-180,    0, +360, 360, -1,  180);
+    test_normalize_angle(-181,    0, +360, 360, -1,  179);
+    test_normalize_angle(-270,    0, +360, 360, -1,   90);
+    test_normalize_angle(-359,    0, +360, 360, -1,    1);
+    test_normalize_angle(-360,    0, +360, 360, -1,    0);
+    test_normalize_angle(-361,    0, +360, 360, -1,  359);
+    test_normalize_angle(-450,    0, +360, 360, -1,  270);
+    test_normalize_angle(-539,    0, +360, 360, -1,  181);
+    test_normalize_angle(-540,    0, +360, 360, -1,  180);
+    test_normalize_angle(-541,    0, +360, 360, -1,  179);
+    test_normalize_angle(-630,    0, +360, 360, -1,   90);
+    test_normalize_angle(-719,    0, +360, 360, -1,    1);
+    test_normalize_angle(-720,    0, +360, 360, -1,    0);
+
+    // 0..720 -> [0..+360]
+    test_normalize_angle(   0,    0, +360, 360,  0,    0);
+    test_normalize_angle(  90,    0, +360, 360,  0,   90);
+    test_normalize_angle( 179,    0, +360, 360,  0,  179);
+    test_normalize_angle( 180,    0, +360, 360,  0,  180);
+    test_normalize_angle( 181,    0, +360, 360,  0,  181);
+    test_normalize_angle( 270,    0, +360, 360,  0,  270);
+    test_normalize_angle( 359,    0, +360, 360,  0,  359);
+    test_normalize_angle( 360,    0, +360, 360,  0,  360);
+    test_normalize_angle( 361,    0, +360, 360,  0,    1);
+    test_normalize_angle( 450,    0, +360, 360,  0,   90);
+    test_normalize_angle( 539,    0, +360, 360,  0,  179);
+    test_normalize_angle( 540,    0, +360, 360,  0,  180);
+    test_normalize_angle( 541,    0, +360, 360,  0,  181);
+    test_normalize_angle( 630,    0, +360, 360,  0,  270);
+    test_normalize_angle( 719,    0, +360, 360,  0,  359);
+    test_normalize_angle( 720,    0, +360, 360,  0,    0);
+
+    // 0..-720 -> [0..+360]
+    test_normalize_angle(   0,    0, +360, 360,  0,    0);
+    test_normalize_angle(- 90,    0, +360, 360,  0,  270);
+    test_normalize_angle(-179,    0, +360, 360,  0,  181);
+    test_normalize_angle(-180,    0, +360, 360,  0,  180);
+    test_normalize_angle(-181,    0, +360, 360,  0,  179);
+    test_normalize_angle(-270,    0, +360, 360,  0,   90);
+    test_normalize_angle(-359,    0, +360, 360,  0,    1);
+    test_normalize_angle(-360,    0, +360, 360,  0,    0);
+    test_normalize_angle(-361,    0, +360, 360,  0,  359);
+    test_normalize_angle(-450,    0, +360, 360,  0,  270);
+    test_normalize_angle(-539,    0, +360, 360,  0,  181);
+    test_normalize_angle(-540,    0, +360, 360,  0,  180);
+    test_normalize_angle(-541,    0, +360, 360,  0,  179);
+    test_normalize_angle(-630,    0, +360, 360,  0,   90);
+    test_normalize_angle(-719,    0, +360, 360,  0,    1);
+    test_normalize_angle(-720,    0, +360, 360,  0,    0);
+
+    // 0..720 -> (0..+360]
+    test_normalize_angle(   0,    0, +360, 360, +1,  360);
+    test_normalize_angle(  90,    0, +360, 360, +1,   90);
+    test_normalize_angle( 179,    0, +360, 360, +1,  179);
+    test_normalize_angle( 180,    0, +360, 360, +1,  180);
+    test_normalize_angle( 181,    0, +360, 360, +1,  181);
+    test_normalize_angle( 270,    0, +360, 360, +1,  270);
+    test_normalize_angle( 359,    0, +360, 360, +1,  359);
+    test_normalize_angle( 360,    0, +360, 360, +1,  360);
+    test_normalize_angle( 361,    0, +360, 360, +1,    1);
+    test_normalize_angle( 450,    0, +360, 360, +1,   90);
+    test_normalize_angle( 539,    0, +360, 360, +1,  179);
+    test_normalize_angle( 540,    0, +360, 360, +1,  180);
+    test_normalize_angle( 541,    0, +360, 360, +1,  181);
+    test_normalize_angle( 630,    0, +360, 360, +1,  270);
+    test_normalize_angle( 719,    0, +360, 360, +1,  359);
+    test_normalize_angle( 720,    0, +360, 360, +1,  360);
+
+    // 0..-720 -> (0..+360]
+    test_normalize_angle(   0,    0, +360, 360, +1,  360);
+    test_normalize_angle(- 90,    0, +360, 360, +1,  270);
+    test_normalize_angle(-179,    0, +360, 360, +1,  181);
+    test_normalize_angle(-180,    0, +360, 360, +1,  180);
+    test_normalize_angle(-181,    0, +360, 360, +1,  179);
+    test_normalize_angle(-270,    0, +360, 360, +1,   90);
+    test_normalize_angle(-359,    0, +360, 360, +1,    1);
+    test_normalize_angle(-360,    0, +360, 360, +1,  360);
+    test_normalize_angle(-361,    0, +360, 360, +1,  359);
+    test_normalize_angle(-450,    0, +360, 360, +1,  270);
+    test_normalize_angle(-539,    0, +360, 360, +1,  181);
+    test_normalize_angle(-540,    0, +360, 360, +1,  180);
+    test_normalize_angle(-541,    0, +360, 360, +1,  179);
+    test_normalize_angle(-630,    0, +360, 360, +1,   90);
+    test_normalize_angle(-719,    0, +360, 360, +1,    1);
+    test_normalize_angle(-720,    0, +360, 360, +1,  360);
+
+    //// -90..+90
+
+    // 0..720 -> (-90..+90]
+    test_normalize_angle(   0, - 90, + 90, 360, +1,    0);
+    test_normalize_angle(  90, - 90, + 90, 360, +1,   90);
+    test_normalize_angle( 179, - 90, + 90, 360, +1,  179);
+    test_normalize_angle( 180, - 90, + 90, 360, +1,  180);
+    test_normalize_angle( 181, - 90, + 90, 360, +1,  181);
+    test_normalize_angle( 270, - 90, + 90, 360, +1,  270);
+    test_normalize_angle( 359, - 90, + 90, 360, +1, -  1);
+    test_normalize_angle( 360, - 90, + 90, 360, +1,    0);
+    test_normalize_angle( 361, - 90, + 90, 360, +1,    1);
+    test_normalize_angle( 450, - 90, + 90, 360, +1,   90);
+    test_normalize_angle( 539, - 90, + 90, 360, +1,  179);
+    test_normalize_angle( 540, - 90, + 90, 360, +1,  180);
+    test_normalize_angle( 541, - 90, + 90, 360, +1,  181);
+    test_normalize_angle( 630, - 90, + 90, 360, +1,  270);
+    test_normalize_angle( 719, - 90, + 90, 360, +1, -  1);
+    test_normalize_angle( 720, - 90, + 90, 360, +1,    0);
+
+    // 0..-720 -> (-90..+90]
+    test_normalize_angle(   0, - 90, + 90, 360, +1,    0);
+    test_normalize_angle(- 90, - 90, + 90, 360, +1, - 90);
+    test_normalize_angle(-179, - 90, + 90, 360, +1, -179);
+    test_normalize_angle(-180, - 90, + 90, 360, +1, -180);
+    test_normalize_angle(-181, - 90, + 90, 360, +1, -181);
+    test_normalize_angle(-270, - 90, + 90, 360, +1,   90);
+    test_normalize_angle(-359, - 90, + 90, 360, +1,    1);
+    test_normalize_angle(-360, - 90, + 90, 360, +1,    0);
+    test_normalize_angle(-361, - 90, + 90, 360, +1, -  1);
+    test_normalize_angle(-450, - 90, + 90, 360, +1, - 90);
+    test_normalize_angle(-539, - 90, + 90, 360, +1, -179);
+    test_normalize_angle(-540, - 90, + 90, 360, +1, -180);
+    test_normalize_angle(-541, - 90, + 90, 360, +1, -181);
+    test_normalize_angle(-630, - 90, + 90, 360, +1,   90);
+    test_normalize_angle(-719, - 90, + 90, 360, +1,    1);
+    test_normalize_angle(-720, - 90, + 90, 360, +1,    0);
+
+    // 0..720 -> [-90..+90]
+    test_normalize_angle(   0, - 90, + 90, 360,  0,    0);
+    test_normalize_angle(  90, - 90, + 90, 360,  0,   90);
+    test_normalize_angle( 179, - 90, + 90, 360,  0,  179);
+    test_normalize_angle( 180, - 90, + 90, 360,  0,  180);
+    test_normalize_angle( 181, - 90, + 90, 360,  0,  181);
+    test_normalize_angle( 270, - 90, + 90, 360,  0, - 90);
+    test_normalize_angle( 359, - 90, + 90, 360,  0, -  1);
+    test_normalize_angle( 360, - 90, + 90, 360,  0,    0);
+    test_normalize_angle( 361, - 90, + 90, 360,  0,    1);
+    test_normalize_angle( 450, - 90, + 90, 360,  0,   90);
+    test_normalize_angle( 539, - 90, + 90, 360,  0,  179);
+    test_normalize_angle( 540, - 90, + 90, 360,  0,  180);
+    test_normalize_angle( 541, - 90, + 90, 360,  0,  181);
+    test_normalize_angle( 630, - 90, + 90, 360,  0, - 90);
+    test_normalize_angle( 719, - 90, + 90, 360,  0, -  1);
+    test_normalize_angle( 720, - 90, + 90, 360,  0,    0);
+
+    // 0..-720 -> [-90..+90]
+    test_normalize_angle(   0, - 90, + 90, 360,  0,    0);
+    test_normalize_angle(- 90, - 90, + 90, 360,  0, - 90);
+    test_normalize_angle(-179, - 90, + 90, 360,  0, -179);
+    test_normalize_angle(-180, - 90, + 90, 360,  0, -180);
+    test_normalize_angle(-181, - 90, + 90, 360,  0, -181);
+    test_normalize_angle(-270, - 90, + 90, 360,  0,   90);
+    test_normalize_angle(-359, - 90, + 90, 360,  0,    1);
+    test_normalize_angle(-360, - 90, + 90, 360,  0,    0);
+    test_normalize_angle(-361, - 90, + 90, 360,  0, -  1);
+    test_normalize_angle(-450, - 90, + 90, 360,  0, - 90);
+    test_normalize_angle(-539, - 90, + 90, 360,  0, -179);
+    test_normalize_angle(-540, - 90, + 90, 360,  0, -180);
+    test_normalize_angle(-541, - 90, + 90, 360,  0, -181);
+    test_normalize_angle(-630, - 90, + 90, 360,  0,   90);
+    test_normalize_angle(-719, - 90, + 90, 360,  0,    1);
+    test_normalize_angle(-720, - 90, + 90, 360,  0,    0);
+
+    // 0..720 -> [-90..+90)
+    test_normalize_angle(   0, - 90, + 90, 360, -1,    0);
+    test_normalize_angle(  90, - 90, + 90, 360, -1,   90);
+    test_normalize_angle( 179, - 90, + 90, 360, -1,  179);
+    test_normalize_angle( 180, - 90, + 90, 360, -1,  180);
+    test_normalize_angle( 181, - 90, + 90, 360, -1,  181);
+    test_normalize_angle( 270, - 90, + 90, 360, -1, - 90);
+    test_normalize_angle( 359, - 90, + 90, 360, -1, -  1);
+    test_normalize_angle( 360, - 90, + 90, 360, -1,    0);
+    test_normalize_angle( 361, - 90, + 90, 360, -1,    1);
+    test_normalize_angle( 450, - 90, + 90, 360, -1,   90);
+    test_normalize_angle( 539, - 90, + 90, 360, -1,  179);
+    test_normalize_angle( 540, - 90, + 90, 360, -1,  180);
+    test_normalize_angle( 541, - 90, + 90, 360, -1,  181);
+    test_normalize_angle( 630, - 90, + 90, 360, -1, - 90);
+    test_normalize_angle( 719, - 90, + 90, 360, -1, -  1);
+    test_normalize_angle( 720, - 90, + 90, 360, -1,    0);
+
+    // 0..-720 -> [-90..+90)
+    test_normalize_angle(   0, - 90, + 90, 360, -1,    0);
+    test_normalize_angle(- 90, - 90, + 90, 360, -1, - 90);
+    test_normalize_angle(-179, - 90, + 90, 360, -1, -179);
+    test_normalize_angle(-180, - 90, + 90, 360, -1, -180);
+    test_normalize_angle(-181, - 90, + 90, 360, -1, -181);
+    test_normalize_angle(-270, - 90, + 90, 360, -1, -270);
+    test_normalize_angle(-359, - 90, + 90, 360, -1,    1);
+    test_normalize_angle(-360, - 90, + 90, 360, -1,    0);
+    test_normalize_angle(-361, - 90, + 90, 360, -1, -  1);
+    test_normalize_angle(-450, - 90, + 90, 360, -1, - 90);
+    test_normalize_angle(-539, - 90, + 90, 360, -1, -179);
+    test_normalize_angle(-540, - 90, + 90, 360, -1, -180);
+    test_normalize_angle(-541, - 90, + 90, 360, -1, -181);
+    test_normalize_angle(-630, - 90, + 90, 360, -1, -270);
+    test_normalize_angle(-719, - 90, + 90, 360, -1,    1);
+    test_normalize_angle(-720, - 90, + 90, 360, -1,    0);
+
+    //// -180..+180
+
+    // 0..720 -> (-180..+180]
+    test_normalize_angle(   0, -180, +180, 360, +1,    0);
+    test_normalize_angle(  90, -180, +180, 360, +1,   90);
+    test_normalize_angle( 179, -180, +180, 360, +1,  179);
+    test_normalize_angle( 180, -180, +180, 360, +1,  180);
+    test_normalize_angle( 181, -180, +180, 360, +1, -179);
+    test_normalize_angle( 270, -180, +180, 360, +1, - 90);
+    test_normalize_angle( 359, -180, +180, 360, +1, -  1);
+    test_normalize_angle( 360, -180, +180, 360, +1,    0);
+    test_normalize_angle( 361, -180, +180, 360, +1,    1);
+    test_normalize_angle( 450, -180, +180, 360, +1,   90);
+    test_normalize_angle( 539, -180, +180, 360, +1,  179);
+    test_normalize_angle( 540, -180, +180, 360, +1,  180);
+    test_normalize_angle( 541, -180, +180, 360, +1, -179);
+    test_normalize_angle( 630, -180, +180, 360, +1, - 90);
+    test_normalize_angle( 719, -180, +180, 360, +1, -  1);
+    test_normalize_angle( 720, -180, +180, 360, +1,    0);
+
+    // 0..-720 -> (-180..+180]
+    test_normalize_angle(   0, -180, +180, 360, +1,    0);
+    test_normalize_angle(- 90, -180, +180, 360, +1, - 90);
+    test_normalize_angle(-179, -180, +180, 360, +1, -179);
+    test_normalize_angle(-180, -180, +180, 360, +1,  180);
+    test_normalize_angle(-181, -180, +180, 360, +1,  179);
+    test_normalize_angle(-270, -180, +180, 360, +1,   90);
+    test_normalize_angle(-359, -180, +180, 360, +1,    1);
+    test_normalize_angle(-360, -180, +180, 360, +1,    0);
+    test_normalize_angle(-361, -180, +180, 360, +1, -  1);
+    test_normalize_angle(-450, -180, +180, 360, +1, - 90);
+    test_normalize_angle(-539, -180, +180, 360, +1, -179);
+    test_normalize_angle(-540, -180, +180, 360, +1,  180);
+    test_normalize_angle(-541, -180, +180, 360, +1,  179);
+    test_normalize_angle(-630, -180, +180, 360, +1,   90);
+    test_normalize_angle(-719, -180, +180, 360, +1,    1);
+    test_normalize_angle(-720, -180, +180, 360, +1,    0);
+
+    // 0..720 -> [-180..+180]
+    test_normalize_angle(   0, -180, +180, 360,  0,    0);
+    test_normalize_angle(  90, -180, +180, 360,  0,   90);
+    test_normalize_angle( 179, -180, +180, 360,  0,  179);
+    test_normalize_angle( 180, -180, +180, 360,  0,  180);
+    test_normalize_angle( 181, -180, +180, 360,  0, -179);
+    test_normalize_angle( 270, -180, +180, 360,  0, - 90);
+    test_normalize_angle( 359, -180, +180, 360,  0, -  1);
+    test_normalize_angle( 360, -180, +180, 360,  0,    0);
+    test_normalize_angle( 361, -180, +180, 360,  0,    1);
+    test_normalize_angle( 450, -180, +180, 360,  0,   90);
+    test_normalize_angle( 539, -180, +180, 360,  0,  179);
+    test_normalize_angle( 540, -180, +180, 360,  0,  180);
+    test_normalize_angle( 541, -180, +180, 360,  0, -179);
+    test_normalize_angle( 630, -180, +180, 360,  0, - 90);
+    test_normalize_angle( 719, -180, +180, 360,  0, -  1);
+    test_normalize_angle( 720, -180, +180, 360,  0,    0);
+
+    // 0..-720 -> [-180..+180]
+    test_normalize_angle(   0, -180, +180, 360,  0,    0);
+    test_normalize_angle(- 90, -180, +180, 360,  0, - 90);
+    test_normalize_angle(-179, -180, +180, 360,  0, -179);
+    test_normalize_angle(-180, -180, +180, 360,  0, -180);
+    test_normalize_angle(-181, -180, +180, 360,  0,  179);
+    test_normalize_angle(-270, -180, +180, 360,  0,   90);
+    test_normalize_angle(-359, -180, +180, 360,  0,    1);
+    test_normalize_angle(-360, -180, +180, 360,  0,    0);
+    test_normalize_angle(-361, -180, +180, 360,  0, -  1);
+    test_normalize_angle(-450, -180, +180, 360,  0, - 90);
+    test_normalize_angle(-539, -180, +180, 360,  0, -179);
+    test_normalize_angle(-540, -180, +180, 360,  0, -180);
+    test_normalize_angle(-541, -180, +180, 360,  0,  179);
+    test_normalize_angle(-630, -180, +180, 360,  0,   90);
+    test_normalize_angle(-719, -180, +180, 360,  0,    1);
+    test_normalize_angle(-720, -180, +180, 360,  0,    0);
+
+    // 0..720 -> [-180..+180)
+    test_normalize_angle(   0, -180, +180, 360, -1,    0);
+    test_normalize_angle(  90, -180, +180, 360, -1,   90);
+    test_normalize_angle( 179, -180, +180, 360, -1,  179);
+    test_normalize_angle( 180, -180, +180, 360, -1, -180);
+    test_normalize_angle( 181, -180, +180, 360, -1, -179);
+    test_normalize_angle( 270, -180, +180, 360, -1, - 90);
+    test_normalize_angle( 359, -180, +180, 360, -1, -  1);
+    test_normalize_angle( 360, -180, +180, 360, -1,    0);
+    test_normalize_angle( 361, -180, +180, 360, -1,    1);
+    test_normalize_angle( 450, -180, +180, 360, -1,   90);
+    test_normalize_angle( 539, -180, +180, 360, -1,  179);
+    test_normalize_angle( 540, -180, +180, 360, -1, -180);
+    test_normalize_angle( 541, -180, +180, 360, -1, -179);
+    test_normalize_angle( 630, -180, +180, 360, -1, - 90);
+    test_normalize_angle( 719, -180, +180, 360, -1, -  1);
+    test_normalize_angle( 720, -180, +180, 360, -1,    0);
+
+    // 0..-720 -> [-180..+180)
+    test_normalize_angle(   0, -180, +180, 360, -1,    0);
+    test_normalize_angle(- 90, -180, +180, 360, -1, - 90);
+    test_normalize_angle(-179, -180, +180, 360, -1, -179);
+    test_normalize_angle(-180, -180, +180, 360, -1, -180);
+    test_normalize_angle(-181, -180, +180, 360, -1,  179);
+    test_normalize_angle(-270, -180, +180, 360, -1,   90);
+    test_normalize_angle(-359, -180, +180, 360, -1,    1);
+    test_normalize_angle(-360, -180, +180, 360, -1,    0);
+    test_normalize_angle(-361, -180, +180, 360, -1, -  1);
+    test_normalize_angle(-450, -180, +180, 360, -1, - 90);
+    test_normalize_angle(-539, -180, +180, 360, -1, -179);
+    test_normalize_angle(-540, -180, +180, 360, -1, -180);
+    test_normalize_angle(-541, -180, +180, 360, -1,  179);
+    test_normalize_angle(-630, -180, +180, 360, -1,   90);
+    test_normalize_angle(-719, -180, +180, 360, -1,    1);
+    test_normalize_angle(-720, -180, +180, 360, -1,    0);
+
+    //// -270..+270
+
+    // 0..720 -> (-270..+270]
+    test_normalize_angle(   0, -270, +270, 360, +1,    0);
+    test_normalize_angle(  90, -270, +270, 360, +1,   90);
+    test_normalize_angle( 179, -270, +270, 360, +1,  179);
+    test_normalize_angle( 180, -270, +270, 360, +1,  180);
+    test_normalize_angle( 181, -270, +270, 360, +1,  181);
+    test_normalize_angle( 269, -270, +270, 360, +1,  269);
+    test_normalize_angle( 270, -270, +270, 360, +1,  270);
+    test_normalize_angle( 271, -270, +270, 360, +1, - 89);
+    test_normalize_angle( 359, -270, +270, 360, +1, -  1);
+    test_normalize_angle( 360, -270, +270, 360, +1,    0);
+    test_normalize_angle( 361, -270, +270, 360, +1,    1);
+    test_normalize_angle( 450, -270, +270, 360, +1,   90);
+    test_normalize_angle( 539, -270, +270, 360, +1,  179);
+    test_normalize_angle( 540, -270, +270, 360, +1,  180);
+    test_normalize_angle( 541, -270, +270, 360, +1,  181);
+    test_normalize_angle( 629, -270, +270, 360, +1,  269);
+    test_normalize_angle( 630, -270, +270, 360, +1,  270);
+    test_normalize_angle( 631, -270, +270, 360, +1, - 89);
+    test_normalize_angle( 719, -270, +270, 360, +1, -  1);
+    test_normalize_angle( 720, -270, +270, 360, +1,    0);
+
+    // 0..-720 -> (-270..+270]
+    test_normalize_angle(   0, -270, +270, 360, +1,    0);
+    test_normalize_angle(- 90, -270, +270, 360, +1, - 90);
+    test_normalize_angle(-179, -270, +270, 360, +1, -179);
+    test_normalize_angle(-180, -270, +270, 360, +1, -180);
+    test_normalize_angle(-181, -270, +270, 360, +1, -181);
+    test_normalize_angle(-269, -270, +270, 360, +1, -269);
+    test_normalize_angle(-270, -270, +270, 360, +1,   90);
+    test_normalize_angle(-271, -270, +270, 360, +1,   89);
+    test_normalize_angle(-359, -270, +270, 360, +1,    1);
+    test_normalize_angle(-360, -270, +270, 360, +1,    0);
+    test_normalize_angle(-361, -270, +270, 360, +1, -  1);
+    test_normalize_angle(-450, -270, +270, 360, +1, - 90);
+    test_normalize_angle(-539, -270, +270, 360, +1, -179);
+    test_normalize_angle(-540, -270, +270, 360, +1, -180);
+    test_normalize_angle(-541, -270, +270, 360, +1, -181);
+    test_normalize_angle(-629, -270, +270, 360, +1, -269);
+    test_normalize_angle(-630, -270, +270, 360, +1,   90);
+    test_normalize_angle(-631, -270, +270, 360, +1,   89);
+    test_normalize_angle(-719, -270, +270, 360, +1,    1);
+    test_normalize_angle(-720, -270, +270, 360, +1,    0);
+
+    // 0..720 -> [-270..+270]
+    test_normalize_angle(   0, -270, +270, 360,  0,    0);
+    test_normalize_angle(  90, -270, +270, 360,  0,   90);
+    test_normalize_angle( 179, -270, +270, 360,  0,  179);
+    test_normalize_angle( 180, -270, +270, 360,  0,  180);
+    test_normalize_angle( 181, -270, +270, 360,  0,  181);
+    test_normalize_angle( 269, -270, +270, 360,  0,  269);
+    test_normalize_angle( 270, -270, +270, 360,  0,  270);
+    test_normalize_angle( 271, -270, +270, 360,  0, - 89);
+    test_normalize_angle( 359, -270, +270, 360,  0, -  1);
+    test_normalize_angle( 360, -270, +270, 360,  0,    0);
+    test_normalize_angle( 361, -270, +270, 360,  0,    1);
+    test_normalize_angle( 450, -270, +270, 360,  0,   90);
+    test_normalize_angle( 539, -270, +270, 360,  0,  179);
+    test_normalize_angle( 540, -270, +270, 360,  0,  180);
+    test_normalize_angle( 541, -270, +270, 360,  0,  181);
+    test_normalize_angle( 629, -270, +270, 360,  0,  269);
+    test_normalize_angle( 630, -270, +270, 360,  0,  270);
+    test_normalize_angle( 631, -270, +270, 360,  0, - 89);
+    test_normalize_angle( 719, -270, +270, 360,  0, -  1);
+    test_normalize_angle( 720, -270, +270, 360,  0,    0);
+
+    // 0..-720 -> [-270..+270]
+    test_normalize_angle(   0, -270, +270, 360,  0,    0);
+    test_normalize_angle(- 90, -270, +270, 360,  0, - 90);
+    test_normalize_angle(-179, -270, +270, 360,  0, -179);
+    test_normalize_angle(-180, -270, +270, 360,  0, -180);
+    test_normalize_angle(-181, -270, +270, 360,  0, -181);
+    test_normalize_angle(-269, -270, +270, 360,  0, -269);
+    test_normalize_angle(-270, -270, +270, 360,  0, -270);
+    test_normalize_angle(-271, -270, +270, 360,  0,   89);
+    test_normalize_angle(-359, -270, +270, 360,  0,    1);
+    test_normalize_angle(-360, -270, +270, 360,  0,    0);
+    test_normalize_angle(-361, -270, +270, 360,  0, -  1);
+    test_normalize_angle(-450, -270, +270, 360,  0, - 90);
+    test_normalize_angle(-539, -270, +270, 360,  0, -179);
+    test_normalize_angle(-540, -270, +270, 360,  0, -180);
+    test_normalize_angle(-541, -270, +270, 360,  0, -181);
+    test_normalize_angle(-629, -270, +270, 360,  0, -269);
+    test_normalize_angle(-630, -270, +270, 360,  0, -270);
+    test_normalize_angle(-631, -270, +270, 360,  0,   89);
+    test_normalize_angle(-719, -270, +270, 360,  0,    1);
+    test_normalize_angle(-720, -270, +270, 360,  0,    0);
+
+    // 0..720 -> [-270..+270)
+    test_normalize_angle(   0, -270, +270, 360, -1,    0);
+    test_normalize_angle(  90, -270, +270, 360, -1,   90);
+    test_normalize_angle( 179, -270, +270, 360, -1,  179);
+    test_normalize_angle( 180, -270, +270, 360, -1,  180);
+    test_normalize_angle( 181, -270, +270, 360, -1,  181);
+    test_normalize_angle( 269, -270, +270, 360, -1,  269);
+    test_normalize_angle( 270, -270, +270, 360, -1, - 90);
+    test_normalize_angle( 271, -270, +270, 360, -1, - 89);
+    test_normalize_angle( 359, -270, +270, 360, -1, -  1);
+    test_normalize_angle( 360, -270, +270, 360, -1,    0);
+    test_normalize_angle( 361, -270, +270, 360, -1,    1);
+    test_normalize_angle( 450, -270, +270, 360, -1,   90);
+    test_normalize_angle( 539, -270, +270, 360, -1,  179);
+    test_normalize_angle( 540, -270, +270, 360, -1,  180);
+    test_normalize_angle( 541, -270, +270, 360, -1,  181);
+    test_normalize_angle( 629, -270, +270, 360, -1,  269);
+    test_normalize_angle( 630, -270, +270, 360, -1, - 90);
+    test_normalize_angle( 631, -270, +270, 360, -1, - 89);
+    test_normalize_angle( 719, -270, +270, 360, -1, -  1);
+    test_normalize_angle( 720, -270, +270, 360, -1,    0);
+
+    // 0..-720 -> [-270..+270)
+    test_normalize_angle(   0, -270, +270, 360, -1,    0);
+    test_normalize_angle(- 90, -270, +270, 360, -1, - 90);
+    test_normalize_angle(-179, -270, +270, 360, -1, -179);
+    test_normalize_angle(-180, -270, +270, 360, -1, -180);
+    test_normalize_angle(-181, -270, +270, 360, -1, -181);
+    test_normalize_angle(-269, -270, +270, 360, -1, -269);
+    test_normalize_angle(-270, -270, +270, 360, -1, -270);
+    test_normalize_angle(-271, -270, +270, 360, -1,   89);
+    test_normalize_angle(-359, -270, +270, 360, -1,    1);
+    test_normalize_angle(-360, -270, +270, 360, -1,    0);
+    test_normalize_angle(-361, -270, +270, 360, -1, -  1);
+    test_normalize_angle(-450, -270, +270, 360, -1, - 90);
+    test_normalize_angle(-539, -270, +270, 360, -1, -179);
+    test_normalize_angle(-540, -270, +270, 360, -1, -180);
+    test_normalize_angle(-541, -270, +270, 360, -1, -181);
+    test_normalize_angle(-629, -270, +270, 360, -1, -269);
+    test_normalize_angle(-630, -270, +270, 360, -1, -270);
+    test_normalize_angle(-631, -270, +270, 360, -1,   89);
+    test_normalize_angle(-719, -270, +270, 360, -1,    1);
+    test_normalize_angle(-720, -270, +270, 360, -1,    0);
 }
 
 //// get_leap_days
