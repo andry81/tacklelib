@@ -1,13 +1,9 @@
-#%% version: 1
+#%% version: 2
+
 # CAUTION:
 #  In case of usage the QtCreator there is set of special broken cases you have to avoid:
 #  1. Invalid characters in paths: `(`, `)` and `.`.
 #  2. Non english locale in paths.
-
-set(ENV{CMAKE_RUNTIME_OUTPUT_DIRECTORY} "@CMAKE_RUNTIME_OUTPUT_DIRECTORY@")
-set(ENV{CMAKE_LIBRARY_OUTPUT_DIRECTORY} "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@")
-set(ENV{CMAKE_INSTALL_PREFIX} "@CMAKE_INSTALL_PREFIX@")
-set(ENV{CPACK_OUTPUT_FILE_PREFIX} "@CPACK_OUTPUT_FILE_PREFIX@")
 
 # user custom values
 

@@ -27,6 +27,7 @@ _scripts/traplib.sh -text
 /configure_gen.sh.in -text
 /configure_nogen.bat.in -text
 /configure_nogen.sh.in -text
+/environment_config.cmake.in -text
 /environment_local.cmake.in -text
 /environment_local.vars.in -text
 includes/.svnignore -text
