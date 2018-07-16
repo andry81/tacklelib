@@ -11,22 +11,22 @@ int main(int argc, char **argv) {
         ("help,h", "print usage message")
 
         ("data_in_root,i",
-            po::value(&TestCaseStaticBase::s_TESTS_DATA_IN_ROOT), "tests data input root directory path")
+            po::value(&TestCaseStaticBase::s_TESTS_DATA_IN_ROOT.str()), "tests data input root directory path")
         ("data_out_root,o",
-            po::value(&TestCaseStaticBase::s_TESTS_DATA_OUT_ROOT), "tests data output root directory path")
+            po::value(&TestCaseStaticBase::s_TESTS_DATA_OUT_ROOT.str()), "tests data output root directory path")
 
         ("data_ref_dir,r",
-            po::value(&TestCaseWithDataReference::s_TESTS_REF_DIR), "tests data reference root directory path")
+            po::value(&TestCaseWithDataReference::s_TESTS_REF_DIR.str()), "tests data reference root directory path")
         ("disable_data_ref_tests",
             po::bool_switch(&TestCaseWithDataReference::s_is_TESTS_REF_DIR_disabled)->default_value(false), "disable tests required data reference root directory path")
 
         ("data_gen_dir,g",
-            po::value(&TestCaseWithDataGenerator::s_TESTS_GEN_DIR), "tests data generator root directory path")
+            po::value(&TestCaseWithDataGenerator::s_TESTS_GEN_DIR.str()), "tests data generator root directory path")
         ("disable_data_gen_tests",
             po::bool_switch(&TestCaseWithDataGenerator::s_is_TESTS_GEN_DIR_disabled)->default_value(false), "disable tests required data generator root directory path")
 
         ("data_out_dir,o",
-            po::value(&TestCaseWithDataOutput::s_TESTS_OUT_DIR), "tests data output root directory path")
+            po::value(&TestCaseWithDataOutput::s_TESTS_OUT_DIR.str()), "tests data output root directory path")
         ("disable_data_out_tests",
             po::bool_switch(&TestCaseWithDataOutput::s_is_TESTS_OUT_DIR_disabled)->default_value(false), "disable tests required data output root directory path")
 

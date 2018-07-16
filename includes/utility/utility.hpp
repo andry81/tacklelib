@@ -26,6 +26,8 @@
 #include <iomanip>
 #include <algorithm>
 #include <memory>
+#include <cfloat>
+#include <cmath>
 
 #if defined(UTILITY_PLATFORM_POSIX)
 #include <termios.h>
@@ -412,6 +414,12 @@ namespace utility
         ss.str(std::string{});
         ss.clear();
         ss.copyfmt(initial);
+    }
+
+    FORCE_INLINE double modf(double d)
+    {
+        double whole;
+        return ::modf(d, &whole);
     }
 }
 

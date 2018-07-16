@@ -17,7 +17,7 @@
 #include <limits>
 #include <utility>
 
-#include <float.h>
+#include <cfloat>
 #include <cmath>
 
 
@@ -991,6 +991,156 @@ namespace math
         }
 
         return ang_norm;
+    }
+
+    // on_equal_distances_select_closest_to_zero=true:
+    //  Calculate angle distance with a sign less or equal by the modulo to the 180 degrees, where
+    //  the resulting range middle point would be closest to the zero.
+    //  For example, for 2 ranges [0..180] and [0..-180] the function should return +180, but for another 2 ranges
+    //  [5..185] and [5..-175] the function should return -180 because |+95| is greater than |-90|.
+    //
+    extern inline double angle_closest_distance(double start_angle, double end_angle, bool in_radians, bool on_equal_distances_select_closest_to_zero)
+    {
+        const double angle_distance_720 = end_angle - start_angle;
+        DEBUG_ASSERT_TRUE(DEG_360_IN_RAD_IF(in_radians) * 2 >= fabs(angle_distance_720)); // symmetric constraints check: [-360..360]
+
+        double angle_distance = angle_distance_720; // retains the sign to transfer the direction of angle
+
+        if (angle_distance_720 < 0) {
+            if (-DEG_180_IN_RAD_IF(in_radians) >= angle_distance_720) {
+                // normalize distance from [0..720) to [0..360)
+                const double angle_distance_360 = math::normalize_angle(angle_distance_720, -DEG_180_IN_RAD_IF(in_radians), 0, DEG_360_IN_RAD_IF(in_radians), 0);
+                if (-DEG_180_IN_RAD_IF(in_radians) > angle_distance_360) {
+                    angle_distance = DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
+                }
+                else {
+                    if (-DEG_180_IN_RAD_IF(in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
+                        angle_distance = angle_distance_360;
+                    }
+                    else {
+                        const double negative_distance_end = start_angle - DEG_180_IN_RAD_IF(in_radians);
+                        const double positive_distance_end = start_angle + DEG_180_IN_RAD_IF(in_radians);
+                        if (fabs(negative_distance_end) >= fabs(positive_distance_end)) {
+                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                        }
+                        else {
+                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if (DEG_180_IN_RAD_IF(in_radians) <= angle_distance_720) {
+                // normalize distance from [0..720) to [0..360)
+                const double angle_distance_360 = math::normalize_angle(angle_distance_720, 0, +DEG_180_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+                if (DEG_180_IN_RAD_IF(in_radians) < angle_distance_360) {
+                    angle_distance = angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
+                }
+                else {
+                    if (DEG_180_IN_RAD_IF(in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
+                        angle_distance = angle_distance_360;
+                    }
+                    else {
+                        const double negative_distance_end = start_angle - DEG_180_IN_RAD_IF(in_radians);
+                        const double positive_distance_end = start_angle + DEG_180_IN_RAD_IF(in_radians);
+                        if (fabs(negative_distance_end) >= fabs(positive_distance_end)) {
+                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                        }
+                        else {
+                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                        }
+                    }
+                }
+            }
+        }
+
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), fabs(angle_distance));
+
+        return angle_distance;
+    }
+
+    // Normalize the angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
+    // Additionally the monotonical change should exists on the greater range with the discontinuity in the angle opposite to the middle angle.
+    //
+    extern inline double normalize_angle_to_range(double start_angle, double mid_angle, double angle_distance, double angle, bool in_radians)
+    {
+        // all input must be already self normalized
+    #ifndef UNIT_TESTS
+        DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
+        DEBUG_ASSERT_TRUE(mid_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle);
+        DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
+    #endif
+        DEBUG_ASSERT_GE(DEG_360_IN_RAD_IF(in_radians), fabs(angle_distance));
+
+        const double angle_norm = math::normalize_angle(angle,
+            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0); // just in case
+        const double end_angle_norm = start_angle + angle_distance;
+        double prev_angle_tmp;
+        double angle_tmp = angle_norm;
+
+        if (angle_distance >= 0) {
+            if (end_angle_norm < angle_tmp) {
+                do {
+                    prev_angle_tmp = angle_tmp;
+                    angle_tmp -= DEG_360_IN_RAD_IF(in_radians);
+                } while (end_angle_norm < angle_tmp);
+
+                if (angle_tmp < start_angle) {
+                    // choose azimuth with closest distance to the `mid_angle` point
+                    if (VERIFY_GE(prev_angle_tmp - mid_angle, 0) <=
+                        VERIFY_GE(mid_angle - angle_tmp, 0)) {
+                        angle_tmp = prev_angle_tmp;
+                    }
+                }
+            }
+            else if (angle_tmp < start_angle) {
+                do {
+                    prev_angle_tmp = angle_tmp;
+                    angle_tmp += DEG_360_IN_RAD_IF(in_radians);
+                } while (angle_tmp < start_angle);
+
+                if (end_angle_norm < angle_tmp) {
+                    // choose azimuth with closest distance to the `mid_angle` point
+                    if (VERIFY_GE(mid_angle - prev_angle_tmp, 0) <
+                        VERIFY_GE(angle_tmp - mid_angle, 0)) {
+                        angle_tmp = prev_angle_tmp;
+                    }
+                }
+            }
+        }
+        else {
+            if (start_angle < angle_tmp) {
+                do {
+                    prev_angle_tmp = angle_tmp;
+                    angle_tmp -= DEG_360_IN_RAD_IF(in_radians);
+                } while (start_angle < angle_tmp);
+
+                if (angle_tmp < end_angle_norm) {
+                    // choose azimuth with closest distance to the `mid_angle` point
+                    if (VERIFY_GE(prev_angle_tmp - mid_angle, 0) <=
+                        VERIFY_GE(mid_angle - angle_tmp, 0)) {
+                        angle_tmp = prev_angle_tmp;
+                    }
+                }
+            }
+            else if (angle_tmp < end_angle_norm) {
+                do {
+                    prev_angle_tmp = angle_tmp;
+                    angle_tmp += DEG_360_IN_RAD_IF(in_radians);
+                } while (angle_tmp < end_angle_norm);
+
+                if (start_angle < angle_tmp) {
+                    // choose azimuth with closest distance to the `mid_angle` point
+                    if (VERIFY_GE(mid_angle - prev_angle_tmp, 0) <
+                        VERIFY_GE(angle_tmp - mid_angle, 0)) {
+                        angle_tmp = prev_angle_tmp;
+                    }
+                }
+            }
+        }
+
+        return angle_tmp;
     }
 }
 

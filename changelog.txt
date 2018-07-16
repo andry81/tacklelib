@@ -1,3 +1,9 @@
+2018.07.15:
+* new: math::angle_closest_distance and math::normalize_angle_to_range functions
+* new: unit tests
+* refactor: build scripts refactor
+* minor refactor, fixup and cleanup
+
 2018.07.06:
 * fixed: math::normalize_angle test missed
 
