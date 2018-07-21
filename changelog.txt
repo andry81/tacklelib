@@ -1,3 +1,10 @@
+2018.07.18:
+* refactor: tacklelib math trigonometric functions converted to templated
+
+2018.07.16:
+* new: math::angle_distance function
+* new: math::angle_distance unit tests
+
 2018.07.15:
 * new: math::angle_closest_distance and math::normalize_angle_to_range functions
 * new: unit tests

@@ -153,6 +153,9 @@
 #define DEG_360_IN_RAD                              (::math::pi * 2)
 #define DEG_360_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_360_IN_RAD : 360)
 
+#define DEG_720_IN_RAD                              (::math::pi * 4)
+#define DEG_720_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_720_IN_RAD : 720)
+
 
 // implementation through the define to reuse code in debug and avoid performance slow down in particular usage places
 #define INT32_POF2_FLOOR_MACRO_INLINE(return_exp, type_, v) \
@@ -574,7 +577,7 @@ namespace math
 
     // sign convertion into -1,0,+1 integer
     template <typename T>
-    FORCE_INLINE int sign_to_int(T v)
+    FORCE_INLINE int sign_to_int(const T & v)
     {
         if (v > 0) {
             return +1;
@@ -584,6 +587,42 @@ namespace math
         }
 
         return 0;
+    }
+
+    // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> `+`
+    template <typename T>
+    FORCE_INLINE char sign_to_char(const T & v)
+    {
+        if (v > 0) {
+            return '+';
+        }
+        else if (v < 0) {
+            return '-';
+        }
+
+        return ' ';
+    }
+
+    // sign convertion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
+    template <typename T>
+    FORCE_INLINE char sign_to_positive_char(const T & v)
+    {
+        if (v > 0) {
+            return '+';
+        }
+
+        return ' ';
+    }
+
+    // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> ` `
+    template <typename T>
+    FORCE_INLINE char sign_to_negative_char(const T & v)
+    {
+        if (v < 0) {
+            return '-';
+        }
+
+        return ' ';
     }
 
     // to suppress compilation warning:
@@ -798,20 +837,21 @@ namespace math
     //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
     //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
     //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
-    extern inline double normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction)
+    template <typename T>
+    extern inline T normalize_angle(const T & ang, const T & min_ang, const T & max_ang, const T & ang_period_mod, int inclusion_direction)
     {
         DEBUG_ASSERT_LT(min_ang, max_ang);
         DEBUG_ASSERT_GT(ang_period_mod, 0U); // must be always positive
 
         DEBUG_ASSERT_GE(min_ang, -ang_period_mod);
-        DEBUG_ASSERT_GE(+ang_period_mod, max_ang);
+        DEBUG_ASSERT_GE(ang_period_mod, max_ang);
 
         if (!BASIC_VERIFY_TRUE(inclusion_direction >= -1 && +1 >= inclusion_direction)) {
             // just in case
             inclusion_direction = 0; // prefer symmetric case
         }
 
-        double ang_norm = ang;
+        T ang_norm = ang;
 
         switch (inclusion_direction) {
         case -1:
@@ -823,7 +863,7 @@ namespace math
 
             if (ang >= 0) {
                 if (ang < ang_period_mod) {
-                    const double ang_neg = ang - ang_period_mod;
+                    const T ang_neg = ang - ang_period_mod;
                     if (ang_neg >= min_ang && max_ang > ang_neg) {
                         return ang_neg;
                     }
@@ -835,7 +875,7 @@ namespace math
                         return ang_norm;
                     }
                     else {
-                        const double ang_neg = ang_norm - ang_period_mod;
+                        const T ang_neg = ang_norm - ang_period_mod;
                         if (ang_neg >= min_ang && max_ang > ang_neg) {
                             return ang_neg;
                         }
@@ -843,13 +883,13 @@ namespace math
                 }
             }
             else if (-ang < ang_period_mod) {
-                const double ang_pos = ang + ang_period_mod;
+                const T ang_pos = ang + ang_period_mod;
                 if (ang_pos >= min_ang && max_ang > ang_pos) {
                     return ang_pos;
                 }
                 // additional test in direction of inclusion
                 else {
-                    const double ang_neg = ang - ang_period_mod;
+                    const T ang_neg = ang - ang_period_mod;
                     if (ang_neg >= min_ang && max_ang > ang_neg) {
                         return ang_neg;
                     }
@@ -861,13 +901,13 @@ namespace math
                     return ang_norm;
                 }
                 else {
-                    const double ang_pos = ang_norm + ang_period_mod;
+                    const T ang_pos = ang_norm + ang_period_mod;
                     if (ang_pos >= min_ang && max_ang > ang_pos) {
                         return ang_pos;
                     }
                     // additional test in direction of inclusion
                     else {
-                        const double ang_neg = ang_norm - ang_period_mod;
+                        const T ang_neg = ang_norm - ang_period_mod;
                         if (ang_neg >= min_ang && max_ang > ang_neg) {
                             return ang_neg;
                         }
@@ -885,7 +925,7 @@ namespace math
 
             if (ang >= 0) {
                 if (ang < ang_period_mod) {
-                    const double ang_neg = ang - ang_period_mod;
+                    const T ang_neg = ang - ang_period_mod;
                     if (ang_neg >= min_ang && max_ang >= ang_neg) {
                         return ang_neg;
                     }
@@ -897,7 +937,7 @@ namespace math
                         return ang_norm;
                     }
                     else {
-                        const double ang_neg = ang_norm - ang_period_mod;
+                        const T ang_neg = ang_norm - ang_period_mod;
                         if (ang_neg >= min_ang && max_ang >= ang_neg) {
                             return ang_neg;
                         }
@@ -905,7 +945,7 @@ namespace math
                 }
             }
             else if (-ang < ang_period_mod) {
-                const double ang_pos = ang + ang_period_mod;
+                const T ang_pos = ang + ang_period_mod;
                 if (ang_pos >= min_ang && max_ang >= ang_pos) {
                     return ang_pos;
                 }
@@ -916,7 +956,7 @@ namespace math
                     return ang_norm;
                 }
                 else {
-                    const double ang_pos = ang_norm + ang_period_mod;
+                    const T ang_pos = ang_norm + ang_period_mod;
                     if (ang_pos >= min_ang && max_ang >= ang_pos) {
                         return ang_pos;
                     }
@@ -933,13 +973,13 @@ namespace math
 
             if (ang >= 0) {
                 if (ang < ang_period_mod) {
-                    const double ang_neg = ang - ang_period_mod;
+                    const T ang_neg = ang - ang_period_mod;
                     if (ang_neg > min_ang && max_ang >= ang_neg) {
                         return ang_neg;
                     }
                     // additional test in direction of inclusion
                     else {
-                        const double ang_pos = ang + ang_period_mod;
+                        const T ang_pos = ang + ang_period_mod;
                         if (ang_pos > min_ang && max_ang >= ang_pos) {
                             return ang_pos;
                         }
@@ -952,13 +992,13 @@ namespace math
                         return ang_norm;
                     }
                     else {
-                        const double ang_neg = ang_norm - ang_period_mod;
+                        const T ang_neg = ang_norm - ang_period_mod;
                         if (ang_neg > min_ang && max_ang >= ang_neg) {
                             return ang_neg;
                         }
                         // additional test in direction of inclusion
                         else {
-                            const double ang_pos = ang_norm + ang_period_mod;
+                            const T ang_pos = ang_norm + ang_period_mod;
                             if (ang_pos > min_ang && max_ang >= ang_pos) {
                                 return ang_pos;
                             }
@@ -967,7 +1007,7 @@ namespace math
                 }
             }
             else if (-ang < ang_period_mod) {
-                const double ang_pos = ang + ang_period_mod;
+                const T ang_pos = ang + ang_period_mod;
                 if (ang_pos > min_ang && max_ang >= ang_pos) {
                     return ang_pos;
                 }
@@ -978,7 +1018,7 @@ namespace math
                     return ang_norm;
                 }
                 else {
-                    const double ang_pos = ang_norm + ang_period_mod;
+                    const T ang_pos = ang_norm + ang_period_mod;
                     if (ang_pos > min_ang && max_ang >= ang_pos) {
                         return ang_pos;
                     }
@@ -993,23 +1033,33 @@ namespace math
         return ang_norm;
     }
 
+    // Calculates closest distance between 2 angles independently to angles change direction.
+    //
+    // CAUTION:
+    //  Because the function does not use direction of angle change, the resulting angles distance will be always less or equal to 180 degrees.
+    //  Use `angle_distance` function instead to get angles distance respective to angles change direction.
+    //
+    // start_angle=[-inf..+inf] end_angle=[-inf..+inf]
+    //
     // on_equal_distances_select_closest_to_zero=true:
     //  Calculate angle distance with a sign less or equal by the modulo to the 180 degrees, where
     //  the resulting range middle point would be closest to the zero.
     //  For example, for 2 ranges [0..180] and [0..-180] the function should return +180, but for another 2 ranges
-    //  [5..185] and [5..-175] the function should return -180 because |+95| is greater than |-90|.
+    //  [5..185] and [5..-175] the function should return -180 because an absolute value of middle point |+95| is greater than |-85|.
     //
-    extern inline double angle_closest_distance(double start_angle, double end_angle, bool in_radians, bool on_equal_distances_select_closest_to_zero)
+    // Return: angle_distance=[-pi..+pi]
+    //
+    template <typename T>
+    extern inline T angle_closest_distance(const T & start_angle, const T & end_angle, bool in_radians, bool on_equal_distances_select_closest_to_zero)
     {
-        const double angle_distance_720 = end_angle - start_angle;
-        DEBUG_ASSERT_TRUE(DEG_360_IN_RAD_IF(in_radians) * 2 >= fabs(angle_distance_720)); // symmetric constraints check: [-360..360]
+        const T angle_distance_inf = end_angle - start_angle;
 
-        double angle_distance = angle_distance_720; // retains the sign to transfer the direction of angle
+        T angle_distance = angle_distance_inf; // retains the sign to transfer the direction of angle
 
-        if (angle_distance_720 < 0) {
-            if (-DEG_180_IN_RAD_IF(in_radians) >= angle_distance_720) {
-                // normalize distance from [0..720) to [0..360)
-                const double angle_distance_360 = math::normalize_angle(angle_distance_720, -DEG_180_IN_RAD_IF(in_radians), 0, DEG_360_IN_RAD_IF(in_radians), 0);
+        if (angle_distance_inf < 0) {
+            if (-DEG_180_IN_RAD_IF(in_radians) >= angle_distance_inf) {
+                // normalize distance from [-inf..0] to (-360..0]
+                const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
                 if (-DEG_180_IN_RAD_IF(in_radians) > angle_distance_360) {
                     angle_distance = DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
                 }
@@ -1018,22 +1068,20 @@ namespace math
                         angle_distance = angle_distance_360;
                     }
                     else {
-                        const double negative_distance_end = start_angle - DEG_180_IN_RAD_IF(in_radians);
-                        const double positive_distance_end = start_angle + DEG_180_IN_RAD_IF(in_radians);
-                        if (fabs(negative_distance_end) >= fabs(positive_distance_end)) {
-                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                        if (start_angle > 0) {
+                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
                         }
                         else {
-                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
                         }
                     }
                 }
             }
         }
         else {
-            if (DEG_180_IN_RAD_IF(in_radians) <= angle_distance_720) {
-                // normalize distance from [0..720) to [0..360)
-                const double angle_distance_360 = math::normalize_angle(angle_distance_720, 0, +DEG_180_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+            if (DEG_180_IN_RAD_IF(in_radians) <= angle_distance_inf) {
+                // normalize distance from [0..+inf] to [0..+360)
+                const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
                 if (DEG_180_IN_RAD_IF(in_radians) < angle_distance_360) {
                     angle_distance = angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
                 }
@@ -1042,13 +1090,11 @@ namespace math
                         angle_distance = angle_distance_360;
                     }
                     else {
-                        const double negative_distance_end = start_angle - DEG_180_IN_RAD_IF(in_radians);
-                        const double positive_distance_end = start_angle + DEG_180_IN_RAD_IF(in_radians);
-                        if (fabs(negative_distance_end) >= fabs(positive_distance_end)) {
-                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                        if (start_angle > 0) {
+                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
                         }
                         else {
-                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
                         }
                     }
                 }
@@ -1060,10 +1106,47 @@ namespace math
         return angle_distance;
     }
 
+    // Calculates distance between 2 angles respective to angles change direction if greater than epsilon angle,
+    // otherwise calculates angle closest distance.
+    //
+    // start_angle=[-inf..+inf] end_angle=[-inf..+inf]
+    //
+    // Return: angle_distance=[-2pi..+2pi]
+    //
+    template <typename T>
+    extern inline T angle_distance(const T & start_angle, const T & end_angle, const T & angle_epsilon, bool positive_angle_change, bool in_radians)
+    {
+        // all epsilons must be positive
+        DEBUG_ASSERT_GE(angle_epsilon, 0);
+
+        const T angle_distance_inf = end_angle - start_angle;
+
+        // normalize distance from [-inf..0]/[0..+inf] to (-360..0]/[0..+360)
+        const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
+        const T angle_distance_360_abs = fabs(angle_distance_360);
+
+        if (angle_epsilon < angle_distance_360_abs && angle_epsilon < (DEG_360_IN_RAD_IF(in_radians) - angle_distance_360_abs)) {
+            if (!((angle_distance_360 >= 0) ^ positive_angle_change)) {
+                // angle change sign and direction are the same
+                return angle_distance_360;
+            }
+
+            return positive_angle_change ? DEG_360_IN_RAD_IF(in_radians) + angle_distance_360 : angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
+        }
+
+        // closest angle
+        if (DEG_180_IN_RAD_IF(in_radians) >= angle_distance_360_abs) {
+            return angle_distance_360;
+        }
+
+        return (angle_distance_360 >= 0) ? angle_distance_360 - DEG_360_IN_RAD_IF(in_radians) : DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
+    }
+
     // Normalize the angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
     // Additionally the monotonical change should exists on the greater range with the discontinuity in the angle opposite to the middle angle.
     //
-    extern inline double normalize_angle_to_range(double start_angle, double mid_angle, double angle_distance, double angle, bool in_radians)
+    template <typename T>
+    extern inline T normalize_angle_to_range(const T & start_angle, const T & mid_angle, const T & angle_distance, const T & angle, bool in_radians)
     {
         // all input must be already self normalized
     #ifndef UNIT_TESTS
@@ -1073,11 +1156,11 @@ namespace math
     #endif
         DEBUG_ASSERT_GE(DEG_360_IN_RAD_IF(in_radians), fabs(angle_distance));
 
-        const double angle_norm = math::normalize_angle(angle,
+        const T angle_norm = math::normalize_angle(angle,
             -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0); // just in case
-        const double end_angle_norm = start_angle + angle_distance;
-        double prev_angle_tmp;
-        double angle_tmp = angle_norm;
+        const T end_angle_norm = start_angle + angle_distance;
+        T prev_angle_tmp;
+        T angle_tmp = angle_norm;
 
         if (angle_distance >= 0) {
             if (end_angle_norm < angle_tmp) {

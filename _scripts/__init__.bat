@@ -24,7 +24,7 @@ set /P CONFIGURE_VARS_FILE_VER_LINE=<"%CONFIGURE_VARS_FILE%"
 
 if /i "%CONFIGURE_VARS_FILE_IN_VER_LINE:~0,12%" == "#%%%% version:" (
   if not "%CONFIGURE_VARS_FILE_IN_VER_LINE:~13%" == "%CONFIGURE_VARS_FILE_VER_LINE:~13%" (
-    echo. %~nx0: error: version of "%CONFIGURE_VARS_FILE_IN%" is not equal to version of "%CONFIGURE_VARS_FILE%", use must merge changes by yourself!
+    echo. %~nx0: error: version of "%CONFIGURE_VARS_FILE_IN%" is not equal to version of "%CONFIGURE_VARS_FILE%", user must merge changes by yourself!
     goto EXIT_WITH_ERROR
   ) >&2
 )
@@ -39,7 +39,7 @@ set /P CONFIGURE_CMAKE_FILE_VER_LINE=<"%CONFIGURE_CMAKE_FILE%"
 
 if /i "%CONFIGURE_CMAKE_FILE_IN_VER_LINE:~0,12%" == "#%%%% version:" (
   if not "%CONFIGURE_CMAKE_FILE_IN_VER_LINE:~13%" == "%CONFIGURE_CMAKE_FILE_VER_LINE:~13%" (
-    echo. %~nx0: error: version of "%CONFIGURE_CMAKE_FILE_IN%" is not equal to version of "%CONFIGURE_CMAKE_FILE%", use must merge changes by yourself!
+    echo. %~nx0: error: version of "%CONFIGURE_CMAKE_FILE_IN%" is not equal to version of "%CONFIGURE_CMAKE_FILE%", user must merge changes by yourself!
     goto EXIT_WITH_ERROR
   ) >&2
 )
