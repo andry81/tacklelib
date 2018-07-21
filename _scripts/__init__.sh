@@ -48,7 +48,7 @@ if [[ -f "$CONFIGURE_VARS_FILE" ]]; then
 
   if [[ "${CONFIGURE_VARS_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
     if [[ "${CONFIGURE_VARS_FILE_IN_VER_LINE:13}" == "${CONFIGURE_VARS_FILE_VER_LINE:13}" ]]; then
-      echo "$0: error: version of `$CONFIGURE_VARS_FILE_IN` is not equal to version of `$CONFIGURE_VARS_FILE`, use must merge changes by yourself!" >&2
+      echo "$0: error: version of `$CONFIGURE_VARS_FILE_IN` is not equal to version of `$CONFIGURE_VARS_FILE`, user must merge changes by yourself!" >&2
       exit 255
     fi
   fi
@@ -62,7 +62,7 @@ if [[ -f "$CONFIGURE_CMAKE_FILE" ]]; then
 
   if [[ "${CONFIGURE_CMAKE_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
     if [[ "${CONFIGURE_CMAKE_FILE_IN_VER_LINE:13}" == "${CONFIGURE_CMAKE_FILE_VER_LINE:13}" ]]; then
-      echo "$0: error: version of `$CONFIGURE_CMAKE_FILE_IN` is not equal to version of `$CONFIGURE_CMAKE_FILE`, use must merge changes by yourself!" >&2
+      echo "$0: error: version of `$CONFIGURE_CMAKE_FILE_IN` is not equal to version of `$CONFIGURE_CMAKE_FILE`, user must merge changes by yourself!" >&2
       exit 255
     fi
   fi

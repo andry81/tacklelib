@@ -7,6 +7,16 @@
 namespace {
     namespace ti = utility::time;
 
+    struct TestStats_angle_closest_distance
+    {
+        TestStats_angle_closest_distance() :
+            peak_angle_distance_fluctuation(0)
+        {
+        }
+
+        double peak_angle_distance_fluctuation;
+    };
+
     struct TestStats_angle_distance
     {
         TestStats_angle_distance() :
@@ -20,6 +30,7 @@ namespace {
 
 namespace common
 {
+    const double angle_closest_distance_epsilon = 0;
     const double angle_distance_epsilon = 0;
 }
 
@@ -765,7 +776,7 @@ TEST(FunctionsTest, normalize_angle)
 
 //// math::angle_closest_distance
 
-void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, bool on_equal_distances_select_closest_to_zero, double eta_angle_distance, TestStats_angle_distance & stats)
+void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, bool on_equal_distances_select_closest_to_zero, double eta_angle_distance, TestStats_angle_closest_distance & stats)
 {
     const double angle_distance = math::angle_closest_distance(start_angle_deg, end_angle_deg, false, on_equal_distances_select_closest_to_zero);
 
@@ -773,26 +784,31 @@ void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, b
 
     stats.peak_angle_distance_fluctuation = (std::max)(stats.peak_angle_distance_fluctuation, angle_distance_fluctuation);
 
-    ASSERT_GE(common::angle_distance_epsilon, angle_distance_fluctuation);
+    ASSERT_GE(common::angle_closest_distance_epsilon, angle_distance_fluctuation);
 
     if (angle_distance >= 0) {
         ASSERT_GE(start_angle_deg + angle_distance, start_angle_deg);
-        ASSERT_EQ(math::normalize_angle(end_angle_deg, 0, 360, 360, -1), math::normalize_angle(start_angle_deg + angle_distance, 0, 360, 360, -1));
+        ASSERT_EQ(
+            math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1),
+            math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
     }
     else {
         ASSERT_LE(start_angle_deg + angle_distance, start_angle_deg);
-        ASSERT_EQ(math::normalize_angle(end_angle_deg, 0, 360, 360, -1), math::normalize_angle(start_angle_deg + angle_distance, 0, 360, 360, -1));
+        ASSERT_EQ(
+            math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1),
+            math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
     }
 
     const double angle_distance_normalized = fabs(
-        math::normalize_angle(end_angle_deg, 0, 360, 360, -1) - math::normalize_angle(start_angle_deg + angle_distance, 0, 360, 360, -1));
+        math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1) -
+        math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
 
-    ASSERT_GE(common::angle_distance_epsilon, angle_distance_normalized);
+    ASSERT_GE(common::angle_closest_distance_epsilon, angle_distance_normalized);
 }
 
 TEST(TleManagerFunctionsTest, angle_closest_distance)
 {
-    TestStats_angle_distance stats;
+    TestStats_angle_closest_distance stats;
 
     //// any angle tests
 
@@ -1041,7 +1057,7 @@ TEST(TleManagerFunctionsTest, angle_closest_distance)
     test_angle_closest_distance(-270, -180,  true,   90, stats);
     test_angle_closest_distance(-275, - 95,  true,  180, stats);
 
-    // start: [-270..-360], negative end, neg  true,ative distance
+    // start: [-270..-360], negative end, negative distance
     test_angle_closest_distance(-270, - 85,  true, -175, stats);
     test_angle_closest_distance(-270, -360,  true, - 90, stats);
     test_angle_closest_distance(-275, -365,  true, - 90, stats);
@@ -1340,6 +1356,589 @@ TEST(TleManagerFunctionsTest, angle_closest_distance)
 //    test_angle_closest_distance( 180,  360,  true, -180, stats);  test_angle_closest_distance( 180,  360, false,  180, stats);
 //    test_angle_closest_distance( 180,  361,  true, -179, stats);  test_angle_closest_distance( 180,  361, false, -179, stats);
 
+}
+
+//// math::angle_distance
+
+void test_angle_distance(double start_angle_deg, double end_angle_deg, bool positive_angle_change, double eta_angle_distance, TestStats_angle_distance & stats)
+{
+    const double angle_distance = math::angle_distance<double>(start_angle_deg, end_angle_deg, 0, positive_angle_change, false);
+
+    const double angle_distance_fluctuation = fabs(angle_distance - eta_angle_distance);
+
+    stats.peak_angle_distance_fluctuation = (std::max)(stats.peak_angle_distance_fluctuation, angle_distance_fluctuation);
+
+    ASSERT_GE(common::angle_distance_epsilon, angle_distance_fluctuation);
+
+    if (angle_distance >= 0) {
+        ASSERT_GE(start_angle_deg + angle_distance, start_angle_deg);
+        ASSERT_EQ(
+            math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1),
+            math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
+    }
+    else {
+        ASSERT_LE(start_angle_deg + angle_distance, start_angle_deg);
+        ASSERT_EQ(
+            math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1),
+            math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
+    }
+
+    const double angle_distance_normalized = fabs(
+        math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1) -
+        math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
+
+    ASSERT_GE(common::angle_closest_distance_epsilon, angle_distance_normalized);
+}
+
+TEST(TleManagerFunctionsTest, angle_distance)
+{
+    TestStats_angle_distance stats;
+
+    //// any angle tests
+
+    // special cases
+    test_angle_distance( 0.0,  0.0,  true,    0, stats);
+    test_angle_distance( 0.0, -0.0,  true,    0, stats);
+    test_angle_distance(-0.0,  0.0,  true,    0, stats);
+    test_angle_distance(-0.0, -0.0,  true,    0, stats);
+
+    // start: [0..90], positive end, positive distance
+    test_angle_distance(   5,   10,  true,    5, stats);
+    test_angle_distance(   0,   90,  true,   90, stats);
+    test_angle_distance(   5,  175,  true,  170, stats);
+
+    test_angle_distance(   0,  360,  true,    0, stats);
+    test_angle_distance(   5,  370,  true,    5, stats);
+    test_angle_distance(   0,  450,  true,   90, stats);
+    test_angle_distance(   5,  535,  true,  170, stats);
+    test_angle_distance(   0,  540,  true,  180, stats);
+
+    // start: [0..90], positive end, negative distance
+    test_angle_distance(   5,  185, false, -180, stats);
+    test_angle_distance(   5,  355, false, - 10, stats);
+    test_angle_distance(   0,  270, false, - 90, stats);
+    test_angle_distance(   5,  186, false, -179, stats);
+    test_angle_distance(   5,  545, false, -180, stats);
+
+    // start: [90..180], positive end, positive distance
+    test_angle_distance(  90,   90,  true,    0, stats);
+    test_angle_distance(  95,  100,  true,    5, stats);
+    test_angle_distance(  90,  180,  true,   90, stats);
+    test_angle_distance(  95,  265,  true,  170, stats);
+
+    test_angle_distance(  90,  450,  true,    0, stats);
+    test_angle_distance(  95,  460,  true,    5, stats);
+    test_angle_distance(  90,  540,  true,   90, stats);
+    test_angle_distance(  95,  625,  true,  170, stats);
+
+    // start: [90..180], positive end, negative distance
+    test_angle_distance(  95,   85, false, - 10, stats);
+    test_angle_distance(  90,  360, false, - 90, stats);
+    test_angle_distance(  95,  276, false, -179, stats);
+    test_angle_distance(  95,  275, false, -180, stats);
+    test_angle_distance(  90,  630, false, -180, stats);
+    test_angle_distance(  95,  635, false, -180, stats);
+
+    // start: [180..270], positive end, positive distance
+    test_angle_distance( 180,  180,  true,    0, stats);
+    test_angle_distance( 185,  190,  true,    5, stats);
+    test_angle_distance( 180,  270,  true,   90, stats);
+    test_angle_distance( 185,  355,  true,  170, stats);
+
+    test_angle_distance( 180,  540,  true,    0, stats);
+    test_angle_distance( 185,  550,  true,    5, stats);
+    test_angle_distance( 180,  630,  true,   90, stats);
+    test_angle_distance( 185,  715,  true,  170, stats);
+
+    // start: [180..270], positive end, negative distance
+    test_angle_distance( 185,  175, false, - 10, stats);
+    test_angle_distance( 180,   90, false, - 90, stats);
+    test_angle_distance( 185,    6, false, -179, stats);
+    test_angle_distance( 185,    5, false, -180, stats);
+    test_angle_distance( 185,  365, false, -180, stats);
+    test_angle_distance( 180,  720, false, -180, stats);
+    test_angle_distance( 185,  725, false, -180, stats);
+
+    // start: [270..360], positive end, positive distance
+    test_angle_distance( 270,  270,  true,    0, stats);
+    test_angle_distance( 275,  280,  true,    5, stats);
+    test_angle_distance( 270,    0,  true,   90, stats);
+    test_angle_distance( 270,  360,  true,   90, stats);
+    test_angle_distance( 275,  445,  true,  170, stats);
+
+    test_angle_distance( 270,  630,  true,    0, stats);
+    test_angle_distance( 275,  640,  true,    5, stats);
+    test_angle_distance( 270,  720,  true,   90, stats);
+    test_angle_distance( 275,   85,  true,  170, stats);
+
+    // start: [270..360], positive end, negative distance
+    test_angle_distance( 275,  265, false, - 10, stats);
+    test_angle_distance( 270,  180, false, - 90, stats);
+    test_angle_distance( 275,   96, false, -179, stats);
+    test_angle_distance( 275,   95, false, -180, stats);
+    test_angle_distance( 270,  450, false, -180, stats);
+    test_angle_distance( 275,  455, false, -180, stats);
+
+    ////
+
+    // start: [0..90], negative end, positive distance
+    test_angle_distance(   0, -360,  true,    0, stats);
+    test_angle_distance(   5, -350,  true,    5, stats);
+    test_angle_distance(   0, -270,  true,   90, stats);
+    test_angle_distance(   5, -185,  true,  170, stats);
+
+    test_angle_distance(   0, -720,  true,    0, stats);
+    test_angle_distance(   5, -710,  true,    5, stats);
+    test_angle_distance(   0, -270,  true,   90, stats);
+    test_angle_distance(   5, -185,  true,  170, stats);
+
+    // start: [0..90], negative end, negative distance
+    test_angle_distance(   5, -  5, false, - 10, stats);
+    test_angle_distance(   0, - 90, false, - 90, stats);
+    test_angle_distance(   5, -174, false, -179, stats);
+    test_angle_distance(   5, -175, false, -180, stats);
+
+    // start: [90..180], negative end, positive distance
+    test_angle_distance(  90, -270,  true,    0, stats);
+    test_angle_distance(  95, -260,  true,    5, stats);
+    test_angle_distance(  90, -180,  true,   90, stats);
+    test_angle_distance(  95, - 95,  true,  170, stats);
+    test_angle_distance(  95, - 86,  true,  179, stats);
+
+    // start: [90..180], negative end, negative distance
+    test_angle_distance(  90, -360, false, - 90, stats);
+    test_angle_distance(  95, -275, false, - 10, stats);
+    test_angle_distance(  90, - 90, false, -180, stats);
+    test_angle_distance(  95, - 85, false, -180, stats);
+    test_angle_distance(  95, - 84, false, -179, stats);
+    test_angle_distance(  90,    0, false, - 90, stats);
+
+    // start: [180..270], negative end, positive distance
+    test_angle_distance( 180, -180,  true,    0, stats);
+    test_angle_distance( 185, -170,  true,    5, stats);
+    test_angle_distance( 180, - 90,  true,   90, stats);
+    test_angle_distance( 185, -  5,  true,  170, stats);
+
+    // start: [180..270], negative end, negative distance
+    test_angle_distance( 180, -360, false, -180, stats);
+    test_angle_distance( 185, -185, false, - 10, stats);
+    test_angle_distance( 180, -270, false, - 90, stats);
+    test_angle_distance( 185, -354, false, -179, stats);
+    test_angle_distance( 185, -355, false, -180, stats);
+
+    // start: [270..360], negative end, positive distance
+    test_angle_distance( 275, - 80,  true,    5, stats);
+    test_angle_distance( 270, -360,  true,   90, stats);
+    test_angle_distance( 275, -275,  true,  170, stats);
+
+    test_angle_distance( 270, - 90,  true,    0, stats);
+
+    // start: [270..360], negative end, negative distance
+    test_angle_distance( 270, -270, false, -180, stats);
+    test_angle_distance( 275, -265, false, -180, stats);
+    test_angle_distance( 275, - 95, false, - 10, stats);
+    test_angle_distance( 270, -180, false, - 90, stats);
+    test_angle_distance( 275, -264, false, -179, stats);
+    test_angle_distance( 275, -265, false, -180, stats);
+
+    ////
+
+    // start: (0..-90], positive end, positive distance
+    test_angle_distance(-  5,    0,  true,    5, stats);
+    test_angle_distance(-  5,  165,  true,  170, stats);
+    test_angle_distance(-  5,  175,  true,  180, stats);
+
+    test_angle_distance(-  5,  360,  true,    5, stats);
+    test_angle_distance(-  5,  525,  true,  170, stats);
+    test_angle_distance(-  5,  535,  true,  180, stats);
+
+    // start: (0..-90], positive end, negative distance
+    test_angle_distance(-  5,  345, false, - 10, stats);
+    test_angle_distance(-  5,  176, false, -179, stats);
+
+    // start: [-90..-180], positive end, positive distance
+    test_angle_distance(- 90,    0,  true,   90, stats);
+    test_angle_distance(- 95,    5,  true,  100, stats);
+    test_angle_distance(- 90,   90,  true,  180, stats);
+    test_angle_distance(- 95,   85,  true,  180, stats);
+    test_angle_distance(- 90,  270,  true,    0, stats);
+    test_angle_distance(- 95,  275,  true,   10, stats);
+
+    test_angle_distance(- 90,  360,  true,   90, stats);
+    test_angle_distance(- 95,  365,  true,  100, stats);
+    test_angle_distance(- 95,  435,  true,  170, stats);
+    test_angle_distance(- 90,  450,  true,  180, stats);
+
+    // start: [-90..-180], positive end, negative distance
+    test_angle_distance(- 90,   91, false, -179, stats);
+    test_angle_distance(- 95,   86, false, -179, stats);
+
+    // start: [-180..-270], positive end, positive distance
+    test_angle_distance(-180,    0,  true,  180, stats);
+    test_angle_distance(-180,  180,  true,    0, stats);
+    test_angle_distance(-185,  180,  true,    5, stats);
+    test_angle_distance(-180,  270,  true,   90, stats);
+    test_angle_distance(-185,  345,  true,  170, stats);
+    test_angle_distance(-180,  360,  true,  180, stats);
+    test_angle_distance(-185,  355,  true,  180, stats);
+
+    // start: [-180..-270], positive end, negative distance
+    test_angle_distance(-185,  165, false, - 10, stats);
+    test_angle_distance(-180,   90, false, - 90, stats);
+    test_angle_distance(-185,    0, false, -175, stats);
+
+    // start: [-270..-360], positive end, positive distance
+    test_angle_distance(-270,  270,  true,  180, stats);
+    test_angle_distance(-270,  260,  true,  170, stats);
+    test_angle_distance(-275,   85,  true,    0, stats);
+    test_angle_distance(-270,   90,  true,    0, stats);
+    test_angle_distance(-270,  180,  true,   90, stats);
+
+    // start: [-270..-360], positive end, negative distance
+    test_angle_distance(-270,    0, false, - 90, stats);
+    test_angle_distance(-275,    5, false, - 80, stats);
+    test_angle_distance(-270,  365, false, - 85, stats);
+    test_angle_distance(-270,  360, false, - 90, stats);
+    test_angle_distance(-275,  355, false, - 90, stats);
+
+    ////
+
+    // start: (0..-90], negative end, positive distance
+    test_angle_distance(-  5, -365,  true,    0, stats);
+    test_angle_distance(-  5, -360,  true,    5, stats);
+    test_angle_distance(-  5, -185,  true,  180, stats);
+
+    // start: (0..-90], negative end, negative distance
+    test_angle_distance(-  5, - 10, false, -  5, stats);
+    test_angle_distance(-  5, -184, false, -179, stats);
+    test_angle_distance(-  5, -370, false, -  5, stats);
+
+    // start: [-90..-180], negative end, positive distance
+    test_angle_distance(- 90, -  5,  true,   85, stats);
+    test_angle_distance(- 90, - 90,  true,    0, stats);
+    test_angle_distance(- 95, -275,  true,  180, stats);
+    test_angle_distance(- 90, -360,  true,   90, stats);
+
+    // start: [-90..-180], negative end, negative distance
+    test_angle_distance(- 90, -180, false, - 90, stats);
+
+    test_angle_distance(- 90, -540, false, - 90, stats);
+
+    // start: [-180..-270], negative end, positive distance
+    test_angle_distance(-180, -180,  true,    0, stats);
+    test_angle_distance(-180, - 90,  true,   90, stats);
+    test_angle_distance(-185, -  5,  true,  180, stats);
+
+    // start: [-180..-270], negative end, negative distance
+    test_angle_distance(-180, -270, false, - 90, stats);
+    test_angle_distance(-185, -275, false, - 90, stats);
+    test_angle_distance(-180, -355, false, -175, stats);
+    test_angle_distance(-185, -355, false, -170, stats);
+    test_angle_distance(-185, -715, false, -170, stats);
+
+    // start: [-270..-360], negative end, positive distance
+    test_angle_distance(-270, -270,  true,    0, stats);
+    test_angle_distance(-270, -180,  true,   90, stats);
+    test_angle_distance(-275, - 95,  true,  180, stats);
+
+    // start: [-270..-360], negative end, negative distance
+    test_angle_distance(-270, - 85, false, -175, stats);
+    test_angle_distance(-270, -360, false, - 90, stats);
+    test_angle_distance(-275, -365, false, - 90, stats);
+
+    //// 179, 180, 181 ONLY angle tests
+
+    // [0..179], [0..180], [0..181], 45 degrees shift to positive
+
+    test_angle_distance(   0,  179,  true,  179, stats);  test_angle_distance(   0,  179, false, -181, stats);
+    test_angle_distance(   0,  180,  true,  180, stats);  test_angle_distance(   0,  180, false, -180, stats);
+    test_angle_distance(   0,  181,  true,  181, stats);  test_angle_distance(   0,  181, false, -179, stats);
+
+    test_angle_distance(  45,  224,  true,  179, stats);  test_angle_distance(  45,  224, false, -181, stats);
+    test_angle_distance(  45,  225,  true,  180, stats);  test_angle_distance(  45,  225, false, -180, stats);
+    test_angle_distance(  45,  226,  true,  181, stats);  test_angle_distance(  45,  226, false, -179, stats);
+
+    test_angle_distance(  90,  269,  true,  179, stats);  test_angle_distance(  90,  269, false, -181, stats);
+    test_angle_distance(  90,  270,  true,  180, stats);  test_angle_distance(  90,  270, false, -180, stats);
+    test_angle_distance(  90,  271,  true,  181, stats);  test_angle_distance(  90,  271, false, -179, stats);
+
+    test_angle_distance( 135,  314,  true,  179, stats);  test_angle_distance( 135,  314, false, -181, stats);
+    test_angle_distance( 135,  315,  true,  180, stats);  test_angle_distance( 135,  315, false, -180, stats);
+    test_angle_distance( 135,  316,  true,  181, stats);  test_angle_distance( 135,  316, false, -179, stats);
+
+    test_angle_distance( 180,  359,  true,  179, stats);  test_angle_distance( 180,  359, false, -181, stats);
+    test_angle_distance( 180,  360,  true,  180, stats);  test_angle_distance( 180,  360, false, -180, stats);
+    test_angle_distance( 180,  361,  true,  181, stats);  test_angle_distance( 180,  361, false, -179, stats);
+
+    test_angle_distance( 225,  404,  true,  179, stats);  test_angle_distance( 225,  404, false, -181, stats);
+    test_angle_distance( 225,  405,  true,  180, stats);  test_angle_distance( 225,  405, false, -180, stats);
+    test_angle_distance( 225,  406,  true,  181, stats);  test_angle_distance( 225,  406, false, -179, stats);
+
+    test_angle_distance( 270,  449,  true,  179, stats);  test_angle_distance( 270,  449, false, -181, stats);
+    test_angle_distance( 270,  450,  true,  180, stats);  test_angle_distance( 270,  450, false, -180, stats);
+    test_angle_distance( 270,  451,  true,  181, stats);  test_angle_distance( 270,  451, false, -179, stats);
+
+    test_angle_distance( 315,  494,  true,  179, stats);  test_angle_distance( 315,  494, false, -181, stats);
+    test_angle_distance( 315,  495,  true,  180, stats);  test_angle_distance( 315,  495, false, -180, stats);
+    test_angle_distance( 315,  496,  true,  181, stats);  test_angle_distance( 315,  496, false, -179, stats);
+
+    test_angle_distance( 360,  539,  true,  179, stats);  test_angle_distance( 360,  539, false, -181, stats);
+    test_angle_distance( 360,  540,  true,  180, stats);  test_angle_distance( 360,  540, false, -180, stats);
+    test_angle_distance( 360,  541,  true,  181, stats);  test_angle_distance( 360,  541, false, -179, stats);
+
+    // [0..179], [0..180], [0..181], 45 degrees shift to negative
+
+    test_angle_distance(- 45,  134,  true,  179, stats);  test_angle_distance(- 45,  134, false, -181, stats);
+    test_angle_distance(- 45,  135,  true,  180, stats);  test_angle_distance(- 45,  135, false, -180, stats);
+    test_angle_distance(- 45,  136,  true,  181, stats);  test_angle_distance(- 45,  136, false, -179, stats);
+
+    test_angle_distance(- 90,   89,  true,  179, stats);  test_angle_distance(- 90,   89, false, -181, stats);
+    test_angle_distance(- 90,   90,  true,  180, stats);  test_angle_distance(- 90,   90, false, -180, stats);
+    test_angle_distance(- 90,   91,  true,  181, stats);  test_angle_distance(- 90,   91, false, -179, stats);
+
+    test_angle_distance(-135,   44,  true,  179, stats);  test_angle_distance(-135,   44, false, -181, stats);
+    test_angle_distance(-135,   45,  true,  180, stats);  test_angle_distance(-135,   45, false, -180, stats);
+    test_angle_distance(-135,   46,  true,  181, stats);  test_angle_distance(-135,   46, false, -179, stats);
+
+    test_angle_distance(-180,   -1,  true,  179, stats);  test_angle_distance(-180,   -1, false, -181, stats);
+    test_angle_distance(-180,    0,  true,  180, stats);  test_angle_distance(-180,    0, false, -180, stats);
+    test_angle_distance(-180,    1,  true,  181, stats);  test_angle_distance(-180,    1, false, -179, stats);
+
+    test_angle_distance(-225,  -46,  true,  179, stats);  test_angle_distance(-225,  -46, false, -181, stats);
+    test_angle_distance(-225,  -45,  true,  180, stats);  test_angle_distance(-225,  -45, false, -180, stats);
+    test_angle_distance(-225,  -44,  true,  181, stats);  test_angle_distance(-225,  -44, false, -179, stats);
+
+    test_angle_distance(-270,  -91,  true,  179, stats);  test_angle_distance(-270,  -91, false, -181, stats);
+    test_angle_distance(-270,  -90,  true,  180, stats);  test_angle_distance(-270,  -90, false, -180, stats);
+    test_angle_distance(-270,  -89,  true,  181, stats);  test_angle_distance(-270,  -89, false, -179, stats);
+
+    test_angle_distance(-315, -136,  true,  179, stats);  test_angle_distance(-315, -136, false, -181, stats);
+    test_angle_distance(-315, -135,  true,  180, stats);  test_angle_distance(-315, -135, false, -180, stats);
+    test_angle_distance(-315, -134,  true,  181, stats);  test_angle_distance(-315, -134, false, -179, stats);
+
+    test_angle_distance(-360, -181,  true,  179, stats);  test_angle_distance(-360, -181, false, -181, stats);
+    test_angle_distance(-360, -180,  true,  180, stats);  test_angle_distance(-360, -180, false, -180, stats);
+    test_angle_distance(-360, -179,  true,  181, stats);  test_angle_distance(-360, -179, false, -179, stats);
+
+    // [0..-179], [0..-180], [0..-181], 45 degrees shift to negative
+
+    test_angle_distance(   0, -179,  true,  181, stats);  test_angle_distance(   0, -179, false, -179, stats);
+    test_angle_distance(   0, -180,  true,  180, stats);  test_angle_distance(   0, -180, false, -180, stats);
+    test_angle_distance(   0, -181,  true,  179, stats);  test_angle_distance(   0, -181, false, -181, stats);
+
+    test_angle_distance(- 45, -224,  true,  181, stats);  test_angle_distance(- 45, -224, false, -179, stats);
+    test_angle_distance(- 45, -225,  true,  180, stats);  test_angle_distance(- 45, -225, false, -180, stats);
+    test_angle_distance(- 45, -226,  true,  179, stats);  test_angle_distance(- 45, -226, false, -181, stats);
+
+    test_angle_distance(- 90, -269,  true,  181, stats);  test_angle_distance(- 90, -269, false, -179, stats);
+    test_angle_distance(- 90, -270,  true,  180, stats);  test_angle_distance(- 90, -270, false, -180, stats);
+    test_angle_distance(- 90, -271,  true,  179, stats);  test_angle_distance(- 90, -271, false, -181, stats);
+
+    test_angle_distance(-135, -314,  true,  181, stats);  test_angle_distance(-135, -314, false, -179, stats);
+    test_angle_distance(-135, -315,  true,  180, stats);  test_angle_distance(-135, -315, false, -180, stats);
+    test_angle_distance(-135, -316,  true,  179, stats);  test_angle_distance(-135, -316, false, -181, stats);
+
+    test_angle_distance(-180, -359,  true,  181, stats);  test_angle_distance(-180, -359, false, -179, stats);
+    test_angle_distance(-180, -360,  true,  180, stats);  test_angle_distance(-180, -360, false, -180, stats);
+    test_angle_distance(-180, -361,  true,  179, stats);  test_angle_distance(-180, -361, false, -181, stats);
+
+    test_angle_distance(-225, -404,  true,  181, stats);  test_angle_distance(-225, -404, false, -179, stats);
+    test_angle_distance(-225, -405,  true,  180, stats);  test_angle_distance(-225, -405, false, -180, stats);
+    test_angle_distance(-225, -406,  true,  179, stats);  test_angle_distance(-225, -406, false, -181, stats);
+
+    test_angle_distance(-270, -449,  true,  181, stats);  test_angle_distance(-270, -449, false, -179, stats);
+    test_angle_distance(-270, -450,  true,  180, stats);  test_angle_distance(-270, -450, false, -180, stats);
+    test_angle_distance(-270, -451,  true,  179, stats);  test_angle_distance(-270, -451, false, -181, stats);
+
+    test_angle_distance(-315, -494,  true,  181, stats);  test_angle_distance(-315, -494, false, -179, stats);
+    test_angle_distance(-315, -495,  true,  180, stats);  test_angle_distance(-315, -495, false, -180, stats);
+    test_angle_distance(-315, -496,  true,  179, stats);  test_angle_distance(-315, -496, false, -181, stats);
+
+    test_angle_distance(-360, -539,  true,  181, stats);  test_angle_distance(-360, -539, false, -179, stats);
+    test_angle_distance(-360, -540,  true,  180, stats);  test_angle_distance(-360, -540, false, -180, stats);
+    test_angle_distance(-360, -541,  true,  179, stats);  test_angle_distance(-360, -541, false, -181, stats);
+
+    // [0..-179], [0..-180], [0..-181], 45 degrees shift to positive
+
+    test_angle_distance(  45, -134,  true,  181, stats);  test_angle_distance(  45, -134, false, -179, stats);
+    test_angle_distance(  45, -135,  true,  180, stats);  test_angle_distance(  45, -135, false, -180, stats);
+    test_angle_distance(  45, -136,  true,  179, stats);  test_angle_distance(  45, -136, false, -181, stats);
+
+    test_angle_distance(  90,  -89,  true,  181, stats);  test_angle_distance(  90,  -89, false, -179, stats);
+    test_angle_distance(  90,  -90,  true,  180, stats);  test_angle_distance(  90,  -90, false, -180, stats);
+    test_angle_distance(  90,  -91,  true,  179, stats);  test_angle_distance(  90,  -91, false, -181, stats);
+
+    test_angle_distance( 135,  -44,  true,  181, stats);  test_angle_distance( 135,  -44, false, -179, stats);
+    test_angle_distance( 135,  -45,  true,  180, stats);  test_angle_distance( 135,  -45, false, -180, stats);
+    test_angle_distance( 135,  -46,  true,  179, stats);  test_angle_distance( 135,  -46, false, -181, stats);
+
+    test_angle_distance( 180,    1,  true,  181, stats);  test_angle_distance( 180,    1, false, -179, stats);
+    test_angle_distance( 180,    0,  true,  180, stats);  test_angle_distance( 180,    0, false, -180, stats);
+    test_angle_distance( 180,   -1,  true,  179, stats);  test_angle_distance( 180,   -1, false, -181, stats);
+
+    test_angle_distance( 225,   46,  true,  181, stats);  test_angle_distance( 225,   46, false, -179, stats);
+    test_angle_distance( 225,   45,  true,  180, stats);  test_angle_distance( 225,   45, false, -180, stats);
+    test_angle_distance( 225,   44,  true,  179, stats);  test_angle_distance( 225,   44, false, -181, stats);
+
+    test_angle_distance( 270,   91,  true,  181, stats);  test_angle_distance( 270,   91, false, -179, stats);
+    test_angle_distance( 270,   90,  true,  180, stats);  test_angle_distance( 270,   90, false, -180, stats);
+    test_angle_distance( 270,   89,  true,  179, stats);  test_angle_distance( 270,   89, false, -181, stats);
+
+    test_angle_distance( 315,  136,  true,  181, stats);  test_angle_distance( 315,  136, false, -179, stats);
+    test_angle_distance( 315,  135,  true,  180, stats);  test_angle_distance( 315,  135, false, -180, stats);
+    test_angle_distance( 315,  134,  true,  179, stats);  test_angle_distance( 315,  134, false, -181, stats);
+
+    test_angle_distance( 360,  181,  true,  181, stats);  test_angle_distance( 360,  181, false, -179, stats);
+    test_angle_distance( 360,  180,  true,  180, stats);  test_angle_distance( 360,  180, false, -180, stats);
+    test_angle_distance( 360,  179,  true,  179, stats);  test_angle_distance( 360,  179, false, -181, stats);
+
+    // [180..-1], [180..0], [180..1], 45 degrees shift to positive
+
+// duplication
+//    test_angle_distance( 180, -  1,  true,  179, stats);  test_angle_distance( 180, -  1, false, -181, stats);
+//    test_angle_distance( 180,    0,  true,  180, stats);  test_angle_distance( 180,    0, false, -180, stats);
+//    test_angle_distance( 180,    1,  true,  181, stats);  test_angle_distance( 180,    1, false, -179, stats);
+//
+//    test_angle_distance( 225,   44,  true,  179, stats);  test_angle_distance( 225,   44, false, -181, stats);
+//    test_angle_distance( 225,   45,  true,  180, stats);  test_angle_distance( 225,   45, false, -180, stats);
+//    test_angle_distance( 225,   46,  true,  181, stats);  test_angle_distance( 225,   46, false, -179, stats);
+//
+//    test_angle_distance( 270,   89,  true,  179, stats);  test_angle_distance( 270,   89, false, -181, stats);
+//    test_angle_distance( 270,   90,  true,  180, stats);  test_angle_distance( 270,   90, false, -180, stats);
+//    test_angle_distance( 270,   91,  true,  181, stats);  test_angle_distance( 270,   91, false, -179, stats);
+//
+//    test_angle_distance( 315,  134,  true,  179, stats);  test_angle_distance( 315,  134, false, -181, stats);
+//    test_angle_distance( 315,  135,  true,  180, stats);  test_angle_distance( 315,  135, false, -180, stats);
+//    test_angle_distance( 315,  136,  true,  181, stats);  test_angle_distance( 315,  136, false, -179, stats);
+//
+//    test_angle_distance( 360,  179,  true,  179, stats);  test_angle_distance( 360,  179, false, -181, stats);
+//    test_angle_distance( 360,  180,  true,  180, stats);  test_angle_distance( 360,  180, false, -180, stats);
+//    test_angle_distance( 360,  181,  true,  181, stats);  test_angle_distance( 360,  181, false, -179, stats);
+
+    test_angle_distance( 405,  224,  true,  179, stats);  test_angle_distance( 405,  224, false, -181, stats);
+    test_angle_distance( 405,  225,  true,  180, stats);  test_angle_distance( 405,  225, false, -180, stats);
+    test_angle_distance( 405,  226,  true,  181, stats);  test_angle_distance( 405,  226, false, -179, stats);
+
+    test_angle_distance( 450,  269,  true,  179, stats);  test_angle_distance( 450,  269, false, -181, stats);
+    test_angle_distance( 450,  270,  true,  180, stats);  test_angle_distance( 450,  270, false, -180, stats);
+    test_angle_distance( 450,  271,  true,  181, stats);  test_angle_distance( 450,  271, false, -179, stats);
+
+    test_angle_distance( 495,  314,  true,  179, stats);  test_angle_distance( 495,  314, false, -181, stats);
+    test_angle_distance( 495,  315,  true,  180, stats);  test_angle_distance( 495,  315, false, -180, stats);
+    test_angle_distance( 495,  316,  true,  181, stats);  test_angle_distance( 495,  316, false, -179, stats);
+
+    test_angle_distance( 540,  359,  true,  179, stats);  test_angle_distance( 540,  359, false, -181, stats);
+    test_angle_distance( 540,  360,  true,  180, stats);  test_angle_distance( 540,  360, false, -180, stats);
+    test_angle_distance( 540,  361,  true,  181, stats);  test_angle_distance( 540,  361, false, -179, stats);
+
+    // [180..-1], [180..0], [180..1], 45 degrees shift to negative
+
+// duplication
+//    test_angle_distance( 135, - 46,  true,  179, stats);  test_angle_distance( 135, - 46, false, -181, stats);
+//    test_angle_distance( 135, - 45,  true,  180, stats);  test_angle_distance( 135, - 45, false, -180, stats);
+//    test_angle_distance( 135, - 44,  true,  181, stats);  test_angle_distance( 135, - 44, false, -179, stats);
+//
+//    test_angle_distance(  90, - 91,  true,  179, stats);  test_angle_distance(  90, - 91, false, -181, stats);
+//    test_angle_distance(  90, - 90,  true,  180, stats);  test_angle_distance(  90, - 90, false, -180, stats);
+//    test_angle_distance(  90, - 89,  true,  181, stats);  test_angle_distance(  90, - 89, false, -179, stats);
+//
+//    test_angle_distance(  45, -136,  true,  179, stats);  test_angle_distance(  45, -136, false, -181, stats);
+//    test_angle_distance(  45, -135,  true,  180, stats);  test_angle_distance(  45, -135, false, -180, stats);
+//    test_angle_distance(  45, -134,  true,  181, stats);  test_angle_distance(  45, -134, false, -179, stats);
+//
+//    test_angle_distance(   0, -181,  true,  179, stats);  test_angle_distance(   0, -181, false, -181, stats);
+//    test_angle_distance(   0, -180,  true,  180, stats);  test_angle_distance(   0, -180, false, -180, stats);
+//    test_angle_distance(   0, -179,  true,  181, stats);  test_angle_distance(   0, -179, false, -179, stats);
+//
+//    test_angle_distance(- 45, -226,  true,  179, stats);  test_angle_distance(- 45, -226, false, -181, stats);
+//    test_angle_distance(- 45, -225,  true,  180, stats);  test_angle_distance(- 45, -225, false, -180, stats);
+//    test_angle_distance(- 45, -224,  true,  181, stats);  test_angle_distance(- 45, -224, false, -179, stats);
+//
+//    test_angle_distance(- 90, -271,  true,  179, stats);  test_angle_distance(- 90, -271, false, -181, stats);
+//    test_angle_distance(- 90, -270,  true,  180, stats);  test_angle_distance(- 90, -270, false, -180, stats);
+//    test_angle_distance(- 90, -269,  true,  181, stats);  test_angle_distance(- 90, -269, false, -179, stats);
+//
+//    test_angle_distance(-135, -316,  true,  179, stats);  test_angle_distance(-135, -316, false, -181, stats);
+//    test_angle_distance(-135, -315,  true,  180, stats);  test_angle_distance(-135, -315, false, -180, stats);
+//    test_angle_distance(-135, -314,  true,  181, stats);  test_angle_distance(-135, -314, false, -179, stats);
+//
+//    test_angle_distance(-180, -361,  true,  179, stats);  test_angle_distance(-180, -361, false, -181, stats);
+//    test_angle_distance(-180, -360,  true,  180, stats);  test_angle_distance(-180, -360, false, -180, stats);
+//    test_angle_distance(-180, -359,  true,  181, stats);  test_angle_distance(-180, -359, false, -179, stats);
+
+    // [-180..-1], [-180..0], [-180..1], 45 degrees shift to negative
+
+// duplication
+//    test_angle_distance(-180,    1,  true,  181, stats);  test_angle_distance(-180,    1, false, -179, stats);
+//    test_angle_distance(-180,    0,  true,  180, stats);  test_angle_distance(-180,    0, false, -180, stats);
+//    test_angle_distance(-180, -  1,  true,  179, stats);  test_angle_distance(-180, -  1, false, -181, stats);
+
+    test_angle_distance(-225, - 44,  true,  181, stats);  test_angle_distance(-225, - 44, false, -179, stats);
+    test_angle_distance(-225, - 45,  true,  180, stats);  test_angle_distance(-225, - 45, false, -180, stats);
+    test_angle_distance(-225, - 46,  true,  179, stats);  test_angle_distance(-225, - 46, false, -181, stats);
+
+    test_angle_distance(-270, - 89,  true,  181, stats);  test_angle_distance(-270, - 89, false, -179, stats);
+    test_angle_distance(-270, - 90,  true,  180, stats);  test_angle_distance(-270, - 90, false, -180, stats);
+    test_angle_distance(-270, - 91,  true,  179, stats);  test_angle_distance(-270, - 91, false, -181, stats);
+
+//    test_angle_distance(-315, -134,  true,  181, stats);  test_angle_distance(-315, -134, false, -179, stats);
+//    test_angle_distance(-315, -135,  true,  180, stats);  test_angle_distance(-315, -135, false, -180, stats);
+//    test_angle_distance(-315, -136,  true,  179, stats);  test_angle_distance(-315, -136, false, -181, stats);
+//
+//    test_angle_distance(-360, -179,  true,  181, stats);  test_angle_distance(-360, -179, false, -179, stats);
+//    test_angle_distance(-360, -180,  true,  180, stats);  test_angle_distance(-360, -180, false, -180, stats);
+//    test_angle_distance(-360, -181,  true,  179, stats);  test_angle_distance(-360, -181, false, -181, stats);
+
+    test_angle_distance(-405, -224,  true, 181, stats);  test_angle_distance(-405, -224, false, -179, stats);
+    test_angle_distance(-405, -225,  true, 180, stats);  test_angle_distance(-405, -225, false, -180, stats);
+    test_angle_distance(-405, -226,  true, 179, stats);  test_angle_distance(-405, -226, false, -181, stats);
+
+    test_angle_distance(-450, -269,  true, 181, stats);  test_angle_distance(-450, -269, false, -179, stats);
+    test_angle_distance(-450, -270,  true, 180, stats);  test_angle_distance(-450, -270, false, -180, stats);
+    test_angle_distance(-450, -271,  true, 179, stats);  test_angle_distance(-450, -271, false, -181, stats);
+
+    test_angle_distance(-495, -314,  true, 181, stats);  test_angle_distance(-495, -314, false, -179, stats);
+    test_angle_distance(-495, -315,  true, 180, stats);  test_angle_distance(-495, -315, false, -180, stats);
+    test_angle_distance(-495, -316,  true, 179, stats);  test_angle_distance(-495, -316, false, -181, stats);
+
+    test_angle_distance(-540, -359,  true, 181, stats);  test_angle_distance(-540, -359, false, -179, stats);
+    test_angle_distance(-540, -360,  true, 180, stats);  test_angle_distance(-540, -360, false, -180, stats);
+    test_angle_distance(-540, -361,  true, 179, stats);  test_angle_distance(-540, -361, false, -181, stats);
+
+    // [-180..-1], [-180..0], [-180..1], 45 degrees shift to positive
+
+// duplication
+//    test_angle_distance(-135,   44,  true,  179, stats);  test_angle_distance(-135,   44, false, -181, stats);
+//    test_angle_distance(-135,   45,  true,  180, stats);  test_angle_distance(-135,   45, false, -180, stats);
+//    test_angle_distance(-135,   46,  true,  181, stats);  test_angle_distance(-135,   46, false, -179, stats);
+//
+//    test_angle_distance(- 90,   89,  true,  179, stats);  test_angle_distance(- 90,   89, false, -181, stats);
+//    test_angle_distance(- 90,   90,  true,  180, stats);  test_angle_distance(- 90,   90, false, -180, stats);
+//    test_angle_distance(- 90,   91,  true,  181, stats);  test_angle_distance(- 90,   91, false, -179, stats);
+//
+//    test_angle_distance(- 45,  134,  true,  179, stats);  test_angle_distance(- 45,  134, false, -181, stats);
+//    test_angle_distance(- 45,  135,  true,  180, stats);  test_angle_distance(- 45,  135, false, -180, stats);
+//    test_angle_distance(- 45,  136,  true,  181, stats);  test_angle_distance(- 45,  136, false, -179, stats);
+//
+//    test_angle_distance(   0,  179,  true,  179, stats);  test_angle_distance(   0,  179, false, -181, stats);
+//    test_angle_distance(   0,  180,  true,  180, stats);  test_angle_distance(   0,  180, false, -180, stats);
+//    test_angle_distance(   0,  181,  true,  181, stats);  test_angle_distance(   0,  181, false, -179, stats);
+//
+//    test_angle_distance(  45,  224,  true,  179, stats);  test_angle_distance(  45,  224, false, -181, stats);
+//    test_angle_distance(  45,  225,  true,  180, stats);  test_angle_distance(  45,  225, false, -180, stats);
+//    test_angle_distance(  45,  226,  true,  181, stats);  test_angle_distance(  45,  226, false, -179, stats);
+//
+//    test_angle_distance(  90,  269,  true,  179, stats);  test_angle_distance(  90,  269, false, -181, stats);
+//    test_angle_distance(  90,  270,  true,  180, stats);  test_angle_distance(  90,  270, false, -180, stats);
+//    test_angle_distance(  90,  271,  true,  181, stats);  test_angle_distance(  90,  271, false, -179, stats);
+//
+//    test_angle_distance( 135,  314,  true,  179, stats);  test_angle_distance( 135,  314, false, -181, stats);
+//    test_angle_distance( 135,  315,  true,  180, stats);  test_angle_distance( 135,  315, false, -180, stats);
+//    test_angle_distance( 135,  316,  true,  181, stats);  test_angle_distance( 135,  316, false, -179, stats);
+//
+//    test_angle_distance( 180,  359,  true,  179, stats);  test_angle_distance( 180,  359, false, -181, stats);
+//    test_angle_distance( 180,  360,  true,  180, stats);  test_angle_distance( 180,  360, false, -180, stats);
+//    test_angle_distance( 180,  361,  true,  181, stats);  test_angle_distance( 180,  361, false, -179, stats);
 }
 
 //// math::normalize_angle_to_range
