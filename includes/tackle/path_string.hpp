@@ -63,9 +63,9 @@ namespace tackle
         const std::basic_string<t_elem, t_traits, t_alloc> & r_str = r;
 
         const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>(
+        return path_basic_string<t_elem, t_traits, t_alloc>{
             l_str + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{})
-        );
+        };
     }
 
     template <class t_elem, class t_traits, class t_alloc>
@@ -127,6 +127,36 @@ namespace tackle
         path_basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
 
         return std::move(std::move(l_str) + r_str);
+    }
+
+    //// std::path_basic_string & + std::basic_string &
+
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
+        operator +(
+            const path_basic_string<t_elem, t_traits, t_alloc> & l,
+            const std::basic_string<t_elem, t_traits, t_alloc> & r)
+    {
+        const std::basic_string<t_elem, t_traits, t_alloc> & l_str = l;
+
+        const bool has_right = !r.empty();
+        return path_basic_string<t_elem, t_traits, t_alloc>{
+            l_str + (has_right ? "/" : "") + (has_right ? r : std::basic_string<t_elem, t_traits, t_alloc>{})
+        };
+    }
+
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
+        operator +(
+            const std::basic_string<t_elem, t_traits, t_alloc> & l,
+            const path_basic_string<t_elem, t_traits, t_alloc> & r)
+    {
+        const std::basic_string<t_elem, t_traits, t_alloc> & r_str = r;
+
+        const bool has_right = !r_str.empty();
+        return path_basic_string<t_elem, t_traits, t_alloc>{
+            std::move(l + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{}))
+        };
     }
 
     //// std::path_basic_string && + std::path_basic_string &

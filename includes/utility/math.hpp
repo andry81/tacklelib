@@ -320,11 +320,11 @@ namespace math
 
     const constexpr unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
     const constexpr long long longlong_min = (std::numeric_limits<long long>::min)();
     const constexpr long long longlong_max = (std::numeric_limits<long long>::max)();
 #endif
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
     const constexpr unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
 #endif
 
@@ -637,7 +637,7 @@ namespace math
         return static_cast<unsigned long>(-static_cast<long>(i));
     }
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_ULLONG
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
     FORCE_INLINE_ALWAYS unsigned long long negate(unsigned long long i)
     {
         return static_cast<unsigned long long>(-static_cast<long long>(i));
@@ -654,7 +654,7 @@ namespace math
         return -i;
     }
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_LLONG
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
     FORCE_INLINE_ALWAYS long long negate(long long i)
     {
         return -i;
@@ -1224,6 +1224,65 @@ namespace math
         }
 
         return angle_tmp;
+    }
+
+    // Avoids rounding to the closest value in print functions by truncation to the opposite value.
+    // For example, if angle is [0..360], where maximum is 360 degrees, than 259.9997 will be truncated to the 360 in case of num_fraction_chars=3.
+    // The function would truncate 259.9997 back to 259.999 to avoid such implicit rounding, except 360 itself, which would not be truncated at all.
+    //
+    template <typename T>
+    extern inline T truncate_float_from_max_power_of_10(const T & value, const T & max_value, const T & no_truncation_epsilon, size_t num_fraction_chars)
+    {
+        DEBUG_ASSERT_GE(max_value, value);
+        DEBUG_ASSERT_GE(no_truncation_epsilon, 0); // epsilon must be always not negative
+
+        const T rounding_multiplier = pow(T(10), num_fraction_chars);
+
+        const T delta = max_value - value;
+        if (no_truncation_epsilon < delta && 1.0 >= delta * rounding_multiplier) {
+            T whole_value;
+            modf(value * rounding_multiplier, &whole_value);
+            return whole_value / rounding_multiplier;
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T truncate_float_to_minmax(const T & value, const T & min_value, const T & max_value)
+    {
+        DEBUG_ASSERT_GE(max_value, min_value);
+
+        if (max_value < value) {
+            return max_value;
+        }
+
+        if (value < min_value) {
+            return min_value;
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T fix_float_trigonometric_range(const T & value)
+    {
+        // avoid fix in special case
+        if (!isnan(value) && value != math::double_max && value != -math::double_max) {
+            return truncate_float_to_minmax(value, T(-1.0), T(+1.0));
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T floor_to_zero(const T & value)
+    {
+        if (value >= 0) {
+            return floor(value);
+        }
+
+        return -floor(-value);
     }
 }
 

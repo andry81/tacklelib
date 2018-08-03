@@ -48,7 +48,7 @@
 #define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
 
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14
+#ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_INTEGER_SEQUENCE
 // in case if not declared
 namespace std
 {
@@ -260,7 +260,7 @@ namespace utility
     template <typename T>
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
-#ifdef UTILITY_PLATFORM_CXX_STANDARD_CPP14 // for `std::index_sequence`
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP11 // for `std::index_sequence`
     template<typename Functor, std::size_t... S>
     FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
     {

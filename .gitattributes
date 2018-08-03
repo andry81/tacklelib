@@ -45,6 +45,7 @@ includes/utility/debug.hpp -text
 includes/utility/math.hpp -text
 includes/utility/memory.hpp -text
 includes/utility/platform.hpp -text
+includes/utility/platform_features.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
 includes/utility/time.hpp -text
@@ -66,6 +67,7 @@ src/tackle/smart_handle.hpp -text
 src/tackle/stream_storage.hpp -text
 src/tackle/variant.hpp -text
 src/tacklelib.hpp -text
+src/tacklelib_private.hpp -text
 src/testlib/testlib.cpp -text
 src/testlib/testlib.hpp -text
 src/tests/test_common.hpp -text

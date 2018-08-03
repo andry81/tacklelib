@@ -421,6 +421,124 @@ namespace utility
         double whole;
         return ::modf(d, &whole);
     }
+
+
+    FORCE_INLINE double calibrate_tick_step_to_closest_power_of_10(double min, double max, size_t ticks)
+    {
+        DEBUG_ASSERT_LT(min, max);
+        DEBUG_ASSERT_LT(0U, ticks);
+
+        const double distance = max - min;
+
+        double tick_step = distance / ticks;
+
+        int tick_step_exp;
+        frexp(tick_step, &tick_step_exp);
+
+        if (tick_step < 1.0) {
+            size_t rounded_integer_part_numerator;
+            size_t rounded_integer_part_denominator;
+
+            const double tick_step_power_of_10 = tick_step_exp * log(2) / log(10);
+            DEBUG_ASSERT_GE(0, tick_step_power_of_10);
+
+            const size_t num_digits_in_power_of_10 = size_t(floor(tick_step_power_of_10 >= 0 ? tick_step_power_of_10 : -tick_step_power_of_10 + 1));
+            const int signed_num_digits_in_power_of_10 = tick_step_power_of_10 >= 0 ? num_digits_in_power_of_10 : -int(num_digits_in_power_of_10);
+
+            double closest_value_with_integer_part = tick_step * pow(10, num_digits_in_power_of_10);
+
+            if (closest_value_with_integer_part >= 5) {
+                rounded_integer_part_numerator = 5;
+                rounded_integer_part_denominator = 1;
+            }
+            else {
+                rounded_integer_part_numerator = 25;
+                rounded_integer_part_denominator = 10;
+            }
+
+            tick_step = rounded_integer_part_numerator *
+                pow(10, tick_step_power_of_10 >= 0 ? num_digits_in_power_of_10 : -double(num_digits_in_power_of_10)) / rounded_integer_part_denominator; // drop the rest fraction
+
+            // calibration through overflow/underflow
+
+            double prev_tick_step;
+            double next_tick_step = tick_step;
+            size_t rounded_integer_part_next_numerator = rounded_integer_part_numerator;
+
+            if (next_tick_step * ticks < 2 * distance) {
+                do {
+                    // step still not big enough, increase step in twice
+                    rounded_integer_part_numerator = rounded_integer_part_next_numerator;
+                    prev_tick_step = next_tick_step;
+
+                    rounded_integer_part_next_numerator *= 2;
+                    next_tick_step = rounded_integer_part_next_numerator * pow(10, signed_num_digits_in_power_of_10) / rounded_integer_part_denominator;
+                } while (next_tick_step * ticks < 2 * distance);
+
+                next_tick_step = tick_step = prev_tick_step;
+            }
+
+            size_t rounded_integer_part_next_denominator = rounded_integer_part_denominator;
+
+            if (next_tick_step * ticks >= distance) {
+                do {
+                    // step still not small enough, decrease step in twice
+                    rounded_integer_part_denominator = rounded_integer_part_next_denominator;
+                    prev_tick_step = next_tick_step;
+
+                    rounded_integer_part_next_denominator *= 2;
+                    next_tick_step = rounded_integer_part_numerator * pow(10, signed_num_digits_in_power_of_10) / rounded_integer_part_next_denominator;
+                } while (next_tick_step * ticks >= distance);
+
+                tick_step = prev_tick_step;
+            }
+        }
+        else {
+            double closest_value_with_integer_part = floor(tick_step / 5) * 5;
+            if (!closest_value_with_integer_part) {
+                closest_value_with_integer_part = floor(tick_step);
+            }
+
+            double rounded_integer_part_numerator = size_t(closest_value_with_integer_part + 0.5);
+            double rounded_integer_part_denominator = 1;
+
+            // calibration through overflow/underflow
+
+            double prev_tick_step;
+            double next_tick_step = tick_step;
+            double rounded_integer_part_next_numerator = rounded_integer_part_numerator;
+
+            if (next_tick_step * ticks < 2 * distance) {
+                do {
+                    // step still not big enough, increase step in twice
+                    rounded_integer_part_numerator = rounded_integer_part_next_numerator;
+                    prev_tick_step = next_tick_step;
+
+                    rounded_integer_part_next_numerator *= 2;
+                    next_tick_step = rounded_integer_part_next_numerator / rounded_integer_part_denominator;
+                } while (next_tick_step * ticks < 2 * distance);
+
+                next_tick_step = tick_step = prev_tick_step;
+            }
+
+            double rounded_integer_part_next_denominator = rounded_integer_part_denominator;
+
+            if (next_tick_step * ticks >= distance) {
+                do {
+                    // step still not small enough, decrease step in twice
+                    rounded_integer_part_denominator = rounded_integer_part_next_denominator;
+                    prev_tick_step = next_tick_step;
+
+                    rounded_integer_part_next_denominator *= 2;
+                    next_tick_step = rounded_integer_part_numerator / rounded_integer_part_next_denominator;
+                } while (next_tick_step * ticks >= distance);
+
+                tick_step = prev_tick_step;
+            }
+        }
+
+        return tick_step;
+    }
 }
 
 #endif
