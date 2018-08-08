@@ -1284,6 +1284,30 @@ namespace math
 
         return -floor(-value);
     }
+
+    // changes exponent of one of the floats to compensate unsansible addition/subtraction
+    template <typename T>
+    extern inline int reduce_float_exp_delta(const T & from, T & to_fix, int min_sensible_exp_delta = 1)
+    {
+        DEBUG_ASSERT_GT(std::abs(from), std::abs(to_fix)); // fix value must be always lower by absolute value!
+
+        int from_exp;
+        int to_exp;
+
+        frexp(from, &from_exp);
+        const double to_frac = frexp(to_fix, &to_exp);
+
+        const int float_digits = std::numeric_limits<T>::digits;
+        const int exp_delta = std::abs(from_exp - to_exp);
+
+        if (exp_delta > float_digits) {
+            const int compensate_exp_delta = (std::max)(exp_delta - float_digits, min_sensible_exp_delta); // compensate by exponent distance reduction
+            to_fix = ldexp(to_frac, to_exp + compensate_exp_delta);
+            return compensate_exp_delta;
+        }
+
+        return 0;
+    }
 }
 
 #endif

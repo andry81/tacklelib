@@ -374,4 +374,20 @@ namespace utility
     {
         return boost::fs::create_directories(path.str());
     }
+
+    bool create_directory_if_not_exist(const tackle::path_string & path)
+    {
+        boost::system::error_code ec;
+        return boost::fs::create_directories(path.str(), ec);
+    }
+
+    std::string get_file_name(const tackle::path_string & path)
+    {
+        return boost::fs::path(path.str()).filename().string();
+    }
+
+    std::string get_file_name_stem(const tackle::path_string & path)
+    {
+        return boost::fs::path(path.str()).stem().string();
+    }
 }

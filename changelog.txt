@@ -1,3 +1,8 @@
+2018.08.08:
+* fixed: missed tackle::path_string class operator+ overload
+* fixed: minor testlib fix
+* new: math::reduce_float_exp_delta, utility::create_directory_if_not_exist, utility::get_file_name, utility::get_file_name_stem functions
+
 2018.08.03:
 * new: std::make_unique if not implemented by standard headers
 * new: calibrate_tick_step_to_closest_power_of_10 function to calculate axis value label tick step in ui graph plots
