@@ -356,8 +356,8 @@ tackle::path_string TestCaseStaticBase::get_data_in_root(const char * error_msg_
 
 tackle::path_string TestCaseStaticBase::get_data_out_root(const char * error_msg_prefix, const tackle::path_string & scope_str, const tackle::path_string & func_str)
 {
-    const tackle::path_string & data_in_subdir = test::get_data_out_subdir(scope_str, func_str);
-    return get_data_in_var(error_msg_prefix) + data_in_subdir;
+    const tackle::path_string & data_out_subdir = test::get_data_out_subdir(scope_str, func_str);
+    return get_data_out_var(error_msg_prefix) + data_out_subdir;
 }
 
 tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)

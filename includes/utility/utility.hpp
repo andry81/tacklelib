@@ -28,6 +28,7 @@
 #include <memory>
 #include <cfloat>
 #include <cmath>
+#include <string>
 
 #if defined(UTILITY_PLATFORM_POSIX)
 #include <termios.h>
@@ -158,8 +159,12 @@ namespace utility
     bool is_path_exists(const tackle::path_string & path);
 
     bool create_directory(const tackle::path_string & path);
+    bool create_directory_if_not_exist(const tackle::path_string & path); // no exception if directory already exists
     void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from);
     bool create_directories(const tackle::path_string & path);
+
+    std::string get_file_name(const tackle::path_string & path);
+    std::string get_file_name_stem(const tackle::path_string & path);
 
     template<typename T>
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
