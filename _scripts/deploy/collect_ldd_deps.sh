@@ -517,7 +517,7 @@ function CollectLddDeps()
     function ctrl_c()
     {
         echo
-        echo "** search interrapted **"
+        echo "** search interrupted **"
 
         return 255
     }

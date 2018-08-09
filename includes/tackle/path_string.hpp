@@ -204,7 +204,7 @@ namespace tackle
 
         const bool has_right = !r.empty();
         return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r : std::basic_string<t_elem, t_traits, t_alloc>{}))
+            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{}))
         };
     }
 

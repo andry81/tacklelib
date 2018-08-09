@@ -249,7 +249,7 @@ function Configure()
   export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
   export CMAKE_BIN_ROOT="$CMAKE_OUTPUT_ROOT/bin/$CMAKE_BUILD_TYPE"
   export CMAKE_LIB_ROOT="$CMAKE_OUTPUT_ROOT/lib/$CMAKE_BUILD_TYPE"
-  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install/$CMAKE_BUILD_TYPE"
+  export CMAKE_INSTALL_ROOT="$CMAKE_OUTPUT_ROOT/install" # cmake creates the build type subdirectory on itself
   export CMAKE_CPACK_ROOT="$CMAKE_OUTPUT_ROOT/pack/$CMAKE_BUILD_TYPE"
 
   MakeDir -p "$CMAKE_BUILD_ROOT"
@@ -272,6 +272,10 @@ function Configure()
 
 function ConfigureNoGen()
 {
+  export CMAKE_BUILD_ROOT="$CMAKE_OUTPUT_ROOT/build/$CMAKE_BUILD_TYPE"
+
+  MakeDir -p "$CMAKE_BUILD_ROOT"
+
   CONFIGURE_FILE_IN="`/bin/readlink -f "$ScriptDirPath/../$ScriptFileName.in"`"
 
   MakeCommandArgumentsFromFile -e "$CONFIGURE_FILE_IN"

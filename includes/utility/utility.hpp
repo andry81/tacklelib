@@ -450,7 +450,7 @@ namespace utility
             const size_t num_digits_in_power_of_10 = size_t(floor(tick_step_power_of_10 >= 0 ? tick_step_power_of_10 : -tick_step_power_of_10 + 1));
             const int signed_num_digits_in_power_of_10 = tick_step_power_of_10 >= 0 ? num_digits_in_power_of_10 : -int(num_digits_in_power_of_10);
 
-            double closest_value_with_integer_part = tick_step * pow(10, num_digits_in_power_of_10);
+            double closest_value_with_integer_part = tick_step * pow(10.0, double(num_digits_in_power_of_10));
 
             if (closest_value_with_integer_part >= 5) {
                 rounded_integer_part_numerator = 5;
@@ -462,7 +462,8 @@ namespace utility
             }
 
             tick_step = rounded_integer_part_numerator *
-                pow(10, tick_step_power_of_10 >= 0 ? num_digits_in_power_of_10 : -double(num_digits_in_power_of_10)) / rounded_integer_part_denominator; // drop the rest fraction
+                pow(10.0, tick_step_power_of_10 >= 0 ?
+                    double(num_digits_in_power_of_10) : -double(num_digits_in_power_of_10)) / rounded_integer_part_denominator; // drop the rest fraction
 
             // calibration through overflow/underflow
 
@@ -477,7 +478,8 @@ namespace utility
                     prev_tick_step = next_tick_step;
 
                     rounded_integer_part_next_numerator *= 2;
-                    next_tick_step = rounded_integer_part_next_numerator * pow(10, signed_num_digits_in_power_of_10) / rounded_integer_part_denominator;
+                    next_tick_step = rounded_integer_part_next_numerator *
+                        pow(10.0, double(signed_num_digits_in_power_of_10)) / rounded_integer_part_denominator;
                 } while (next_tick_step * ticks < 2 * distance);
 
                 next_tick_step = tick_step = prev_tick_step;
@@ -492,7 +494,8 @@ namespace utility
                     prev_tick_step = next_tick_step;
 
                     rounded_integer_part_next_denominator *= 2;
-                    next_tick_step = rounded_integer_part_numerator * pow(10, signed_num_digits_in_power_of_10) / rounded_integer_part_next_denominator;
+                    next_tick_step = rounded_integer_part_numerator *
+                        pow(10.0, double(signed_num_digits_in_power_of_10)) / rounded_integer_part_next_denominator;
                 } while (next_tick_step * ticks >= distance);
 
                 tick_step = prev_tick_step;

@@ -1,3 +1,6 @@
+2018.08.09:
+* fixed: linux build
+
 2018.08.08:
 * fixed: missed tackle::path_string class operator+ overload
 * fixed: minor testlib fix
