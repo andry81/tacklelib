@@ -25,7 +25,7 @@ if [[ "$(type -t ScriptBaseInit)" != "function" ]]; then
 fi
 
 if [[ ! -f "$ScriptDirPath/user_links.lst" ]]; then
-  echo "$ScriptFileName: error: \"user_links.lst\" must exist in the script directory" >&2
+  echo "$ScriptFileName: error: \"user_links.lst\" must exist in the script directory: \"$ScriptDirPath/\"" >&2
   exit 1
 fi
 

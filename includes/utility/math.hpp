@@ -16,9 +16,9 @@
 #include <cstdint>
 #include <limits>
 #include <utility>
-
 #include <cfloat>
 #include <cmath>
+#include <algorithm>
 
 
 #define INT32_LOG2_FLOOR_CONSTEXPR(x)               ::math::int32_log2_floor<x>::value
