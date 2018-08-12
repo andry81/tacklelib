@@ -1941,6 +1941,690 @@ TEST(TleManagerFunctionsTest, angle_distance)
 //    test_angle_distance( 180,  361,  true,  181, stats);  test_angle_distance( 180,  361, false, -179, stats);
 }
 
+//// math::translate_angle
+
+void test_translate_angle(double angle_deg, double base_angle_deg, double etha_angle_deg)
+{
+    const double translated_angle_deg = math::translate_angle(angle_deg, base_angle_deg, false, 0);
+    ASSERT_EQ(translated_angle_deg, etha_angle_deg);
+}
+
+TEST(FunctionsTest, translate_angle)
+{
+    // special cases
+    test_translate_angle( 0.0,  0.0, 0);
+    test_translate_angle( 0.0, -0.0, 0);
+    test_translate_angle(-0.0,  0.0, 0);
+    test_translate_angle(-0.0, -0.0, 0);
+
+    // [-630]
+    test_translate_angle(-1035, -630, - 45);
+    test_translate_angle(- 990, -630,    0);
+    test_translate_angle(- 945, -630,   45);
+    test_translate_angle(- 900, -630,   90);
+    test_translate_angle(- 855, -630,  135);
+    test_translate_angle(- 811, -630,  179);
+    test_translate_angle(- 810, -630, -180);
+    test_translate_angle(- 765, -630, -135);
+    test_translate_angle(- 720, -630, - 90);
+    test_translate_angle(- 675, -630, - 45);
+    test_translate_angle(- 630, -630,    0);
+    test_translate_angle(- 585, -630,   45);
+    test_translate_angle(- 540, -630,   90);
+    test_translate_angle(- 495, -630,  135);
+    test_translate_angle(- 450, -630,  180);
+    test_translate_angle(- 449, -630, -179);
+    test_translate_angle(- 405, -630, -135);
+    test_translate_angle(- 360, -630, - 90);
+    test_translate_angle(- 315, -630, - 45);
+    test_translate_angle(- 270, -630,    0);
+    test_translate_angle(- 225, -630,   45);
+
+    // [-585]
+    test_translate_angle(- 990, -585, - 45);
+    test_translate_angle(- 945, -585,    0);
+    test_translate_angle(- 900, -585,   45);
+    test_translate_angle(- 855, -585,   90);
+    test_translate_angle(- 810, -585,  135);
+    test_translate_angle(- 766, -585,  179);
+    test_translate_angle(- 765, -585, -180);
+    test_translate_angle(- 720, -585, -135);
+    test_translate_angle(- 675, -585, - 90);
+    test_translate_angle(- 630, -585, - 45);
+    test_translate_angle(- 585, -585,    0);
+    test_translate_angle(- 540, -585,   45);
+    test_translate_angle(- 495, -585,   90);
+    test_translate_angle(- 450, -585,  135);
+    test_translate_angle(- 405, -585,  180);
+    test_translate_angle(- 404, -585, -179);
+    test_translate_angle(- 360, -585, -135);
+    test_translate_angle(- 315, -585, - 90);
+    test_translate_angle(- 270, -585, - 45);
+    test_translate_angle(- 225, -585,    0);
+    test_translate_angle(- 180, -585,   45);
+
+    // [-540]
+    test_translate_angle(- 945, -540, - 45);
+    test_translate_angle(- 900, -540,    0);
+    test_translate_angle(- 855, -540,   45);
+    test_translate_angle(- 810, -540,   90);
+    test_translate_angle(- 765, -540,  135);
+    test_translate_angle(- 721, -540,  179);
+    test_translate_angle(- 720, -540, -180);
+    test_translate_angle(- 675, -540, -135);
+    test_translate_angle(- 630, -540, - 90);
+    test_translate_angle(- 585, -540, - 45);
+    test_translate_angle(- 540, -540,    0);
+    test_translate_angle(- 495, -540,   45);
+    test_translate_angle(- 450, -540,   90);
+    test_translate_angle(- 405, -540,  135);
+    test_translate_angle(- 360, -540,  180);
+    test_translate_angle(- 359, -540, -179);
+    test_translate_angle(- 315, -540, -135);
+    test_translate_angle(- 270, -540, - 90);
+    test_translate_angle(- 225, -540, - 45);
+    test_translate_angle(- 180, -540,    0);
+    test_translate_angle(- 135, -540,   45);
+
+    // [-495]
+    test_translate_angle(- 900, -495, - 45);
+    test_translate_angle(- 855, -495,    0);
+    test_translate_angle(- 810, -495,   45);
+    test_translate_angle(- 765, -495,   90);
+    test_translate_angle(- 720, -495,  135);
+    test_translate_angle(- 676, -495,  179);
+    test_translate_angle(- 675, -495, -180);
+    test_translate_angle(- 630, -495, -135);
+    test_translate_angle(- 585, -495, - 90);
+    test_translate_angle(- 540, -495, - 45);
+    test_translate_angle(- 495, -495,    0);
+    test_translate_angle(- 450, -495,   45);
+    test_translate_angle(- 405, -495,   90);
+    test_translate_angle(- 360, -495,  135);
+    test_translate_angle(- 315, -495,  180);
+    test_translate_angle(- 314, -495, -179);
+    test_translate_angle(- 270, -495, -135);
+    test_translate_angle(- 225, -495, - 90);
+    test_translate_angle(- 180, -495, - 45);
+    test_translate_angle(- 135, -495,    0);
+    test_translate_angle(-  90, -495,   45);
+
+    // [-450]
+    test_translate_angle(- 855, -450, - 45);
+    test_translate_angle(- 810, -450,    0);
+    test_translate_angle(- 765, -450,   45);
+    test_translate_angle(- 720, -450,   90);
+    test_translate_angle(- 675, -450,  135);
+    test_translate_angle(- 631, -450,  179);
+    test_translate_angle(- 630, -450, -180);
+    test_translate_angle(- 585, -450, -135);
+    test_translate_angle(- 540, -450, - 90);
+    test_translate_angle(- 495, -450, - 45);
+    test_translate_angle(- 450, -450,    0);
+    test_translate_angle(- 405, -450,   45);
+    test_translate_angle(- 360, -450,   90);
+    test_translate_angle(- 315, -450,  135);
+    test_translate_angle(- 270, -450,  180);
+    test_translate_angle(- 269, -450, -179);
+    test_translate_angle(- 225, -450, -135);
+    test_translate_angle(- 180, -450, - 90);
+    test_translate_angle(- 135, -450, - 45);
+    test_translate_angle(-  90, -450,    0);
+    test_translate_angle(-  45, -450,   45);
+
+    // [-405]
+    test_translate_angle(- 810, -405, - 45);
+    test_translate_angle(- 765, -405,    0);
+    test_translate_angle(- 720, -405,   45);
+    test_translate_angle(- 675, -405,   90);
+    test_translate_angle(- 630, -405,  135);
+    test_translate_angle(- 586, -405,  179);
+    test_translate_angle(- 585, -405, -180);
+    test_translate_angle(- 540, -405, -135);
+    test_translate_angle(- 495, -405, - 90);
+    test_translate_angle(- 450, -405, - 45);
+    test_translate_angle(- 405, -405,    0);
+    test_translate_angle(- 360, -405,   45);
+    test_translate_angle(- 315, -405,   90);
+    test_translate_angle(- 270, -405,  135);
+    test_translate_angle(- 225, -405,  180);
+    test_translate_angle(- 224, -405, -179);
+    test_translate_angle(- 180, -405, -135);
+    test_translate_angle(- 135, -405, - 90);
+    test_translate_angle(-  90, -405, - 45);
+    test_translate_angle(-  45, -405,    0);
+    test_translate_angle(    0, -405,   45);
+
+    // [-360]
+    test_translate_angle(- 765, -360, - 45);
+    test_translate_angle(- 720, -360,    0);
+    test_translate_angle(- 675, -360,   45);
+    test_translate_angle(- 630, -360,   90);
+    test_translate_angle(- 585, -360,  135);
+    test_translate_angle(- 541, -360,  179);
+    test_translate_angle(- 540, -360, -180);
+    test_translate_angle(- 495, -360, -135);
+    test_translate_angle(- 450, -360, - 90);
+    test_translate_angle(- 405, -360, - 45);
+    test_translate_angle(- 360, -360,    0);
+    test_translate_angle(- 315, -360,   45);
+    test_translate_angle(- 270, -360,   90);
+    test_translate_angle(- 225, -360,  135);
+    test_translate_angle(- 180, -360,  180);
+    test_translate_angle(- 179, -360, -179);
+    test_translate_angle(- 135, -360, -135);
+    test_translate_angle(-  90, -360, - 90);
+    test_translate_angle(-  45, -360, - 45);
+    test_translate_angle(    0, -360,    0);
+    test_translate_angle(   45, -360,   45);
+
+    // [-315]
+    test_translate_angle(- 720, -315, - 45);
+    test_translate_angle(- 675, -315,    0);
+    test_translate_angle(- 630, -315,   45);
+    test_translate_angle(- 585, -315,   90);
+    test_translate_angle(- 540, -315,  135);
+    test_translate_angle(- 496, -315,  179);
+    test_translate_angle(- 495, -315, -180);
+    test_translate_angle(- 450, -315, -135);
+    test_translate_angle(- 405, -315, - 90);
+    test_translate_angle(- 360, -315, - 45);
+    test_translate_angle(- 315, -315,    0);
+    test_translate_angle(- 270, -315,   45);
+    test_translate_angle(- 225, -315,   90);
+    test_translate_angle(- 180, -315,  135);
+    test_translate_angle(- 135, -315,  180);
+    test_translate_angle(- 134, -315, -179);
+    test_translate_angle(-  90, -315, -135);
+    test_translate_angle(-  45, -315, - 90);
+    test_translate_angle(    0, -315, - 45);
+    test_translate_angle(   45, -315,    0);
+    test_translate_angle(   90, -315,   45);
+
+    // [-270]
+    test_translate_angle(- 675, -270, - 45);
+    test_translate_angle(- 630, -270,    0);
+    test_translate_angle(- 585, -270,   45);
+    test_translate_angle(- 540, -270,   90);
+    test_translate_angle(- 495, -270,  135);
+    test_translate_angle(- 451, -270,  179);
+    test_translate_angle(- 450, -270, -180);
+    test_translate_angle(- 405, -270, -135);
+    test_translate_angle(- 360, -270, - 90);
+    test_translate_angle(- 315, -270, - 45);
+    test_translate_angle(- 270, -270,    0);
+    test_translate_angle(- 225, -270,   45);
+    test_translate_angle(- 180, -270,   90);
+    test_translate_angle(- 135, -270,  135);
+    test_translate_angle(-  90, -270,  180);
+    test_translate_angle(-  89, -270, -179);
+    test_translate_angle(-  45, -270, -135);
+    test_translate_angle(    0, -270, - 90);
+    test_translate_angle(   45, -270, - 45);
+    test_translate_angle(   90, -270,    0);
+    test_translate_angle(  135, -270,   45);
+
+    // [-225]
+    test_translate_angle(- 630, -225, - 45);
+    test_translate_angle(- 585, -225,    0);
+    test_translate_angle(- 540, -225,   45);
+    test_translate_angle(- 495, -225,   90);
+    test_translate_angle(- 450, -225,  135);
+    test_translate_angle(- 406, -225,  179);
+    test_translate_angle(- 405, -225, -180);
+    test_translate_angle(- 360, -225, -135);
+    test_translate_angle(- 315, -225, - 90);
+    test_translate_angle(- 270, -225, - 45);
+    test_translate_angle(- 225, -225,    0);
+    test_translate_angle(- 180, -225,   45);
+    test_translate_angle(- 135, -225,   90);
+    test_translate_angle(-  90, -225,  135);
+    test_translate_angle(-  45, -225,  180);
+    test_translate_angle(-  44, -225, -179);
+    test_translate_angle(    0, -225, -135);
+    test_translate_angle(   45, -225, - 90);
+    test_translate_angle(   90, -225, - 45);
+    test_translate_angle(  135, -225,    0);
+    test_translate_angle(  180, -225,   45);
+
+    // [-180]
+    test_translate_angle(- 585, -180, - 45);
+    test_translate_angle(- 540, -180,    0);
+    test_translate_angle(- 495, -180,   45);
+    test_translate_angle(- 450, -180,   90);
+    test_translate_angle(- 405, -180,  135);
+    test_translate_angle(- 361, -180,  179);
+    test_translate_angle(- 360, -180, -180);
+    test_translate_angle(- 315, -180, -135);
+    test_translate_angle(- 270, -180, - 90);
+    test_translate_angle(- 225, -180, - 45);
+    test_translate_angle(- 180, -180,    0);
+    test_translate_angle(- 135, -180,   45);
+    test_translate_angle(-  90, -180,   90);
+    test_translate_angle(-  45, -180,  135);
+    test_translate_angle(    0, -180,  180);
+    test_translate_angle(    1, -180, -179);
+    test_translate_angle(   45, -180, -135);
+    test_translate_angle(   90, -180, - 90);
+    test_translate_angle(  135, -180, - 45);
+    test_translate_angle(  180, -180,    0);
+    test_translate_angle(  225, -180,   45);
+
+    // [-135]
+    test_translate_angle(- 540, -135, - 45);
+    test_translate_angle(- 495, -135,    0);
+    test_translate_angle(- 450, -135,   45);
+    test_translate_angle(- 405, -135,   90);
+    test_translate_angle(- 360, -135,  135);
+    test_translate_angle(- 316, -135,  179);
+    test_translate_angle(- 315, -135, -180);
+    test_translate_angle(- 270, -135, -135);
+    test_translate_angle(- 225, -135, - 90);
+    test_translate_angle(- 180, -135, - 45);
+    test_translate_angle(- 135, -135,    0);
+    test_translate_angle(-  90, -135,   45);
+    test_translate_angle(-  45, -135,   90);
+    test_translate_angle(    0, -135,  135);
+    test_translate_angle(   45, -135,  180);
+    test_translate_angle(   46, -135, -179);
+    test_translate_angle(   90, -135, -135);
+    test_translate_angle(  135, -135, - 90);
+    test_translate_angle(  180, -135, - 45);
+    test_translate_angle(  225, -135,    0);
+    test_translate_angle(  270, -135,   45);
+
+    // [-90]
+    test_translate_angle(- 495, - 90, - 45);
+    test_translate_angle(- 450, - 90,    0);
+    test_translate_angle(- 405, - 90,   45);
+    test_translate_angle(- 360, - 90,   90);
+    test_translate_angle(- 315, - 90,  135);
+    test_translate_angle(- 271, - 90,  179);
+    test_translate_angle(- 270, - 90, -180);
+    test_translate_angle(- 225, - 90, -135);
+    test_translate_angle(- 180, - 90, - 90);
+    test_translate_angle(- 135, - 90, - 45);
+    test_translate_angle(-  90, - 90,    0);
+    test_translate_angle(-  45, - 90,   45);
+    test_translate_angle(    0, - 90,   90);
+    test_translate_angle(   45, - 90,  135);
+    test_translate_angle(   90, - 90,  180);
+    test_translate_angle(   91, - 90, -179);
+    test_translate_angle(  135, - 90, -135);
+    test_translate_angle(  180, - 90, - 90);
+    test_translate_angle(  225, - 90, - 45);
+    test_translate_angle(  270, - 90,    0);
+    test_translate_angle(  315, - 90,   45);
+
+    // [-45]
+    test_translate_angle(- 450, - 45, - 45);
+    test_translate_angle(- 405, - 45,    0);
+    test_translate_angle(- 360, - 45,   45);
+    test_translate_angle(- 315, - 45,   90);
+    test_translate_angle(- 270, - 45,  135);
+    test_translate_angle(- 226, - 45,  179);
+    test_translate_angle(- 225, - 45, -180);
+    test_translate_angle(- 180, - 45, -135);
+    test_translate_angle(- 135, - 45, - 90);
+    test_translate_angle(-  90, - 45, - 45);
+    test_translate_angle(-  45, - 45,    0);
+    test_translate_angle(    0, - 45,   45);
+    test_translate_angle(   45, - 45,   90);
+    test_translate_angle(   90, - 45,  135);
+    test_translate_angle(  135, - 45,  180);
+    test_translate_angle(  136, - 45, -179);
+    test_translate_angle(  180, - 45, -135);
+    test_translate_angle(  225, - 45, - 90);
+    test_translate_angle(  270, - 45, - 45);
+    test_translate_angle(  315, - 45,    0);
+    test_translate_angle(  360, - 45,   45);
+
+    // [0]
+    test_translate_angle(- 405,    0, - 45);
+    test_translate_angle(- 360,    0,    0);
+    test_translate_angle(- 315,    0,   45);
+    test_translate_angle(- 270,    0,   90);
+    test_translate_angle(- 225,    0,  135);
+    test_translate_angle(- 181,    0,  179);
+    test_translate_angle(- 180,    0, -180);
+    test_translate_angle(- 135,    0, -135);
+    test_translate_angle(-  90,    0, - 90);
+    test_translate_angle(-  45,    0, - 45);
+    test_translate_angle(    0,    0,    0);
+    test_translate_angle(   45,    0,   45);
+    test_translate_angle(   90,    0,   90);
+    test_translate_angle(  135,    0,  135);
+    test_translate_angle(  180,    0,  180);
+    test_translate_angle(  181,    0, -179);
+    test_translate_angle(  225,    0, -135);
+    test_translate_angle(  270,    0, - 90);
+    test_translate_angle(  315,    0, - 45);
+    test_translate_angle(  360,    0,    0);
+    test_translate_angle(  405,    0,   45);
+
+    // [45]
+    test_translate_angle(- 360,   45, - 45);
+    test_translate_angle(- 315,   45,    0);
+    test_translate_angle(- 270,   45,   45);
+    test_translate_angle(- 225,   45,   90);
+    test_translate_angle(- 180,   45,  135);
+    test_translate_angle(- 136,   45,  179);
+    test_translate_angle(- 135,   45, -180);
+    test_translate_angle(-  90,   45, -135);
+    test_translate_angle(-  45,   45, - 90);
+    test_translate_angle(    0,   45, - 45);
+    test_translate_angle(   45,   45,    0);
+    test_translate_angle(   90,   45,   45);
+    test_translate_angle(  135,   45,   90);
+    test_translate_angle(  180,   45,  135);
+    test_translate_angle(  225,   45,  180);
+    test_translate_angle(  226,   45, -179);
+    test_translate_angle(  270,   45, -135);
+    test_translate_angle(  315,   45, - 90);
+    test_translate_angle(  360,   45, - 45);
+    test_translate_angle(  405,   45,    0);
+    test_translate_angle(  450,   45,   45);
+
+    // [90]
+    test_translate_angle(- 315,   90, - 45);
+    test_translate_angle(- 270,   90,    0);
+    test_translate_angle(- 225,   90,   45);
+    test_translate_angle(- 180,   90,   90);
+    test_translate_angle(- 135,   90,  135);
+    test_translate_angle(-  91,   90,  179);
+    test_translate_angle(-  90,   90, -180);
+    test_translate_angle(-  45,   90, -135);
+    test_translate_angle(    0,   90, - 90);
+    test_translate_angle(   45,   90, - 45);
+    test_translate_angle(   90,   90,    0);
+    test_translate_angle(  135,   90,   45);
+    test_translate_angle(  180,   90,   90);
+    test_translate_angle(  225,   90,  135);
+    test_translate_angle(  270,   90,  180);
+    test_translate_angle(  271,   90, -179);
+    test_translate_angle(  315,   90, -135);
+    test_translate_angle(  360,   90, - 90);
+    test_translate_angle(  405,   90, - 45);
+    test_translate_angle(  450,   90,    0);
+    test_translate_angle(  495,   90,   45);
+
+    // [135]
+    test_translate_angle(- 270,  135, - 45);
+    test_translate_angle(- 225,  135,    0);
+    test_translate_angle(- 180,  135,   45);
+    test_translate_angle(- 135,  135,   90);
+    test_translate_angle(-  90,  135,  135);
+    test_translate_angle(-  46,  135,  179);
+    test_translate_angle(-  45,  135, -180);
+    test_translate_angle(    0,  135, -135);
+    test_translate_angle(   45,  135, - 90);
+    test_translate_angle(   90,  135, - 45);
+    test_translate_angle(  135,  135,    0);
+    test_translate_angle(  180,  135,   45);
+    test_translate_angle(  225,  135,   90);
+    test_translate_angle(  270,  135,  135);
+    test_translate_angle(  315,  135,  180);
+    test_translate_angle(  316,  135, -179);
+    test_translate_angle(  360,  135, -135);
+    test_translate_angle(  405,  135, - 90);
+    test_translate_angle(  450,  135, - 45);
+    test_translate_angle(  495,  135,    0);
+    test_translate_angle(  540,  135,   45);
+
+    // [180]
+    test_translate_angle(- 225,  180, - 45);
+    test_translate_angle(- 180,  180,    0);
+    test_translate_angle(- 135,  180,   45);
+    test_translate_angle(-  90,  180,   90);
+    test_translate_angle(-  45,  180,  135);
+    test_translate_angle(-   1,  180,  179);
+    test_translate_angle(    0,  180, -180);
+    test_translate_angle(   45,  180, -135);
+    test_translate_angle(   90,  180, - 90);
+    test_translate_angle(  135,  180, - 45);
+    test_translate_angle(  180,  180,    0);
+    test_translate_angle(  225,  180,   45);
+    test_translate_angle(  270,  180,   90);
+    test_translate_angle(  315,  180,  135);
+    test_translate_angle(  360,  180,  180);
+    test_translate_angle(  361,  180, -179);
+    test_translate_angle(  405,  180, -135);
+    test_translate_angle(  450,  180, - 90);
+    test_translate_angle(  495,  180, - 45);
+    test_translate_angle(  540,  180,    0);
+    test_translate_angle(  585,  180,   45);
+
+    // [225]
+    test_translate_angle(- 180,  225, - 45);
+    test_translate_angle(- 135,  225,    0);
+    test_translate_angle(-  90,  225,   45);
+    test_translate_angle(-  45,  225,   90);
+    test_translate_angle(    0,  225,  135);
+    test_translate_angle(   44,  225,  179);
+    test_translate_angle(   45,  225, -180);
+    test_translate_angle(   90,  225, -135);
+    test_translate_angle(  135,  225, - 90);
+    test_translate_angle(  180,  225, - 45);
+    test_translate_angle(  225,  225,    0);
+    test_translate_angle(  270,  225,   45);
+    test_translate_angle(  315,  225,   90);
+    test_translate_angle(  360,  225,  135);
+    test_translate_angle(  405,  225,  180);
+    test_translate_angle(  406,  225, -179);
+    test_translate_angle(  450,  225, -135);
+    test_translate_angle(  495,  225, - 90);
+    test_translate_angle(  540,  225, - 45);
+    test_translate_angle(  585,  225,    0);
+    test_translate_angle(  630,  225,   45);
+
+    // [270]
+    test_translate_angle(- 135,  270, - 45);
+    test_translate_angle(-  90,  270,    0);
+    test_translate_angle(-  45,  270,   45);
+    test_translate_angle(    0,  270,   90);
+    test_translate_angle(   45,  270,  135);
+    test_translate_angle(   89,  270,  179);
+    test_translate_angle(   90,  270, -180);
+    test_translate_angle(  135,  270, -135);
+    test_translate_angle(  180,  270, - 90);
+    test_translate_angle(  225,  270, - 45);
+    test_translate_angle(  270,  270,    0);
+    test_translate_angle(  315,  270,   45);
+    test_translate_angle(  360,  270,   90);
+    test_translate_angle(  405,  270,  135);
+    test_translate_angle(  450,  270,  180);
+    test_translate_angle(  451,  270, -179);
+    test_translate_angle(  495,  270, -135);
+    test_translate_angle(  540,  270, - 90);
+    test_translate_angle(  585,  270, - 45);
+    test_translate_angle(  630,  270,    0);
+    test_translate_angle(  675,  270,   45);
+
+    // [315]
+    test_translate_angle(-  90,  315, - 45);
+    test_translate_angle(-  45,  315,    0);
+    test_translate_angle(    0,  315,   45);
+    test_translate_angle(   45,  315,   90);
+    test_translate_angle(   90,  315,  135);
+    test_translate_angle(  134,  315,  179);
+    test_translate_angle(  135,  315, -180);
+    test_translate_angle(  180,  315, -135);
+    test_translate_angle(  225,  315, - 90);
+    test_translate_angle(  270,  315, - 45);
+    test_translate_angle(  315,  315,    0);
+    test_translate_angle(  360,  315,   45);
+    test_translate_angle(  405,  315,   90);
+    test_translate_angle(  450,  315,  135);
+    test_translate_angle(  495,  315,  180);
+    test_translate_angle(  496,  315, -179);
+    test_translate_angle(  540,  315, -135);
+    test_translate_angle(  585,  315, - 90);
+    test_translate_angle(  630,  315, - 45);
+    test_translate_angle(  675,  315,    0);
+    test_translate_angle(  720,  315,   45);
+
+    // [360]
+    test_translate_angle(-  45,  360, - 45);
+    test_translate_angle(    0,  360,    0);
+    test_translate_angle(   45,  360,   45);
+    test_translate_angle(   90,  360,   90);
+    test_translate_angle(  135,  360,  135);
+    test_translate_angle(  179,  360,  179);
+    test_translate_angle(  180,  360, -180);
+    test_translate_angle(  225,  360, -135);
+    test_translate_angle(  270,  360, - 90);
+    test_translate_angle(  315,  360, - 45);
+    test_translate_angle(  360,  360,    0);
+    test_translate_angle(  405,  360,   45);
+    test_translate_angle(  450,  360,   90);
+    test_translate_angle(  495,  360,  135);
+    test_translate_angle(  540,  360,  180);
+    test_translate_angle(  541,  360, -179);
+    test_translate_angle(  585,  360, -135);
+    test_translate_angle(  630,  360, - 90);
+    test_translate_angle(  675,  360, - 45);
+    test_translate_angle(  720,  360,    0);
+    test_translate_angle(  765,  360,   45);
+
+    // [405]
+    test_translate_angle(    0,  405, - 45);
+    test_translate_angle(   45,  405,    0);
+    test_translate_angle(   90,  405,   45);
+    test_translate_angle(  135,  405,   90);
+    test_translate_angle(  180,  405,  135);
+    test_translate_angle(  224,  405,  179);
+    test_translate_angle(  225,  405, -180);
+    test_translate_angle(  270,  405, -135);
+    test_translate_angle(  315,  405, - 90);
+    test_translate_angle(  360,  405, - 45);
+    test_translate_angle(  405,  405,    0);
+    test_translate_angle(  450,  405,   45);
+    test_translate_angle(  495,  405,   90);
+    test_translate_angle(  540,  405,  135);
+    test_translate_angle(  585,  405,  180);
+    test_translate_angle(  586,  405, -179);
+    test_translate_angle(  630,  405, -135);
+    test_translate_angle(  675,  405, - 90);
+    test_translate_angle(  720,  405, - 45);
+    test_translate_angle(  765,  405,    0);
+    test_translate_angle(  810,  405,   45);
+
+    // [450]
+    test_translate_angle(   45,  450, - 45);
+    test_translate_angle(   90,  450,    0);
+    test_translate_angle(  135,  450,   45);
+    test_translate_angle(  180,  450,   90);
+    test_translate_angle(  225,  450,  135);
+    test_translate_angle(  269,  450,  179);
+    test_translate_angle(  270,  450, -180);
+    test_translate_angle(  315,  450, -135);
+    test_translate_angle(  360,  450, - 90);
+    test_translate_angle(  405,  450, - 45);
+    test_translate_angle(  450,  450,    0);
+    test_translate_angle(  495,  450,   45);
+    test_translate_angle(  540,  450,   90);
+    test_translate_angle(  585,  450,  135);
+    test_translate_angle(  630,  450,  180);
+    test_translate_angle(  631,  450, -179);
+    test_translate_angle(  675,  450, -135);
+    test_translate_angle(  720,  450, - 90);
+    test_translate_angle(  765,  450, - 45);
+    test_translate_angle(  810,  450,    0);
+    test_translate_angle(  855,  450,   45);
+
+    // [495]
+    test_translate_angle(   90,  495, - 45);
+    test_translate_angle(  135,  495,    0);
+    test_translate_angle(  180,  495,   45);
+    test_translate_angle(  225,  495,   90);
+    test_translate_angle(  270,  495,  135);
+    test_translate_angle(  314,  495,  179);
+    test_translate_angle(  315,  495, -180);
+    test_translate_angle(  360,  495, -135);
+    test_translate_angle(  405,  495, - 90);
+    test_translate_angle(  450,  495, - 45);
+    test_translate_angle(  495,  495,    0);
+    test_translate_angle(  540,  495,   45);
+    test_translate_angle(  585,  495,   90);
+    test_translate_angle(  630,  495,  135);
+    test_translate_angle(  675,  495,  180);
+    test_translate_angle(  676,  495, -179);
+    test_translate_angle(  720,  495, -135);
+    test_translate_angle(  765,  495, - 90);
+    test_translate_angle(  810,  495, - 45);
+    test_translate_angle(  855,  495,    0);
+    test_translate_angle(  900,  495,   45);
+
+    // [540]
+    test_translate_angle(  135,  540, - 45);
+    test_translate_angle(  180,  540,    0);
+    test_translate_angle(  225,  540,   45);
+    test_translate_angle(  270,  540,   90);
+    test_translate_angle(  315,  540,  135);
+    test_translate_angle(  359,  540,  179);
+    test_translate_angle(  360,  540, -180);
+    test_translate_angle(  405,  540, -135);
+    test_translate_angle(  450,  540, - 90);
+    test_translate_angle(  495,  540, - 45);
+    test_translate_angle(  540,  540,    0);
+    test_translate_angle(  585,  540,   45);
+    test_translate_angle(  630,  540,   90);
+    test_translate_angle(  675,  540,  135);
+    test_translate_angle(  720,  540,  180);
+    test_translate_angle(  721,  540, -179);
+    test_translate_angle(  765,  540, -135);
+    test_translate_angle(  810,  540, - 90);
+    test_translate_angle(  855,  540, - 45);
+    test_translate_angle(  900,  540,    0);
+    test_translate_angle(  945,  540,   45);
+
+    // [585]
+    test_translate_angle(  180,  585, - 45);
+    test_translate_angle(  225,  585,    0);
+    test_translate_angle(  270,  585,   45);
+    test_translate_angle(  315,  585,   90);
+    test_translate_angle(  360,  585,  135);
+    test_translate_angle(  404,  585,  179);
+    test_translate_angle(  405,  585, -180);
+    test_translate_angle(  450,  585, -135);
+    test_translate_angle(  495,  585, - 90);
+    test_translate_angle(  540,  585, - 45);
+    test_translate_angle(  585,  585,    0);
+    test_translate_angle(  630,  585,   45);
+    test_translate_angle(  675,  585,   90);
+    test_translate_angle(  720,  585,  135);
+    test_translate_angle(  765,  585,  180);
+    test_translate_angle(  766,  585, -179);
+    test_translate_angle(  810,  585, -135);
+    test_translate_angle(  855,  585, - 90);
+    test_translate_angle(  900,  585, - 45);
+    test_translate_angle(  945,  585,    0);
+    test_translate_angle(  990,  585,   45);
+
+    // [630]
+    test_translate_angle(  225,  630, - 45);
+    test_translate_angle(  270,  630,    0);
+    test_translate_angle(  315,  630,   45);
+    test_translate_angle(  360,  630,   90);
+    test_translate_angle(  405,  630,  135);
+    test_translate_angle(  449,  630,  179);
+    test_translate_angle(  450,  630, -180);
+    test_translate_angle(  495,  630, -135);
+    test_translate_angle(  540,  630, - 90);
+    test_translate_angle(  585,  630, - 45);
+    test_translate_angle(  630,  630,    0);
+    test_translate_angle(  675,  630,   45);
+    test_translate_angle(  720,  630,   90);
+    test_translate_angle(  765,  630,  135);
+    test_translate_angle(  810,  630,  180);
+    test_translate_angle(  811,  630, -179);
+    test_translate_angle(  855,  630, -135);
+    test_translate_angle(  900,  630, - 90);
+    test_translate_angle(  945,  630, - 45);
+    test_translate_angle(  990,  630,    0);
+    test_translate_angle( 1035,  630,   45);
+}
+
 //// math::normalize_angle_to_range
 
 void test_normalize_angle_to_range(double start_angle_deg, double end_angle_deg, double angle_deg, double eta_angle_deg)
@@ -2376,6 +3060,32 @@ TEST(FunctionsTest, normalize_angle_to_range)
     test_normalize_angle_to_range(-270, -450,  360,    0);
 
     test_normalize_angle_to_range(-270, -450,  361, -359);
+}
+
+//// fmod vs math::normalize_angle
+
+void test_fmod_vs_normalize_angle(bool in_radians, size_t num)
+{
+    const double min_angle = -DEG_360_IN_RAD_IF(in_radians) * num;
+    const double max_angle = DEG_360_IN_RAD_IF(in_radians) * num;
+    const double inc_angle = DEG_360_IN_RAD_IF(in_radians) / DEG_720_IN_RAD_IF(in_radians);
+
+    for (double angle = min_angle; angle <= max_angle; angle += inc_angle) {
+        const double fmod_angle = fmod(angle, DEG_360_IN_RAD_IF(in_radians));
+        const double norm_angle = math::normalize_angle(angle,
+            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0, true);
+        ASSERT_EQ(fmod_angle, norm_angle);
+    }
+}
+
+TEST(FunctionsTest, fmod_vs_normalize_angle_rads)
+{
+    test_fmod_vs_normalize_angle(true, 1000);
+}
+
+TEST(FunctionsTest, fmod_vs_normalize_angle_degrees)
+{
+    test_fmod_vs_normalize_angle(false, 1000);
 }
 
 //// get_leap_days

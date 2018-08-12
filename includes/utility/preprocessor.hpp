@@ -68,8 +68,8 @@
 
 #define UTILITY_PP_LINE_TERMINATOR
 
-#define if_break(x) if(!(x)); else switch(0) case 0: default:
-#define if_break2(label, x) if(!(x)) label:; else switch(0) case 0: default:
+#define if_break(x) switch(0) case 0: default: if(x)
+#define if_break2(label, x) switch(0) case 0: default: if(false) label:; else if(x)
 
 #define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { using type = type_; }
 

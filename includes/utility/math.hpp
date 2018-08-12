@@ -833,18 +833,24 @@ namespace math
     }
 
 
-    // inclusion_direction:
+    // inclusion_direction if exclude_all=false:
     //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
     //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
     //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
+    //
+    // exclude_all (inclusion_direction must be set to 0):
+    //   true - minimal and maximal both excluded (ex: (0 - +180) or (-90 - +90))
+    //
     template <typename T>
-    extern inline T normalize_angle(const T & ang, const T & min_ang, const T & max_ang, const T & ang_period_mod, int inclusion_direction)
+    extern inline T normalize_angle(const T & ang, const T & min_ang, const T & max_ang, const T & ang_period_mod, int inclusion_direction, bool exclude_all = false)
     {
         DEBUG_ASSERT_LT(min_ang, max_ang);
         DEBUG_ASSERT_GT(ang_period_mod, 0U); // must be always positive
 
         DEBUG_ASSERT_GE(min_ang, -ang_period_mod);
         DEBUG_ASSERT_GE(ang_period_mod, max_ang);
+
+        DEBUG_ASSERT_TRUE(!exclude_all || inclusion_direction == 0); // inclusion_direction must be 0, just in case
 
         if (!BASIC_VERIFY_TRUE(inclusion_direction >= -1 && +1 >= inclusion_direction)) {
             // just in case
@@ -853,21 +859,48 @@ namespace math
 
         T ang_norm = ang;
 
-        switch (inclusion_direction) {
-        case -1:
-            if (ang >= min_ang && max_ang > ang) {
-                return ang;
-            }
+        if_break(!exclude_all) {
+            switch (inclusion_direction) {
+            case -1:
+                if (ang >= min_ang && max_ang > ang) {
+                    return ang;
+                }
 
-            ang_norm = ang;
+                ang_norm = ang;
 
-            if (ang >= 0) {
-                if (ang < ang_period_mod) {
-                    const T ang_neg = ang - ang_period_mod;
-                    if (ang_neg >= min_ang && max_ang > ang_neg) {
-                        return ang_neg;
+                if (ang >= 0) {
+                    if (ang < ang_period_mod) {
+                        const T ang_neg = ang - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang > ang_neg) {
+                            return ang_neg;
+                        }
+                        break;
                     }
-                    break;
+                    else {
+                        ang_norm = fmod(ang, ang_period_mod);
+                        if (ang_norm >= min_ang && max_ang > ang_norm) {
+                            return ang_norm;
+                        }
+                        else {
+                            const T ang_neg = ang_norm - ang_period_mod;
+                            if (ang_neg >= min_ang && max_ang > ang_neg) {
+                                return ang_neg;
+                            }
+                        }
+                    }
+                }
+                else if (-ang < ang_period_mod) {
+                    const T ang_pos = ang + ang_period_mod;
+                    if (ang_pos >= min_ang && max_ang > ang_pos) {
+                        return ang_pos;
+                    }
+                    // additional test in direction of inclusion
+                    else {
+                        const T ang_neg = ang - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang > ang_neg) {
+                            return ang_neg;
+                        }
+                    }
                 }
                 else {
                     ang_norm = fmod(ang, ang_period_mod);
@@ -875,61 +908,54 @@ namespace math
                         return ang_norm;
                     }
                     else {
-                        const T ang_neg = ang_norm - ang_period_mod;
-                        if (ang_neg >= min_ang && max_ang > ang_neg) {
-                            return ang_neg;
+                        const T ang_pos = ang_norm + ang_period_mod;
+                        if (ang_pos >= min_ang && max_ang > ang_pos) {
+                            return ang_pos;
+                        }
+                        // additional test in direction of inclusion
+                        else {
+                            const T ang_neg = ang_norm - ang_period_mod;
+                            if (ang_neg >= min_ang && max_ang > ang_neg) {
+                                return ang_neg;
+                            }
                         }
                     }
                 }
-            }
-            else if (-ang < ang_period_mod) {
-                const T ang_pos = ang + ang_period_mod;
-                if (ang_pos >= min_ang && max_ang > ang_pos) {
-                    return ang_pos;
+                break;
+
+            case 0:
+                if (ang >= min_ang && max_ang >= ang) {
+                    return ang;
                 }
-                // additional test in direction of inclusion
-                else {
-                    const T ang_neg = ang - ang_period_mod;
-                    if (ang_neg >= min_ang && max_ang > ang_neg) {
-                        return ang_neg;
+
+                ang_norm = ang;
+
+                if (ang >= 0) {
+                    if (ang < ang_period_mod) {
+                        const T ang_neg = ang - ang_period_mod;
+                        if (ang_neg >= min_ang && max_ang >= ang_neg) {
+                            return ang_neg;
+                        }
+                        break;
+                    }
+                    else {
+                        ang_norm = fmod(ang, ang_period_mod);
+                        if (ang_norm >= min_ang && max_ang >= ang_norm) {
+                            return ang_norm;
+                        }
+                        else {
+                            const T ang_neg = ang_norm - ang_period_mod;
+                            if (ang_neg >= min_ang && max_ang >= ang_neg) {
+                                return ang_neg;
+                            }
+                        }
                     }
                 }
-            }
-            else {
-                ang_norm = fmod(ang, ang_period_mod);
-                if (ang_norm >= min_ang && max_ang > ang_norm) {
-                    return ang_norm;
-                }
-                else {
-                    const T ang_pos = ang_norm + ang_period_mod;
-                    if (ang_pos >= min_ang && max_ang > ang_pos) {
+                else if (-ang < ang_period_mod) {
+                    const T ang_pos = ang + ang_period_mod;
+                    if (ang_pos >= min_ang && max_ang >= ang_pos) {
                         return ang_pos;
                     }
-                    // additional test in direction of inclusion
-                    else {
-                        const T ang_neg = ang_norm - ang_period_mod;
-                        if (ang_neg >= min_ang && max_ang > ang_neg) {
-                            return ang_neg;
-                        }
-                    }
-                }
-            }
-            break;
-
-        case 0:
-            if (ang >= min_ang && max_ang >= ang) {
-                return ang;
-            }
-
-            ang_norm = ang;
-
-            if (ang >= 0) {
-                if (ang < ang_period_mod) {
-                    const T ang_neg = ang - ang_period_mod;
-                    if (ang_neg >= min_ang && max_ang >= ang_neg) {
-                        return ang_neg;
-                    }
-                    break;
                 }
                 else {
                     ang_norm = fmod(ang, ang_period_mod);
@@ -937,35 +963,82 @@ namespace math
                         return ang_norm;
                     }
                     else {
-                        const T ang_neg = ang_norm - ang_period_mod;
-                        if (ang_neg >= min_ang && max_ang >= ang_neg) {
-                            return ang_neg;
+                        const T ang_pos = ang_norm + ang_period_mod;
+                        if (ang_pos >= min_ang && max_ang >= ang_pos) {
+                            return ang_pos;
                         }
                     }
                 }
-            }
-            else if (-ang < ang_period_mod) {
-                const T ang_pos = ang + ang_period_mod;
-                if (ang_pos >= min_ang && max_ang >= ang_pos) {
-                    return ang_pos;
+                break;
+
+            case +1:
+                if (ang > min_ang && max_ang >= ang) {
+                    return ang;
                 }
-            }
-            else {
-                ang_norm = fmod(ang, ang_period_mod);
-                if (ang_norm >= min_ang && max_ang >= ang_norm) {
-                    return ang_norm;
+
+                ang_norm = ang;
+
+                if (ang >= 0) {
+                    if (ang < ang_period_mod) {
+                        const T ang_neg = ang - ang_period_mod;
+                        if (ang_neg > min_ang && max_ang >= ang_neg) {
+                            return ang_neg;
+                        }
+                        // additional test in direction of inclusion
+                        else {
+                            const T ang_pos = ang + ang_period_mod;
+                            if (ang_pos > min_ang && max_ang >= ang_pos) {
+                                return ang_pos;
+                            }
+                        }
+                        break;
+                    }
+                    else {
+                        ang_norm = fmod(ang, ang_period_mod);
+                        if (ang_norm > min_ang && max_ang >= ang_norm) {
+                            return ang_norm;
+                        }
+                        else {
+                            const T ang_neg = ang_norm - ang_period_mod;
+                            if (ang_neg > min_ang && max_ang >= ang_neg) {
+                                return ang_neg;
+                            }
+                            // additional test in direction of inclusion
+                            else {
+                                const T ang_pos = ang_norm + ang_period_mod;
+                                if (ang_pos > min_ang && max_ang >= ang_pos) {
+                                    return ang_pos;
+                                }
+                            }
+                        }
+                    }
                 }
-                else {
-                    const T ang_pos = ang_norm + ang_period_mod;
-                    if (ang_pos >= min_ang && max_ang >= ang_pos) {
+                else if (-ang < ang_period_mod) {
+                    const T ang_pos = ang + ang_period_mod;
+                    if (ang_pos > min_ang && max_ang >= ang_pos) {
                         return ang_pos;
                     }
                 }
-            }
-            break;
+                else {
+                    ang_norm = fmod(ang, ang_period_mod);
+                    if (ang_norm > min_ang && max_ang >= ang_norm) {
+                        return ang_norm;
+                    }
+                    else {
+                        const T ang_pos = ang_norm + ang_period_mod;
+                        if (ang_pos > min_ang && max_ang >= ang_pos) {
+                            return ang_pos;
+                        }
+                    }
+                }
+                break;
 
-        case +1:
-            if (ang > min_ang && max_ang >= ang) {
+            default:
+                DEBUG_ASSERT_TRUE(false);
+            }
+        }
+        else {
+            if (ang > min_ang && max_ang > ang) {
                 return ang;
             }
 
@@ -974,60 +1047,42 @@ namespace math
             if (ang >= 0) {
                 if (ang < ang_period_mod) {
                     const T ang_neg = ang - ang_period_mod;
-                    if (ang_neg > min_ang && max_ang >= ang_neg) {
+                    if (ang_neg > min_ang && max_ang > ang_neg) {
                         return ang_neg;
-                    }
-                    // additional test in direction of inclusion
-                    else {
-                        const T ang_pos = ang + ang_period_mod;
-                        if (ang_pos > min_ang && max_ang >= ang_pos) {
-                            return ang_pos;
-                        }
                     }
                     break;
                 }
                 else {
                     ang_norm = fmod(ang, ang_period_mod);
-                    if (ang_norm > min_ang && max_ang >= ang_norm) {
+                    if (ang_norm > min_ang && max_ang > ang_norm) {
                         return ang_norm;
                     }
                     else {
                         const T ang_neg = ang_norm - ang_period_mod;
-                        if (ang_neg > min_ang && max_ang >= ang_neg) {
+                        if (ang_neg > min_ang && max_ang > ang_neg) {
                             return ang_neg;
-                        }
-                        // additional test in direction of inclusion
-                        else {
-                            const T ang_pos = ang_norm + ang_period_mod;
-                            if (ang_pos > min_ang && max_ang >= ang_pos) {
-                                return ang_pos;
-                            }
                         }
                     }
                 }
             }
             else if (-ang < ang_period_mod) {
                 const T ang_pos = ang + ang_period_mod;
-                if (ang_pos > min_ang && max_ang >= ang_pos) {
+                if (ang_pos > min_ang && max_ang > ang_pos) {
                     return ang_pos;
                 }
             }
             else {
                 ang_norm = fmod(ang, ang_period_mod);
-                if (ang_norm > min_ang && max_ang >= ang_norm) {
+                if (ang_norm > min_ang && max_ang > ang_norm) {
                     return ang_norm;
                 }
                 else {
                     const T ang_pos = ang_norm + ang_period_mod;
-                    if (ang_pos > min_ang && max_ang >= ang_pos) {
+                    if (ang_pos > min_ang && max_ang > ang_pos) {
                         return ang_pos;
                     }
                 }
             }
-            break;
-
-        default:
-            DEBUG_ASSERT_TRUE(false);
         }
 
         return ang_norm;
@@ -1142,27 +1197,57 @@ namespace math
         return (angle_distance_360 >= 0) ? angle_distance_360 - DEG_360_IN_RAD_IF(in_radians) : DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
     }
 
-    // Normalize the angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
+    // Translates (convertes) angle to a symmetric range [(-180..+180)] with 0 in a base angle.
+    //
+    // inclusion_direction if exclude_all=false:
+    //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
+    //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
+    //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
+    //
+    // exclude_all (inclusion_direction must be set to 0):
+    //   true - minimal and maximal both excluded (ex: (0 - +180) or (-90 - +90))
+    //
+    template <typename T>
+    extern inline T translate_angle(const T & angle, const T & base_angle, bool in_radians, int inclusion_direction, bool exclude_all = false)
+    {
+        return math::normalize_angle(angle - base_angle,
+            -DEG_180_IN_RAD_IF(in_radians), +DEG_180_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), inclusion_direction, exclude_all);
+    }
+
+    // Normalizes angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
     // Additionally the monotonical change should exists on the greater range with the discontinuity in the angle opposite to the middle angle.
+    //
+    // start_angle=[-360..+360] mid_angle=[-360..+360] angle_distance=[-inf..+inf] angle=[-inf..+inf]
     //
     template <typename T>
     extern inline T normalize_angle_to_range(const T & start_angle, const T & mid_angle, const T & angle_distance, const T & angle, bool in_radians)
     {
-        // all input must be already self normalized
-    #ifndef UNIT_TESTS
+        // all input must be already normalized and consistent
+#if DEBUG_ASSERT_VERIFY_ENABLED
         DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
         DEBUG_ASSERT_TRUE(mid_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle);
-        DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
-    #endif
-        DEBUG_ASSERT_GE(DEG_360_IN_RAD_IF(in_radians), fabs(angle_distance));
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), fabs(mid_angle - start_angle));
+        if (angle_distance > 0) {
+            DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
+        }
+        else if (angle_distance < 0) {
+            DEBUG_ASSERT_TRUE(start_angle > mid_angle && mid_angle > start_angle + angle_distance);
+        }
+        else {
+            DEBUG_ASSERT_TRUE(start_angle == mid_angle && mid_angle == start_angle + angle_distance);
+        }
+#endif
 
         const T angle_norm = math::normalize_angle(angle,
-            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0); // just in case
-        const T end_angle_norm = start_angle + angle_distance;
+            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+        const T angle_distance_norm = math::normalize_angle(angle_distance,
+            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+
+        const T end_angle_norm = start_angle + angle_distance_norm;
         T prev_angle_tmp;
         T angle_tmp = angle_norm;
 
-        if (angle_distance >= 0) {
+        if (angle_distance_norm >= 0) {
             if (end_angle_norm < angle_tmp) {
                 do {
                     prev_angle_tmp = angle_tmp;
@@ -1285,7 +1370,7 @@ namespace math
         return -floor(-value);
     }
 
-    // changes exponent of one of the floats to compensate unsansible addition/subtraction
+    // changes exponent of one of the floats to compensate unsensible addition/subtraction
     template <typename T>
     extern inline int reduce_float_exp_delta(const T & from, T & to_fix, int min_sensible_exp_delta = 1)
     {

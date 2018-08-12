@@ -38,6 +38,8 @@ includes/tackle/aligned_storage_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
 includes/tackle/compressed_pair.hpp -text
 includes/tackle/deque.hpp -text
+includes/tackle/geometry/geometry.hpp -text
+includes/tackle/geometry/vector.hpp -text
 includes/tackle/path_string.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
@@ -70,6 +72,8 @@ src/tacklelib.hpp -text
 src/tacklelib_private.hpp -text
 src/testlib/testlib.cpp -text
 src/testlib/testlib.hpp -text
+src/tests/bench/pch.cpp -text
+src/tests/bench/test_funcs_duration.cpp -text
 src/tests/test_common.hpp -text
 src/tests/test_main.cpp -text
 src/tests/test_main.hpp -text
