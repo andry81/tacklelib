@@ -1,3 +1,15 @@
+2018.08.12:
+* new: vector geometry generics and functions
+
+2018.08.10:
+* new: math::translate_angle function
+* new: unit tests for math::translate_angle function
+* refactor: minor refactor over math::normalize_angle_to_range function
+
+2018.08.10:
+* new: unit/bench tests "fmod vs math::normalize_angle"
+* refactor: math::normalize_angle_to_range function
+
 2018.08.09:
 * fixed: linux build
 

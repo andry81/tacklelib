@@ -33,6 +33,8 @@ DECLARE_TEST_CASES
 #endif
 
 #ifdef BENCH_TESTS
+    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, "", "", 0)
+
 // examples here...
 //
 //    DECLARE_TEST_CASE_CLASS(TestParseFromRefFile, test_duration, parse_from_ref_file, "_common", nullptr,
