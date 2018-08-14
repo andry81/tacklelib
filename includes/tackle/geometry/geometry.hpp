@@ -63,7 +63,7 @@ namespace geometry {
         return sqrt_len;
     }
 
-    inline real vector_normalize(Normal3d & vec_out, const Vector3d & vec_to_normalize, real vec_to_normalize_len)
+    inline real vector_normalize(Normal3d & vec_out, const Vector3d & vec_to_normalize, const real & vec_to_normalize_len)
     {
         DEBUG_ASSERT_NE(vec_to_normalize_len, 0);
 
@@ -117,7 +117,7 @@ namespace geometry {
         };
     }
 
-    inline bool vector_is_equal(const Vector3d & l, const Vector3d & r, real vec_square_epsilon)
+    inline bool vector_is_equal(const Vector3d & l, const Vector3d & r, const real & vec_square_epsilon)
     {
         const real vec_square_len = vector_square_length(r - l);
         return vec_square_epsilon >= vec_square_len;
@@ -171,7 +171,7 @@ namespace geometry {
     // See for details: https://stackoverflow.com/questions/42421611/3d-vector-rotation-in-c
     //
     // CAUTION:
-    //  `vec_to_rotate` must be not codirectional with `around_norm`
+    //  `vec_to_rotate` must be not parallel with `around_norm`
     //
     inline void vector_rotate(Vector3d & vec_out, const Vector3d & vec_to_rotate, const real & vec_to_rotate_len, const Normal3d & around_norm,
         const real & angle_rad, const real & around_norm_unit_epsilon, const real & vec_to_rotate_epsilon)

@@ -1376,6 +1376,11 @@ namespace math
     {
         DEBUG_ASSERT_GT(std::abs(from), std::abs(to_fix)); // fix value must be always lower by absolute value!
 
+        // should not be zero
+        if (from == 0 || to_fix == 0) {
+            return 0;
+        }
+
         int from_exp;
         int to_exp;
 

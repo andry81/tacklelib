@@ -1,3 +1,6 @@
+2018.08.13:
+* fixed: minor math::reduce_float_exp_delta fix
+
 2018.08.12:
 * new: vector geometry generics and functions
 
