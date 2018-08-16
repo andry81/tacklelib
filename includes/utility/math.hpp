@@ -1223,10 +1223,10 @@ namespace math
     extern inline T normalize_angle_to_range(const T & start_angle, const T & mid_angle, const T & angle_distance, const T & angle, bool in_radians)
     {
         // all input must be already normalized and consistent
-#if DEBUG_ASSERT_VERIFY_ENABLED
         DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
-        DEBUG_ASSERT_TRUE(mid_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle);
+        DEBUG_ASSERT_TRUE(mid_angle - start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle - start_angle);
         DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), fabs(mid_angle - start_angle));
+#if DEBUG_ASSERT_VERIFY_ENABLED
         if (angle_distance > 0) {
             DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
         }

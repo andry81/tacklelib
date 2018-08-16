@@ -3,6 +3,7 @@
 // DO NOT REMOVE, exists to avoid private/public headers mixing!
 #ifndef UTILITY_ASSERT_HPP
 #define UTILITY_ASSERT_HPP
+#define UTILITY_ASSERT_PUBLIC_HPP
 
 #include <tacklelib.hpp>
 
@@ -23,7 +24,6 @@
 #if defined(UNIT_TESTS) || defined(BENCH_TESTS)
 #pragma message(UTILITY_PP_FILE "(" UTILITY_PP_LINE_STR "): warning: public header \"assert.hpp\" has been included under tests environment, this might indicate invalid header's inclusion search order!")
 #endif
-
 
 // heap corruption simple check
 #if ERROR_IF_EMPTY_PP_DEF(USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT)

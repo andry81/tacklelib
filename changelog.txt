@@ -1,3 +1,7 @@
+2018.08.16:
+* refactor: tackle aligned storage headers to detach different classes from each other and avoid inclusion of invalid headers
+* fixed: minor fixup
+
 2018.08.13:
 * fixed: minor math::reduce_float_exp_delta fix
 
