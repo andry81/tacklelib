@@ -1,8 +1,9 @@
 #pragma once
 
 // DO NOT REMOVE, exists to avoid private/public headers mixing!
-#ifndef TACKLE_ALIGNED_STORAGE_DECL_HPP
-#define TACKLE_ALIGNED_STORAGE_DECL_HPP
+#ifndef TACKLE_ALIGNED_STORAGE_BY_DECL_HPP
+#define TACKLE_ALIGNED_STORAGE_BY_DECL_HPP
+#define TACKLE_ALIGNED_STORAGE_BY_PUBLIC_DECL_HPP
 
 #include <tacklelib.hpp>
 
@@ -12,7 +13,7 @@
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
 
-#include <tackle/aligned_storage_base.hpp>
+#include <tackle/aligned_storage/aligned_storage_base.hpp>
 
 #include <type_traits>
 

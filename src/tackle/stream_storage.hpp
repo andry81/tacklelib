@@ -9,7 +9,7 @@
 #include <utility/math.hpp>
 #include <utility/algorithm.hpp>
 
-#include <tackle/aligned_storage.hpp>
+#include <tackle/aligned_storage/max_aligned_storage.hpp>
 #include <tackle/deque.hpp>
 
 #include <boost/mpl/vector.hpp>
