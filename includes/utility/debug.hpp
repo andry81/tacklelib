@@ -17,6 +17,8 @@
 #include <signal.h>
 #endif
 
+#include <string>
+
 
 #define UTILITY_UNUSED(suffix, exp)                 UTILITY_UNUSED_ ## suffix(exp)
 
@@ -70,10 +72,45 @@
 
 #define DEBUG_BREAK_IN_DEBUGGER(cond) DEBUG_BREAK((cond) && ::utility::is_under_debugger())
 
+#define DEBUG_FUNC_LINE_A                   ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
+#define DEBUG_FUNC_LINE_MAKE_A()            ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)  ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+
 
 namespace utility
 {
     extern const volatile void * volatile g_unused_param_storage_ptr;
+
+    struct DebugFuncLineA
+    {
+        std::string     func;
+        int             line;
+    };
+
+    template <typename T>
+    class inline_stack
+    {
+    public:
+        inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
+            next_ptr(next_ptr_), top(top_)
+        {
+        }
+
+        static inline_stack make(const T & top)
+        {
+            return inline_stack{ top };
+        }
+
+        static inline_stack make_push(const inline_stack & next_stack, const T & top)
+        {
+            return inline_stack{ top, &next_stack };
+        }
+
+        const inline_stack *    next_ptr;
+        T                       top;
+    };
+
+    using DebugFuncLineInlineStackA = inline_stack<DebugFuncLineA>;
 
     // empty instruction for breakpoint placeholder
     FORCE_INLINE_ALWAYS void unused()

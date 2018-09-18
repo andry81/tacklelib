@@ -2,7 +2,13 @@
 
 #include "testlib.hpp"
 
+#if defined(UTILITY_PLATFORM_WINDOWS)
+#include <windows.h>
+#endif
+
 #include <boost/format.hpp>
+
+#include <cstdarg>
 
 
 #define TEST_IMPL_DEFINE_ENV_VAR(class_name, var_name) \
@@ -80,6 +86,55 @@ bool TestCaseStaticBase::s_enable_combinator_tests = false;
 
 namespace test
 {
+    namespace
+    {
+        inline const char * _get_test_case_msg_prefix_str(size_t index)
+        {
+            static const char * test_case_msg_prefix_str[] = {
+                "[     SKIP ] ", "[    DEBUG ] ", "[  CAUTION ] ", "[  WARNING ] ", "[     INFO ] "
+            };
+
+            return test_case_msg_prefix_str[index];
+        }
+
+        inline const char * _get_global_init_msg_prefix_str(size_t index)
+        {
+            static const char * global_init_msg_prefix_str[] = {
+                "skip: ", "debug: ", "caution: ", "warning: ", "info: "
+            };
+
+            return global_init_msg_prefix_str[index];
+        }
+
+        inline WORD _get_log_out_console_attrs(size_t index)
+        {
+            static const WORD console_attrs[] = { \
+                FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN, \
+                FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE, \
+                FOREGROUND_INTENSITY | FOREGROUND_RED, \
+                FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN, \
+                FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE \
+            };
+
+            return console_attrs[index];
+        }
+
+#ifdef UTILITY_PLATFORM_POSIX
+        inline const char * _get_console_color_ansi_sequence(size_t index)
+        {
+            static const char * console_color_ansi_sequence[] = {
+                "\033[1;33m",
+                "\033[1;35m",
+                "\033[1;31m",
+                "\033[1;33m",
+                "\033[1;36m",
+            }; \
+
+            return console_color_ansi_sequence[index];
+        }
+#endif
+    }
+
     void global_preinit(std::string & gtest_exclude_filter)
     {
         TEST_BASE_INIT_ENV_VAR(TestCaseStaticBase, TESTS_DATA_IN_ROOT);
@@ -318,6 +373,56 @@ namespace test
     void interrupt_test()
     {
         TEST_LOG_OUT(SKIP, "User interrupted.");
+    }
+
+    void log_out(int lvl, const char * fmt, ...)
+    {
+        va_list vl;
+        va_start(vl, fmt);
+
+        size_t lvl_offset = (lvl) & PREFIX_OFFSET_MASK;
+        if (lvl_offset < MIN_LVL || lvl_offset > MAX_LVL) lvl_offset = MIN_LVL;
+        lvl_offset -= MIN_LVL;
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo;
+        GetConsoleScreenBufferInfo(hConsole, &ConsoleInfo);
+        SetConsoleTextAttribute(hConsole, _get_log_out_console_attrs(lvl_offset));
+
+        const bool is_global_init = !(lvl & FROM_GLOBAL_INIT);
+        if (is_global_init) {
+            fprintf(stderr, "%s", _get_test_case_msg_prefix_str(lvl_offset));
+        }
+        else {
+            fprintf(stdout, "%s", _get_global_init_msg_prefix_str(lvl_offset));
+        }
+
+        vfprintf(stderr, fmt, vl);
+
+        fputs("\n", stderr);
+
+        SetConsoleTextAttribute(hConsole, ConsoleInfo.wAttributes);
+
+#elif defined(UTILITY_PLATFORM_POSIX)
+
+        const bool is_global_init = !(lvl & FROM_GLOBAL_INIT); \
+        if (is_global_init) {
+            fprintf(stderr, "%s%s", _get_console_color_ansi_sequence(lvl_offset), _get_test_case_msg_prefix_str(lvl_offset));
+        }
+        else {
+            fprintf(stdout, "%s%s", _get_console_color_ansi_sequence(lvl_offset), _get_global_init_msg_prefix_str(lvl_offset));
+        }
+
+        vfprintf(stderr, fmt, vl);
+
+        fputs("\033[0m\n", stderr);
+
+#else
+#error platform is not implemented
+#endif
+
+        va_end(vl);
     }
 }
 

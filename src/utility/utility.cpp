@@ -29,7 +29,7 @@ namespace utility
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
-            constexpr const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
+            CONSTEXPR const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -75,14 +75,14 @@ namespace utility
         _error:;
             throw std::out_of_range(
                 (boost::format("%s : out of buffer write: reserve=%u size=%u buffer=%p") %
-                    UTILITY_PP_FUNC % m_reserve % m_size % buf_ptr).str());
+                    UTILITY_PP_FUNCSIG % m_reserve % m_size % buf_ptr).str());
         }
     }
 
     void Buffer::_fill_buffer_guards()
     {
         if (m_size < m_reserve) {
-            constexpr const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
+            CONSTEXPR const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -176,7 +176,7 @@ namespace utility
             if (size > max_value) {
                 throw std::runtime_error(
                     (boost::format("%s: size is out of memory: size=%llu max=%llu") %
-                        UTILITY_PP_FUNC % size % max_value).str());
+                        UTILITY_PP_FUNCSIG % size % max_value).str());
             }
         }
 

@@ -66,7 +66,7 @@ namespace tackle
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
                 if (!base_t::is_unconstructed_copy_allowed()) {
-                    throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+                    throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
                 }
             }
             else {
@@ -87,11 +87,11 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             if (!r.is_constructed()) {
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             // make assignment
@@ -178,7 +178,7 @@ namespace tackle
         FORCE_INLINE storage_type_t * this_()
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return static_cast<storage_type_t *>(address());
@@ -187,7 +187,7 @@ namespace tackle
         FORCE_INLINE const storage_type_t * this_() const
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<const storage_type_t *>(address());
@@ -196,7 +196,7 @@ namespace tackle
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<volatile storage_type_t *>(address());
@@ -205,7 +205,7 @@ namespace tackle
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<const volatile storage_type_t *>(address());

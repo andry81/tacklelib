@@ -6,10 +6,6 @@
 
 #include <tacklelib_private.hpp>
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
-#include <windows.h>
-#endif
-
 #include <utility/assert_private.hpp>   // must uses private `assert.hpp` implementation!
 
 #include <utility/utility.hpp>
@@ -97,7 +93,7 @@
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
 #define TEST_CASE_GET_ROOT(ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNC, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(*))
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(*))
 
 // Macro builder of a test directory used a builtin ROOT-variable for a root path.
 //  func        - name of gtest case test function or `func_token` parameter.
@@ -112,7 +108,7 @@
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
 #define TEST_CASE_GET_ROOT2(func, ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNC, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(func))
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(func))
 
 // Macro builder of a test directory used a builtin ROOT-variable for a root path.
 //  scope       - name of gtest case scope or `scope_token` parameter.
@@ -128,7 +124,7 @@
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
 #define TEST_CASE_GET_ROOT3(scope, func, ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNC, UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func))
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func))
 
 // Macro builder of a test directory used a builtin DIR-variable for a root path.
 //  ref_name    - name of builtin DIR-variable name to request:
@@ -140,7 +136,7 @@
 //  <DIR-variable>
 //
 #define TEST_CASE_GET_DIR(ref_name) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNC, nullptr, nullptr)
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNCSIG, nullptr, nullptr)
 
 // Macro builder of a test directory used a builtin DIR-variable for a root path.
 //  ref_name    - name of builtin DIR-variable name to request:
@@ -153,7 +149,7 @@
 //  <DIR-variable> + [prefix_dir + "/<ref_name>"]
 //
 #define TEST_CASE_GET_DIR2(ref_name, prefix_dir) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNC, prefix_dir, nullptr)
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNCSIG, prefix_dir, nullptr)
 
 // Macro builder of a test directory used a builtin DIR-variable for a root path.
 //  ref_name    - name of builtin DIR-variable name to request:
@@ -167,7 +163,7 @@
 //  <DIR-variable> + [prefix_dir + "/<ref_name>"] + suffix_dir
 //
 #define TEST_CASE_GET_DIR3(ref_name, prefix_dir, suffix_dir) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNC, prefix_dir, suffix_dir)
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir)(UTILITY_PP_FUNCSIG, prefix_dir, suffix_dir)
 
 // Macro builder of a test directory used a builtin variable for a root path.
 //  ref_name    - name of builtin variable name to request:
@@ -181,7 +177,7 @@
 //  <variable>
 //
 #define TEST_CASE_DIR_PATH(ref_name) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC)
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG)
 
 // Macro builder of a test directory used a builtin variable for a root path.
 //  ref_name    - name of builtin variable name to request:
@@ -196,7 +192,7 @@
 //  <variable> + path1
 //
 #define TEST_CASE_DIR_PATH2(ref_name, path1) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, tackle::path_string(path1))
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, tackle::path_string(path1))
 
 // Macro builder of a test directory used a builtin variable for a root path.
 //  ref_name    - name of builtin variable name to request:
@@ -211,7 +207,7 @@
 //  <variable> + path1 + path2
 //
 #define TEST_CASE_DIR_PATH3(ref_name, path1, path2) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, tackle::path_string(path1) + tackle::path_string(path2))
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, tackle::path_string(path1) + tackle::path_string(path2))
 
 // Macro builder of a test directory used a builtin variable for a root path.
 //  ref_name    - name of builtin variable name to request:
@@ -226,7 +222,7 @@
 //  <variable> + path1 + path2 + path3
 //
 #define TEST_CASE_DIR_PATH4(ref_name, path1, path2, path3) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1) + tackle::path_string(path2) + tackle::path_string(path3))
 
 // Macro builder of a test directory used a builtin variable for a root path.
@@ -242,7 +238,7 @@
 //  <variable> + path1 + path2 + path3 + path4
 //
 #define TEST_CASE_DIR_PATH5(ref_name, path1, path2, path3, path4) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1) + tackle::path_string(path2) + tackle::path_string(path3) + tackle::path_string(path4))
 
 // Macro builder of a test file path used a builtin variable for a root path.
@@ -257,7 +253,7 @@
 //  <variable>
 //
 #define TEST_CASE_FILE_PATH(ref_name) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _file_path)(UTILITY_PP_FUNC)
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _file_path)(UTILITY_PP_FUNCSIG)
 
 // Macro builder of a test file path used a builtin variable for a root path.
 //  ref_name    - name of builtin variable name to request:
@@ -272,7 +268,7 @@
 //  <variable> + path1
 //
 #define TEST_CASE_FILE_PATH2(ref_name, path1) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1))
 
 // Macro builder of a test file path used a builtin variable for a root path.
@@ -288,7 +284,7 @@
 //  <variable> + path1 + path2
 //
 #define TEST_CASE_FILE_PATH3(ref_name, path1, path2) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1) + tackle::path_string(path2))
 
 // Macro builder of a test file path used a builtin variable for a root path.
@@ -304,7 +300,7 @@
 //  <variable> + path1 + path2 + path3
 //
 #define TEST_CASE_FILE_PATH4(ref_name, path1, path2, path3) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1) + tackle::path_string(path2) + tackle::path_string(path3))
 
 // Macro builder of a test file path used a builtin variable for a root path.
@@ -320,103 +316,14 @@
 //  <variable> + path1 + path2 + path3 + path4
 //
 #define TEST_CASE_FILE_PATH5(ref_name, path1, path2, path3, path4) \
-    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNC, \
+    UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _dir_path)(UTILITY_PP_FUNCSIG, \
         tackle::path_string(path1) + tackle::path_string(path2) + tackle::path_string(path3) + tackle::path_string(path4))
 
 #define TEST_INTERRUPT() \
     { ::test::interrupt_test(); return; } (void)0
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
-
-#define TEST_LOG_OUT(lvl, format, ...) \
-    [&]() -> void {             \
-        enum TEST_LOG_LEVEL {   \
-            SKIP        = 1,    \
-            DEBUG       = 2,    \
-            CAUTION     = 3,    \
-            WARNING     = 4,    \
-            INFO        = 5,    \
-            MIN_LVL     = SKIP, \
-            MAX_LVL     = INFO, \
-            FROM_GLOBAL_INIT = 0x10000, \
-            LVL_FLAGS_MASK = 0xFFFF0000, \
-            PREFIX_OFFSET_MASK = 0x0000FFFF \
-        };  \
-        HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE); \
-        CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo; \
-        GetConsoleScreenBufferInfo(hConsole, &ConsoleInfo); \
-        static const char * test_case_msg_prefix_str[] = { \
-            "[     SKIP ] ", "[    DEBUG ] ", "[  CAUTION ] ", "[  WARNING ] ", "[     INFO ] " \
-        };  \
-        static const char * global_init_msg_prefix_str[] = { \
-            "skip: ", "debug: ", "caution: ", "warning: ", "info: " \
-        };  \
-        static const WORD console_attrs[] = { \
-            FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN, \
-            FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE, \
-            FOREGROUND_INTENSITY | FOREGROUND_RED, \
-            FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN, \
-            FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE \
-        }; \
-        size_t lvl_offset = (lvl) & PREFIX_OFFSET_MASK; \
-        if (lvl_offset < MIN_LVL || lvl_offset > MAX_LVL) lvl_offset = MIN_LVL; \
-        lvl_offset -= MIN_LVL; \
-        SetConsoleTextAttribute(hConsole, console_attrs[lvl_offset]); \
-        const bool is_global_init = !(lvl & FROM_GLOBAL_INIT); \
-        if (is_global_init) { \
-            fprintf(stderr, "%s" format "\n", test_case_msg_prefix_str[lvl_offset], ## __VA_ARGS__); \
-        } \
-        else { \
-            fprintf(stdout, "%s" format "\n", global_init_msg_prefix_str[lvl_offset], ## __VA_ARGS__); \
-        } \
-        SetConsoleTextAttribute(hConsole, ConsoleInfo.wAttributes); \
-    }()
-
-#elif defined(UTILITY_PLATFORM_POSIX)
-
-#define TEST_LOG_OUT(lvl, format, ...) \
-    [&]() -> void {             \
-        enum TEST_LOG_LEVEL {   \
-            SKIP        = 1,    \
-            DEBUG       = 2,    \
-            CAUTION     = 3,    \
-            WARNING     = 4,    \
-            INFO        = 5,    \
-            MIN_LVL     = SKIP, \
-            MAX_LVL     = INFO, \
-            FROM_GLOBAL_INIT = 0x10000, \
-            LVL_FLAGS_MASK = 0xFFFF0000, \
-            PREFIX_OFFSET_MASK = 0x0000FFFF \
-        };  \
-        static const char * test_case_msg_prefix_str[] = { \
-            "[     SKIP ] ", "[    DEBUG ] ", "[  CAUTION ] ", "[  WARNING ] ", "[     INFO ] " \
-        };  \
-        static const char * global_init_msg_prefix_str[] = { \
-            "skip: ", "debug: ", "caution: ", "warning: ", "info: " \
-        };  \
-        static const char* console_color_ansi_sequence[] = { \
-            "\033[1;33m", \
-            "\033[1;35m", \
-            "\033[1;31m", \
-            "\033[1;33m", \
-            "\033[1;36m", \
-        }; \
-        size_t lvl_offset = (lvl) & PREFIX_OFFSET_MASK; \
-        if (lvl_offset < MIN_LVL || lvl_offset > MAX_LVL) lvl_offset = MIN_LVL; \
-        lvl_offset -= MIN_LVL; \
-        const bool is_global_init = !(lvl & FROM_GLOBAL_INIT); \
-        if (is_global_init) { \
-            fprintf(stderr, "%s%s" format "\033[0m\n", console_color_ansi_sequence[lvl_offset], test_case_msg_prefix_str[lvl_offset], ## __VA_ARGS__); \
-        } \
-        else { \
-            fprintf(stdout, "%s%s" format "\033[0m\n", console_color_ansi_sequence[lvl_offset], global_init_msg_prefix_str[lvl_offset], ## __VA_ARGS__); \
-        } \
-    }()
-
-#else
-#error platform is not implemented
-#endif
-
+#define TEST_LOG_OUT(lvl, fmt, ...) \
+    ::test::log_out(lvl, fmt, ## __VA_ARGS__)
 
 // internal definitions, must be undefined at the of this header!
 #define TEST_IMPL_DECLARE_ENV_VAR(var_name) \
@@ -441,6 +348,20 @@
 
 namespace test
 {
+    enum LogLevel
+    {
+        SKIP                = 1,
+        DEBUG               = 2,
+        CAUTION             = 3,
+        WARNING             = 4,
+        INFO                = 5,
+        MIN_LVL             = SKIP,
+        MAX_LVL             = INFO,
+        FROM_GLOBAL_INIT    = 0x10000,
+        LVL_FLAGS_MASK      = 0xFFFF0000,
+        PREFIX_OFFSET_MASK  = 0x0000FFFF
+    };
+
     enum TestCaseFlags
     {
         TCF_HAS_DATA_REF        = 0x00000001,   // test case has data reference
@@ -467,6 +388,8 @@ namespace test
     tackle::path_string get_data_in_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     tackle::path_string get_data_out_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     void interrupt_test();
+
+    void log_out(int lvl, const char * fmt, ...);
 }
 
 class TestCaseStaticBase

@@ -14,3 +14,7 @@
 
 // increases chances to catch a memory corruption place.
 #define USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT 0
+
+// check FPU precision control in each assert (x86 only, x64 is not supported following the MSDN documentation)
+#define USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT 0
+#define USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT_VALUE _PC_53 // available values: _PC_24, _PC_53, _PC_64

@@ -41,7 +41,7 @@ namespace tackle
         // at first, check if storage is constructed
         if (!r.is_constructed()) {
             if (!base_t::is_unconstructed_copy_allowed()) {
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
         }
         else {
@@ -64,11 +64,11 @@ namespace tackle
 
         // at first, check if both storages are constructed
         if (!base_t::is_constructed()) {
-            throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+            throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
         }
 
         if (!r.is_constructed()) {
-            throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+            throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
         }
 
         // make assignment
@@ -83,18 +83,6 @@ namespace tackle
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
         ::new (std::addressof(m_storage)) storage_type_t();
-
-        // flag construction
-        base_t::set_constructed(true);
-    }
-
-    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
-    template <typename Ref>
-    FORCE_INLINE void aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::construct(Ref & r)
-    {
-        DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
-
-        ::new (std::addressof(m_storage)) storage_type_t(r);
 
         // flag construction
         base_t::set_constructed(true);
@@ -125,31 +113,13 @@ namespace tackle
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
     template <typename Ref>
     FORCE_INLINE aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type> &
-        aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(Ref & r)
-    {
-        DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
-
-        return *utility::cast_addressof<storage_type_t *>(m_storage) = r;
-    }
-
-    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
-    template <typename Ref>
-    FORCE_INLINE aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type> &
         aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(const Ref & r)
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        return *utility::cast_addressof<storage_type_t *>(m_storage) = r;
-    }
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
 
-    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
-    template <typename Ref>
-    FORCE_INLINE aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type> &
-        aligned_storage_by<t_storage_type, t_size_value, t_alignment_value, t_tag_pttn_type>::assign(Ref & r) volatile
-    {
-        DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
-
-        return *utility::cast_addressof<storage_type_t *>(m_storage) = r;
+        return *this;
     }
 
     template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type>
@@ -159,6 +129,8 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        return *utility::cast_addressof<storage_type_t *>(m_storage) = r;
+        *utility::cast_addressof<storage_type_t *>(m_storage) = r;
+
+        return *this;
     }
 }

@@ -30,8 +30,8 @@
 namespace utility {
 namespace time {
 
-    static constexpr const uint64_t unix_epoch_mcsecs                       =  62135596800000000ULL;
-    static constexpr const uint64_t from_1_jan1601_to_1_jan1970_100nsecs    = 116444736000000000ULL;   //1.jan1601 to 1.jan1970
+    static CONSTEXPR const uint64_t unix_epoch_mcsecs                       =  62135596800000000ULL;
+    static CONSTEXPR const uint64_t from_1_jan1601_to_1_jan1970_100nsecs    = 116444736000000000ULL;   //1.jan1601 to 1.jan1970
 
 #ifdef UTILITY_PLATFORM_WINDOWS
     using clockid_t = int;

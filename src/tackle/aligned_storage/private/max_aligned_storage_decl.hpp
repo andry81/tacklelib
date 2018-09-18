@@ -147,7 +147,7 @@ namespace tackle
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             // make construction
@@ -160,11 +160,11 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             if (!r.is_constructed()) {
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             // make assignment

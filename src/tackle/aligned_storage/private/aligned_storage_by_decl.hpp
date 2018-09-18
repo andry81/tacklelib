@@ -69,16 +69,10 @@ namespace tackle
         // direct construction and destruction of the storage
         FORCE_INLINE void construct_default();
         template <typename Ref>
-        FORCE_INLINE void construct(Ref & r);
-        template <typename Ref>
         FORCE_INLINE void construct(const Ref & r);
         FORCE_INLINE void destruct();
         template <typename Ref>
-        FORCE_INLINE aligned_storage_by & assign(Ref & r);
-        template <typename Ref>
         FORCE_INLINE aligned_storage_by & assign(const Ref & r);
-        template <typename Ref>
-        FORCE_INLINE aligned_storage_by & assign(Ref & r) volatile;
         template <typename Ref>
         FORCE_INLINE aligned_storage_by & assign(const Ref & r) volatile;
 
@@ -86,7 +80,7 @@ namespace tackle
         FORCE_INLINE storage_type_t * this_()
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return static_cast<storage_type_t *>(address());
@@ -95,7 +89,7 @@ namespace tackle
         FORCE_INLINE const storage_type_t * this_() const
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<const storage_type_t *>(address());
@@ -104,7 +98,7 @@ namespace tackle
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<volatile storage_type_t *>(address());
@@ -113,7 +107,7 @@ namespace tackle
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
             if (!base_t::is_constructed()) {
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNC).str());
+                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             return reinterpret_cast<const volatile storage_type_t *>(address());

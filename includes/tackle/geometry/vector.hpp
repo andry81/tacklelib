@@ -57,6 +57,9 @@ using real = dd_real;
 using real = double;
 #endif
 
+const real real_min = (std::numeric_limits<real>::min)();
+const real real_max = (std::numeric_limits<real>::max)();
+
 struct BasicVector3d
 {
     using elem_type = real;
