@@ -69,7 +69,7 @@ namespace tackle
         STATIC_ASSERT_LT(num_chunk_variants_t::value, BOOST_MPL_LIMIT_LIST_SIZE, "must be less than the limit");
 
     private:
-        static constexpr size_t _get_chunk_size(size_t type_index)
+        static CONSTEXPR size_t _get_chunk_size(size_t type_index)
         {
             return (0x01U << type_index);
         }
@@ -392,7 +392,7 @@ namespace tackle
         if (left_type_index != right_type_index) {
             throw std::runtime_error(
                 (boost::format("%s: incompatible iterator storages: left_type_index=%i right_type_index=%i") %
-                    UTILITY_PP_FUNC % left_type_index % right_type_index).str());
+                    UTILITY_PP_FUNCSIG % left_type_index % right_type_index).str());
         }
 
         return m_iterator_storage.template invoke<bool>([&](const auto & chunks_it)
@@ -483,7 +483,7 @@ namespace tackle
         if (chunk_type_index >= num_chunk_variants_t::value) {
             throw std::runtime_error(
                 (boost::format("%s: minimum chunk size is not supported: min_chunk_size=%i pof2=%i max=%i") %
-                    UTILITY_PP_FUNC % min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
+                    UTILITY_PP_FUNCSIG % min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
         }
 
         if (chunk_type_index != m_chunks.type_index()) {

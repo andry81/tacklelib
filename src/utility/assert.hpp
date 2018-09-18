@@ -55,12 +55,28 @@
 #endif
 
 
-// heap corruption simple check
+// heap corruption provoke simple check
 #if ERROR_IF_EMPTY_PP_DEF(USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT)
 #define UTILITY_DBG_HEAP_CHECK() delete [] (new char [1])
 #else
 #define UTILITY_DBG_HEAP_CHECK() (void)0
 #endif
+
+
+// FPU precision control check
+#if ERROR_IF_EMPTY_PP_DEF(USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT)
+#define UTILITY_FPU_PRECISION_CHECK() if ((_controlfp(0, 0) & _MCW_PC) != (USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT_VALUE)) \
+    { \
+        ASSERT_FAIL("UTILITY_FPU_PRECISION_CHECK()", L"UTILITY_FPU_PRECISION_CHECK()", UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
+    } (void)0
+#else
+#define UTILITY_FPU_PRECISION_CHECK() (void)0
+#endif
+
+// verify/assert post test macro
+#define UTILITY_ASSERT_POST_TEST() \
+    UTILITY_DBG_HEAP_CHECK(); \
+    UTILITY_FPU_PRECISION_CHECK()
 
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -121,15 +137,15 @@
 #define UNIT_ASSERT_TRUE(exp) \
     if ((exp) ? true : false); else do {{ \
         UTILITY_GTEST_FAIL_TRUE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define UNIT_VERIFY_FALSE(exp) (( ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
 #define UNIT_ASSERT_FALSE(exp) \
     if ((exp) ? false : true); else do {{ \
         UTILITY_GTEST_FAIL_FALSE_MACRO_INLINE(UTILITY_PP_STRINGIZE(exp), UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define UNIT_VERIFY_EQ(v1, v2) (( ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #define UNIT_ASSERT_EQ(v1, v2) \
@@ -137,7 +153,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(exp_var_1)>::Compare(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #define UNIT_VERIFY_NE(v1, v2) (( ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
@@ -146,7 +162,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #define UNIT_VERIFY_LE(v1, v2) (( ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
@@ -155,7 +171,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #define UNIT_VERIFY_LT(v1, v2) (( ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
@@ -164,7 +180,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #define UNIT_VERIFY_GE(v1, v2) (( ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
@@ -173,7 +189,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #define UNIT_VERIFY_GT(v1, v2) (( ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
@@ -182,7 +198,7 @@
         const auto & exp_var_1 = (v1); \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
 
 #else
@@ -191,56 +207,56 @@
 
 #define UNIT_VERIFY_TRUE(exp) (( ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_TRUE(exp) do {{ ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_TRUE(exp) do {{ ::utility::UniAssertTrue{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(exp)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_FALSE(exp) (( ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_FALSE(exp) do {{ ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_FALSE(exp) do {{ ::utility::UniAssertFalse{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(exp, UTILITY_PP_STRINGIZE(!(exp))); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_EQ(v1, v2) (( ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_EQ(v1, v2) /*do {{*/ ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK()//; }} while(false)
+    #define UNIT_ASSERT_EQ(v1, v2) /*do {{*/ ::utility::UniAssertEQ{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST()//; }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_NE(v1, v2) (( ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_NE(v1, v2) do {{ ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_NE(v1, v2) do {{ ::utility::UniAssertNE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_LE(v1, v2) (( ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_LE(v1, v2) do {{ ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_LE(v1, v2) do {{ ::utility::UniAssertLE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_LT(v1, v2) (( ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_LT(v1, v2) do {{ ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_LT(v1, v2) do {{ ::utility::UniAssertLT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_GE(v1, v2) (( ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_GE(v1, v2) do {{ ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_GE(v1, v2) do {{ ::utility::UniAssertGE{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 ////
 
 #define UNIT_VERIFY_GT(v1, v2) (( ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)) ))
 #if ERROR_IF_EMPTY_PP_DEF(DONT_USE_UNIT_ASSERT_CALL_THROUGH_MACRO_INLINE)
-    #define UNIT_ASSERT_GT(v1, v2) do {{ ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+    #define UNIT_ASSERT_GT(v1, v2) do {{ ::utility::UniAssertGT{ UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG}.gtest_verify(v1, v2, UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2)); UTILITY_ASSERT_POST_TEST(); }} while(false)
 #endif
 
 #else
@@ -258,7 +274,7 @@
 #define UNIT_VERIFY_TRUE_IMPL(exp) [&](const auto & exp_var, const char * exp_str, const char * file, unsigned int line) -> const auto & { \
         if (exp_var ? true : false); \
         else UTILITY_GTEST_FAIL_TRUE_FUNC_INLINE(exp_str, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return exp_var; \
     }
 
@@ -270,7 +286,7 @@
 #define UNIT_VERIFY_FALSE_IMPL(exp) [&](const auto & exp_var, const char * exp_str, const char * file, unsigned int line) -> const auto & { \
         if (exp_var ? false : true); \
         else UTILITY_GTEST_FAIL_FALSE_FUNC_INLINE(exp_str, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return exp_var; \
     }
 
@@ -282,7 +298,7 @@
 #define UNIT_VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v_1)>::Compare(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -296,7 +312,7 @@
 #define UNIT_VERIFY_NE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -310,7 +326,7 @@
 #define UNIT_VERIFY_LE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -324,7 +340,7 @@
 #define UNIT_VERIFY_LT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -338,7 +354,7 @@
 #define UNIT_VERIFY_GE_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -352,7 +368,7 @@
 #define UNIT_VERIFY_GT_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
         if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
-        UTILITY_DBG_HEAP_CHECK(); \
+        UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
     }
 
@@ -383,59 +399,59 @@
 // `? true : false` to suppress: `warning C4127: conditional expression is constant`
 #define BASIC_ASSERT_TRUE(exp) \
     if ((exp) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? true : false), UTILITY_PP_STRINGIZE_WIDE((exp) ? true : false), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_FALSE(exp) \
     if ((exp) ? false : true); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((exp) ? false : true), UTILITY_PP_STRINGIZE_WIDE((exp) ? false : true), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_EQ(v1, v2) \
     if ((v1) == (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) == (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) == (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_NE(v1, v2) \
     if ((v1) != (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) != (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) != (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_LE(v1, v2) \
     if ((v1) <= (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) <= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) <= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_LT(v1, v2) \
     if ((v1) < (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) < (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) < (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_GE(v1, v2) \
     if ((v1) >= (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) >= (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) >= (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 #define BASIC_ASSERT_GT(v1, v2) \
     if ((v1) > (v2) ? true : false); else do {{ \
-        DEBUG_BREAK(true); \
+        DEBUG_BREAK_IN_DEBUGGER(true); \
         ASSERT_FAIL(UTILITY_PP_STRINGIZE((v1) > (v2)), UTILITY_PP_STRINGIZE_WIDE((v1) > (v2)), UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-        UTILITY_DBG_HEAP_CHECK(); \
-    }} while(false)
+    }} while(false); \
+    UTILITY_ASSERT_POST_TEST()
 
 
 // always disabled asserts with unused parameters warnings suppression
@@ -450,16 +466,16 @@
 #define DISABLED_VERIFY_GE(v1, v2)  (( ::utility::unused_greater_or_equal(v1, v2) ))
 #define DISABLED_VERIFY_GT(v1, v2)  (( ::utility::unused_greater(v1, v2) ))
 
-#define DISABLED_ASSERT_TRUE(exp)   do {{ UTILITY_UNUSED_STATEMENT((exp) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_FALSE(exp)  do {{ UTILITY_UNUSED_STATEMENT((exp) ? false : true); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+#define DISABLED_ASSERT_TRUE(exp)   do {{ UTILITY_UNUSED_STATEMENT((exp) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_FALSE(exp)  do {{ UTILITY_UNUSED_STATEMENT((exp) ? false : true); UTILITY_ASSERT_POST_TEST(); }} while(false)
 
 // `? true : false` to suppress: `warning C4127: conditional expression is constant`
-#define DISABLED_ASSERT_EQ(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) == (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_NE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) != (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_LE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) <= (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_LT(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) < (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_GE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) >= (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
-#define DISABLED_ASSERT_GT(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) > (v2) ? true : false); UTILITY_DBG_HEAP_CHECK(); }} while(false)
+#define DISABLED_ASSERT_EQ(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) == (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_NE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) != (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_LE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) <= (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_LT(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) < (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_GE(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) >= (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
+#define DISABLED_ASSERT_GT(v1, v2)  do {{ UTILITY_UNUSED_EXPR((v1) > (v2) ? true : false); UTILITY_ASSERT_POST_TEST(); }} while(false)
 
 
 // classic debug assert
@@ -689,6 +705,21 @@
 
 #endif
 
+#ifndef GTEST_FAIL
+
+// redirect expect asserts to common asserts
+#define EXPECT_TRUE     ASSERT_TRUE
+#define EXPECT_FALSE    ASSERT_FALSE
+
+#define EXPECT_EQ       ASSERT_EQ
+#define EXPECT_NE       ASSERT_NE
+#define EXPECT_LE       ASSERT_LE
+#define EXPECT_LT       ASSERT_LT
+#define EXPECT_GE       ASSERT_GE
+#define EXPECT_GT       ASSERT_GT
+
+#endif
+
 
 namespace utility
 {
@@ -698,91 +729,84 @@ namespace utility
     template<typename T>
     FORCE_INLINE const T & unused_true(const T & exp_var)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return (exp_var ? exp_var : exp_var); // to test expression for conversion into boolean
+        const T & r = (exp_var ? exp_var : exp_var); // to avoid warnings of truncation to bool
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T>
     FORCE_INLINE const T & unused_false(const T & exp_var)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return (exp_var ? exp_var : exp_var); // to test expression for conversion into boolean
+        const T & r = (exp_var ? exp_var : exp_var); // to avoid warnings of truncation to bool
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_equal(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 == v2 ? v1 : v1;
+        const T1 & r = (v1 == v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_not_equal(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 != v2 ? v1 : v1;
+        const T1 & r = (v1 != v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_less_or_equal(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 <= v2 ? v1 : v1;
+        const T1 & r = (v1 <= v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_less(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 < v2 ? v1 : v1;
+        const T1 & r = (v1 < v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_greater_or_equal(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 >= v2 ? v1 : v1;
+        const T1 & r = (v1 >= v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
     template<typename T1, typename T2>
     FORCE_INLINE const T1 & unused_greater(const T1 & v1, const T2 & v2)
     {
-        UTILITY_DBG_HEAP_CHECK();
-        return v1 > v2 ? v1 : v1;
+        const T1 & r = (v1 > v2 ? v1 : v1);
+        UTILITY_ASSERT_POST_TEST();
+        return r;
     }
 
 #if defined(UNIT_TESTS) || defined(BENCH_TESTS)
     inline void gtest_fail_true(const char * exp_str, const char * file, unsigned int line) // must be not `__forceinline`-ed!
     {
-        if (const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure)) {
-            GTEST_TEST_BOOLEAN_(false, exp_str, false, true, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
-        }
-        else {
-            GTEST_TEST_BOOLEAN_(false, exp_str, false, true, UTILITY_ASSERT_GTEST_NONFATAL_FAILURE_);
-            DEBUG_BREAK(true);
-       }
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        GTEST_TEST_BOOLEAN_(false, exp_str, false, true, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
     }
 
     inline void gtest_fail_false(const char * exp_str, const char * file, unsigned int line) // must be not `__forceinline`-ed!
     {
-        if (const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure)) {
-            GTEST_TEST_BOOLEAN_(false, exp_str, true, false, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
-        }
-        else {
-            GTEST_TEST_BOOLEAN_(false, exp_str, true, false, UTILITY_ASSERT_GTEST_NONFATAL_FAILURE_);
-            DEBUG_BREAK(true);
-        }
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        GTEST_TEST_BOOLEAN_(false, exp_str, true, false, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
     }
 
     inline void gtest_fail_exp(const ::testing::AssertionResult & exp_value, const char * file, unsigned int line) // must be not `__forceinline`-ed!
     {
-        if (const bool break_on_failure = ::testing::GTEST_FLAG(break_on_failure)) {
-            GTEST_ASSERT_(exp_value, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
-        }
-        else {
-            GTEST_ASSERT_(exp_value, UTILITY_ASSERT_GTEST_NONFATAL_FAILURE_);
-            DEBUG_BREAK(true);
-        }
+        DEBUG_BREAK_IN_DEBUGGER(true);
+        GTEST_ASSERT_(exp_value, UTILITY_ASSERT_GTEST_FATAL_FAILURE_);
     }
 #endif
 
@@ -796,11 +820,11 @@ namespace utility
         {
             if (exp_var ? true : false);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return exp_var;
         }
@@ -811,7 +835,7 @@ namespace utility
             if (exp_var ? true : false); // to avoid `warning C4800: forcing value to bool 'true' or 'false' (performance warning)`
             else UTILITY_GTEST_FAIL_TRUE_FUNC_INLINE(exp_str, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return exp_var;
         }
@@ -833,11 +857,11 @@ namespace utility
         {
             if (exp_var ? false : true);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return exp_var;
         }
@@ -848,7 +872,7 @@ namespace utility
             if (exp_var ? false : true); // to avoid `warning C4800: forcing value to bool 'true' or 'false' (performance warning)`
             else UTILITY_GTEST_FAIL_FALSE_FUNC_INLINE(exp_str, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return exp_var;
         }
@@ -870,11 +894,11 @@ namespace utility
         {
             if (v1 == v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -885,7 +909,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v1)>::Compare(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -907,11 +931,11 @@ namespace utility
         {
             if (v1 != v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -922,7 +946,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperNE(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -944,11 +968,11 @@ namespace utility
         {
             if (v1 <= v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -959,7 +983,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLE(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -981,11 +1005,11 @@ namespace utility
         {
             if (v1 < v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -996,7 +1020,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperLT(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -1018,11 +1042,11 @@ namespace utility
         {
             if (v1 >= v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -1033,7 +1057,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGE(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -1055,11 +1079,11 @@ namespace utility
         {
             if (v1 > v2);
             else {
-                DEBUG_BREAK(true);
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 ASSERT_FAIL(exp_str, exp_str_w, file, file_w, line, funcsig);
             }
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }
@@ -1070,7 +1094,7 @@ namespace utility
             if (const ::testing::AssertionResult exp_value = ::testing::internal::CmpHelperGT(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
-            UTILITY_DBG_HEAP_CHECK();
+            UTILITY_ASSERT_POST_TEST();
 
             return v1;
         }

@@ -78,7 +78,7 @@ namespace utility
 
         throw std::runtime_error(
             (boost::format("%s: unimplemented crc polynomial: width=%u polynomial=%08X") %
-                UTILITY_PP_FUNC % width % polynomial).str());
+                UTILITY_PP_FUNCSIG % width % polynomial).str());
 
         //return 0; // unreachable code
     }

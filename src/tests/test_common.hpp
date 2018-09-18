@@ -4,6 +4,7 @@
 
 // commons exclicitly for tests ONLY
 #include "testlib/testlib.hpp"
+#include "testlib/gtest_ext.hpp"
 
 #include <spacetracker.hpp>
 #include <tle_manager.hpp>

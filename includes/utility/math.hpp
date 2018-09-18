@@ -9,9 +9,9 @@
 #include <utility/preprocessor.hpp>
 #include <utility/platform.hpp>
 #include <utility/static_assert.hpp>
+#include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 
-#include <type_traits>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -19,6 +19,7 @@
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
+#include <functional>
 
 
 #define INT32_LOG2_FLOOR_CONSTEXPR(x)               ::math::int32_log2_floor<x>::value
@@ -300,66 +301,69 @@ if_break(true) \
 namespace math
 {
     // shortcuts
-    const constexpr char char_min = (std::numeric_limits<char>::min)();
-    const constexpr char char_max = (std::numeric_limits<char>::max)();
+    const CONSTEXPR char char_min = (std::numeric_limits<char>::min)();
+    const CONSTEXPR char char_max = (std::numeric_limits<char>::max)();
 
-    const constexpr unsigned char uchar_max = (std::numeric_limits<unsigned char>::max)();
+    const CONSTEXPR unsigned char uchar_max = (std::numeric_limits<unsigned char>::max)();
 
-    const constexpr short short_min = (std::numeric_limits<short>::min)();
-    const constexpr short short_max = (std::numeric_limits<short>::max)();
+    const CONSTEXPR short short_min = (std::numeric_limits<short>::min)();
+    const CONSTEXPR short short_max = (std::numeric_limits<short>::max)();
 
-    const constexpr unsigned short ushort_max = (std::numeric_limits<unsigned short>::max)();
+    const CONSTEXPR unsigned short ushort_max = (std::numeric_limits<unsigned short>::max)();
 
-    const constexpr int int_min = (std::numeric_limits<int>::min)();
-    const constexpr int int_max = (std::numeric_limits<int>::max)();
+    const CONSTEXPR int int_min = (std::numeric_limits<int>::min)();
+    const CONSTEXPR int int_max = (std::numeric_limits<int>::max)();
 
-    const constexpr unsigned int uint_max = (std::numeric_limits<unsigned int>::max)();
+    const CONSTEXPR unsigned int uint_max = (std::numeric_limits<unsigned int>::max)();
 
-    const constexpr long long_min = (std::numeric_limits<long>::min)();
-    const constexpr long long_max = (std::numeric_limits<long>::max)();
+    const CONSTEXPR long long_min = (std::numeric_limits<long>::min)();
+    const CONSTEXPR long long_max = (std::numeric_limits<long>::max)();
 
-    const constexpr unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
+    const CONSTEXPR unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
-    const constexpr long long longlong_min = (std::numeric_limits<long long>::min)();
-    const constexpr long long longlong_max = (std::numeric_limits<long long>::max)();
+    const CONSTEXPR long long longlong_min = (std::numeric_limits<long long>::min)();
+    const CONSTEXPR long long longlong_max = (std::numeric_limits<long long>::max)();
 #endif
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
-    const constexpr unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
+    const CONSTEXPR unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
 #endif
 
-    const constexpr int8_t int8_min = (std::numeric_limits<int8_t>::min)();
-    const constexpr int8_t int8_max = (std::numeric_limits<int8_t>::max)();
+    const CONSTEXPR int8_t int8_min = (std::numeric_limits<int8_t>::min)();
+    const CONSTEXPR int8_t int8_max = (std::numeric_limits<int8_t>::max)();
 
-    const constexpr uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
+    const CONSTEXPR uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
 
-    const constexpr int16_t int16_min = (std::numeric_limits<int16_t>::min)();
-    const constexpr int16_t int16_max = (std::numeric_limits<int16_t>::max)();
+    const CONSTEXPR int16_t int16_min = (std::numeric_limits<int16_t>::min)();
+    const CONSTEXPR int16_t int16_max = (std::numeric_limits<int16_t>::max)();
 
-    const constexpr uint16_t uint16_max = (std::numeric_limits<uint16_t>::max)();
+    const CONSTEXPR uint16_t uint16_max = (std::numeric_limits<uint16_t>::max)();
 
-    const constexpr int32_t int32_min = (std::numeric_limits<int32_t>::min)();
-    const constexpr int32_t int32_max = (std::numeric_limits<int32_t>::max)();
+    const CONSTEXPR int32_t int32_min = (std::numeric_limits<int32_t>::min)();
+    const CONSTEXPR int32_t int32_max = (std::numeric_limits<int32_t>::max)();
 
-    const constexpr uint32_t uint32_max = (std::numeric_limits<uint32_t>::max)();
+    const CONSTEXPR uint32_t uint32_max = (std::numeric_limits<uint32_t>::max)();
 
-    const constexpr int64_t int64_min = (std::numeric_limits<int64_t>::min)();
-    const constexpr int64_t int64_max = (std::numeric_limits<int64_t>::max)();
+    const CONSTEXPR int64_t int64_min = (std::numeric_limits<int64_t>::min)();
+    const CONSTEXPR int64_t int64_max = (std::numeric_limits<int64_t>::max)();
 
-    const constexpr uint64_t uint64_max = (std::numeric_limits<uint64_t>::max)();
+    const CONSTEXPR uint64_t uint64_max = (std::numeric_limits<uint64_t>::max)();
 
-    const constexpr size_t size_max = (std::numeric_limits<size_t>::max)();
+    const CONSTEXPR size_t size_max = (std::numeric_limits<size_t>::max)();
 
-    const constexpr double float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
-    const constexpr double double_quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+    const CONSTEXPR double float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
+    const CONSTEXPR double double_quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
 
-    const constexpr double float_min = (std::numeric_limits<float>::min)();
-    const constexpr double float_max = (std::numeric_limits<float>::max)();
+    const CONSTEXPR double float_infinity = (std::numeric_limits<float>::infinity)();
+    const CONSTEXPR double double_infinity = (std::numeric_limits<double>::infinity)();
 
-    const constexpr double double_min = (std::numeric_limits<double>::min)();
-    const constexpr double double_max = (std::numeric_limits<double>::max)();
+    const CONSTEXPR double float_min = (std::numeric_limits<float>::min)();
+    const CONSTEXPR double float_max = (std::numeric_limits<float>::max)();
 
-    const constexpr double pi = 3.14159265358979323846264338327950288419716939937510582;
+    const CONSTEXPR double double_min = (std::numeric_limits<double>::min)();
+    const CONSTEXPR double double_max = (std::numeric_limits<double>::max)();
+
+    const CONSTEXPR double pi = 3.14159265358979323846264338327950288419716939937510582;
 
     template<typename T>
     struct divrem
@@ -513,7 +517,7 @@ namespace math
     template<uint32_t x>
     struct uint32_pof2_floor
     {
-        using x1_t  = std::integral_constant<uint32_t, x | (x >> 1)>;
+        using x1_t = std::integral_constant<uint32_t, x | (x >> 1)>;
         using x2_t = std::integral_constant<uint32_t, x1_t::value | (x1_t::value >> 2)>;
         using x4_t = std::integral_constant<uint32_t, x2_t::value | (x2_t::value >> 4)>;
         using x8_t = std::integral_constant<uint32_t, x4_t::value | (x4_t::value >> 8)>;
@@ -625,6 +629,15 @@ namespace math
         return ' ';
     }
 
+    // the bool type is exceptional
+    FORCE_INLINE_ALWAYS bool negate(bool v)
+    {
+        // The false is the same as zero, which have no effect of negation.
+        // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
+        return v;
+    }
+
+#ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP14
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
     FORCE_INLINE_ALWAYS unsigned int negate(unsigned int i)
@@ -660,6 +673,218 @@ namespace math
         return -i;
     }
 #endif
+
+    FORCE_INLINE_ALWAYS int64_t negate(int64_t i)
+    {
+        return -i;
+    }
+
+    FORCE_INLINE_ALWAYS int64_t negate(uint64_t i)
+    {
+        return static_cast<uint64_t>(-static_cast<int64_t>(i));
+    }
+
+    FORCE_INLINE_ALWAYS float negate(float v)
+    {
+        return -v;
+    }
+
+    FORCE_INLINE_ALWAYS double negate(double v)
+    {
+        return -v;
+    }
+
+    template <typename T>
+    FORCE_INLINE_ALWAYS T negate(const T & v)
+    {
+        return -v;
+    }
+}
+
+#else
+
+    // negate helper to avoid warnings around negation of unsigned values
+    namespace detail
+    {
+        template <bool is_signed, bool is_make_signed_valid, typename T>
+        struct _negate;
+
+        template <bool is_make_signed_valid, typename T>
+        struct _negate<true, is_make_signed_valid, T>
+        {
+            using type = T;
+
+            static T invoke(const type & v)
+            {
+                return std::negate<>()(v);
+            }
+        };
+
+        template <typename T>
+        struct _negate<false, true, T>
+        {
+            using type = T;
+
+            static T invoke(const type & v)
+            {
+                // can be unsigned but castable to signed
+                return static_cast<typename std::make_unsigned<T>::type>(
+                    std::negate<>()(
+                        static_cast<typename std::make_signed<T>::type>(v)));
+            }
+        };
+
+        template <typename T>
+        struct _negate<true, true, T>
+        {
+            using type = T;
+
+            static CONSTEXPR T invoke(const type & v)
+            {
+                return std::negate<>()(v);
+            }
+        };
+
+        // the bool type is exceptional
+        template <bool is_signed, bool is_make_signed_valid>
+        struct _negate<is_signed, is_make_signed_valid, bool>
+        {
+            using type = bool;
+
+            static CONSTEXPR bool invoke(bool v)
+            {
+                // The false is the same as zero, which have no effect of negation.
+                // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
+                return v;
+            }
+        };
+
+        template <typename T>
+        struct _negate<false, false, T>
+        {
+            using type = T;
+
+            // make static assert function template parameter dependent
+            // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
+            static_assert(sizeof(type) && false, "type T must be signed or at least castable to signed through the std::make_signed");
+
+            static CONSTEXPR T invoke(const type & v)
+            {
+                return std::negate<>()(v); // just in case
+            }
+        };
+    }
+
+    template <typename T>
+    FORCE_INLINE_ALWAYS CONSTEXPR T negate(const T & v)
+    {
+        return detail::_negate<std::is_signed<T>::value, utility::is_make_signed_valid<T>::value, T>::invoke(v);
+    }
+#endif
+
+    template <typename T>
+    FORCE_INLINE T positive_max(const T & v = T())
+    {
+        return std::numeric_limits<T>::max();
+    }
+
+    template <typename T>
+    FORCE_INLINE T positive_min(const T & v = T())
+    {
+        if (std::is_floating_point<T>::value) {
+            return std::numeric_limits<T>::min();
+        }
+
+        return std::numeric_limits<T>::min() + 1;
+    }
+
+    template <typename T>
+    FORCE_INLINE T negative_max(const T & v = T())
+    {
+        static_assert(std::is_signed<T>::value, "type T must be signed");
+
+        if (std::is_floating_point<T>::value) {
+            return -std::numeric_limits<T>::min();
+        }
+
+        return math::negate(std::numeric_limits<std::make_unsigned<T>::value>::min() + 1);
+    }
+
+    template <typename T>
+    FORCE_INLINE T negative_min(const T & v = T())
+    {
+        static_assert(std::is_signed<T>::value, "type T must be signed");
+
+        if (std::is_floating_point<T>::value) {
+            return -std::numeric_limits<T>::max();
+        }
+
+        return std::numeric_limits<T>::min();
+    }
+
+    template <typename T>
+    FORCE_INLINE T is_signed_min_max(const T & v)
+    {
+        static_assert(std::is_signed<T>::value, "type T must be signed");
+
+        return (positive_max(v) == v || negative_min(v) == v);
+    }
+
+    template <typename T>
+    FORCE_INLINE T is_unsigned_min_max(const T & v)
+    {
+        static_assert(std::is_unsigned<T>::value, "type T must be unsigned");
+
+        return (!v || positive_max<T>(v) == v);
+    }
+
+    template <typename T>
+    FORCE_INLINE bool is_valid_float(const T & v)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return (isnormal(v) && positive_max(v) != v && negative_min(v) != v || v == 0.0);
+    }
+
+    template <typename T>
+    FORCE_INLINE bool is_valid_not_zero_float(const T & v)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return (is_valid_float(v) && (v != 0));
+    }
+
+    template <typename T>
+    FORCE_INLINE T positive_infinity(const T & v = T())
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return (std::numeric_limits<T>::infinity)();
+    }
+
+    template <typename T>
+    FORCE_INLINE T negative_infinity(const T & v = T())
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return -(std::numeric_limits<T>::infinity)();
+    }
+
+    template <typename T>
+    FORCE_INLINE T float_round_to_signed_infinity(const T & v)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        if (0 < v) {
+            return positive_infinity(v);
+        }
+        else if (v < 0) {
+            return negative_infinity(v);
+        }
+
+        // special case, leave as is
+        return v;
+    }
 
     template<typename R, typename T0, typename T1>
     FORCE_INLINE R t_add_no_overflow(T0 a, T1 b)
@@ -844,6 +1069,8 @@ namespace math
     template <typename T>
     extern inline T normalize_angle(const T & ang, const T & min_ang, const T & max_ang, const T & ang_period_mod, int inclusion_direction, bool exclude_all = false)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         DEBUG_ASSERT_LT(min_ang, max_ang);
         DEBUG_ASSERT_GT(ang_period_mod, 0U); // must be always positive
 
@@ -1107,6 +1334,8 @@ namespace math
     template <typename T>
     extern inline T angle_closest_distance(const T & start_angle, const T & end_angle, bool in_radians, bool on_equal_distances_select_closest_to_zero)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         const T angle_distance_inf = end_angle - start_angle;
 
         T angle_distance = angle_distance_inf; // retains the sign to transfer the direction of angle
@@ -1171,6 +1400,8 @@ namespace math
     template <typename T>
     extern inline T angle_distance(const T & start_angle, const T & end_angle, const T & angle_epsilon, bool positive_angle_change, bool in_radians)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         // all epsilons must be positive
         DEBUG_ASSERT_GE(angle_epsilon, 0);
 
@@ -1197,21 +1428,23 @@ namespace math
         return (angle_distance_360 >= 0) ? angle_distance_360 - DEG_360_IN_RAD_IF(in_radians) : DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
     }
 
-    // Translates (convertes) angle to a symmetric range [(-180..+180)] with 0 in a base angle.
+    // Translates (convertes) angle to a min/max range [(min..max)] with 0 in a base angle.
     //
     // inclusion_direction if exclude_all=false:
-    //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
+    //  -1 - minimal is included, maximal is excluded (ex: [-180 - +180) )
     //  +1 - minimal is excluded, maximal is included (ex: (-180 - +180] )
-    //   0 - minimal and maximal both included (ex: [0 - +180] or [-90 - +90])
+    //   0 - minimal and maximal both included (ex: [-180 - +180])
     //
     // exclude_all (inclusion_direction must be set to 0):
-    //   true - minimal and maximal both excluded (ex: (0 - +180) or (-90 - +90))
+    //   true - minimal and maximal both excluded (ex: (-180 - +180))
     //
     template <typename T>
-    extern inline T translate_angle(const T & angle, const T & base_angle, bool in_radians, int inclusion_direction, bool exclude_all = false)
+    extern inline T translate_angle(const T & angle, const T & base_angle, const T & min_angle, const T & max_angle,
+        bool in_radians, int inclusion_direction, bool exclude_all = false)
     {
-        return math::normalize_angle(angle - base_angle,
-            -DEG_180_IN_RAD_IF(in_radians), +DEG_180_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), inclusion_direction, exclude_all);
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return math::normalize_angle(angle - base_angle, min_angle, max_angle, DEG_360_IN_RAD_IF(in_radians), inclusion_direction, exclude_all);
     }
 
     // Normalizes angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
@@ -1222,6 +1455,8 @@ namespace math
     template <typename T>
     extern inline T normalize_angle_to_range(const T & start_angle, const T & mid_angle, const T & angle_distance, const T & angle, bool in_radians)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         // all input must be already normalized and consistent
         DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
         DEBUG_ASSERT_TRUE(mid_angle - start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle - start_angle);
@@ -1311,6 +1546,17 @@ namespace math
         return angle_tmp;
     }
 
+    // Calculate periods delta between 2 angles
+    template <typename T>
+    extern inline T angle_periods_shift(const T & prev_ang, const T & next_ang, const T & ang_period_mod)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        DEBUG_ASSERT_GT(ang_period_mod, 0U); // must be always positive
+
+        return (next_ang - prev_ang) / ang_period_mod;
+    }
+
     // Avoids rounding to the closest value in print functions by truncation to the opposite value.
     // For example, if angle is [0..360], where maximum is 360 degrees, than 259.9997 will be truncated to the 360 in case of num_fraction_chars=3.
     // The function would truncate 259.9997 back to 259.999 to avoid such implicit rounding, except 360 itself, which would not be truncated at all.
@@ -1318,10 +1564,12 @@ namespace math
     template <typename T>
     extern inline T truncate_float_from_max_power_of_10(const T & value, const T & max_value, const T & no_truncation_epsilon, size_t num_fraction_chars)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         DEBUG_ASSERT_GE(max_value, value);
         DEBUG_ASSERT_GE(no_truncation_epsilon, 0); // epsilon must be always not negative
 
-        const T rounding_multiplier = pow(T(10), num_fraction_chars);
+        const T rounding_multiplier = pow(T(10), int(num_fraction_chars));
 
         const T delta = max_value - value;
         if (no_truncation_epsilon < delta && 1.0 >= delta * rounding_multiplier) {
@@ -1334,8 +1582,66 @@ namespace math
     }
 
     template <typename T>
+    extern inline char float_round_to_power_of_10_suffix_sign_char(const T & value, size_t num_fraction_chars)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        if (num_fraction_chars) {
+            const T rounding_multiplier = pow(T(10), int(num_fraction_chars));
+            const T rounded_value = ((value >= 0) ?
+                floor_to_zero(value * rounding_multiplier + 0.5) :
+                floor_to_zero(value * rounding_multiplier - 0.5)) / rounding_multiplier;
+
+            if (value < rounded_value) return '-';
+            if (rounded_value < value) return '+';
+        }
+        else {
+            const T rounded_value = (value >= 0) ? floor_to_zero(value + 0.5) : floor_to_zero(value - 0.5);
+
+            if (value < rounded_value) return '-';
+            if (rounded_value < value) return '+';
+        }
+
+        return ' ';
+    }
+
+    template <typename T>
+    extern inline char float_truncation_sign_char(const T & value, const T & min_value, const T & max_value, const T & epsilon)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        DEBUG_ASSERT_GE(epsilon, 0);
+        DEBUG_ASSERT_GE(max_value, min_value);
+
+        if (value >= min_value && min_value + epsilon >= value) {
+            if (value != min_value) return '+';
+            else return ' ';
+        }
+        if (max_value >= value && value >= max_value - epsilon) {
+            if (value != max_value) return '-';
+            else return ' ';
+        }
+
+        return ' ';
+    }
+
+    template <typename T>
+    extern inline bool is_float_equal(const T & left, const T & right, const T & epsion)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        if (epsion >= fabs(left - right)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    template <typename T>
     extern inline T truncate_float_to_minmax(const T & value, const T & min_value, const T & max_value)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         DEBUG_ASSERT_GE(max_value, min_value);
 
         if (max_value < value) {
@@ -1352,8 +1658,10 @@ namespace math
     template <typename T>
     extern inline T fix_float_trigonometric_range(const T & value)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         // avoid fix in special case
-        if (!isnan(value) && value != math::double_max && value != -math::double_max) {
+        if (is_valid_not_zero_float(value)) {
             return truncate_float_to_minmax(value, T(-1.0), T(+1.0));
         }
 
@@ -1363,6 +1671,8 @@ namespace math
     template <typename T>
     extern inline T floor_to_zero(const T & value)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         if (value >= 0) {
             return floor(value);
         }
@@ -1374,6 +1684,8 @@ namespace math
     template <typename T>
     extern inline int reduce_float_exp_delta(const T & from, T & to_fix, int min_sensible_exp_delta = 1)
     {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
         DEBUG_ASSERT_GT(std::abs(from), std::abs(to_fix)); // fix value must be always lower by absolute value!
 
         // should not be zero

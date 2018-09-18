@@ -111,7 +111,7 @@ namespace utility
 
         STATIC_ASSERT_EQ(sizeof(chunk_type), sizeof(T) * chunk_type::size, "StaticArray should contain pure static array inside with out any gaps or padding");
 
-        constexpr const size_t copy_chunk_size = sizeof(chunk_type);
+        CONSTEXPR const size_t copy_chunk_size = sizeof(chunk_type);
 
         STATIC_ASSERT_GE(copy_chunk_size, 4U, "must be at least 4 bytes");
         STATIC_ASSERT_EQ(math::uint32_pof2_floor<copy_chunk_size / sizeof(T)>::value, copy_chunk_size / sizeof(T), "must be power of 2");

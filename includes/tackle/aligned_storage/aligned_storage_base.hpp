@@ -64,10 +64,11 @@ namespace tackle
             UTILITY_UNUSED_STATEMENT(is_constructed);
         }
 
+        // unsafe
         FORCE_INLINE void enable_unconstructed_copy()
         {
             char fmt_buf[256];
-            snprintf(fmt_buf, utility::static_size(fmt_buf), "%s: not implemented", UTILITY_PP_FUNC);
+            snprintf(fmt_buf, utility::static_size(fmt_buf), "%s: not implemented", UTILITY_PP_FUNCSIG);
             throw std::runtime_error(fmt_buf);
         }
     };
@@ -79,7 +80,7 @@ namespace tackle
         {
             Flag_None                       = 0,
             Flag_IsConstructed              = 0x01,
-            Flag_IsUnconstractedCopyAllowed = 0x02
+            Flag_IsUnconstractedCopyAllowed = 0x02  // unsafe
         };
 
     public:
@@ -125,6 +126,7 @@ namespace tackle
             m_flags = Flags(m_flags | (is_constructed_ ? Flag_IsConstructed : Flag_None));
         }
 
+        // unsafe
         FORCE_INLINE void enable_unconstructed_copy()
         {
             m_flags = Flags(m_flags | Flag_IsUnconstractedCopyAllowed);

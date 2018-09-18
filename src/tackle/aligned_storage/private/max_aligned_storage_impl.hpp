@@ -27,7 +27,7 @@ namespace tackle
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct_default(std::addressof(m_storage), UTILITY_PP_FUNC, \
+                construct_default(std::addressof(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not default constructable: Type=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -48,7 +48,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % type_index).str());
             }
         }
     }
@@ -58,7 +58,7 @@ namespace tackle
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct(std::addressof(m_storage), r, UTILITY_PP_FUNC, \
+                construct(std::addressof(m_storage), r, UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -78,7 +78,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % type_index).str());
             }
         }
     }
@@ -109,7 +109,7 @@ namespace tackle
             default: {
                 throw std::runtime_error(
                     (boost::format("%s: invalid storage construction: to_type_index=%i from_type_index=%i") %
-                        UTILITY_PP_FUNC % m_type_index % s.m_type_index).str());
+                        UTILITY_PP_FUNCSIG % m_type_index % s.m_type_index).str());
             }
         }
     }
@@ -131,7 +131,7 @@ namespace tackle
 
         default_:;
             default: {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
     }
@@ -153,7 +153,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             const auto & right_value = *utility::cast_addressof<const right_storage_type_t *>(s); \
             ::utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
-                call(left_value, right_value, UTILITY_PP_FUNC, \
+                call(left_value, right_value, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } \
         else goto default_
@@ -173,7 +173,7 @@ namespace tackle
             default: if(throw_exceptions_on_type_error) {
                 throw std::runtime_error(
                     (boost::format("%s: invalid storage assign: to_type_index=%i from_type_index=%i") %
-                        UTILITY_PP_FUNC % m_type_index % s.m_type_index).str());
+                        UTILITY_PP_FUNCSIG % m_type_index % s.m_type_index).str());
             }
         }
 
@@ -187,7 +187,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             ::utility::assign_dispatcher<Ref, storage_type_t, true>:: \
-                call(left_value, r, UTILITY_PP_FUNC, \
+                call(left_value, r, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -205,7 +205,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 
@@ -225,7 +225,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 
@@ -238,7 +238,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -251,7 +251,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 
@@ -270,7 +270,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
-                call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -283,7 +283,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 
@@ -302,7 +302,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
-                call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -315,7 +315,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 
@@ -334,7 +334,7 @@ namespace tackle
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
-                call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNC, \
+                call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -347,7 +347,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNC % m_type_index).str());
+                throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
 

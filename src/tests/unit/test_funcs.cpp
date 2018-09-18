@@ -1945,7 +1945,7 @@ TEST(TleManagerFunctionsTest, angle_distance)
 
 void test_translate_angle(double angle_deg, double base_angle_deg, double etha_angle_deg)
 {
-    const double translated_angle_deg = math::translate_angle(angle_deg, base_angle_deg, false, 0);
+    const double translated_angle_deg = math::translate_angle<double>(angle_deg, base_angle_deg, -180, +180, false, 0);
     ASSERT_EQ(translated_angle_deg, etha_angle_deg);
 }
 

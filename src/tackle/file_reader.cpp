@@ -61,7 +61,7 @@ namespace tackle
         if (!m_file_handle.get()) {
             throw std::runtime_error(
                 (boost::format("%s: file handle is not set") %
-                    UTILITY_PP_FUNC).str());
+                    UTILITY_PP_FUNCSIG).str());
         }
 
         int is_eof = feof(m_file_handle.get());

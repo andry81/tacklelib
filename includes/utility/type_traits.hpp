@@ -47,6 +47,9 @@
 
 #define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
 
+// available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
+#define UTILITY_IS_TYPE_COMPLETE(type) ::utility::is_type_complete<type, __COUNTER__>::value
+
 
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_INTEGER_SEQUENCE
 // in case if not declared
@@ -77,6 +80,17 @@ namespace utility
         using type = T;
     };
 
+    namespace
+    {
+        template<class T, int discriminator>
+        struct is_type_complete {
+            static T & getT();
+            static char(&pass(T))[2];
+            static char pass(...);
+            static const bool value = sizeof(pass(getT())) == 2;
+        };
+    }
+
     // std::identity is depricated in msvc2017
 
     template <typename T>
@@ -91,28 +105,28 @@ namespace utility
     struct value_identity
     {
         using type = T;
-        static constexpr const T value = v;
+        static CONSTEXPR const T value = v;
     };
 
     template <typename T, T v>
-    constexpr const T value_identity<T, v>::value;
+    CONSTEXPR const T value_identity<T, v>::value;
 
     template <int v>
     struct int_identity
     {
         using type = int;
-        static constexpr const int value = v;
+        static CONSTEXPR const int value = v;
     };
 
     // std::size is supported from C++17
     template <typename T, size_t N>
-    FORCE_INLINE constexpr size_t static_size(const T (&)[N]) noexcept
+    FORCE_INLINE CONSTEXPR size_t static_size(const T (&)[N]) noexcept
     {
         return N;
     }
 
     template <typename ...T>
-    FORCE_INLINE constexpr size_t static_size(const std::tuple<T...> &)
+    FORCE_INLINE CONSTEXPR size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
     }
@@ -145,28 +159,38 @@ namespace utility
     //
 
     template <typename T, typename F>
-    FORCE_INLINE constexpr auto static_if(std::true_type, T t, F f)
+    FORCE_INLINE CONSTEXPR auto static_if(std::true_type, T t, F f)
     {
         return t;
     }
 
     template <typename T, typename F>
-    FORCE_INLINE constexpr auto static_if(std::false_type, T t, F f)
+    FORCE_INLINE CONSTEXPR auto static_if(std::false_type, T t, F f)
     {
         return f;
     }
 
     template <bool B, typename T, typename F>
-    FORCE_INLINE constexpr auto static_if(T t, F f)
+    FORCE_INLINE CONSTEXPR auto static_if(T t, F f)
     {
         return static_if(std::integral_constant<bool, B>{}, t, f);
     }
 
     template <bool B, typename T>
-    FORCE_INLINE constexpr auto static_if(T t)
+    FORCE_INLINE CONSTEXPR auto static_if(T t)
     {
         return static_if(std::integral_constant<bool, B>{}, t, [](auto&&...) {});
     }
+
+    template <typename T>
+    struct is_make_signed_valid
+    {
+        // std::make_signed (C++11):
+        //  If T is an integral (except bool) or enumeration type, provides the member typedef type which is the signed integer type
+        //  corresponding to T, with the same cv - qualifiers. Otherwise, the behavior is undefined.
+        //
+        static const bool value = (std::is_integral<T>::value || std::is_enum<T>::value);
+    };
 
     // Type qualification adaptor for a function parameter.
     // Based on `boost` library (https://www.boost.org)
@@ -262,19 +286,19 @@ namespace utility
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP11 // for `std::index_sequence`
     template<typename Functor, std::size_t... S>
-    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, std::index_sequence<S...>)
+    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, std::index_sequence<S...>)
     {
         return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE constexpr void static_foreach(Functor && functor)
+    FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
     {
         return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
     }
 #else
     template<typename Functor>
-    FORCE_INLINE constexpr void static_foreach_seq(Functor && function, ...)
+    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, ...)
     {
         // make static assert function template parameter dependent
         // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
@@ -282,7 +306,7 @@ namespace utility
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE constexpr void static_foreach(Functor && functor)
+    FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
     {
         // make static assert function template parameter dependent
         // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
@@ -297,7 +321,7 @@ namespace utility
     template<typename T, typename U = void>
     struct is_callable
     {
-        static bool const constexpr value = std::conditional<
+        static bool const CONSTEXPR value = std::conditional<
             std::is_class<typename std::remove_reference<T>::type>::value,
             is_callable<typename std::remove_reference<T>::type, int>, std::false_type>::type::value;
     };
@@ -392,7 +416,7 @@ namespace utility
         template<typename> static yes_t Test(...);
 
     public:
-        static bool const constexpr value = sizeof(Test<Derived>(0)) == sizeof(yes_t);
+        static bool const CONSTEXPR value = sizeof(Test<Derived>(0)) == sizeof(yes_t);
     };
 
     // Simple `has_regular_parenthesis_operator` based on SFINAE, does detect ONLY regular `operator()`, does NOT detect templated `operator()`.

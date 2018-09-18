@@ -1,3 +1,26 @@
+2018.09.18:
+* new: utility::inline_stack class to light weight incode stack tracing
+* new: UTILITY_IS_TYPE_COMPLETE macro to test on type completeness
+* new: gtest extension header (gtest_ext.hpp)
+* fixed: tackle::deque capacity relocation/grow fix
+* fixed: tackle::variant refactor and fixup
+* fixed: tackle::aligned_storage_by refactor and fixup
+* refactor: UTILITY_PP_FUNC replaced by UTILITY_PP_FUNCSIG
+* other refactor, changes and fixup
+* intermediate commit
+
+2018.08.19:
+* fixed: assertion private/public headers was not properly merged
+* new: FPU precision test inside macro assertion to detect FPU precision corruption in a code
+* changed: enabled asserts in release in a sensitive calculation to show up in unit tests
+
+2018.08.18:
+* fixed: accidental debug break call inside assertion macro in release which has lead test application to abort
+* fixed: invalid non fatal failure level in unit test assertions
+* fixed: continuous loop of assertion failures instead of test case quit on first fatal failure
+* new: testlib: EXPECT_*_PRED macro extension from gtest
+* refactor: moved TEST_LOG_OUT from macro to function
+
 2018.08.16:
 * refactor: tackle aligned storage headers to detach different classes from each other and avoid inclusion of invalid headers
 * fixed: minor fixup

@@ -187,7 +187,7 @@ namespace utility
     {
         STATIC_ASSERT_TRUE(std::is_trivially_copyable<T>::value, "T must be a trivial copy type");
 
-        constexpr const size_t num_bytes = sizeof(T);
+        CONSTEXPR const size_t num_bytes = sizeof(T);
 
         ret.resize(num_bytes * CHAR_BIT);
 
