@@ -69,7 +69,7 @@ namespace utility
     template <bool B>
     struct const_expr
     {
-        static const bool value = B;
+        static CONSTEXPR const bool value = B;
     };
 
     struct dummy {};
@@ -110,6 +110,13 @@ namespace utility
 
     template <typename T, T v>
     CONSTEXPR const T value_identity<T, v>::value;
+
+    template <bool b>
+    struct bool_identity
+    {
+        using type = bool;
+        static CONSTEXPR const bool value = b;
+    };
 
     template <int v>
     struct int_identity
@@ -751,6 +758,7 @@ namespace utility
             char buf[1024];
             buf[0] = '\0';
             snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name());
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::runtime_error(buf);
 
             return false;
@@ -782,6 +790,7 @@ namespace utility
             char buf[1024];
             buf[0] = '\0';
             snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::runtime_error(buf);
 
             return false;
@@ -845,6 +854,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error(buf);
             }
 
@@ -903,8 +913,8 @@ namespace utility
 
     // invoke_if_returnable_dispatcher
 
-    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled>
-    struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled, false>
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled, bool IsConvertiable>
+    struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled && IsConvertiable, false>
     {
     };
 
@@ -931,6 +941,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error(buf);
             }
 

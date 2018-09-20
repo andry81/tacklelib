@@ -18,10 +18,11 @@
 #include <boost/mpl/find.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/end.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/push_back.hpp>
 
 #include <stdexcept>
 #include <typeinfo>
-#include <type_traits>
 
 
 namespace tackle
@@ -37,7 +38,9 @@ namespace tackle
     class variant
     {
     private:
-        using storage_types_t = mpl::vector<T0, T1, T2>;
+        using basic_storage_types_t = mpl::vector<T0, T1>;
+        using storage_types_t3 = typename mpl::if_c<!std::is_same<T2, mpl::void_>::value, typename mpl::push_back<basic_storage_types_t, T2>::type, basic_storage_types_t>::type;
+        using storage_types_t = storage_types_t3;
 
     public:
         using max_aligned_storage_t = max_aligned_storage_from_mpl_container<storage_types_t, tag_pttn_control_lifetime_t>;

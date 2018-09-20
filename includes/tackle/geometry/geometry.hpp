@@ -4,8 +4,8 @@
 
 #include <utility/math.hpp>
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 
 // enable if needs debug with zero epsilon
@@ -30,12 +30,12 @@ namespace geometry {
 
     inline real vector_length(const Vector3d & vec)
     {
-        return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+        return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     }
 
     inline real vector_length(const Normal3d & vec)
     {
-        return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+        return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     }
 
     inline Vector4d vector_with_length(const Vector3d & vec)
@@ -51,7 +51,7 @@ namespace geometry {
             *sqr_len_ptr = sqr_len;
         }
 
-        const real sqrt_len = sqrt(sqr_len);
+        const real sqrt_len = std::sqrt(sqr_len);
         DEBUG_ASSERT_NE(sqrt_len, 0);
 
         vec_out = Normal3d{
@@ -125,6 +125,10 @@ namespace geometry {
 
     // A.B = |A||B|cos(a), where |A||B| >= 0 and cos(a) >< 0, so A.B represents the sign of direction
     //
+    // CAUTION:
+    //
+    //  User must test both vectors on 0 length BEFORE call to this function!
+    //
     inline int vector_is_codir(const Vector4d & vec_from, const Vector4d & vec_to, const real & vec_from_epsilon, const real & vec_to_epsilon)
     {
         // all epsilons must be positive
@@ -142,6 +146,10 @@ namespace geometry {
 
     // A.B = |A||B|cos(a), where |A||B| >= 0 and cos(a) >< 0, so A.B represents the sign of direction
     //
+    // CAUTION:
+    //
+    //  User must test both vectors on 0 length BEFORE call to this function!
+    //
     inline int vector_is_codir(const Vector3d & vec_from, const Vector3d & vec_to, const real & vec_from_square_epsilon, const real & vec_to_square_epsilon)
     {
         // all epsilons must be positive
@@ -155,6 +163,29 @@ namespace geometry {
 
         const real sign_product = vector_dot_product(vec_from, vec_to); // we need only the sign of the result
         return math::sign_to_int(sign_product);
+    }
+
+    // a = arccos(A.B / |A||B|)
+    //
+    // CAUTION:
+    //
+    //  User must test both vectors on 0 length BEFORE call to this function!
+    //
+    inline real vector_angle(const Vector3d & vec_from, const Vector3d & vec_to, const real & vec_from_square_epsilon, const real & vec_to_square_epsilon)
+    {
+        // all epsilons must be not negative
+        DEBUG_ASSERT_GE(vec_from_square_epsilon, 0);
+        DEBUG_ASSERT_GE(vec_to_square_epsilon, 0);
+
+        const real denominator = vector_square_length(vec_from) * vector_square_length(vec_to); // always positive
+        DEBUG_ASSERT_GE(denominator, 0);
+
+        DEBUG_ASSERT_LT(vec_from_square_epsilon * vec_to_square_epsilon, denominator);
+
+        const real angle_rad = vector_dot_product(vec_from, vec_to) / std::sqrt(denominator);
+        const real fixed_angle_rad = math::fix_float_trigonometric_range(angle_rad);
+
+        return std::acos(fixed_angle_rad);
     }
 
     inline real vector_length_projection(const Vector3d & vec_from, const Normal3d & vec_to)
@@ -180,14 +211,14 @@ namespace geometry {
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(around_norm_unit_epsilon, 0));
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(vec_to_rotate_epsilon, 0));
         DEBUG_ASSERT_LT(vec_to_rotate_epsilon, vec_to_rotate_len);
-        TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GE(around_norm_unit_epsilon, fabs(vector_length(around_norm) - 1.0)));
+        TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GE(around_norm_unit_epsilon, std::fabs(vector_length(around_norm) - 1.0)));
 
-        const real cos_theta = cos(angle_rad);
-        const real sin_theta = sin(angle_rad);
+        const real cos_theta = std::cos(angle_rad);
+        const real sin_theta = std::sin(angle_rad);
 
         const real vec_to_rotate_projection = vector_dot_product(vec_to_rotate, around_norm);
 
-        if (fabs(vec_to_rotate_projection) < vec_to_rotate_len - vec_to_rotate_epsilon) {
+        if (std::fabs(vec_to_rotate_projection) < vec_to_rotate_len - vec_to_rotate_epsilon) {
             Vector3d cross_vec;
             vector_cross_product(cross_vec, around_norm, vec_to_rotate);
             vec_out = vec_to_rotate * cos_theta + cross_vec * sin_theta + around_norm * vec_to_rotate_projection * (1 - cos_theta);
@@ -257,7 +288,7 @@ namespace geometry {
 
         // check radius vector projection with tolerance on Z-axis=0 and Z-axis=semimajor_len (special edge cases)
 
-        const real radius_vec_z_projected_abs_len = fabs(radius_vec_z_projected_len);
+        const real radius_vec_z_projected_abs_len = std::fabs(radius_vec_z_projected_len);
         if (radius_vec_z_projected_abs_len < radius_vec.w - radius_vec_epsilon) {
             // calculate normalized vector projection to Z-axis
             Normal3d radius_vec_norm;
@@ -289,7 +320,7 @@ namespace geometry {
                 //
                 //  2. Use angle `phi` between the ellipsoid equator plane and a radius vector from the ellipsoid center to a surface point:
                 //      tan(phi) = y0/x0;
-                //      -> alpha = arctan(-b^2/(a^2 * tan(phi)))
+                //      -> alpha = atan(-b^2/(a^2 * tan(phi)))
                 //
                 //  3. Use angle `betta` between the ellipsoid Z-axis and radius vector.
                 //      phi = Pi/2 - betta
@@ -299,7 +330,7 @@ namespace geometry {
                 //      delta = Pi/2 - |alpha| - phi = Pi/2 - |alpha| - (Pi/2 - betta) - Pi/2 = betta - |alpha|
                 //
                 //  Resulted correction formula:
-                //     delta = betta - |arctan(-b^2/(a^2 * tan(Pi/2 - betta)))| = betta - arctan(b^2/(a^2 * tan(Pi/2 - betta)))
+                //     delta = betta - |atan(-b^2/(a^2 * tan(Pi/2 - betta)))| = betta - atan(b^2/(a^2 * tan(Pi/2 - betta)))
                 //
 
                 // calculate `betta` angle
@@ -309,17 +340,17 @@ namespace geometry {
                 // fix to avoid the trigonometric functions return NAN
                 radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range(radius_vec_cos_betta_to_z);
 
-                const real betta_angle_rad = acos(radius_vec_cos_betta_to_z);
+                const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
-                const real betta_angle_rad_abs = fabs(betta_angle_rad);
+                const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
                 DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD);
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD, fabs(alpha_angle_rad));
-                const real alpha_angle_rad_abs = fabs(alpha_angle_rad);
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD, std::fabs(alpha_angle_rad));
+                const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
 
@@ -371,7 +402,7 @@ namespace geometry {
 
         // check radius vector projection with tolerance on Z-axis=0 and Z-axis=semimajor_len (special edge cases)
 
-        const real radius_vec_z_projected_abs_len = fabs(radius_vec_z_projected_len);
+        const real radius_vec_z_projected_abs_len = std::fabs(radius_vec_z_projected_len);
         if (radius_vec_z_projected_abs_len < radius_vec.w - radius_vec_epsilon) {
             // calculate normalized vector projection to Z-axis
             Normal3d radius_vec_norm;
@@ -429,7 +460,7 @@ namespace geometry {
                 //
                 //  2. Use angle `phi` between ellipsoid equator plane and radius vector from ellipsoid center to a surface point:
                 //      tan(phi) = y0/x0;
-                //      -> alpha = arctan(-b^2/(a^2 * tan(phi)))
+                //      -> alpha = atan(-b^2/(a^2 * tan(phi)))
                 //
                 //  3. Use angle `betta` between ellipsoid Z-axis and radius vector.
                 //      phi = Pi/2 - betta
@@ -439,7 +470,7 @@ namespace geometry {
                 //      delta = Pi/2 - |alpha| - phi = Pi/2 - |alpha| - (Pi/2 - betta) - Pi/2 = betta - |alpha|
                 //
                 //  Resulted correction formula:
-                //     delta = betta - |arctan(-b^2/(a^2 * tan(Pi/2 - betta)))| = betta - arctan(b^2/(a^2 * tan(Pi/2 - betta)))
+                //     delta = betta - |atan(-b^2/(a^2 * tan(Pi/2 - betta)))| = betta - atan(b^2/(a^2 * tan(Pi/2 - betta)))
                 //
 
                 // calculate `betta` angle
@@ -449,17 +480,17 @@ namespace geometry {
                 // fix to avoid the trigonometric functions return NAN
                 radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range(radius_vec_cos_betta_to_z);
 
-                const real betta_angle_rad = acos(radius_vec_cos_betta_to_z);
+                const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
-                const real betta_angle_rad_abs = fabs(betta_angle_rad);
+                const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
                 DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD);
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD, fabs(alpha_angle_rad));
-                const real alpha_angle_rad_abs = fabs(alpha_angle_rad);
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD, std::fabs(alpha_angle_rad));
+                const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
 
@@ -641,7 +672,7 @@ namespace geometry {
         // fix to avoid the trigonometric functions return NAN
         angle_sin = math::fix_float_trigonometric_range(angle_sin);
 
-        return 2.0 * asin(angle_sin);
+        return 2.0 * std::asin(angle_sin);
     }
 
     // points_distance_epsilon - line distance beetween points on the track curve
@@ -652,9 +683,9 @@ namespace geometry {
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(points_distance_epsilon, 0));
 
 #if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
-        return points_distance_epsilon != 0.0 ? (sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length) : 0;
+        return points_distance_epsilon != 0.0 ? (std::sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length) : 0;
 #else
-        return sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length;
+        return std::sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length;
 #endif
     }
 
@@ -666,9 +697,9 @@ namespace geometry {
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(radius_vector_epsilon, 0));
 
 #if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
-        return radius_vector_epsilon != 0.0 ? sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2 : 0;
+        return radius_vector_epsilon != 0.0 ? std::sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2 : 0;
 #else
-        return sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2;
+        return std::sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2;
 #endif
     }
 

@@ -34,7 +34,7 @@ STATIC_ASSERT_GE(TACKLE_PP_MAX_UNROLLED_COPY_SIZE, TACKLE_PP_DEFAULT_UNROLLED_CO
 
 namespace utility
 {
-    using namespace boost::chrono;
+    namespace chrono = boost::chrono;
 
     // POD type, DO NOT USE constructors
     template<typename T, size_t S>
@@ -50,7 +50,7 @@ namespace utility
     FORCE_INLINE bool is_singular_iterator(const T & it)
     {
         T tmp = {};
-        return !memcmp(&tmp, &it, sizeof(it));
+        return !std::memcmp(&tmp, &it, sizeof(it));
     }
 
     // Unrolls even in debug, useful to speedup not optimized code, where a call to function has unnecessary overhead
@@ -282,16 +282,16 @@ namespace utility
 
     FORCE_INLINE_ALWAYS void spin_sleep(uint64_t wait_nsec)
     {
-        const auto begin_wait_time = high_resolution_clock::now();
+        const auto begin_wait_time = chrono::high_resolution_clock::now();
 
         while (true)
         {
-            const auto next_wait_time = high_resolution_clock::now();
+            const auto next_wait_time = chrono::high_resolution_clock::now();
 
             const auto spent_time_dur = next_wait_time - begin_wait_time;
 
             const uint64_t spent_time_dur_nsec = spent_time_dur.count() >= 0 ? // workaround for negative values
-                duration_cast<nanoseconds>(spent_time_dur).count() : 0;
+                chrono::duration_cast<chrono::nanoseconds>(spent_time_dur).count() : 0;
 
             if (spent_time_dur_nsec >= wait_nsec) {
                 return;
@@ -302,16 +302,16 @@ namespace utility
     template <typename Functor>
     FORCE_INLINE void spin_sleep(uint64_t wait_nsec, Functor && spin_function)
     {
-        const auto begin_wait_time = high_resolution_clock::now();
+        const auto begin_wait_time = chrono::high_resolution_clock::now();
 
         while (true)
         {
-            const auto next_wait_time = high_resolution_clock::now();
+            const auto next_wait_time = chrono::high_resolution_clock::now();
 
             const auto spent_time_dur = next_wait_time - begin_wait_time;
 
             const uint64_t spent_time_dur_nsec = spent_time_dur.count() >= 0 ? // workaround for negative values
-                duration_cast<nanoseconds>(spent_time_dur).count() : 0;
+                chrono::duration_cast<chrono::nanoseconds>(spent_time_dur).count() : 0;
 
             if (spent_time_dur_nsec >= wait_nsec) {
                 return;
@@ -326,19 +326,19 @@ namespace utility
     template <typename Functor>
     FORCE_INLINE void spin_sleep(uint64_t wait_nsec, Functor && spin_function, uint64_t schedule_call_time_nsec)
     {
-        const auto begin_wait_time = high_resolution_clock::now();
+        const auto begin_wait_time = chrono::high_resolution_clock::now();
 
         uint64_t schedule_time_next_index;
         uint64_t schedule_time_prev_index = math::uint64_max;
 
         while (true)
         {
-            const auto next_wait_time = high_resolution_clock::now();
+            const auto next_wait_time = chrono::high_resolution_clock::now();
 
             const auto spent_time_dur = next_wait_time - begin_wait_time;
 
             const uint64_t spent_time_dur_nsec = spent_time_dur.count() >= 0 ? // workaround for negative values
-                duration_cast<nanoseconds>(spent_time_dur).count() : 0;
+                chrono::duration_cast<chrono::nanoseconds>(spent_time_dur).count() : 0;
 
             if (spent_time_dur_nsec >= wait_nsec) {
                 return;

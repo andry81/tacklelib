@@ -69,6 +69,7 @@ namespace tackle
         {
             char fmt_buf[256];
             snprintf(fmt_buf, utility::static_size(fmt_buf), "%s: not implemented", UTILITY_PP_FUNCSIG);
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::runtime_error(fmt_buf);
         }
     };

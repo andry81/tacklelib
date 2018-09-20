@@ -780,7 +780,7 @@ void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, b
 {
     const double angle_distance = math::angle_closest_distance(start_angle_deg, end_angle_deg, false, on_equal_distances_select_closest_to_zero);
 
-    const double angle_distance_fluctuation = fabs(angle_distance - eta_angle_distance);
+    const double angle_distance_fluctuation = std::fabs(angle_distance - eta_angle_distance);
 
     stats.peak_angle_distance_fluctuation = (std::max)(stats.peak_angle_distance_fluctuation, angle_distance_fluctuation);
 
@@ -799,7 +799,7 @@ void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, b
             math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
     }
 
-    const double angle_distance_normalized = fabs(
+    const double angle_distance_normalized = std::fabs(
         math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1) -
         math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
 
@@ -1364,7 +1364,7 @@ void test_angle_distance(double start_angle_deg, double end_angle_deg, bool posi
 {
     const double angle_distance = math::angle_distance<double>(start_angle_deg, end_angle_deg, 0, positive_angle_change, false);
 
-    const double angle_distance_fluctuation = fabs(angle_distance - eta_angle_distance);
+    const double angle_distance_fluctuation = std::fabs(angle_distance - eta_angle_distance);
 
     stats.peak_angle_distance_fluctuation = (std::max)(stats.peak_angle_distance_fluctuation, angle_distance_fluctuation);
 
@@ -1383,7 +1383,7 @@ void test_angle_distance(double start_angle_deg, double end_angle_deg, bool posi
             math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
     }
 
-    const double angle_distance_normalized = fabs(
+    const double angle_distance_normalized = std::fabs(
         math::normalize_angle<double>(end_angle_deg, 0, 360, 360, -1) -
         math::normalize_angle<double>(start_angle_deg + angle_distance, 0, 360, 360, -1));
 
@@ -3062,30 +3062,30 @@ TEST(FunctionsTest, normalize_angle_to_range)
     test_normalize_angle_to_range(-270, -450,  361, -359);
 }
 
-//// fmod vs math::normalize_angle
+//// std::fmod vs math::normalize_angle
 
-void test_fmod_vs_normalize_angle(bool in_radians, size_t num)
+void test_std_fmod_vs_normalize_angle(bool in_radians, size_t num)
 {
     const double min_angle = -DEG_360_IN_RAD_IF(in_radians) * num;
     const double max_angle = DEG_360_IN_RAD_IF(in_radians) * num;
     const double inc_angle = DEG_360_IN_RAD_IF(in_radians) / DEG_720_IN_RAD_IF(in_radians);
 
     for (double angle = min_angle; angle <= max_angle; angle += inc_angle) {
-        const double fmod_angle = fmod(angle, DEG_360_IN_RAD_IF(in_radians));
+        const double fmod_angle = std::fmod(angle, DEG_360_IN_RAD_IF(in_radians));
         const double norm_angle = math::normalize_angle(angle,
             -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0, true);
         ASSERT_EQ(fmod_angle, norm_angle);
     }
 }
 
-TEST(FunctionsTest, fmod_vs_normalize_angle_rads)
+TEST(FunctionsTest, std_fmod_vs_normalize_angle_rads)
 {
-    test_fmod_vs_normalize_angle(true, 1000);
+    test_std_fmod_vs_normalize_angle(true, 1000);
 }
 
-TEST(FunctionsTest, fmod_vs_normalize_angle_degrees)
+TEST(FunctionsTest, std_fmod_vs_normalize_angle_degrees)
 {
-    test_fmod_vs_normalize_angle(false, 1000);
+    test_std_fmod_vs_normalize_angle(false, 1000);
 }
 
 //// get_leap_days
