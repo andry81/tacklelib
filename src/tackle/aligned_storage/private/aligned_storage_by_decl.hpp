@@ -80,6 +80,7 @@ namespace tackle
         FORCE_INLINE storage_type_t * this_()
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -89,6 +90,7 @@ namespace tackle
         FORCE_INLINE const storage_type_t * this_() const
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -98,6 +100,7 @@ namespace tackle
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -107,6 +110,7 @@ namespace tackle
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 

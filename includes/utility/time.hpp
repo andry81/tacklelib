@@ -102,7 +102,7 @@ namespace time {
 
     FORCE_INLINE size_t get_leap_days(size_t year)
     {
-        ASSERT_GE(year, 1800U);
+        DEBUG_ASSERT_GE(year, 1800U);
         const size_t prev_year = year - 1;
         return prev_year / 4 - prev_year / 100 + prev_year / 400;
     }

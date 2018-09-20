@@ -807,7 +807,7 @@ namespace math
             return -std::numeric_limits<T>::min();
         }
 
-        return math::negate(std::numeric_limits<std::make_unsigned<T>::value>::min() + 1);
+        return math::negate(std::numeric_limits<typename std::make_unsigned<T>::type>::min() + 1);
     }
 
     template <typename T>
@@ -843,7 +843,7 @@ namespace math
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
-        return (isnormal(v) && positive_max(v) != v && negative_min(v) != v || v == 0.0);
+        return (std::isnormal(v) && positive_max(v) != v && negative_min(v) != v || v == 0.0);
     }
 
     template <typename T>
@@ -1104,7 +1104,7 @@ namespace math
                         break;
                     }
                     else {
-                        ang_norm = fmod(ang, ang_period_mod);
+                        ang_norm = std::fmod(ang, ang_period_mod);
                         if (ang_norm >= min_ang && max_ang > ang_norm) {
                             return ang_norm;
                         }
@@ -1130,7 +1130,7 @@ namespace math
                     }
                 }
                 else {
-                    ang_norm = fmod(ang, ang_period_mod);
+                    ang_norm = std::fmod(ang, ang_period_mod);
                     if (ang_norm >= min_ang && max_ang > ang_norm) {
                         return ang_norm;
                     }
@@ -1166,7 +1166,7 @@ namespace math
                         break;
                     }
                     else {
-                        ang_norm = fmod(ang, ang_period_mod);
+                        ang_norm = std::fmod(ang, ang_period_mod);
                         if (ang_norm >= min_ang && max_ang >= ang_norm) {
                             return ang_norm;
                         }
@@ -1185,7 +1185,7 @@ namespace math
                     }
                 }
                 else {
-                    ang_norm = fmod(ang, ang_period_mod);
+                    ang_norm = std::fmod(ang, ang_period_mod);
                     if (ang_norm >= min_ang && max_ang >= ang_norm) {
                         return ang_norm;
                     }
@@ -1221,7 +1221,7 @@ namespace math
                         break;
                     }
                     else {
-                        ang_norm = fmod(ang, ang_period_mod);
+                        ang_norm = std::fmod(ang, ang_period_mod);
                         if (ang_norm > min_ang && max_ang >= ang_norm) {
                             return ang_norm;
                         }
@@ -1247,7 +1247,7 @@ namespace math
                     }
                 }
                 else {
-                    ang_norm = fmod(ang, ang_period_mod);
+                    ang_norm = std::fmod(ang, ang_period_mod);
                     if (ang_norm > min_ang && max_ang >= ang_norm) {
                         return ang_norm;
                     }
@@ -1280,7 +1280,7 @@ namespace math
                     break;
                 }
                 else {
-                    ang_norm = fmod(ang, ang_period_mod);
+                    ang_norm = std::fmod(ang, ang_period_mod);
                     if (ang_norm > min_ang && max_ang > ang_norm) {
                         return ang_norm;
                     }
@@ -1299,7 +1299,7 @@ namespace math
                 }
             }
             else {
-                ang_norm = fmod(ang, ang_period_mod);
+                ang_norm = std::fmod(ang, ang_period_mod);
                 if (ang_norm > min_ang && max_ang > ang_norm) {
                     return ang_norm;
                 }
@@ -1343,7 +1343,7 @@ namespace math
         if (angle_distance_inf < 0) {
             if (-DEG_180_IN_RAD_IF(in_radians) >= angle_distance_inf) {
                 // normalize distance from [-inf..0] to (-360..0]
-                const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
+                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
                 if (-DEG_180_IN_RAD_IF(in_radians) > angle_distance_360) {
                     angle_distance = DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
                 }
@@ -1365,7 +1365,7 @@ namespace math
         else {
             if (DEG_180_IN_RAD_IF(in_radians) <= angle_distance_inf) {
                 // normalize distance from [0..+inf] to [0..+360)
-                const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
+                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
                 if (DEG_180_IN_RAD_IF(in_radians) < angle_distance_360) {
                     angle_distance = angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
                 }
@@ -1385,7 +1385,7 @@ namespace math
             }
         }
 
-        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), fabs(angle_distance));
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), std::fabs(angle_distance));
 
         return angle_distance;
     }
@@ -1408,8 +1408,8 @@ namespace math
         const T angle_distance_inf = end_angle - start_angle;
 
         // normalize distance from [-inf..0]/[0..+inf] to (-360..0]/[0..+360)
-        const T angle_distance_360 = fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
-        const T angle_distance_360_abs = fabs(angle_distance_360);
+        const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
+        const T angle_distance_360_abs = std::fabs(angle_distance_360);
 
         if (angle_epsilon < angle_distance_360_abs && angle_epsilon < (DEG_360_IN_RAD_IF(in_radians) - angle_distance_360_abs)) {
             if (!((angle_distance_360 >= 0) ^ positive_angle_change)) {
@@ -1460,7 +1460,7 @@ namespace math
         // all input must be already normalized and consistent
         DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
         DEBUG_ASSERT_TRUE(mid_angle - start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle - start_angle);
-        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), fabs(mid_angle - start_angle));
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), std::fabs(mid_angle - start_angle));
 #if DEBUG_ASSERT_VERIFY_ENABLED
         if (angle_distance > 0) {
             DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
@@ -1569,12 +1569,12 @@ namespace math
         DEBUG_ASSERT_GE(max_value, value);
         DEBUG_ASSERT_GE(no_truncation_epsilon, 0); // epsilon must be always not negative
 
-        const T rounding_multiplier = pow(T(10), int(num_fraction_chars));
+        const T rounding_multiplier = std::pow(T(10), int(num_fraction_chars));
 
         const T delta = max_value - value;
         if (no_truncation_epsilon < delta && 1.0 >= delta * rounding_multiplier) {
             T whole_value;
-            modf(value * rounding_multiplier, &whole_value);
+            std::modf(value * rounding_multiplier, &whole_value);
             return whole_value / rounding_multiplier;
         }
 
@@ -1587,7 +1587,7 @@ namespace math
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
         if (num_fraction_chars) {
-            const T rounding_multiplier = pow(T(10), int(num_fraction_chars));
+            const T rounding_multiplier = std::pow(T(10), int(num_fraction_chars));
             const T rounded_value = ((value >= 0) ?
                 floor_to_zero(value * rounding_multiplier + 0.5) :
                 floor_to_zero(value * rounding_multiplier - 0.5)) / rounding_multiplier;
@@ -1630,7 +1630,7 @@ namespace math
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
-        if (epsion >= fabs(left - right)) {
+        if (epsion >= std::fabs(left - right)) {
             return true;
         }
 
@@ -1674,10 +1674,10 @@ namespace math
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
         if (value >= 0) {
-            return floor(value);
+            return std::floor(value);
         }
 
-        return -floor(-value);
+        return -std::floor(-value);
     }
 
     // changes exponent of one of the floats to compensate unsensible addition/subtraction
@@ -1696,15 +1696,15 @@ namespace math
         int from_exp;
         int to_exp;
 
-        frexp(from, &from_exp);
-        const double to_frac = frexp(to_fix, &to_exp);
+        std::frexp(from, &from_exp);
+        const double to_frac = std::frexp(to_fix, &to_exp);
 
         const int float_digits = std::numeric_limits<T>::digits;
         const int exp_delta = std::abs(from_exp - to_exp);
 
         if (exp_delta > float_digits) {
             const int compensate_exp_delta = (std::max)(exp_delta - float_digits, min_sensible_exp_delta); // compensate by exponent distance reduction
-            to_fix = ldexp(to_frac, to_exp + compensate_exp_delta);
+            to_fix = std::ldexp(to_frac, to_exp + compensate_exp_delta);
             return compensate_exp_delta;
         }
 

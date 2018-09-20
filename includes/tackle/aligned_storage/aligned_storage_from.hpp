@@ -66,6 +66,7 @@ namespace tackle
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
                 if (!base_t::is_unconstructed_copy_allowed()) {
+                    DEBUG_BREAK_IN_DEBUGGER(true);
                     throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
                 }
             }
@@ -87,10 +88,12 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
             if (!r.is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -178,6 +181,7 @@ namespace tackle
         FORCE_INLINE storage_type_t * this_()
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -187,6 +191,7 @@ namespace tackle
         FORCE_INLINE const storage_type_t * this_() const
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -196,6 +201,7 @@ namespace tackle
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 
@@ -205,6 +211,7 @@ namespace tackle
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
             if (!base_t::is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
 

@@ -1,3 +1,11 @@
+2018.09.20:
+* fixed: third type usage in the tackle::variant class
+* fixed: internal type case in the tackle::max_aligned_storage class
+* new: vector_angle function
+* refactor: global std types refactor, replaced all math/float c functions by c++ function from std namespace as more reliable
+* refactor: debug break before throw in functions of tackle types
+* other minor fixes and refactor
+
 2018.09.18:
 * new: utility::inline_stack class to light weight incode stack tracing
 * new: UTILITY_IS_TYPE_COMPLETE macro to test on type completeness

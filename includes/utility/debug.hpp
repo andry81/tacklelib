@@ -72,9 +72,13 @@
 
 #define DEBUG_BREAK_IN_DEBUGGER(cond) DEBUG_BREAK((cond) && ::utility::is_under_debugger())
 
-#define DEBUG_FUNC_LINE_A                   ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_A()            ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)  ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_A                       ::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE }
+#define DEBUG_FUNC_LINE_MAKE_A()                ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)      ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
+
+#define DEBUG_FUNCSIG_LINE_A                    ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
+#define DEBUG_FUNCSIG_LINE_MAKE_A()             ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)   ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
 
 
 namespace utility

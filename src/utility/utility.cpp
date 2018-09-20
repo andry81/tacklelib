@@ -40,12 +40,12 @@ namespace utility
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    if (VERIFY_FALSE(memcmp(&buf_ptr[i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
+                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
                         goto _error;
                     }
                 }
                 if (chunks_remainder) {
-                    if (memcmp(&buf_ptr[num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
+                    if (std::memcmp(&buf_ptr[num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
                         goto _error;
                     }
                 }
@@ -59,12 +59,12 @@ namespace utility
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    if (VERIFY_FALSE(memcmp(&buf_ptr[offset + i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
+                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[offset + i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
                         goto _error;
                     }
                 }
                 if (chunks_remainder) {
-                    if (memcmp(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
+                    if (std::memcmp(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
                         goto _error;
                     }
                 }
@@ -201,7 +201,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-            fsetpos(file_handle.get(), &last_pos);
+        fsetpos(file_handle.get(), &last_pos);
 
         return size;
     }
@@ -226,7 +226,7 @@ namespace utility
             if (left_read_byte_size != right_read_byte_size)
                 return false;
 
-            if (memcmp(left_local_buf_ptr.get(), right_local_buf_ptr.get(), left_read_byte_size))
+            if (std::memcmp(left_local_buf_ptr.get(), right_local_buf_ptr.get(), left_read_byte_size))
                 return false;
         }
 
@@ -246,7 +246,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-            tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
+        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::system_error{ errno, std::system_category(), file_path };
@@ -308,7 +308,7 @@ namespace utility
 #error platform is not implemented
 #endif
 
-            tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
+        tackle::FileHandle file_handle_ptr = tackle::FileHandle(file_ptr, file_path);
         if (!file_ptr) {
             DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::system_error{ errno, std::system_category(), file_path };

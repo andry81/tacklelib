@@ -83,6 +83,7 @@ namespace utility
     struct StaticAssertTrue
     {
         static const bool value = (v ? true : false);
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? true : false, "StaticAssertTrue with parameters failed.");
     };
 
@@ -105,7 +106,7 @@ namespace utility
     struct StaticAssertFalse
     {
         static const bool value = (v ? false : true);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
 
@@ -116,7 +117,7 @@ namespace utility
     struct StaticAssertEQ
     {
         static const bool value = (u == v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u == v, "StaticAssertEQ failed.");
     };
 
@@ -127,7 +128,7 @@ namespace utility
     struct StaticAssertNE
     {
         static const bool value = (u != v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u != v, "StaticAssertNE failed.");
     };
 
@@ -138,7 +139,7 @@ namespace utility
     struct StaticAssertLE
     {
         static const bool value = (u <= v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u <= v, "StaticAssertLE failed.");
     };
 
@@ -149,7 +150,7 @@ namespace utility
     struct StaticAssertLT
     {
         static const bool value = (u < v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u < v, "StaticAssertLT failed.");
     };
 
@@ -160,7 +161,7 @@ namespace utility
     struct StaticAssertGE
     {
         static const bool value = (u >= v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u >= v, "StaticAssertGE failed.");
     };
 
@@ -171,17 +172,24 @@ namespace utility
     struct StaticAssertGT
     {
         static const bool value = (u > v);
-        // doublicate the error, to provoke compiler include complete error stack from here
+        // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u > v, "StaticAssertGT failed.");
     };
 
     template <typename U, typename V, U u, V v>
     const bool StaticAssertGT<U, V, u, v>::value;
 
-    // to compare strings in static_assert (see for details: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time)
-    CONSTEXPR bool static_strings_equal(char const * a, char const * b)
+    // To compare strings in a static assert.
+    // See for details: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time
+    //
+    CONSTEXPR bool static_strings_equal(const char * a, const char * b)
     {
         return *a == *b && (*a == '\0' || static_strings_equal(a + 1, b + 1));
+    }
+
+    CONSTEXPR bool static_strings_equal(const wchar_t * a, const wchar_t * b)
+    {
+        return *a == *b && (*a == L'\0' || static_strings_equal(a + 1, b + 1));
     }
 }
 

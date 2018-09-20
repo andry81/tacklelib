@@ -41,6 +41,7 @@ namespace tackle
         // at first, check if storage is constructed
         if (!r.is_constructed()) {
             if (!base_t::is_unconstructed_copy_allowed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
             }
         }
@@ -64,10 +65,12 @@ namespace tackle
 
         // at first, check if both storages are constructed
         if (!base_t::is_constructed()) {
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
         }
 
         if (!r.is_constructed()) {
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
         }
 

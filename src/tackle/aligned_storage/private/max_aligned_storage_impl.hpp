@@ -48,6 +48,7 @@ namespace tackle
 
         default_:;
             default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % type_index).str());
             }
         }
@@ -78,6 +79,7 @@ namespace tackle
 
         default_:;
             default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % type_index).str());
             }
         }
@@ -107,6 +109,7 @@ namespace tackle
 
         default_:;
             default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error(
                     (boost::format("%s: invalid storage construction: to_type_index=%i from_type_index=%i") %
                         UTILITY_PP_FUNCSIG % m_type_index % s.m_type_index).str());
@@ -131,6 +134,7 @@ namespace tackle
 
         default_:;
             default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -171,6 +175,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error(
                     (boost::format("%s: invalid storage assign: to_type_index=%i from_type_index=%i") %
                         UTILITY_PP_FUNCSIG % m_type_index % s.m_type_index).str());
@@ -205,6 +210,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -225,6 +231,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid storage assign: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -251,6 +258,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -283,6 +291,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -301,7 +310,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
-                (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
+                (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
@@ -309,12 +318,16 @@ namespace tackle
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
     FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke_if_returnable(F && functor, bool throw_exceptions_on_type_error)
     {
+        // remove reference and qualificators to avoid cast issues like r-value cast to not constant reference
+        using unqual_return_type_t = typename std::remove_cv<typename std::remove_reference<R>::type>::type;
+
         switch (m_type_index)
         {
             BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }
@@ -333,7 +346,7 @@ namespace tackle
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
-                (n < num_types_t::value) && std::is_convertible<storage_type_t, R>::value>:: \
+                (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
@@ -341,12 +354,16 @@ namespace tackle
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename R, typename F>
     FORCE_INLINE R max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::invoke_if_returnable(F && functor, bool throw_exceptions_on_type_error) const
     {
+        // remove reference and qualificators to avoid cast issues like r-value cast to not constant reference
+        using unqual_return_type_t = typename std::remove_cv<typename std::remove_reference<R>::type>::type;
+
         switch (m_type_index)
         {
             BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_INVOKE_MACRO)
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
                 throw std::runtime_error((boost::format("%s: invalid type index: type_index=%i") % UTILITY_PP_FUNCSIG % m_type_index).str());
             }
         }

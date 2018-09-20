@@ -353,6 +353,11 @@ inline Vector3d operator -(const Vector4d & l, const Vector4d & r)
     return Vector3d{ l.x - r.x, l.y - r.y, l.z - r.z };
 }
 
+inline Vector3d operator +(const Vector4d & l, const Vector4d & r)
+{
+    return Vector3d{ l.x + r.x, l.y + r.y, l.z + r.z };
+}
+
 struct NormalMatrix3d
 {
     NormalMatrix3d(const NormalMatrix3d &) = default;
