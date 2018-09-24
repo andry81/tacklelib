@@ -300,6 +300,148 @@ TEST(FunctionsTest, stride_copy)
     //test_stride_copy(6, 7, 16, 16, ref, 10, { 1, 2, 3, 4, 5, 6, 8, 9, 10, 11 });
 }
 
+template <typename T>
+void float_compare_normal_with_infinity(double numerator, double denominator)
+{
+    ASSERT_TRUE(!std::isnan(numerator) && !std::isnan(denominator));
+    ASSERT_NE(denominator, 0);
+
+    const double value = numerator / denominator;
+
+    ASSERT_TRUE(!std::isnan(value) && !math::is_infinite(value));
+    ASSERT_LT(value, math::positive_infinity(value));
+    ASSERT_LT(math::negative_infinity(value), value);
+
+#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
+    const T qd_value = T(numerator) / denominator;
+
+    ASSERT_TRUE(!std::isnan(qd_value) && !math::is_infinite(qd_value));
+    ASSERT_LT(qd_value, math::positive_infinity(qd_value));
+    ASSERT_LT(math::negative_infinity(qd_value), qd_value);
+#endif
+}
+
+TEST(ExternalFuncs, float_compare_normal_with_infinity)
+{
+    // dd_real
+    float_compare_normal_with_infinity<dd_real>(1.0, 1.0);
+    float_compare_normal_with_infinity<dd_real>(0, 1.0);
+    float_compare_normal_with_infinity<dd_real>(-1.0, 1.0);
+
+    float_compare_normal_with_infinity<dd_real>(1.0, 3.0);
+    float_compare_normal_with_infinity<dd_real>(-1.0, 3.0);
+
+    float_compare_normal_with_infinity<dd_real>(math::positive_max(0.0), 1.0);
+    float_compare_normal_with_infinity<dd_real>(math::negative_min(0.0), 1.0);
+
+    // qd_real
+    float_compare_normal_with_infinity<qd_real>(1.0, 1.0);
+    float_compare_normal_with_infinity<qd_real>(0, 1.0);
+    float_compare_normal_with_infinity<qd_real>(-1.0, 1.0);
+
+    float_compare_normal_with_infinity<qd_real>(1.0, 3.0);
+    float_compare_normal_with_infinity<qd_real>(-1.0, 3.0);
+
+    float_compare_normal_with_infinity<qd_real>(math::positive_max(0.0), 1.0);
+    float_compare_normal_with_infinity<qd_real>(math::negative_min(0.0), 1.0);
+}
+
+#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
+template <typename T>
+void qdlib_nextafter(double from_numerator, double from_denominator, double to_numerator, double to_denominator)
+{
+    ASSERT_TRUE(!std::isnan(from_numerator) && !std::isnan(from_denominator));
+    ASSERT_TRUE(!std::isnan(to_numerator) && !std::isnan(from_denominator));
+
+    ASSERT_NE(from_denominator, 0);
+    ASSERT_NE(to_denominator, 0);
+
+    const T from_value = !math::is_infinite(from_numerator) ? T(from_numerator) / from_denominator : math::signed_infinity(from_numerator);
+    const T to_value = !math::is_infinite(to_numerator) ? T(to_numerator) / to_denominator : math::signed_infinity(to_numerator);
+
+    const T qd_value = std::nextafter(from_value, to_value);
+    ASSERT_TRUE(!std::isnan(qd_value) && !math::is_infinite(qd_value));
+
+    if (from_value != to_value) {
+        ASSERT_NE(qd_value, from_value);
+        if (from_value < to_value) {
+            ASSERT_LT(from_value, qd_value);
+            if (qd_value != to_value) {
+                ASSERT_LT(qd_value, to_value);
+            }
+        }
+        else {
+            ASSERT_GT(from_value, to_value);
+            ASSERT_GT(from_value, qd_value);
+            if (qd_value != to_value) {
+                ASSERT_GT(qd_value, to_value);
+            }
+        }
+    }
+    else {
+        ASSERT_EQ(qd_value, from_value);
+        ASSERT_EQ(qd_value, to_value);
+    }
+}
+
+TEST(ExternalFuncs, dd_real_nextafter)
+{
+    // dd_real
+    qdlib_nextafter<dd_real>(1.0, 1.0, 10.0, 1.0);
+    qdlib_nextafter<dd_real>(0.0, 1.0, 10.0, 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 1.0, 10.0, 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 3.0, 10.0, 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 3.0, 10.0, 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 1.0, math::positive_max(0.0), 1.0);
+    qdlib_nextafter<dd_real>(0.0, 1.0, math::positive_max(0.0), 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 1.0, math::positive_max(0.0), 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 1.0, math::positive_infinity(0.0), 1.0);
+    qdlib_nextafter<dd_real>(0.0, 1.0, math::positive_infinity(0.0), 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 1.0, math::positive_infinity(0.0), 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 1.0, -10.0, 1.0);
+    qdlib_nextafter<dd_real>(0.0, 1.0, -10.0, 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 1.0, -10.0, 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 3.0, -10.0, 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 3.0, -10.0, 1.0);
+
+    qdlib_nextafter<dd_real>(1.0, 1.0, math::negative_infinity(0.0), 1.0);
+    qdlib_nextafter<dd_real>(0.0, 1.0, math::negative_infinity(0.0), 1.0);
+    qdlib_nextafter<dd_real>(-1.0, 1.0, math::negative_infinity(0.0), 1.0);
+
+    // qd_real
+    qdlib_nextafter<qd_real>(1.0, 1.0, 10.0, 1.0);
+    qdlib_nextafter<qd_real>(0.0, 1.0, 10.0, 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 1.0, 10.0, 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 3.0, 10.0, 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 3.0, 10.0, 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 1.0, math::positive_max(0.0), 1.0);
+    qdlib_nextafter<qd_real>(0.0, 1.0, math::positive_max(0.0), 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 1.0, math::positive_max(0.0), 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 1.0, math::positive_infinity(0.0), 1.0);
+    qdlib_nextafter<qd_real>(0.0, 1.0, math::positive_infinity(0.0), 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 1.0, math::positive_infinity(0.0), 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 1.0, -10.0, 1.0);
+    qdlib_nextafter<qd_real>(0.0, 1.0, -10.0, 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 1.0, -10.0, 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 3.0, -10.0, 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 3.0, -10.0, 1.0);
+
+    qdlib_nextafter<qd_real>(1.0, 1.0, math::negative_infinity(0.0), 1.0);
+    qdlib_nextafter<qd_real>(0.0, 1.0, math::negative_infinity(0.0), 1.0);
+    qdlib_nextafter<qd_real>(-1.0, 1.0, math::negative_infinity(0.0), 1.0);
+}
+#endif
+
 //// test_normalize_angle
 
 void test_normalize_angle(double ang, double min_ang, double max_ang, double ang_period_mod, int inclusion_direction, double eta_angle)
@@ -3066,14 +3208,14 @@ TEST(FunctionsTest, normalize_angle_to_range)
 
 void test_std_fmod_vs_normalize_angle(bool in_radians, size_t num)
 {
-    const double min_angle = -DEG_360_IN_RAD_IF(in_radians) * num;
-    const double max_angle = DEG_360_IN_RAD_IF(in_radians) * num;
-    const double inc_angle = DEG_360_IN_RAD_IF(in_radians) / DEG_720_IN_RAD_IF(in_radians);
+    const double min_angle = -DEG_360_IN_RAD_IF(min_angle, in_radians) * num;
+    const double max_angle = DEG_360_IN_RAD_IF(max_angle, in_radians) * num;
+    const double inc_angle = DEG_360_IN_RAD_IF(inc_angle, in_radians) / DEG_720_IN_RAD_IF(inc_angle, in_radians);
 
     for (double angle = min_angle; angle <= max_angle; angle += inc_angle) {
-        const double fmod_angle = std::fmod(angle, DEG_360_IN_RAD_IF(in_radians));
+        const double fmod_angle = std::fmod(angle, DEG_360_IN_RAD_IF(angle, in_radians));
         const double norm_angle = math::normalize_angle(angle,
-            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0, true);
+            -DEG_360_IN_RAD_IF(angle, in_radians), DEG_360_IN_RAD_IF(angle, in_radians), DEG_360_IN_RAD_IF(angle, in_radians), 0, true);
         ASSERT_EQ(fmod_angle, norm_angle);
     }
 }

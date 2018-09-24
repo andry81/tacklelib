@@ -15,6 +15,11 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
+#include <qd/dd_real.h>
+#include <qd/qd_real.h>
+#endif
+
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>

@@ -13,13 +13,13 @@
 #include <atomic>
 
 
-#if defined(ORBIT_TOOLS_ENABLE_QD_QD_INTEGRATION) || defined(SGP4_ENABLE_QD_QD_INTEGRATION)
+#if defined(ENABLE_QD_QD_INTEGRATION)
 #define REAL_AS_QD_REAL_INTEGRATION_ENABLED 1
 #else
 #define REAL_AS_QD_REAL_INTEGRATION_ENABLED 0
 #endif
 
-#if defined(ORBIT_TOOLS_ENABLE_QD_DD_INTEGRATION) || defined(SGP4_ENABLE_QD_DD_INTEGRATION)
+#if defined(ENABLE_QD_DD_INTEGRATION)
 #define REAL_AS_DD_REAL_INTEGRATION_ENABLED 1
 #else
 #define REAL_AS_DD_REAL_INTEGRATION_ENABLED 0
@@ -35,7 +35,7 @@
 namespace tackle {
 namespace geometry {
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 
 #if defined(TACKLE_GEOM_REAL_FLOAT_TYPE)
 using real = TACKLE_GEOM_REAL_FLOAT_TYPE;
@@ -59,6 +59,18 @@ using real = double;
 
 const real real_min = (std::numeric_limits<real>::min)();
 const real real_max = (std::numeric_limits<real>::max)();
+
+#if defined(TACKLE_GEOM_REAL_FLOAT_TYPE)
+const real real_pi = math::pi();
+
+// real as qd_real/dd_real from the QD library
+#elif REAL_AS_QD_REAL_INTEGRATION_ENABLED
+const real real_pi = qd_real::_pi();
+
+#elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
+const real real_pi = dd_real::_pi();
+
+#endif
 
 struct BasicVector3d
 {
@@ -126,7 +138,7 @@ inline Vector3d operator +(const Vector3d & vec, double k)
     return Vector3d{ vec.x + k, vec.y + k, vec.z + k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator +(const Vector3d & vec, const real & k)
 {
     return Vector3d{ vec.x + k, vec.y + k, vec.z + k };
@@ -138,7 +150,7 @@ inline Vector3d operator +(double k, const Vector3d & vec)
     return Vector3d{ vec.x + k, vec.y + k, vec.z + k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator +(const real & k, const Vector3d & vec)
 {
     return Vector3d{ vec.x + k, vec.y + k, vec.z + k };
@@ -155,7 +167,7 @@ inline Vector3d operator -(const Vector3d & vec, double k)
     return Vector3d{ vec.x - k, vec.y - k, vec.z - k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator -(const Vector3d & vec, const real & k)
 {
     return Vector3d{ vec.x - k, vec.y - k, vec.z - k };
@@ -177,7 +189,7 @@ inline Vector3d operator *(const Vector3d & vec, double k)
     return Vector3d{ vec.x * k, vec.y * k, vec.z * k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator *(const Vector3d & vec, const real & k)
 {
     return Vector3d{ vec.x * k, vec.y * k, vec.z * k };
@@ -189,7 +201,7 @@ inline Vector3d operator *(double k, const Vector3d & vec)
     return Vector3d{ k * vec.x, k * vec.y, k * vec.z };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator *(const real & k, const Vector3d & vec)
 {
     return Vector3d{ k * vec.x, k * vec.y, k * vec.z };
@@ -201,7 +213,7 @@ inline Vector3d operator /(const Vector3d & vec, double k)
     return Vector3d{ vec.x / k, vec.y / k, vec.z / k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator /(const Vector3d & vec, const real & k)
 {
     return Vector3d{ vec.x / k, vec.y / k, vec.z / k };
@@ -228,11 +240,11 @@ struct Normal3d : public Vector3d
     {
     }
 
-    void fix_float_trigonometric_range()
+    void fix_float_trigonometric_range_factor()
     {
-        x = math::fix_float_trigonometric_range(x);
-        y = math::fix_float_trigonometric_range(y);
-        z = math::fix_float_trigonometric_range(z);
+        x = math::fix_float_trigonometric_range_factor(x);
+        y = math::fix_float_trigonometric_range_factor(y);
+        z = math::fix_float_trigonometric_range_factor(z);
     }
 };
 
@@ -256,7 +268,7 @@ inline Vector3d operator *(const Normal3d & vec, double k)
     return Vector3d{ vec.x * k, vec.y * k, vec.z * k };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator *(const Normal3d & vec, const real & k)
 {
     return Vector3d{ vec.x * k, vec.y * k, vec.z * k };
@@ -268,7 +280,7 @@ inline Vector3d operator *(double k, const Normal3d & vec)
     return Vector3d{ k * vec.x, k * vec.y, k * vec.z };
 }
 
-#if REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
 inline Vector3d operator *(const real & k, const Normal3d & vec)
 {
     return Vector3d{ k * vec.x, k * vec.y, k * vec.z };
@@ -388,12 +400,14 @@ struct NormalMatrix3d
         return m[index];
     }
 
-    void fix_float_trigonometric_range()
+    void fix_float_trigonometric_range_factor()
     {
-        m[0].fix_float_trigonometric_range();
-        m[1].fix_float_trigonometric_range();
-        m[2].fix_float_trigonometric_range();
+        m[0].fix_float_trigonometric_range_factor();
+        m[1].fix_float_trigonometric_range_factor();
+        m[2].fix_float_trigonometric_range_factor();
     }
+
+    void validate(const real & unit_square_epsilon) const;
 
     Normal3d m[3];
 };
@@ -406,6 +420,26 @@ inline bool operator ==(const NormalMatrix3d & l, const NormalMatrix3d & r)
 inline bool operator !=(const NormalMatrix3d & l, const NormalMatrix3d & r)
 {
     return l.m[0] != r.m[0] || l.m[1] != r.m[1] || l.m[2] != r.m[2];
+}
+
+extern void vector_cross_product(Vector3d & vec_out, const Vector3d & vec_first, const Vector3d & vec_second);
+extern bool vector_is_equal(const Vector3d & l, const Vector3d & r, const real & vec_square_epsilon);
+
+inline void NormalMatrix3d::validate(const real & unit_square_epsilon) const
+{
+    // self test matrix on consistency
+#if DEBUG_ASSERT_VERIFY_ENABLED
+    NormalMatrix3d vec_mat_test;
+    vector_cross_product(vec_mat_test.m[2], m[0], m[1]);
+    vector_cross_product(vec_mat_test.m[0], m[1], m[2]);
+    vector_cross_product(vec_mat_test.m[1], m[2], m[0]);
+
+    DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[0], m[0], unit_square_epsilon));
+    DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[1], m[1], unit_square_epsilon));
+    DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[2], m[2], unit_square_epsilon));
+#else
+    UTILITY_UNUSED_EXPR(unit_square_epsilon);
+#endif
 }
 
 }

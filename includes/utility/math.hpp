@@ -124,44 +124,86 @@
 #define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) }
 
 
-#define ANGLE_DEG_IN_RAD(angle_deg)                 ((angle_deg) * ::math::pi / 180)
+// input angle must not be a class, otherwise you have to use overload version of `pi` in another group of macroses
+
+#define ANGLE_DEG_IN_RAD(angle_deg)                 ::math::angle_degrees_in_radians(angle_deg)
 #define ANGLE_DEG_IN_RAD_IF(in_radians, angle_deg)  ((in_radians) ? ANGLE_DEG_IN_RAD(angle_deg) : (angle_deg))
 
-#define ANGLE_RAD_IN_DEG(angle_rad)                 ((angle_rad) * 180 / ::math::pi)
+#define ANGLE_RAD_IN_DEG(angle_rad)                 ::math::angle_radians_in_degrees(angle_rad)
 #define ANGLE_RAD_IN_DEG_IF(in_degrees, angle_rad)  ((in_degrees) ? ANGLE_RAD_IN_DEG(angle_rad) : (angle_rad))
 
-#define DEG_45_IN_RAD                               (::math::pi / 4)
-#define DEG_45_IN_RAD_IF(in_radians)                ((in_radians) ? DEG_45_IN_RAD : 45)
+// value_type is required to intersept implicit cast to class arithmetic type
 
-#define DEG_90_IN_RAD                               (::math::pi / 2)
-#define DEG_90_IN_RAD_IF(in_radians)                ((in_radians) ? DEG_90_IN_RAD : 90)
+#define DEG_45_IN_RAD(type_angle)                   ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<45>())
+#define DEG_45_IN_RAD_IF(type_angle, in_radians)    ((in_radians) ? DEG_45_IN_RAD(type_angle) : 45)
 
-#define DEG_135_IN_RAD                              (::math::pi * 3 / 4)
-#define DEG_135_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_135_IN_RAD : 135)
+#define DEG_90_IN_RAD(type_angle)                   ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<90>())
+#define DEG_90_IN_RAD_IF(type_angle, in_radians)    ((in_radians) ? DEG_90_IN_RAD(type_angle) : 90)
 
-#define DEG_180_IN_RAD                              (::math::pi)
-#define DEG_180_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_180_IN_RAD : 180)
+#define DEG_135_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<135>())
+#define DEG_135_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_135_IN_RAD(type_angle) : 135)
 
-#define DEG_225_IN_RAD                              (::math::pi * 5 / 4)
-#define DEG_225_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_225_IN_RAD : 225)
+#define DEG_180_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<180>())
+#define DEG_180_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_180_IN_RAD(type_angle) : 180)
 
-#define DEG_270_IN_RAD                              (::math::pi * 3 / 2)
-#define DEG_270_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_270_IN_RAD : 270)
+#define DEG_225_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<225>())
+#define DEG_225_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_225_IN_RAD(type_angle) : 225)
 
-#define DEG_315_IN_RAD                              (::math::pi * 7 / 4)
-#define DEG_315_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_315_IN_RAD : 315)
+#define DEG_270_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<270>())
+#define DEG_270_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_270_IN_RAD(type_angle) : 270)
 
-#define DEG_360_IN_RAD                              (::math::pi * 2)
-#define DEG_360_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_360_IN_RAD : 360)
+#define DEG_315_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<315>())
+#define DEG_315_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_315_IN_RAD(type_angle) : 315)
 
-#define DEG_720_IN_RAD                              (::math::pi * 4)
-#define DEG_720_IN_RAD_IF(in_radians)               ((in_radians) ? DEG_720_IN_RAD : 720)
+#define DEG_360_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<360>())
+#define DEG_360_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_360_IN_RAD(type_angle) : 360)
+
+#define DEG_720_IN_RAD(type_angle)                  ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<720>())
+#define DEG_720_IN_RAD_IF(type_angle, in_radians)   ((in_radians) ? DEG_720_IN_RAD(type_angle) : 720)
+
+// in case if pi has storaged in custom arithmetic type
+
+#define ANGLE_DEG_IN_RAD2(angle_deg, pi)            ::math::angle_degrees_in_radians(angle_deg, pi)
+#define ANGLE_DEG_IN_RAD2_IF(in_radians, angle_deg, pi) ((in_radians) ? ANGLE_DEG_IN_RAD2(angle_deg, pi) : (angle_deg))
+
+#define ANGLE_RAD_IN_DEG2(angle_rad, pi)            ::math::angle_radians_in_degrees(angle_rad, pi)
+#define ANGLE_RAD_IN_DEG2_IF(in_degrees, angle_rad, pi) ((in_degrees) ? ANGLE_RAD_IN_DEG2(angle_rad, pi) : (angle_rad))
+
+#define DEG_45_IN_RAD2(type_angle, pi)              ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<45>())
+#define DEG_45_IN_RAD2_IF(in_radians, pi)           ((in_radians) ? DEG_45_IN_RAD2(type_angle, pi) : 45)
+
+#define DEG_90_IN_RAD2(type_angle, pi)              ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<90>())
+#define DEG_90_IN_RAD2_IF(in_radians, pi)           ((in_radians) ? DEG_90_IN_RAD2(type_angle, pi) : 90)
+
+#define DEG_135_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<135>())
+#define DEG_135_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_135_IN_RAD2(type_angle, pi) : 135)
+
+#define DEG_180_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<180>())
+#define DEG_180_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_180_IN_RAD2(type_angle, pi) : 180)
+
+#define DEG_225_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<225>())
+#define DEG_225_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_225_IN_RAD2(type_angle, pi) : 225)
+
+#define DEG_270_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<270>())
+#define DEG_270_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_270_IN_RAD2(type_angle, pi) : 270)
+
+#define DEG_315_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<315>())
+#define DEG_315_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_315_IN_RAD2(type_angle, pi) : 315)
+
+#define DEG_360_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<360>())
+#define DEG_360_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_360_IN_RAD2(type_angle, pi) : 360)
+
+#define DEG_720_IN_RAD2(type_angle, pi)             ::math::angle_degrees_in_radians(type_angle, pi, ::utility::int_identity<720>())
+#define DEG_720_IN_RAD2_IF(in_radians, pi)          ((in_radians) ? DEG_720_IN_RAD2(type_angle, pi) : 720)
 
 
 // implementation through the define to reuse code in debug and avoid performance slow down in particular usage places
 #define INT32_POF2_FLOOR_MACRO_INLINE(return_exp, type_, v) \
 { \
-    STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes"); \
+    \
+    static_assert(::std::is_integral<type_>::value, "type must be an integer"); \
+    \
+    STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for integers which sizeof is not greater than 4 bytes"); \
     DEBUG_VERIFY_GT(v, (type_)(0)); \
     \
     using unsigned_type = typename ::std::make_unsigned<type_>::type; \
@@ -178,49 +220,55 @@
     return_exp (type_)(shifted_value + 1); \
 } (void)0
 
-#define INT32_POF2_CEIL_MACRO_INLINE(return_exp, type, v) \
+#define INT32_POF2_CEIL_MACRO_INLINE(return_exp, type_, v) \
 { \
-    DEBUG_ASSERT_GT(v, (type)(0)); \
-    DEBUG_ASSERT_GE(::std::is_unsigned<type>::value ? v : ((::std::numeric_limits<type>::max)() / 2), v); \
     \
-    type pof2_floor_value; \
-    INT32_POF2_FLOOR_MACRO_INLINE(pof2_floor_value =, type, v); \
+    static_assert(::std::is_integral<type_>::value, "type must be an integer"); \
     \
-    return_exp (pof2_floor_value != v ? (type)(pof2_floor_value << 1) : pof2_floor_value); \
+    DEBUG_ASSERT_GT(v, (type_)(0)); \
+    DEBUG_ASSERT_GE(::std::is_unsigned<type_>::value ? v : ((::std::numeric_limits<type_>::max)() / 2), v); \
+    \
+    type_ pof2_floor_value; \
+    INT32_POF2_FLOOR_MACRO_INLINE(pof2_floor_value =, type_, v); \
+    \
+    return_exp (pof2_floor_value != v ? (type_)(pof2_floor_value << 1) : pof2_floor_value); \
 } (void)0
 
-#define INT32_LOG2_FLOOR_MACRO_INLINE(return_exp, type, v, pof2_value_ptr) \
+#define INT32_LOG2_FLOOR_MACRO_INLINE(return_exp, type_, v, pof2_value_ptr) \
 if_break(true) \
 { \
+    \
+    static_assert(::std::is_integral<type_>::value, "type must be an integer"); \
+    \
     STATIC_ASSERT_GE(4, sizeof(v), "general implementation only for numbers which sizeof is not greater than 4 bytes"); \
-    DEBUG_ASSERT_GT(v, (type)(0)); \
+    DEBUG_ASSERT_GT(v, (type_)(0)); \
     \
-    type * pof2_value_ptr_ = (pof2_value_ptr); \
+    type_ * pof2_value_ptr_ = (pof2_value_ptr); \
     \
-    if ((type)(1) >= v) { \
+    if ((type_)(1) >= v) { \
         if (pof2_value_ptr_) { \
-            if (v >= (type)(0)) { \
+            if (v >= (type_)(0)) { \
                 *pof2_value_ptr_ = v; \
             } \
             else { \
-                *pof2_value_ptr_ = (type)(0); \
+                *pof2_value_ptr_ = (type_)(0); \
             } \
         } \
-        return_exp (type)(0); \
+        return_exp (type_)(0); \
         break; \
     } \
     \
-    type pof2_prev_value; \
-    INT32_POF2_FLOOR_MACRO_INLINE(pof2_prev_value =, type, v); \
+    type_ pof2_prev_value; \
+    INT32_POF2_FLOOR_MACRO_INLINE(pof2_prev_value =, type_, v); \
     \
     if (pof2_value_ptr_) { \
         *pof2_value_ptr_ = pof2_prev_value; \
     } \
     \
-    type ret = (type)(0); \
+    type_ ret = (type_)(0); \
     \
     /* unrolled recursion including unrolled loops */ \
-    type pof2_next_value = (pof2_prev_value >> 16); \
+    type_ pof2_next_value = (pof2_prev_value >> 16); \
     \
     if (pof2_next_value) { \
         ret += 16; \
@@ -260,42 +308,45 @@ if_break(true) \
     return_exp ret; \
 } (void)0
 
-#define INT32_LOG2_CEIL_MACRO_INLINE(return_exp, type, v, pof2_value_ptr) \
+#define INT32_LOG2_CEIL_MACRO_INLINE(return_exp, type_, v, pof2_value_ptr) \
 if_break(true) \
 { \
-    DEBUG_ASSERT_GT(v, (type)(0)); \
-    DEBUG_ASSERT_GE(::std::is_unsigned<type>::value ? v : ((::std::numeric_limits<type>::max)() / 2), v); \
     \
-    type * pof2_value_ptr_ = (pof2_value_ptr); \
+    static_assert(::std::is_integral<type_>::value, "type must be an integer"); \
     \
-    if ((type)(1) >= v) { \
+    DEBUG_ASSERT_GT(v, (type_)(0)); \
+    DEBUG_ASSERT_GE(::std::is_unsigned<type_>::value ? v : ((::std::numeric_limits<type_>::max)() / 2), v); \
+    \
+    type_ * pof2_value_ptr_ = (pof2_value_ptr); \
+    \
+    if ((type_)(1) >= v) { \
         if (pof2_value_ptr_) { \
-            if (v >= (type)(0)) { \
+            if (v >= (type_)(0)) { \
                 *pof2_value_ptr_ = v; \
             } \
             else { \
-                *pof2_value_ptr_ = (type)(0); \
+                *pof2_value_ptr_ = (type_)(0); \
             } \
         } \
-        return_exp (type)(0); \
+        return_exp (type_)(0); \
         break; \
     } \
     \
-    type log2_prev_value = (type)(v - 1); \
-    type log2_floor_value; \
+    type_ log2_prev_value = (type_)(v - 1); \
+    type_ log2_floor_value; \
     \
     if (!pof2_value_ptr_) { \
-        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type, log2_prev_value, nullptr); \
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type_, log2_prev_value, nullptr); \
     } \
     else { \
-        type pof2_floor_value; \
+        type_ pof2_floor_value; \
         \
-        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type, log2_prev_value, &pof2_floor_value); \
+        INT32_LOG2_FLOOR_MACRO_INLINE(log2_floor_value =, type_, log2_prev_value, &pof2_floor_value); \
         \
-        *pof2_value_ptr_ = (type)(pof2_floor_value << 1); \
+        *pof2_value_ptr_ = (type_)(pof2_floor_value << 1); \
     } \
     \
-    return_exp (type)(log2_floor_value + 1); \
+    return_exp (type_)(log2_floor_value + 1); \
 } (void)0
 
 namespace math
@@ -351,14 +402,11 @@ namespace math
 
     const CONSTEXPR size_t size_max = (std::numeric_limits<size_t>::max)();
 
-    const CONSTEXPR double float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
+    const CONSTEXPR float float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
     const CONSTEXPR double double_quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
 
-    const CONSTEXPR double float_infinity = (std::numeric_limits<float>::infinity)();
-    const CONSTEXPR double double_infinity = (std::numeric_limits<double>::infinity)();
-
-    const CONSTEXPR double float_min = (std::numeric_limits<float>::min)();
-    const CONSTEXPR double float_max = (std::numeric_limits<float>::max)();
+    const CONSTEXPR float float_min = (std::numeric_limits<float>::min)();
+    const CONSTEXPR float float_max = (std::numeric_limits<float>::max)();
 
     const CONSTEXPR double double_min = (std::numeric_limits<double>::min)();
     const CONSTEXPR double double_max = (std::numeric_limits<double>::max)();
@@ -581,7 +629,7 @@ namespace math
 
     // sign convertion into -1,0,+1 integer
     template <typename T>
-    FORCE_INLINE int sign_to_int(const T & v)
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN int sign_to_int(const T & v)
     {
         if (v > 0) {
             return +1;
@@ -595,7 +643,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> `+`
     template <typename T>
-    FORCE_INLINE char sign_to_char(const T & v)
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN char sign_to_char(const T & v)
     {
         if (v > 0) {
             return '+';
@@ -609,7 +657,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
     template <typename T>
-    FORCE_INLINE char sign_to_positive_char(const T & v)
+    FORCE_INLINE CONSTEXPR char sign_to_positive_char(const T & v)
     {
         if (v > 0) {
             return '+';
@@ -620,7 +668,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> ` `
     template <typename T>
-    FORCE_INLINE char sign_to_negative_char(const T & v)
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN char sign_to_negative_char(const T & v)
     {
         if (v < 0) {
             return '-';
@@ -630,7 +678,7 @@ namespace math
     }
 
     // the bool type is exceptional
-    FORCE_INLINE_ALWAYS bool negate(bool v)
+    FORCE_INLINE_ALWAYS CONSTEXPR bool negate(bool v)
     {
         // The false is the same as zero, which have no effect of negation.
         // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
@@ -640,62 +688,62 @@ namespace math
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP14
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
-    FORCE_INLINE_ALWAYS unsigned int negate(unsigned int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR unsigned int negate(unsigned int i)
     {
         return static_cast<unsigned int>(-static_cast<int>(i));
     }
 
-    FORCE_INLINE_ALWAYS unsigned long negate(unsigned long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR unsigned long negate(unsigned long i)
     {
         return static_cast<unsigned long>(-static_cast<long>(i));
     }
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
-    FORCE_INLINE_ALWAYS unsigned long long negate(unsigned long long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR unsigned long long negate(unsigned long long i)
     {
         return static_cast<unsigned long long>(-static_cast<long long>(i));
     }
 #endif
 
-    FORCE_INLINE_ALWAYS int negate(int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR int negate(int i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS long negate(long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR long negate(long i)
     {
         return -i;
     }
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
-    FORCE_INLINE_ALWAYS long long negate(long long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR long long negate(long long i)
     {
         return -i;
     }
 #endif
 
-    FORCE_INLINE_ALWAYS int64_t negate(int64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR int64_t negate(int64_t i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS int64_t negate(uint64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR int64_t negate(uint64_t i)
     {
         return static_cast<uint64_t>(-static_cast<int64_t>(i));
     }
 
-    FORCE_INLINE_ALWAYS float negate(float v)
+    FORCE_INLINE_ALWAYS CONSTEXPR float negate(float v)
     {
         return -v;
     }
 
-    FORCE_INLINE_ALWAYS double negate(double v)
+    FORCE_INLINE_ALWAYS CONSTEXPR double negate(double v)
     {
         return -v;
     }
 
     template <typename T>
-    FORCE_INLINE_ALWAYS T negate(const T & v)
+    FORCE_INLINE_ALWAYS CONSTEXPR T negate(const T & v)
     {
         return -v;
     }
@@ -714,7 +762,7 @@ namespace math
         {
             using type = T;
 
-            static T invoke(const type & v)
+            static CONSTEXPR T invoke(const type & v)
             {
                 return std::negate<>()(v);
             }
@@ -725,7 +773,7 @@ namespace math
         {
             using type = T;
 
-            static T invoke(const type & v)
+            static CONSTEXPR T invoke(const type & v)
             {
                 // can be unsigned but castable to signed
                 return static_cast<typename std::make_unsigned<T>::type>(
@@ -783,47 +831,47 @@ namespace math
 #endif
 
     template <typename T>
-    FORCE_INLINE T positive_max(const T & v = T())
+    FORCE_INLINE CONSTEXPR T positive_max(const T & v = T())
     {
-        return std::numeric_limits<T>::max();
+        return (std::numeric_limits<T>::max)();
     }
 
     template <typename T>
-    FORCE_INLINE T positive_min(const T & v = T())
+    FORCE_INLINE CONSTEXPR T positive_min(const T & v = T())
     {
         if (std::is_floating_point<T>::value) {
-            return std::numeric_limits<T>::min();
+            return (std::numeric_limits<T>::min)();
         }
 
-        return std::numeric_limits<T>::min() + 1;
+        return (std::numeric_limits<T>::min)() + 1;
     }
 
     template <typename T>
-    FORCE_INLINE T negative_max(const T & v = T())
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN T negative_max(const T & v = T())
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
         if (std::is_floating_point<T>::value) {
-            return -std::numeric_limits<T>::min();
+            return -(std::numeric_limits<T>::min)();
         }
 
-        return math::negate(std::numeric_limits<typename std::make_unsigned<T>::type>::min() + 1);
+        return math::negate((std::numeric_limits<typename std::make_unsigned<T>::type>::min)() + 1);
     }
 
     template <typename T>
-    FORCE_INLINE T negative_min(const T & v = T())
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN T negative_min(const T & v = T())
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
         if (std::is_floating_point<T>::value) {
-            return -std::numeric_limits<T>::max();
+            return -(std::numeric_limits<T>::max)();
         }
 
-        return std::numeric_limits<T>::min();
+        return (std::numeric_limits<T>::min)();
     }
 
     template <typename T>
-    FORCE_INLINE T is_signed_min_max(const T & v)
+    FORCE_INLINE CONSTEXPR T is_signed_min_max(const T & v)
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
@@ -831,7 +879,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE T is_unsigned_min_max(const T & v)
+    FORCE_INLINE CONSTEXPR T is_unsigned_min_max(const T & v)
     {
         static_assert(std::is_unsigned<T>::value, "type T must be unsigned");
 
@@ -839,7 +887,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE bool is_valid_float(const T & v)
+    FORCE_INLINE CONSTEXPR bool is_valid_float(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
@@ -847,7 +895,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE bool is_valid_not_zero_float(const T & v)
+    FORCE_INLINE CONSTEXPR bool is_valid_not_zero_float(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
@@ -855,25 +903,51 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE T positive_infinity(const T & v = T())
+    FORCE_INLINE CONSTEXPR T positive_infinity(const T & v = T())
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
+        static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
 
         return (std::numeric_limits<T>::infinity)();
     }
 
     template <typename T>
-    FORCE_INLINE T negative_infinity(const T & v = T())
+    FORCE_INLINE CONSTEXPR T negative_infinity(const T & v = T())
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
+        static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
 
         return -(std::numeric_limits<T>::infinity)();
     }
 
     template <typename T>
-    FORCE_INLINE T float_round_to_signed_infinity(const T & v)
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN T signed_infinity(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
+        static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
+
+        if (v >= 0) {
+            return positive_infinity(v);
+        }
+
+        return negative_infinity(v);
+    }
+
+    // has difference with the `std::inf`, does test `has_infinity` statically
+    template <typename T>
+    FORCE_INLINE CONSTEXPR bool is_infinite(const T & v)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+        static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
+
+        return std::isinf(v);
+    }
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_MULTI_RETURN T float_round_to_signed_infinity(const T & v)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+        static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
 
         if (0 < v) {
             return positive_infinity(v);
@@ -1057,6 +1131,177 @@ namespace math
         return log2_value;
     }
 
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        return angle_deg * ::math::pi / 180;
+    }
+
+    template <typename T>
+    extern inline T angle_radians_in_degrees(const T & angle_rad)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        return angle_rad * 180 / ::math::pi;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<45>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<90>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi / 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<135>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 3 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<180>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<225>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 5 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<270>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 3 / 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<315>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 7 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<360>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, utility::int_identity<720>)
+    {
+        using unqual_type = std::remove_cv<T>::type;
+        static_assert(!std::is_class<unqual_type>::value, "function does not support a class type of an angle, use another set of functions with explicit `pi` parameter");
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return ::math::pi * 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi)
+    {
+        return angle_deg * pi / 180;
+    }
+
+    template <typename T>
+    extern inline T angle_radians_in_degrees(const T & angle_rad, const T & pi)
+    {
+        return angle_rad * 180 / pi;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<45>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<90>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi / 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<135>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 3 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<180>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<225>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 5 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<270>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 3 / 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<315>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 7 / 4;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<360>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 2;
+    }
+
+    template <typename T>
+    extern inline T angle_degrees_in_radians(const T & angle_deg, const T & pi, utility::int_identity<720>)
+    {
+        UTILITY_UNUSED_EXPR(angle_deg);
+        return pi * 4;
+    }
 
     // inclusion_direction if exclude_all=false:
     //  -1 - minimal is included, maximal is excluded (ex: [   0 - +360) )
@@ -1341,51 +1586,51 @@ namespace math
         T angle_distance = angle_distance_inf; // retains the sign to transfer the direction of angle
 
         if (angle_distance_inf < 0) {
-            if (-DEG_180_IN_RAD_IF(in_radians) >= angle_distance_inf) {
+            if (-DEG_180_IN_RAD_IF(angle_distance_inf, in_radians) >= angle_distance_inf) {
                 // normalize distance from [-inf..0] to (-360..0]
-                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
-                if (-DEG_180_IN_RAD_IF(in_radians) > angle_distance_360) {
-                    angle_distance = DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
+                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(angle_distance_inf, in_radians));
+                if (-DEG_180_IN_RAD_IF(angle_distance_360, in_radians) > angle_distance_360) {
+                    angle_distance = DEG_360_IN_RAD_IF(angle_distance_360, in_radians) + angle_distance_360;
                 }
                 else {
-                    if (-DEG_180_IN_RAD_IF(in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
+                    if (-DEG_180_IN_RAD_IF(angle_distance_360, in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
                         angle_distance = angle_distance_360;
                     }
                     else {
                         if (start_angle > 0) {
-                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = -DEG_180_IN_RAD_IF(angle_distance, in_radians);
                         }
                         else {
-                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = DEG_180_IN_RAD_IF(angle_distance, in_radians);
                         }
                     }
                 }
             }
         }
         else {
-            if (DEG_180_IN_RAD_IF(in_radians) <= angle_distance_inf) {
+            if (DEG_180_IN_RAD_IF(angle_distance_inf, in_radians) <= angle_distance_inf) {
                 // normalize distance from [0..+inf] to [0..+360)
-                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
-                if (DEG_180_IN_RAD_IF(in_radians) < angle_distance_360) {
-                    angle_distance = angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
+                const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(angle_distance_inf, in_radians));
+                if (DEG_180_IN_RAD_IF(angle_distance_360, in_radians) < angle_distance_360) {
+                    angle_distance = angle_distance_360 - DEG_360_IN_RAD_IF(angle_distance_360, in_radians);
                 }
                 else {
-                    if (DEG_180_IN_RAD_IF(in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
+                    if (DEG_180_IN_RAD_IF(angle_distance_360, in_radians) != angle_distance_360 || !on_equal_distances_select_closest_to_zero) {
                         angle_distance = angle_distance_360;
                     }
                     else {
                         if (start_angle > 0) {
-                            angle_distance = -DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = -DEG_180_IN_RAD_IF(angle_distance, in_radians);
                         }
                         else {
-                            angle_distance = DEG_180_IN_RAD_IF(in_radians);
+                            angle_distance = DEG_180_IN_RAD_IF(angle_distance, in_radians);
                         }
                     }
                 }
             }
         }
 
-        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), std::fabs(angle_distance));
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(angle_distance, in_radians), std::fabs(angle_distance));
 
         return angle_distance;
     }
@@ -1408,24 +1653,28 @@ namespace math
         const T angle_distance_inf = end_angle - start_angle;
 
         // normalize distance from [-inf..0]/[0..+inf] to (-360..0]/[0..+360)
-        const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(in_radians));
+        const T angle_distance_360 = std::fmod(angle_distance_inf, DEG_360_IN_RAD_IF(angle_distance_inf, in_radians));
         const T angle_distance_360_abs = std::fabs(angle_distance_360);
 
-        if (angle_epsilon < angle_distance_360_abs && angle_epsilon < (DEG_360_IN_RAD_IF(in_radians) - angle_distance_360_abs)) {
+        if (angle_epsilon < angle_distance_360_abs && angle_epsilon < (DEG_360_IN_RAD_IF(angle_distance_360_abs, in_radians) - angle_distance_360_abs)) {
             if (!((angle_distance_360 >= 0) ^ positive_angle_change)) {
                 // angle change sign and direction are the same
                 return angle_distance_360;
             }
 
-            return positive_angle_change ? DEG_360_IN_RAD_IF(in_radians) + angle_distance_360 : angle_distance_360 - DEG_360_IN_RAD_IF(in_radians);
+            return positive_angle_change ?
+                DEG_360_IN_RAD_IF(angle_distance_360, in_radians) + angle_distance_360 :
+                angle_distance_360 - DEG_360_IN_RAD_IF(angle_distance_360, in_radians);
         }
 
         // closest angle
-        if (DEG_180_IN_RAD_IF(in_radians) >= angle_distance_360_abs) {
+        if (DEG_180_IN_RAD_IF(angle_distance_360_abs, in_radians) >= angle_distance_360_abs) {
             return angle_distance_360;
         }
 
-        return (angle_distance_360 >= 0) ? angle_distance_360 - DEG_360_IN_RAD_IF(in_radians) : DEG_360_IN_RAD_IF(in_radians) + angle_distance_360;
+        return (angle_distance_360 >= 0) ?
+            angle_distance_360 - DEG_360_IN_RAD_IF(angle_distance_360, in_radians) :
+            DEG_360_IN_RAD_IF(angle_distance_360, in_radians) + angle_distance_360;
     }
 
     // Translates (convertes) angle to a min/max range [(min..max)] with 0 in a base angle.
@@ -1444,7 +1693,7 @@ namespace math
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
-        return math::normalize_angle(angle - base_angle, min_angle, max_angle, DEG_360_IN_RAD_IF(in_radians), inclusion_direction, exclude_all);
+        return math::normalize_angle(angle - base_angle, min_angle, max_angle, DEG_360_IN_RAD_IF(angle, in_radians), inclusion_direction, exclude_all);
     }
 
     // Normalizes angle to a range, where the resulting angle would monotonically change (w/o discontinuity on the range) while the angle in the range.
@@ -1458,9 +1707,9 @@ namespace math
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
         // all input must be already normalized and consistent
-        DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= start_angle);
-        DEBUG_ASSERT_TRUE(mid_angle - start_angle >= -DEG_360_IN_RAD_IF(in_radians) && DEG_360_IN_RAD_IF(in_radians) >= mid_angle - start_angle);
-        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(in_radians), std::fabs(mid_angle - start_angle));
+        DEBUG_ASSERT_TRUE(start_angle >= -DEG_360_IN_RAD_IF(start_angle, in_radians) && DEG_360_IN_RAD_IF(start_angle, in_radians) >= start_angle);
+        DEBUG_ASSERT_TRUE(mid_angle - start_angle >= -DEG_360_IN_RAD_IF(mid_angle, in_radians) && DEG_360_IN_RAD_IF(mid_angle, in_radians) >= mid_angle - start_angle);
+        DEBUG_ASSERT_GE(DEG_180_IN_RAD_IF(mid_angle, in_radians), std::fabs(mid_angle - start_angle));
 #if DEBUG_ASSERT_VERIFY_ENABLED
         if (angle_distance > 0) {
             DEBUG_ASSERT_TRUE(start_angle < mid_angle && mid_angle < start_angle + angle_distance);
@@ -1474,9 +1723,9 @@ namespace math
 #endif
 
         const T angle_norm = math::normalize_angle(angle,
-            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+            -DEG_360_IN_RAD_IF(angle, in_radians), DEG_360_IN_RAD_IF(angle, in_radians), DEG_360_IN_RAD_IF(angle, in_radians), 0);
         const T angle_distance_norm = math::normalize_angle(angle_distance,
-            -DEG_360_IN_RAD_IF(in_radians), +DEG_360_IN_RAD_IF(in_radians), DEG_360_IN_RAD_IF(in_radians), 0);
+            -DEG_360_IN_RAD_IF(angle_distance, in_radians), DEG_360_IN_RAD_IF(angle_distance, in_radians), DEG_360_IN_RAD_IF(angle_distance, in_radians), 0);
 
         const T end_angle_norm = start_angle + angle_distance_norm;
         T prev_angle_tmp;
@@ -1486,7 +1735,7 @@ namespace math
             if (end_angle_norm < angle_tmp) {
                 do {
                     prev_angle_tmp = angle_tmp;
-                    angle_tmp -= DEG_360_IN_RAD_IF(in_radians);
+                    angle_tmp -= DEG_360_IN_RAD_IF(angle_tmp, in_radians);
                 } while (end_angle_norm < angle_tmp);
 
                 if (angle_tmp < start_angle) {
@@ -1500,7 +1749,7 @@ namespace math
             else if (angle_tmp < start_angle) {
                 do {
                     prev_angle_tmp = angle_tmp;
-                    angle_tmp += DEG_360_IN_RAD_IF(in_radians);
+                    angle_tmp += DEG_360_IN_RAD_IF(angle_tmp, in_radians);
                 } while (angle_tmp < start_angle);
 
                 if (end_angle_norm < angle_tmp) {
@@ -1516,7 +1765,7 @@ namespace math
             if (start_angle < angle_tmp) {
                 do {
                     prev_angle_tmp = angle_tmp;
-                    angle_tmp -= DEG_360_IN_RAD_IF(in_radians);
+                    angle_tmp -= DEG_360_IN_RAD_IF(angle_tmp, in_radians);
                 } while (start_angle < angle_tmp);
 
                 if (angle_tmp < end_angle_norm) {
@@ -1530,7 +1779,7 @@ namespace math
             else if (angle_tmp < end_angle_norm) {
                 do {
                     prev_angle_tmp = angle_tmp;
-                    angle_tmp += DEG_360_IN_RAD_IF(in_radians);
+                    angle_tmp += DEG_360_IN_RAD_IF(angle_tmp, in_radians);
                 } while (angle_tmp < end_angle_norm);
 
                 if (start_angle < angle_tmp) {
@@ -1656,13 +1905,69 @@ namespace math
     }
 
     template <typename T>
-    extern inline T fix_float_trigonometric_range(const T & value)
+    extern inline T fix_float_trigonometric_range_factor(const T & value)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
         // avoid fix in special case
         if (is_valid_not_zero_float(value)) {
             return truncate_float_to_minmax(value, T(-1.0), T(+1.0));
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T fix_float_trigonometric_range_asin(const T & value, const std::function<T()> & pi_getter, bool is_radians)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        // avoid fix in special case
+        if (is_valid_not_zero_float(value)) {
+            const T pi = pi_getter();
+            const T min_value_included = -DEG_90_IN_RAD2_IF(is_radians, pi);
+            const T max_value_included = DEG_90_IN_RAD2_IF(is_radians, pi);
+            return truncate_float_to_minmax(value, min_value_included, max_value_included);
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T fix_float_trigonometric_range_acos(const T & value, const std::function<T()> & pi_getter, bool is_radians)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        // avoid fix in special case
+        if (is_valid_not_zero_float(value)) {
+            const T pi = pi_getter();
+            const T min_value_included = 0;
+            const T max_value_included = DEG_180_IN_RAD2_IF(is_radians, pi);
+            return truncate_float_to_minmax(value, min_value_included, max_value_included);
+        }
+
+        return value;
+    }
+
+    template <typename T>
+    extern inline T fix_float_trigonometric_range_atan(const T & value, const std::function<T()> & pi_getter, bool is_radians)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        return fix_float_trigonometric_range_asin(value, pi_getter, in_radians);
+    }
+
+    template <typename T>
+    extern inline T fix_float_trigonometric_range_atan2(const T & value, const std::function<T()> & pi_getter, bool is_radians)
+    {
+        static_assert(std::is_floating_point<T>::value, "type T must be float");
+
+        // avoid fix in special case
+        if (is_valid_not_zero_float(value)) {
+            const T pi = pi_getter();
+            const T min_value_exluded = std::nextafter(-DEG_180_IN_RAD2_IF(is_radians, pi), math::positive_infinity());
+            const T max_value_included = DEG_180_IN_RAD2_IF(is_radians, pi);
+            return truncate_float_to_minmax(value, min_value_exluded, max_value_included);
         }
 
         return value;
