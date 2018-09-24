@@ -8,6 +8,7 @@
 
 #include <utility/preprocessor.hpp>
 #include <utility/static_assert.hpp>
+#include <utility/debug.hpp>
 #include <utility/memory.hpp>
 
 #include <type_traits>
@@ -87,7 +88,7 @@ namespace utility
             static T & getT();
             static char(&pass(T))[2];
             static char pass(...);
-            static const bool value = sizeof(pass(getT())) == 2;
+            static CONSTEXPR const bool value = sizeof(pass(getT())) == 2;
         };
     }
 
@@ -196,7 +197,7 @@ namespace utility
         //  If T is an integral (except bool) or enumeration type, provides the member typedef type which is the signed integer type
         //  corresponding to T, with the same cv - qualifiers. Otherwise, the behavior is undefined.
         //
-        static const bool value = (std::is_integral<T>::value || std::is_enum<T>::value);
+        static CONSTEXPR const bool value = (std::is_integral<T>::value || std::is_enum<T>::value);
     };
 
     // Type qualification adaptor for a function parameter.
@@ -442,7 +443,7 @@ namespace utility
         using unref_type = typename std::remove_reference<T>::type;
 
     public:
-        static const bool value = (sizeof(test<unref_type>(0)) == sizeof(yes_t));
+        static CONSTEXPR const bool value = (sizeof(test<unref_type>(0)) == sizeof(yes_t));
     };
 
     //
@@ -484,7 +485,7 @@ namespace utility
         template<typename R, typename C, typename IsConst, typename IsVolatile, typename IsVariadic, typename... Args>
         struct types
         {
-            static const size_t arity = sizeof...(Args);
+            static CONSTEXPR const size_t arity = sizeof...(Args);
 
             using return_type = R;
             using class_type = C;
@@ -732,7 +733,7 @@ namespace utility
     struct is_function_traits_extractable
     {
         using unref_type = typename std::remove_reference<T>::type;
-        static const bool value = is_callable<unref_type>::value && (std::is_function<unref_type>::value || std::is_class<unref_type>::value && has_regular_parenthesis_operator<unref_type>::value);
+        static CONSTEXPR const bool value = is_callable<unref_type>::value && (std::is_function<unref_type>::value || std::is_class<unref_type>::value && has_regular_parenthesis_operator<unref_type>::value);
     };
 
     //// construct_if_constructible

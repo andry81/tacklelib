@@ -99,7 +99,7 @@ namespace geometry {
         return vec_first.x * vec_second.x + vec_first.y * vec_second.y + vec_first.z * vec_second.z;
     }
 
-    inline void vector_cross_product(Vector3d & vec_out, const Vector3d & vec_first, const Vector3d & vec_second)
+    extern inline void vector_cross_product(Vector3d & vec_out, const Vector3d & vec_first, const Vector3d & vec_second)
     {
         vec_out = Vector3d{
             vec_first[1] * vec_second[2] - vec_first[2] * vec_second[1],
@@ -108,7 +108,7 @@ namespace geometry {
         };
     }
 
-    inline void vector_cross_product(Vector3d & vec_out, const Vector4d & vec_first, const Vector4d & vec_second)
+    extern inline void vector_cross_product(Vector3d & vec_out, const Vector4d & vec_first, const Vector4d & vec_second)
     {
         vec_out = Vector3d{
             vec_first[1] * vec_second[2] - vec_first[2] * vec_second[1],
@@ -117,7 +117,7 @@ namespace geometry {
         };
     }
 
-    inline bool vector_is_equal(const Vector3d & l, const Vector3d & r, const real & vec_square_epsilon)
+    extern inline bool vector_is_equal(const Vector3d & l, const Vector3d & r, const real & vec_square_epsilon)
     {
         const real vec_square_len = vector_square_length(r - l);
         return vec_square_epsilon >= vec_square_len;
@@ -183,7 +183,7 @@ namespace geometry {
         DEBUG_ASSERT_LT(vec_from_square_epsilon * vec_to_square_epsilon, denominator);
 
         const real angle_rad = vector_dot_product(vec_from, vec_to) / std::sqrt(denominator);
-        const real fixed_angle_rad = math::fix_float_trigonometric_range(angle_rad);
+        const real fixed_angle_rad = math::fix_float_trigonometric_range_factor(angle_rad);
 
         return std::acos(fixed_angle_rad);
     }
@@ -338,18 +338,18 @@ namespace geometry {
                     (radius_vec_z_projected_len >= 0 ? Normal3d{ 0, 0, 1 } : Normal3d{ 0, 0, -1 })); // reduction to [0..PI/2]
 
                 // fix to avoid the trigonometric functions return NAN
-                radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range(radius_vec_cos_betta_to_z);
+                radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range_factor(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
-                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD);
+                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi));
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi) - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD, std::fabs(alpha_angle_rad));
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, real_pi), std::fabs(alpha_angle_rad));
                 const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
@@ -366,7 +366,7 @@ namespace geometry {
             }
 
             // fix to avoid the trigonometric functions return NAN
-            norm_out.fix_float_trigonometric_range();
+            norm_out.fix_float_trigonometric_range_factor();
         }
         else {
             // Radius vector is too close to the semiminor ellipsoid axis (the basis Z-axis vector)
@@ -448,7 +448,7 @@ namespace geometry {
                 vector_normalize(coord_x_axis, coord_x_vec);
 
                 const real coord_x_vec_len = vector_length(coord_x_vec);
-                vector_rotate(coord_y_vec, coord_x_vec, coord_x_vec_len, radius_vec_norm, DEG_90_IN_RAD, unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_y_vec, coord_x_vec, coord_x_vec_len, radius_vec_norm, DEG_90_IN_RAD2(coord_x_vec_len, real_pi), unit_epsilon, radius_vec_epsilon);
 
                 // Do correct the basis Y-axis vector as it is tangent to the ellipsoid surface.
                 //  1. Use ellipse first derivative formula:
@@ -478,18 +478,18 @@ namespace geometry {
                     (radius_vec_z_projected_len >= 0 ? Normal3d{ 0, 0, 1 } : Normal3d{ 0, 0, -1 })); // reduction to [0..PI/2]
 
                 // fix to avoid the trigonometric functions return NAN
-                radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range(radius_vec_cos_betta_to_z);
+                radius_vec_cos_betta_to_z = math::fix_float_trigonometric_range_factor(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
-                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD);
+                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi));
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi) - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD, std::fabs(alpha_angle_rad));
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, real_pi), std::fabs(alpha_angle_rad));
                 const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
@@ -502,7 +502,7 @@ namespace geometry {
                 vector_rotate(coord_y_vec, coord_y_vec, coord_y_vec_len, coord_x_axis,
                     ((ret_pole_orient == CoordYOrient_ToPositiveZ) ^ (radius_vec_z_projected_len >= 0)) ? delta_angle_rad : -delta_angle_rad,
                     unit_epsilon, radius_vec_epsilon);
-                vector_rotate(coord_z_vec, coord_y_vec, coord_y_vec_len, coord_x_axis, DEG_90_IN_RAD, unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_z_vec, coord_y_vec, coord_y_vec_len, coord_x_axis, DEG_90_IN_RAD2(coord_y_vec_len, real_pi), unit_epsilon, radius_vec_epsilon);
 
                 vector_normalize(coord_y_axis, coord_y_vec);
                 vector_normalize(coord_z_axis, coord_z_vec);
@@ -510,14 +510,14 @@ namespace geometry {
                 vec_mat_out = NormalMatrix3d{ coord_x_axis, coord_y_axis, coord_z_axis };
 
                 // fix to avoid the trigonometric functions return NAN
-                vec_mat_out.fix_float_trigonometric_range();
+                vec_mat_out.fix_float_trigonometric_range_factor();
             }
             else {
                 // Radius vector too close to the ellipsoid equator (Z-axis value is near 0), then
                 // use rotated basis Z-axis around the radius vector as basis X-axis vector and basis Z-axis as basis Y-axis vector.
 
                 Normal3d coord_x_axis;
-                vector_rotate(coord_x_axis, Normal3d{ 0, 0, 1 }, 1.0, radius_vec_norm, -DEG_90_IN_RAD, unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_x_axis, Normal3d{ 0, 0, 1 }, 1.0, radius_vec_norm, -DEG_90_IN_RAD2(coord_x_axis.x, real_pi), unit_epsilon, radius_vec_epsilon);
 
                 switch (coord_y_pole_orient) {
                 case CoordYOrient_ClosestToZ:
@@ -554,8 +554,8 @@ namespace geometry {
                 }
 
                 // fix to avoid the trigonometric functions return NAN
-                vec_mat_out.m[0].fix_float_trigonometric_range();
-                vec_mat_out.m[2].fix_float_trigonometric_range();
+                vec_mat_out.m[0].fix_float_trigonometric_range_factor();
+                vec_mat_out.m[2].fix_float_trigonometric_range_factor();
             }
         }
         else {
@@ -615,21 +615,13 @@ namespace geometry {
 
         // self test matrix on consistency
 #if DEBUG_ASSERT_VERIFY_ENABLED
-        NormalMatrix3d vec_mat_test;
-        vector_cross_product(vec_mat_test.m[2], vec_mat_out.m[0], vec_mat_out.m[1]);
-        vector_cross_product(vec_mat_test.m[0], vec_mat_out.m[1], vec_mat_out.m[2]);
-        vector_cross_product(vec_mat_test.m[1], vec_mat_out.m[2], vec_mat_out.m[0]);
-
         const real unit_square_epsilon =
 #if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
             FLT_EPSILON; // just something not zero
 #else
             unit_epsilon * unit_epsilon;
 #endif
-
-        DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[0], vec_mat_out.m[0], unit_square_epsilon));
-        DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[1], vec_mat_out.m[1], unit_square_epsilon));
-        DEBUG_ASSERT_TRUE(vector_is_equal(vec_mat_test.m[2], vec_mat_out.m[2], unit_square_epsilon));
+        vec_mat_out.validate(unit_square_epsilon);
 #endif
 
         return ret_pole_orient;
@@ -643,11 +635,22 @@ namespace geometry {
         const Normal3d & basis_z_axis = vec_mat_in.m[2];
 
         vector_rotate(basis_y_axis, vec_mat_in.m[1], 1.0, basis_z_axis, angle_rad, unit_epsilon, unit_epsilon);
-        vector_rotate(basis_x_axis, basis_y_axis, 1.0, basis_z_axis, -DEG_90_IN_RAD, unit_epsilon, unit_epsilon);
+        vector_rotate(basis_x_axis, basis_y_axis, 1.0, basis_z_axis, -DEG_90_IN_RAD2(basis_x_axis.x, real_pi), unit_epsilon, unit_epsilon);
 
         vec_mat_out = NormalMatrix3d{
             basis_x_axis, basis_y_axis, basis_z_axis
         };
+
+        // self test matrix on consistency
+#if DEBUG_ASSERT_VERIFY_ENABLED
+        const real unit_square_epsilon =
+#if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
+            FLT_EPSILON; // just something not zero
+#else
+            unit_epsilon * unit_epsilon;
+#endif
+        vec_mat_out.validate(unit_square_epsilon);
+#endif
     }
 
     inline void transform_vector_into_coordinate_system(Vector3d & vec_out, const NormalMatrix3d & vec_mat, const Vector3d & vec_to_transform)
@@ -670,7 +673,7 @@ namespace geometry {
         real angle_sin = points_distance_epsilon / (2.0 * radius_vector_length);
 
         // fix to avoid the trigonometric functions return NAN
-        angle_sin = math::fix_float_trigonometric_range(angle_sin);
+        angle_sin = math::fix_float_trigonometric_range_factor(angle_sin);
 
         return 2.0 * std::asin(angle_sin);
     }
