@@ -1,3 +1,12 @@
+2018.09.27:
+* fixed: build fix
+* fixed: points_distance_epsilon_to_radius_vector_epsilon and radius_vector_epsilon_to_points_distance_epsilon functions
+* refactor: refactored vector tolerances/epsilons usage
+
+2018.09.25:
+* new: testlib test::log_out_predicate* functions to print log with predicate call
+* new: testlib test::log_out_va function with va_list parameter
+
 2018.09.24:
 * fixed: DEG_* macros to assert an angle value type of user class, added DEG_*2 macroses to explicitly use `pi` predicate of an user class type
 * fixed: consexpr compilation in msvc 2015
