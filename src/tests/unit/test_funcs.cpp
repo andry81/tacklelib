@@ -384,7 +384,7 @@ void qdlib_nextafter(double from_numerator, double from_denominator, double to_n
     }
 }
 
-TEST(ExternalFuncs, dd_real_nextafter)
+TEST(ExternalFuncs, qdlib_real_nextafter)
 {
     // dd_real
     qdlib_nextafter<dd_real>(1.0, 1.0, 10.0, 1.0);

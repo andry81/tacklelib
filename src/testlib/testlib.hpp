@@ -41,10 +41,20 @@
 #define DECLARE_TEST_CASE_CLASS(prefix_str, scope_token, func_token, init_func, data_in_subdir, data_out_subdir, flags) \
     { UTILITY_PP_STRINGIZE(prefix_str), UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, data_in_subdir, data_out_subdir, flags }
 
+// builtin test case class
+//
+#define TEST_CASE_GET_CASE() \
+    ::testing::UnitTest::GetInstance()->current_test_case()
+
 // builtin test case info class
 //
 #define TEST_CASE_GET_INFO() \
     ::testing::UnitTest::GetInstance()->current_test_info()
+
+// builtin mutable test case info class
+//
+#define TEST_CASE_GET_MUTABLE_INFO() \
+    const_cast<::testing::TestInfo *>(::testing::UnitTest::GetInstance()->current_test_info())
 
 // returns current test case instance token contained test name
 //
@@ -325,6 +335,9 @@
 #define TEST_LOG_OUT(lvl, fmt, ...) \
     ::test::log_out(lvl, fmt, ## __VA_ARGS__)
 
+#define TEST_LOG_OUT_PREDICATE(functor, lvl, fmt, ...) \
+    ::test::log_out_predicate(functor, lvl, fmt, ## __VA_ARGS__)
+
 // internal definitions, must be undefined at the of this header!
 #define TEST_IMPL_DECLARE_ENV_VAR(var_name) \
     static tackle::path_string UTILITY_PP_CONCAT(s_, var_name); \
@@ -383,13 +396,18 @@ namespace test
         int flags;
     };
 
+    using log_out_predicate_func_t = std::function<void(int lvl, const char * fmt, va_list vl)>;
+
     void global_preinit(std::string & gtest_exclude_filter); // calls BEFORE
     void global_postinit(std::string & gtest_exclude_filter); 
     tackle::path_string get_data_in_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     tackle::path_string get_data_out_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     void interrupt_test();
 
+    void log_out_va(int lvl, const char * fmt, va_list vl);
     void log_out(int lvl, const char * fmt, ...);
+    void log_out_predicate_va(const log_out_predicate_func_t & functor, int lvl, const char * fmt, va_list vl);
+    void log_out_predicate(const log_out_predicate_func_t & functor, int lvl, const char * fmt, ...);
 }
 
 class TestCaseStaticBase

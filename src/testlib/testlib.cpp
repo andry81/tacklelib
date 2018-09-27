@@ -375,11 +375,8 @@ namespace test
         TEST_LOG_OUT(SKIP, "User interrupted.");
     }
 
-    void log_out(int lvl, const char * fmt, ...)
+    void log_out_va(int lvl, const char * fmt, va_list vl)
     {
-        va_list vl;
-        va_start(vl, fmt);
-
         size_t lvl_offset = (lvl) & PREFIX_OFFSET_MASK;
         if (lvl_offset < MIN_LVL || lvl_offset > MAX_LVL) lvl_offset = MIN_LVL;
         lvl_offset -= MIN_LVL;
@@ -421,6 +418,31 @@ namespace test
 #else
 #error platform is not implemented
 #endif
+    }
+
+    void log_out(int lvl, const char * fmt, ...)
+    {
+        va_list vl;
+        va_start(vl, fmt);
+
+        log_out_va(lvl, fmt, vl);
+
+        va_end(vl);
+    }
+
+    void log_out_predicate_va(const log_out_predicate_func_t & functor, int lvl, const char * fmt, va_list vl)
+    {
+        log_out_va(lvl, fmt, vl);
+
+        functor(lvl, fmt, vl);
+    }
+
+    void log_out_predicate(const log_out_predicate_func_t & functor, int lvl, const char * fmt, ...)
+    {
+        va_list vl;
+        va_start(vl, fmt);
+
+        log_out_predicate_va(functor, lvl, fmt, vl);
 
         va_end(vl);
     }

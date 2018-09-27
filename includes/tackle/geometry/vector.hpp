@@ -60,15 +60,15 @@ using real = double;
 const real real_min = (std::numeric_limits<real>::min)();
 const real real_max = (std::numeric_limits<real>::max)();
 
-#if defined(TACKLE_GEOM_REAL_FLOAT_TYPE)
-const real real_pi = math::pi();
-
 // real as qd_real/dd_real from the QD library
-#elif REAL_AS_QD_REAL_INTEGRATION_ENABLED
+#if REAL_AS_QD_REAL_INTEGRATION_ENABLED
 const real real_pi = qd_real::_pi();
 
 #elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
 const real real_pi = dd_real::_pi();
+
+#else
+const real real_pi = math::pi;
 
 #endif
 

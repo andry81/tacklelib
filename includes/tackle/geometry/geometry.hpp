@@ -662,48 +662,67 @@ namespace geometry {
         };
     }
 
-    // points_distance_epsilon - line distance beetween points on the track curve
-    // radius_vector_length - length of a vector from site to the track curve point
+    // points_distance_epsilon - line distance beetween points on a curve
+    // radius_vector_length - length of a vector from origin to a curve point
     inline real points_distance_epsilon_to_support_angle_rad_epsilon(const real & points_distance_epsilon, const real & radius_vector_length)
     {
         // all epsilons must be positive
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(points_distance_epsilon, 0));
-        DEBUG_ASSERT_GE(2 * radius_vector_length, points_distance_epsilon);
 
-        real angle_sin = points_distance_epsilon / (2.0 * radius_vector_length);
+        // radius vector must be much greater than points distance epsilon
+        DEBUG_ASSERT_GT(radius_vector_length, points_distance_epsilon * 2);
 
-        // fix to avoid the trigonometric functions return NAN
-        angle_sin = math::fix_float_trigonometric_range_factor(angle_sin);
+#if !TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
+        if (points_distance_epsilon != 0.0) {
+            real angle_sin = points_distance_epsilon / (2.0 * radius_vector_length);
 
-        return 2.0 * std::asin(angle_sin);
+            // fix to avoid the trigonometric functions return NAN
+            angle_sin = math::fix_float_trigonometric_range_factor(angle_sin);
+
+            return 2.0 * std::asin(angle_sin);
+        }
+#endif
+
+        return 0;
     }
 
-    // points_distance_epsilon - line distance beetween points on the track curve
-    // radius_vector_length - length of a vector from site to the track curve point
+    // points_distance_epsilon - line distance beetween points on a curve
+    // radius_vector_length - length of a vector from origin to a curve point
     inline real points_distance_epsilon_to_radius_vector_epsilon(const real & points_distance_epsilon, const real & radius_vector_length)
     {
         // all epsilons must be positive
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(points_distance_epsilon, 0));
 
-#if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
-        return points_distance_epsilon != 0.0 ? (std::sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length) : 0;
-#else
-        return std::sqrt(radius_vector_length * radius_vector_length + points_distance_epsilon * points_distance_epsilon / 4) - radius_vector_length;
+        // radius vector must be much greater than points distance epsilon
+        DEBUG_ASSERT_GT(radius_vector_length, points_distance_epsilon * 2);
+
+#if !TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
+        if (points_distance_epsilon != 0.0) {
+            return radius_vector_length - std::sqrt(radius_vector_length * radius_vector_length - points_distance_epsilon * points_distance_epsilon / 4);
+        }
 #endif
+
+        return 0;
     }
 
-    // points_distance_epsilon - line distance beetween points on the track curve
-    // radius_vector_length - length of a vector from site to the track curve point
+    // points_distance_epsilon - line distance beetween points on a curve
+    // radius_vector_length - length of a vector from origin to a curve point
     inline real radius_vector_epsilon_to_points_distance_epsilon(const real & radius_vector_epsilon, const real & radius_vector_length)
     {
         // all epsilons must be positive
         TACKLE_GEOM_DEBUG_WITH_ZERO_EPSILON(DEBUG_ASSERT_GT(radius_vector_epsilon, 0));
 
-#if TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
-        return radius_vector_epsilon != 0.0 ? std::sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2 : 0;
-#else
-        return std::sqrt(radius_vector_epsilon * (radius_vector_epsilon + radius_vector_length * 2)) * 2;
+        // radius vector must be much greater than it's epsilon
+        DEBUG_ASSERT_GT(radius_vector_length, radius_vector_epsilon * 2);
+
+#if !TACKLE_GEOM_ENABLE_DEBUG_WITH_ZERO_EPSILON
+        if (radius_vector_epsilon != 0.0) {
+            const real reduced_radius_vector_length = radius_vector_length - radius_vector_epsilon;
+            return std::sqrt((radius_vector_length * radius_vector_length - reduced_radius_vector_length * reduced_radius_vector_length) * 4);
+        }
 #endif
+
+        return 0;
     }
 
 }
