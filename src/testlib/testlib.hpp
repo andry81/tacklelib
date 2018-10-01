@@ -368,8 +368,10 @@ namespace test
         CAUTION             = 3,
         WARNING             = 4,
         INFO                = 5,
+        INFO_GRAY           = 6,
+        WARNING_DIMMED      = 7,
         MIN_LVL             = SKIP,
-        MAX_LVL             = INFO,
+        MAX_LVL             = WARNING_DIMMED,
         FROM_GLOBAL_INIT    = 0x10000,
         LVL_FLAGS_MASK      = 0xFFFF0000,
         PREFIX_OFFSET_MASK  = 0x0000FFFF
