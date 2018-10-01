@@ -91,7 +91,7 @@ namespace test
         inline const char * _get_test_case_msg_prefix_str(size_t index)
         {
             static const char * test_case_msg_prefix_str[] = {
-                "[     SKIP ] ", "[    DEBUG ] ", "[  CAUTION ] ", "[  WARNING ] ", "[     INFO ] "
+                "[     SKIP ] ", "[    DEBUG ] ", "[  CAUTION ] ", "[  WARNING ] ", "[     INFO ] ", "[     INFO ] ", "[  WARNING ] "
             };
 
             return test_case_msg_prefix_str[index];
@@ -100,7 +100,7 @@ namespace test
         inline const char * _get_global_init_msg_prefix_str(size_t index)
         {
             static const char * global_init_msg_prefix_str[] = {
-                "skip: ", "debug: ", "caution: ", "warning: ", "info: "
+                "skip: ", "debug: ", "caution: ", "warning: ", "info: ", "info: ", "warning: "
             };
 
             return global_init_msg_prefix_str[index];
@@ -113,7 +113,9 @@ namespace test
                 FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE, \
                 FOREGROUND_INTENSITY | FOREGROUND_RED, \
                 FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN, \
-                FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE \
+                FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE, \
+                FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, \
+                FOREGROUND_RED | FOREGROUND_GREEN \
             };
 
             return console_attrs[index];
@@ -123,11 +125,12 @@ namespace test
         inline const char * _get_console_color_ansi_sequence(size_t index)
         {
             static const char * console_color_ansi_sequence[] = {
-                "\033[1;33m",
-                "\033[1;35m",
-                "\033[1;31m",
-                "\033[1;33m",
-                "\033[1;36m",
+                "\033[1;33m", // yellow
+                "\033[1;35m", // light purple
+                "\033[1;31m", // light red
+                "\033[1;33m", // yellow
+                "\033[1;36m", // light cyan
+                "\033[0;37m", // gray
             }; \
 
             return console_color_ansi_sequence[index];

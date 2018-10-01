@@ -182,10 +182,14 @@ namespace geometry {
 
         DEBUG_ASSERT_LT(vec_from_square_epsilon * vec_to_square_epsilon, denominator);
 
-        const real angle_rad = vector_dot_product(vec_from, vec_to) / std::sqrt(denominator);
-        const real fixed_angle_rad = math::fix_float_trigonometric_range_factor(angle_rad);
+        if (denominator != 0.0) {
+            const real angle_rad = vector_dot_product(vec_from, vec_to) / std::sqrt(denominator);
+            const real fixed_angle_rad = math::fix_float_trigonometric_range_factor(angle_rad);
 
-        return std::acos(fixed_angle_rad);
+            return std::acos(fixed_angle_rad);
+        }
+
+        return 0;
     }
 
     inline real vector_length_projection(const Vector3d & vec_from, const Normal3d & vec_to)

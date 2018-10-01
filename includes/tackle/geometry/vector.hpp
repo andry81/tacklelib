@@ -79,23 +79,26 @@ struct BasicVector3d
 
     elem_type & operator [](size_t index)
     {
-        DEBUG_ASSERT_LT(index, 3);
         switch (index) {
             case 0: return x;
             case 1: return y;
             case 2: return z;
+            default: DEBUG_ASSERT_TRUE(false);
         }
-        return x;
+
+        static elem_type dummy_param{};
+        return dummy_param; // to protect change of not related parameters
     }
 
     elem_type operator [](size_t index) const
     {
-        DEBUG_ASSERT_LT(index, 3);
         switch (index) {
             case 0: return x;
             case 1: return y;
             case 2: return z;
+            default: DEBUG_ASSERT_TRUE(false);
         }
+
         return elem_type{};
     }
 
@@ -294,24 +297,26 @@ struct BasicVector4d
 
     elem_type & operator [](size_t index)
     {
-        DEBUG_ASSERT_LT(index, 3);
         switch (index) {
             case 0: return x;
             case 1: return y;
             case 2: return z;
             case 3: return w;
+            default: DEBUG_ASSERT_TRUE(false);
         }
-        return x;
+
+        static elem_type dummy_param{};
+        return dummy_param; // to protect change of not related parameters
     }
 
     elem_type operator [](size_t index) const
     {
-        DEBUG_ASSERT_LT(index, 3);
         switch (index) {
             case 0: return x;
             case 1: return y;
             case 2: return z;
             case 3: return w;
+            default: DEBUG_ASSERT_TRUE(false);
         }
         return elem_type{};
     }
@@ -372,6 +377,8 @@ inline Vector3d operator +(const Vector4d & l, const Vector4d & r)
 
 struct NormalMatrix3d
 {
+    using reference_type = Normal3d;
+
     NormalMatrix3d(const NormalMatrix3d &) = default;
 
     NormalMatrix3d()
@@ -390,14 +397,25 @@ struct NormalMatrix3d
 
     Normal3d & operator [](size_t index)
     {
-        DEBUG_ASSERT_LT(index, 3);
-        return m[index];
+        if (index < 3) {
+            return m[index];
+        }
+
+        DEBUG_ASSERT_TRUE(false);
+
+        static reference_type dummy_param{};
+        return dummy_param; // to protect change of not related parameters
     }
 
     const Normal3d & operator [](size_t index) const
     {
-        DEBUG_ASSERT_LT(index, 3);
-        return m[index];
+        if (index < 3) {
+            return m[index];
+        }
+
+        DEBUG_ASSERT_TRUE(false);
+
+        return Normal3d{};
     }
 
     void fix_float_trigonometric_range_factor()

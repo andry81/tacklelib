@@ -30,3 +30,10 @@ namespace boost
     namespace fs = filesystem;
     namespace ios = boost::iostreams;
 }
+
+// special value type to skip a specific test parameter check
+struct Skip
+{
+};
+
+const Skip skip = Skip{};

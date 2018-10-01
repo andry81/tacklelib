@@ -1,3 +1,6 @@
+2018.10.01:
+* minor improvements
+
 2018.09.27:
 * fixed: build fix
 * fixed: points_distance_epsilon_to_radius_vector_epsilon and radius_vector_epsilon_to_points_distance_epsilon functions
