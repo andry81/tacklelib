@@ -1,6 +1,6 @@
 @echo off
 
-rem Not version constrol source files generator.
+rem Not version control source files generator.
 
 setlocal
 

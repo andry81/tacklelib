@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Configurator for cmake with out generator.
+
 # The script for cases where the IDE or down stream system doesn't have appropriate generator in the cmake.
 # For example, it can be the QtCreator.
 # To bypass the problem of inconvinient usage of environment variables in such circumstances and unability
