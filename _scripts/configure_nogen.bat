@@ -1,5 +1,7 @@
 @echo off
 
+rem Configurator for cmake with out generator.
+
 rem The script for cases where the IDE or down stream system doesn't have appropriate generator in the cmake.
 rem For example, it can be the QtCreator.
 rem To bypass the problem of inconvinient usage of environment variables in such circumstances and unability

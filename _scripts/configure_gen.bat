@@ -1,5 +1,7 @@
 @echo off
 
+rem Configurator for cmake with generator.
+
 setlocal
 
 call "%%~dp0__init__.bat" || goto :EOF

@@ -3,6 +3,7 @@
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
+#include <utility/assert.hpp>
 
 #include <tackle/smart_handle.hpp>
 
@@ -42,7 +43,14 @@ namespace tackle
 
         FORCE_INLINE void reset(const FileHandle & handle = FileHandle::s_null)
         {
-            base_type::reset(handle.get(), _deleter);
+            auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
+            if (!deleter) {
+                // must always have a deleter
+                throw std::runtime_error((boost::format("%s(%u): deleter is not allocated") %
+                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            }
+
+            base_type::reset(handle.get(), *deleter);
             m_file_path.clear();
         }
 
