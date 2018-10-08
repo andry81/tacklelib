@@ -2,6 +2,8 @@
 
 #include <tacklelib.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_ARC_7ZIP_LZMA_ENCODER)
+
 #include <utility/platform.hpp>
 #include <utility/debug.hpp>
 #include <utility/assert.hpp>
@@ -20,7 +22,7 @@
 #include "LzmaEnc.h"
 
 #include <cstdio>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
@@ -165,3 +167,5 @@ namespace _7zip {
 }
 }
 }
+
+#endif

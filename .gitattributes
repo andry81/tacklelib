@@ -33,6 +33,7 @@ _scripts/traplib.sh -text
 includes/.svnignore -text
 includes/debug.hpp.in -text
 includes/optimization.hpp.in -text
+includes/setup.hpp.in -text
 includes/tackle/aligned_storage/aligned_storage_base.hpp -text
 includes/tackle/aligned_storage/aligned_storage_from.hpp -text
 includes/tackle/aligned_storage/public/aligned_storage_by_decl.hpp -text
@@ -60,6 +61,7 @@ src/common.cpp -text
 src/common.hpp -text
 src/debug.hpp.in -text
 src/optimization.hpp.in -text
+src/setup.hpp.in -text
 src/tackle/aligned_storage/aligned_storage_by.hpp -text
 src/tackle/aligned_storage/max_aligned_storage.hpp -text
 src/tackle/aligned_storage/private/aligned_storage_by_decl.hpp -text
@@ -93,6 +95,8 @@ src/utility/algorithm/generated/gen_unroll_copy_switch.bat -text
 src/utility/algorithm/generated/unroll_copy_switch.hpp -text
 src/utility/arc/7zip/LzmaEnc.cpp -text
 src/utility/arc/7zip/LzmaEnc.hpp -text
+src/utility/arc/libarchive/libarchive.cpp -text
+src/utility/arc/libarchive/libarchive.hpp -text
 src/utility/assert.hpp -text
 src/utility/assert_private.hpp -text
 src/utility/crc.cpp -text

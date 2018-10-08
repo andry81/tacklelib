@@ -17,6 +17,11 @@ echo."%CONFIGURE_ROOT%/includes/version.hpp"
   echo.
 ) > "%CONFIGURE_ROOT%/includes/version.hpp"
 
+echo."%CONFIGURE_ROOT%/includes/setup.hpp.in" -^> "%CONFIGURE_ROOT%/includes/setup.hpp"
+(
+  type "%CONFIGURE_ROOT:/=\%\includes\setup.hpp.in"
+) > "%CONFIGURE_ROOT%/includes/setup.hpp"
+
 echo."%CONFIGURE_ROOT%/includes/debug.hpp.in" -^> "%CONFIGURE_ROOT%/includes/debug.hpp"
 (
   type "%CONFIGURE_ROOT:/=\%\includes\debug.hpp.in"
@@ -26,6 +31,11 @@ echo."%CONFIGURE_ROOT%/includes/optimization.hpp.in" -^> "%CONFIGURE_ROOT%/inclu
 (
   type "%CONFIGURE_ROOT:/=\%\includes\optimization.hpp.in"
 ) > "%CONFIGURE_ROOT%/includes/optimization.hpp"
+
+echo."%CONFIGURE_ROOT%/src/setup.hpp.in" -^> "%CONFIGURE_ROOT%/src/setup.hpp"
+(
+  type "%CONFIGURE_ROOT:/=\%\src\setup.hpp.in"
+) > "%CONFIGURE_ROOT%/src/setup.hpp"
 
 echo."%CONFIGURE_ROOT%/src/debug.hpp.in" -^> "%CONFIGURE_ROOT%/src/debug.hpp"
 (

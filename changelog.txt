@@ -1,3 +1,8 @@
+2018.10.08:
+* new: setup.hpp.in/setup.hpp header template/instance files to enable/disable additional header/source files from tackle/utility directories linked with 3dparty libraries
+* new: utility/arc/libarchive header/source functionality to create libarchive file from list of files
+* refactor: utility::Buffer moved from utility.hpp header into memory.hpp header
+
 2018.10.05:
 * new: 7zip lzma encoder c++ wrapper initial implementation
 * changed: replaced usage of boost::shared_ptr in all places by the std::shared_ptr
