@@ -33,7 +33,7 @@ DECLARE_TEST_CASES
 #endif
 
 #ifdef BENCH_TESTS
-    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, "", "", 0)
+    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, "test_funcs_duration", "test_funcs_duration", 0),
 
 // examples here...
 //

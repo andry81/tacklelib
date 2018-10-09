@@ -15,8 +15,8 @@ namespace utility {
 namespace arc {
 namespace libarchive {
 
-    void write_archive(int filter_id, int format_code, const std::string & options,
-        const std::string & out_path, const std::vector<std::string> & in_filenames, size_t read_block_size);
+    void write_archive(const std::vector<int> & input_filter_ids, int format_code, const std::string & options,
+        const std::string & out_path, const std::string & in_dir, const std::vector<std::string> & in_file_paths, size_t read_block_size);
 
 }
 }

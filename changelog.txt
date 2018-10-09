@@ -1,3 +1,10 @@
+2018.10.09:
+* fixed: tests: bench tests missed change
+* new: tests: bench test for utility::arc::libarchive::write_archive function
+
+2018.10.09:
+* fixed: utility::arc::libarchive::write_archive function requirement to create an archive with relative paths inside
+
 2018.10.08:
 * new: setup.hpp.in/setup.hpp header template/instance files to enable/disable additional header/source files from tackle/utility directories linked with 3dparty libraries
 * new: utility/arc/libarchive header/source functionality to create libarchive file from list of files
