@@ -3,6 +3,7 @@
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
+#include <utility/memory.hpp>
 #include <utility/utility.hpp>
 
 #include <tackle/file_handle.hpp>

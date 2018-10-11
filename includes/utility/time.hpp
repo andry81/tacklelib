@@ -10,10 +10,12 @@
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 
+#include <ctime>
 #include <cstdint>
 #include <atomic>
 #include <chrono>
 #include <limits>
+#include <sstream>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!
@@ -21,7 +23,7 @@
 #include <winbase.h>
 #include <winnt.h>
 #elif defined(UTILITY_PLATFORM_POSIX)
-#include <time.h>
+//#include <time.h>
 #else
 #error platform is not implemented
 #endif
@@ -47,18 +49,24 @@ namespace time {
     const clockid_t CLOCK_REALTIME_ALARM        = 8;    // Like CLOCK_REALTIME but also wakes suspended system.
     const clockid_t CLOCK_BOOTTIME_ALARM        = 9;    // Like CLOCK_BOOTTIME but also wakes suspended system.
     const clockid_t CLOCK_TAI                   = 11;   // Like CLOCK_REALTIME but in International Atomic Time.
+#endif
 
     FORCE_INLINE void unix_time(struct timespec *spec)
     {
+#ifdef UTILITY_PLATFORM_WINDOWS
         int64_t wintime;
         GetSystemTimeAsFileTime((FILETIME *)&wintime);
         wintime -= from_1_jan1601_to_1_jan1970_100nsecs;
         spec->tv_sec = wintime / 10000000i64;
         spec->tv_nsec = wintime % 10000000i64 * 100;
+#else
+        return ::unit_time(spec);
+#endif
     }
 
     FORCE_INLINE int clock_gettime(clockid_t clk_id, struct timespec * ct)
     {
+#ifdef UTILITY_PLATFORM_WINDOWS
         UTILITY_UNUSED_STATEMENT(clk_id);
 
         // context call saved per thread basis instead of per entire application
@@ -92,8 +100,10 @@ namespace time {
         ct->tv_nsec = long(tv_nsec);
 
         return 0;
-    }
+#else
+        return ::clock_gettime(clk_id, ct);
 #endif
+    }
 
     FORCE_INLINE bool is_leap_year(size_t year)
     {
@@ -105,6 +115,27 @@ namespace time {
         DEBUG_ASSERT_GE(year, 1800U);
         const size_t prev_year = year - 1;
         return prev_year / 4 - prev_year / 100 + prev_year / 400;
+    }
+
+
+    FORCE_INLINE std::tm gmtime(const std::time_t & time)
+    {
+        std::tm t = {};
+
+#ifdef UTILITY_PLATFORM_WINDOWS
+        gmtime_s(&t, &time);
+#else
+        gmtime_r(&time, &t);
+#endif
+
+        return t;
+    }
+
+    FORCE_INLINE std::string strftime(const std::string & fmt, const std::tm & time)
+    {
+        std::stringstream buffer;
+        buffer << std::put_time(&time, fmt.c_str());
+        return buffer.str();
     }
 
 }

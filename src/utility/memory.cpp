@@ -1,7 +1,4 @@
 #include <utility/memory.hpp>
-#include <utility/assert.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/utility.hpp>
 
 #include <tackle/file_handle.hpp>
 
@@ -13,9 +10,9 @@
 #include "windows.h"
 #include "psapi.h"
 #elif defined(UTILITY_PLATFORM_POSIX)
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
+#include "<cstdlib>"
+#include "<cstdio>"
+#include "<string>"
 #else
 #error platform is not implemented
 #endif
@@ -90,13 +87,6 @@ namespace utility {
         return 0;
     }
 
-    Buffer::~Buffer()
-    {
-#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
-        check_buffer_guards();
-#endif
-    }
-
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
@@ -144,6 +134,7 @@ namespace utility {
             return;
 
         _error:;
+            DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::out_of_range(
                 (boost::format("%s : out of buffer write: reserve=%u size=%u buffer=%p") %
                     UTILITY_PP_FUNCSIG % m_reserve % m_size % buf_ptr).str());
@@ -187,72 +178,5 @@ namespace utility {
             }
         }
     }
-
-    void Buffer::reset(size_t size)
-    {
-#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
-        check_buffer_guards();
-
-        // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
-        const size_t offset = (std::min)((std::max)(size / 100, 16U), s_guard_max_len);
-        const size_t size_extra = size ? (size + offset * 2) : 0;
-#else
-        const size_t offset = 0;
-        const size_t size_extra = size;
-#endif
-
-        // reallocate only if greater, deallocate only if 0
-        if (size_extra) {
-            if (m_reserve < size_extra) {
-                m_buf_ptr = BufSharedPtr(new uint8_t[size_extra], std::default_delete<uint8_t[]>());
-                m_reserve = size_extra;
-            }
-
-            m_offset = offset;
-            m_size = size;
-
-#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
-            _fill_buffer_guards();
-#endif
-        }
-        else {
-            m_buf_ptr.reset();
-            m_offset = m_reserve = m_size = 0;
-        }
-    }
-
-    uint8_t * Buffer::realloc_get(size_t size)
-    {
-        reset(size);
-
-#if ERROR_IF_EMPTY_PP_DEF(ENABLE_BUFFER_REALLOC_AFTER_ALLOC)
-        if (!m_is_reallocating)
-        {
-            Buffer local_buf;
-
-            local_buf.set_reallocating(true);
-
-            realloc(local_buf);
-        }
-#endif
-
-        return m_buf_ptr.get() + m_offset;
-    }
-
-#ifndef UTILITY_PLATFORM_X64
-    uint8_t * Buffer::realloc_get(uint64_t size)
-    {
-        if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
-            const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
-            if (size > max_value) {
-                throw std::runtime_error(
-                    (boost::format("%s: size is out of memory: size=%llu max=%llu") %
-                        UTILITY_PP_FUNCSIG % size % max_value).str());
-            }
-        }
-
-        return realloc_get(size_t(size));
-    }
-#endif
 
 }

@@ -4,6 +4,26 @@
 
 #include <utility/arc/libarchive/libarchive.hpp>
 
+#include <tackle/string.hpp>
+
+
+//// tackle::string_fromat
+
+TEST(FunctionsTest, test_string_format_on_std_string_0)
+{
+    for (size_t i = 0; i < 1000000; i++) {
+        const std::string v = tackle::string_format(0, "%s+%u\n", "test test test", 12345);
+        UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
+    }
+}
+
+TEST(FunctionsTest, test_string_format_on_std_string_256)
+{
+    for (size_t i = 0; i < 1000000; i++) {
+        const std::string v = tackle::string_format(256, "%s+%u\n", "test test test", 12345);
+        UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
+    }
+}
 
 void test_std_fmod(bool in_radians, double range_factor, size_t repeats)
 {
@@ -330,7 +350,7 @@ inline void test_utility_arc_libarchive_write_archive(size_t times)
     const tackle::path_string & data_out_dir = TEST_CASE_GET_ROOT(data_out);
 
     const tackle::path_string in_dir = data_in_dir + "01_8_china";
-    const tackle::path_string out_file = data_out_dir + "test_arc.7zip";
+    const tackle::path_string out_file = data_out_dir + "test_arc.7z";
 
     if (!utility::is_path_exists(data_out_dir)) {
         utility::create_directory(data_out_dir);

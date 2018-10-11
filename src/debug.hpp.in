@@ -5,13 +5,3 @@
 
 
 //// private headers common debug symbols
-
-// Call `utility::Buffer::realloc` immediately after `utility::Buffer::realloc_get`.
-// This will trigger builtin memory corruption checker.
-#define ENABLE_BUFFER_REALLOC_AFTER_ALLOC 0
-
-// Enables builtin `utility::Buffer` guards even in release (by default it is enabled ONLY in the Debug)
-#define ENABLE_PERSISTENT_BUFFER_GUARD_CHECK 0
-
-// Disables builtin `utility::Buffer` guards everythere (by default it is enabled ONLY in the Debug)
-#define DISABLE_BUFFER_GUARD_CHECK 0
