@@ -9,7 +9,6 @@
 #include <utility/preprocessor.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/debug.hpp>
-#include <utility/memory.hpp>
 
 #include <type_traits>
 #include <tuple>
@@ -321,6 +320,24 @@ namespace utility
         STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
     }
 #endif
+
+    // Generalized `for_each` through the `std::tuple` container.
+    // Based on: https://stackoverflow.com/questions/1198260/iterate-over-tuple/6894436#6894436
+    //
+
+    template <std::size_t I = 0, typename FuncT, typename... Tp>
+    FORCE_INLINE typename std::enable_if<I == sizeof...(Tp), void>::type
+        for_each(std::tuple<Tp...> &, const FuncT &)
+    {
+    }
+
+    template<std::size_t I = 0, typename FuncT, typename... Tp>
+    FORCE_INLINE typename std::enable_if<I < sizeof...(Tp), void>::type
+        for_each(std::tuple<Tp...> & t, const FuncT & f)
+    {
+        f(std::get<I>(t));
+        for_each<I + 1, FuncT, Tp...>(t, f);
+    }
 
     // `is_callable` implementation.
     // Based on: https://stackoverflow.com/questions/15393938/find-out-if-a-c-object-is-callable

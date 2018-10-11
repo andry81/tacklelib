@@ -44,6 +44,7 @@ includes/tackle/deque.hpp -text
 includes/tackle/geometry/geometry.hpp -text
 includes/tackle/geometry/vector.hpp -text
 includes/tackle/path_string.hpp -text
+includes/tackle/string.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text

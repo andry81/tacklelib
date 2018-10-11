@@ -20,6 +20,7 @@
 #include <stdexcept>
 
 #include <fcntl.h>
+#include <sys/stat.h>
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <io.h>
 #else
@@ -111,7 +112,17 @@ namespace libarchive {
             archive_entry_set_pathname(entry, in_file_path.c_str());
             archive_entry_set_size(entry, st.st_size);
             archive_entry_set_filetype(entry, AE_IFREG);
+            archive_entry_set_ctime(entry, st.st_ctime, 0);
+            archive_entry_set_atime(entry, st.st_atime, 0);
+            archive_entry_set_mtime(entry, st.st_mtime, 0);
+            archive_entry_set_uid(entry, st.st_uid);
+            archive_entry_set_dev(entry, st.st_dev);
+            archive_entry_set_gid(entry, st.st_gid);
+            archive_entry_set_ino(entry, st.st_ino);
+            archive_entry_set_nlink(entry, st.st_nlink);
+            archive_entry_set_rdev(entry, st.st_rdev);
             archive_entry_set_perm(entry, 0644);
+            archive_entry_set_mode(entry, st.st_mode);
             archive_write_header(a, entry);
 
             const tackle::FileHandle in_file_handle = utility::open_file(in_file.c_str(), "rb", utility::SharedAccess_DenyWrite); // should not be opened for writing

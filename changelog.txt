@@ -1,3 +1,13 @@
+2018.10.11:
+* new: tackle::string_format function for string formatting avoding boost::format (might be type unsafe but much faster as plain snprintf)
+* new: tests: bench tests for tackle::string_format function
+* new: generalized form of runtime for each via utility::for_each function
+* changed: a bit speedup of utility::Buffer by replacing std::shared_ptr by std::unique_ptr
+
+2018.10.10:
+* fixed: utility::arc::libarchive::write_archive function missed stat parameters for an archive
+* minor refactor and improvement
+
 2018.10.09:
 * fixed: tests: bench tests missed change
 * new: tests: bench test for utility::arc::libarchive::write_archive function

@@ -6,12 +6,17 @@
 
 #include <tacklelib.hpp>
 
+#include <utility/platform.hpp>
+#include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
+#include <utility/utility.hpp>
 
 #include <type_traits>
 
 #include <cstdint>
+#include <cstdio>
 #include <memory>
+#include <stdexcept>
 
 
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_MAKE_UNIQUE
@@ -109,19 +114,26 @@ namespace utility
     //
     class Buffer
     {
-        using BufSharedPtr = std::shared_ptr<uint8_t>;
+        using BufSharedPtr = std::unique_ptr<uint8_t[]>;
 
         static const char s_guard_sequence_str[49];
-        static const size_t s_guard_max_len = 256; // to avoid comparison slowdown on big arrays
+        static const size_t s_guard_max_len = 256; // to avoid comparison slow down on big arrays
 
     public:
         FORCE_INLINE Buffer(size_t size = 0) :
             m_offset(0), m_size(0), m_reserve(0), m_is_reallocating(false)
         {
-            reset(size);
+            if (size) { // optimization to avoid an empty call in constructor
+                reset(size);
+            }
         }
 
-        ~Buffer();
+        FORCE_INLINE Buffer::~Buffer()
+        {
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+            check_buffer_guards();
+#endif
+        }
 
         void check_buffer_guards();
 
@@ -129,7 +141,38 @@ namespace utility
         void _fill_buffer_guards();
 
     public:
-        void reset(size_t size);
+        FORCE_INLINE void reset(size_t size)
+        {
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+            check_buffer_guards();
+
+            // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
+            const size_t offset = (std::min)((std::max)(size / 100, 16U), s_guard_max_len);
+            const size_t size_extra = size ? (size + offset * 2) : 0;
+#else
+            const size_t offset = 0;
+            const size_t size_extra = size;
+#endif
+
+            // reallocate only if greater, deallocate only if 0
+            if (size_extra) {
+                if (m_reserve < size_extra) {
+                    m_buf_ptr = BufSharedPtr(new uint8_t[size_extra], std::default_delete<uint8_t[]>());
+                    m_reserve = size_extra;
+                }
+
+                m_offset = offset;
+                m_size = size;
+
+#if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
+                _fill_buffer_guards();
+#endif
+            }
+            else {
+                m_buf_ptr.reset();
+                m_offset = m_reserve = m_size = 0;
+            }
+        }
 
         FORCE_INLINE size_t size() const
         {
@@ -148,10 +191,40 @@ namespace utility
             return m_buf_ptr.get() + m_offset;
         }
 
-        uint8_t * realloc_get(size_t size);
+        FORCE_INLINE uint8_t * realloc_get(size_t size)
+        {
+            reset(size);
+
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_BUFFER_REALLOC_AFTER_ALLOC)
+            if (!m_is_reallocating)
+            {
+                Buffer local_buf;
+
+                local_buf.set_reallocating(true);
+
+                realloc_debug(local_buf);
+            }
+#endif
+
+            return m_buf_ptr.get() + m_offset;
+        }
 
 #ifndef UTILITY_PLATFORM_X64
-        uint8_t * realloc_get(uint64_t size);
+        FORCE_INLINE uint8_t * realloc_get(uint64_t size)
+        {
+            if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
+                const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
+                if (size > max_value) {
+                    char fmt_buf[256];
+                    snprintf(fmt_buf, utility::static_size(fmt_buf), "%s(%u): size is out of memory: size=%llu max=%llu",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, size, max_value);
+                    DEBUG_BREAK_IN_DEBUGGER(true);
+                    throw std::runtime_error(fmt_buf);
+                }
+            }
+
+            return realloc_get(size_t(size));
+        }
 #endif
 
         FORCE_INLINE void set_reallocating(bool is_reallocating)
@@ -159,13 +232,19 @@ namespace utility
             m_is_reallocating = is_reallocating;
         }
 
+        FORCE_INLINE uint8_t * release()
+        {
+            m_offset = m_size = m_reserve = 0;
+            return m_buf_ptr.release();
+        }
+
         // for memory debugging on a moment of deallocation
-        FORCE_INLINE void realloc(Buffer & to_buf)
+        FORCE_INLINE void realloc_debug(Buffer & to_buf)
         {
             uint8_t * to_buf_ptr = to_buf.realloc_get(m_size);
             memcpy(to_buf_ptr - to_buf.m_offset, m_buf_ptr.get(), m_reserve);
 
-            *this = to_buf;
+            m_buf_ptr.reset(to_buf.release());
         }
 
     private:
