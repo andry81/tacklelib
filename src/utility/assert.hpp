@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef UTILITY_ASSERT_PUBLIC_HPP
-#error You can not include private header after public!
+#error You must not include private header after public!
 #endif
 
 // DO NOT REMOVE, exists to avoid private/public headers mixing!

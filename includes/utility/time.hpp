@@ -16,6 +16,7 @@
 #include <chrono>
 #include <limits>
 #include <sstream>
+#include <iomanip>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!
