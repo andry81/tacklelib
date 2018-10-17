@@ -187,6 +187,12 @@
 #   define LIBRARY_API __declspec(dllimport)
 #endif
 
+#if defined(UTILITY_COMPILER_CXX_GCC)
+#   define STDCALL __attribute__((stdcall))
+#elif defined(UTILITY_COMPILER_CXX_MSC)
+#   define STDCALL __stdcall
+#endif
+
 // to make the unique link with the static library (LIB) implementation
 #define DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
     class UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) \

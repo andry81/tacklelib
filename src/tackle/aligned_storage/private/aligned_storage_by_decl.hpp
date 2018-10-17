@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef TACKLE_ALIGNED_STORAGE_BY_PUBLIC_DECL_HPP
-#error You can not include private header after public!
+#error You must not include private header after public!
 #endif
 
 // DO NOT REMOVE, exists to avoid private/public headers mixing!
