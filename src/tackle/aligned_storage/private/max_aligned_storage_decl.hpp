@@ -35,7 +35,7 @@
 
 #include <boost/mpl/vector.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 // alignof_ headers
 #include <boost/mpl/size_t.hpp>
@@ -148,7 +148,8 @@ namespace tackle
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             // make construction
@@ -162,12 +163,14 @@ namespace tackle
             // at first, check if both storages are constructed
             if (!is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             // make assignment

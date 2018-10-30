@@ -33,13 +33,13 @@
 
 // Declares gtest a function test case.
 //
-#define DECLARE_TEST_CASE_FUNC(scope_token, func_token, init_func, data_in_subdir, data_out_subdir, flags) \
-    { "", UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, data_in_subdir, data_out_subdir, flags }
+#define DECLARE_TEST_CASE_FUNC(scope_token, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, flags) \
+    { "", UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, flags }
 
 // Declares gtest a class test case.
 //
-#define DECLARE_TEST_CASE_CLASS(prefix_str, scope_token, func_token, init_func, data_in_subdir, data_out_subdir, flags) \
-    { UTILITY_PP_STRINGIZE(prefix_str), UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, data_in_subdir, data_out_subdir, flags }
+#define DECLARE_TEST_CASE_CLASS(prefix_str, scope_token, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, flags) \
+    { UTILITY_PP_STRINGIZE(prefix_str), UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, flags }
 
 // builtin test case class
 //
@@ -385,6 +385,7 @@ namespace test
         TCF_IS_INTERACTIVE      = 0x80000000,   // interactive test case, the user input is mandatory
         TCF_IS_PARAMETERIZED    = 0x40000000,   // parameterized test case, has combinations
         TCF_IS_COMBINATOR       = 0x20000000,   // parameterized test case with heavy combinations
+        TCF_PRIVATE_FLAGS_MASK  = 0x000F0000
     };
 
     struct TestCase
@@ -393,6 +394,7 @@ namespace test
         const char * scope_str;
         const char * func_str;
         bool (*init_func)();
+        void (*uninit_func)();
         const char * data_in_subdir;
         const char * data_out_subdir;
         int flags;
@@ -400,8 +402,15 @@ namespace test
 
     using log_out_predicate_func_t = std::function<void(int lvl, const char * fmt, va_list vl)>;
 
+    std::string get_test_case_filter_token(const TestCase & test_case);
+    std::string get_test_case_name_token(const TestCase & test_case);
+    std::string get_test_case_name_filter_token(const TestCase & test_case);
+    std::string get_test_case_name_filter_token(const testing::TestCase * test_case);
+
     void global_preinit(std::string & gtest_exclude_filter); // calls BEFORE
     void global_postinit(std::string & gtest_exclude_filter); 
+    void global_uninit();
+
     tackle::path_string get_data_in_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     tackle::path_string get_data_out_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
     void interrupt_test();

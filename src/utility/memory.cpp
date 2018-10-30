@@ -4,6 +4,8 @@
 
 #include <boost/scope_exit.hpp>
 
+#include <fmt/format.h>
+
 #include "inttypes.h"
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -136,8 +138,8 @@ namespace utility {
         _error:;
             DEBUG_BREAK_IN_DEBUGGER(true);
             throw std::out_of_range(
-                (boost::format("%s : out of buffer write: reserve=%u size=%u buffer=%p") %
-                    UTILITY_PP_FUNCSIG % m_reserve % m_size % buf_ptr).str());
+                fmt::format("{:s}({:d}): out of buffer write: reserve={:d} size={:d} buffer={:p}",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_reserve, m_size, buf_ptr));
         }
     }
 

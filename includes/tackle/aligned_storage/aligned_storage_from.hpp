@@ -15,7 +15,7 @@
 
 #include <tackle/aligned_storage/aligned_storage_base.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include <type_traits>
 #include <new>
@@ -30,10 +30,10 @@ namespace tackle
 
     // special designed class to store type which size and alignment is known (for example, type with deleted initialization constructor)
     template <typename t_storage_type, typename t_tag_pttn_type>
-    class aligned_storage_from : public aligned_storage_base<t_tag_pttn_type>
+    class aligned_storage_from : public aligned_storage_base<t_storage_type, t_tag_pttn_type>
     {
     public:
-        using base_t            = aligned_storage_base<t_tag_pttn_type>;
+        using base_t            = aligned_storage_base<t_storage_type, t_tag_pttn_type>;
         using storage_type_t    = t_storage_type;
 
         static const size_t size_value      = sizeof(storage_type_t);
@@ -67,7 +67,8 @@ namespace tackle
             if (!r.is_constructed()) {
                 if (!base_t::is_unconstructed_copy_allowed()) {
                     DEBUG_BREAK_IN_DEBUGGER(true);
-                    throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                    throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
                 }
             }
             else {
@@ -89,12 +90,14 @@ namespace tackle
             // at first, check if both storages are constructed
             if (!base_t::is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             // make assignment
@@ -182,7 +185,8 @@ namespace tackle
         {
             if (!base_t::is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return static_cast<storage_type_t *>(address());
@@ -192,7 +196,8 @@ namespace tackle
         {
             if (!base_t::is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return reinterpret_cast<const storage_type_t *>(address());
@@ -202,7 +207,8 @@ namespace tackle
         {
             if (!base_t::is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return reinterpret_cast<volatile storage_type_t *>(address());
@@ -212,7 +218,8 @@ namespace tackle
         {
             if (!base_t::is_constructed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return reinterpret_cast<const volatile storage_type_t *>(address());

@@ -11,7 +11,7 @@
 #include <tackle/file_handle.hpp>
 #include <tackle/path_string.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include "libarchive/archive_entry.h"
 
@@ -87,8 +87,9 @@ namespace libarchive {
                 // not supported
             default:
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s(%u): archive filter does not supported: filter_id=%u") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE % filter_id).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): archive filter does not supported: filter_id={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, filter_id));
             }
         }
 

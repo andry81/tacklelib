@@ -26,7 +26,9 @@ namespace tackle
     using tag_pttn_control_lifetime_t   = struct tag_pttn_control_lifetime_;
     using tag_pttn_default_t            = struct tag_pttn_default_;
 
-    template <typename tag_pttn>
+    //// aligned_storage_base
+
+    template <typename t_storage_type, typename t_tag_pttn_type>
     class aligned_storage_base
     {
     public:
@@ -74,8 +76,8 @@ namespace tackle
         }
     };
 
-    template <>
-    class aligned_storage_base<tag_pttn_control_lifetime_t>
+    template <typename t_storage_type>
+    class aligned_storage_base<t_storage_type, tag_pttn_control_lifetime_t>
     {
         enum Flags
         {

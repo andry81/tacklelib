@@ -6,7 +6,7 @@
 #include <utility/platform.hpp>
 #include <utility/type_traits.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include <memory>
 #include <stdexcept>
@@ -73,8 +73,8 @@ namespace tackle
         {
             auto * p = m_release_state_ptr.get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): deleter state is not allocated") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(fmt::format("{:s}({:u}): deleter state is not allocated",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             *p = state;

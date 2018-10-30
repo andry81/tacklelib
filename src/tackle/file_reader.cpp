@@ -4,7 +4,7 @@
 #include <utility/assert.hpp>
 #include <utility/math.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include <stdio.h>
 
@@ -60,8 +60,8 @@ namespace tackle
     {
         if (!m_file_handle.get()) {
             throw std::runtime_error(
-                (boost::format("%s: file handle is not set") %
-                    UTILITY_PP_FUNCSIG).str());
+                fmt::format("{:s}({:d}): file handle is not set",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         int is_eof = feof(m_file_handle.get());

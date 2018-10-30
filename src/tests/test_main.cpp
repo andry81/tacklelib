@@ -71,5 +71,7 @@ int main(int argc, char **argv) {
 
     const int res = RUN_ALL_TESTS();
 
+    test::global_uninit();
+
     return res;
 }

@@ -10,7 +10,7 @@
 
 #include <tackle/smart_handle.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include "Precomp.h"
 #include "CpuArch.h"
@@ -91,8 +91,9 @@ namespace _7zip {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error((boost::format("%s(%u): deleter is not allocated") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             base_type::reset(handle.get(), *deleter);
@@ -133,8 +134,9 @@ namespace _7zip {
     {
         CLzmaEncHandle enc = get();
         if (!enc) {
-            throw std::runtime_error((boost::format("%s(%u): encoder is not allocated") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): encoder is not allocated",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         CLzmaEncProps props;

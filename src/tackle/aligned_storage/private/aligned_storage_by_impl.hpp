@@ -5,8 +5,7 @@
 #error You must include declaration header "aligned_storage_by_decl.hpp" at first!
 #endif
 
-
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include <type_traits>
 #include <new>
@@ -23,7 +22,7 @@ namespace tackle
     {
         // prevent the linkage of invalid constructed type with inappropriate size or alignment
         STATIC_ASSERT_EQ(size_value, sizeof(storage_type_t), "the storage type size is different");
-        STATIC_ASSERT_EQ(alignment_value, boost::alignment_of<storage_type_t>::value, "the storage type alignment is different");
+        STATIC_ASSERT_EQ(alignment_value, std::alignment_of<storage_type_t>::value, "the storage type alignment is different");
 
         if (enable_unconstructed_copy_) {
             base_t::enable_unconstructed_copy();
@@ -42,7 +41,8 @@ namespace tackle
         if (!r.is_constructed()) {
             if (!base_t::is_unconstructed_copy_allowed()) {
                 DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
         }
         else {
@@ -66,12 +66,14 @@ namespace tackle
         // at first, check if both storages are constructed
         if (!base_t::is_constructed()) {
             DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error((boost::format("%s: this type is not constructed") % UTILITY_PP_FUNCSIG).str());
+            throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         if (!r.is_constructed()) {
             DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error((boost::format("%s: reference type is not constructed") % UTILITY_PP_FUNCSIG).str());
+            throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         // make assignment

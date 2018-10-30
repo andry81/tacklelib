@@ -6,6 +6,8 @@
 
 #include <tackle/string.hpp>
 
+#include <fmt/format.h>
+
 
 //// tackle::string_fromat
 
@@ -21,6 +23,24 @@ TEST(FunctionsTest, test_string_format_on_std_string_256)
 {
     for (size_t i = 0; i < 1000000; i++) {
         const std::string v = tackle::string_format(256, "%s+%u\n", "test test test", 12345);
+        UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
+    }
+}
+
+//// fmt::format
+
+TEST(FunctionsTest, test_fmt_format_positional)
+{
+    for (size_t i = 0; i < 1000000; i++) {
+        const std::string v = fmt::format("{0:s}+{1:d}\n", "test test test", 12345);
+        UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
+    }
+}
+
+TEST(FunctionsTest, test_fmt_format_named)
+{
+    for (size_t i = 0; i < 1000000; i++) {
+        const std::string v = fmt::format("{first:s}+{second:d}\n", fmt::arg("first", "test test test"), fmt::arg("second", 12345));
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }

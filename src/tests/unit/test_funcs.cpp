@@ -948,7 +948,7 @@ void test_angle_closest_distance(double start_angle_deg, double end_angle_deg, b
     ASSERT_GE(common::angle_closest_distance_epsilon, angle_distance_normalized);
 }
 
-TEST(TleManagerFunctionsTest, angle_closest_distance)
+TEST(FunctionsTest, angle_closest_distance)
 {
     TestStats_angle_closest_distance stats;
 
@@ -1532,7 +1532,7 @@ void test_angle_distance(double start_angle_deg, double end_angle_deg, bool posi
     ASSERT_GE(common::angle_closest_distance_epsilon, angle_distance_normalized);
 }
 
-TEST(TleManagerFunctionsTest, angle_distance)
+TEST(FunctionsTest, angle_distance)
 {
     TestStats_angle_distance stats;
 
