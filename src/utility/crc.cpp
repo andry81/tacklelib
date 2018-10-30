@@ -3,7 +3,7 @@
 #include <utility/assert.hpp>
 #include <utility/utility.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 
 namespace
@@ -77,8 +77,8 @@ namespace utility
         DEBUG_ASSERT_TRUE(0); // not implemented
 
         throw std::runtime_error(
-            (boost::format("%s: unimplemented crc polynomial: width=%u polynomial=%08X") %
-                UTILITY_PP_FUNCSIG % width % polynomial).str());
+            fmt::format("{:s}({:d}): unimplemented crc polynomial: width={:d} polynomial={:08X}",
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, width, polynomial));
 
         //return 0; // unreachable code
     }

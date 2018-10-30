@@ -58,7 +58,7 @@
 #   define UTILITY_PLATFORM_POSIX
 #   define UTILITY_PLATFORM_SHORT_NAME "Unix"
 #else
-#   error Unknown platform
+#   error unknown platform
 #endif
 
 #if defined(__GNUC__)
@@ -66,14 +66,14 @@
 #   define UTILITY_COMPILER_CXX "gcc"
 #   define UTILITY_COMPILER_CXX_VERSION __GNUC__
 #   if __GNUC__ < 4
-#     error "Unsuported gcc version"
+#     error unsuported gcc version
 #   endif
 #elif defined(_MSC_VER)
 #   define UTILITY_COMPILER_CXX_MSC
 #   define UTILITY_COMPILER_CXX "MS VisualC"
 #   define UTILITY_COMPILER_CXX_VERSION _MSC_VER
 #else
-#   error "Unknown compiler"
+#   error unknown compiler
 #endif
 
 
@@ -93,34 +93,25 @@
 
 // x86 or x64
 #if defined(UTILITY_PLATFORM_WINDOWS)
-
 #   if defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #       define UTILITY_PLATFORM_X64
 #   elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #       define UTILITY_PLATFORM_X32
 #   endif
 
-#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
-
 #elif defined(UTILITY_COMPILER_CXX_GCC)
-
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
-
-#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION __attribute__((optimize("O0")))
 
 #else
-
 #   ifdef __x86_64__
 #       define UTILITY_PLATFORM_X64
 #   elif __i386__
 #       define UTILITY_PLATFORM_X32
 #   endif
-
-#   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION
 
 #endif
 
@@ -180,53 +171,6 @@
 #else
 #   define DEBUG_RELEASE_EXPR(debug_exp, release_exp) release_exp
 #endif
-
-#ifdef LIBRARY_API_EXPORTS
-#   define LIBRARY_API __declspec(dllexport)
-#else
-#   define LIBRARY_API __declspec(dllimport)
-#endif
-
-#if defined(UTILITY_COMPILER_CXX_GCC)
-#   define STDCALL __attribute__((stdcall))
-#elif defined(UTILITY_COMPILER_CXX_MSC)
-#   define STDCALL __stdcall
-#endif
-
-// to make the unique link with the static library (LIB) implementation
-#define DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
-    class UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) \
-    { public: \
-        UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token)(); \
-        static const char s_build_version_str_$[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1]; \
-    }; \
-    static UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) \
-        UTILITY_PP_CONCAT3(s_, class_name_prefix, __build_version_date_time_token__$)
-
-// to make the unique link with the static library (LIB) headers
-#define IMPLEMENT_LIB_BUILD_VERSION_DATE_TIME_TOKEN(class_name_prefix, token) \
-    const char UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) :: \
-        s_build_version_str_$[sizeof("**build_version**: ") + sizeof(BUILD_VERSION_DATE_TIME_STR) - 1] = "**build_version**: " BUILD_VERSION_DATE_TIME_STR; \
-    UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token) :: \
-        UTILITY_PP_CONCAT3(class_name_prefix, __build_version_date_time_token__, token)() {}
-
-// to make the unique link with the static library (LIB) implementation
-#define DECLARE_HEADER_LIB_INSTANCE_TOKEN(class_name_prefix, token) \
-    class UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) \
-    { public: \
-        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)(); \
-    }; \
-    static UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) \
-        UTILITY_PP_CONCAT3(s_, class_name_prefix, __instance_token__$);
-
-// to make the unique link with the static library (LIB) headers
-#define IMPLEMENT_LIB_INSTANCE_TOKEN(class_name_prefix, token) \
-    UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) :: \
-        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}
-
-#define IMPLEMENT_LIB_INSTANCE_TOKEN_WITH_SCOPE(scope, class_name_prefix, token) \
-    scope :: UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token) :: \
-        UTILITY_PP_CONCAT3(class_name_prefix, __instance_token__, token)() {}
 
 #endif
 

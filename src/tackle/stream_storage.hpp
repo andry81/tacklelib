@@ -18,6 +18,8 @@
 
 #include <boost/scope_exit.hpp>
 
+#include <fmt/format.h>
+
 #include <deque>
 #include <utility>
 #include <algorithm>
@@ -391,8 +393,8 @@ namespace tackle
         const int right_type_index = it.m_iterator_storage.type_index();
         if (left_type_index != right_type_index) {
             throw std::runtime_error(
-                (boost::format("%s: incompatible iterator storages: left_type_index=%i right_type_index=%i") %
-                    UTILITY_PP_FUNCSIG % left_type_index % right_type_index).str());
+                fmt::format("{:s}({:d}): incompatible iterator storages: left_type_index={:d} right_type_index={:d}",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, left_type_index, right_type_index));
         }
 
         return m_iterator_storage.template invoke<bool>([&](const auto & chunks_it)
@@ -482,8 +484,9 @@ namespace tackle
         const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
         if (chunk_type_index >= num_chunk_variants_t::value) {
             throw std::runtime_error(
-                (boost::format("%s: minimum chunk size is not supported: min_chunk_size=%i pof2=%i max=%i") %
-                    UTILITY_PP_FUNCSIG % min_chunk_size % math::int_pof2_ceil(min_chunk_size) % (0x01U << (num_chunk_variants_t::value - 1))).str());
+                fmt::format("{:s}({:d}): minimum chunk size is not supported: min_chunk_size={:d} pof2={:d} max={:d}",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, min_chunk_size,
+                    math::int_pof2_ceil(min_chunk_size), (0x01U << (num_chunk_variants_t::value - 1))));
         }
 
         if (chunk_type_index != m_chunks.type_index()) {

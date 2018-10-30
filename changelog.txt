@@ -1,3 +1,20 @@
+2018.10.30:
+* refactor: simplified aligned_storage_by_base and aligned_storage_from_base template classes into single aligned_storage_base template class
+
+2018.10.30:
+* changed: improved library api headers
+
+2018.10.26:
+* fixed: aligned_storage_by_base template class changed to reduce chances of link collision with exported variant from a shared library in case where derived template class is explicitly specialized for the export
+* refactor: completely removed boost usage from testlib library (boost::format replaced by fmt::format)
+* refactor: extracted library linkage functionality into standalone headers and LIBRARY_API* macroses, totally reworked to enable an automatic linkage declaration for export/import in headers
+
+2018.10.12:
+* new: tests: fmt::format bench tests
+
+2018.10.12:
+* refactor: partially replaced boost::format by fmt library usage
+
 2018.10.11:
 * new: tackle::string_format function for string formatting avoding boost::format (might be type unsafe but much faster as plain snprintf)
 * new: tests: bench tests for tackle::string_format function

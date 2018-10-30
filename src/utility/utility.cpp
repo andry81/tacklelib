@@ -4,7 +4,7 @@
 #include <tackle/file_handle.hpp>
 
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
+#include <boost/dll.hpp>
 
 #include <vector>
 
@@ -222,5 +222,15 @@ namespace utility
     std::string get_file_name_stem(const tackle::path_string & path)
     {
         return boost::fs::path(path.str()).stem().string();
+    }
+
+    std::string get_module_file_path()
+    {
+        return boost::dll::program_location().string();
+    }
+
+    std::string get_module_dir_path()
+    {
+        return boost::dll::program_location().parent_path().string();
     }
 }

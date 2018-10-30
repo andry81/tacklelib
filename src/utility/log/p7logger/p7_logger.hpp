@@ -8,7 +8,7 @@
 
 #include <tackle/smart_handle.hpp>
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include "P7_Trace.h"
 #include "P7_Telemetry.h"
@@ -21,6 +21,9 @@
 
 #define LOG_P7_APP_INIT() \
     {{ P7_Set_Crash_Handler(); }} (void)0
+
+#define LOG_P7_APP_UNINIT() \
+    {{ ; }} (void)0
 
 #define LOG_P7_CREATE_CLIENT(cmd_line_w) \
     ::p7logger::p7_create_client(cmd_line_w)
@@ -118,8 +121,9 @@ namespace p7logger {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error((boost::format("%s(%u): deleter is not allocated") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             base_type::reset(handle.get(), *deleter);
@@ -135,8 +139,9 @@ namespace p7logger {
 
             IP7_Client * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p;
@@ -199,8 +204,9 @@ namespace p7logger {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error((boost::format("%s(%u): deleter is not allocated") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             base_type::reset(handle.get(), *deleter);
@@ -217,8 +223,9 @@ namespace p7logger {
 
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p;
@@ -233,8 +240,9 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p->Register_Thread(thread_name.c_str(), thread_id) ? true : false;
@@ -244,8 +252,9 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p->Unregister_Thread(thread_id) ? true : false;
@@ -255,8 +264,9 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % inline_stack.top.line).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        inline_stack.top.func, inline_stack.top.line));
             }
 
             return p->Register_Module(module_name.c_str(), &m_hmodule) ? true : false;
@@ -267,8 +277,9 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    inline_stack.top.func % inline_stack.top.line).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                    inline_stack.top.func, inline_stack.top.line));
             }
 
             return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...);
@@ -322,8 +333,9 @@ namespace p7logger {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error((boost::format("%s(%u): deleter is not allocated") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             base_type::reset(handle.get(), *deleter);
@@ -339,8 +351,9 @@ namespace p7logger {
 
             IP7_Telemetry * p = get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p;
@@ -396,8 +409,9 @@ namespace p7logger {
         {
             IP7_Telemetry * p = base_type::get();
             if (!p) {
-                throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                    UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             return p->Add(m_param_id, value) ? true : false;
@@ -425,8 +439,9 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         return P7_Create_Trace(p, channel_name.c_str());
@@ -436,8 +451,9 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         return P7_Create_Trace(p, channel_name.c_str(), &config);
@@ -447,8 +463,9 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         return P7_Create_Telemetry(p, channel_name.c_str());
@@ -458,8 +475,9 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         return P7_Create_Telemetry(p, channel_name.c_str(), &config);
@@ -471,8 +489,9 @@ namespace p7logger {
     {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
-            throw std::runtime_error((boost::format("%s(%u): null pointer dereference") %
-                UTILITY_PP_FUNCSIG % UTILITY_PP_LINE).str());
+            throw std::runtime_error(
+                fmt::format("{:s}({:d}): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
         tUINT8 param_id = 0;

@@ -48,8 +48,11 @@ includes/tackle/string.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
+includes/utility/library.hpp -text
+includes/utility/library_api_define.hpp -text
 includes/utility/math.hpp -text
 includes/utility/memory.hpp -text
+includes/utility/optimization.hpp -text
 includes/utility/platform.hpp -text
 includes/utility/platform_features.hpp -text
 includes/utility/preprocessor.hpp -text
@@ -109,4 +112,5 @@ src/utility/log/p7logger/p7_logger.cpp -text
 src/utility/log/p7logger/p7_logger.hpp -text
 src/utility/math.cpp -text
 src/utility/memory.cpp -text
+src/utility/optimization.cpp -text
 src/utility/utility.cpp -text

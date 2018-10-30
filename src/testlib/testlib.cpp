@@ -6,9 +6,11 @@
 #include <windows.h>
 #endif
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 
 #include <cstdarg>
+#include <vector>
+#include <algorithm>
 
 
 #define TEST_IMPL_DEFINE_ENV_VAR(class_name, var_name) \
@@ -71,6 +73,30 @@
 
 
 extern std::vector<test::TestCase> g_test_cases;
+
+struct TestCaseFuncRef
+{
+    TestCaseFuncRef(void * func_) :
+        func(func_), refs(0)
+    {
+        if (func) {
+            refs++;
+        }
+    }
+
+    TestCaseFuncRef(const TestCaseFuncRef &) = default;
+
+    void *  func;
+    int     refs;    // number of calls
+};
+
+FORCE_INLINE bool operator ==(const TestCaseFuncRef & l, const TestCaseFuncRef & r)
+{
+    return l.func == r.func;
+}
+
+std::vector<TestCaseFuncRef> g_test_cases_inits;
+std::vector<TestCaseFuncRef> g_test_cases_uninits;
 
 TEST_IMPL_DEFINE_ENV_VAR(TestCaseStaticBase, TESTS_DATA_IN_ROOT);
 TEST_IMPL_DEFINE_ENV_VAR(TestCaseStaticBase, TESTS_DATA_OUT_ROOT);
@@ -138,6 +164,39 @@ namespace test
 #endif
     }
 
+    std::string get_test_case_filter_token(const TestCase & test_case)
+    {
+        const std::string prefix_str = (test_case.prefix_str ? test_case.prefix_str : "");
+        const std::string scope_token_str = (test_case.scope_str ? test_case.scope_str : "");
+        const std::string func_str = (test_case.func_str ? test_case.func_str : "");
+        if (test_case.flags & test::TCF_IS_PARAMETERIZED) {
+            return prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str +
+                (!scope_token_str.empty() && !func_str.empty() ? "/" : "") + (!func_str.empty() ? func_str : "*") + "/*";
+        }
+
+        return prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str +
+            (!scope_token_str.empty() && !func_str.empty() ? "/" : "") + (!func_str.empty() ? func_str : "*");
+    }
+
+    std::string get_test_case_name_token(const TestCase & test_case)
+    {
+        const std::string prefix_str = (test_case.prefix_str ? test_case.prefix_str : "");
+        const std::string scope_token_str = (test_case.scope_str ? test_case.scope_str : "");
+
+        return prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str;
+    }
+
+    std::string get_test_case_name_filter_token(const TestCase & test_case)
+    {
+        return get_test_case_name_token(test_case) + ".*";
+    }
+
+    std::string get_test_case_name_filter_token(const testing::TestCase * test_case)
+    {
+        const std::string test_cast_name = DEBUG_VERIFY_TRUE(test_case)->name();
+        return test_cast_name + ".*";
+    }
+
     void global_preinit(std::string & gtest_exclude_filter)
     {
         TEST_BASE_INIT_ENV_VAR(TestCaseStaticBase, TESTS_DATA_IN_ROOT);
@@ -173,8 +232,10 @@ namespace test
         std::string gtest_inner_exclude_filter;
 
         // hierarchy: `/test_case/<ref|gen|out>`
-        for(const auto & v : g_test_cases) {
+        for(auto & v : g_test_cases) {
             bool do_exclude = false;
+
+            const std::string test_case_name_token = get_test_case_name_token(v);
 
             if (v.flags & test::TCF_HAS_DATA_REF) {
                 if (TestCaseWithDataReference::s_is_TESTS_REF_DIR_disabled || !TestCaseWithDataReference::s_is_TESTS_REF_DIR_exists) {
@@ -254,28 +315,52 @@ namespace test
 #endif
 
             if (!do_exclude) {
-                // test static initialize
+                // test case global initialization
                 if (v.init_func) {
-                    if (!v.init_func()) {
-                        do_exclude = true;
+                    auto test_case_inits_it = std::find(g_test_cases_inits.begin(), g_test_cases_inits.end(), TestCaseFuncRef{ v.init_func });
+                    if (test_case_inits_it != g_test_cases_inits.end()) {
+                        test_case_inits_it->refs++;
+                    }
+                    else {
+                        try {
+                            if (v.init_func()) {
+                                g_test_cases_inits.push_back(TestCaseFuncRef{ v.init_func });
+                                v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00020000; // globally initialized
+                            }
+                            else {
+                                do_exclude = true;
+                                v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00010000; // excluded
+                                TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                                    "%s: tests group failed of global initialization (returned).",
+                                    test_case_name_token.c_str());
+                            }
+                        }
+                        catch (const std::exception & ex) {
+                            do_exclude = true;
+                            v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00010000; // excluded
+                            TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                                "%s: tests group failed of global initialization (std exception: \"%s\").",
+                                test_case_name_token.c_str(), ex.what());
+                        }
+                        catch (...) {
+                            do_exclude = true;
+                            v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00010000; // excluded
+                            TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                                "%s: tests group failed of global initialization (unknown exception).",
+                                test_case_name_token.c_str());
+                        }
                     }
                 }
             }
 
             if (do_exclude) {
-                if (!gtest_inner_exclude_filter.empty())
+                if (!gtest_inner_exclude_filter.empty()) {
                     gtest_inner_exclude_filter += ":";
-                const std::string prefix_str = (v.prefix_str ? v.prefix_str : "");
-                const std::string scope_token_str = (v.scope_str ? v.scope_str : "");
-                const std::string func_str = (v.func_str ? v.func_str : "");
-                if (v.flags & test::TCF_IS_PARAMETERIZED) {
-                    gtest_inner_exclude_filter += prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str +
-                        (!scope_token_str.empty() && !func_str.empty() ? "/" : "") + (!func_str.empty() ? func_str : "*") + "/*";
                 }
-                else {
-                    gtest_inner_exclude_filter += prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str +
-                        (!scope_token_str.empty() && !func_str.empty() ? "/" : "") + (!func_str.empty() ? func_str : "*");
-                }
+
+                const std::string test_case_filter_token = get_test_case_filter_token(v);
+
+                gtest_inner_exclude_filter += test_case_filter_token;
             }
         }
 
@@ -306,15 +391,24 @@ namespace test
         // generate disabled tests filter string for not declared tests
         int test_case_index = 0;
         const auto * test_case = ::testing::UnitTest::GetInstance()->GetTestCase(test_case_index);
+
+        std::string test_case_name_filter_token;
+
         while (test_case) {
             bool is_declared = false;
+            bool is_excluded = false;
             const auto built_test_case_name = test_case->name();
+            int test_case_flags = 0;
             for (const auto & v : g_test_cases) {
-                const std::string prefix_str = (v.prefix_str ? v.prefix_str : "");
-                const std::string scope_token_str = (v.scope_str ? v.scope_str : "");
-                const auto declared_test_case_name = prefix_str + (!prefix_str.empty() && !scope_token_str.empty() ? "/" : "") + scope_token_str;
-                if (built_test_case_name == declared_test_case_name) {
-                    is_declared = true;
+                const std::string test_case_name_token = get_test_case_name_token(v);
+                if (built_test_case_name == test_case_name_token) {
+                    test_case_flags = v.flags;
+                    if (test_case_flags & 0x00010000) { // is excluded?
+                        is_excluded = true;
+                    }
+                    else {
+                        is_declared = true;
+                    }
                     break;
                 }
             }
@@ -327,9 +421,19 @@ namespace test
                     gtest_exclude_filter += "-";
                     negated_filter = true;
                 }
-                gtest_exclude_filter += std::string(built_test_case_name) + ".*";
-                TEST_LOG_OUT(FROM_GLOBAL_INIT | SKIP,
-                    "Test case \"%s\" built but not declared for execution, will be skipped.", built_test_case_name);
+
+                gtest_exclude_filter += get_test_case_name_filter_token(test_case);
+
+                if (!is_excluded) {
+                    TEST_LOG_OUT(FROM_GLOBAL_INIT | SKIP,
+                        "%s: tests group built but not declared for execution, will be skipped.",
+                        built_test_case_name);
+                }
+                else {
+                    TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                        "%s: tests group built, declared for execution, but will be excluded as not been properly initialized: flags=0x%08X",
+                        built_test_case_name, test_case_flags);
+                }
             }
 
             test_case = ::testing::UnitTest::GetInstance()->GetTestCase(++test_case_index);
@@ -340,6 +444,50 @@ namespace test
             if (!::testing::GTEST_FLAG(filter).empty())
                 ::testing::GTEST_FLAG(filter) += ":";
             ::testing::GTEST_FLAG(filter) += gtest_exclude_filter;
+        }
+    }
+
+    void global_uninit()
+    {
+        // generate disabled tests filter string for not declared tests
+        int test_case_index = 0;
+        const auto * test_case = ::testing::UnitTest::GetInstance()->GetTestCase(test_case_index);
+        while (test_case) {
+            const auto built_test_case_name = test_case->name();
+            for (auto & v : g_test_cases) {
+                const std::string test_case_name_token = get_test_case_name_token(v);
+                if (built_test_case_name == test_case_name_token) {
+                    if (!(v.flags & 0x00010000)) {
+                        // test case global uninitialization
+                        if (v.uninit_func) {
+                            auto test_case_uninits_it = std::find(g_test_cases_uninits.begin(), g_test_cases_uninits.end(), TestCaseFuncRef{ v.uninit_func });
+                            if (test_case_uninits_it != g_test_cases_uninits.end()) {
+                                test_case_uninits_it->refs++;
+                            }
+                            else {
+                                try {
+                                    v.uninit_func();
+                                    g_test_cases_uninits.push_back(TestCaseFuncRef{ v.uninit_func });
+                                    v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00040000; // globally uninitialized
+                                }
+                                catch (const std::exception & ex) {
+                                    TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                                        "%s: tests group failed of global uninitialization (std exception: \"%s\").",
+                                        test_case_name_token.c_str(), ex.what());
+                                }
+                                catch (...) {
+                                    TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
+                                        "%s: tests group failed of global uninitialization (unknown exception).",
+                                        test_case_name_token.c_str());
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+
+            test_case = ::testing::UnitTest::GetInstance()->GetTestCase(++test_case_index);
         }
     }
 
@@ -460,8 +608,8 @@ const tackle::path_string & TestCaseStaticBase::get_data_in_var(const char * err
 {
     if (s_TESTS_DATA_IN_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_IN_ROOT)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: s_TESTS_DATA_IN_ROOT directory does not exist: \"%s\"") %
-            error_msg_prefix % s_TESTS_DATA_IN_ROOT).str());
+        throw std::runtime_error(fmt::format("{:s}: s_TESTS_DATA_IN_ROOT directory does not exist: \"{:s}\"",
+            error_msg_prefix, s_TESTS_DATA_IN_ROOT));
     }
 
     return s_TESTS_DATA_IN_ROOT;
@@ -471,8 +619,8 @@ const tackle::path_string & TestCaseStaticBase::get_data_out_var(const char * er
 {
     if (s_TESTS_DATA_OUT_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_OUT_ROOT)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: s_TESTS_DATA_OUT_ROOT directory does not exist: \"%s\"") %
-            error_msg_prefix % s_TESTS_DATA_OUT_ROOT).str());
+        throw std::runtime_error(fmt::format("{:s}: s_TESTS_DATA_OUT_ROOT directory does not exist: \"{:s}\"",
+            error_msg_prefix, s_TESTS_DATA_OUT_ROOT));
     }
 
     return s_TESTS_DATA_OUT_ROOT;
@@ -495,8 +643,8 @@ tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_
     const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_directory_path(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -506,8 +654,8 @@ tackle::path_string TestCaseStaticBase::get_data_out_dir_path(const char * error
     const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_directory_path(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -517,8 +665,8 @@ tackle::path_string TestCaseStaticBase::get_data_in_file_path(const char * error
     const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_regular_file(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -528,8 +676,8 @@ tackle::path_string TestCaseStaticBase::get_data_out_file_path(const char * erro
     const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_regular_file(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -543,8 +691,8 @@ const tackle::path_string & TestCaseWithDataReference::get_ref_var(const char * 
 {
     if (s_TESTS_REF_DIR.empty() || !utility::is_directory_path(s_TESTS_REF_DIR)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: s_TESTS_REF_DIR directory does not exist: \"%s\"") %
-            error_msg_prefix % s_TESTS_REF_DIR).str());
+        throw std::runtime_error(fmt::format("{:s}: s_TESTS_REF_DIR directory does not exist: \"{:s}\"",
+            error_msg_prefix, s_TESTS_REF_DIR));
     }
 
     return s_TESTS_REF_DIR;
@@ -567,8 +715,8 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_ms
     // reference directory must already exist at first request
     if (!utility::is_directory_path(ref_dir)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: test reference directory does not exist: \"%s\"") %
-            error_msg_prefix % ref_dir).str());
+        throw std::runtime_error(fmt::format("{:s}: test reference directory does not exist: \"{:s}\"",
+            error_msg_prefix, ref_dir));
     }
 
     return ref_dir;
@@ -579,8 +727,8 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir_path(const char * err
     const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_directory_path(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: directory does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -590,8 +738,8 @@ tackle::path_string TestCaseWithDataReference::get_ref_file_path(const char * er
     const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_regular_file(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -605,8 +753,8 @@ const tackle::path_string & TestCaseWithDataGenerator::get_gen_var(const char * 
 {
     if (s_TESTS_GEN_DIR.empty() || !utility::is_directory_path(s_TESTS_GEN_DIR)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: s_TESTS_GEN_DIR directory does not exist: \"%s\"") %
-            error_msg_prefix % s_TESTS_GEN_DIR).str());
+        throw std::runtime_error(fmt::format("{:s}: s_TESTS_GEN_DIR directory does not exist: \"{:s}\"",
+            error_msg_prefix, s_TESTS_GEN_DIR));
     }
 
     return s_TESTS_GEN_DIR;
@@ -639,8 +787,8 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir_path(const char * err
     const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_directory_path(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: directory path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -650,8 +798,8 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_file_path(const char * er
     const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_regular_file(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -665,8 +813,8 @@ const tackle::path_string & TestCaseWithDataOutput::get_out_var(const char * err
 {
     if (s_TESTS_OUT_DIR.empty() || !utility::is_directory_path(s_TESTS_OUT_DIR)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: s_TESTS_OUT_DIR does not exist: \"%s\"") %
-            error_msg_prefix % s_TESTS_OUT_DIR).str());
+        throw std::runtime_error(fmt::format("{:s}: s_TESTS_OUT_DIR does not exist: \"{:s}\"",
+            error_msg_prefix, s_TESTS_OUT_DIR));
     }
 
     return s_TESTS_OUT_DIR;
@@ -699,8 +847,8 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir_path(const char * error_
     const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_directory_path(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: directory path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }
@@ -710,8 +858,8 @@ tackle::path_string TestCaseWithDataOutput::get_out_file_path(const char * error
     const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
     if (!::utility::is_regular_file(path)) {
         DEBUG_BREAK_IN_DEBUGGER(true);
-        throw std::runtime_error((boost::format("%s: file path does not exist: \"%s\"") %
-            error_msg_prefix % path).str());
+        throw std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
+            error_msg_prefix, path));
     }
     return path;
 }

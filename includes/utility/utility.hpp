@@ -92,6 +92,9 @@ namespace utility
     std::string get_file_name(const tackle::path_string & path);
     std::string get_file_name_stem(const tackle::path_string & path);
 
+    std::string get_module_file_path();
+    std::string get_module_dir_path();
+
     template<typename T>
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
