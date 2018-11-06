@@ -10,7 +10,16 @@
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 
+#include <tackle/string.hpp>
+
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+#include <fmt/format.h>
+#include <fmt/time.h>
+#endif
+
+#include <string>
 #include <ctime>
+#include <cmath>
 #include <cstdint>
 #include <atomic>
 #include <chrono>
@@ -134,9 +143,90 @@ namespace time {
 
     FORCE_INLINE std::string strftime(const std::string & fmt, const std::tm & time)
     {
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+        const std::string fmt_format = tackle::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+        return fmt::format(fmt_format, time);
+#else
         std::stringstream buffer;
         buffer << std::put_time(&time, fmt.c_str());
         return buffer.str();
+#endif
+    }
+
+    // Uses `std::get_time` to read the formatted time string into calendar time (not including milliseconds and days since 1 January).
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE bool get_time(std::tm & time, const std::string & locale,
+        const std::basic_string<t_elem, t_traits, t_alloc> & fmt, const std::basic_string<t_elem, t_traits, t_alloc> & date_time_str)
+    {
+// not implemented
+//#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+//        const std::string fmt_format = tackle::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+//        return fmt::get_time(fmt_format, date_time_str);
+//#else
+        time = std::tm{};
+
+        std::basic_istringstream<t_elem, t_traits, t_alloc> ss{ date_time_str };
+        if (!locale.empty()) {
+            ss.imbue(std::locale(locale));
+        }
+
+        // CAUTION:
+        //  t.tm_yday is not initialized here!
+        //
+        ss >> std::get_time(&time, fmt.c_str());
+
+        return !ss.fail();
+//#endif
+    }
+
+    // Uses `std::get_time` to read the formatted time string into calendar time (not including milliseconds and days since 1 January).
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE bool get_time(std::tm & time, const std::string & locale,
+        const std::basic_string<t_elem, t_traits, t_alloc> & fmt, std::basic_string<t_elem, t_traits, t_alloc> && date_time_str)
+    {
+// not implemented
+//#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+//        const std::string fmt_format = tackle::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+//        return fmt::get_time(fmt_format, date_time_str);
+//#else
+        time = std::tm{};
+
+        std::basic_istringstream<t_elem, t_traits, t_alloc> ss{ std::move(date_time_str) };
+        if (!locale.empty()) {
+            ss.imbue(std::locale(locale));
+        }
+
+        // CAUTION:
+        //  t.tm_yday is not initialized here!
+        //
+        ss >> std::get_time(&time, fmt.c_str());
+
+        return !ss.fail();
+//#endif
+    }
+
+    FORCE_INLINE time_t timegm(const std::tm & time)
+    {
+        tm c_tm = time; // must be not constant
+
+#if defined(UTILITY_COMPILER_CXX_GCC)
+        return timegm(&c_tm);
+#elif defined(UTILITY_COMPILER_CXX_MSC)
+        return _mkgmtime(&c_tm);
+#endif
+    }
+
+    FORCE_INLINE std::tm get_calendar_time_from_utc_time_sec(double utc_time_sec, double * utc_time_sec_fract = nullptr)
+    {
+        // convert UTC time to time_t structure
+        const time_t track_time = time_t(uint64_t(utc_time_sec)); // seconds since 00:00 hours 1 Jan 1970 (unix epoch)
+
+        if (utc_time_sec_fract) {
+            double whole;
+            *utc_time_sec_fract = std::modf(utc_time_sec, &whole);
+        }
+
+        return utility::time::gmtime(track_time);
     }
 
 }

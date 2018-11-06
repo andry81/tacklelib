@@ -1,3 +1,23 @@
+2018.11.06:
+* fixed: optimized tackle::path_string operators
+* fixed: forgot to shrink the string size in the utility::string_format function
+* fixed: minor bug fix
+* new: tackle library path_string class tests
+
+2018.11.05:
+* new: tackle library aligned_storage_always_destruct_from class to enable usage aligned_storage_from with unconditional distruction in destructor
+* refactor: tackle library aligned_storage_*/max_aligned_storage_* classes refactor
+
+2018.11.02:
+* fixed: missed to enable by default has used components in the setup.hpp.in configuration file
+* new: new utility filesystem/time functions
+* new: new tackle date_time class for arbitrary storage type and construction from formatted time string
+* refactor: utility filesystem functions refactor
+
+2018.11.01:
+* refactor: partially switched from standard stringstream time formatting into fmt library time formatting
+* refactor: minor multiple refactor
+
 2018.10.30:
 * refactor: simplified aligned_storage_by_base and aligned_storage_from_base template classes into single aligned_storage_base template class
 

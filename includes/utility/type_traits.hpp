@@ -125,6 +125,13 @@ namespace utility
         static CONSTEXPR const int value = v;
     };
 
+    // remove_reference + remove_cv
+    template <typename T>
+    struct remove_cvref
+    {
+        using type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+    };
+
     // std::size is supported from C++17
     template <typename T, size_t N>
     FORCE_INLINE CONSTEXPR size_t static_size(const T (&)[N]) noexcept
@@ -789,11 +796,21 @@ namespace utility
     struct construct_if_convertible
     {
         template <typename Ref>
-        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        static FORCE_INLINE bool construct(void * storage_ptr, const Ref & r, const char * func, const char * error_msg_fmt)
         {
             UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
 
             ::new (storage_ptr) Type(r);
+
+            return true;
+        }
+
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
+
+            ::new (storage_ptr) Type(std::move(r));
 
             return true;
         }
@@ -803,7 +820,19 @@ namespace utility
     struct construct_if_convertible<Type, false>
     {
         template <typename Ref>
-        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        static FORCE_INLINE bool construct(void * storage_ptr, const Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            char buf[1024];
+            buf[0] = '\0';
+            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
+            DEBUG_BREAK_IN_DEBUGGER(true);
+            throw std::runtime_error(buf);
+
+            return false;
+        }
+
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
         {
             char buf[1024];
             buf[0] = '\0';
@@ -821,9 +850,15 @@ namespace utility
     struct construct_dispatcher
     {
         template <typename Ref>
-        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        static FORCE_INLINE bool construct(void * storage_ptr, const Ref & r, const char * func, const char * error_msg_fmt)
         {
             return construct_if_convertible<Type, std::is_convertible<Ref, Type>::value>::construct(storage_ptr, r, func, error_msg_fmt);
+        }
+
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
+        {
+            return construct_if_convertible<Type, std::is_convertible<Ref, Type>::value>::construct(storage_ptr, std::move(r), func, error_msg_fmt);
         }
 
         static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
@@ -836,7 +871,14 @@ namespace utility
     struct construct_dispatcher<TypeIndex, Type, false>
     {
         template <typename Ref>
-        static FORCE_INLINE bool construct(void * storage_ptr, Ref & r, const char * func, const char * error_msg_fmt)
+        static FORCE_INLINE bool construct(void * storage_ptr, const Ref & r, const char * func, const char * error_msg_fmt)
+        {
+            UTILITY_UNUSED_STATEMENT4(storage_ptr, r, func, error_msg_fmt);
+            return false;
+        }
+
+        template <typename Ref>
+        static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
         {
             UTILITY_UNUSED_STATEMENT4(storage_ptr, r, func, error_msg_fmt);
             return false;
@@ -860,6 +902,13 @@ namespace utility
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r);
         }
+
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return f(std::move(r));
+        }
     };
 
     template <typename Ret, typename From, typename To>
@@ -868,6 +917,30 @@ namespace utility
         template <typename F, typename Ref>
         static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
+            UTILITY_UNUSED_STATEMENT2(f, r);
+
+            if(throw_exceptions_on_type_error) {
+                char buf[1024];
+                buf[0] = '\0';
+                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(buf);
+            }
+
+            // CAUTION:
+            //  After this point any usage of the return value is UB!
+            //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+            //  storage of the type can be a late construction container.
+            //
+
+            return utility::unconstructed_value(utility::identity<Ret>());
+        }
+
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT2(f, r);
+
             if(throw_exceptions_on_type_error) {
                 char buf[1024];
                 buf[0] = '\0';
@@ -894,8 +967,8 @@ namespace utility
         template <typename F, typename Ref>
         static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
-            using return_type = typename std::remove_cv<typename std::remove_reference<typename utility::function_traits<F>::return_type>::type>::type;
-            using unqual_arg0_type = typename std::remove_cv<typename std::remove_reference<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type>::type;
+            using return_type = typename remove_cvref<typename utility::function_traits<F>::return_type>::type;
+            using unqual_arg0_type = typename std::remove_cvref<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type;
             using found_it_t = typename TypeFind<TypeList, unqual_arg0_type>::type;
 
             static_assert(!std::is_same<found_it_t, EndIt>::value,
@@ -904,6 +977,21 @@ namespace utility
             return invoke_if_convertible<Ret, Ref, unqual_arg0_type,
                 std::is_convertible<Ref, unqual_arg0_type>::value && std::is_convertible<return_type, Ret>::value>::
                 call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            using return_type = typename remove_cvref<typename utility::function_traits<F>::return_type>::type;
+            using unqual_arg0_type = typename remove_cvref<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type;
+            using found_it_t = typename TypeFind<TypeList, unqual_arg0_type>::type;
+
+            static_assert(!std::is_same<found_it_t, EndIt>::value,
+                "functor first unqualified parameter type is not declared by storage types list");
+
+            return invoke_if_convertible<Ret, Ref, unqual_arg0_type,
+                std::is_convertible<Ref, unqual_arg0_type>::value && std::is_convertible<return_type, Ret>::value>::
+                call(f, std::move(r), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 
@@ -916,6 +1004,13 @@ namespace utility
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r); // call as generic or cast
         }
+
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return f(std::move(r)); // call as generic or cast
+        }
     };
 
     template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsExtractable>
@@ -926,6 +1021,13 @@ namespace utility
         {
             return invoke_if_convertible<Ret, Ref, Ret, false>::
                 call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+
+        template <typename F, typename Ref>
+        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return invoke_if_convertible<Ret, Ref, Ret, false>::
+                call(f, std::move(r), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 
@@ -947,14 +1049,39 @@ namespace utility
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return to = from;
         }
+
+        template <typename From, typename To>
+        static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
+            return to = std::move(from);
+        }
     };
 
     template <>
     struct assign_if_convertible<false>
     {
         template <typename From, typename To>
-        static FORCE_INLINE To & call(To & to, From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
+            UTILITY_UNUSED_STATEMENT(from);
+
+            if (throw_exceptions_on_type_error) {
+                char buf[1024];
+                buf[0] = '\0';
+                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(buf);
+            }
+
+            return to;
+        }
+
+        template <typename From, typename To>
+        static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT(from);
+
             if (throw_exceptions_on_type_error) {
                 char buf[1024];
                 buf[0] = '\0';
@@ -977,12 +1104,24 @@ namespace utility
             return assign_if_convertible<std::is_convertible<From, To>::value>::
                 call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
         }
+
+        static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return assign_if_convertible<std::is_convertible<From, To>::value>::
+                call(to, std::move(from), func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
     };
 
     template <typename From, typename To>
     struct assign_if_enabled<From, To, false>
     {
         static FORCE_INLINE To & call(To & to, const From & from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            UTILITY_UNUSED_STATEMENT5(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+            return to;
+        }
+
+        static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT5(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
             return to;
@@ -998,6 +1137,12 @@ namespace utility
         {
             return assign_if_enabled<From, To, IsEnabled>::
                 call(to, from, func, error_msg_fmt, throw_exceptions_on_type_error);
+        }
+
+        static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        {
+            return assign_if_enabled<From, To, IsEnabled>::
+                call(to, std::move(from), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 

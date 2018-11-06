@@ -3,9 +3,15 @@
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
+#include <utility/assert.hpp>
 
 #include <string>
 
+
+// See details around problems related to this class implementation:
+//  https://stackoverflow.com/questions/53155089/stdstring-class-inheritance-and-tedious-c-overload-resolution
+//  https://godbolt.org/z/jhcWoh
+//
 
 namespace tackle
 {
@@ -16,16 +22,22 @@ namespace tackle
         using base_type = std::basic_string<t_elem, t_traits, t_alloc>;
 
         FORCE_INLINE path_basic_string() = default;
-        FORCE_INLINE path_basic_string(const path_basic_string & ) = default;
-        FORCE_INLINE path_basic_string & operator =(const path_basic_string &) = default;
+        FORCE_INLINE path_basic_string(const path_basic_string &) = default;
+        FORCE_INLINE path_basic_string(path_basic_string &&) = default;
 
-        FORCE_INLINE path_basic_string(const base_type & r) :
-            base_type(r)
+        FORCE_INLINE path_basic_string & operator =(path_basic_string path_str)
+        {
+            this->base_type::operator=(std::move(path_str));
+            return *this;
+        }
+
+        FORCE_INLINE path_basic_string(base_type r) :
+            base_type(std::move(r))
         {
         }
 
-        FORCE_INLINE path_basic_string(base_type && r) :
-            base_type(std::move(r))
+        FORCE_INLINE path_basic_string(const t_elem * p) :
+            base_type(DEBUG_VERIFY_TRUE(p))
         {
         }
 
@@ -41,6 +53,63 @@ namespace tackle
 
         using base_type::base_type;
         using base_type::operator=;
+
+        FORCE_INLINE path_basic_string & operator+= (base_type r)
+        {
+            base_type && r_path = std::move(r);
+
+            std::string & base_this = *this;
+            if (!r.empty()) {
+                base_this += "/";
+                base_this += r_path;
+            }
+
+            return *this;
+        }
+
+        FORCE_INLINE path_basic_string & operator+= (const t_elem * p)
+        {
+            DEBUG_ASSERT_TRUE(p);
+
+            std::string & base_this = *this;
+            if (*p) {
+                base_this += "/";
+                base_this += p;
+            }
+
+            return *this;
+        }
+
+        friend FORCE_INLINE path_basic_string operator+ (base_type l, base_type r)
+        {
+            path_basic_string && l_path = std::move(l);
+            path_basic_string && r_path = std::move(r);
+            l_path += r_path;
+            return l_path;
+        }
+
+        friend FORCE_INLINE path_basic_string operator+ (base_type l, const t_elem * p)
+        {
+            DEBUG_ASSERT_TRUE(p);
+
+            path_basic_string && l_path = std::move(l);
+            if (*p) {
+                l_path += p;
+            }
+            return l_path;
+        }
+
+        friend FORCE_INLINE path_basic_string operator+ (const t_elem * p, base_type r)
+        {
+            DEBUG_ASSERT_TRUE(p);
+
+            base_type && r_path = std::move(r);
+            if (!r_path.empty()) {
+                return p + ("/" + r_path); // call base operator instead in case if it is specialized for this
+            }
+
+            return p;
+        }
     };
 
     using path_string       = path_basic_string<char, std::char_traits<char>, std::allocator<char> >;
@@ -48,208 +117,4 @@ namespace tackle
 
     using path_u16string    = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >;
     using path_u32string    = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >;
-
-    // override operator +
-
-    //// const tackle::path_basic_string &
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const path_basic_string<t_elem, t_traits, t_alloc> & l,
-            const path_basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        const std::basic_string<t_elem, t_traits, t_alloc> & l_str = l;
-        const std::basic_string<t_elem, t_traits, t_alloc> & r_str = r;
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            l_str + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{})
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const path_basic_string<t_elem, t_traits, t_alloc> & l,
-            const t_elem * r)
-    {
-        const path_basic_string<t_elem, t_traits, t_alloc> r_str{ r };
-        return l + std::move(r_str);
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const t_elem * l,
-            const path_basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        const path_basic_string<t_elem, t_traits, t_alloc> l_str{ l };
-        return std::move(l_str) + r;
-    }
-
-    //// tackle::path_basic_string &&
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            path_basic_string<t_elem, t_traits, t_alloc> && l,
-            path_basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-        std::basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::move(std::basic_string<t_elem, t_traits, t_alloc>{})))
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            path_basic_string<t_elem, t_traits, t_alloc> && l,
-            const t_elem * r)
-    {
-        path_basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-        const path_basic_string<t_elem, t_traits, t_alloc> r_str{ r };
-
-        return std::move(l_str + std::move(r_str));
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const t_elem * l,
-            path_basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        const path_basic_string<t_elem, t_traits, t_alloc> l_str{ l };
-        path_basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        return std::move(std::move(l_str) + r_str);
-    }
-
-    //// tackle::path_basic_string && + std::basic_string &&
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            path_basic_string<t_elem, t_traits, t_alloc> && l,
-            std::basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-        std::basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::move(std::basic_string<t_elem, t_traits, t_alloc>{})))
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            std::basic_string<t_elem, t_traits, t_alloc> && l,
-            path_basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-        std::basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::move(std::basic_string<t_elem, t_traits, t_alloc>{})))
-        };
-    }
-
-    //// tackle::path_basic_string & + std::basic_string &
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const path_basic_string<t_elem, t_traits, t_alloc> & l,
-            const std::basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        const std::basic_string<t_elem, t_traits, t_alloc> & l_str = l;
-
-        const bool has_right = !r.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            l_str + (has_right ? "/" : "") + (has_right ? r : std::basic_string<t_elem, t_traits, t_alloc>{})
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const std::basic_string<t_elem, t_traits, t_alloc> & l,
-            const path_basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        const std::basic_string<t_elem, t_traits, t_alloc> & r_str = r;
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{}))
-        };
-    }
-
-    //// tackle::path_basic_string && + tackle::path_basic_string &
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            path_basic_string<t_elem, t_traits, t_alloc> && l,
-            const path_basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-        const std::basic_string<t_elem, t_traits, t_alloc> & r_str = r;
-
-        const bool has_right = !r.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::basic_string<t_elem, t_traits, t_alloc>{}))
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const path_basic_string<t_elem, t_traits, t_alloc> & l,
-            path_basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        const std::basic_string<t_elem, t_traits, t_alloc> & l_str = l;
-        std::basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r_str : std::move(std::basic_string<t_elem, t_traits, t_alloc>{})))
-        };
-    }
-
-    //// tackle::path_basic_string && + std::basic_string &
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            path_basic_string<t_elem, t_traits, t_alloc> && l,
-            const std::basic_string<t_elem, t_traits, t_alloc> & r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && l_str = std::move(l);
-
-        const bool has_right = !r.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l_str + (has_right ? "/" : "") + (has_right ? r : std::basic_string<t_elem, t_traits, t_alloc>{}))
-        };
-    }
-
-    template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE path_basic_string<t_elem, t_traits, t_alloc>
-        operator +(
-            const std::basic_string<t_elem, t_traits, t_alloc> & l,
-            path_basic_string<t_elem, t_traits, t_alloc> && r)
-    {
-        std::basic_string<t_elem, t_traits, t_alloc> && r_str = std::move(r);
-
-        const bool has_right = !r_str.empty();
-        return path_basic_string<t_elem, t_traits, t_alloc>{
-            std::move(l + (has_right ? "/" : "") + (has_right ? r_str : std::move(std::basic_string<t_elem, t_traits, t_alloc>{})))
-        };
-    }
 }
