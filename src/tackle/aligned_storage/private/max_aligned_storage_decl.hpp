@@ -136,7 +136,9 @@ namespace tackle
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index = -1);
         template <typename Ref>
-        FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index, Ref & r);
+        FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index, const Ref & r);
+        template <typename Ref>
+        FORCE_INLINE max_aligned_storage_from_mpl_container(int type_index, Ref && r);
         FORCE_INLINE ~max_aligned_storage_from_mpl_container();
 
         FORCE_INLINE max_aligned_storage_from_mpl_container(const max_aligned_storage_from_mpl_container & r) :
@@ -154,6 +156,23 @@ namespace tackle
 
             // make construction
             _construct(r, false);
+        }
+
+        FORCE_INLINE max_aligned_storage_from_mpl_container(max_aligned_storage_from_mpl_container && r) :
+            base_t(r) // binding with the base
+        {
+            // just in case
+            DEBUG_ASSERT_LT(type_index(), 0);
+
+            // at first, check if storage is constructed
+            if (!r.is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+            }
+
+            // make construction
+            _construct(std::move(r), false);
         }
 
         FORCE_INLINE max_aligned_storage_from_mpl_container & operator =(const max_aligned_storage_from_mpl_container & r)
@@ -177,10 +196,34 @@ namespace tackle
             return _assign(r);
         }
 
-        // direct construction and destruction of the storage
+        FORCE_INLINE max_aligned_storage_from_mpl_container & operator =(max_aligned_storage_from_mpl_container && r)
+        {
+            this->base_t::operator =(r); // binding with the base
+
+            // at first, check if both storages are constructed
+            if (!is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+            }
+
+            if (!r.is_constructed()) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+            }
+
+            // make assignment
+            return _assign(std::move(r));
+        }
+
+        // direct explicit construction and destruction, implicit construction is not declared here
+
         void construct_default(int type_index, bool reconstruct);
         template <typename Ref>
-        void construct(int type_index, Ref & r, bool reconstruct);
+        void construct(int type_index, const Ref & r, bool reconstruct);
+        template <typename Ref>
+        void construct(int type_index, Ref && r, bool reconstruct);
 
         FORCE_INLINE bool is_constructed() const
         {
@@ -198,6 +241,7 @@ namespace tackle
 
     private:
         FORCE_INLINE void _construct(const max_aligned_storage_from_mpl_container & s, bool reconstruct);
+        FORCE_INLINE void _construct(max_aligned_storage_from_mpl_container && s, bool reconstruct);
 
     public:
         FORCE_INLINE void destruct();
@@ -206,12 +250,15 @@ namespace tackle
 
     private:
         max_aligned_storage_from_mpl_container & _assign(const max_aligned_storage_from_mpl_container & s, bool throw_exceptions_on_type_error = true);
+        max_aligned_storage_from_mpl_container & _assign(max_aligned_storage_from_mpl_container && s, bool throw_exceptions_on_type_error = true);
 
     public:
-        template <typename Ref>
-        max_aligned_storage_from_mpl_container & assign(Ref & r, bool throw_exceptions_on_type_error = true);
+        // implicit assignment is forbidden here, do use explicit assignment instead
+
         template <typename Ref>
         max_aligned_storage_from_mpl_container & assign(const Ref & r, bool throw_exceptions_on_type_error = true);
+        template <typename Ref>
+        max_aligned_storage_from_mpl_container & assign(Ref && r, bool throw_exceptions_on_type_error = true);
 
         template <typename R, typename F>
         FORCE_INLINE R invoke(F && functor, bool throw_exceptions_on_type_error = true);
@@ -249,12 +296,22 @@ namespace tackle
     }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
-    FORCE_INLINE max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::max_aligned_storage_from_mpl_container(int type_index, Ref & r) :
+    FORCE_INLINE max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::max_aligned_storage_from_mpl_container(int type_index, const Ref & r) :
         m_type_index(-1) // as not constructed
     {
         DEBUG_ASSERT_LT(type_index, mpl::size<storage_types_t>::value);
         if (DEBUG_VERIFY_TRUE(type_index >= 0)) {
             construct(type_index, r, false);
+        }
+    }
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
+    FORCE_INLINE max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::max_aligned_storage_from_mpl_container(int type_index, Ref && r) :
+        m_type_index(-1) // as not constructed
+    {
+        DEBUG_ASSERT_LT(type_index, mpl::size<storage_types_t>::value);
+        if (DEBUG_VERIFY_TRUE(type_index >= 0)) {
+            construct(type_index, std::move(r), false);
         }
     }
 

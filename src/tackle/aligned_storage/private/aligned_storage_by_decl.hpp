@@ -66,17 +66,29 @@ namespace tackle
         }
 
         FORCE_INLINE aligned_storage_by(const aligned_storage_by & r);
+        FORCE_INLINE aligned_storage_by(aligned_storage_by && r);
         FORCE_INLINE aligned_storage_by & operator =(const aligned_storage_by & r);
+        FORCE_INLINE aligned_storage_by & operator =(aligned_storage_by && r);
 
-        // direct construction and destruction of the storage
+        // direct explicit construction and destruction, implicit construction is not declared here
+
         FORCE_INLINE void construct_default();
         template <typename Ref>
         FORCE_INLINE void construct(const Ref & r);
+        template <typename Ref>
+        FORCE_INLINE void construct(Ref && r);
         FORCE_INLINE void destruct();
+
+        // implicit assignment is forbidden here, do use explicit assignment instead
+
         template <typename Ref>
         FORCE_INLINE aligned_storage_by & assign(const Ref & r);
         template <typename Ref>
+        FORCE_INLINE aligned_storage_by & assign(Ref && r);
+        template <typename Ref>
         FORCE_INLINE aligned_storage_by & assign(const Ref & r) volatile;
+        template <typename Ref>
+        FORCE_INLINE aligned_storage_by & assign(Ref && r) volatile;
 
         // storage redirection
         FORCE_INLINE storage_type_t * this_()

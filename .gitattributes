@@ -39,6 +39,7 @@ includes/tackle/aligned_storage/aligned_storage_from.hpp -text
 includes/tackle/aligned_storage/public/aligned_storage_by_decl.hpp -text
 includes/tackle/basic_iterator.hpp -text
 includes/tackle/compressed_pair.hpp -text
+includes/tackle/date_time.hpp -text
 includes/tackle/debug.hpp -text
 includes/tackle/deque.hpp -text
 includes/tackle/geometry/geometry.hpp -text

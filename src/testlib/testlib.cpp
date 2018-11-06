@@ -63,7 +63,7 @@
     if (class_name::UTILITY_PP_CONCAT(s_, var_name).empty()) { \
         class_name::UTILITY_PP_CONCAT(s_, var_name) = base_name::UTILITY_PP_CONCAT(s_, base_var_name) + suffix_path; \
         if (!utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name))) { \
-            utility::create_directory(class_name::UTILITY_PP_CONCAT(s_, var_name)); \
+            utility::create_directory(class_name::UTILITY_PP_CONCAT(s_, var_name), true); \
             class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
         } \
         else { \
@@ -776,7 +776,7 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir(const char * error_ms
 
     // generated direcory must be created if not done yet
     if (!utility::is_path_exists(gen_dir)) {
-        utility::create_directories(gen_dir);
+        utility::create_directories(gen_dir, true);
     }
 
     return gen_dir;
@@ -836,7 +836,7 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir(const char * error_msg_p
 
     // output direcory must be created if not done yet
     if (!utility::is_path_exists(out_dir)) {
-        utility::create_directories(out_dir);
+        utility::create_directories(out_dir, true);
     }
 
     return out_dir;

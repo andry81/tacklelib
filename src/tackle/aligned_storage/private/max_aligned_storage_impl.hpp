@@ -68,7 +68,7 @@ namespace tackle
         } else goto default_
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
-    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, Ref & r, bool reconstruct)
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, const Ref & r, bool reconstruct)
     {
         DEBUG_ASSERT_TRUE(reconstruct || !is_constructed()); // must be not constructed!
         if (reconstruct && is_constructed()) { // if already been constructed
@@ -90,6 +90,39 @@ namespace tackle
     }
 
     #undef TACKLE_PP_CONSTRUCT_MACRO
+
+    #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+            if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
+                construct(std::addressof(m_storage), std::move(r), UTILITY_PP_FUNCSIG, \
+                    "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
+                m_type_index = type_index; \
+            } \
+        } else goto default_
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
+    inline void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::construct(int type_index, Ref && r, bool reconstruct)
+    {
+        DEBUG_ASSERT_TRUE(reconstruct || !is_constructed()); // must be not constructed!
+        if (reconstruct && is_constructed()) { // if already been constructed
+            destruct();
+        }
+
+        switch (type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_XREF_MACRO)
+
+        default_:;
+            default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
+            }
+        }
+    }
+
+    #undef TACKLE_PP_CONSTRUCT_XREF_MACRO
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
@@ -122,6 +155,38 @@ namespace tackle
     }
 
     #undef TACKLE_PP_CONSTRUCT_MACRO
+
+    #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+            ::new (std::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(s))); \
+            m_type_index = s.m_type_index; \
+        } else goto default_
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type>
+    FORCE_INLINE void max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_construct(max_aligned_storage_from_mpl_container && s, bool reconstruct)
+    {
+        if (!s.is_constructed()) goto default_;
+
+        DEBUG_ASSERT_TRUE(reconstruct || !is_constructed()); // must be not constructed!
+        if (reconstruct && is_constructed()) { // if already been constructed
+            destruct();
+        }
+
+        switch (s.m_type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_CONSTRUCT_XREF_MACRO)
+
+        default_:;
+            default: {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): invalid storage construction: to_type_index={:d} from_type_index={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+            }
+        }
+    }
+
+    #undef TACKLE_PP_CONSTRUCT_XREF_MACRO
 
     #define TACKLE_PP_DESTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
@@ -191,8 +256,54 @@ namespace tackle
         return *this;
     }
 
-    #undef TACKLE_PP_ASSIGN_MACRO_LEFT
     #undef TACKLE_PP_ASSIGN_MACRO_RIGHT
+    #undef TACKLE_PP_ASSIGN_MACRO_LEFT
+
+    #define TACKLE_PP_ASSIGN_XREF_MACRO_LEFT(z, n) \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+            auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
+            switch (s.type_index()) \
+            { \
+                BOOST_PP_CAT(BOOST_PP_REPEAT_, z)(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_RIGHT_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_XREF_MACRO_RIGHT) \
+                \
+                default: goto default_; \
+            } \
+        } else goto default_
+
+    #define TACKLE_PP_ASSIGN_XREF_MACRO_RIGHT(z, n) \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+            auto && right_value = std::move(*utility::cast_addressof<const right_storage_type_t *>(s)); \
+            ::utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
+                call(left_value, std::move(right_value), UTILITY_PP_FUNCSIG, \
+                    "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
+        } \
+        else goto default_
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type>
+    inline max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type> &
+        max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::_assign(max_aligned_storage_from_mpl_container && s, bool throw_exceptions_on_type_error)
+    {
+        // containers must be already constructed before the assign
+        if (!is_constructed() || !s.is_constructed()) goto default_;
+
+        switch (m_type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_XREF_MACRO_LEFT)
+
+        default_:;
+            default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): invalid storage assign: to_type_index={:d} from_type_index={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+            }
+        }
+
+        return *this;
+    }
+
+    #undef TACKLE_PP_ASSIGN_XREF_MACRO_RIGHT
+    #undef TACKLE_PP_ASSIGN_XREF_MACRO_LEFT
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
@@ -201,30 +312,6 @@ namespace tackle
                 call(left_value, r, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
-
-
-    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
-    inline max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type> &
-        max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::assign(Ref & r, bool throw_exceptions_on_type_error)
-    {
-        // container must be already constructed before the assign
-        if (!is_constructed()) goto default_;
-
-        switch (m_type_index)
-        {
-            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_MACRO_LEFT)
-
-        default_:;
-            default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
-                    fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
-            }
-        }
-
-        return *this;
-    }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
     inline max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type> &
@@ -250,6 +337,39 @@ namespace tackle
     }
 
     #undef TACKLE_PP_ASSIGN_MACRO_LEFT
+
+    #define TACKLE_PP_ASSIGN_XREF_MACRO_LEFT(z, n) \
+        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+            auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
+            ::utility::assign_dispatcher<Ref, storage_type_t, true>:: \
+                call(left_value, std::move(r), UTILITY_PP_FUNCSIG, \
+                    "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
+        } else goto default_
+
+    template <typename t_mpl_container_types, typename t_tag_pttn_type> template <typename Ref>
+    inline max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type> &
+        max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::assign(Ref && r, bool throw_exceptions_on_type_error)
+    {
+        // container must be already constructed before the assign
+        if (!is_constructed()) goto default_;
+
+        switch (m_type_index)
+        {
+            BOOST_PP_REPEAT(TACKLE_PP_MAX_NUM_ALIGNED_STORAGE_TYPES, TACKLE_PP_REPEAT_INVOKE_MACRO_BY_TYPE_INDEX, TACKLE_PP_ASSIGN_XREF_MACRO_LEFT)
+
+        default_:;
+            default: if(throw_exceptions_on_type_error) {
+                DEBUG_BREAK_IN_DEBUGGER(true);
+                throw std::runtime_error(
+                    fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+            }
+        }
+
+        return *this;
+    }
+
+    #undef TACKLE_PP_ASSIGN_XREF_MACRO_LEFT
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \

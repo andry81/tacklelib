@@ -300,6 +300,193 @@ TEST(FunctionsTest, stride_copy)
     //test_stride_copy(6, 7, 16, 16, ref, 10, { 1, 2, 3, 4, 5, 6, 8, 9, 10, 11 });
 }
 
+//// path_string
+
+template <typename T>
+void test_path_string_operator_plus_left(T left_path_str)
+{
+    // with raw string
+    {
+        const std::string test1 = left_path_str + "bbb";
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const char * r2 = "bbb";
+        const std::string test2 = left_path_str + r2;
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const char * const & r3 = "bbb";
+        const std::string test3 = left_path_str + r3;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        const char r4[] = "bbb";
+        const std::string test4 = left_path_str + r4;
+        ASSERT_EQ(test4, "aaa/bbb");
+
+        const char (& r5)[4] = "bbb";
+        const std::string test5 = left_path_str + r5;
+        ASSERT_EQ(test5, "aaa/bbb");
+    }
+
+    // with std::string
+    {
+        const std::string r1 = "bbb";
+        const std::string test1 = left_path_str + r1;
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const std::string test2 = left_path_str + std::string{ "bbb" };
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const std::string & r3 = "bbb";
+        const std::string test3 = left_path_str + r3;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        std::string r4_ = "bbb";
+        std::string & r4 = r4_;
+        const std::string test4 = left_path_str + r4;
+        ASSERT_EQ(test4, "aaa/bbb");
+    }
+
+    // with path_string
+    {
+        const tackle::path_string r1 = "bbb";
+        const std::string test1 = left_path_str + r1;
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const std::string test2 = left_path_str + tackle::path_string{ "bbb" };
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const tackle::path_string & r3 = "bbb";
+        const std::string test3 = left_path_str + r3;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        tackle::path_string r4_ = "bbb";
+        tackle::path_string & r4 = r4_;
+        const std::string test4 = left_path_str + r4;
+        ASSERT_EQ(test4, "aaa/bbb");
+    }
+}
+
+void test_path_string_operator_plus_left_by_value()
+{
+    test_path_string_operator_plus_left<tackle::path_string>("aaa");
+}
+
+void test_path_string_operator_plus_left_by_ref()
+{
+    tackle::path_string path_str = "aaa";
+    test_path_string_operator_plus_left<tackle::path_string &>(path_str);
+}
+
+void test_path_string_operator_plus_left_by_cref()
+{
+    test_path_string_operator_plus_left<const tackle::path_string &>("aaa");
+}
+
+void test_path_string_operator_plus_left_by_rref()
+{
+    test_path_string_operator_plus_left<tackle::path_string &&>(std::move(tackle::path_string{ "aaa" }));
+}
+
+template <typename T>
+void test_path_string_operator_plus_right(T right_path_str)
+{
+    // with raw string
+    {
+        const std::string test1 = "aaa" + right_path_str;
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const char * l2 = "aaa";
+        const std::string test2 = l2 + right_path_str;
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const char * const & l3 = "aaa";
+        const std::string test3 = l3 + right_path_str;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        const char l4[] = "aaa";
+        const std::string test4 = l4 + right_path_str;
+        ASSERT_EQ(test4, "aaa/bbb");
+
+        const char (& l5)[4] = "aaa";
+        const std::string test5 = l5 + right_path_str;
+        ASSERT_EQ(test5, "aaa/bbb");
+    }
+
+    // with std::string
+    {
+        const std::string l1 = "aaa";
+        const std::string test1 = l1 + right_path_str;
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const std::string test2 = std::string{ "aaa" } + right_path_str;
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const std::string & l3 = "aaa";
+        const std::string test3 = l3 + right_path_str;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        std::string l4_ = "aaa";
+        std::string & l4 = l4_;
+        const std::string test4 = l4 + right_path_str;
+        ASSERT_EQ(test4, "aaa/bbb");
+    }
+
+    // with path_string
+    {
+        const tackle::path_string l1 = "aaa";
+        const std::string test1 = l1 + right_path_str;
+        ASSERT_EQ(test1, "aaa/bbb");
+
+        const std::string test2 = tackle::path_string{ "aaa" } + right_path_str;
+        ASSERT_EQ(test2, "aaa/bbb");
+
+        const tackle::path_string & l3 = "aaa";
+        const std::string test3 = l3 + right_path_str;
+        ASSERT_EQ(test3, "aaa/bbb");
+
+        tackle::path_string l4_ = "aaa";
+        tackle::path_string & l4 = l4_;
+        const std::string test4 = l4 + right_path_str;
+        ASSERT_EQ(test4, "aaa/bbb");
+    }
+}
+
+void test_path_string_operator_plus_right_by_value()
+{
+    test_path_string_operator_plus_right<tackle::path_string>("bbb");
+}
+
+void test_path_string_operator_plus_right_by_ref()
+{
+    tackle::path_string path_str = "bbb";
+    test_path_string_operator_plus_right<tackle::path_string &>(path_str);
+}
+
+void test_path_string_operator_plus_right_by_cref()
+{
+    test_path_string_operator_plus_right<const tackle::path_string &>("bbb");
+}
+
+void test_path_string_operator_plus_right_by_rref()
+{
+    test_path_string_operator_plus_right<tackle::path_string &&>(std::move(tackle::path_string{ "bbb" }));
+}
+
+TEST(FunctionsTest, path_string_operator_plus)
+{
+    test_path_string_operator_plus_left_by_value();
+    test_path_string_operator_plus_left_by_ref();
+    test_path_string_operator_plus_left_by_cref();
+    test_path_string_operator_plus_left_by_rref();
+    test_path_string_operator_plus_right_by_value();
+    test_path_string_operator_plus_right_by_ref();
+    test_path_string_operator_plus_right_by_cref();
+    test_path_string_operator_plus_right_by_rref();
+}
+
+
+////QD
+
 template <typename T>
 void float_compare_normal_with_infinity(double numerator, double denominator)
 {
@@ -321,7 +508,7 @@ void float_compare_normal_with_infinity(double numerator, double denominator)
 #endif
 }
 
-TEST(ExternalFuncs, float_compare_normal_with_infinity)
+TEST(FunctionsTest, float_compare_normal_with_infinity)
 {
     // dd_real
     float_compare_normal_with_infinity<dd_real>(1.0, 1.0);
@@ -384,7 +571,7 @@ void qdlib_nextafter(double from_numerator, double from_denominator, double to_n
     }
 }
 
-TEST(ExternalFuncs, qdlib_real_nextafter)
+TEST(FunctionsTest, qdlib_real_nextafter)
 {
     // dd_real
     qdlib_nextafter<dd_real>(1.0, 1.0, 10.0, 1.0);

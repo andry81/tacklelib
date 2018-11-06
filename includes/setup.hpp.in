@@ -2,3 +2,5 @@
 
 
 //// public headers common setup symbols
+
+#define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 1

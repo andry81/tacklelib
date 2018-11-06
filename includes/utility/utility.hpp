@@ -10,6 +10,7 @@
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
+#include <utility/debug.hpp>
 #include <utility/math.hpp>
 
 #include <tackle/path_string.hpp>
@@ -29,6 +30,7 @@
 #include <cfloat>
 #include <cmath>
 #include <string>
+#include <stdexcept>
 
 #if defined(UTILITY_PLATFORM_POSIX)
 #include <termios.h>
@@ -84,31 +86,92 @@ namespace utility
     bool is_symlink_path(const tackle::path_string & path);
     bool is_path_exists(const tackle::path_string & path);
 
-    bool create_directory(const tackle::path_string & path);
-    bool create_directory_if_not_exist(const tackle::path_string & path); // no exception if directory already exists
-    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from);
-    bool create_directories(const tackle::path_string & path);
+    bool create_directory(const tackle::path_string & path, bool throw_on_error);
+    bool create_directory_if_not_exist(const tackle::path_string & path, bool throw_on_error); // no exception if directory already exists
+    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from, bool throw_on_error);
+    bool create_directories(const tackle::path_string & path, bool throw_on_error);
+
+    bool remove_directory(const tackle::path_string & path, bool recursively, bool throw_on_error);
+    bool remove_file(const tackle::path_string & path, bool throw_on_error);
+    bool remove_symlink(const tackle::path_string & path, bool throw_on_error);
+
+    bool is_relative_path(const tackle::path_string & path);
+    bool is_relative_path(tackle::path_string && path);
+    bool is_absolute_path(const tackle::path_string & path);
+    bool is_absolute_path(tackle::path_string && path);
+
+    tackle::path_string get_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path, bool throw_on_error);
 
     std::string get_file_name(const tackle::path_string & path);
     std::string get_file_name_stem(const tackle::path_string & path);
 
-    std::string get_module_file_path();
-    std::string get_module_dir_path();
+    tackle::path_string get_module_file_path();
+    tackle::path_string get_module_dir_path();
+
+    template<typename T>
+    FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 10, bool throw_on_error = false)
+    {
+        T i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = static_cast<T>(std::stoi(str, pos, base));
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            DEBUG_BREAK_IN_DEBUGGER(true);
+            if (throw_on_error) {
+                throw;
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            DEBUG_BREAK_IN_DEBUGGER(true);
+            if (throw_on_error) {
+                throw;
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            DEBUG_BREAK_IN_DEBUGGER(true);
+            if (throw_on_error) {
+                throw;
+            }
+        }
+        catch (...) {
+            DEBUG_BREAK_IN_DEBUGGER(true);
+            if (throw_on_error) {
+                throw;
+            }
+        }
+
+        return i;
+    }
 
     template<typename T>
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+        const std::string fmt_format = tackle::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        return fmt::format(fmt_format, int64_t(i));
+#else
         std::stringstream stream;
         stream << std::setfill('0') << std::setw(padding) << std::hex << i;
         return stream.str();
+#endif
     }
 
     template<typename T>
     FORCE_INLINE std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
     {
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+        const std::string fmt_format = tackle::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        return fmt::format(fmt_format, int64_t(i));
+#else
         std::stringstream stream;
         stream << std::setfill('0') << std::setw(padding) << std::dec << i;
         return stream.str();
+#endif
     }
 
     template<typename T>
