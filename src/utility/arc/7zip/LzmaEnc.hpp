@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <tacklelib_private.hpp>
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_ARC_7ZIP_LZMA_ENCODER)
 
@@ -12,14 +12,8 @@
 
 #include <fmt/format.h>
 
-#include "Precomp.h"
-#include "CpuArch.h"
-
-#include "Alloc.h"
-#include "7zFile.h"
-#include "7zVersion.h"
-#include "LzmaDec.h"
-#include "LzmaEnc.h"
+#include <LzmaDec.h>
+#include <LzmaEnc.h>
 
 #include <cstdio>
 #include <cstdlib>

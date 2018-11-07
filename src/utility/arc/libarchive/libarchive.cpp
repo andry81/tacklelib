@@ -33,7 +33,8 @@ namespace arc {
 namespace libarchive {
 
     void write_archive(const std::vector<int> & input_filter_ids, int format_code, const std::string & options,
-        const std::string & out_path, const std::string & in_dir, const std::vector<std::string> & in_file_paths, size_t read_block_size)
+        const tackle::path_string & out_file_path, const tackle::path_string & in_dir, const std::vector<tackle::path_string> & in_file_paths,
+        size_t read_block_size)
     {
         struct archive *a;
         struct archive_entry *entry;
@@ -101,10 +102,17 @@ namespace libarchive {
             archive_write_set_options(a, options.c_str());
         }
 
-        archive_write_open_filename(a, out_path.c_str());
+        archive_write_open_filename(a, out_file_path.c_str());
+
+        tackle::path_string in_file;
 
         for (auto in_file_path : in_file_paths) {
-            const tackle::path_string in_file = tackle::path_string{ in_dir } +in_file_path;
+            if (in_dir.empty() || utility::is_absolute_path(in_file_path)) {
+                in_file = in_file_path;
+            }
+            else {
+                in_file = in_dir + in_file_path;
+            }
 
             stat(in_file.c_str(), &st);
 
