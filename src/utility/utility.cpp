@@ -193,25 +193,143 @@ namespace utility
         return boost::fs::exists(path.str());
     }
 
-    bool create_directory(const tackle::path_string & path)
+    bool create_directory(const tackle::path_string & path, bool throw_on_error)
     {
-        return boost::fs::create_directory(path.str());
+        if (throw_on_error) {
+            return boost::fs::create_directory(path.str());
+        }
+
+        boost::system::error_code ec;
+        return boost::fs::create_directory(path.str(), ec);
     }
 
-    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from)
-    {
-        return boost::fs::create_directory_symlink(to.str(), from.str());
-    }
-
-    bool create_directories(const tackle::path_string & path)
-    {
-        return boost::fs::create_directories(path.str());
-    }
-
-    bool create_directory_if_not_exist(const tackle::path_string & path)
+    bool create_directory_if_not_exist(const tackle::path_string & path, bool throw_on_error)
     {
         boost::system::error_code ec;
         return boost::fs::create_directories(path.str(), ec);
+    }
+
+    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from, bool throw_on_error)
+    {
+        if (throw_on_error) {
+            return boost::fs::create_directory_symlink(to.str(), from.str());
+        }
+
+        boost::system::error_code ec;
+        return boost::fs::create_directory_symlink(to.str(), from.str(), ec);
+    }
+
+    bool create_directories(const tackle::path_string & path, bool throw_on_error)
+    {
+        if (throw_on_error) {
+            return boost::fs::create_directories(path.str());
+        }
+
+        boost::system::error_code ec;
+        return boost::fs::create_directories(path.str(), ec);
+    }
+
+    bool remove_directory(const tackle::path_string & path, bool recursively, bool throw_on_error)
+    {
+        if (boost::fs::is_directory(path.str())) {
+            if (!recursively) {
+                if (throw_on_error) {
+                    return boost::fs::remove(path.str());
+                }
+
+                boost::system::error_code ec;
+                return boost::fs::remove(path.str(), ec);
+            }
+
+            if (throw_on_error) {
+                boost::fs::remove_all(path.str());
+            }
+            else {
+                boost::system::error_code ec;
+                boost::fs::remove_all(path.str(), ec);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool remove_file(const tackle::path_string & path, bool throw_on_error)
+    {
+        if (boost::fs::is_regular_file(path.str())) {
+            if (throw_on_error) {
+                return boost::fs::remove(path.str());
+            }
+            else {
+                boost::system::error_code ec;
+                return boost::fs::remove(path.str(), ec);
+            }
+        }
+
+        return false;
+    }
+
+    bool is_relative_path(const tackle::path_string & path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ path.str() }.is_relative();
+    }
+
+    bool is_relative_path(tackle::path_string && path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ std::move(path.str()) }.is_relative();
+    }
+
+    bool is_absolute_path(const tackle::path_string & path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ path.str() }.is_absolute();
+    }
+
+    bool is_absolute_path(tackle::path_string && path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ std::move(path.str()) }.is_absolute();
+    }
+
+    tackle::path_string get_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path, bool throw_on_error)
+    {
+        if (throw_on_error) {
+            return boost::fs::relative(to_path.str(), from_path.str()).string();
+        }
+
+
+        boost::system::error_code ec;
+        return boost::fs::relative(to_path.str(), from_path.str(), ec).string();
+    }
+
+    bool remove_symlink(const tackle::path_string & path, bool throw_on_error)
+    {
+        if (boost::fs::is_symlink(path.str())) {
+            if (throw_on_error) {
+                return boost::fs::remove(path.str());
+            }
+            else {
+                boost::system::error_code ec;
+                return boost::fs::remove(path.str(), ec);
+            }
+        }
+
+        return false;
     }
 
     std::string get_file_name(const tackle::path_string & path)
@@ -224,12 +342,12 @@ namespace utility
         return boost::fs::path(path.str()).stem().string();
     }
 
-    std::string get_module_file_path()
+    tackle::path_string get_module_file_path()
     {
         return boost::dll::program_location().string();
     }
 
-    std::string get_module_dir_path()
+    tackle::path_string get_module_dir_path()
     {
         return boost::dll::program_location().parent_path().string();
     }
