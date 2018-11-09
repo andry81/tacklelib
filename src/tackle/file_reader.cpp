@@ -21,17 +21,17 @@ namespace tackle
     {
     }
 
-    FileReader::FileReader(const FileHandle & file_handle, FileReader::ReadFunc read_pred) :
+    FileReader::FileReader(const FileHandleA & file_handle, FileReader::ReadFunc read_pred) :
         m_file_handle(file_handle), m_read_pred(read_pred)
     {
     }
 
-    void FileReader::set_file_handle(const FileHandle & file_handle)
+    void FileReader::set_file_handle(const FileHandleA & file_handle)
     {
         m_file_handle = file_handle;
     }
 
-    const FileHandle & FileReader::get_file_handle() const
+    const FileHandleA & FileReader::get_file_handle() const
     {
         return m_file_handle;
     }
@@ -134,6 +134,6 @@ namespace tackle
 
     void FileReader::close()
     {
-        m_file_handle = FileHandle::s_null;
+        m_file_handle = FileHandleA::s_null;
     }
 }

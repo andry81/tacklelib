@@ -41,8 +41,6 @@ namespace tackle
 
     protected:
         using string_type = std::basic_string<t_elem, t_traits, t_alloc>;
-//        static const size_t char_size = sizeof(t_elem);
-//
 //        using regex_type = std::basic_regex<t_elem>;
 //
 //        struct RegexAssoc
@@ -53,21 +51,21 @@ namespace tackle
 
 //        static const RegexAssoc s_regex_assocs[] =
 //        {
-//            { UTILITY_LITERAL_CHAR('C', char_size), UTILITY_LITERAL_STRING("[0-9][0-9]", char_size) },                  // 00-99
-//            { UTILITY_LITERAL_CHAR('d', char_size), UTILITY_LITERAL_STRING("0[1-9]|[1-2][0-9]|3[0-1]", char_size) },    // 01-31
-//            { UTILITY_LITERAL_CHAR('H', char_size), UTILITY_LITERAL_STRING("[0-1][0-9]|2[0-3]", char_size) },           // 00-23
-//            { UTILITY_LITERAL_CHAR('I', char_size), UTILITY_LITERAL_STRING("0[1-9]|1[0-2]", char_size) },               // 01-12
-//            { UTILITY_LITERAL_CHAR('j', char_size), UTILITY_LITERAL_STRING("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]", char_size) }, // 001-366
-//            { UTILITY_LITERAL_CHAR('m', char_size), UTILITY_LITERAL_STRING("0[1-9]|1[0-2]", char_size) },               // 01-12
-//            { UTILITY_LITERAL_CHAR('M', char_size), UTILITY_LITERAL_STRING("[0-5][0-9]", char_size) },                  // 00-59
-//            { UTILITY_LITERAL_CHAR('S', char_size), UTILITY_LITERAL_STRING("[0-5][0-9]|6[0-1]", char_size) },           // 00-61
-//            { UTILITY_LITERAL_CHAR('u', char_size), UTILITY_LITERAL_STRING("[1-7]", char_size) },                       // 1-7
-//            { UTILITY_LITERAL_CHAR('U', char_size), UTILITY_LITERAL_STRING("[0-4][0-9]|5[0-3]", char_size) },           // 00-53
-//            { UTILITY_LITERAL_CHAR('V', char_size), UTILITY_LITERAL_STRING("0[1-9]|[1-4][0-9]|5[0-3]", char_size) },    // 01-53
-//            { UTILITY_LITERAL_CHAR('w', char_size), UTILITY_LITERAL_STRING("[0-6]", char_size) },                       // 0-6
-//            { UTILITY_LITERAL_CHAR('W', char_size), UTILITY_LITERAL_STRING("[0-4][0-9]|5[0-3]", char_size) },           // 00-53
-//            { UTILITY_LITERAL_CHAR('y', char_size), UTILITY_LITERAL_STRING("[0-9][0-9]", char_size) },                  // 00-99
-//            { UTILITY_LITERAL_CHAR('Y', char_size), UTILITY_LITERAL_STRING("[0-9][0-9][0-9][0-9]", char_size) },        // 0000-9999
+//            { UTILITY_LITERAL_CHAR('C', t_elem), UTILITY_LITERAL_STRING("[0-9][0-9]", t_elem) },                    // 00-99
+//            { UTILITY_LITERAL_CHAR('d', t_elem), UTILITY_LITERAL_STRING("0[1-9]|[1-2][0-9]|3[0-1]", t_elem) },      // 01-31
+//            { UTILITY_LITERAL_CHAR('H', t_elem), UTILITY_LITERAL_STRING("[0-1][0-9]|2[0-3]", t_elem) },             // 00-23
+//            { UTILITY_LITERAL_CHAR('I', t_elem), UTILITY_LITERAL_STRING("0[1-9]|1[0-2]", t_elem) },                 // 01-12
+//            { UTILITY_LITERAL_CHAR('j', t_elem), UTILITY_LITERAL_STRING("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]", t_elem) },   // 001-366
+//            { UTILITY_LITERAL_CHAR('m', t_elem), UTILITY_LITERAL_STRING("0[1-9]|1[0-2]", t_elem) },                 // 01-12
+//            { UTILITY_LITERAL_CHAR('M', t_elem), UTILITY_LITERAL_STRING("[0-5][0-9]", t_elem) },                    // 00-59
+//            { UTILITY_LITERAL_CHAR('S', t_elem), UTILITY_LITERAL_STRING("[0-5][0-9]|6[0-1]", t_elem) },             // 00-61
+//            { UTILITY_LITERAL_CHAR('u', t_elem), UTILITY_LITERAL_STRING("[1-7]", t_elem) },                         // 1-7
+//            { UTILITY_LITERAL_CHAR('U', t_elem), UTILITY_LITERAL_STRING("[0-4][0-9]|5[0-3]", t_elem) },             // 00-53
+//            { UTILITY_LITERAL_CHAR('V', t_elem), UTILITY_LITERAL_STRING("0[1-9]|[1-4][0-9]|5[0-3]", t_elem) },      // 01-53
+//            { UTILITY_LITERAL_CHAR('w', t_elem), UTILITY_LITERAL_STRING("[0-6]", t_elem) },                         // 0-6
+//            { UTILITY_LITERAL_CHAR('W', t_elem), UTILITY_LITERAL_STRING("[0-4][0-9]|5[0-3]", t_elem) },             // 00-53
+//            { UTILITY_LITERAL_CHAR('y', t_elem), UTILITY_LITERAL_STRING("[0-9][0-9]", t_elem) },                    // 00-99
+//            { UTILITY_LITERAL_CHAR('Y', t_elem), UTILITY_LITERAL_STRING("[0-9][0-9][0-9][0-9]", t_elem) },          // 0000-9999
 //        };
 
     public:
@@ -123,10 +121,10 @@ namespace tackle
 //            for (size_t char_index = 0; char_index < time_fmt_len; char_index++) {
 //                const t_elem ch = time_fmt;
 //                if (!is_escaped_char) {
-//                    if (ch != UTILITY_LITERAL_CHAR("%", char_size)) {
+//                    if (ch != UTILITY_LITERAL_CHAR("%", t_elem)) {
 //                        // escape only if not usual character symbol!
-//                        if (!std::isdigit(ch, loc) && !std::isalpha(ch, loc) && ch != UTILITY_LITERAL_CHAR('_', char_size)) {
-//                            regex_time_fmt_str += UTILITY_LITERAL_STRING("\\", char_size);
+//                        if (!std::isdigit(ch, loc) && !std::isalpha(ch, loc) && ch != UTILITY_LITERAL_CHAR('_', t_elem)) {
+//                            regex_time_fmt_str += UTILITY_LITERAL_STRING("\\", t_elem);
 //                        }
 //                        regex_time_fmt_str += ch;
 //                    }
@@ -135,7 +133,7 @@ namespace tackle
 //                    }
 //                }
 //                else {
-//                    if (ch != UTILITY_LITERAL_CHAR("%", char_size)) {
+//                    if (ch != UTILITY_LITERAL_CHAR("%", t_elem)) {
 //                        bool is_known_placeholder = false;
 //                        for (const auto & regex_assocs : s_regex_assocs) {
 //                            if (ch == regex_assocs.placeholder) {
@@ -146,12 +144,12 @@ namespace tackle
 //                        }
 //                        if (!is_known_placeholder) {
 //                            // output as plain text
-//                            regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%\\", char_size);
+//                            regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%\\", t_elem);
 //                            regex_time_fmt_str += ch;
 //                        }
 //                    }
 //                    else {
-//                        regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%", char_size);
+//                        regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%", t_elem);
 //                    }
 //
 //                    is_escaped_char = false;
@@ -160,7 +158,7 @@ namespace tackle
 //
 //            if (is_control_char) {
 //                // unclosed escape sequence
-//                regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%", char_size);
+//                regex_time_fmt_str += UTILITY_LITERAL_STRING("\\%", t_elem);
 //            }
 //
 //            std::smatch time_str_match;

@@ -14,6 +14,7 @@
 #include <utility/math.hpp>
 
 #include <tackle/path_string.hpp>
+#include <tackle/file_handle.hpp>
 
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>
@@ -48,11 +49,6 @@
 #endif
 
 
-namespace tackle
-{
-    class FileHandle;
-}
-
 namespace utility
 {
 
@@ -75,38 +71,107 @@ namespace utility
 #endif
     };
 
-    uint64_t get_file_size(const tackle::FileHandle & file_handle);
-    bool is_files_equal(const tackle::FileHandle & left_file_handle, const tackle::FileHandle & right_file_handle);
-    tackle::FileHandle recreate_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandle create_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandle open_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags, size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+    uint64_t get_file_size(const tackle::FileHandleA & file_handle);
+    uint64_t get_file_size(const tackle::FileHandleW & file_handle);
+
+    bool is_files_equal(const tackle::FileHandleA & left_file_handle, const tackle::FileHandleA & right_file_handle);
+    bool is_files_equal(const tackle::FileHandleW & left_file_handle, const tackle::FileHandleW & right_file_handle);
+
+    tackle::FileHandleA recreate_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0);
+    tackle::FileHandleW recreate_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0);
+
+    tackle::FileHandleA create_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0);
+    tackle::FileHandleW create_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0);
+
+    tackle::FileHandleA open_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+    tackle::FileHandleW open_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
 
     bool is_directory_path(const tackle::path_string & path);
+    bool is_directory_path(const tackle::path_wstring & path);
+
     bool is_regular_file(const tackle::path_string & path);
+    bool is_regular_file(const tackle::path_wstring & path);
+
     bool is_symlink_path(const tackle::path_string & path);
+    bool is_symlink_path(const tackle::path_wstring & path);
+
     bool is_path_exists(const tackle::path_string & path);
+    bool is_path_exists(const tackle::path_wstring & path);
 
     bool create_directory(const tackle::path_string & path, bool throw_on_error);
+    bool create_directory(const tackle::path_wstring & path, bool throw_on_error);
+
     bool create_directory_if_not_exist(const tackle::path_string & path, bool throw_on_error); // no exception if directory already exists
+    bool create_directory_if_not_exist(const tackle::path_wstring & path, bool throw_on_error); // no exception if directory already exists
+
     void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from, bool throw_on_error);
+    void create_directory_symlink(const tackle::path_wstring & to, const tackle::path_wstring & from, bool throw_on_error);
+
     bool create_directories(const tackle::path_string & path, bool throw_on_error);
+    bool create_directories(const tackle::path_wstring & path, bool throw_on_error);
 
     bool remove_directory(const tackle::path_string & path, bool recursively, bool throw_on_error);
+    bool remove_directory(const tackle::path_wstring & path, bool recursively, bool throw_on_error);
+
     bool remove_file(const tackle::path_string & path, bool throw_on_error);
+    bool remove_file(const tackle::path_wstring & path, bool throw_on_error);
+
     bool remove_symlink(const tackle::path_string & path, bool throw_on_error);
+    bool remove_symlink(const tackle::path_wstring & path, bool throw_on_error);
 
     bool is_relative_path(const tackle::path_string & path);
+    bool is_relative_path(const tackle::path_wstring & path);
+
     bool is_relative_path(tackle::path_string && path);
+    bool is_relative_path(tackle::path_wstring && path);
+
     bool is_absolute_path(const tackle::path_string & path);
+    bool is_absolute_path(const tackle::path_wstring & path);
+
     bool is_absolute_path(tackle::path_string && path);
+    bool is_absolute_path(tackle::path_wstring && path);
 
     tackle::path_string get_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path, bool throw_on_error);
+    tackle::path_wstring get_relative_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path, bool throw_on_error);
+
+    tackle::path_string get_absolute_path(const tackle::path_string & from_path, const tackle::path_string & to_path);
+    tackle::path_wstring get_absolute_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path);
+
+    tackle::path_string get_absolute_path(const tackle::path_string & path, bool throw_on_error);
+    tackle::path_wstring get_absolute_path(const tackle::path_wstring & path, bool throw_on_error);
+
+    tackle::path_string get_current_path(bool throw_on_error, string_identity = string_identity{});
+    tackle::path_wstring get_current_path(bool throw_on_error, wstring_identity);
 
     std::string get_file_name(const tackle::path_string & path);
-    std::string get_file_name_stem(const tackle::path_string & path);
+    std::wstring get_file_name(const tackle::path_wstring & path);
 
-    tackle::path_string get_module_file_path();
-    tackle::path_string get_module_dir_path();
+    std::string get_file_name_stem(const tackle::path_string & path);
+    std::wstring get_file_name_stem(const tackle::path_wstring & path);
+
+    tackle::path_string get_module_file_path(string_identity = string_identity{});
+    tackle::path_wstring get_module_file_path(wstring_identity);
+
+    tackle::path_string get_module_dir_path(string_identity = string_identity{});
+    tackle::path_wstring get_module_dir_path(wstring_identity);
+
+    tackle::path_string get_lexically_normal_path(const tackle::path_string & path);
+    tackle::path_wstring get_lexically_normal_path(const tackle::path_wstring & path);
+
+    tackle::path_string get_lexically_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path);
+    tackle::path_wstring get_lexically_relative_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path);
+
+    tackle::path_string convert_to_uniform_path(const tackle::path_string & path);
+    tackle::path_wstring convert_to_uniform_path(const tackle::path_wstring & path);
+
+    tackle::path_string convert_to_native_path(const tackle::path_string & path);
+    tackle::path_wstring convert_to_native_path(const tackle::path_wstring & path);
 
     template<typename T>
     FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 10, bool throw_on_error = false)

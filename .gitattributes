@@ -51,6 +51,7 @@ includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
 includes/utility/library.hpp -text
 includes/utility/library_api_define.hpp -text
+includes/utility/locale.hpp -text
 includes/utility/math.hpp -text
 includes/utility/memory.hpp -text
 includes/utility/optimization.hpp -text
@@ -77,6 +78,7 @@ src/tackle/file_handle.cpp -text
 src/tackle/file_handle.hpp -text
 src/tackle/file_reader.cpp -text
 src/tackle/file_reader.hpp -text
+src/tackle/path_string.cpp -text
 src/tackle/smart_handle.hpp -text
 src/tackle/stream_storage.hpp -text
 src/tackle/variant.hpp -text

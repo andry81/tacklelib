@@ -484,7 +484,6 @@ TEST(FunctionsTest, path_string_operator_plus)
     test_path_string_operator_plus_right_by_rref();
 }
 
-
 ////QD
 
 template <typename T>

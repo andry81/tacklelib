@@ -5,6 +5,8 @@
 #include <utility/platform.hpp>
 #include <utility/assert.hpp>
 
+#include <tackle/string.hpp>
+
 #include <string>
 
 
@@ -58,9 +60,11 @@ namespace tackle
         {
             base_type && r_path = std::move(r);
 
-            std::string & base_this = *this;
+            base_type & base_this = *this;
             if (!r.empty()) {
-                base_this += "/";
+                if (!empty()) {
+                    base_this += UTILITY_LITERAL_STRING("/", t_elem);
+                }
                 base_this += r_path;
             }
 
@@ -71,9 +75,11 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(p);
 
-            std::string & base_this = *this;
+            base_type & base_this = *this;
             if (*p) {
-                base_this += "/";
+                if (!empty()) {
+                    base_this += UTILITY_LITERAL_STRING("/", t_elem);
+                }
                 base_this += p;
             }
 
@@ -105,7 +111,12 @@ namespace tackle
 
             base_type && r_path = std::move(r);
             if (!r_path.empty()) {
-                return p + ("/" + r_path); // call base operator instead in case if it is specialized for this
+                if (*p) {
+                    // call base operator instead in case if it is specialized for this
+                    return p + (UTILITY_LITERAL_STRING("/", t_elem) + r_path);
+                }
+
+                return r_path;
             }
 
             return p;
