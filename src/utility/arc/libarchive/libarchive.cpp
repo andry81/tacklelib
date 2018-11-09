@@ -6,6 +6,7 @@
 #include <utility/debug.hpp>
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
+#include <utility/locale.hpp>
 #include <utility/utility.hpp>
 
 #include <tackle/file_handle.hpp>
@@ -32,10 +33,49 @@ namespace utility {
 namespace arc {
 namespace libarchive {
 
-    void write_archive(const std::vector<int> & input_filter_ids, int format_code, const std::string & options,
-        const tackle::path_string & out_file_path, const tackle::path_string & in_dir, const std::vector<tackle::path_string> & in_file_paths,
+namespace {
+
+    FORCE_INLINE int _archive_write_set_options(archive * a, const std::string & options)
+    {
+        return archive_write_set_options(a, options.c_str());
+    }
+
+    FORCE_INLINE int _archive_write_set_options(archive * a, const std::wstring & options)
+    {
+        return archive_write_set_options(a, utility::convert_utf16_to_utf8_string(options).c_str());
+    }
+
+    FORCE_INLINE int _archive_write_open_filename(archive * a, const std::string & filename)
+    {
+        return archive_write_open_filename(a, filename.c_str());
+    }
+
+    FORCE_INLINE int _archive_write_open_filename(archive * a, const std::wstring & filename)
+    {
+        return archive_write_open_filename_w(a, filename.c_str());
+    }
+
+    void _archive_entry_set_pathname(archive_entry * entry, const std::string & name, utility::string_identity)
+    {
+        return archive_entry_set_pathname(entry, name.c_str());
+    }
+
+    void _archive_entry_set_pathname(archive_entry * entry, const std::string & name_utf8, utility::wstring_identity)
+    {
+        return archive_entry_set_pathname_utf8(entry, name_utf8.c_str());
+    }
+
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE void _write_archive(const std::vector<int> & input_filter_ids, int format_code,
+        const std::basic_string<t_elem, t_traits, t_alloc> & options,
+        const tackle::path_basic_string<t_elem, t_traits, t_alloc> & out_file_path,
+        const tackle::path_basic_string<t_elem, t_traits, t_alloc> & in_dir,
+        const std::vector<tackle::path_basic_string<t_elem, t_traits, t_alloc> > & in_file_paths,
         size_t read_block_size)
     {
+        using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc>;
+        using FileHandleT = tackle::FileHandle<t_elem, t_traits, t_alloc>;
+
         struct archive *a;
         struct archive_entry *entry;
         struct stat st;
@@ -99,26 +139,32 @@ namespace libarchive {
         }
 
         if (!options.empty()) {
-            archive_write_set_options(a, options.c_str());
+            _archive_write_set_options(a, options);
         }
 
-        archive_write_open_filename(a, out_file_path.c_str());
+        _archive_write_open_filename(a, out_file_path);
 
-        tackle::path_string in_file;
+        path_basic_string_t in_file;
+        tackle::path_string in_file_ansi_or_utf8;
+        tackle::path_string in_file_path_ansi_or_utf8;
 
         for (auto in_file_path : in_file_paths) {
             if (in_dir.empty() || utility::is_absolute_path(in_file_path)) {
                 in_file = in_file_path;
+                in_file_path_ansi_or_utf8 = in_file_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(in_file);
             }
             else {
                 in_file = in_dir + in_file_path;
+                const tackle::path_string in_dir_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(in_dir);
+                in_file_path_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(in_file_path);
+                in_file_ansi_or_utf8 = in_dir_ansi_or_utf8 + in_file_path_ansi_or_utf8; // faster than recode of full string
             }
 
-            stat(in_file.c_str(), &st);
+            stat(in_file_ansi_or_utf8.c_str(), &st);
 
             entry = archive_entry_new();
 
-            archive_entry_set_pathname(entry, in_file_path.c_str());
+            _archive_entry_set_pathname(entry, in_file_path_ansi_or_utf8, utility::basic_string_identity<t_elem, t_traits, t_alloc>{});
             archive_entry_set_size(entry, st.st_size);
             archive_entry_set_filetype(entry, AE_IFREG);
             archive_entry_set_ctime(entry, st.st_ctime, 0);
@@ -134,7 +180,8 @@ namespace libarchive {
             archive_entry_set_mode(entry, st.st_mode);
             archive_write_header(a, entry);
 
-            const tackle::FileHandle in_file_handle = utility::open_file(in_file.c_str(), "rb", utility::SharedAccess_DenyWrite); // should not be opened for writing
+            const FileHandleT in_file_handle =
+                utility::open_file(in_file.c_str(), UTILITY_LITERAL_STRING("rb", t_elem), utility::SharedAccess_DenyWrite); // should not be opened for writing
 
             const int in_file_desc = in_file_handle.fileno();
             len = read(in_file_desc, buf.get(), buf.size());
@@ -148,6 +195,24 @@ namespace libarchive {
 
         archive_write_close(a);
         archive_write_free(a);
+    }
+
+}
+
+    void write_archive(const std::vector<int> & input_filter_ids, int format_code,
+        const std::string & options, const tackle::path_string & out_file_path,
+        const tackle::path_string & in_dir, const std::vector<tackle::path_string> & in_file_paths,
+        size_t read_block_size)
+    {
+        return _write_archive(input_filter_ids, format_code, options, out_file_path, in_dir, in_file_paths, read_block_size);
+    }
+
+    void write_archive(const std::vector<int> & input_filter_ids, int format_code,
+        const std::wstring & options, const tackle::path_wstring & out_file_path,
+        const tackle::path_wstring & in_dir, const std::vector<tackle::path_wstring> & in_file_paths,
+        size_t read_block_size)
+    {
+        return _write_archive(input_filter_ids, format_code, options, out_file_path, in_dir, in_file_paths, read_block_size);
     }
 
 }

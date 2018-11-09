@@ -6,6 +6,7 @@
 #include <utility/assert.hpp>
 
 #include <tackle/smart_handle.hpp>
+#include <tackle/string.hpp>
 
 #include <fmt/format.h>
 
@@ -14,11 +15,14 @@
 
 namespace tackle
 {
+    template <class t_elem, class t_traits, class t_alloc>
     class FileHandle : public SmartHandle<FILE>
     {
         using base_type = SmartHandle;
 
     public:
+        using string_type = std::basic_string<t_elem, t_traits, t_alloc>;
+
         static const FileHandle s_null;
 
     private:
@@ -37,7 +41,7 @@ namespace tackle
 
         FORCE_INLINE FileHandle(const FileHandle &) = default;
 
-        FORCE_INLINE FileHandle(FILE * p, const std::string & file_path) :
+        FORCE_INLINE FileHandle(FILE * p, const string_type & file_path) :
             base_type(p, _deleter),
             m_file_path(file_path)
         {
@@ -56,7 +60,7 @@ namespace tackle
             m_file_path.clear();
         }
 
-        FORCE_INLINE const std::string & path() const
+        FORCE_INLINE const string_type & path() const
         {
             return m_file_path;
         }
@@ -73,6 +77,14 @@ namespace tackle
         }
 
     private:
-        std::string m_file_path;
+        string_type m_file_path;
     };
+
+    template <class t_elem, class t_traits, class t_alloc>
+    const FileHandle<t_elem, t_traits, t_alloc>
+        FileHandle<t_elem, t_traits, t_alloc>::s_null =
+        FileHandle<t_elem, t_traits, t_alloc>(nullptr, UTILITY_LITERAL_STRING("nul", t_elem));
+
+    using FileHandleA = FileHandle<char, std::char_traits<char>, std::allocator<char> >;
+    using FileHandleW = FileHandle<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
 }

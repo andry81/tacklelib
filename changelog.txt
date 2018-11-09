@@ -1,3 +1,16 @@
+2018.11.09:
+* fixed: tackle library wide strings usage in wide set of functions
+* new: tackle utility wide strings usage in filesystem calls
+* new: tackle utility lexical normalization filesystem functions
+* new: tackle utility utf16 std::*string to/from utf8 std::string convertion functions
+* refactor: template tackle::path_basic_string usage in template functions
+* refactor: explicit instantiation of template functions with template tackle::path_basic_string
+* missed changes
+
+2018.11.07:
+* fixed: missed check both paths on emptiness in the tackle::path_string class
+* new: more tackle filesystem functions in utility namespace
+
 2018.11.06:
 * fixed: optimized tackle::path_string operators
 * fixed: forgot to shrink the string size in the utility::string_format function

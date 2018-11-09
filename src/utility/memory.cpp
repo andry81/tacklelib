@@ -59,7 +59,7 @@ namespace utility {
             else {
                 strncpy(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("/proc/self/status"));
             }
-            const tackle::FileHandle proc_file_handle = utility::open_file(tmp_buf, "r", utility::SharedAccess_DenyNone);
+            const tackle::FileHandleA proc_file_handle = utility::open_file(tmp_buf, "r", utility::SharedAccess_DenyNone);
 
             uint64_t mem_size = 0;
 
