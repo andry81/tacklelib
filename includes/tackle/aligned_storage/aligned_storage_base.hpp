@@ -9,6 +9,8 @@
 #include <utility/platform.hpp>
 #include <utility/utility.hpp>
 
+#include <fmt/format.h>
+
 #include <cstdio>
 #include <stdexcept>
 
@@ -23,8 +25,8 @@ namespace tackle
     //  Special tag pattern type to use the aligned storage with enabled (not deleted) copy constructor and assignment operator
     //  with explicit flag of constructed state (it is dangerous w/o the flag because being copied or assigned type can be not yet constructed!).
     //
-    using tag_pttn_control_lifetime_t   = struct tag_pttn_control_lifetime_;
-    using tag_pttn_default_t            = struct tag_pttn_default_;
+    struct tag_pttn_control_lifetime {};
+    struct tag_pttn_default {};
 
     //// aligned_storage_base
 
@@ -69,15 +71,13 @@ namespace tackle
         // unsafe
         FORCE_INLINE void enable_unconstructed_copy()
         {
-            char fmt_buf[256];
-            snprintf(fmt_buf, utility::static_size(fmt_buf), "%s: not implemented", UTILITY_PP_FUNCSIG);
-            DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error(fmt_buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): not implemented",
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
     };
 
     template <typename t_storage_type>
-    class aligned_storage_base<t_storage_type, tag_pttn_control_lifetime_t>
+    class aligned_storage_base<t_storage_type, tag_pttn_control_lifetime>
     {
         enum Flags
         {

@@ -392,7 +392,7 @@ namespace tackle
         const int left_type_index = m_iterator_storage.type_index();
         const int right_type_index = it.m_iterator_storage.type_index();
         if (left_type_index != right_type_index) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): incompatible iterator storages: left_type_index={:d} right_type_index={:d}",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, left_type_index, right_type_index));
         }
@@ -483,7 +483,7 @@ namespace tackle
 
         const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
         if (chunk_type_index >= num_chunk_variants_t::value) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): minimum chunk size is not supported: min_chunk_size={:d} pof2={:d} max={:d}",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, min_chunk_size,
                     math::int_pof2_ceil(min_chunk_size), (0x01U << (num_chunk_variants_t::value - 1))));

@@ -37,7 +37,11 @@ namespace _7zip {
         using base_type = SmartHandle;
 
     public:
-        static const LzmaEncoderHandle s_null;
+        static FORCE_INLINE const LzmaEncoderHandle & null()
+        {
+            static const LzmaEncoderHandle s_null = LzmaEncoderHandle{ nullptr, nullptr };
+            return s_null;
+        }
 
     private:
         struct Deleter
@@ -62,7 +66,7 @@ namespace _7zip {
     public:
         FORCE_INLINE LzmaEncoderHandle()
         {
-            *this = s_null;
+            *this = null();
         }
 
         FORCE_INLINE LzmaEncoderHandle(const LzmaEncoderHandle &) = default;
@@ -75,17 +79,12 @@ namespace _7zip {
         }
 
     public:
-        static FORCE_INLINE LzmaEncoderHandle null()
-        {
-            return LzmaEncoderHandle{ nullptr, nullptr };
-        }
-
-        FORCE_INLINE void reset(const LzmaEncoderHandle & handle = LzmaEncoderHandle::s_null)
+        FORCE_INLINE void reset(const LzmaEncoderHandle & handle = LzmaEncoderHandle::null())
         {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): deleter is not allocated",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -128,7 +127,7 @@ namespace _7zip {
     {
         CLzmaEncHandle enc = get();
         if (!enc) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): encoder is not allocated",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }

@@ -1,3 +1,31 @@
+2018.11.19:
+* fixed: long path directories/files creation/open
+* refactor: tackle utility functions refactor
+
+2018.11.17:
+* refactor: more tackle path_string usage in the diagnostic
+* refactor: all *_identity class instances usage replaced by tag_* classes usage
+* refactor: DEBUG_BREAK_IN_DEBUGGER following with `throw` replaced by DEBUG_BREAK_THROW macro
+
+2018.11.15:
+* fixed: Buffer class do_read function out of minimal buffer size read issue
+* new: tackle path_string with different directory separator support
+* refactor: type identities are extracted from type_traits.hpp for usage with static_assert.hpp
+
+2018.11.13:
+* new: 3dparty: pystring library as dependency for tackle utility library functions
+* new: 3dparty: readme and changle logs for tackle library dependency projects
+* changed: improved tackle library localization functions
+* refactor: minor tackle utility functions improvements
+
+2018.11.12:
+* changed: tackle library filesystem create/open functions with `throw_on_error` parameter
+* refactor: converted all `s_null` static data members into static function members to avoid static initialization order misuse
+* other minor changes
+
+2018.11.12:
+* refactor: tests: changed testlib to enable usage testlib externally declared test group parameters like ref_in_dir_prefix path from gtest test
+
 2018.11.09:
 * fixed: tackle library wide strings usage in wide set of functions
 * new: tackle utility wide strings usage in filesystem calls

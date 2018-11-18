@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_BASIC_ITERATOR_HPP
+#define TACKLE_BASIC_ITERATOR_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
@@ -237,3 +241,5 @@ namespace tackle
     }
 
 }
+
+#endif

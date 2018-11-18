@@ -3,4 +3,4 @@
 
 //// public headers common setup symbols
 
-#define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 1
+#define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 1         // Uses `fmt` 3dparty library to format string instead of `std::stringstream` (much faster and more convenient)

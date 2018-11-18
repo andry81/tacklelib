@@ -484,7 +484,7 @@ TEST(FunctionsTest, path_string_operator_plus)
     test_path_string_operator_plus_right_by_rref();
 }
 
-////QD
+//// QD
 
 template <typename T>
 void float_compare_normal_with_infinity(double numerator, double denominator)

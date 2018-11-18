@@ -48,8 +48,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
             }
@@ -81,8 +80,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
             }
@@ -114,8 +112,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
             }
@@ -146,8 +143,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage construction: to_type_index={:d} from_type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
             }
@@ -178,8 +174,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage construction: to_type_index={:d} from_type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
             }
@@ -203,8 +198,7 @@ namespace tackle
 
         default_:;
             default: {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -246,8 +240,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage assign: to_type_index={:d} from_type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
             }
@@ -292,8 +285,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage assign: to_type_index={:d} from_type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
             }
@@ -326,8 +318,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -359,8 +350,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -388,8 +378,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -423,8 +412,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -461,8 +449,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }
@@ -499,8 +486,7 @@ namespace tackle
 
         default_:;
             default: if(throw_exceptions_on_type_error) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
             }

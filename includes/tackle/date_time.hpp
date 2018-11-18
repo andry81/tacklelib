@@ -1,9 +1,14 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_DATE_TIME_HPP
+#define TACKLE_DATE_TIME_HPP
+
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
-#include <utility/type_traits.hpp>
+#include <utility/type_identity.hpp>
+#include <utility/debug.hpp>
 #include <utility/time.hpp>
 #include <utility/utility.hpp>
 
@@ -38,6 +43,9 @@ namespace tackle
             StorageType_Custom  = 1,     // T
             StorageType_String  = 2      // string_type
         };
+
+        struct tag_storage_custom_type : utility::int_identity<StorageType_Custom> {};
+        struct tag_storage_string_type : utility::int_identity<StorageType_String> {};
 
     protected:
         using string_type = std::basic_string<t_elem, t_traits, t_alloc>;
@@ -296,11 +304,10 @@ namespace tackle
 
             if (!utility::time::get_time(time, locale, fmt, time_str_rref)) {
                 if (throw_on_error) {
-                    throw std::runtime_error(fmt::format("{:s}({:d}): time format string is invalid",
+                    DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): time format string is invalid",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
                 }
                 else {
-                    DEBUG_BREAK_IN_DEBUGGER(true);
                     return;
                 }
             }
@@ -378,7 +385,7 @@ namespace tackle
         FORCE_INLINE const T & get(utility::int_identity<StorageType_Custom>) const
         {
             if (storage_type_ != StorageType_Custom) {
-                throw std::runtime_error(fmt::format("{:s}({:d}): storage type is not custom type",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): storage type is not custom type",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -388,7 +395,7 @@ namespace tackle
         FORCE_INLINE const string_type & get(utility::int_identity<StorageType_String>) const
         {
             if (storage_type_ != StorageType_String) {
-                throw std::runtime_error(fmt::format("{:s}({:d}): storage type is not string type",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): storage type is not string type",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -431,3 +438,5 @@ namespace tackle
     using date_time_uint64_u16 = date_time_u16<uint64_t>;
     using date_time_uint64_u32 = date_time_u32<uint64_t>;
 }
+
+#endif

@@ -7,6 +7,7 @@
 #include <tacklelib.hpp>
 
 #include <utility/preprocessor.hpp>
+#include <utility/type_identity.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/debug.hpp>
 
@@ -17,38 +18,7 @@
 #include <cstring>
 
 
-// to suppress warnings around compile time expression or values
-#define UTILITY_CONST_EXPR(exp) ::utility::const_expr<(exp) ? true : false>::value
-
-// generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
-#define UTILITY_TYPE_LOOKUP_BY_ERROR(type_name) \
-    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::dummy*)0))
-
-// the macro only for msvc compiler which has more useful error output if a scope class and a type are separated from each other
-#ifdef _MSC_VER
-
-#define UTILITY_TYPE_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
-    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<class_name >::type_name*)0).operator ,(*(::utility::dummy*)0))
-
-#else
-
-#define UTILITY_TYPE_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
-    UTILITY_TYPE_LOOKUP_BY_ERROR(class_name::type_name)
-
-#endif
-
-// lookup compile time template typename value
-#define UTILITY_PARAM_LOOKUP_BY_ERROR(static_param) \
-    UTILITY_TYPE_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(static_param))
-
-// lookup compile time size value
-#define UTILITY_SIZE_LOOKUP_BY_ERROR(size) \
-    char * __integral_lookup[size] = 1
-
 #define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
-
-// available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
-#define UTILITY_IS_TYPE_COMPLETE(type) ::utility::is_type_complete<type, __COUNTER__>::value
 
 
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_INTEGER_SEQUENCE
@@ -62,69 +32,6 @@ namespace std
 
 namespace utility
 {
-    // replacement for mpl::void_, useful to suppress excessive errors output in particular places
-    struct void_ { typedef void_ type; };
-
-    // to suppress `warning C4127: conditional expression is constant`
-    template <bool B>
-    struct const_expr
-    {
-        static CONSTEXPR const bool value = B;
-    };
-
-    struct dummy {};
-
-    template <typename T>
-    struct type_lookup
-    {
-        using type = T;
-    };
-
-    namespace
-    {
-        template<class T, int discriminator>
-        struct is_type_complete {
-            static T & getT();
-            static char(&pass(T))[2];
-            static char pass(...);
-            static CONSTEXPR const bool value = sizeof(pass(getT())) == 2;
-        };
-    }
-
-    // std::identity is depricated in msvc2017
-
-    template <typename T>
-    struct identity
-    {
-        using type = T;
-    };
-
-    // type-by-value identity
-
-    template <typename T, T v>
-    struct value_identity
-    {
-        using type = T;
-        static CONSTEXPR const T value = v;
-    };
-
-    template <typename T, T v>
-    CONSTEXPR const T value_identity<T, v>::value;
-
-    template <bool b>
-    struct bool_identity
-    {
-        using type = bool;
-        static CONSTEXPR const bool value = b;
-    };
-
-    template <int v>
-    struct int_identity
-    {
-        using type = int;
-        static CONSTEXPR const int value = v;
-    };
-
     // remove_reference + remove_cv
     template <typename T>
     struct remove_cvref
@@ -312,19 +219,27 @@ namespace utility
     }
 #else
     template<typename Functor>
-    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, ...)
+    static FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, ...)
     {
         // make static assert function template parameter dependent
-        // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
-        STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
+        //// (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
+        //STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
+        //// might be more stable but still is ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc
+        //STATIC_ASSERT_TRUE(sizeof(int[sizeof(Functor)]) != sizeof(int[sizeof(Functor)]), "not implemented");
+        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
+        STATIC_ASSERT_TRUE(dependent_type<Functor>::false_value, "not implemented");
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
+    static FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
     {
         // make static assert function template parameter dependent
-        // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
-        STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
+        //// (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
+        //STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
+        //// might be more stable but still is ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc
+        //STATIC_ASSERT_TRUE(sizeof(int[sizeof(Functor)]) != sizeof(int[sizeof(Functor)]), "not implemented");
+        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
+        STATIC_ASSERT_TRUE(dependent_type<Functor>::false_value, "not implemented");
     }
 #endif
 
@@ -783,8 +698,7 @@ namespace utility
             char buf[1024];
             buf[0] = '\0';
             snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name());
-            DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
 
             return false;
         }
@@ -825,8 +739,7 @@ namespace utility
             char buf[1024];
             buf[0] = '\0';
             snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
-            DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
 
             return false;
         }
@@ -837,8 +750,7 @@ namespace utility
             char buf[1024];
             buf[0] = '\0';
             snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
-            DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
 
             return false;
         }
@@ -923,8 +835,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
             }
 
             // CAUTION:
@@ -945,8 +856,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
             }
 
             // CAUTION:
@@ -1070,8 +980,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
             }
 
             return to;
@@ -1086,8 +995,7 @@ namespace utility
                 char buf[1024];
                 buf[0] = '\0';
                 snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
             }
 
             return to;

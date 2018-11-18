@@ -8,12 +8,12 @@
 DECLARE_TEST_CASES
 {
 #ifdef UNIT_TESTS
-    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, nullptr, "", "", 0),
+    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, nullptr, "", "", "", 0),
 
-    DECLARE_TEST_CASE_FUNC(TackleDequeTest, *, nullptr, nullptr, "", "", 0),
+    DECLARE_TEST_CASE_FUNC(TackleDequeTest, *, nullptr, nullptr, "", "", "", 0),
 #endif
 
 #ifdef BENCH_TESTS
-    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, nullptr, "test_funcs_duration", "test_funcs_duration", 0),
+    DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, nullptr, "test_funcs_duration", "test_funcs_duration", "", 0),
 #endif
 };

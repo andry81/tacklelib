@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_GEOMETRY_VECTOR_HPP
+#define TACKLE_GEOMETRY_VECTOR_HPP
+
 #include <utility/platform.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/assert.hpp>
@@ -462,3 +466,5 @@ inline void NormalMatrix3d::validate(const real & unit_square_epsilon) const
 
 }
 }
+
+#endif

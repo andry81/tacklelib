@@ -33,13 +33,13 @@
 
 // Declares gtest a function test case.
 //
-#define DECLARE_TEST_CASE_FUNC(scope_token, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, flags) \
-    { "", UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, flags }
+#define DECLARE_TEST_CASE_FUNC(test_case_name, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, ref_in_subdir, flags) \
+    { "", UTILITY_PP_STRINGIZE(test_case_name), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, ref_in_subdir, flags }
 
 // Declares gtest a class test case.
 //
-#define DECLARE_TEST_CASE_CLASS(prefix_str, scope_token, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, flags) \
-    { UTILITY_PP_STRINGIZE(prefix_str), UTILITY_PP_STRINGIZE(scope_token), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, flags }
+#define DECLARE_TEST_CASE_CLASS(prefix_str, test_case_name, func_token, init_func, uninit_func, data_in_subdir, data_out_subdir, ref_in_subdir, flags) \
+    { UTILITY_PP_STRINGIZE(prefix_str), UTILITY_PP_STRINGIZE(test_case_name), UTILITY_PP_STRINGIZE(func_token), init_func, uninit_func, data_in_subdir, data_out_subdir, ref_in_subdir, flags }
 
 // builtin test case class
 //
@@ -56,25 +56,47 @@
 #define TEST_CASE_GET_MUTABLE_INFO() \
     const_cast<::testing::TestInfo *>(::testing::UnitTest::GetInstance()->current_test_info())
 
-// returns current test case instance token contained test name
+// returns current test name token contained test name and test name index
 //
-#define TEST_CASE_INSTANCE_TOKEN() \
+#define TEST_NAME_TOKEN() \
     [](auto * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->name(); \
         return name_ptr_; \
     }(TEST_CASE_GET_INFO())
 
-// returns current test case class token contained class name prefix and name
+// returns current test name
 //
-#define TEST_CASE_CLASS_TOKEN() \
+#define TEST_NAME() \
+    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+        auto * name_ptr_ = test_case_info_ptr_->name(); \
+        /* split name by / */ \
+        auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \
+        if (name_suffix_ptr_) return tackle::path_string(name_ptr_, name_suffix_ptr_); \
+        return name_ptr_; \
+    }(TEST_CASE_GET_INFO())
+
+// returns current test name index
+//
+#define TEST_NAME_INDEX() \
+    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+        auto * name_ptr_ = test_case_info_ptr_->name(); \
+        /* split name by / */ \
+        auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \
+        if (name_suffix_ptr_) return name_suffix_ptr_ + 1; \
+        return name_ptr_; \
+    }(TEST_CASE_GET_INFO())
+
+// returns current test case name token contained test case name prefix and name
+//
+#define TEST_CASE_NAME_TOKEN() \
     [](auto * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         return name_ptr_; \
     }(TEST_CASE_GET_INFO())
 
-// returns current test case class name
+// returns current test case name
 //
-#define TEST_CASE_CLASS_NAME() \
+#define TEST_CASE_NAME() \
     [](auto * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         /* split name by / */ \
@@ -83,9 +105,9 @@
         return name_ptr_; \
     }(TEST_CASE_GET_INFO())
 
-// returns current test case class token prefix
+// returns current test case name prefix
 //
-#define TEST_CASE_CLASS_TOKEN_PREFIX() \
+#define TEST_CASE_NAME_PREFIX() \
     [](auto * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         /* split name by / */ \
@@ -103,10 +125,10 @@
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
 #define TEST_CASE_GET_ROOT(ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(*))
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_NAME(), UTILITY_PP_STRINGIZE(*))
 
 // Macro builder of a test directory used a builtin ROOT-variable for a root path.
-//  func        - name of gtest case test function or `func_token` parameter.
+//  test_name       - name of gtest case test function or `test_name` parameter.
 //   Available variants:
 //   - <name>   - search in particular test case
 //   - `*`      - search in all test cases
@@ -117,12 +139,12 @@
 // Returns:
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
-#define TEST_CASE_GET_ROOT2(func, ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_CLASS_NAME(), UTILITY_PP_STRINGIZE(func))
+#define TEST_CASE_GET_ROOT2(test_name, ref_name) \
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, TEST_CASE_NAME(), UTILITY_PP_STRINGIZE(test_name))
 
 // Macro builder of a test directory used a builtin ROOT-variable for a root path.
-//  scope       - name of gtest case scope or `scope_token` parameter.
-//  func        - name of gtest case test function or `func_token` parameter.
+//  test_case_name  - name of gtest case scope or `test_case_name` parameter.
+//  test_name       - name of gtest case test function or `test_name` parameter.
 //   Available variants:
 //   - <name>   - search in particular test case
 //   - `*`      - search in all test cases
@@ -133,8 +155,8 @@
 // Returns:
 //  <ROOT-variable> + <test-case-<ref_name>_subdir>
 //
-#define TEST_CASE_GET_ROOT3(scope, func, ref_name) \
-    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, UTILITY_PP_STRINGIZE(scope), UTILITY_PP_STRINGIZE(func))
+#define TEST_CASE_GET_ROOT3(test_case_name, test_case, ref_name) \
+    ::TestCaseStaticBase:: UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(get_, ref_name), _root)(UTILITY_PP_FUNCSIG, UTILITY_PP_STRINGIZE(test_case_name), UTILITY_PP_STRINGIZE(test_case))
 
 // Macro builder of a test directory used a builtin DIR-variable for a root path.
 //  ref_name    - name of builtin DIR-variable name to request:
@@ -391,12 +413,13 @@ namespace test
     struct TestCase
     {
         const char * prefix_str;
-        const char * scope_str;
-        const char * func_str;
+        const char * test_case_name;
+        const char * test_name;
         bool (*init_func)();
         void (*uninit_func)();
         const char * data_in_subdir;
         const char * data_out_subdir;
+        const char * ref_in_subdir;
         int flags;
     };
 
@@ -411,8 +434,10 @@ namespace test
     void global_postinit(std::string & gtest_exclude_filter); 
     void global_uninit();
 
-    tackle::path_string get_data_in_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
-    tackle::path_string get_data_out_subdir(tackle::path_string & scope_str, const tackle::path_string & func_str);
+    tackle::path_string get_data_in_subdir(tackle::path_string & test_case_name, const tackle::path_string & test_name);
+    tackle::path_string get_data_out_subdir(tackle::path_string & test_case_name, const tackle::path_string & test_name);
+    tackle::path_string get_ref_in_subdir(const tackle::path_string & test_case_name, const tackle::path_string & test_name);
+
     void interrupt_test();
 
     void log_out_va(int lvl, const char * fmt, va_list vl);
@@ -435,8 +460,8 @@ public:
     static const tackle::path_string & get_data_in_var(const char * error_msg_prefix);
     static const tackle::path_string & get_data_out_var(const char * error_msg_prefix);
 
-    static tackle::path_string get_data_in_root(const char * error_msg_prefix, const tackle::path_string & scope_str, const tackle::path_string & func_str);
-    static tackle::path_string get_data_out_root(const char * error_msg_prefix, const tackle::path_string & scope_str, const tackle::path_string & func_str);
+    static tackle::path_string get_data_in_root(const char * error_msg_prefix, const tackle::path_string & test_case_name, const tackle::path_string & test_name);
+    static tackle::path_string get_data_out_root(const char * error_msg_prefix, const tackle::path_string & test_case_name, const tackle::path_string & test_name);
 
     static tackle::path_string get_data_in_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix);
     static tackle::path_string get_data_out_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix);
