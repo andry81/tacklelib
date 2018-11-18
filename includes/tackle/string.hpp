@@ -1,71 +1,78 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_STRING_HPP
+#define TACKLE_STRING_HPP
+
 #include <tacklelib.hpp>
 
+#include <utility/preprocessor.hpp>
 #include <utility/platform.hpp>
+#include <utility/string.hpp>
 
 #include <string>
+#include <array>
+#include <cstring>
+#include <cstddef>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
-#include <wchar.h>
-#include <uchar.h>
+#include <cwchar>
+#include <cuchar>
 #include <memory>
 #include <algorithm>
+#include <type_traits>
 
 
 // hint: operator* applies to character literals, but not to double-quoted literals
-#define UTILITY_LITERAL_CHAR_(c_str, char_type)     (c_str * 0, ::tackle::literal_char_caster<char_type>::cast_from(c_str, L ## c_str, u ## c_str, U ## c_str))
+#define UTILITY_LITERAL_CHAR_(c_str, char_type)         ((void)(c_str * 0), ::tackle::literal_char_caster<char_type>::cast_from(c_str, L ## c_str, u ## c_str, U ## c_str))
 
 // hint: operator[] applies to double-quoted literals, but is not to character literals
-#define UTILITY_LITERAL_STRING_(c_str, char_type)   (c_str[0], ::tackle::literal_string_caster<char_type>::cast_from(c_str, L ## c_str, u ## c_str, U ## c_str))
+#define UTILITY_LITERAL_STRING_(c_str, char_type)       ((void)(c_str[0]), ::tackle::literal_string_caster<char_type>::cast_from(c_str, L ## c_str, u ## c_str, U ## c_str))
 
-#define UTILITY_LITERAL_CHAR(c_str, char_type)      UTILITY_LITERAL_CHAR_(c_str, char_type)
-#define UTILITY_LITERAL_STRING(c_str, char_type)    UTILITY_LITERAL_STRING_(c_str, char_type)
+#define UTILITY_LITERAL_CHAR(c_str, char_type)          UTILITY_LITERAL_CHAR_(c_str, char_type)
+#define UTILITY_LITERAL_STRING(c_str, char_type)        UTILITY_LITERAL_STRING_(c_str, char_type)
 
+#define UTILITY_LITERAL_STRING_LEN_(c_str, char_type)   ((void)(c_str[0]), sizeof(c_str))
+#define UTILITY_LITERAL_STRING_LEN(c_str, char_type)    UTILITY_LITERAL_STRING_LEN_(c_str, char_type)
 
-namespace utility {
+#define UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(char_type, ...) \
+    ((void)(UTILITY_PP_MACRO_ARG0(__VA_ARGS__) * 0), ::tackle::literal_string_from_chars<char_type>(__VA_ARGS__, UTILITY_LITERAL_CHAR('\0', char_type)))
 
-    template <typename T>
-    struct basic_char_identity {};
-
-    using char_identity = basic_char_identity<char>;
-    using wchar_identity = basic_char_identity<wchar_t>;
-    using char16_identity = basic_char_identity<char16_t>;
-    using char32_identity = basic_char_identity<char32_t>;
-
-    template <class t_elem, class t_traits, class t_alloc>
-    struct basic_string_identity {};
-
-    using string_identity = basic_string_identity<char, std::char_traits<char>, std::allocator<char> >;
-    using wstring_identity = basic_string_identity<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
-    using u16string_identity = basic_string_identity<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >;
-    using u32string_identity = basic_string_identity<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >;
-
-}
 
 namespace tackle {
 
     template <typename CharT, size_t S>
-    using literal_string_const_reference = const CharT(&)[S];
+    using literal_basic_string_const_arr                            = const CharT[S];
 
     template <typename CharT, size_t S>
-    using literal_string_reference = CharT(&)[S];
+    using literal_basic_string_arr                                  = CharT[S];
 
-    template <size_t S> using literal_char_string_const_reference   = literal_string_const_reference<char, S>;
-    template <size_t S> using literal_char_string_reference         = literal_string_reference<char, S>;
+    template <typename CharT, size_t S>
+    using literal_basic_string_const_reference_arr                  = const CharT (&)[S];
 
-    template <size_t S> using literal_wchar_string_const_reference  = literal_string_const_reference<wchar_t, S>;
-    template <size_t S> using literal_wchar_string_reference        = literal_string_reference<wchar_t, S>;
+    template <typename CharT, size_t S>
+    using literal_basic_string_reference_arr                        = CharT (&)[S];
 
-    template <size_t S> using literal_char16_string_const_reference = literal_string_const_reference<char16_t, S>;
-    template <size_t S> using literal_char16_string_reference       = literal_string_reference<char16_t, S>;
+    template <typename CharT, size_t S>
+    using literal_char_array                                        = std::array<CharT, S>;
 
-    template <size_t S> using literal_char32_string_const_reference = literal_string_const_reference<char32_t, S>;
-    template <size_t S> using literal_char32_string_reference       = literal_string_reference<char32_t, S>;
+    template <size_t S> using literal_string_const_reference_arr    = literal_basic_string_const_reference_arr<char, S>;
+    template <size_t S> using literal_string_reference_arr          = literal_basic_string_reference_arr<char, S>;
 
-    // template class to replace partial function specialization and bypass overload over different return types
+    template <size_t S> using literal_wstring_const_reference_arr   = literal_basic_string_const_reference_arr<wchar_t, S>;
+    template <size_t S> using literal_wstring_reference_arr         = literal_basic_string_reference_arr<wchar_t, S>;
+
+    template <size_t S> using literal_u16string_const_reference_arr = literal_basic_string_const_reference_arr<char16_t, S>;
+    template <size_t S> using literal_u16string_reference_arr       = literal_basic_string_reference_arr<char16_t, S>;
+
+    template <size_t S> using literal_u32string_const_reference_arr = literal_basic_string_const_reference_arr<char32_t, S>;
+    template <size_t S> using literal_u32string_reference_arr       = literal_basic_string_reference_arr<char32_t, S>;
+
+    //// literal_char_caster, literal_string_caster
+
+    // template class to replace partial function specialization and avoid overload over different return types
     template <typename CharT>
     struct literal_char_caster;
     template <typename CharT>
@@ -127,16 +134,48 @@ namespace tackle {
         }
     };
 
+    // Based on: https://stackoverflow.com/questions/3703658/specifying-one-type-for-all-arguments-passed-to-variadic-function-or-variadic-te
+    //
+
+    namespace details {
+
+        template <typename R, typename...>
+        struct fst
+        {
+            using type = R;
+        };
+
+    }
+
+    template <typename CharT, typename ...Args>
+    FORCE_INLINE static CONSTEXPR
+        typename details::fst<literal_char_array<CharT, sizeof...(Args)>,
+            typename std::enable_if<
+                std::is_convertible<Args, CharT>::value
+            >::type...
+        >::type
+        literal_string_from_chars(Args... args)
+    {
+        return{{ args... }};
+    }
+
+    //template <typename CharT>
+    //FORCE_INLINE static CONSTEXPR auto
+    //    literal_string_from_chars(CharT... args) -> literal_string_const_reference_arr<sizeof...(args)>
+    //{
+    //    return { args... };
+    //}
+
     template <>
     struct literal_string_caster<char>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_char_string_const_reference<S>
+        FORCE_INLINE static CONSTEXPR literal_string_const_reference_arr<S>
             cast_from(
-                literal_char_string_const_reference<S> astr,
-                literal_wchar_string_const_reference<S> wstr,
-                literal_char16_string_const_reference<S> char16str,
-                literal_char32_string_const_reference<S> char32str)
+                literal_string_const_reference_arr<S> astr,
+                literal_wstring_const_reference_arr<S> wstr,
+                literal_u16string_const_reference_arr<S> char16str,
+                literal_u32string_const_reference_arr<S> char32str)
         {
             return astr;
         }
@@ -146,12 +185,12 @@ namespace tackle {
     struct literal_string_caster<wchar_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_wchar_string_const_reference<S>
+        FORCE_INLINE static CONSTEXPR literal_wstring_const_reference_arr<S>
             cast_from(
-                literal_char_string_const_reference<S> astr,
-                literal_wchar_string_const_reference<S> wstr,
-                literal_char16_string_const_reference<S> char16str,
-                literal_char32_string_const_reference<S> char32str)
+                literal_string_const_reference_arr<S> astr,
+                literal_wstring_const_reference_arr<S> wstr,
+                literal_u16string_const_reference_arr<S> char16str,
+                literal_u32string_const_reference_arr<S> char32str)
         {
             return wstr;
         }
@@ -161,12 +200,12 @@ namespace tackle {
     struct literal_string_caster<char16_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_char16_string_const_reference<S>
+        FORCE_INLINE static CONSTEXPR literal_u16string_const_reference_arr<S>
             cast_from(
-                literal_char_string_const_reference<S> astr,
-                literal_wchar_string_const_reference<S> wstr,
-                literal_char16_string_const_reference<S> char16str,
-                literal_char32_string_const_reference<S> char32str)
+                literal_string_const_reference_arr<S> astr,
+                literal_wstring_const_reference_arr<S> wstr,
+                literal_u16string_const_reference_arr<S> char16str,
+                literal_u32string_const_reference_arr<S> char32str)
         {
             return char16str;
         }
@@ -176,43 +215,50 @@ namespace tackle {
     struct literal_string_caster<char32_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_char32_string_const_reference<S>
+        FORCE_INLINE static CONSTEXPR literal_u32string_const_reference_arr<S>
             cast_from(
-                literal_char_string_const_reference<S> astr,
-                literal_wchar_string_const_reference<S> wstr,
-                literal_char16_string_const_reference<S> char16str,
-                literal_char32_string_const_reference<S> char32str)
+                literal_string_const_reference_arr<S> astr,
+                literal_wstring_const_reference_arr<S> wstr,
+                literal_u16string_const_reference_arr<S> char16str,
+                literal_u32string_const_reference_arr<S> char32str)
         {
             return char32str;
         }
     };
 
-    // implementation based on answers from here: stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf/2342176
-    //
-    FORCE_INLINE std::string string_format(size_t string_reserve, const std::string fmt_str, ...)
+    //// literal_separators
+
+    template <typename CharT>
+    struct literal_separators
     {
-        size_t str_len = (std::max)(fmt_str.size(), string_reserve);
-        std::string str;
+        using forward_slash_str_t                                   = literal_basic_string_const_arr<CharT, UTILITY_LITERAL_STRING_LEN("/", CharT)>;
+        using backward_slash_str_t                                  = literal_basic_string_const_arr<CharT, UTILITY_LITERAL_STRING_LEN("\\", CharT)>;
+        using space_str_t                                           = literal_basic_string_const_arr<CharT, UTILITY_LITERAL_STRING_LEN(" ", CharT)>;
 
-        va_list ap;
-        va_start(ap, fmt_str);
+        static CONSTEXPR forward_slash_str_t forward_slash_str      = UTILITY_LITERAL_STRING("/", CharT);
+        static CONSTEXPR backward_slash_str_t backward_slash_str    = UTILITY_LITERAL_STRING("\\", CharT);
+        static CONSTEXPR space_str_t space_str                      = UTILITY_LITERAL_STRING(" ", CharT);
 
-        while (true) {
-            str.resize(str_len);
+        static CONSTEXPR const CharT forward_slash_char             = UTILITY_LITERAL_CHAR('/', CharT);
+        static CONSTEXPR const CharT backward_slash_char            = UTILITY_LITERAL_CHAR('\\', CharT);
+        static CONSTEXPR const CharT space_char                     = UTILITY_LITERAL_CHAR(' ', CharT);
 
-            const int final_n = std::vsnprintf(const_cast<char *>(str.data()), str_len, fmt_str.c_str(), ap);
+        // back slash separator has meaning only on the Windows systems in the UNC paths
+        static CONSTEXPR const CharT filesystem_unc_dir_separator_char = backward_slash_char;
+    };
 
-            if (final_n < 0 || final_n >= int(str_len))
-                str_len += (std::abs)(final_n - int(str_len) + 1);
-            else {
-                str.resize(final_n); // do not forget to shrink the size!
-                break;
-            }
-        }
+    template <typename CharT>
+    CONSTEXPR typename literal_separators<CharT>::forward_slash_str_t
+        literal_separators<CharT>::forward_slash_str                = UTILITY_LITERAL_STRING("/", CharT);
 
-        va_end(ap);
+    template <typename CharT>
+    CONSTEXPR typename literal_separators<CharT>::backward_slash_str_t
+        literal_separators<CharT>::backward_slash_str               = UTILITY_LITERAL_STRING("\\", CharT);
 
-        return str;
-    }
+    template <typename CharT>
+    CONSTEXPR typename literal_separators<CharT>::space_str_t
+        literal_separators<CharT>::space_str                        = UTILITY_LITERAL_STRING(" ", CharT);
 
 }
+
+#endif

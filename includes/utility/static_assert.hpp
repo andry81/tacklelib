@@ -7,6 +7,7 @@
 #include <tacklelib.hpp>
 
 #include <utility/preprocessor.hpp>
+#include <utility/type_identity.hpp>
 
 
 #define STATIC_ASSERT_PARAM(v1) ::utility::StaticAssertParam<decltype(v1), (v1)>

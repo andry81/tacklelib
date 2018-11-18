@@ -7,9 +7,11 @@
 #include <tacklelib.hpp>
 
 #include <utility/platform.hpp>
+#include <utility/type_identity.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
+#include <utility/debug.hpp>
 #include <utility/memory.hpp>
 
 #include <tackle/aligned_storage/max_aligned_storage.hpp>
@@ -43,7 +45,7 @@ namespace tackle
         using storage_types_t = storage_types_t3;
 
     public:
-        using max_aligned_storage_t = max_aligned_storage_from_mpl_container<storage_types_t, tag_pttn_control_lifetime_t>;
+        using max_aligned_storage_t = max_aligned_storage_from_mpl_container<storage_types_t, tag_pttn_control_lifetime>;
 
         FORCE_INLINE variant()
         {
@@ -184,7 +186,7 @@ namespace tackle
         FORCE_INLINE T0 & get(utility::int_identity<0>)
         {
             if (m_aligned_storage.type_index() != 0) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:
@@ -200,7 +202,7 @@ namespace tackle
         FORCE_INLINE const T0 & get(utility::int_identity<0>) const
         {
             if (m_aligned_storage.type_index() != 0) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:
@@ -216,7 +218,7 @@ namespace tackle
         FORCE_INLINE T1 & get(utility::int_identity<1>)
         {
             if (m_aligned_storage.type_index() != 1) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:
@@ -232,7 +234,7 @@ namespace tackle
         FORCE_INLINE const T1 & get(utility::int_identity<1>) const
         {
             if (m_aligned_storage.type_index() != 1) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:
@@ -248,7 +250,7 @@ namespace tackle
         FORCE_INLINE T2 & get(utility::int_identity<2>)
         {
             if (m_aligned_storage.type_index() != 2) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:
@@ -264,7 +266,7 @@ namespace tackle
         FORCE_INLINE const T2 & get(utility::int_identity<2>) const
         {
             if (m_aligned_storage.type_index() != 2) {
-                throw std::bad_cast();
+                DEBUG_BREAK_THROW(true) std::bad_cast();
             }
 
             // CAUTION:

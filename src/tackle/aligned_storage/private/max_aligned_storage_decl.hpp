@@ -71,7 +71,7 @@ namespace tackle
 {
     namespace mpl = boost::mpl;
 
-    template <typename t_mpl_container_types, typename t_tag_pttn_type = tag_pttn_default_t>
+    template <typename t_mpl_container_types, typename t_tag_pttn_type = tag_pttn_default>
     class max_aligned_storage_from_mpl_container;
 
     // The `max_aligned_storage_from_mpl_container` already stores construction state through the `type_index` variable.
@@ -89,7 +89,7 @@ namespace tackle
     };
 
     template <>
-    class max_aligned_storage_from_mpl_container_base<tag_pttn_control_lifetime_t>
+    class max_aligned_storage_from_mpl_container_base<tag_pttn_control_lifetime>
     {
         // MUST BE EMPTY
     };
@@ -149,8 +149,7 @@ namespace tackle
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -166,8 +165,7 @@ namespace tackle
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -181,14 +179,12 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -202,14 +198,12 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 

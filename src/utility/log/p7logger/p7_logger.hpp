@@ -86,7 +86,11 @@ namespace p7logger {
         using base_type = SmartHandle;
 
     public:
-        static const p7ClientHandle s_null;
+        static FORCE_INLINE const p7ClientHandle & null()
+        {
+            static const p7ClientHandle s_null = p7ClientHandle{ nullptr };
+            return s_null;
+        }
 
     private:
         FORCE_INLINE static void _deleter(void * p)
@@ -99,7 +103,7 @@ namespace p7logger {
     public:
         FORCE_INLINE p7ClientHandle()
         {
-            *this = s_null;
+            *this = null();
         }
 
         FORCE_INLINE p7ClientHandle(const p7ClientHandle &) = default;
@@ -111,17 +115,12 @@ namespace p7logger {
         }
 
     public:
-        static FORCE_INLINE p7ClientHandle null()
-        {
-            return p7ClientHandle{ nullptr };
-        }
-
-        FORCE_INLINE void reset(const p7ClientHandle & handle = p7ClientHandle::s_null)
+        FORCE_INLINE void reset(const p7ClientHandle & handle = p7ClientHandle::null())
         {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): deleter is not allocated",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -139,7 +138,7 @@ namespace p7logger {
 
             IP7_Client * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -168,7 +167,11 @@ namespace p7logger {
         using base_type = SmartHandle;
 
     public:
-        static const p7TraceHandle s_null;
+        static FORCE_INLINE const p7TraceHandle & null()
+        {
+            static const p7TraceHandle s_null = p7TraceHandle{ nullptr };
+            return s_null;
+        }
 
     private:
         FORCE_INLINE static void _deleter(void * p)
@@ -181,7 +184,7 @@ namespace p7logger {
     public:
         FORCE_INLINE p7TraceHandle()
         {
-            *this = s_null;
+            *this = null();
         }
 
         FORCE_INLINE p7TraceHandle(const p7TraceHandle &) = default;
@@ -194,17 +197,12 @@ namespace p7logger {
         }
 
     public:
-        static FORCE_INLINE p7TraceHandle null()
-        {
-            return p7TraceHandle{ nullptr };
-        }
-
-        FORCE_INLINE void reset(const p7TraceHandle & handle = p7TraceHandle::s_null)
+        FORCE_INLINE void reset(const p7TraceHandle & handle = p7TraceHandle::null())
         {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): deleter is not allocated",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -223,7 +221,7 @@ namespace p7logger {
 
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -240,7 +238,7 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -252,7 +250,7 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -264,7 +262,7 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         inline_stack.top.func, inline_stack.top.line));
             }
@@ -277,7 +275,7 @@ namespace p7logger {
         {
             IP7_Trace * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                     inline_stack.top.func, inline_stack.top.line));
             }
@@ -298,7 +296,11 @@ namespace p7logger {
         using base_type = SmartHandle;
 
     public:
-        static const p7TelemetryHandle s_null;
+        static FORCE_INLINE const p7TelemetryHandle & null()
+        {
+            static const p7TelemetryHandle s_null = p7TelemetryHandle{ nullptr };
+            return s_null;
+        }
 
     private:
         FORCE_INLINE static void _deleter(void * p)
@@ -311,7 +313,7 @@ namespace p7logger {
     public:
         FORCE_INLINE p7TelemetryHandle()
         {
-            *this = s_null;
+            *this = null();
         }
 
         FORCE_INLINE p7TelemetryHandle(const p7TelemetryHandle &) = default;
@@ -323,17 +325,12 @@ namespace p7logger {
         }
 
     public:
-        static FORCE_INLINE p7TelemetryHandle null()
-        {
-            return p7TelemetryHandle{ nullptr };
-        }
-
-        FORCE_INLINE void reset(const p7TelemetryHandle & handle = p7TelemetryHandle::s_null)
+        FORCE_INLINE void reset(const p7TelemetryHandle & handle = p7TelemetryHandle::null())
         {
             auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle.m_pv));
             if (!deleter) {
                 // must always have a deleter
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): deleter is not allocated",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -351,7 +348,7 @@ namespace p7logger {
 
             IP7_Telemetry * p = get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -376,12 +373,16 @@ namespace p7logger {
         using base_type = p7TelemetryHandle;
 
     public:
-        static const p7TelemetryParamHandle s_null;
+        static FORCE_INLINE const p7TelemetryParamHandle & null()
+        {
+            static const p7TelemetryParamHandle s_null = p7TelemetryParamHandle{ p7TelemetryHandle::null(), 0 };
+            return s_null;
+        }
 
     public:
         FORCE_INLINE p7TelemetryParamHandle()
         {
-            *this = s_null;
+            *this = null();
         }
 
         FORCE_INLINE p7TelemetryParamHandle(const p7TelemetryParamHandle &) = default;
@@ -394,12 +395,7 @@ namespace p7logger {
         }
 
     public:
-        static FORCE_INLINE p7TelemetryParamHandle null()
-        {
-            return p7TelemetryParamHandle{ p7TelemetryHandle::s_null, 0 };
-        }
-
-        FORCE_INLINE void reset(const p7TelemetryParamHandle & handle = p7TelemetryParamHandle::s_null)
+        FORCE_INLINE void reset(const p7TelemetryParamHandle & handle = p7TelemetryParamHandle::null())
         {
             base_type::reset(handle);
             m_param_id = handle.m_param_id;
@@ -409,7 +405,7 @@ namespace p7logger {
         {
             IP7_Telemetry * p = base_type::get();
             if (!p) {
-                throw std::runtime_error(
+                DEBUG_BREAK_THROW(true) std::runtime_error(
                     fmt::format("{:s}({:d}): null pointer dereference",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
@@ -439,7 +435,7 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): null pointer dereference",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -451,7 +447,7 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): null pointer dereference",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -463,7 +459,7 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): null pointer dereference",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -475,7 +471,7 @@ namespace p7logger {
     {
         IP7_Client * p = base_type::get();
         if (!p) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): null pointer dereference",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -489,7 +485,7 @@ namespace p7logger {
     {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): null pointer dereference",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -499,7 +495,7 @@ namespace p7logger {
             return p7TelemetryParamHandle{ *this, param_id };
         }
 
-        return p7TelemetryParamHandle::s_null;
+        return p7TelemetryParamHandle::null();
     }
 }
 }

@@ -12,6 +12,7 @@
 #include <utility/assert.hpp>
 #include <utility/debug.hpp>
 #include <utility/math.hpp>
+#include <utility/string.hpp>
 
 #include <tackle/path_string.hpp>
 #include <tackle/file_handle.hpp>
@@ -49,6 +50,47 @@
 #endif
 
 
+namespace tackle
+{
+    template <class t_elem, class t_traits, class t_alloc>
+    using unc_basic_path_string = path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+
+    using unc_path_string       = unc_basic_path_string<char, std::char_traits<char>, std::allocator<char> >;
+    using unc_path_wstring      = unc_basic_path_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
+    using unc_path_u16string    = unc_basic_path_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >;
+    using unc_path_u32string    = unc_basic_path_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >;
+
+    template <typename t_elem>
+    struct tag_unc_path_basic_string    : tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char> {};
+
+    template <class t_elem>
+    struct tag_unc_basic_path_string    : tag_unc_path_basic_string<t_elem> {};
+
+    struct tag_unc_path_string          : tag_unc_basic_path_string<char> {};
+    struct tag_unc_path_wstring         : tag_unc_basic_path_string<wchar_t> {};
+    struct tag_unc_path_u16string       : tag_unc_basic_path_string<char16_t> {};
+    struct tag_unc_path_u32string       : tag_unc_basic_path_string<char32_t> {};
+
+    template <typename t_elem>
+    struct tag_unc_path_string_by_elem :
+        std::conditional<std::is_same<char, t_elem>::value,
+            tag_unc_path_string,
+            typename std::conditional<std::is_same<wchar_t, t_elem>::value,
+                tag_unc_path_wstring,
+                typename std::conditional<std::is_same<char16_t, t_elem>::value,
+                    tag_unc_path_u16string,
+                    typename std::conditional<std::is_same<char32_t, t_elem>::value,
+                        tag_unc_path_u32string,
+                        utility::void_
+                    >::type
+                >::type
+            >::type
+        >::type
+    {
+    };
+
+}
+
 namespace utility
 {
 
@@ -71,107 +113,299 @@ namespace utility
 #endif
     };
 
-    uint64_t get_file_size(const tackle::FileHandleA & file_handle);
-    uint64_t get_file_size(const tackle::FileHandleW & file_handle);
+    uint64_t get_file_size(tackle::FileHandleA file_handle);
+    uint64_t get_file_size(tackle::FileHandleW file_handle);
 
-    bool is_files_equal(const tackle::FileHandleA & left_file_handle, const tackle::FileHandleA & right_file_handle);
-    bool is_files_equal(const tackle::FileHandleW & left_file_handle, const tackle::FileHandleW & right_file_handle);
+    bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_bloc);
+    bool is_files_equal(tackle::FileHandleW left_file_handle, tackle::FileHandleW right_file_handle, size_t read_block_size);
 
-    tackle::FileHandleA recreate_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandleW recreate_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0);
+    bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error);
+    bool convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error);
 
-    tackle::FileHandleA create_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0);
-    tackle::FileHandleW create_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error);
+    bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error);
+#endif
 
-    tackle::FileHandleA open_file(const tackle::path_string & file_path, const char * mode, SharedAccess share_flags,
-        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
-    tackle::FileHandleW open_file(const tackle::path_wstring & file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0);
+    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string && to_path, bool throw_on_error);
+    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring && to_path, bool throw_on_error);
 
-    bool is_directory_path(const tackle::path_string & path);
-    bool is_directory_path(const tackle::path_wstring & path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string && to_path, bool throw_on_error);
+    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring && to_path, bool throw_on_error);
+#endif
 
-    bool is_regular_file(const tackle::path_string & path);
-    bool is_regular_file(const tackle::path_wstring & path);
+    bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error);
+    bool convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error);
 
-    bool is_symlink_path(const tackle::path_string & path);
-    bool is_symlink_path(const tackle::path_wstring & path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error);
+    bool convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error);
+#endif
 
-    bool is_path_exists(const tackle::path_string & path);
-    bool is_path_exists(const tackle::path_wstring & path);
+    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string && to_path);
+    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring && to_path);
 
-    bool create_directory(const tackle::path_string & path, bool throw_on_error);
-    bool create_directory(const tackle::path_wstring & path, bool throw_on_error);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string && to_path);
+    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring && to_path);
+#endif
 
-    bool create_directory_if_not_exist(const tackle::path_string & path, bool throw_on_error); // no exception if directory already exists
-    bool create_directory_if_not_exist(const tackle::path_wstring & path, bool throw_on_error); // no exception if directory already exists
+    tackle::native_path_string fix_long_path(tackle::generic_path_string file_path, bool throw_on_error);
+    tackle::native_path_wstring fix_long_path(tackle::generic_path_wstring file_path, bool throw_on_error);
 
-    void create_directory_symlink(const tackle::path_string & to, const tackle::path_string & from, bool throw_on_error);
-    void create_directory_symlink(const tackle::path_wstring & to, const tackle::path_wstring & from, bool throw_on_error);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string fix_long_path(tackle::native_path_string file_path, bool throw_on_error);
+    tackle::native_path_wstring fix_long_path(tackle::native_path_wstring file_path, bool throw_on_error);
+#endif
 
-    bool create_directories(const tackle::path_string & path, bool throw_on_error);
-    bool create_directories(const tackle::path_wstring & path, bool throw_on_error);
+    tackle::FileHandleA recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::FileHandleW recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
-    bool remove_directory(const tackle::path_string & path, bool recursively, bool throw_on_error);
-    bool remove_directory(const tackle::path_wstring & path, bool recursively, bool throw_on_error);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::FileHandleA recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::FileHandleW recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+#endif
 
-    bool remove_file(const tackle::path_string & path, bool throw_on_error);
-    bool remove_file(const tackle::path_wstring & path, bool throw_on_error);
+    tackle::FileHandleA create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::FileHandleW create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
-    bool remove_symlink(const tackle::path_string & path, bool throw_on_error);
-    bool remove_symlink(const tackle::path_wstring & path, bool throw_on_error);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::FileHandleA create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::FileHandleW create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+#endif
 
-    bool is_relative_path(const tackle::path_string & path);
-    bool is_relative_path(const tackle::path_wstring & path);
+    tackle::FileHandleA open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
+        bool throw_on_error = true);
+    tackle::FileHandleW open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
+        bool throw_on_error = true);
 
-    bool is_relative_path(tackle::path_string && path);
-    bool is_relative_path(tackle::path_wstring && path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::FileHandleA open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
+        bool throw_on_error = true);
+    tackle::FileHandleW open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
+        bool throw_on_error = true);
+#endif
 
-    bool is_absolute_path(const tackle::path_string & path);
-    bool is_absolute_path(const tackle::path_wstring & path);
+    bool is_directory_path(tackle::generic_path_string path, bool throw_on_error);
+    bool is_directory_path(tackle::generic_path_wstring path, bool throw_on_error);
 
-    bool is_absolute_path(tackle::path_string && path);
-    bool is_absolute_path(tackle::path_wstring && path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_directory_path(tackle::native_path_string path, bool throw_on_error);
+    bool is_directory_path(tackle::native_path_wstring path, bool throw_on_error);
+#endif
 
-    tackle::path_string get_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path, bool throw_on_error);
-    tackle::path_wstring get_relative_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path, bool throw_on_error);
+    bool is_regular_file(tackle::generic_path_string path, bool throw_on_error);
+    bool is_regular_file(tackle::generic_path_wstring path, bool throw_on_error);
 
-    tackle::path_string get_absolute_path(const tackle::path_string & from_path, const tackle::path_string & to_path);
-    tackle::path_wstring get_absolute_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_regular_file(tackle::native_path_string path, bool throw_on_error);
+    bool is_regular_file(tackle::native_path_wstring path, bool throw_on_error);
+#endif
 
-    tackle::path_string get_absolute_path(const tackle::path_string & path, bool throw_on_error);
-    tackle::path_wstring get_absolute_path(const tackle::path_wstring & path, bool throw_on_error);
+    bool is_symlink_path(tackle::generic_path_string path, bool throw_on_error);
+    bool is_symlink_path(tackle::generic_path_wstring path, bool throw_on_error);
 
-    tackle::path_string get_current_path(bool throw_on_error, string_identity = string_identity{});
-    tackle::path_wstring get_current_path(bool throw_on_error, wstring_identity);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_symlink_path(tackle::native_path_string path, bool throw_on_error);
+    bool is_symlink_path(tackle::native_path_wstring path, bool throw_on_error);
+#endif
 
-    std::string get_file_name(const tackle::path_string & path);
-    std::wstring get_file_name(const tackle::path_wstring & path);
+    bool is_path_exists(tackle::generic_path_string path, bool throw_on_error);
+    bool is_path_exists(tackle::generic_path_wstring path, bool throw_on_error);
 
-    std::string get_file_name_stem(const tackle::path_string & path);
-    std::wstring get_file_name_stem(const tackle::path_wstring & path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_path_exists(tackle::native_path_string path, bool throw_on_error);
+    bool is_path_exists(tackle::native_path_wstring path, bool throw_on_error);
+#endif
 
-    tackle::path_string get_module_file_path(string_identity = string_identity{});
-    tackle::path_wstring get_module_file_path(wstring_identity);
+    bool create_directory(tackle::generic_path_string path, bool throw_on_error);
+    bool create_directory(tackle::generic_path_wstring path, bool throw_on_error);
 
-    tackle::path_string get_module_dir_path(string_identity = string_identity{});
-    tackle::path_wstring get_module_dir_path(wstring_identity);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool create_directory(tackle::native_path_string path, bool throw_on_error);
+    bool create_directory(tackle::native_path_wstring path, bool throw_on_error);
+#endif
 
-    tackle::path_string get_lexically_normal_path(const tackle::path_string & path);
-    tackle::path_wstring get_lexically_normal_path(const tackle::path_wstring & path);
+    bool create_directory_if_not_exist(tackle::generic_path_string path, bool throw_on_error); // no exception if directory already exists
+    bool create_directory_if_not_exist(tackle::generic_path_wstring path, bool throw_on_error); // no exception if directory already exists
 
-    tackle::path_string get_lexically_relative_path(const tackle::path_string & from_path, const tackle::path_string & to_path);
-    tackle::path_wstring get_lexically_relative_path(const tackle::path_wstring & from_path, const tackle::path_wstring & to_path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool create_directory_if_not_exist(tackle::native_path_string path, bool throw_on_error); // no exception if directory already exists
+    bool create_directory_if_not_exist(tackle::native_path_wstring path, bool throw_on_error); // no exception if directory already exists
+#endif
 
-    tackle::path_string convert_to_uniform_path(const tackle::path_string & path);
-    tackle::path_wstring convert_to_uniform_path(const tackle::path_wstring & path);
+    void create_directory_symlink(tackle::generic_path_string to, tackle::generic_path_string from, bool throw_on_error);
+    void create_directory_symlink(tackle::generic_path_wstring to, tackle::generic_path_wstring from, bool throw_on_error);
 
-    tackle::path_string convert_to_native_path(const tackle::path_string & path);
-    tackle::path_wstring convert_to_native_path(const tackle::path_wstring & path);
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    void create_directory_symlink(tackle::native_path_string to, tackle::native_path_string from, bool throw_on_error);
+    void create_directory_symlink(tackle::native_path_wstring to, tackle::native_path_wstring from, bool throw_on_error);
+#endif
+
+    bool create_directories(tackle::generic_path_string path, bool throw_on_error);
+    bool create_directories(tackle::generic_path_wstring path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool create_directories(tackle::native_path_string path, bool throw_on_error);
+    bool create_directories(tackle::native_path_wstring path, bool throw_on_error);
+#endif
+
+    bool remove_directory(tackle::generic_path_string path, bool recursively, bool throw_on_error);
+    bool remove_directory(tackle::generic_path_wstring path, bool recursively, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool remove_directory(tackle::native_path_string path, bool recursively, bool throw_on_error);
+    bool remove_directory(tackle::native_path_wstring path, bool recursively, bool throw_on_error);
+#endif
+
+    bool remove_file(tackle::generic_path_string path, bool throw_on_error);
+    bool remove_file(tackle::generic_path_wstring path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool remove_file(tackle::native_path_string path, bool throw_on_error);
+    bool remove_file(tackle::native_path_wstring path, bool throw_on_error);
+#endif
+
+    bool remove_symlink(tackle::generic_path_string path, bool throw_on_error);
+    bool remove_symlink(tackle::generic_path_wstring path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool remove_symlink(tackle::native_path_string path, bool throw_on_error);
+    bool remove_symlink(tackle::native_path_wstring path, bool throw_on_error);
+#endif
+
+    bool is_relative_path(tackle::generic_path_string path);
+    bool is_relative_path(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_relative_path(tackle::native_path_string path);
+    bool is_relative_path(tackle::native_path_wstring path);
+#endif
+
+    bool is_absolute_path(tackle::generic_path_string path);
+    bool is_absolute_path(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_absolute_path(tackle::native_path_string path);
+    bool is_absolute_path(tackle::native_path_wstring path);
+#endif
+
+    tackle::generic_path_string get_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path, bool throw_on_error);
+    tackle::generic_path_wstring get_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path, bool throw_on_error);
+    tackle::native_path_wstring get_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path, bool throw_on_error);
+#endif
+
+    tackle::generic_path_string get_absolute_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
+    tackle::generic_path_wstring get_absolute_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_absolute_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
+    tackle::native_path_wstring get_absolute_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
+#endif
+
+    tackle::generic_path_string get_absolute_path(tackle::generic_path_string path, bool throw_on_error);
+    tackle::generic_path_wstring get_absolute_path(tackle::generic_path_wstring path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_absolute_path(tackle::native_path_string path, bool throw_on_error);
+    tackle::native_path_wstring get_absolute_path(tackle::native_path_wstring path, bool throw_on_error);
+#endif
+
+    tackle::generic_path_string get_current_path(bool throw_on_error, tackle::tag_generic_path_string);
+    tackle::generic_path_wstring get_current_path(bool throw_on_error, tackle::tag_generic_path_wstring);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_current_path(bool throw_on_error, tackle::tag_native_path_string);
+    tackle::native_path_wstring get_current_path(bool throw_on_error, tackle::tag_native_path_wstring);
+#endif
+
+    std::string get_file_name(tackle::generic_path_string path);
+    std::wstring get_file_name(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    std::string get_file_name(tackle::native_path_string path);
+    std::wstring get_file_name(tackle::native_path_wstring path);
+#endif
+
+    std::string get_file_name_stem(tackle::generic_path_string path);
+    std::wstring get_file_name_stem(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    std::string get_file_name_stem(tackle::native_path_string path);
+    std::wstring get_file_name_stem(tackle::native_path_wstring path);
+#endif
+
+    tackle::generic_path_string get_parent_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring get_parent_path(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_parent_path(tackle::native_path_string path);
+    tackle::native_path_wstring get_parent_path(tackle::native_path_wstring path);
+#endif
+
+    tackle::generic_path_string get_module_file_path(tackle::tag_generic_path_string);
+    tackle::generic_path_wstring get_module_file_path(tackle::tag_generic_path_wstring);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_module_file_path(tackle::tag_native_path_string);
+    tackle::native_path_wstring get_module_file_path(tackle::tag_native_path_wstring);
+#endif
+
+    tackle::generic_path_string get_module_dir_path(tackle::tag_generic_path_string);
+    tackle::generic_path_wstring get_module_dir_path(tackle::tag_generic_path_wstring);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_module_dir_path(tackle::tag_native_path_string);
+    tackle::native_path_wstring get_module_dir_path(tackle::tag_native_path_wstring);
+#endif
+
+    tackle::generic_path_string get_lexically_normal_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring get_lexically_normal_path(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_lexically_normal_path(tackle::native_path_string path);
+    tackle::native_path_wstring get_lexically_normal_path(tackle::native_path_wstring path);
+#endif
+
+    tackle::generic_path_string get_lexically_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
+    tackle::generic_path_wstring get_lexically_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string get_lexically_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
+    tackle::native_path_wstring get_lexically_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
+#endif
+
+    tackle::generic_path_string convert_to_generic_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring convert_to_generic_path(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::generic_path_string convert_to_generic_path(tackle::native_path_string path);
+    tackle::generic_path_wstring convert_to_generic_path(tackle::native_path_wstring path);
+#endif
+
+    tackle::native_path_string convert_to_native_path(tackle::native_path_string path);
+    tackle::native_path_wstring convert_to_native_path(tackle::native_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string convert_to_native_path(tackle::native_path_string path);
+    tackle::native_path_wstring convert_to_native_path(tackle::native_path_wstring path);
+#endif
 
     template<typename T>
     FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 10, bool throw_on_error = false)
@@ -217,7 +451,7 @@ namespace utility
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-        const std::string fmt_format = tackle::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        const std::string fmt_format = utility::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
         return fmt::format(fmt_format, int64_t(i));
 #else
         std::stringstream stream;
@@ -230,7 +464,7 @@ namespace utility
     FORCE_INLINE std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-        const std::string fmt_format = tackle::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        const std::string fmt_format = utility::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
         return fmt::format(fmt_format, int64_t(i));
 #else
         std::stringstream stream;

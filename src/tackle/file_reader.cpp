@@ -56,10 +56,12 @@ namespace tackle
         return m_buf;
     }
 
-    uint64_t FileReader::do_read(void * user_data, const ChunkSizes & chunk_sizes, uint64_t min_buf_size, uint64_t max_buf_size)
+    uint64_t FileReader::do_read(void * user_data, const ChunkSizes & chunk_sizes, size_t min_buf_size, size_t max_buf_size)
     {
+        static_assert(sizeof(uint64_t) >= sizeof(size_t), "uint64_t must be at least the same size as size_t type here");
+
         if (!m_file_handle.get()) {
-            throw std::runtime_error(
+            DEBUG_BREAK_THROW(true) std::runtime_error(
                 fmt::format("{:s}({:d}): file handle is not set",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
@@ -73,9 +75,9 @@ namespace tackle
             max_buf_size = (std::max)(max_buf_size, min_buf_size); // just in case
         }
 
-        uint64_t buf_read_size;
+        size_t buf_read_size;
         uint64_t next_read_size;
-        uint64_t read_size;
+        size_t read_size;
         uint64_t overall_read_size = 0;
 
         ChunkSizes chunk_sizes_ = chunk_sizes;
@@ -94,7 +96,7 @@ namespace tackle
                 if (!chunk_size) goto exit_; // stop on 0
                 if (chunk_size != math::uint32_max) {
                     next_read_size = chunk_size;
-                    buf_read_size = uint64_t(chunk_size) < min_buf_size ? min_buf_size : uint64_t(chunk_size);
+                    buf_read_size = chunk_size < min_buf_size ? min_buf_size : chunk_size;
                 }
                 else {
                     next_read_size = utility::get_file_size(m_file_handle);
@@ -106,10 +108,15 @@ namespace tackle
                         buf_read_size = min_buf_size;
                     }
                     else if (max_buf_size) {
-                        next_read_size = (std::min)(next_read_size, max_buf_size);
-                        buf_read_size = next_read_size;
+                        next_read_size = (std::min)(next_read_size, uint64_t(max_buf_size));
+                        buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
                     }
-                    else buf_read_size = next_read_size;
+                    else {
+                        if (min_buf_size < next_read_size) {
+                            next_read_size = min_buf_size;
+                        }
+                        buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
+                    }
                 }
 
                 read_size = fread(m_buf.realloc_get(buf_read_size), 1, size_t(next_read_size), m_file_handle.get());
@@ -134,6 +141,6 @@ namespace tackle
 
     void FileReader::close()
     {
-        m_file_handle = FileHandleA::s_null;
+        m_file_handle = FileHandleA::null();
     }
 }

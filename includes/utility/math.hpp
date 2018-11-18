@@ -352,66 +352,66 @@ if_break(true) \
 namespace math
 {
     // shortcuts
-    const CONSTEXPR char char_min = (std::numeric_limits<char>::min)();
-    const CONSTEXPR char char_max = (std::numeric_limits<char>::max)();
+    const CONSTEXPR char char_min               = (std::numeric_limits<char>::min)();
+    const CONSTEXPR char char_max               = (std::numeric_limits<char>::max)();
 
-    const CONSTEXPR unsigned char uchar_max = (std::numeric_limits<unsigned char>::max)();
+    const CONSTEXPR unsigned char uchar_max     = (std::numeric_limits<unsigned char>::max)();
 
-    const CONSTEXPR short short_min = (std::numeric_limits<short>::min)();
-    const CONSTEXPR short short_max = (std::numeric_limits<short>::max)();
+    const CONSTEXPR short short_min             = (std::numeric_limits<short>::min)();
+    const CONSTEXPR short short_max             = (std::numeric_limits<short>::max)();
 
-    const CONSTEXPR unsigned short ushort_max = (std::numeric_limits<unsigned short>::max)();
+    const CONSTEXPR unsigned short ushort_max   = (std::numeric_limits<unsigned short>::max)();
 
-    const CONSTEXPR int int_min = (std::numeric_limits<int>::min)();
-    const CONSTEXPR int int_max = (std::numeric_limits<int>::max)();
+    const CONSTEXPR int int_min                 = (std::numeric_limits<int>::min)();
+    const CONSTEXPR int int_max                 = (std::numeric_limits<int>::max)();
 
-    const CONSTEXPR unsigned int uint_max = (std::numeric_limits<unsigned int>::max)();
+    const CONSTEXPR unsigned int uint_max       = (std::numeric_limits<unsigned int>::max)();
 
-    const CONSTEXPR long long_min = (std::numeric_limits<long>::min)();
-    const CONSTEXPR long long_max = (std::numeric_limits<long>::max)();
+    const CONSTEXPR long long_min               = (std::numeric_limits<long>::min)();
+    const CONSTEXPR long long_max               = (std::numeric_limits<long>::max)();
 
-    const CONSTEXPR unsigned long ulong_max = (std::numeric_limits<unsigned long>::max)();
+    const CONSTEXPR unsigned long ulong_max     = (std::numeric_limits<unsigned long>::max)();
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
-    const CONSTEXPR long long longlong_min = (std::numeric_limits<long long>::min)();
-    const CONSTEXPR long long longlong_max = (std::numeric_limits<long long>::max)();
+    const CONSTEXPR long long longlong_min      = (std::numeric_limits<long long>::min)();
+    const CONSTEXPR long long longlong_max      = (std::numeric_limits<long long>::max)();
 #endif
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
     const CONSTEXPR unsigned long long ulonglong_max = (std::numeric_limits<unsigned long long>::max)();
 #endif
 
-    const CONSTEXPR int8_t int8_min = (std::numeric_limits<int8_t>::min)();
-    const CONSTEXPR int8_t int8_max = (std::numeric_limits<int8_t>::max)();
+    const CONSTEXPR int8_t int8_min             = (std::numeric_limits<int8_t>::min)();
+    const CONSTEXPR int8_t int8_max             = (std::numeric_limits<int8_t>::max)();
 
-    const CONSTEXPR uint8_t uint8_max = (std::numeric_limits<uint8_t>::max)();
+    const CONSTEXPR uint8_t uint8_max           = (std::numeric_limits<uint8_t>::max)();
 
-    const CONSTEXPR int16_t int16_min = (std::numeric_limits<int16_t>::min)();
-    const CONSTEXPR int16_t int16_max = (std::numeric_limits<int16_t>::max)();
+    const CONSTEXPR int16_t int16_min           = (std::numeric_limits<int16_t>::min)();
+    const CONSTEXPR int16_t int16_max           = (std::numeric_limits<int16_t>::max)();
 
-    const CONSTEXPR uint16_t uint16_max = (std::numeric_limits<uint16_t>::max)();
+    const CONSTEXPR uint16_t uint16_max         = (std::numeric_limits<uint16_t>::max)();
 
-    const CONSTEXPR int32_t int32_min = (std::numeric_limits<int32_t>::min)();
-    const CONSTEXPR int32_t int32_max = (std::numeric_limits<int32_t>::max)();
+    const CONSTEXPR int32_t int32_min           = (std::numeric_limits<int32_t>::min)();
+    const CONSTEXPR int32_t int32_max           = (std::numeric_limits<int32_t>::max)();
 
-    const CONSTEXPR uint32_t uint32_max = (std::numeric_limits<uint32_t>::max)();
+    const CONSTEXPR uint32_t uint32_max         = (std::numeric_limits<uint32_t>::max)();
 
-    const CONSTEXPR int64_t int64_min = (std::numeric_limits<int64_t>::min)();
-    const CONSTEXPR int64_t int64_max = (std::numeric_limits<int64_t>::max)();
+    const CONSTEXPR int64_t int64_min           = (std::numeric_limits<int64_t>::min)();
+    const CONSTEXPR int64_t int64_max           = (std::numeric_limits<int64_t>::max)();
 
-    const CONSTEXPR uint64_t uint64_max = (std::numeric_limits<uint64_t>::max)();
+    const CONSTEXPR uint64_t uint64_max         = (std::numeric_limits<uint64_t>::max)();
 
-    const CONSTEXPR size_t size_max = (std::numeric_limits<size_t>::max)();
+    const CONSTEXPR size_t size_max             = (std::numeric_limits<size_t>::max)();
 
-    const CONSTEXPR float float_quiet_NaN = (std::numeric_limits<float>::quiet_NaN)();
-    const CONSTEXPR double double_quiet_NaN = (std::numeric_limits<double>::quiet_NaN)();
+    const CONSTEXPR float float_quiet_NaN       = (std::numeric_limits<float>::quiet_NaN)();
+    const CONSTEXPR double double_quiet_NaN     = (std::numeric_limits<double>::quiet_NaN)();
 
-    const CONSTEXPR float float_min = (std::numeric_limits<float>::min)();
-    const CONSTEXPR float float_max = (std::numeric_limits<float>::max)();
+    const CONSTEXPR float float_min             = (std::numeric_limits<float>::min)();
+    const CONSTEXPR float float_max             = (std::numeric_limits<float>::max)();
 
-    const CONSTEXPR double double_min = (std::numeric_limits<double>::min)();
-    const CONSTEXPR double double_max = (std::numeric_limits<double>::max)();
+    const CONSTEXPR double double_min           = (std::numeric_limits<double>::min)();
+    const CONSTEXPR double double_max           = (std::numeric_limits<double>::max)();
 
-    const CONSTEXPR double pi = 3.14159265358979323846264338327950288419716939937510582;
+    const CONSTEXPR double pi                   = 3.14159265358979323846264338327950288419716939937510582;
 
     template<typename T>
     struct divrem

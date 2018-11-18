@@ -11,8 +11,9 @@
 #include <utility/assert.hpp>
 #include <utility/utility.hpp>
 
-#include <type_traits>
+#include <fmt/format.h>
 
+#include <type_traits>
 #include <cstdint>
 #include <cstdio>
 #include <memory>
@@ -104,7 +105,7 @@ namespace utility
     // proc_id:
     //  0               - current process
     //  *               - target process
-    uint64_t get_process_memory_size(MemoryType mem_type, size_t proc_id);
+    size_t get_process_memory_size(MemoryType mem_type, size_t proc_id);
 
     // simple buffer to reallocate memory on demand
     //
@@ -114,10 +115,34 @@ namespace utility
     //
     class Buffer
     {
-        using BufSharedPtr = std::unique_ptr<uint8_t[]>;
+    public:
+        // memory power-of-2 sizes
+        enum : uint64_t {
+            _1KB    = 1 * 1024,                     _2KB    = 2 * 1024,                     _4KB    = 4 * 1024,
+            _8KB    = 8 * 1024,                     _16KB   = 16 * 1024,                    _32KB   = 32 * 1024,
+            _64KB   = 64 * 1024,                    _128KB  = 128 * 1024,                   _256KB  = 256 * 1024,
+            _512KB  = 512 * 1024,                   _1MB    = 1 * 1024 * 1024,              _2MB    = 2 * 1024 * 1024,
+            _4MB    = 4 * 1024 * 1024,              _8MB    = 8 * 1024 * 1024,              _16MB   = 16 * 1024 * 1024,
+            _32MB   = 32 * 1024 * 1024,             _64MB   = 64 * 1024 * 1024,             _128MB  = 128 * 1024 * 1024,
+            _256MB  = 256 * 1024 * 1024,            _512MB  = 512 * 1024 * 1024,            _1GB    = 1 * 1024 * 1024 * 1024,
+            _2GB    = 2ULL * 1024 * 1024 * 1024,    _4GB    = 4ULL * 1024 * 1024 * 1024,    _8GB    = 8ULL * 1024 * 1024 * 1024,
+        };
 
-        static const char s_guard_sequence_str[49];
-        static const size_t s_guard_max_len = 256; // to avoid comparison slow down on big arrays
+    protected:
+        using BufPtr = std::unique_ptr<uint8_t[]>;
+        using GuardSequenceStr_t = const char [49];
+
+        FORCE_INLINE static CONSTEXPR_RETURN const GuardSequenceStr_t & _guard_sequence_str()
+        {
+            static CONSTEXPR_RETURN const GuardSequenceStr_t s_guard_sequence_str = "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
+            return s_guard_sequence_str;
+        }
+
+        FORCE_INLINE static CONSTEXPR_RETURN const size_t _guard_max_len()
+        {
+            static CONSTEXPR_RETURN const size_t s_guard_max_len = 256; // to avoid comparison slow down on big arrays
+            return s_guard_max_len;
+        }
 
     public:
         FORCE_INLINE Buffer(size_t size = 0) :
@@ -147,7 +172,7 @@ namespace utility
             check_buffer_guards();
 
             // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
-            const size_t offset = (std::min)((std::max)(size / 100, 16U), s_guard_max_len);
+            const size_t offset = (std::min)((std::max)(size / 100, 16U), _guard_max_len());
             const size_t size_extra = size ? (size + offset * 2) : 0;
 #else
             const size_t offset = 0;
@@ -157,7 +182,7 @@ namespace utility
             // reallocate only if greater, deallocate only if 0
             if (size_extra) {
                 if (m_reserve < size_extra) {
-                    m_buf_ptr = BufSharedPtr(new uint8_t[size_extra], std::default_delete<uint8_t[]>());
+                    m_buf_ptr = BufPtr(new uint8_t[size_t(size_extra)], std::default_delete<uint8_t[]>());
                     m_reserve = size_extra;
                 }
 
@@ -209,24 +234,6 @@ namespace utility
             return m_buf_ptr.get() + m_offset;
         }
 
-#ifndef UTILITY_PLATFORM_X64
-        FORCE_INLINE uint8_t * realloc_get(uint64_t size)
-        {
-            if (UTILITY_CONST_EXPR(sizeof(size_t) < sizeof(uint64_t))) {
-                const uint64_t max_value = uint64_t((std::numeric_limits<size_t>::max)());
-                if (size > max_value) {
-                    char fmt_buf[256];
-                    snprintf(fmt_buf, utility::static_size(fmt_buf), "%s(%u): size is out of memory: size=%llu max=%llu",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, size, max_value);
-                    DEBUG_BREAK_IN_DEBUGGER(true);
-                    throw std::runtime_error(fmt_buf);
-                }
-            }
-
-            return realloc_get(size_t(size));
-        }
-#endif
-
         FORCE_INLINE void set_reallocating(bool is_reallocating)
         {
             m_is_reallocating = is_reallocating;
@@ -242,17 +249,17 @@ namespace utility
         FORCE_INLINE void realloc_debug(Buffer & to_buf)
         {
             uint8_t * to_buf_ptr = to_buf.realloc_get(m_size);
-            memcpy(to_buf_ptr - to_buf.m_offset, m_buf_ptr.get(), m_reserve);
+            memcpy(to_buf_ptr - to_buf.m_offset, m_buf_ptr.get(), size_t(m_reserve));
 
             m_buf_ptr.reset(to_buf.release());
         }
 
     private:
-        size_t          m_offset;
-        size_t          m_size;
-        size_t          m_reserve;
-        BufSharedPtr    m_buf_ptr;
-        bool            m_is_reallocating;
+        size_t  m_offset;
+        size_t  m_size;
+        size_t  m_reserve;
+        BufPtr  m_buf_ptr;
+        bool    m_is_reallocating;
     };
 
 }

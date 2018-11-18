@@ -17,7 +17,7 @@ namespace tackle
     {
     public:
         typedef std::vector<size_t> ChunkSizes;
-        typedef void (* ReadFunc)(uint8_t * buf, uint64_t chunk_size, void * user_data);
+        typedef void (* ReadFunc)(uint8_t * buf, size_t chunk_size, void * user_data);
 
         FileReader(ReadFunc read_pred = nullptr);
         FileReader(const FileHandleA & file_handle, ReadFunc read_pred = nullptr);
@@ -33,7 +33,7 @@ namespace tackle
         utility::Buffer & get_buffer();
         const utility::Buffer & get_buffer() const;
 
-        uint64_t do_read(void * user_data, const ChunkSizes & chunk_sizes, uint64_t min_buf_size = 0, uint64_t max_buf_size = 0);
+        uint64_t do_read(void * user_data, const ChunkSizes & chunk_sizes, size_t min_buf_size = 0, size_t max_buf_size = 0);
         void close();
 
     private:

@@ -59,7 +59,10 @@ includes/utility/platform.hpp -text
 includes/utility/platform_features.hpp -text
 includes/utility/preprocessor.hpp -text
 includes/utility/static_assert.hpp -text
+includes/utility/string.hpp -text
+includes/utility/string_identity.hpp -text
 includes/utility/time.hpp -text
+includes/utility/type_identity.hpp -text
 includes/utility/type_traits.hpp -text
 includes/utility/utility.hpp -text
 src/.svnignore -text
@@ -100,7 +103,6 @@ src/tests/unit/test_funcs.cpp -text
 src/utility/algorithm.hpp -text
 src/utility/algorithm/generated/gen_unroll_copy_switch.bat -text
 src/utility/algorithm/generated/unroll_copy_switch.hpp -text
-src/utility/arc/7zip/LzmaEnc.cpp -text
 src/utility/arc/7zip/LzmaEnc.hpp -text
 src/utility/arc/libarchive/libarchive.cpp -text
 src/utility/arc/libarchive/libarchive.hpp -text
@@ -111,7 +113,6 @@ src/utility/crc.hpp -text
 src/utility/crc_tables.hpp -text
 src/utility/debug.cpp -text
 src/utility/hash.hpp -text
-src/utility/log/p7logger/p7_logger.cpp -text
 src/utility/log/p7logger/p7_logger.hpp -text
 src/utility/math.cpp -text
 src/utility/memory.cpp -text

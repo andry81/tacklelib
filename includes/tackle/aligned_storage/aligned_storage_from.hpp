@@ -25,13 +25,13 @@
 
 namespace tackle
 {
-    template <typename t_storage_type, typename t_tag_pttn_type = tag_pttn_default_t>
+    template <typename t_storage_type, typename t_tag_pttn_type = tag_pttn_default>
     class aligned_storage_from;
 
     template <typename t_storage_type>
     class aligned_storage_always_destruct_from;
 
-    // CAUTION: To automatically destruct if constructed (must use tag_pttn_control_lifetime_t pattern), otherwise stored type would not be destructed in the destructor!
+    // CAUTION: To automatically destruct if constructed (must use tag_pttn_control_lifetime pattern), otherwise stored type would not be destructed in the destructor!
     // Can store construction flag inside and if is, then does destruct if constructed respective to the value of the flag.
     // If flag is not declared (default pattern), then woould not be destructed in the destructor.
     // Special designed class to store type which size and alignment is known.
@@ -73,8 +73,7 @@ namespace tackle
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
                 if (!base_t::is_unconstructed_copy_allowed()) {
-                    DEBUG_BREAK_IN_DEBUGGER(true);
-                    throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
                 }
             }
@@ -97,8 +96,7 @@ namespace tackle
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
                 if (!base_t::is_unconstructed_copy_allowed()) {
-                    DEBUG_BREAK_IN_DEBUGGER(true);
-                    throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                    DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                         UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
                 }
             }
@@ -120,14 +118,12 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -146,14 +142,12 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -244,8 +238,7 @@ namespace tackle
         FORCE_INLINE storage_type_t * this_()
         {
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -255,8 +248,7 @@ namespace tackle
         FORCE_INLINE const storage_type_t * this_() const
         {
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -266,8 +258,7 @@ namespace tackle
         FORCE_INLINE volatile storage_type_t * this_() volatile
         {
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -277,8 +268,7 @@ namespace tackle
         FORCE_INLINE const volatile storage_type_t * this_() const volatile
         {
             if (!base_t::is_constructed()) {
-                DEBUG_BREAK_IN_DEBUGGER(true);
-                throw std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
+                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
             }
 
@@ -315,10 +305,10 @@ namespace tackle
     // Special designed class to store type which size and alignment is known.
     // Can be invoked on type with deleted initialization constructor or on type required delayed construction.
     template <typename t_storage_type>
-    class aligned_storage_always_destruct_from : public aligned_storage_base<t_storage_type, tag_pttn_default_t>
+    class aligned_storage_always_destruct_from : public aligned_storage_base<t_storage_type, tag_pttn_default>
     {
     public:
-        using base_t            = aligned_storage_base<t_storage_type, tag_pttn_default_t>;
+        using base_t            = aligned_storage_base<t_storage_type, tag_pttn_default>;
         using storage_type_t    = t_storage_type;
 
         static const size_t size_value      = sizeof(storage_type_t);

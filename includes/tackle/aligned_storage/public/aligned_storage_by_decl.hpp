@@ -22,7 +22,7 @@ namespace tackle
 {
     // public interface ONLY
 
-    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type = tag_pttn_default_t>
+    template <typename t_storage_type, size_t t_size_value, size_t t_alignment_value, typename t_tag_pttn_type = tag_pttn_default>
     class aligned_storage_by : public aligned_storage_base<t_storage_type, t_tag_pttn_type>
     {
     private:

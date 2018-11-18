@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_GEOMETRY_GEOMETRY_HPP
+#define TACKLE_GEOMETRY_GEOMETRY_HPP
+
 #include <tackle/geometry/vector.hpp>
 
 #include <utility/math.hpp>
@@ -731,3 +735,5 @@ namespace geometry {
 
 }
 }
+
+#endif

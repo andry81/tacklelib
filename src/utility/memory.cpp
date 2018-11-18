@@ -22,12 +22,9 @@
 
 namespace utility {
 
-    const char Buffer::s_guard_sequence_str[49] = "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
-    const size_t Buffer::s_guard_max_len;
-
     // for details: https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
     //
-    uint64_t get_process_memory_size(MemoryType mem_type, size_t proc_id)
+    size_t get_process_memory_size(MemoryType mem_type, size_t proc_id)
     {
         switch(mem_type) {
         case MemType_VirtualMemory: {
@@ -61,7 +58,7 @@ namespace utility {
             }
             const tackle::FileHandleA proc_file_handle = utility::open_file(tmp_buf, "r", utility::SharedAccess_DenyNone);
 
-            uint64_t mem_size = 0;
+            size_t mem_size = 0;
 
             while (fgets(tmp_buf, utility::static_size(tmp_buf), proc_file_handle.get())) {
                 if (!strncmp(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("VmSize:"))) {
@@ -92,7 +89,8 @@ namespace utility {
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
-            CONSTEXPR const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
+            CONSTEXPR_RETURN const auto & guard_sequence_str = _guard_sequence_str();
+            CONSTEXPR_RETURN const size_t guard_sequence_str_len = utility::static_size(guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -103,12 +101,12 @@ namespace utility {
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
+                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[i * guard_sequence_str_len], guard_sequence_str, guard_sequence_str_len))) {
                         goto _error;
                     }
                 }
                 if (chunks_remainder) {
-                    if (std::memcmp(&buf_ptr[num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
+                    if (std::memcmp(&buf_ptr[num_whole_chunks * guard_sequence_str_len], guard_sequence_str, chunks_remainder)) {
                         goto _error;
                     }
                 }
@@ -122,12 +120,12 @@ namespace utility {
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[offset + i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len))) {
+                    if (VERIFY_FALSE(std::memcmp(&buf_ptr[offset + i * guard_sequence_str_len], guard_sequence_str, guard_sequence_str_len))) {
                         goto _error;
                     }
                 }
                 if (chunks_remainder) {
-                    if (std::memcmp(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder)) {
+                    if (std::memcmp(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], guard_sequence_str, chunks_remainder)) {
                         goto _error;
                     }
                 }
@@ -136,8 +134,7 @@ namespace utility {
             return;
 
         _error:;
-            DEBUG_BREAK_IN_DEBUGGER(true);
-            throw std::out_of_range(
+            DEBUG_BREAK_THROW(true) std::out_of_range(
                 fmt::format("{:s}({:d}): out of buffer write: reserve={:d} size={:d} buffer={:p}",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_reserve, m_size, buf_ptr));
         }
@@ -146,7 +143,8 @@ namespace utility {
     void Buffer::_fill_buffer_guards()
     {
         if (m_size < m_reserve) {
-            CONSTEXPR const size_t guard_sequence_str_len = utility::static_size(s_guard_sequence_str) - 1;
+            CONSTEXPR_RETURN const auto & guard_sequence_str = _guard_sequence_str();
+            CONSTEXPR_RETURN const size_t guard_sequence_str_len = utility::static_size(guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -157,10 +155,10 @@ namespace utility {
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    memcpy(&buf_ptr[i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len);
+                    memcpy(&buf_ptr[i * guard_sequence_str_len], guard_sequence_str, guard_sequence_str_len);
                 }
                 if (chunks_remainder) {
-                    memcpy(&buf_ptr[num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder);
+                    memcpy(&buf_ptr[num_whole_chunks * guard_sequence_str_len], guard_sequence_str, chunks_remainder);
                 }
             }
 
@@ -172,10 +170,10 @@ namespace utility {
                 const size_t chunks_remainder = guard_size % guard_sequence_str_len;
 
                 for (size_t i = 0; i < num_whole_chunks; i++) {
-                    memcpy(&buf_ptr[offset + i * guard_sequence_str_len], s_guard_sequence_str, guard_sequence_str_len);
+                    memcpy(&buf_ptr[offset + i * guard_sequence_str_len], guard_sequence_str, guard_sequence_str_len);
                 }
                 if (chunks_remainder) {
-                    memcpy(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], s_guard_sequence_str, chunks_remainder);
+                    memcpy(&buf_ptr[offset + num_whole_chunks * guard_sequence_str_len], guard_sequence_str, chunks_remainder);
                 }
             }
         }

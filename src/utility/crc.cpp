@@ -76,7 +76,7 @@ namespace utility
 
         DEBUG_ASSERT_TRUE(0); // not implemented
 
-        throw std::runtime_error(
+        DEBUG_BREAK_THROW(true) std::runtime_error(
             fmt::format("{:s}({:d}): unimplemented crc polynomial: width={:d} polynomial={:08X}",
                 UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, width, polynomial));
 
