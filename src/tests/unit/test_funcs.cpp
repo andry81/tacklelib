@@ -509,6 +509,7 @@ void float_compare_normal_with_infinity(double numerator, double denominator)
 
 TEST(FunctionsTest, float_compare_normal_with_infinity)
 {
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION)
     // dd_real
     float_compare_normal_with_infinity<dd_real>(1.0, 1.0);
     float_compare_normal_with_infinity<dd_real>(0, 1.0);
@@ -530,9 +531,33 @@ TEST(FunctionsTest, float_compare_normal_with_infinity)
 
     float_compare_normal_with_infinity<qd_real>(math::positive_max(0.0), 1.0);
     float_compare_normal_with_infinity<qd_real>(math::negative_min(0.0), 1.0);
+#endif
+
+    // double
+    float_compare_normal_with_infinity<double>(1.0, 1.0);
+    float_compare_normal_with_infinity<double>(0, 1.0);
+    float_compare_normal_with_infinity<double>(-1.0, 1.0);
+
+    float_compare_normal_with_infinity<double>(1.0, 3.0);
+    float_compare_normal_with_infinity<double>(-1.0, 3.0);
+
+    float_compare_normal_with_infinity<double>(math::positive_max(0.0), 1.0);
+    float_compare_normal_with_infinity<double>(math::negative_min(0.0), 1.0);
+
+    // float
+    float_compare_normal_with_infinity<float>(1.0, 1.0);
+    float_compare_normal_with_infinity<float>(0, 1.0);
+    float_compare_normal_with_infinity<float>(-1.0, 1.0);
+
+    float_compare_normal_with_infinity<float>(1.0, 3.0);
+    float_compare_normal_with_infinity<float>(-1.0, 3.0);
+
+    float_compare_normal_with_infinity<float>(math::positive_max(0.0f), 1.0);
+    float_compare_normal_with_infinity<float>(math::negative_min(0.0f), 1.0);
 }
 
-#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION)
+
 template <typename T>
 void qdlib_nextafter(double from_numerator, double from_denominator, double to_numerator, double to_denominator)
 {
@@ -626,6 +651,7 @@ TEST(FunctionsTest, qdlib_real_nextafter)
     qdlib_nextafter<qd_real>(0.0, 1.0, math::negative_infinity(0.0), 1.0);
     qdlib_nextafter<qd_real>(-1.0, 1.0, math::negative_infinity(0.0), 1.0);
 }
+
 #endif
 
 //// test_normalize_angle

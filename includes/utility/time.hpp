@@ -25,6 +25,7 @@
 #include <limits>
 #include <sstream>
 #include <iomanip>
+#include <utility>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!

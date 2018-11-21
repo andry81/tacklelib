@@ -12,6 +12,12 @@
 #include <utility/type_traits.hpp>
 #include <utility/assert.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION)
+#include <qd/globals.h>
+#include <qd/dd_real.h>
+#include <qd/qd_real.h>
+#endif
+
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -20,6 +26,25 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
+
+
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION) && ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_QD_INTEGRATION)
+#define REAL_AS_QD_REAL_INTEGRATION_ENABLED 1
+#else
+#define REAL_AS_QD_REAL_INTEGRATION_ENABLED 0
+#endif
+
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION) && ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_DD_INTEGRATION)
+#define REAL_AS_DD_REAL_INTEGRATION_ENABLED 1
+#else
+#define REAL_AS_DD_REAL_INTEGRATION_ENABLED 0
+#endif
+
+#if REAL_AS_QD_REAL_INTEGRATION_ENABLED || REAL_AS_DD_REAL_INTEGRATION_ENABLED
+#define REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED 1
+#else
+#define REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED 0
+#endif
 
 
 #define INT32_LOG2_FLOOR_CONSTEXPR(x)               ::math::int32_log2_floor<x>::value
@@ -349,6 +374,32 @@ if_break(true) \
     return_exp (type_)(log2_floor_value + 1); \
 } (void)0
 
+
+#ifndef TO_DOUBLE_DEFINED
+#define TO_DOUBLE_DEFINED
+
+FORCE_INLINE int to_double(int i)
+{
+    return i;
+}
+
+FORCE_INLINE long to_double(long i)
+{
+    return i;
+}
+
+FORCE_INLINE int64_t to_double(int64_t i)
+{
+    return i;
+}
+
+FORCE_INLINE double to_double(double d)
+{
+    return d;
+}
+
+#endif
+
 namespace math
 {
     // shortcuts
@@ -412,6 +463,43 @@ namespace math
     const CONSTEXPR double double_max           = (std::numeric_limits<double>::max)();
 
     const CONSTEXPR double pi                   = 3.14159265358979323846264338327950288419716939937510582;
+
+#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
+
+#if defined(TACKLE_MATH_REAL_FLOAT_TYPE)
+    using real = TACKLE_MATH_REAL_FLOAT_TYPE;
+
+    // real as qd_real/dd_real from the QD library
+#elif REAL_AS_QD_REAL_INTEGRATION_ENABLED
+    using real = qd_real;
+
+#elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
+    using real = dd_real;
+
+#else
+
+#error The `real` type is not defined properly
+
+#endif
+
+#else
+    using real = double;
+#endif
+
+    const real real_min = (std::numeric_limits<real>::min)();
+    const real real_max = (std::numeric_limits<real>::max)();
+
+// real as qd_real/dd_real from the QD library
+#if REAL_AS_QD_REAL_INTEGRATION_ENABLED
+    const real real_pi = qd_real::_pi();
+
+#elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
+    const real real_pi = dd_real::_pi();
+
+#else
+    const real real_pi = pi;
+
+#endif
 
     template<typename T>
     struct divrem

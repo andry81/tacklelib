@@ -17,64 +17,10 @@
 #include <atomic>
 
 
-#if defined(ENABLE_QD_QD_INTEGRATION)
-#define REAL_AS_QD_REAL_INTEGRATION_ENABLED 1
-#else
-#define REAL_AS_QD_REAL_INTEGRATION_ENABLED 0
-#endif
-
-#if defined(ENABLE_QD_DD_INTEGRATION)
-#define REAL_AS_DD_REAL_INTEGRATION_ENABLED 1
-#else
-#define REAL_AS_DD_REAL_INTEGRATION_ENABLED 0
-#endif
-
-#if REAL_AS_QD_REAL_INTEGRATION_ENABLED || REAL_AS_DD_REAL_INTEGRATION_ENABLED
-#define REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED 1
-#else
-#define REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED 0
-#endif
-
-
 namespace tackle {
 namespace geometry {
 
-#if ERROR_IF_EMPTY_PP_DEF(REAL_INSTEAD_DOUBLE_INTEGRATION_ENABLED)
-
-#if defined(TACKLE_GEOM_REAL_FLOAT_TYPE)
-using real = TACKLE_GEOM_REAL_FLOAT_TYPE;
-
-// real as qd_real/dd_real from the QD library
-#elif REAL_AS_QD_REAL_INTEGRATION_ENABLED
-using real = qd_real;
-
-#elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
-using real = dd_real;
-
-#else
-
-#error The `real` type is not defined properly
-
-#endif
-
-#else
-using real = double;
-#endif
-
-const real real_min = (std::numeric_limits<real>::min)();
-const real real_max = (std::numeric_limits<real>::max)();
-
-// real as qd_real/dd_real from the QD library
-#if REAL_AS_QD_REAL_INTEGRATION_ENABLED
-const real real_pi = qd_real::_pi();
-
-#elif REAL_AS_DD_REAL_INTEGRATION_ENABLED
-const real real_pi = dd_real::_pi();
-
-#else
-const real real_pi = math::pi;
-
-#endif
+    using real = math::real;
 
 struct BasicVector3d
 {

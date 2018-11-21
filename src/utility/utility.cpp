@@ -217,7 +217,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_network_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> && to_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -253,8 +253,7 @@ namespace {
 
             UNIVERSAL_NAME_INFO * puni = (UNIVERSAL_NAME_INFO*)local_buf.get();
             if (_WNetGetUniversalName(from_native_path_rref.c_str(), UNIVERSAL_NAME_INFO_LEVEL, puni, &dwBufferSize) == NO_ERROR) {
-                utility::convert_string_to_string(puni->lpUniversalName, std::forward<unc_path_basic_string_t>(to_path),
-                    utility::tag_string_conv_utf8_tofrom_utf16{});
+                utility::convert_string_to_string(puni->lpUniversalName, to_path, utility::tag_string_conv_utf8_tofrom_utf16{});
 
                 return true;
             }
@@ -281,6 +280,7 @@ namespace {
 
         return false;
 #else
+        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
         static_assert(utility::dependent_type<t_elem>::false_value, "not implemented");
         return false;
 #endif
@@ -293,7 +293,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_network_unc_to_local_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> && to_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path,
         bool throw_on_error)
     {
         using basic_string_t = std::basic_string<t_elem, t_traits, t_alloc>;
@@ -348,7 +348,7 @@ namespace {
             } break;
             }
 
-            utility::convert_string_to_string(bufPtr->shi502_path, std::forward<path_basic_string_t>(to_path), utility::tag_string_conv_utf8_tofrom_utf16{});
+            utility::convert_string_to_string(bufPtr->shi502_path, to_path, utility::tag_string_conv_utf8_tofrom_utf16{});
 
             const auto * unc_separator_str = UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(t_elem, separator_char).data();
 
@@ -358,7 +358,7 @@ namespace {
                     to_path += vecTokens[i];
                 }
                 else {
-                    static_cast<basic_string_t &&>(to_path) += vecTokens[i]; // base string append
+                    static_cast<basic_string_t &>(to_path) += vecTokens[i]; // base string append
                 }
             }
 
@@ -399,6 +399,7 @@ namespace {
 
         return false;
 #else
+        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
         static_assert(utility::dependent_type<t_elem>::false_value, "not implemented");
         return false;
 #endif
@@ -408,7 +409,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_local_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> && to_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -449,7 +450,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_unc_to_local_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> && to_path)
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path)
     {
         using basic_string_t = std::basic_string<t_elem, t_traits, t_alloc>;
         using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
@@ -1086,123 +1087,123 @@ namespace {
         return _is_files_equal(std::move(left_file_handle), std::move(right_file_handle), read_block_size);
     }
 
-    bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error)
+    bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_network_unc_path(from_path_rref, std::forward<tackle::unc_path_string>(to_path), throw_on_error);
+        return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error)
+    bool convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_network_unc_path(from_path_rref, std::forward<tackle::unc_path_wstring>(to_path), throw_on_error);
+        return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error)
+    bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_network_unc_path(from_path_rref, std::forward<tackle::unc_path_string>(to_path), throw_on_error);
+        return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error)
+    bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_network_unc_path(from_path_rref, std::forward<tackle::unc_path_wstring>(to_path), throw_on_error);
+        return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
 #endif
 
-    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string && to_path, bool throw_on_error)
+    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_network_unc_to_local_path(from_path_rref, std::forward<tackle::generic_path_string>(to_path), throw_on_error);
+        return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring && to_path, bool throw_on_error)
+    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_network_unc_to_local_path(from_path_rref, std::forward<tackle::generic_path_wstring>(to_path), throw_on_error);
+        return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string && to_path, bool throw_on_error)
+    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_network_unc_to_local_path(from_path_rref, std::forward<tackle::native_path_string>(to_path), throw_on_error);
+        return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring && to_path, bool throw_on_error)
+    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_network_unc_to_local_path(from_path_rref, std::forward<tackle::native_path_wstring>(to_path), throw_on_error);
+        return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
 #endif
 
-    bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error)
+    bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_local_unc_path(from_path_rref, std::forward<tackle::unc_path_string>(to_path), throw_on_error);
+        return _convert_local_to_local_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error)
+    bool convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_local_unc_path(from_path_rref, std::forward<tackle::unc_path_wstring>(to_path), throw_on_error);
+        return _convert_local_to_local_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::unc_path_string && to_path, bool throw_on_error)
+    bool convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_local_unc_path(from_path_rref, std::forward<tackle::unc_path_string>(to_path), throw_on_error);
+        return _convert_local_to_local_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
-    bool convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring && to_path, bool throw_on_error)
+    bool convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_to_local_unc_path(from_path_rref, std::forward<tackle::unc_path_wstring>(to_path), throw_on_error);
+        return _convert_local_to_local_unc_path(from_path_rref, to_path, throw_on_error);
     }
 #endif
 
-    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string && to_path)
+    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_unc_to_local_path(from_path_rref, std::forward<tackle::generic_path_string>(to_path));
+        return _convert_local_unc_to_local_path(from_path_rref, to_path);
     }
 
-    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring && to_path)
+    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_unc_to_local_path(from_path_rref, std::forward<tackle::generic_path_wstring>(to_path));
+        return _convert_local_unc_to_local_path(from_path_rref, to_path);
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string && to_path)
+    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_unc_to_local_path(from_path_rref, std::forward<tackle::native_path_string>(to_path));
+        return _convert_local_unc_to_local_path(from_path_rref, to_path);
     }
 
-    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring && to_path)
+    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path)
     {
         auto && from_path_rref = std::move(from_path);
 
-        return _convert_local_unc_to_local_path(from_path_rref, std::forward<tackle::native_path_wstring>(to_path));
+        return _convert_local_unc_to_local_path(from_path_rref, to_path);
     }
 #endif
 

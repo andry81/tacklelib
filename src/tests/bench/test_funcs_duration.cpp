@@ -1,10 +1,9 @@
 #include "test_common.hpp"
 
 #include <utility/math.hpp>
+#include <utility/string.hpp>
 
 #include <utility/arc/libarchive/libarchive.hpp>
-
-#include <tackle/string.hpp>
 
 #include <fmt/format.h>
 
@@ -91,156 +90,156 @@ void test_normalize_angle(bool in_radians, double range_factor, size_t repeats)
 
 //// std::fmod
 
-TEST(FunctionsTest, test_std_fmod_rads_out_bounds_x10M)
+TEST(FunctionsTest, test_std_fmod_rads_out_bounds_x10K)
 {
     test_std_fmod(true, 10000, 1);
 }
 
-TEST(FunctionsTest, test_std_fmod_degrees_out_bounds_x10M)
+TEST(FunctionsTest, test_std_fmod_degrees_out_bounds_x10K)
 {
     test_std_fmod(false, 10000, 1);
 }
 
-TEST(FunctionsTest, test_std_fmod_rads_180_x10M)
+TEST(FunctionsTest, test_std_fmod_rads_180_x10K)
 {
     test_std_fmod(true, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_std_fmod_degrees_180_x10M)
+TEST(FunctionsTest, test_std_fmod_degrees_180_x10K)
 {
     test_std_fmod(false, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_std_fmod_rads_360_x10M)
+TEST(FunctionsTest, test_std_fmod_rads_360_x10K)
 {
     test_std_fmod(true, 1, 10000);
 }
 
-TEST(FunctionsTest, test_std_fmod_degrees_360_x10M)
+TEST(FunctionsTest, test_std_fmod_degrees_360_x10K)
 {
     test_std_fmod(false, 1, 10000);
 }
 
-TEST(FunctionsTest, test_std_fmod_rads_540_x10M)
+TEST(FunctionsTest, test_std_fmod_rads_540_x10K)
 {
     test_std_fmod(true, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_std_fmod_degrees_540_x10M)
+TEST(FunctionsTest, test_std_fmod_degrees_540_x10K)
 {
     test_std_fmod(false, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_std_fmod_rads_720_x10M)
+TEST(FunctionsTest, test_std_fmod_rads_720_x10K)
 {
     test_std_fmod(true, 2, 5000);
 }
 
-TEST(FunctionsTest, test_std_fmod_degrees_720_x10M)
+TEST(FunctionsTest, test_std_fmod_degrees_720_x10K)
 {
     test_std_fmod(false, 2, 5000);
 }
 
 //// c fmod
 
-TEST(FunctionsTest, test_c_fmod_rads_out_bounds_x10M)
+TEST(FunctionsTest, test_c_fmod_rads_out_bounds_x10K)
 {
     test_c_fmod(true, 10000, 1);
 }
 
-TEST(FunctionsTest, test_c_fmod_degrees_out_bounds_x10M)
+TEST(FunctionsTest, test_c_fmod_degrees_out_bounds_x10K)
 {
     test_c_fmod(false, 10000, 1);
 }
 
-TEST(FunctionsTest, test_c_fmod_rads_180_x10M)
+TEST(FunctionsTest, test_c_fmod_rads_180_x10K)
 {
     test_c_fmod(true, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_c_fmod_degrees_180_x10M)
+TEST(FunctionsTest, test_c_fmod_degrees_180_x10K)
 {
     test_c_fmod(false, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_c_fmod_rads_360_x10M)
+TEST(FunctionsTest, test_c_fmod_rads_360_x10K)
 {
     test_c_fmod(true, 1, 10000);
 }
 
-TEST(FunctionsTest, test_c_fmod_degrees_360_x10M)
+TEST(FunctionsTest, test_c_fmod_degrees_360_x10K)
 {
     test_c_fmod(false, 1, 10000);
 }
 
-TEST(FunctionsTest, test_c_fmod_rads_540_x10M)
+TEST(FunctionsTest, test_c_fmod_rads_540_x10K)
 {
     test_c_fmod(true, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_c_fmod_degrees_540_x10M)
+TEST(FunctionsTest, test_c_fmod_degrees_540_x10K)
 {
     test_c_fmod(false, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_c_fmod_rads_720_x10M)
+TEST(FunctionsTest, test_c_fmod_rads_720_x10K)
 {
     test_c_fmod(true, 2, 5000);
 }
 
-TEST(FunctionsTest, test_c_fmod_degrees_720_x10M)
+TEST(FunctionsTest, test_c_fmod_degrees_720_x10K)
 {
     test_c_fmod(false, 2, 5000);
 }
 
 //// math::normalize_angle
 
-TEST(FunctionsTest, test_normalize_angle_rads_out_bounds_x10M)
+TEST(FunctionsTest, test_normalize_angle_rads_out_bounds_x10K)
 {
     test_normalize_angle(true, 10000, 1);
 }
 
-TEST(FunctionsTest, test_normalize_angle_degrees_out_bounds_x10M)
+TEST(FunctionsTest, test_normalize_angle_degrees_out_bounds_x10K)
 {
     test_normalize_angle(false, 10000, 1);
 }
 
-TEST(FunctionsTest, test_normalize_angle_rads_180_x10M)
+TEST(FunctionsTest, test_normalize_angle_rads_180_x10K)
 {
     test_normalize_angle(true, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_normalize_angle_degrees_180_x10M)
+TEST(FunctionsTest, test_normalize_angle_degrees_180_x10K)
 {
     test_normalize_angle(false, 0.5, 20000);
 }
 
-TEST(FunctionsTest, test_normalize_angle_rads_360_x10M)
+TEST(FunctionsTest, test_normalize_angle_rads_360_x10K)
 {
     test_normalize_angle(true, 1, 10000);
 }
 
-TEST(FunctionsTest, test_normalize_angle_degrees_360_x10M)
+TEST(FunctionsTest, test_normalize_angle_degrees_360_x10K)
 {
     test_normalize_angle(false, 1, 10000);
 }
 
-TEST(FunctionsTest, test_normalize_angle_rads_540_x10M)
+TEST(FunctionsTest, test_normalize_angle_rads_540_x10K)
 {
     test_normalize_angle(true, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_normalize_angle_degrees_540_x10M)
+TEST(FunctionsTest, test_normalize_angle_degrees_540_x10K)
 {
     test_normalize_angle(false, 1.5, 6667);
 }
 
-TEST(FunctionsTest, test_normalize_angle_rads_720_x10M)
+TEST(FunctionsTest, test_normalize_angle_rads_720_x10K)
 {
     test_normalize_angle(true, 2, 5000);
 }
 
-TEST(FunctionsTest, test_normalize_angle_degrees_720_x10M)
+TEST(FunctionsTest, test_normalize_angle_degrees_720_x10K)
 {
     test_normalize_angle(false, 2, 5000);
 }

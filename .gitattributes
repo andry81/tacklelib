@@ -42,9 +42,13 @@ includes/tackle/compressed_pair.hpp -text
 includes/tackle/date_time.hpp -text
 includes/tackle/debug.hpp -text
 includes/tackle/deque.hpp -text
+includes/tackle/file_handle.hpp -text
 includes/tackle/geometry/geometry.hpp -text
 includes/tackle/geometry/vector.hpp -text
+includes/tackle/interface_handle.hpp -text
+includes/tackle/log/log_handle.hpp -text
 includes/tackle/path_string.hpp -text
+includes/tackle/smart_handle.hpp -text
 includes/tackle/string.hpp -text
 includes/tacklelib.hpp -text
 includes/utility/assert.hpp -text
@@ -78,11 +82,10 @@ src/tackle/aligned_storage/private/aligned_storage_by_impl.hpp -text
 src/tackle/aligned_storage/private/max_aligned_storage_decl.hpp -text
 src/tackle/aligned_storage/private/max_aligned_storage_impl.hpp -text
 src/tackle/file_handle.cpp -text
-src/tackle/file_handle.hpp -text
 src/tackle/file_reader.cpp -text
 src/tackle/file_reader.hpp -text
+src/tackle/log/log_handle.cpp -text
 src/tackle/path_string.cpp -text
-src/tackle/smart_handle.hpp -text
 src/tackle/stream_storage.hpp -text
 src/tackle/variant.hpp -text
 src/tacklelib.hpp -text

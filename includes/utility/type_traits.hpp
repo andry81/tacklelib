@@ -25,13 +25,18 @@
 // in case if not declared
 namespace std
 {
-    template<size_t... _Vals>
-    using index_sequence = integer_sequence<size_t, _Vals...>;
+//    template<class T, T... Vals>
+//    struct integer_sequence
+//    {
+//    };
 }
 #endif
 
 namespace utility
 {
+    template<size_t... _Vals>
+    using index_sequence = std::integer_sequence<size_t, _Vals...>;
+
     // remove_reference + remove_cv
     template <typename T>
     struct remove_cvref
@@ -112,6 +117,9 @@ namespace utility
         //
         static CONSTEXPR const bool value = (std::is_integral<T>::value || std::is_enum<T>::value);
     };
+
+    template <typename T>
+    struct function_traits;
 
     // Type qualification adaptor for a function parameter.
     // Based on `boost` library (https://www.boost.org)
@@ -198,6 +206,26 @@ namespace utility
         runtime_for_lt(functor, 0, static_size(container));
     }
 
+    // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
+    //
+
+    namespace detail
+    {
+        template <std::size_t N, std::size_t... Next>
+        struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, Next...>
+        {
+        };
+
+        template <std::size_t... Next>
+        struct index_sequence_helper<0U, Next...>
+        {
+            using type = index_sequence<Next...>;
+        };
+    }
+
+    template <std::size_t N>
+    using make_index_sequence = typename detail::index_sequence_helper<N>::type;
+
     // `constexpr for` implementation.
     // Based on: https://stackoverflow.com/questions/42005229/why-for-loop-isnt-a-compile-time-expression-and-extended-constexpr-allows-for-l
     //
@@ -205,9 +233,8 @@ namespace utility
     template <typename T>
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
-#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP11 // for `std::index_sequence`
     template<typename Functor, std::size_t... S>
-    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, std::index_sequence<S...>)
+    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, index_sequence<S...>)
     {
         return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
     }
@@ -215,33 +242,8 @@ namespace utility
     template<std::size_t Size, typename Functor>
     FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
     {
-        return static_foreach_seq(std::forward<Functor>(functor), std::make_index_sequence<Size>());
+        return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence<Size>());
     }
-#else
-    template<typename Functor>
-    static FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, ...)
-    {
-        // make static assert function template parameter dependent
-        //// (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
-        //STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
-        //// might be more stable but still is ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc
-        //STATIC_ASSERT_TRUE(sizeof(int[sizeof(Functor)]) != sizeof(int[sizeof(Functor)]), "not implemented");
-        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
-        STATIC_ASSERT_TRUE(dependent_type<Functor>::false_value, "not implemented");
-    }
-
-    template<std::size_t Size, typename Functor>
-    static FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
-    {
-        // make static assert function template parameter dependent
-        //// (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
-        //STATIC_ASSERT_TRUE(sizeof(Functor) && false, "not implemented");
-        //// might be more stable but still is ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc
-        //STATIC_ASSERT_TRUE(sizeof(int[sizeof(Functor)]) != sizeof(int[sizeof(Functor)]), "not implemented");
-        // is not ill formed, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686
-        STATIC_ASSERT_TRUE(dependent_type<Functor>::false_value, "not implemented");
-    }
-#endif
 
     // Generalized `for_each` through the `std::tuple` container.
     // Based on: https://stackoverflow.com/questions/1198260/iterate-over-tuple/6894436#6894436
@@ -259,6 +261,40 @@ namespace utility
     {
         f(std::get<I>(t));
         for_each<I + 1, FuncT, Tp...>(t, f);
+    }
+
+    template <typename Functor>
+    using functor_return_type_t = typename std::result_of<Functor>::type;
+
+//    template <typename Functor>
+//    using functor_return_type_t = typename function_traits<Functor>::return_type;
+
+    // without decltype(auto)...
+    namespace detail
+    {
+        template <typename Functor, typename T, std::size_t N, std::size_t... Indexes>
+        FORCE_INLINE auto apply(Functor && f, T (&arr)[N], index_sequence<Indexes...>) -> functor_return_type_t<Functor>
+        {
+            return f(arr[Indexes]...);
+        }
+
+        template <typename Ret, typename Functor, typename T, std::size_t N, std::size_t... Indexes>
+        FORCE_INLINE Ret apply_with_cast(Functor && f, T(&arr)[N], index_sequence<Indexes...>)
+        {
+            return f(arr[Indexes]...);
+        }
+    }
+
+    template <typename Functor, typename T, std::size_t N>
+    FORCE_INLINE auto apply(Functor && f, T(&t)[N]) -> functor_return_type_t<Functor>
+    {
+        return detail::apply(f, t, make_index_sequence<N>{});
+    }
+
+    template <typename Ret, typename Functor, typename T, std::size_t N>
+    FORCE_INLINE Ret apply_with_cast(Functor && f, T(&t)[N])
+    {
+        return detail::apply_with_cast<Ret>(f, t, make_index_sequence<N>{});
     }
 
     // `is_callable` implementation.
@@ -416,13 +452,10 @@ namespace utility
     {
     };
 
-    template <typename T>
-    struct function_traits;
-
-    namespace lambda_detail
+    namespace detail
     {
         template<typename R, typename C, typename IsConst, typename IsVolatile, typename IsVariadic, typename... Args>
-        struct types
+        struct function_types
         {
             static CONSTEXPR const size_t arity = sizeof...(Args);
 
@@ -446,189 +479,189 @@ namespace utility
 
     // function
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) volatile> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const volatile> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // pointer-to-function
     template <typename R, typename... Args>
-    struct function_traits<R (*)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (*)(Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     // reference-to-function
     template <typename R, typename... Args>
-    struct function_traits<R (&)(Args...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (&)(Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&&> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&&> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&&> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&&> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     // pointer-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (*)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (*)(Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     // reference-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (&)(Args..., ...)> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (&)(Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)&&> : lambda_detail::types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&&> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const&&> : lambda_detail::types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&&> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile&&> : lambda_detail::types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&&> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile&&> : lambda_detail::types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&&> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     // pointer-to-class-function
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)> : lambda_detail::types<R, C, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)> : detail::function_types<R, C, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const> : detail::function_types<R, C, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)volatile> : detail::function_types<R, C, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const volatile> : detail::function_types<R, C, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // pointer-to-class-variadic-function
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)> : lambda_detail::types<R, C, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)> : detail::function_types<R, C, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)const> : lambda_detail::types<R, C, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const> : detail::function_types<R, C, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)volatile> : lambda_detail::types<R, C, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)volatile> : detail::function_types<R, C, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)const volatile> : lambda_detail::types<R, C, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const volatile> : detail::function_types<R, C, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
@@ -809,7 +842,7 @@ namespace utility
     struct invoke_if_convertible
     {
         template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r);
@@ -827,7 +860,7 @@ namespace utility
     struct invoke_if_convertible<Ret, From, To, false>
     {
         template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT2(f, r);
 
@@ -875,7 +908,7 @@ namespace utility
     struct invoke_dispatcher
     {
         template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             using return_type = typename remove_cvref<typename utility::function_traits<F>::return_type>::type;
             using unqual_arg0_type = typename std::remove_cvref<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type;
@@ -909,7 +942,7 @@ namespace utility
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, true, false>
     {
         template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r); // call as generic or cast
@@ -927,7 +960,7 @@ namespace utility
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, false, IsExtractable>
     {
         template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             return invoke_if_convertible<Ret, Ref, Ret, false>::
                 call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);

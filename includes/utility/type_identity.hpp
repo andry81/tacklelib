@@ -114,6 +114,18 @@ namespace {
         static CONSTEXPR const int value = v;
     };
 
+    // for explicit partial specialization of type_index_identity_base
+
+    template <typename T, int Index>
+    struct type_index_identity
+    {
+        using type = T;
+        static constexpr const int index = Index;
+    };
+
+    template <typename T, int Index>
+    struct type_index_identity_base; // : type_index_identity<T, Index> {};
+
     // The `dependent_*` classes to provoke compiler to instantiate a template by a dependent template argument to evaluate the value only after template instantiation.
     // This is useful in contexts where a static_assert could be evaluated inside a class template before it's instantiation.
     // For details, see: https://stackoverflow.com/questions/5246049/c11-static-assert-and-template-instantiation/5246686#5246686

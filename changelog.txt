@@ -1,3 +1,21 @@
+2018.11.20:
+* fixed: std::make_index_sequence replaced by custom implementation to avoid compilation errors in case of it's absence
+* fixed: p7client logger wrapper fix to potentially build under Linux
+* fixed: compilation w/o QD library
+* fixed: tests: compilation fixes
+* fixed: minor fixes
+* new: tackle library interface_handle and t_interface_handle classes to wrap private smart_handle classes in public headers
+* new: ENABLE_QD_INTEGRATION definition usage
+* refactor: moved `tackle/file_handle.hpp` and `tackle/smart_handle.hpp` headers from private headers into public headers
+* refactor: tackle library refactor for compilation w/o QD library
+* refactor: ENABLE_* variables usage refactor
+* refactor: removed QD_INTEGRATION_ENABLED variable usage
+
+2018.11.19:
+* new: tackle type traits `apply` function to translate arrays into variadic function arguments
+* changed: p7client wrapper functions upgraded to automatically translate string arguments including template variadic arguments from std::string into std::wstring and back (in p7client the `XCHAR` type is `wchar_t` in Windows, but in Linux `XCHAR` is `char`!).
+* refactor: minor refactor
+
 2018.11.19:
 * fixed: long path directories/files creation/open
 * refactor: tackle utility functions refactor
