@@ -129,12 +129,28 @@ namespace utility
     bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 #endif
 
+    tackle::unc_path_string convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::unc_path_string convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+#endif
+
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error);
     bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error);
     bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path, bool throw_on_error);
+#endif
+
+    tackle::generic_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error);
+    tackle::generic_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error);
+    tackle::native_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring, bool throw_on_error);
 #endif
 
     bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
@@ -145,12 +161,28 @@ namespace utility
     bool convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 #endif
 
+    tackle::unc_path_string convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::unc_path_string convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+#endif
+
     bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path);
     bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path);
     bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path);
+#endif
+
+    tackle::generic_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string);
+    tackle::generic_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string);
+    tackle::native_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring);
 #endif
 
     tackle::native_path_string fix_long_path(tackle::generic_path_string file_path, bool throw_on_error);
@@ -401,8 +433,8 @@ namespace utility
     tackle::generic_path_wstring convert_to_generic_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::native_path_string convert_to_native_path(tackle::native_path_string path);
-    tackle::native_path_wstring convert_to_native_path(tackle::native_path_wstring path);
+    tackle::native_path_string convert_to_native_path(tackle::generic_path_string path);
+    tackle::native_path_wstring convert_to_native_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::native_path_string convert_to_native_path(tackle::native_path_string path);

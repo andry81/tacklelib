@@ -286,6 +286,21 @@ namespace {
 #endif
     }
 
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+        _convert_local_to_network_unc_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
+            tackle::tag_path_basic_string<t_elem, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            bool throw_on_error)
+    {
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+
+        return_type_t to_path;
+        _convert_local_to_network_unc_path(from_path, to_path, throw_on_error);
+
+        return std::move(to_path);
+    }
+
     // Based on: https://stackoverflow.com/questions/2316927/how-to-convert-unc-to-local-path
     //
 
@@ -405,6 +420,21 @@ namespace {
 #endif
     }
 
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
+        _convert_network_unc_to_local_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::tag_path_basic_string<t_elem, separator_char>,
+            bool throw_on_error)
+    {
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
+
+        return_type_t to_path;
+        _convert_network_unc_to_local_path(from_path, to_path, throw_on_error);
+
+        return std::move(to_path);
+    }
+
     // converts `x:/folder` -> `\\?\x:folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_local_unc_path(
@@ -446,6 +476,21 @@ namespace {
         return true;
     }
 
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+        _convert_local_to_local_unc_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
+            tackle::tag_path_basic_string<t_elem, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            bool throw_on_error)
+    {
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+
+        return_type_t to_path;
+        _convert_local_to_local_unc_path(from_path, to_path, throw_on_error);
+
+        return std::move(to_path);
+    }
+
     // converts `\\?\x:folder` -> `x:/folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_unc_to_local_path(
@@ -472,6 +517,20 @@ namespace {
         }
 
         return true;
+    }
+
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
+        _convert_local_unc_to_local_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::tag_path_basic_string<t_elem, separator_char>)
+    {
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
+
+        return_type_t to_path;
+        _convert_local_unc_to_local_path(from_path, to_path);
+
+        return std::move(to_path);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1117,6 +1176,36 @@ namespace {
     }
 #endif
 
+    tackle::unc_path_string convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_string{}, throw_on_error);
+    }
+
+    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::unc_path_string convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_string{}, throw_on_error);
+    }
+
+    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
+    }
+#endif
+
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1144,6 +1233,36 @@ namespace {
         auto && from_path_rref = std::move(from_path);
 
         return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
+    }
+#endif
+
+    tackle::generic_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_generic_path_basic_string<char>{}, throw_on_error);
+    }
+
+    tackle::generic_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_generic_path_basic_string<wchar_t>{}, throw_on_error);
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_native_path_basic_string<char>{}, throw_on_error);
+    }
+
+    tackle::native_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_native_path_basic_string<wchar_t>{}, throw_on_error);
     }
 #endif
 
@@ -1177,6 +1296,36 @@ namespace {
     }
 #endif
 
+    tackle::unc_path_string convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_local_unc_path(from_path_rref, tackle::tag_unc_path_string{}, throw_on_error);
+    }
+
+    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_local_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::unc_path_string convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_local_unc_path(from_path_rref, tackle::tag_unc_path_string{}, throw_on_error);
+    }
+
+    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_to_local_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
+    }
+#endif
+
     bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1204,6 +1353,36 @@ namespace {
         auto && from_path_rref = std::move(from_path);
 
         return _convert_local_unc_to_local_path(from_path_rref, to_path);
+    }
+#endif
+
+    tackle::generic_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_unc_to_local_path(from_path_rref, tackle::tag_generic_path_basic_string<char>{});
+    }
+
+    tackle::generic_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_unc_to_local_path(from_path_rref, tackle::tag_generic_path_basic_string<wchar_t>{});
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_unc_to_local_path(from_path_rref, tackle::tag_native_path_basic_string<char>{});
+    }
+
+    tackle::native_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring)
+    {
+        auto && from_path_rref = std::move(from_path);
+
+        return _convert_local_unc_to_local_path(from_path_rref, tackle::tag_native_path_basic_string<wchar_t>{});
     }
 #endif
 

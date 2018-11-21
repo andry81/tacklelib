@@ -72,8 +72,11 @@ namespace tackle
             min_arr1_capacity_bytes = min_arr1_capacity_bytes_;
         }
 
+        // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+    private:
         deque_params & operator=(const deque_params &) = delete;
 
+    public:
         size_type0 min_arr0_capacity;       // minimal capacity for level0 array
         size_type1 min_arr1_capacity_bytes; // minimal capacity for level1 arrays in bytes (will be rounded up)
     };
