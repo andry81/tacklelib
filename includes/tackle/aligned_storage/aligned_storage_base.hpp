@@ -38,9 +38,12 @@ namespace tackle
         {
         }
 
+        // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+    private:
         aligned_storage_base(const aligned_storage_base &) = delete; // use explicit `construct` instead
         aligned_storage_base & operator =(const aligned_storage_base &) = delete; // use explicit `assign` instead
 
+    public:
         FORCE_INLINE bool is_constructed() const
         {
             return true;    // external control, always treats as constructed

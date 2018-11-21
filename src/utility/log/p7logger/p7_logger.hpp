@@ -6,6 +6,7 @@
 #include <utility/debug.hpp>
 #include <utility/assert.hpp>
 #include <utility/locale.hpp>
+#include <utility/string.hpp>
 
 #include <tackle/smart_handle.hpp>
 #include <tackle/log/log_handle.hpp>
@@ -19,6 +20,9 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <sstream>
+#include <istream>
+#include <ios>
 #include <utility>
 
 
@@ -78,6 +82,29 @@
 
 #define LOG_P7_LOG_CRITICAL(trace_handle, id, fmt, ...) \
     trace_handle.log(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+// multiline version
+
+#define LOG_P7_LOGM(trace_handle, id, lvl, fmt, ...) \
+    trace_handle.log_multiline(id, lvl, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_TRACE(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_TRACE, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_DEBUG(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_DEBUG, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_INFO(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_INFO, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_WARNING(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_WARNING, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_ERROR(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_ERROR, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+
+#define LOG_P7_LOGM_CRITICAL(trace_handle, id, fmt, ...) \
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
 
 
 namespace utility {
@@ -380,6 +407,67 @@ namespace p7logger {
         }
 
         template <typename ...Args>
+        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::string & fmt, Args... args) const
+        {
+            IP7_Trace * p = get();
+            if (!p) {
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        inline_stack.top.func, inline_stack.top.line));
+            }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+            std::wstring converted_fmt;
+            std::wstring converted_args[sizeof...(args)];
+
+            utility::convert_string_to_string(fmt, converted_fmt, utility::tag_string_conv_utf8_to_utf16{});
+
+            size_t index = 0;
+            for (const auto & arg : { args... }) {
+                utility::convert_string_to_string(arg, converted_args[index], utility::tag_string_conv_utf8_to_utf16{});
+                ++index;
+            }
+
+            std::vector<std::wstring> && text_lines = utility::apply_with_cast<std::vector<std::wstring> >( // instead of apply
+                [&](auto... converted_args)
+                {
+                    std::wstring text_buf = utility::string_format(1024, converted_fmt.c_str(),
+                        std::forward<decltype(converted_args)>(converted_args).c_str()...);
+
+                    std::vector<std::wstring> text_lines;
+
+                    std::wistringstream text_stream_in{ text_buf, std::ios_base::in };
+
+                    text_lines.reserve(64);
+
+                    std::wstring line;
+
+                    while (text_stream_in) {
+                        if (!std::getline(text_stream_in, line)) {
+                            break;
+                        }
+                        text_lines.push_back(line);
+                    }
+
+                    return std::move(text_lines);
+                },
+                converted_args
+            );
+
+            bool res_multiline = false;
+
+            for(const auto & text_line : text_lines) {
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), L"%s",
+                    text_line.c_str()) ? true : false;
+            }
+
+            return res_multiline;
+#else
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+#endif
+        }
+
+        template <typename ...Args>
         FORCE_INLINE bool log(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
         {
             IP7_Trace * p = get();
@@ -411,6 +499,67 @@ namespace p7logger {
                 },
                 converted_args
             );
+#endif
+        }
+
+        template <typename ...Args>
+        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
+        {
+            IP7_Trace * p = get();
+            if (!p) {
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    fmt::format("{:s}({:d}): null pointer dereference",
+                        inline_stack.top.func, inline_stack.top.line));
+            }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+#else
+            std::string converted_fmt;
+            std::string converted_args[sizeof...(args)];
+
+            utility::convert_string_to_string(fmt, converted_fmt, utility::tag_string_conv_utf16_to_utf8{});
+
+            size_t index = 0;
+            for (const auto & arg : { args... }) {
+                utility::convert_string_to_string(arg, converted_args[index], utility::tag_string_conv_utf16_to_utf8{});
+                ++index;
+            }
+
+            std::vector<std::string> && text_lines = utility::apply_with_cast<std::vector<std::string> >( // instead of apply
+                [&](auto... converted_args)
+                {
+                    std::string text_buf = utility::string_format(1024, converted_fmt.c_str(),
+                        std::forward<decltype(converted_args)>(converted_args).c_str()...);
+
+                    std::vector<std::string> text_lines;
+
+                    std::istringstream text_stream_in{ text_buf, std::ios_base::in };
+
+                    text_lines.reserve(64);
+
+                    std::string line;
+
+                    while (text_stream_in) {
+                        if (!std::getline(text_stream_in, line)) {
+                            break;
+                        }
+                        text_lines.push_back(line);
+                    }
+
+                    return std::move(text_lines);
+                },
+                converted_args
+            );
+
+            bool res_multiline = false;
+
+            for(const auto & text_line : text_lines) {
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), "%s",
+                    text_line.c_str()) ? true : false;
+            }
+
+            return res_multiline;
 #endif
         }
 

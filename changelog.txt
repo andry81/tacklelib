@@ -1,3 +1,9 @@
+2018.11.21:
+* new: multiline log from p7 logger wrapper
+* fixed: sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+* fixed: utility filesystem function fixes
+* fixed: minor other fixes
+
 2018.11.20:
 * fixed: std::make_index_sequence replaced by custom implementation to avoid compilation errors in case of it's absence
 * fixed: p7client logger wrapper fix to potentially build under Linux
@@ -7,7 +13,7 @@
 * new: tackle library interface_handle and t_interface_handle classes to wrap private smart_handle classes in public headers
 * new: ENABLE_QD_INTEGRATION definition usage
 * refactor: moved `tackle/file_handle.hpp` and `tackle/smart_handle.hpp` headers from private headers into public headers
-* refactor: tackle library refactor for compilation w/o QD library
+* refactor: compilation w/o QD library
 * refactor: ENABLE_* variables usage refactor
 * refactor: removed QD_INTEGRATION_ENABLED variable usage
 

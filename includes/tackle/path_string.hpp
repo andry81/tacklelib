@@ -39,12 +39,15 @@ namespace tackle
 
         // implicit or explicit conversion from path with different separator is forbidden
 
+        // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+    private:
         template <t_elem separator_char>
         path_basic_string(const path_basic_string<t_elem, t_traits, t_alloc, separator_char> &) = delete;
 
         template <t_elem separator_char>
         path_basic_string & operator =(const path_basic_string<t_elem, t_traits, t_alloc, separator_char> &) = delete;
 
+    public:
         FORCE_INLINE path_basic_string(base_type r) :
             base_type(std::move(r))
         {
