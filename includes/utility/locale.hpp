@@ -9,6 +9,7 @@
 
 #include <locale>
 #include <codecvt>
+#include <utility>
 
 
 namespace utility {
@@ -110,32 +111,32 @@ namespace utility {
 
     // tagged functions
 
-    FORCE_INLINE void convert_string_to_string(std::string from_str, std::string && to_path, ...)
+    FORCE_INLINE void convert_string_to_string(std::string from_str, std::string & to_path, ...)
     {
         to_path = std::move(from_str);
     }
 
-    FORCE_INLINE void convert_string_to_string(std::string from_str, std::wstring && to_path, utility::int_identity<StringConv_utf8_to_utf16>)
+    FORCE_INLINE void convert_string_to_string(std::string from_str, std::wstring & to_path, utility::int_identity<StringConv_utf8_to_utf16>)
     {
         to_path = convert_utf8_to_utf16_string(std::move(from_str), utility::tag_wstring{});
     }
 
-    FORCE_INLINE void convert_string_to_string(std::string from_str, std::wstring && to_path, utility::int_identity<StringConv_utf8_tofrom_utf16>)
+    FORCE_INLINE void convert_string_to_string(std::string from_str, std::wstring & to_path, utility::int_identity<StringConv_utf8_tofrom_utf16>)
     {
         to_path = convert_utf8_to_utf16_string(std::move(from_str), utility::tag_wstring{});
     }
 
-    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::wstring && to_path, ...)
+    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::wstring & to_path, ...)
     {
         to_path = std::move(from_str);
     }
 
-    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::string && to_path, utility::int_identity<StringConv_utf16_to_utf8>)
+    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::string & to_path, utility::int_identity<StringConv_utf16_to_utf8>)
     {
         to_path = convert_utf16_to_utf8_string(std::move(from_str));
     }
 
-    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::string && to_path, utility::int_identity<StringConv_utf8_tofrom_utf16>)
+    FORCE_INLINE void convert_string_to_string(std::wstring from_str, std::string & to_path, utility::int_identity<StringConv_utf8_tofrom_utf16>)
     {
         to_path = convert_utf16_to_utf8_string(std::move(from_str));
     }

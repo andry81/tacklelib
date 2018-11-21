@@ -14,6 +14,7 @@
 
 #include <string>
 #include <type_traits>
+#include <utility>
 
 
 // See details around problems related to this class implementation:
@@ -159,7 +160,7 @@ namespace tackle
     using path_u16string    = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, literal_separators<char16_t>::forward_slash_char>;
     using path_u32string    = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, literal_separators<char32_t>::forward_slash_char>;
 
-    // backward slash path strings
+    // back slash path strings
     using path_string_bs    = path_basic_string<char, std::char_traits<char>, std::allocator<char>, literal_separators<char>::backward_slash_char>;
     using path_wstring_bs   = path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, literal_separators<wchar_t>::backward_slash_char>;
 

@@ -351,13 +351,13 @@ namespace geometry {
                 const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
-                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi));
+                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, math::real_pi));
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi) - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, math::real_pi) - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, real_pi), std::fabs(alpha_angle_rad));
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, math::real_pi), std::fabs(alpha_angle_rad));
                 const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
@@ -456,7 +456,7 @@ namespace geometry {
                 vector_normalize(coord_x_axis, coord_x_vec);
 
                 const real coord_x_vec_len = vector_length(coord_x_vec);
-                vector_rotate(coord_y_vec, coord_x_vec, coord_x_vec_len, radius_vec_norm, DEG_90_IN_RAD2(coord_x_vec_len, real_pi), unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_y_vec, coord_x_vec, coord_x_vec_len, radius_vec_norm, DEG_90_IN_RAD2(coord_x_vec_len, math::real_pi), unit_epsilon, radius_vec_epsilon);
 
                 // Do correct the basis Y-axis vector as it is tangent to the ellipsoid surface.
                 //  1. Use ellipse first derivative formula:
@@ -491,13 +491,13 @@ namespace geometry {
                 const real betta_angle_rad = std::acos(radius_vec_cos_betta_to_z);
 
                 const real betta_angle_rad_abs = std::fabs(betta_angle_rad);
-                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi));
+                DEBUG_ASSERT_LT(betta_angle_rad_abs, DEG_90_IN_RAD2(betta_angle_rad_abs, math::real_pi));
                 //DEBUG_ASSERT_NE(betta_angle_rad_abs, 0);
 
                 const real alpha_angle_rad = (betta_angle_rad_abs != 0.0) ?
-                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, real_pi) - betta_angle_rad_abs))) :
+                    std::atan(-semiminor_len * semiminor_len / (semimajor_len * semimajor_len * std::tan(DEG_90_IN_RAD2(betta_angle_rad_abs, math::real_pi) - betta_angle_rad_abs))) :
                     0;
-                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, real_pi), std::fabs(alpha_angle_rad));
+                DEBUG_ASSERT_GE(DEG_180_IN_RAD2(alpha_angle_rad, math::real_pi), std::fabs(alpha_angle_rad));
                 const real alpha_angle_rad_abs = std::fabs(alpha_angle_rad);
 
                 // TODO: fix documentation/comments
@@ -510,7 +510,7 @@ namespace geometry {
                 vector_rotate(coord_y_vec, coord_y_vec, coord_y_vec_len, coord_x_axis,
                     ((ret_pole_orient == CoordYOrient_ToPositiveZ) ^ (radius_vec_z_projected_len >= 0)) ? delta_angle_rad : -delta_angle_rad,
                     unit_epsilon, radius_vec_epsilon);
-                vector_rotate(coord_z_vec, coord_y_vec, coord_y_vec_len, coord_x_axis, DEG_90_IN_RAD2(coord_y_vec_len, real_pi), unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_z_vec, coord_y_vec, coord_y_vec_len, coord_x_axis, DEG_90_IN_RAD2(coord_y_vec_len, math::real_pi), unit_epsilon, radius_vec_epsilon);
 
                 vector_normalize(coord_y_axis, coord_y_vec);
                 vector_normalize(coord_z_axis, coord_z_vec);
@@ -525,7 +525,7 @@ namespace geometry {
                 // use rotated basis Z-axis around the radius vector as basis X-axis vector and basis Z-axis as basis Y-axis vector.
 
                 Normal3d coord_x_axis;
-                vector_rotate(coord_x_axis, Normal3d{ 0, 0, 1 }, 1.0, radius_vec_norm, -DEG_90_IN_RAD2(coord_x_axis.x, real_pi), unit_epsilon, radius_vec_epsilon);
+                vector_rotate(coord_x_axis, Normal3d{ 0, 0, 1 }, 1.0, radius_vec_norm, -DEG_90_IN_RAD2(coord_x_axis.x, math::real_pi), unit_epsilon, radius_vec_epsilon);
 
                 switch (coord_y_pole_orient) {
                 case CoordYOrient_ClosestToZ:
@@ -643,7 +643,7 @@ namespace geometry {
         const Normal3d & basis_z_axis = vec_mat_in.m[2];
 
         vector_rotate(basis_y_axis, vec_mat_in.m[1], 1.0, basis_z_axis, angle_rad, unit_epsilon, unit_epsilon);
-        vector_rotate(basis_x_axis, basis_y_axis, 1.0, basis_z_axis, -DEG_90_IN_RAD2(basis_x_axis.x, real_pi), unit_epsilon, unit_epsilon);
+        vector_rotate(basis_x_axis, basis_y_axis, 1.0, basis_z_axis, -DEG_90_IN_RAD2(basis_x_axis.x, math::real_pi), unit_epsilon, unit_epsilon);
 
         vec_mat_out = NormalMatrix3d{
             basis_x_axis, basis_y_axis, basis_z_axis

@@ -9,18 +9,16 @@
 #include <spacetracker.hpp>
 #include <tle_manager.hpp>
 
+#include <utility/math.hpp>
+
 #include <tackle/date_time.hpp>
 
+#include <chrono>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
-
-#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
-#include <qd/dd_real.h>
-#include <qd/qd_real.h>
-#endif
 
 #include <cstdint>
 #include <cstdlib>

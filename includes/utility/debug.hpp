@@ -65,18 +65,26 @@
 
 namespace utility
 {
-    struct DebugFuncLineA
+    template <class t_elem, class t_traits, class t_alloc>
+    struct DebugFuncLine
     {
-        std::string     func;
-        int             line;
+        std::basic_string<t_elem, t_traits, t_alloc>    func;
+        int                                             line;
     };
 
-    struct DebugFileLineFuncA
+    using DebugFuncLineA = DebugFuncLine<char, std::char_traits<char>, std::allocator<char> >;
+    using DebugFuncLineW = DebugFuncLine<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
+
+    template <class t_elem, class t_traits, class t_alloc>
+    struct DebugFileLineFunc
     {
-        std::string     file;
-        int             line;
-        std::string     func;
+        std::basic_string<t_elem, t_traits, t_alloc>    file;
+        int                                             line;
+        std::basic_string<t_elem, t_traits, t_alloc>    func;
     };
+
+    using DebugFileLineFuncA = DebugFileLineFunc<char, std::char_traits<char>, std::allocator<char> >;
+    using DebugFileLineFuncW = DebugFileLineFunc<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
 
     template <typename T>
     class inline_stack
@@ -103,6 +111,9 @@ namespace utility
 
     using DebugFuncLineInlineStackA     = inline_stack<DebugFuncLineA>;
     using DebugFileLineFuncInlineStackA = inline_stack<DebugFileLineFuncA>;
+
+    using DebugFuncLineInlineStackW     = inline_stack<DebugFuncLineW>;
+    using DebugFileLineFuncInlineStackW = inline_stack<DebugFileLineFuncW>;
 
     // break on true
     void debug_break(bool condition = false);
