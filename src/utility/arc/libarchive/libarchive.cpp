@@ -154,7 +154,7 @@ namespace {
                 in_file_path_ansi_or_utf8 = fixed_in_file_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(fixed_in_file);
             }
             else {
-                fixed_in_file = utility::fix_long_path(in_dir + in_file_path, true); // must be fixed in case of the windows
+                fixed_in_file = utility::fix_long_path(in_dir / in_file_path, true); // must be fixed in case of the windows
                 in_file_path_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(in_file_path);
                 fixed_in_file_ansi_or_utf8 = utility::convert_utf16_to_utf8_string(fixed_in_file);
             }

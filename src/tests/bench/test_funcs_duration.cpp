@@ -13,7 +13,7 @@
 TEST(FunctionsTest, test_string_format_on_std_string_0_x1M)
 {
     for (size_t i = 0; i < 1000000; i++) {
-        const std::string v = tackle::string_format(0, "%s+%u\n", "test test test", 12345);
+        const std::string v = utility::string_format(0, "%s+%u\n", "test test test", 12345);
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }
@@ -21,7 +21,7 @@ TEST(FunctionsTest, test_string_format_on_std_string_0_x1M)
 TEST(FunctionsTest, test_string_format_on_std_string_256_x1M)
 {
     for (size_t i = 0; i < 1000000; i++) {
-        const std::string v = tackle::string_format(256, "%s+%u\n", "test test test", 12345);
+        const std::string v = utility::string_format(256, "%s+%u\n", "test test test", 12345);
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }
@@ -255,10 +255,10 @@ TEST(FunctionsTest, test_normalize_angle_degrees_720_x10K)
 //    const tackle::path_string & data_in_dir = TEST_CASE_GET_ROOT(data_in);
 //    const tackle::path_string & data_out_dir = TEST_CASE_GET_ROOT(data_out);
 //
-//    const tackle::path_string in_dir = data_in_dir + "test_arc";
-//    const tackle::path_string out_file = data_out_dir + "test_arc.7z";
+//    const tackle::path_string in_dir = data_in_dir / "test_arc";
+//    const tackle::path_string out_file = data_out_dir / "test_arc.7z";
 //
-//    if (!utility::is_path_exists(data_out_dir)) {
+//    if (!utility::is_path_exists(data_out_dir, true)) {
 //        utility::create_directory(data_out_dir, true);
 //    }
 //

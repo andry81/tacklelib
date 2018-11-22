@@ -370,7 +370,7 @@ namespace {
             // build local path
             for (size_t i = 4; i < vecTokens.size(); ++i) {
                 if (!pystring::endswith(to_path, unc_separator_str)) {
-                    to_path += vecTokens[i];
+                    to_path /= vecTokens[i];
                 }
                 else {
                     static_cast<basic_string_t &>(to_path) += vecTokens[i]; // base string append

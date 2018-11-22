@@ -71,7 +71,22 @@ namespace tackle
         using base_type::base_type;
         using base_type::operator=;
 
-        FORCE_INLINE path_basic_string & operator+= (base_type r)
+        // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+    private:
+        path_basic_string & operator+= (base_type r) = delete;
+        path_basic_string & operator+= (const t_elem * p) = delete;
+
+        // WORKAROUND: error C2556: overloaded function differs only by return type from
+        friend path_basic_string operator+ (path_basic_string l, base_type r) = delete;
+
+        // WORKAROUND: error C2556: overloaded function differs only by return type from
+        friend path_basic_string operator+ (base_type l, path_basic_string r) = delete;
+        friend path_basic_string operator+ (path_basic_string l, path_basic_string r) = delete;
+        friend path_basic_string operator+ (path_basic_string l, const t_elem * p) = delete;
+        friend path_basic_string operator+ (const t_elem * p, path_basic_string r) = delete;
+
+    public:
+        FORCE_INLINE path_basic_string & operator/= (base_type r)
         {
             base_type && r_path = std::move(r);
 
@@ -86,7 +101,7 @@ namespace tackle
             return *this;
         }
 
-        FORCE_INLINE path_basic_string & operator+= (const t_elem * p)
+        FORCE_INLINE path_basic_string & operator/= (const t_elem * p)
         {
             DEBUG_ASSERT_TRUE(p);
 
@@ -102,43 +117,43 @@ namespace tackle
         }
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend FORCE_INLINE path_basic_string operator+ (path_basic_string l, base_type r)
+        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, base_type r)
         {
             path_basic_string && l_path = std::move(l);
             path_basic_string && r_path = std::move(std::forward<base_type>(r));
-            l_path += r_path;
+            l_path /= r_path;
             return l_path;
         }
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend FORCE_INLINE path_basic_string operator+ (base_type l, path_basic_string r)
+        friend FORCE_INLINE path_basic_string operator/ (base_type l, path_basic_string r)
         {
             path_basic_string && l_path = std::move(std::forward<base_type>(l));
             path_basic_string && r_path = std::move(r);
-            l_path += r_path;
+            l_path /= r_path;
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator+ (path_basic_string l, path_basic_string r)
+        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, path_basic_string r)
         {
             path_basic_string && l_path = std::move(l);
             path_basic_string && r_path = std::move(r);
-            l_path += r_path;
+            l_path /= r_path;
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator+ (path_basic_string l, const t_elem * p)
+        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, const t_elem * p)
         {
             DEBUG_ASSERT_TRUE(p);
 
             path_basic_string && l_path = std::move(l);
             if (*p) {
-                l_path += p;
+                l_path /= p;
             }
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator+ (const t_elem * p, path_basic_string r)
+        friend FORCE_INLINE path_basic_string operator/ (const t_elem * p, path_basic_string r)
         {
             DEBUG_ASSERT_TRUE(p);
 
