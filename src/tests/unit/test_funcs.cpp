@@ -2,7 +2,9 @@
 
 #include <utility/math.hpp>
 #include <utility/time.hpp>
+#include <utility/utility.hpp>
 
+#include <tackle/path_string.hpp>
 
 namespace {
     namespace ti = utility::time;
@@ -307,61 +309,61 @@ void test_path_string_operator_plus_left(T left_path_str)
 {
     // with raw string
     {
-        const std::string test1 = left_path_str + "bbb";
+        const std::string test1 = left_path_str / "bbb";
         ASSERT_EQ(test1, "aaa/bbb");
 
         const char * r2 = "bbb";
-        const std::string test2 = left_path_str + r2;
+        const std::string test2 = left_path_str / r2;
         ASSERT_EQ(test2, "aaa/bbb");
 
         const char * const & r3 = "bbb";
-        const std::string test3 = left_path_str + r3;
+        const std::string test3 = left_path_str / r3;
         ASSERT_EQ(test3, "aaa/bbb");
 
         const char r4[] = "bbb";
-        const std::string test4 = left_path_str + r4;
+        const std::string test4 = left_path_str / r4;
         ASSERT_EQ(test4, "aaa/bbb");
 
         const char (& r5)[4] = "bbb";
-        const std::string test5 = left_path_str + r5;
+        const std::string test5 = left_path_str / r5;
         ASSERT_EQ(test5, "aaa/bbb");
     }
 
     // with std::string
     {
         const std::string r1 = "bbb";
-        const std::string test1 = left_path_str + r1;
+        const std::string test1 = left_path_str / r1;
         ASSERT_EQ(test1, "aaa/bbb");
 
-        const std::string test2 = left_path_str + std::string{ "bbb" };
+        const std::string test2 = left_path_str / std::string{ "bbb" };
         ASSERT_EQ(test2, "aaa/bbb");
 
         const std::string & r3 = "bbb";
-        const std::string test3 = left_path_str + r3;
+        const std::string test3 = left_path_str / r3;
         ASSERT_EQ(test3, "aaa/bbb");
 
         std::string r4_ = "bbb";
         std::string & r4 = r4_;
-        const std::string test4 = left_path_str + r4;
+        const std::string test4 = left_path_str / r4;
         ASSERT_EQ(test4, "aaa/bbb");
     }
 
     // with path_string
     {
         const tackle::path_string r1 = "bbb";
-        const std::string test1 = left_path_str + r1;
+        const std::string test1 = left_path_str / r1;
         ASSERT_EQ(test1, "aaa/bbb");
 
-        const std::string test2 = left_path_str + tackle::path_string{ "bbb" };
+        const std::string test2 = left_path_str / tackle::path_string{ "bbb" };
         ASSERT_EQ(test2, "aaa/bbb");
 
         const tackle::path_string & r3 = "bbb";
-        const std::string test3 = left_path_str + r3;
+        const std::string test3 = left_path_str / r3;
         ASSERT_EQ(test3, "aaa/bbb");
 
         tackle::path_string r4_ = "bbb";
         tackle::path_string & r4 = r4_;
-        const std::string test4 = left_path_str + r4;
+        const std::string test4 = left_path_str / r4;
         ASSERT_EQ(test4, "aaa/bbb");
     }
 }
@@ -392,61 +394,61 @@ void test_path_string_operator_plus_right(T right_path_str)
 {
     // with raw string
     {
-        const std::string test1 = "aaa" + right_path_str;
+        const std::string test1 = "aaa" / right_path_str;
         ASSERT_EQ(test1, "aaa/bbb");
 
         const char * l2 = "aaa";
-        const std::string test2 = l2 + right_path_str;
+        const std::string test2 = l2 / right_path_str;
         ASSERT_EQ(test2, "aaa/bbb");
 
         const char * const & l3 = "aaa";
-        const std::string test3 = l3 + right_path_str;
+        const std::string test3 = l3 / right_path_str;
         ASSERT_EQ(test3, "aaa/bbb");
 
         const char l4[] = "aaa";
-        const std::string test4 = l4 + right_path_str;
+        const std::string test4 = l4 / right_path_str;
         ASSERT_EQ(test4, "aaa/bbb");
 
         const char (& l5)[4] = "aaa";
-        const std::string test5 = l5 + right_path_str;
+        const std::string test5 = l5 / right_path_str;
         ASSERT_EQ(test5, "aaa/bbb");
     }
 
     // with std::string
     {
         const std::string l1 = "aaa";
-        const std::string test1 = l1 + right_path_str;
+        const std::string test1 = l1 / right_path_str;
         ASSERT_EQ(test1, "aaa/bbb");
 
-        const std::string test2 = std::string{ "aaa" } + right_path_str;
+        const std::string test2 = std::string{ "aaa" } / right_path_str;
         ASSERT_EQ(test2, "aaa/bbb");
 
         const std::string & l3 = "aaa";
-        const std::string test3 = l3 + right_path_str;
+        const std::string test3 = l3 / right_path_str;
         ASSERT_EQ(test3, "aaa/bbb");
 
         std::string l4_ = "aaa";
         std::string & l4 = l4_;
-        const std::string test4 = l4 + right_path_str;
+        const std::string test4 = l4 / right_path_str;
         ASSERT_EQ(test4, "aaa/bbb");
     }
 
     // with path_string
     {
         const tackle::path_string l1 = "aaa";
-        const std::string test1 = l1 + right_path_str;
+        const std::string test1 = l1 / right_path_str;
         ASSERT_EQ(test1, "aaa/bbb");
 
-        const std::string test2 = tackle::path_string{ "aaa" } + right_path_str;
+        const std::string test2 = tackle::path_string{ "aaa" } / right_path_str;
         ASSERT_EQ(test2, "aaa/bbb");
 
         const tackle::path_string & l3 = "aaa";
-        const std::string test3 = l3 + right_path_str;
+        const std::string test3 = l3 / right_path_str;
         ASSERT_EQ(test3, "aaa/bbb");
 
         tackle::path_string l4_ = "aaa";
         tackle::path_string & l4 = l4_;
-        const std::string test4 = l4 + right_path_str;
+        const std::string test4 = l4 / right_path_str;
         ASSERT_EQ(test4, "aaa/bbb");
     }
 }
@@ -498,7 +500,7 @@ void float_compare_normal_with_infinity(double numerator, double denominator)
     ASSERT_LT(value, math::positive_infinity(value));
     ASSERT_LT(math::negative_infinity(value), value);
 
-#if ERROR_IF_EMPTY_PP_DEF(QD_INTEGRATION_ENABLED)
+#if ERROR_IF_EMPTY_PP_DEF(ENABLE_QD_INTEGRATION)
     const T qd_value = T(numerator) / denominator;
 
     ASSERT_TRUE(!std::isnan(qd_value) && !math::is_infinite(qd_value));

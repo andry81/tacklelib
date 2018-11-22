@@ -1,4 +1,8 @@
 2018.11.21:
+* changed: path_basic_string::operator+ replaced by operator/ as more reliable and does not intersect with std::basic_string::operator+. path_basic_string::operator+ is left declared as `= delete` to raise an error on old operator usage.
+* missed changes
+
+2018.11.21:
 * new: multiline log from p7 logger wrapper
 * fixed: sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
 * fixed: utility filesystem function fixes
