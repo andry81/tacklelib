@@ -30,7 +30,7 @@ namespace _7zip {
 
     LzmaEncoderHandle create_lzma_encoder(ISzAllocPtr alloc);
 
-    class LzmaEncoderHandle : public tackle::SmartHandle<void>
+    class LzmaEncoderHandle : public tackle::SmartHandle<ISzAlloc>
     {
         friend LzmaEncoderHandle create_lzma_encoder(ISzAllocPtr alloc);
 
@@ -53,7 +53,7 @@ namespace _7zip {
 
             FORCE_INLINE Deleter(const Deleter &) = default;
 
-            FORCE_INLINE void operator()(void * p) const
+            FORCE_INLINE void operator()(ISzAlloc * p) const
             {
                 if (p) {
                     LzmaEnc_Destroy(static_cast<CLzmaEncHandle>(p), m_palloc, m_palloc);

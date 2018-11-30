@@ -68,7 +68,7 @@ namespace utility
     {
     };
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     struct StaticAssertTrue;
 
     template <typename T, T v>
@@ -80,7 +80,7 @@ namespace utility
     template <typename T, T v>
     const bool StaticAssertTrue<T, v>::value;
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     struct StaticAssertTrue
     {
         static const bool value = (v ? true : false);
@@ -88,10 +88,10 @@ namespace utility
         static_assert(v ? true : false, "StaticAssertTrue with parameters failed.");
     };
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     const bool StaticAssertTrue<T, v, Params...>::value;
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     struct StaticAssertFalse;
 
     template <typename T, T v>
@@ -103,7 +103,7 @@ namespace utility
     template <typename T, T v>
     const bool StaticAssertFalse<T, v>::value;
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     struct StaticAssertFalse
     {
         static const bool value = (v ? false : true);
@@ -111,7 +111,7 @@ namespace utility
         static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
 
-    template <typename T, T v, typename ...Params>
+    template <typename T, T v, typename... Params>
     const bool StaticAssertFalse<T, v, Params...>::value;
 
     template <typename U, typename V, U u, V v>

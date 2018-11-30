@@ -13,8 +13,8 @@
 
 #if defined(UTILITY_COMPILER_CXX_GCC)
 #   define STDCALL                          __attribute__((stdcall))
-#   define LIBRARY_API_DECL_EXPORT_ATTR     __attribute__ ((dllexport))
-#   define LIBRARY_API_DECL_IMPORT_ATTR     __attribute__ ((dllimport))
+#   define LIBRARY_API_DECL_EXPORT_ATTR     __attribute__((visibility("default"))) //__attribute__((dllexport))
+#   define LIBRARY_API_DECL_IMPORT_ATTR     //__attribute__((dllimport))
 
 #elif defined(UTILITY_COMPILER_CXX_MSC)
 #   define STDCALL                          __stdcall
@@ -65,18 +65,18 @@
 // to make the unique link between a library implementation and it's headers
 #define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_EXPORT(module_instance_name, local_header_scope) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
-        UTILITY_PP_CONCAT("**build_version**: ", BUILD_VERSION_DATE_TIME_STR))
+        "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT(module_instance_name, local_header_scope) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
-        UTILITY_PP_CONCAT("**build_version**: ", BUILD_VERSION_DATE_TIME_STR))
+        "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, local_header_scope) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
-        UTILITY_PP_CONCAT("**build_version**: ", BUILD_VERSION_DATE_TIME_STR))
+        "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #define LIBRARY_API_IMPLEMENT_LIB_GLOBAL_BUILD_VERSION_DATE_TIME_TOKEN(module_instance_name) \
     LIBRARY_API_IMPLEMENT_LIB_GLOBAL_INSTANCE_TOKEN(module_instance_name, _, BUILD_VERSION_DATE_TIME_TOKEN, \
-        UTILITY_PP_CONCAT("**build_version**: ", BUILD_VERSION_DATE_TIME_STR))
+        "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #endif

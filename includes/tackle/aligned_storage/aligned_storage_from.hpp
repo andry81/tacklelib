@@ -9,6 +9,7 @@
 #include <utility/platform.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
+#include <utility/addressof.hpp>
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
 #include <utility/utility.hpp>
@@ -80,7 +81,7 @@ namespace tackle
             }
             else {
                 // make construction
-                ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
+                ::new (utility::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
 
                 // flag construction
                 base_t::set_constructed(true);
@@ -103,7 +104,7 @@ namespace tackle
             }
             else {
                 // make construction
-                ::new (std::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
+                ::new (utility::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
 
                 // flag construction
                 base_t::set_constructed(true);
@@ -164,7 +165,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (std::addressof(m_storage)) storage_type_t();
+            ::new (utility::addressof(m_storage)) storage_type_t();
 
             // flag construction
             base_t::set_constructed(true);
@@ -175,7 +176,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (std::addressof(m_storage)) storage_type_t(r);
+            ::new (utility::addressof(m_storage)) storage_type_t(r);
 
             // flag construction
             base_t::set_constructed(true);
@@ -186,7 +187,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-            ::new (std::addressof(m_storage)) storage_type_t(std::move(r));
+            ::new (utility::addressof(m_storage)) storage_type_t(std::forward<Ref>(r));
 
             // flag construction
             base_t::set_constructed(true);
@@ -216,7 +217,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            return *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+            return *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
         }
 
         template <typename Ref>
@@ -232,7 +233,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-            return *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+            return *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
         }
 
         // storage redirection
@@ -278,22 +279,22 @@ namespace tackle
 
         FORCE_INLINE void * address()
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const void * address() const
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE volatile void * address() volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const volatile void * address() const volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
     private:
@@ -325,21 +326,21 @@ namespace tackle
         FORCE_INLINE ~aligned_storage_always_destruct_from()
         {
             // CAUTION: unconditional destruction!
-            destruct();
+            unsafe_destruct();
         }
 
         FORCE_INLINE aligned_storage_always_destruct_from(const aligned_storage_always_destruct_from & r) :
             base_t(r) // binding with the base
         {
             // make unconditional construction
-            ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
+            ::new (utility::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
         }
 
         FORCE_INLINE aligned_storage_always_destruct_from(aligned_storage_always_destruct_from && r) :
             base_t(r) // binding with the base
         {
             // make unconditional construction
-            ::new (std::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
+            ::new (utility::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
         }
 
         FORCE_INLINE aligned_storage_always_destruct_from(const storage_type_t & r)
@@ -387,7 +388,7 @@ namespace tackle
         FORCE_INLINE aligned_storage_always_destruct_from & operator =(Ref && r)
         {
             // make unconditional assignment
-            *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+            *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
 
             return *this;
         }
@@ -405,7 +406,7 @@ namespace tackle
         FORCE_INLINE aligned_storage_always_destruct_from & operator =(Ref && r) volatile
         {
             // make unconditional assignment
-            *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+            *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
 
             return *this;
         }
@@ -415,21 +416,26 @@ namespace tackle
         // unsafe because class declares implicit convertion constructors above
         FORCE_INLINE void unsafe_construct_default()
         {
-            ::new (std::addressof(m_storage)) storage_type_t();
+            ::new (utility::addressof(m_storage)) storage_type_t();
         }
 
         // unsafe because class declares implicit convertion constructors above
         template <typename Ref>
         FORCE_INLINE void unsafe_construct(const Ref & r)
         {
-            ::new (std::addressof(m_storage)) storage_type_t(r);
+            ::new (utility::addressof(m_storage)) storage_type_t(r);
         }
 
         // unsafe because class declares implicit convertion constructors above
         template <typename Ref>
         FORCE_INLINE void unsafe_construct(Ref && r)
         {
-            ::new (std::addressof(m_storage)) storage_type_t(std::move(r));
+            ::new (utility::addressof(m_storage)) storage_type_t(std::forward<Ref>(r));
+        }
+
+        FORCE_INLINE void unsafe_destruct()
+        {
+            utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t();
         }
 
         // use instead of the destruct function
@@ -437,7 +443,7 @@ namespace tackle
         FORCE_INLINE void reconstruct(const Ref & r)
         {
             // destruct at first
-            utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t();
+            unsafe_destruct();
 
             return construct(r);
         }
@@ -447,9 +453,9 @@ namespace tackle
         FORCE_INLINE void reconstruct(Ref && r)
         {
             // destruct at first
-            utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t();
+            unsafe_destruct();
 
-            return construct(std::move(r));
+            return construct(std::forward<Ref>(r));
         }
 
         // storage redirection, unsafe because does not check if the instance is constructed
@@ -478,22 +484,22 @@ namespace tackle
 
         FORCE_INLINE void * address()
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const void * address() const
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE volatile void * address() volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const volatile void * address() const volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
     private:

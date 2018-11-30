@@ -1,4 +1,4 @@
-#%% version: 3
+#%% version: 4
 
 # CAUTION:
 #  In case of usage the QtCreator there is set of special broken cases you have to avoid:
@@ -8,9 +8,16 @@
 # user custom values
 
 set(ENV{_3DPARTY_LOCAL_ROOT} "@PROJECT_ROOT@/_3dparty")
+
+# (!) for WINDOWS ONLY builds
 set(ENV{ENV_ROOT} "d:/3dparty/vc14_x86")
 
+# (!) for LINUX ONLY builds
+#set(ENV{CMAKE_LIBRARY_PATH} "/usr/lib/i386-linux-gnu")
+
 set(ENV{NSIS_INSTALL_ROOT} "c:/builds/nsis3/rel1/nsis_install")
+
+# (!) for LINUX ONLY builds
 #set(ENV{BOOST_ROOT} "/home/opt/_3dparty/gcc_x86/boost/boost_1_63_0")
 
 # log
@@ -19,9 +26,12 @@ set(ENV{LOG_P7_CLIENT_ROOT} "@PROJECT_ROOT@/_3dparty/log/p7client")
 # test
 set(ENV{GTEST_ROOT} "@PROJECT_ROOT@/_3dparty/test/googletest")
 
+# (!) for WINDOWS ONLY builds
 set(ENV{QT5_ROOT} "x:/Qt/Qt5_10_0/5.10.0/msvc2015")
-#set(ENV{QT5_ROOT} "/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/release")
-#set(ENV{QT5_ROOT} "/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/debug")
+
+# (!) for LINUX ONLY builds
+#set(ENV{QT5_ROOT} "/home/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/release")
+#set(ENV{QT5_ROOT} "/home/opt/_3dparty/gcc_x86/qt/qt5_10_1/5.10.1/gcc_x86/debug")
 
 # utility
 set(ENV{UTILITY_FMT_ROOT} "@PROJECT_ROOT@/_3dparty/utility/fmt")

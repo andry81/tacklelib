@@ -11,7 +11,6 @@
 #include <limits.h>
 
 
-// linux, also other platforms (Hurd etc) that use GLIBC, should these really have their own config headers though?
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)
 #   define UTILITY_PLATFORM_LINUX
 #   define UTILITY_PLATFORM_POSIX
@@ -171,6 +170,8 @@
 #else
 #   define DEBUG_RELEASE_EXPR(debug_exp, release_exp) release_exp
 #endif
+
+#define INSTANTIATE_STATIC_ARRAY(prefix, arr_scoped_name) prefix arr_scoped_name[sizeof(arr_scoped_name)]
 
 #endif
 

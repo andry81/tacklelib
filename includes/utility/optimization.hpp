@@ -8,8 +8,7 @@
 
 #include <utility/preprocessor.hpp>
 #include <utility/platform.hpp>
-
-#include <memory>
+#include <utility/addressof.hpp>
 
 
 #define UTILITY_UNUSED(suffix, exp)                 UTILITY_UNUSED_ ## suffix(exp)
@@ -38,7 +37,7 @@
 #define UTILITY_UNUSED_EXPR8(e0, e1, e2, e3, e4, e5, e6, e7) (( UTILITY_UNUSED_EXPR7(e0, e1, e2, e3, e4, e5, e6), UTILITY_UNUSED_EXPR(e7) ))
 #define UTILITY_UNUSED_STATEMENT8(e0, e1, e2, e3, e4, e5, e6, e7) do {{ UTILITY_UNUSED_STATEMENT7(e0, e1, e2, e3, e4, e5, e6); UTILITY_UNUSED_STATEMENT(e7); }} while(false)
 
-#define UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(var)   ::utility::unused_param(std::addressof(var)) // must be l-value reference
+#define UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(var)   ::utility::unused_param(::utility::addressof(var)) // must be l-value reference
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #   define UTILITY_PLATFORM_ATTRIBUTE_DISABLE_OPTIMIZATION

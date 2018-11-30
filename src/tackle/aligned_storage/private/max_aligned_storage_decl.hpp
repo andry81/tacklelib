@@ -12,6 +12,7 @@
 // public headers
 #include <utility/platform.hpp>
 #include <utility/type_traits.hpp>
+#include <utility/addressof.hpp>
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
 #include <utility/utility.hpp>
@@ -306,7 +307,7 @@ namespace tackle
     {
         DEBUG_ASSERT_LT(type_index, mpl::size<storage_types_t>::value);
         if (DEBUG_VERIFY_TRUE(type_index >= 0)) {
-            construct(type_index, std::move(r), false);
+            construct(type_index, std::forward<Ref>(r), false);
         }
     }
 
@@ -328,25 +329,25 @@ namespace tackle
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address()
     {
-        return std::addressof(m_storage);
+        return utility::addressof(m_storage);
     }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE const void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() const
     {
-        return std::addressof(m_storage);
+        return utility::addressof(m_storage);
     }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE volatile void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() volatile
     {
-        return std::addressof(m_storage);
+        return utility::addressof(m_storage);
     }
 
     template <typename t_mpl_container_types, typename t_tag_pttn_type>
     FORCE_INLINE const volatile void * max_aligned_storage_from_mpl_container<t_mpl_container_types, t_tag_pttn_type>::address() const volatile
     {
-        return std::addressof(m_storage);
+        return utility::addressof(m_storage);
     }
 }
 

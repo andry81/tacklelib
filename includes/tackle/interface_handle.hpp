@@ -15,10 +15,7 @@ namespace tackle {
     class interface_handle
     {
     public:
-        virtual ~interface_handle() = 0
-        {
-        }
-
+        virtual ~interface_handle() = 0;
         virtual int type_index() const  = 0;
 
         FORCE_INLINE bool is_kind_of(int type_index_) const
@@ -26,6 +23,10 @@ namespace tackle {
             return type_index() == type_index_; // must be implemented unique
         }
     };
+
+    inline interface_handle::~interface_handle()
+    {
+    }
 
     // iii - interface implementation instantiator
 

@@ -8,8 +8,9 @@
 
 #include <utility/platform.hpp>
 #include <utility/type_traits.hpp>
+#include <utility/addressof.hpp>
 #include <utility/assert.hpp>
-#include <utility/utility.hpp>
+#include <utility/debug.hpp>
 
 #include <fmt/format.h>
 
@@ -72,30 +73,6 @@ namespace std
 
 namespace utility
 {
-    template <typename To, typename From>
-    FORCE_INLINE To cast_addressof(From & v)
-    {
-        return static_cast<To>(static_cast<void *>(std::addressof(v)));
-    }
-
-    template <typename To, typename From>
-    FORCE_INLINE To cast_addressof(const From & v)
-    {
-        return static_cast<To>(static_cast<const void *>(std::addressof(v)));
-    }
-
-    template <typename To, typename From>
-    FORCE_INLINE To cast_addressof(volatile From & v)
-    {
-        return static_cast<To>(static_cast<volatile void *>(std::addressof(v)));
-    }
-
-    template <typename To, typename From>
-    FORCE_INLINE To cast_addressof(const volatile From & v)
-    {
-        return static_cast<To>(static_cast<const volatile void *>(std::addressof(v)));
-    }
-
     enum MemoryType
     {
         MemType_VirtualMemory   = 1,
@@ -130,18 +107,16 @@ namespace utility
 
     protected:
         using BufPtr = std::unique_ptr<uint8_t[]>;
-        using GuardSequenceStr_t = const char [49];
+        using GuardSequenceStr_t = char [49];
 
         FORCE_INLINE static CONSTEXPR_RETURN const GuardSequenceStr_t & _guard_sequence_str()
         {
-            static CONSTEXPR_RETURN const GuardSequenceStr_t s_guard_sequence_str = "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
-            return s_guard_sequence_str;
+            return "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
         }
 
         FORCE_INLINE static CONSTEXPR_RETURN const size_t _guard_max_len()
         {
-            static CONSTEXPR_RETURN const size_t s_guard_max_len = 256; // to avoid comparison slow down on big arrays
-            return s_guard_max_len;
+            return 256; // to avoid comparison slow down on big arrays
         }
 
     public:
@@ -153,7 +128,7 @@ namespace utility
             }
         }
 
-        FORCE_INLINE Buffer::~Buffer()
+        FORCE_INLINE ~Buffer()
         {
 #if !ERROR_IF_EMPTY_PP_DEF(DISABLE_BUFFER_GUARD_CHECK) && (ERROR_IF_EMPTY_PP_DEF(ENABLE_PERSISTENT_BUFFER_GUARD_CHECK) || defined(_DEBUG))
             check_buffer_guards();

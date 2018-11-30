@@ -33,6 +33,166 @@ namespace utility {
 
 namespace {
 
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE bool
+        _is_relative_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ std::move(path.str()) }.is_relative();
+    }
+
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE bool
+        _is_absolute_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path)
+    {
+        if (path.empty()) {
+            return false;
+        }
+
+        return boost::fs::path{ std::move(path.str()) }.is_absolute();
+    }
+
+    template <char separator_char>
+    FORCE_INLINE tackle::basic_path_string<separator_char>
+        _get_relative_path(
+            tackle::basic_path_string<separator_char> from_path,
+            tackle::basic_path_string<separator_char> to_path,
+            bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+        auto && to_path_rref = std::move(to_path);
+
+        if (throw_on_error) {
+            return boost::fs::relative(to_path_rref.str(), from_path_rref.str()).string();
+        }
+
+        boost::system::error_code ec;
+        return boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).string();
+    }
+
+    template <wchar_t separator_char>
+    FORCE_INLINE tackle::basic_path_wstring<separator_char>
+        _get_relative_path(
+            tackle::basic_path_wstring<separator_char> from_path,
+            tackle::basic_path_wstring<separator_char> to_path,
+            bool throw_on_error)
+    {
+        auto && from_path_rref = std::move(from_path);
+        auto && to_path_rref = std::move(to_path);
+
+        if (throw_on_error) {
+            return boost::fs::relative(to_path_rref.str(), from_path_rref.str()).wstring();
+        }
+
+        boost::system::error_code ec;
+        return boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).wstring();
+    }
+
+    template <char separator_char>
+    FORCE_INLINE tackle::basic_path_string<separator_char>
+        _get_absolute_path(
+            tackle::basic_path_string<separator_char> from_path,
+            tackle::basic_path_string<separator_char> to_path)
+    {
+        auto && from_path_rref = std::move(from_path);
+        auto && to_path_rref = std::move(to_path);
+
+        return boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).string();
+    }
+
+    template <char separator_char>
+    FORCE_INLINE tackle::basic_path_string<separator_char>
+        _get_current_path(
+            bool throw_on_error, tackle::tag_basic_path_string<separator_char>)
+    {
+        if (throw_on_error) {
+            return boost::fs::current_path().string();
+        }
+
+
+        boost::system::error_code ec;
+        return boost::fs::current_path(ec).string();
+    }
+
+    template <wchar_t separator_char>
+    FORCE_INLINE tackle::basic_path_wstring<separator_char>
+        _get_current_path(
+            bool throw_on_error, tackle::tag_basic_path_wstring<separator_char>)
+    {
+        if (throw_on_error) {
+            return boost::fs::current_path().wstring();
+        }
+
+
+        boost::system::error_code ec;
+        return boost::fs::current_path(ec).wstring();
+    }
+
+    template <wchar_t separator_char>
+    FORCE_INLINE tackle::basic_path_wstring<separator_char>
+        _get_absolute_path(
+            tackle::basic_path_wstring<separator_char> from_path,
+            tackle::basic_path_wstring<separator_char> to_path)
+    {
+        auto && from_path_rref = std::move(from_path);
+        auto && to_path_rref = std::move(to_path);
+
+        return boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).wstring();
+    }
+
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
+        _get_absolute_path(
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
+    {
+        auto && path_rref = std::move(path);
+
+        if (!is_absolute_path(path_rref)) {
+            return _get_absolute_path(_get_current_path(throw_on_error, tackle::tag_basic_path_string_by_elem<t_elem, separator_char>{}), path_rref);
+        }
+
+        return path;
+    }
+
+    template <char separator_char>
+    FORCE_INLINE tackle::basic_path_string<separator_char>
+        _get_lexically_normal_path(
+            tackle::basic_path_string<separator_char> path)
+    {
+        return boost::fs::path{ std::move(path.str()) }.lexically_normal().string();
+    }
+
+    template <wchar_t separator_char>
+    FORCE_INLINE tackle::basic_path_wstring<separator_char>
+        _get_lexically_normal_path(
+            tackle::basic_path_wstring<separator_char> path)
+    {
+        return boost::fs::path{ std::move(path.str()) }.lexically_normal().wstring();
+    }
+
+    template <char separator_char>
+    FORCE_INLINE tackle::basic_path_string<separator_char>
+        _get_lexically_relative_path(
+            tackle::basic_path_string<separator_char> from_path,
+            tackle::basic_path_string<separator_char> to_path)
+    {
+        return boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).string();
+    }
+
+    template <wchar_t separator_char>
+    FORCE_INLINE tackle::basic_path_wstring<separator_char>
+        _get_lexically_relative_path(
+            tackle::basic_path_wstring<separator_char> from_path,
+            tackle::basic_path_wstring<separator_char> to_path)
+    {
+        return boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).wstring();
+    }
+
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE uint64_t
         _get_file_size(const tackle::FileHandle<t_elem, t_traits, t_alloc> & file_handle)
@@ -172,23 +332,26 @@ namespace {
 
         return _NetShareGetInfo(const_cast<LPWSTR>(wstr_servername_rref.c_str()), const_cast<LPWSTR>(wstr_netname_rref.c_str()), level, bufptr);
     }
+#endif
 
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE tackle::native_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_to_native_path(
-            tackle::native_basic_path_string<t_elem, t_traits, t_alloc> && from_path)
+            tackle::native_basic_path_string<t_elem, t_traits, t_alloc> && path)
     {
-        to_path = from_path;
+        return path;
     }
 
+#if defined(UTILITY_PLATFORM_WINDOWS)
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE tackle::native_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_to_native_path(
-            tackle::generic_basic_path_string<t_elem, t_traits, t_alloc> && from_path)
+            tackle::generic_basic_path_string<t_elem, t_traits, t_alloc> && path)
     {
         using generic_basic_path_string_t = tackle::generic_basic_path_string<t_elem, t_traits, t_alloc>;
-        to_path = std::forward<generic_basic_path_string_t::base_type>(from_path);
+        return std::move(std::forward<typename generic_basic_path_string_t::base_type>(path));
     }
+#endif
 
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE tackle::native_basic_path_string<t_elem, t_traits, t_alloc>
@@ -206,9 +369,8 @@ namespace {
             tackle::tag_generic_basic_path_string<t_elem>)
     {
         using generic_basic_path_string_t = tackle::generic_basic_path_string<t_elem, t_traits, t_alloc>;
-        return std::forward<generic_basic_path_string_t::base_type>(from_path);
+        return std::forward<typename generic_basic_path_string_t::base_type>(from_path);
     }
-#endif
 
     // Based on: https://stackoverflow.com/questions/2316927/how-to-convert-unc-to-local-path
     //
@@ -443,7 +605,7 @@ namespace {
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
-        using native_path_basic_string_t = tackle::native_basic_path_string <t_elem, t_traits, t_alloc>;
+        using native_path_basic_string_t = tackle::native_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -467,10 +629,10 @@ namespace {
 
         // including separator conversion
         if (from_native_path_rref.substr(0, 4) != path_prefix) {
-            to_path = path_prefix + std::move(std::forward<native_path_basic_string_t::base_type>(from_native_path_rref)); // usual strings concatenation
+            to_path = path_prefix + std::move(std::forward<typename native_path_basic_string_t::base_type>(from_native_path_rref)); // usual strings concatenation
         }
         else {
-            to_path = std::move(std::forward<native_path_basic_string_t::base_type>(from_native_path_rref));
+            to_path = std::move(std::forward<typename native_path_basic_string_t::base_type>(from_native_path_rref));
         }
 
         return true;
@@ -583,7 +745,10 @@ namespace {
         //  Implement `fcntl` with `F_SETLK`, for details see: https://linux.die.net/man/3/fcntl
         UTILITY_UNUSED_STATEMENT(share_flags);
 
-        return fopen(file_name, mode);
+        return fopen(
+            utility::convert_string_to_string(file_name, utility::tag_string{}, utility::tag_string_conv_utf16_to_utf8{}).c_str(),
+            utility::convert_string_to_string(mode, utility::tag_string{}, utility::tag_string_conv_utf16_to_utf8{}).c_str()
+        );
 #else
         return nullptr;
 #error platform is not implemented
@@ -866,132 +1031,6 @@ namespace {
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool
-        _is_relative_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path)
-    {
-        if (path.empty()) {
-            return false;
-        }
-
-        return boost::fs::path{ std::move(path.str()) }.is_relative();
-    }
-
-    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE bool
-        _is_absolute_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path)
-    {
-        if (path.empty()) {
-            return false;
-        }
-
-        return boost::fs::path{ std::move(path.str()) }.is_absolute();
-    }
-
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_string<separator_char>
-        _get_relative_path(
-            tackle::basic_path_string<separator_char> from_path,
-            tackle::basic_path_string<separator_char> to_path,
-            bool throw_on_error)
-    {
-        auto && from_path_rref = std::move(from_path);
-        auto && to_path_rref = std::move(to_path);
-
-        if (throw_on_error) {
-            return boost::fs::relative(to_path_rref.str(), from_path_rref.str()).string();
-        }
-
-        boost::system::error_code ec;
-        return boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).string();
-    }
-
-    template <wchar_t separator_char>
-    FORCE_INLINE tackle::basic_path_wstring<separator_char>
-        _get_relative_path(
-            tackle::basic_path_wstring<separator_char> from_path,
-            tackle::basic_path_wstring<separator_char> to_path,
-            bool throw_on_error)
-    {
-        auto && from_path_rref = std::move(from_path);
-        auto && to_path_rref = std::move(to_path);
-
-        if (throw_on_error) {
-            return boost::fs::relative(to_path_rref.str(), from_path_rref.str()).wstring();
-        }
-
-        boost::system::error_code ec;
-        return boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).wstring();
-    }
-
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_string<separator_char>
-        _get_absolute_path(
-            tackle::basic_path_string<separator_char> from_path,
-            tackle::basic_path_string<separator_char> to_path)
-    {
-        auto && from_path_rref = std::move(from_path);
-        auto && to_path_rref = std::move(to_path);
-
-        return boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).string();
-    }
-
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_wstring<separator_char>
-        _get_absolute_path(
-            tackle::basic_path_wstring<separator_char> from_path,
-            tackle::basic_path_wstring<separator_char> to_path)
-    {
-        auto && from_path_rref = std::move(from_path);
-        auto && to_path_rref = std::move(to_path);
-
-        return boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).wstring();
-    }
-
-    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
-        _get_absolute_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
-    {
-        auto && path_rref = std::move(path);
-
-        if (!is_absolute_path(path_rref)) {
-            return _get_absolute_path(_get_current_path(throw_on_error, tackle::tag_basic_path_string_by_elem<t_elem, separator_char>{}), path_rref);
-        }
-
-        return path;
-    }
-
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_string<separator_char>
-        _get_current_path(
-            bool throw_on_error, tackle::tag_basic_path_string<separator_char>)
-    {
-        if (throw_on_error) {
-            return boost::fs::current_path().string();
-        }
-
-
-        boost::system::error_code ec;
-        return boost::fs::current_path(ec).string();
-    }
-
-    template <wchar_t separator_char>
-    FORCE_INLINE tackle::basic_path_wstring<separator_char>
-        _get_current_path(
-            bool throw_on_error, tackle::tag_basic_path_wstring<separator_char>)
-    {
-        if (throw_on_error) {
-            return boost::fs::current_path().wstring();
-        }
-
-
-        boost::system::error_code ec;
-        return boost::fs::current_path(ec).wstring();
-    }
-
-    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE bool
         _remove_symlink(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
@@ -1090,40 +1129,6 @@ namespace {
         return boost::dll::program_location().parent_path().wstring();
     }
 
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_string<separator_char>
-        _get_lexically_normal_path(
-            tackle::basic_path_string<separator_char> path)
-    {
-        return boost::fs::path{ std::move(path.str()) }.lexically_normal().string();
-    }
-
-    template <wchar_t separator_char>
-    FORCE_INLINE tackle::basic_path_wstring<separator_char>
-        _get_lexically_normal_path(
-            tackle::basic_path_wstring<separator_char> path)
-    {
-        return boost::fs::path{ std::move(path.str()) }.lexically_normal().wstring();
-    }
-
-    template <char separator_char>
-    FORCE_INLINE tackle::basic_path_string<separator_char>
-        _get_lexically_relative_path(
-            tackle::basic_path_string<separator_char> from_path,
-            tackle::basic_path_string<separator_char> to_path)
-    {
-        return boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).string();
-    }
-
-    template <wchar_t separator_char>
-    FORCE_INLINE tackle::basic_path_wstring<separator_char>
-        _get_lexically_relative_path(
-            tackle::basic_path_wstring<separator_char> from_path,
-            tackle::basic_path_wstring<separator_char> to_path)
-    {
-        return boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).wstring();
-    }
-
 }
 
     uint64_t get_file_size(tackle::FileHandleA file_handle)
@@ -1146,6 +1151,7 @@ namespace {
         return _is_files_equal(std::move(left_file_handle), std::move(right_file_handle), read_block_size);
     }
 
+#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1160,7 +1166,6 @@ namespace {
         return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1174,7 +1179,6 @@ namespace {
 
         return _convert_local_to_network_unc_path(from_path_rref, to_path, throw_on_error);
     }
-#endif
 
     tackle::unc_path_string convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
     {
@@ -1190,7 +1194,6 @@ namespace {
         return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
     }
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::unc_path_string convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1204,7 +1207,6 @@ namespace {
 
         return _convert_local_to_network_unc_path(from_path_rref, tackle::tag_unc_path_wstring{}, throw_on_error);
     }
-#endif
 
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error)
     {
@@ -1220,7 +1222,6 @@ namespace {
         return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);
@@ -1234,7 +1235,6 @@ namespace {
 
         return _convert_network_unc_to_local_path(from_path_rref, to_path, throw_on_error);
     }
-#endif
 
     tackle::generic_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error)
     {
@@ -1250,7 +1250,6 @@ namespace {
         return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_generic_path_basic_string<wchar_t>{}, throw_on_error);
     }
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::native_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error)
     {
         auto && from_path_rref = std::move(from_path);

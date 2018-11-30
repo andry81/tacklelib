@@ -41,11 +41,11 @@ namespace tackle
 
         // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
     private:
-        template <t_elem separator_char>
-        path_basic_string(const path_basic_string<t_elem, t_traits, t_alloc, separator_char> &) = delete;
+        template <t_elem separator_char_>
+        path_basic_string(const path_basic_string<t_elem, t_traits, t_alloc, separator_char_> &) = delete;
 
-        template <t_elem separator_char>
-        path_basic_string & operator =(const path_basic_string<t_elem, t_traits, t_alloc, separator_char> &) = delete;
+        template <t_elem separator_char_>
+        path_basic_string & operator =(const path_basic_string<t_elem, t_traits, t_alloc, separator_char_> &) = delete;
 
     public:
         FORCE_INLINE path_basic_string(base_type r) :
@@ -76,14 +76,36 @@ namespace tackle
         path_basic_string & operator+= (base_type r) = delete;
         path_basic_string & operator+= (const t_elem * p) = delete;
 
-        // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend path_basic_string operator+ (path_basic_string l, base_type r) = delete;
+        // NOTE:
+        //  W/o `= delete` to avoid compilation error under msvc2015 update 3: `error C2995: function template has already been defined`
+        //
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend path_basic_string operator+ (base_type l, path_basic_string r) = delete;
-        friend path_basic_string operator+ (path_basic_string l, path_basic_string r) = delete;
-        friend path_basic_string operator+ (path_basic_string l, const t_elem * p) = delete;
-        friend path_basic_string operator+ (const t_elem * p, path_basic_string r) = delete;
+        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
+            std::basic_string<t_elem_, t_traits_, t_alloc_> r);
+
+        // WORKAROUND: error C2556: overloaded function differs only by return type from
+        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+            std::basic_string<t_elem_, t_traits_, t_alloc_> l,
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
+
+        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
+
+        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
+            const t_elem_ * p);
+
+        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+            const t_elem_ * p,
+            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
 
     public:
         FORCE_INLINE path_basic_string & operator/= (base_type r)
@@ -92,7 +114,7 @@ namespace tackle
 
             base_type & base_this = *this;
             if (!r.empty()) {
-                if (!empty()) {
+                if (!this->empty()) {
                     base_this += UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(t_elem, separator_char).data();
                 }
                 base_this += r_path;
@@ -107,7 +129,7 @@ namespace tackle
 
             base_type & base_this = *this;
             if (*p) {
-                if (!empty()) {
+                if (!this->empty()) {
                     base_this += UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(t_elem, separator_char).data();
                 }
                 base_this += p;

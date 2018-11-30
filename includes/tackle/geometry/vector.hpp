@@ -10,11 +10,16 @@
 #include <utility/math.hpp>
 #include <utility/memory.hpp>
 
+#include <tackle/static_constexpr.hpp>
+
 #include <cstddef>
 #include <cstdlib>
 #include <string>
 #include <functional>
 #include <atomic>
+
+
+#include <type_traits>
 
 
 namespace tackle {
@@ -26,6 +31,11 @@ struct BasicVector3d
 {
     using elem_type = real;
     using arr_type = elem_type[3];
+
+    static const BasicVector3d & null()
+    {
+        return TACKLE_STATIC_CONSTEXPR_VALUE(BasicVector3d);
+    }
 
     elem_type & operator [](size_t index)
     {
@@ -73,6 +83,11 @@ struct Vector3d : BasicVector3d
 
     ~Vector3d()
     {
+    }
+
+    static const Vector3d & null()
+    {
+        return TACKLE_STATIC_CONSTEXPR_VALUE(Vector3d);
     }
 };
 
@@ -191,6 +206,11 @@ struct Normal3d : public Vector3d
     Normal3d(const real & x_, const real & y_, const real & z_) :
         Vector3d(x_, y_, z_)
     {
+    }
+
+    static const Normal3d & null()
+    {
+        return TACKLE_STATIC_CONSTEXPR_VALUE(Normal3d);
     }
 
     void fix_float_trigonometric_range_factor()
@@ -345,6 +365,11 @@ struct NormalMatrix3d
     {
     }
 
+    static const NormalMatrix3d & null()
+    {
+        return TACKLE_STATIC_CONSTEXPR_VALUE(NormalMatrix3d);
+    }
+
     Normal3d & operator [](size_t index)
     {
         if (index < 3) {
@@ -365,7 +390,7 @@ struct NormalMatrix3d
 
         DEBUG_ASSERT_TRUE(false);
 
-        return Normal3d{};
+        return Normal3d::null();
     }
 
     void fix_float_trigonometric_range_factor()

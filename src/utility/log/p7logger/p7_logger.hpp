@@ -8,6 +8,7 @@
 #include <utility/locale.hpp>
 #include <utility/string.hpp>
 
+#include <tackle/debug.hpp>
 #include <tackle/smart_handle.hpp>
 #include <tackle/log/log_handle.hpp>
 
@@ -16,10 +17,11 @@
 #include "P7_Trace.h"
 #include "P7_Telemetry.h"
 
+#include <vector>
+#include <string>
 #include <cstdio>
 #include <cstdint>
 #include <stdexcept>
-#include <string>
 #include <sstream>
 #include <istream>
 #include <ios>
@@ -63,53 +65,126 @@
 
 
 #define LOG_P7_LOG(trace_handle, id, lvl, fmt, ...) \
-    trace_handle.log(id, lvl, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, lvl, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_TRACE(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_TRACE, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_TRACE, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_DEBUG(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_DEBUG, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_DEBUG, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_INFO(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_INFO, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_INFO, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_WARNING(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_WARNING, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_WARNING, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_ERROR(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_ERROR, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_ERROR, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOG_CRITICAL(trace_handle, id, fmt, ...) \
-    trace_handle.log(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 // multiline version
 
 #define LOG_P7_LOGM(trace_handle, id, lvl, fmt, ...) \
-    trace_handle.log_multiline(id, lvl, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, lvl, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_TRACE(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_TRACE, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_TRACE, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_DEBUG(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_DEBUG, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_DEBUG, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_INFO(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_INFO, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_INFO, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_WARNING(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_WARNING, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_WARNING, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_ERROR(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_ERROR, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_ERROR, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 #define LOG_P7_LOGM_CRITICAL(trace_handle, id, fmt, ...) \
-    trace_handle.log_multiline(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNCSIG_MAKE_A(), fmt, ## __VA_ARGS__)
+    trace_handle.log_multiline(id, EP7TRACE_LEVEL_CRITICAL, DEBUG_FILE_LINE_FUNC_MAKE_A(), fmt, ## __VA_ARGS__)
 
 
 namespace utility {
 namespace log {
 namespace p7logger {
+
+namespace {
+
+    template <typename... Args>
+    struct impl;
+
+    template <typename... Args>
+    struct impl<utility::tuple_identities<Args...> >
+    {
+        static FORCE_INLINE bool _p7TraceA(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
+            const std::string & fmt, Args... args)
+        {
+            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(),
+                std::forward<decltype(args)>(args).c_str()...) ? true : false;
+        }
+
+        static FORCE_INLINE bool _p7TraceW(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
+            const std::wstring & fmt, Args... args)
+        {
+            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(),
+                std::forward<decltype(args)>(args).c_str()...) ? true : false;
+        }
+
+        static FORCE_INLINE std::vector<std::string> &&
+            _p7TraceMultilineA(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
+                const std::string & fmt, Args... args)
+        {
+            std::string text_buf = utility::string_format(1024, fmt, args.c_str()...);
+
+            std::vector<std::string> text_lines;
+
+            std::istringstream text_stream_in{ text_buf, std::ios_base::in };
+
+            text_lines.reserve(64);
+
+            std::string line;
+
+            while (text_stream_in) {
+                if (!std::getline(text_stream_in, line)) {
+                    break;
+                }
+                text_lines.push_back(line);
+            }
+
+            return std::move(text_lines);
+        }
+
+        static FORCE_INLINE std::vector<std::wstring> &&
+            _p7TraceMultilineW(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
+                const std::wstring & fmt, Args... args)
+        {
+            std::wstring text_buf = utility::string_format(1024, fmt, args.c_str()...);
+
+            std::vector<std::wstring> text_lines;
+
+            std::wistringstream text_stream_in{ text_buf, std::ios_base::in };
+
+            text_lines.reserve(64);
+
+            std::wstring line;
+
+            while (text_stream_in) {
+                if (!std::getline(text_stream_in, line)) {
+                    break;
+                }
+                text_lines.push_back(line);
+            }
+
+            return std::move(text_lines);
+        }
+    };
+
+}
 
     class p7ClientHandle;
     class p7TraceHandle;
@@ -339,7 +414,7 @@ namespace p7logger {
             return p->Unregister_Thread(thread_id) ? true : false;
         }
 
-        FORCE_INLINE bool register_module(const std::string & module_name, const utility::DebugFileLineFuncInlineStackA & inline_stack)
+        FORCE_INLINE bool register_module(const std::string & module_name, const tackle::DebugFileLineFuncInlineStackA & inline_stack)
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -355,7 +430,7 @@ namespace p7logger {
 #endif
         }
 
-        FORCE_INLINE bool register_module(const std::wstring & module_name, const utility::DebugFileLineFuncInlineStackA & inline_stack)
+        FORCE_INLINE bool register_module(const std::wstring & module_name, const tackle::DebugFileLineFuncInlineStackA & inline_stack)
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -371,8 +446,8 @@ namespace p7logger {
 #endif
         }
 
-        template <typename ...Args>
-        FORCE_INLINE bool log(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::string & fmt, Args... args) const
+        template <typename... Args>
+        FORCE_INLINE bool log(uint16_t id, eP7Trace_Level lvl, const tackle::DebugFileLineFuncInlineStackA & inline_stack, const std::string & fmt, Args... args) const
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -393,21 +468,18 @@ namespace p7logger {
                 ++index;
             }
 
-            return utility::apply_with_cast<bool>( // instead of apply
-                [&](auto... converted_args)
-                {
-                    return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), converted_fmt.c_str(),
-                        std::forward<decltype(converted_args)>(converted_args).c_str()...) ? true : false;
-                },
-                converted_args
+            return utility::apply(
+                impl<decltype(utility::make_tuple_identities(converted_args))>::_p7TraceW,
+                converted_args,
+                p, id, lvl, m_hmodule, inline_stack, converted_fmt
             );
 #else
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #endif
         }
 
-        template <typename ...Args>
-        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::string & fmt, Args... args) const
+        template <typename... Args>
+        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const tackle::DebugFileLineFuncInlineStackA & inline_stack, const std::string & fmt, Args... args) const
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -428,47 +500,27 @@ namespace p7logger {
                 ++index;
             }
 
-            std::vector<std::wstring> && text_lines = utility::apply_with_cast<std::vector<std::wstring> >( // instead of apply
-                [&](auto... converted_args)
-                {
-                    std::wstring text_buf = utility::string_format(1024, converted_fmt.c_str(),
-                        std::forward<decltype(converted_args)>(converted_args).c_str()...);
-
-                    std::vector<std::wstring> text_lines;
-
-                    std::wistringstream text_stream_in{ text_buf, std::ios_base::in };
-
-                    text_lines.reserve(64);
-
-                    std::wstring line;
-
-                    while (text_stream_in) {
-                        if (!std::getline(text_stream_in, line)) {
-                            break;
-                        }
-                        text_lines.push_back(line);
-                    }
-
-                    return std::move(text_lines);
-                },
-                converted_args
+            std::vector<std::wstring> && text_lines = utility::apply(
+                impl<decltype(utility::make_tuple_identities(converted_args))>::_p7TraceMultilineW,
+                converted_args,
+                p, id, lvl, m_hmodule, inline_stack, converted_fmt
             );
 
             bool res_multiline = false;
 
             for(const auto & text_line : text_lines) {
-                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), L"%s",
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, L"%s",
                     text_line.c_str()) ? true : false;
             }
 
             return res_multiline;
 #else
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #endif
         }
 
-        template <typename ...Args>
-        FORCE_INLINE bool log(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
+        template <typename... Args>
+        FORCE_INLINE bool log(uint16_t id, eP7Trace_Level lvl, const tackle::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -478,7 +530,7 @@ namespace p7logger {
             }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #else
             std::string converted_fmt;
             std::string converted_args[sizeof...(args)];
@@ -491,19 +543,16 @@ namespace p7logger {
                 ++index;
             }
 
-            return utility::apply_with_cast<bool>( // instead of apply
-                [&](auto... converted_args)
-                {
-                    return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), converted_fmt.c_str(),
-                        std::forward<decltype(converted_args)>(converted_args).c_str()...) ? true : false;
-                },
-                converted_args
+            return utility::apply(
+                impl<decltype(utility::make_tuple_identities(converted_args))>::_p7TraceA,
+                converted_args,
+                p, id, lvl, m_hmodule, inline_stack, converted_fmt
             );
 #endif
         }
 
-        template <typename ...Args>
-        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const utility::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
+        template <typename... Args>
+        FORCE_INLINE bool log_multiline(uint16_t id, eP7Trace_Level lvl, const tackle::DebugFileLineFuncInlineStackA & inline_stack, const std::wstring & fmt, Args... args) const
         {
             IP7_Trace * p = get();
             if (!p) {
@@ -513,7 +562,7 @@ namespace p7logger {
             }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), fmt.c_str(), args...) ? true : false;
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #else
             std::string converted_fmt;
             std::string converted_args[sizeof...(args)];
@@ -526,36 +575,16 @@ namespace p7logger {
                 ++index;
             }
 
-            std::vector<std::string> && text_lines = utility::apply_with_cast<std::vector<std::string> >( // instead of apply
-                [&](auto... converted_args)
-                {
-                    std::string text_buf = utility::string_format(1024, converted_fmt.c_str(),
-                        std::forward<decltype(converted_args)>(converted_args).c_str()...);
-
-                    std::vector<std::string> text_lines;
-
-                    std::istringstream text_stream_in{ text_buf, std::ios_base::in };
-
-                    text_lines.reserve(64);
-
-                    std::string line;
-
-                    while (text_stream_in) {
-                        if (!std::getline(text_stream_in, line)) {
-                            break;
-                        }
-                        text_lines.push_back(line);
-                    }
-
-                    return std::move(text_lines);
-                },
-                converted_args
+            std::vector<std::string> && text_lines = utility::apply(
+                impl<decltype(utility::make_tuple_identities(converted_args))>::_p7TraceMultilineA,
+                converted_args,
+                p, id, lvl, m_hmodule, inline_stack, converted_fmt
             );
 
             bool res_multiline = false;
 
             for(const auto & text_line : text_lines) {
-                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file.c_str(), inline_stack.top.func.c_str(), "%s",
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, "%s",
                     text_line.c_str()) ? true : false;
             }
 
@@ -906,7 +935,7 @@ namespace p7logger {
             return p7TelemetryParamHandle{ *this, param_id };
         }
 #else
-        if (p->Create(utility::convert_string_to_string(channel_name, utility::tag_string{}, utility::tag_string_conv_utf16_to_utf8{}).c_str(),
+        if (p->Create(utility::convert_string_to_string(param_catalog_name, utility::tag_string{}, utility::tag_string_conv_utf16_to_utf8{}).c_str(),
             min_value, max_value, alarm_value, is_enabled ? TRUE : FALSE, &param_id) ? true : false) {
             return p7TelemetryParamHandle{ *this, param_id };
         }

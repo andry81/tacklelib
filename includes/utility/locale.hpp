@@ -30,7 +30,7 @@ namespace utility {
         return astr;
     }
 
-    template <class Codecvt, class Elem, class Walloc = allocator<Elem>, class Balloc = allocator<char> >
+    template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::wstring & wstr, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && wstr_converter)
     {
         return wstr_converter.to_bytes(wstr);
@@ -43,7 +43,7 @@ namespace utility {
         return convert_utf16_to_utf8_string(wstr, wstring_convert_t{});
     }
 
-    template <class Codecvt, class Elem, class Walloc = allocator<Elem>, class Balloc = allocator<char> >
+    template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::u16string & u16str, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && u16str_converter)
     {
         return u16str_converter.to_bytes(u16str);
@@ -56,7 +56,7 @@ namespace utility {
         return convert_utf16_to_utf8_string(u16str, wstring_convert_t{});
     }
 
-    template <class Codecvt, class Elem, class Walloc = allocator<Elem>, class Balloc = allocator<char> >
+    template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::u32string & u32str, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && u32str_converter)
     {
         return u32str_converter.to_bytes(u32str);
@@ -70,7 +70,7 @@ namespace utility {
     }
 
 
-    template <class Codecvt, class Walloc = allocator<wchar_t>, class Balloc = allocator<char> >
+    template <class Codecvt, class Walloc = std::allocator<wchar_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const std::string & astr, std::wstring_convert<Codecvt, wchar_t, Walloc, Balloc> && wstr_converter)
     {
         return wstr_converter.from_bytes(astr);
@@ -83,7 +83,7 @@ namespace utility {
         return convert_utf8_to_utf16_string(astr, wstring_convert_t{});
     }
 
-    template <class Codecvt, class Walloc = allocator<char16_t>, class Balloc = allocator<char> >
+    template <class Codecvt, class Walloc = std::allocator<char16_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const std::string & astr, std::wstring_convert<Codecvt, char16_t, Walloc, Balloc> && wstr_converter)
     {
         return wstr_converter.from_bytes(astr);
@@ -96,7 +96,7 @@ namespace utility {
         return convert_utf8_to_utf16_string(astr, wstring_convert_t{});
     }
 
-    template <class Codecvt, class Walloc = allocator<char32_t>, class Balloc = allocator<char> >
+    template <class Codecvt, class Walloc = std::allocator<char32_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const std::string & astr, std::wstring_convert<Codecvt, char32_t, Walloc, Balloc> && wstr_converter)
     {
         return wstr_converter.from_bytes(astr);

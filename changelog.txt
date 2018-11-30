@@ -1,3 +1,20 @@
+2018.11.30:
+* fixed: build under linux, use C++11 only
+* fixed: mutiple fixes for compile and link under linux
+
+2018.11.27:
+* new: tackle static_constexpr_value class to get `static constexpr` values transparently under c++11 standard limited compilers (briefly `constexpr` function body in c++11 must consist of a single return statement returning non void value: https://en.cppreference.com/w/cpp/language/constexpr (`exactly one return statement.`))
+* refactor: global tackle library refactor to build under linux
+
+2018.11.24:
+* fixed: missed date_time template class explicit instantiation
+
+2018.11.23:
+* fixed: tackle math macro fixes
+
+2018.11.22:
+* changed: p7 client log macros with simple function names w/o function signature as less long in result output
+
 2018.11.21:
 * changed: path_basic_string::operator+ replaced by operator/ as more reliable and does not intersect with std::basic_string::operator+. path_basic_string::operator+ is left declared as `= delete` to raise an error on old operator usage.
 * missed changes

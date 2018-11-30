@@ -17,8 +17,6 @@
 #include <signal.h>
 #endif
 
-#include <string>
-
 
 // break point placeholder, useful inside custom user macroses to emulate function call break points
 #define BREAK_POINT_PLACEHOLDER() ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
@@ -36,7 +34,7 @@
 // See for details: https://stackoverflow.com/questions/6859267/valgrind-unhandled-instruction-bytes-0xf-0xb-0xff-0x85
 //
 #define DEBUG_BREAK(exp) \
-    if((exp) ? false : true); else raise(SIGTRAP) // or: __builtin_trap()
+    if((exp) ? false : true); else ::raise(SIGTRAP) // or: __builtin_trap()
 
 #else
 #error debug_break is not supported for this platform
@@ -46,75 +44,9 @@
 
 #define DEBUG_BREAK_THROW(cond)                     DEBUG_BREAK_IN_DEBUGGER(cond); throw
 
-#define DEBUG_FUNC_LINE_A                           ::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_A()                    ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)          ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
-
-#define DEBUG_FUNCSIG_LINE_A                        ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
-#define DEBUG_FUNCSIG_LINE_MAKE_A()                 ::utility::DebugFuncLineInlineStackA::make(::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
-#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)       ::utility::DebugFuncLineInlineStackA::make_push(stack, ::utility::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
-
-#define DEBUG_FILE_LINE_FUNC_A                      ::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC }
-#define DEBUG_FILE_LINE_FUNC_MAKE_A()               ::utility::DebugFileLineFuncInlineStackA::make(::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
-#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A(stack)     ::utility::DebugFileLineFuncInlineStackA::make_push(stack, ::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
-
-#define DEBUG_FILE_LINE_FUNCSIG_A                   ::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG }
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_A()            ::utility::DebugFileLineFuncInlineStackA::make(::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A(stack)  ::utility::DebugFileLineFuncInlineStackA::make_push(stack, ::utility::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
-
 
 namespace utility
 {
-    template <class t_elem, class t_traits, class t_alloc>
-    struct DebugFuncLine
-    {
-        std::basic_string<t_elem, t_traits, t_alloc>    func;
-        int                                             line;
-    };
-
-    using DebugFuncLineA = DebugFuncLine<char, std::char_traits<char>, std::allocator<char> >;
-    using DebugFuncLineW = DebugFuncLine<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
-
-    template <class t_elem, class t_traits, class t_alloc>
-    struct DebugFileLineFunc
-    {
-        std::basic_string<t_elem, t_traits, t_alloc>    file;
-        int                                             line;
-        std::basic_string<t_elem, t_traits, t_alloc>    func;
-    };
-
-    using DebugFileLineFuncA = DebugFileLineFunc<char, std::char_traits<char>, std::allocator<char> >;
-    using DebugFileLineFuncW = DebugFileLineFunc<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
-
-    template <typename T>
-    class inline_stack
-    {
-    public:
-        inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
-            next_ptr(next_ptr_), top(top_)
-        {
-        }
-
-        static inline_stack make(const T & top)
-        {
-            return inline_stack{ top };
-        }
-
-        static inline_stack make_push(const inline_stack & next_stack, const T & top)
-        {
-            return inline_stack{ top, &next_stack };
-        }
-
-        const inline_stack *    next_ptr;
-        T                       top;
-    };
-
-    using DebugFuncLineInlineStackA     = inline_stack<DebugFuncLineA>;
-    using DebugFileLineFuncInlineStackA = inline_stack<DebugFileLineFuncA>;
-
-    using DebugFuncLineInlineStackW     = inline_stack<DebugFuncLineW>;
-    using DebugFileLineFuncInlineStackW = inline_stack<DebugFileLineFuncW>;
-
     // break on true
     void debug_break(bool condition = false);
     bool is_under_debugger();

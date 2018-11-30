@@ -47,7 +47,7 @@ namespace tackle
         }
         else {
             // make construction
-            ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
+            ::new (utility::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(r.m_storage));
 
             // flag construction
             base_t::set_constructed(true);
@@ -71,7 +71,7 @@ namespace tackle
         }
         else {
             // make construction
-            ::new (std::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
+            ::new (utility::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(r.m_storage)));
 
             // flag construction
             base_t::set_constructed(true);
@@ -135,7 +135,7 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (std::addressof(m_storage)) storage_type_t();
+        ::new (utility::addressof(m_storage)) storage_type_t();
 
         // flag construction
         base_t::set_constructed(true);
@@ -147,7 +147,7 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (std::addressof(m_storage)) storage_type_t(r);
+        ::new (utility::addressof(m_storage)) storage_type_t(r);
 
         // flag construction
         base_t::set_constructed(true);
@@ -159,7 +159,7 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || !base_t::is_constructed());
 
-        ::new (std::addressof(m_storage)) storage_type_t(std::move(r));
+        ::new (utility::addressof(m_storage)) storage_type_t(std::forward<Ref>(r));
 
         // flag construction
         base_t::set_constructed(true);
@@ -194,7 +194,7 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+        *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
 
         return *this;
     }
@@ -218,7 +218,7 @@ namespace tackle
     {
         DEBUG_ASSERT_TRUE(!base_t::has_construction_flag() || base_t::is_constructed());
 
-        *utility::cast_addressof<storage_type_t *>(m_storage) = std::move(r);
+        *utility::cast_addressof<storage_type_t *>(m_storage) = std::forward<Ref>(r);
 
         return *this;
     }

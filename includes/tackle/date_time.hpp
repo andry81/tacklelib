@@ -8,7 +8,10 @@
 
 #include <utility/platform.hpp>
 #include <utility/type_identity.hpp>
+#include <utility/type_traits.hpp>
+#include <utility/addressof.hpp>
 #include <utility/debug.hpp>
+#include <utility/memory.hpp>
 #include <utility/time.hpp>
 #include <utility/utility.hpp>
 
@@ -85,10 +88,10 @@ namespace tackle
             case StorageType_Unknown: // internal delayed construction
                 break;
             case StorageType_Custom:
-                ::new (std::addressof(custom)) T{};
+                ::new (utility::addressof(custom)) T{};
                 break;
             case StorageType_String:
-                ::new (std::addressof(string_)) string_type{};
+                ::new (utility::addressof(string_)) string_type{};
                 break;
             default:
                 DEBUG_ASSERT_TRUE(false);
@@ -184,10 +187,10 @@ namespace tackle
         {
             switch (r.storage_type_) {
             case StorageType_Custom:
-                ::new (std::addressof(custom)) T{ r.custom };
+                ::new (utility::addressof(custom)) T{ r.custom };
                 break;
             case StorageType_String:
-                ::new (std::addressof(string_)) string_type{ r.string_ };
+                ::new (utility::addressof(string_)) string_type{ r.string_ };
                 break;
             default:
                 DEBUG_ASSERT_TRUE(false);
@@ -201,10 +204,10 @@ namespace tackle
 
             switch (r.storage_type_) {
             case StorageType_Custom:
-                ::new (std::addressof(custom)) T{ r_time.custom };
+                ::new (utility::addressof(custom)) T{ r_time.custom };
                 break;
             case StorageType_String:
-                ::new (std::addressof(string_)) string_type{ r_time.string_ };
+                ::new (utility::addressof(string_)) string_type{ r_time.string_ };
                 break;
             default:
                 DEBUG_ASSERT_TRUE(false);
@@ -237,16 +240,16 @@ namespace tackle
 
         FORCE_INLINE void reset(StorageType storage_type__ = StorageType_Custom)
         {
-            destruct();
+            _destruct();
 
             storage_type_ = storage_type__;
 
             switch (storage_type__) {
             case StorageType_Custom:
-                ::new (std::addressof(custom)) T{};
+                ::new (utility::addressof(custom)) T{};
                 break;
             case StorageType_String:
-                ::new (std::addressof(string_)) string_type{};
+                ::new (utility::addressof(string_)) string_type{};
                 break;
             default:
                 DEBUG_ASSERT_TRUE(false);
@@ -260,8 +263,8 @@ namespace tackle
             const StorageType prev_storage_type = storage_type_;
 
             if (prev_storage_type != StorageType_Custom) {
-                destruct();
-                ::new (std::addressof(custom)) T{ r_time };
+                _destruct();
+                ::new (utility::addressof(custom)) T{ r_time };
             }
             else {
                 custom = r_time;
@@ -270,16 +273,16 @@ namespace tackle
 
         FORCE_INLINE void reset(string_type r)
         {
-            basic_date_time && r_time = std::move(r);
+            string_type && r_rref = std::move(r);
 
             const StorageType prev_storage_type = storage_type_;
 
             if (prev_storage_type != StorageType_String) {
-                destruct();
-                ::new (std::addressof(string_)) string_type{ r_time };
+                _destruct();
+                ::new (utility::addressof(string_)) string_type{ r_rref };
             }
             else {
-                string_ = r_time;
+                string_ = r_rref;
             }
         }
 
@@ -288,8 +291,8 @@ namespace tackle
             const StorageType prev_storage_type = storage_type_;
 
             if (prev_storage_type != StorageType_String) {
-                destruct();
-                ::new (std::addressof(string_)) string_type{ p };
+                _destruct();
+                ::new (utility::addressof(string_)) string_type{ p };
             }
             else {
                 string_ = p;
@@ -299,7 +302,7 @@ namespace tackle
         // store with convertion into custom type, format string is partially compatible with the std::strftime
         FORCE_INLINE void reset(const string_type & fmt, string_type time_str, const std::string & locale = "C", bool throw_on_error = true)
         {
-            basic_date_time && time_str_rref = std::move(time_str);
+            string_type && time_str_rref = std::move(time_str);
 
             std::tm time{};
 
@@ -313,8 +316,8 @@ namespace tackle
                 }
             }
 
-            storage_type_ = StorageType_custom;
-            custom = utility::time::timegm(time);
+            storage_type_ = StorageType_Custom;
+            custom = static_cast<T>(utility::time::timegm(time));
         }
 
         FORCE_INLINE void reset(basic_date_time r)
@@ -325,7 +328,7 @@ namespace tackle
 
             const bool do_reconstruct = (prev_storage_type != r.storage_type_);
             if (do_reconstruct) {
-                destruct();
+                _destruct();
             }
 
             storage_type_ = r.storage_type_;
@@ -333,7 +336,7 @@ namespace tackle
             switch (r.storage_type_) {
             case StorageType_Custom:
                 if (do_reconstruct) {
-                    ::new (std::addressof(custom)) T{ r_time.custom };
+                    ::new (utility::addressof(custom)) T{ r_time.custom };
                 }
                 else {
                     custom = r_time.custom;
@@ -341,7 +344,7 @@ namespace tackle
                 break;
             case StorageType_String:
                 if (do_reconstruct) {
-                    ::new (std::addressof(string_)) T{ r_time.string_ };
+                    ::new (utility::addressof(string_)) string_type{ r_time.string_ };
                 }
                 else {
                     string_ = r_time.string_;

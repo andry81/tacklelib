@@ -70,7 +70,7 @@ namespace time {
         spec->tv_sec = wintime / 10000000i64;
         spec->tv_nsec = wintime % 10000000i64 * 100;
 #else
-        return ::unit_time(spec);
+        ::timespec_get(spec, TIME_UTC);
 #endif
     }
 

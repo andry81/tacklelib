@@ -61,7 +61,7 @@
 
 #define TEST_INIT_ENV_VAR(base_name, class_name, var_name, base_var_name, suffix_path) \
     if (class_name::UTILITY_PP_CONCAT(s_, var_name).empty()) { \
-        class_name::UTILITY_PP_CONCAT(s_, var_name) = base_name::UTILITY_PP_CONCAT(s_, base_var_name) + suffix_path; \
+        class_name::UTILITY_PP_CONCAT(s_, var_name) = base_name::UTILITY_PP_CONCAT(s_, base_var_name) / suffix_path; \
         if (!utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name), true)) { \
             utility::create_directory(class_name::UTILITY_PP_CONCAT(s_, var_name), true); \
             class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \
@@ -74,9 +74,12 @@
 
 extern std::vector<test::TestCase> g_test_cases;
 
+template <typename Function>
 struct TestCaseFuncRef
 {
-    TestCaseFuncRef(void * func_) :
+    using func_t = bool();
+
+    TestCaseFuncRef(Function * func_) :
         func(func_), refs(0)
     {
         if (func) {
@@ -86,17 +89,21 @@ struct TestCaseFuncRef
 
     TestCaseFuncRef(const TestCaseFuncRef &) = default;
 
-    void *  func;
-    int     refs;    // number of calls
+    Function *  func;
+    int         refs;    // number of calls
 };
 
-FORCE_INLINE bool operator ==(const TestCaseFuncRef & l, const TestCaseFuncRef & r)
+template <typename Ret>
+FORCE_INLINE bool operator ==(const TestCaseFuncRef<Ret()> & l, const TestCaseFuncRef<Ret()> & r)
 {
     return l.func == r.func;
 }
 
-std::vector<TestCaseFuncRef> g_test_cases_inits;
-std::vector<TestCaseFuncRef> g_test_cases_uninits;
+using TestCaseInitFuncRef   = TestCaseFuncRef<bool()>;
+using TestCaseUninitFuncRef = TestCaseFuncRef<void()>;
+
+std::vector<TestCaseInitFuncRef>    g_test_cases_inits;
+std::vector<TestCaseUninitFuncRef>  g_test_cases_uninits;
 
 TEST_IMPL_DEFINE_ENV_VAR(TestCaseStaticBase, TESTS_DATA_IN_ROOT);
 TEST_IMPL_DEFINE_ENV_VAR(TestCaseStaticBase, TESTS_DATA_OUT_ROOT);
@@ -132,6 +139,7 @@ namespace test
             return global_init_msg_prefix_str[index];
         }
 
+#if defined(UTILITY_PLATFORM_WINDOWS)
         inline WORD _get_log_out_console_attrs(size_t index)
         {
             static const WORD console_attrs[] = { \
@@ -147,7 +155,7 @@ namespace test
             return console_attrs[index];
         }
 
-#ifdef UTILITY_PLATFORM_POSIX
+#elif defined(UTILITY_PLATFORM_POSIX)
         inline const char * _get_console_color_ansi_sequence(size_t index)
         {
             static const char * console_color_ansi_sequence[] = {
@@ -249,7 +257,7 @@ namespace test
                 }
                 else if (v.data_in_subdir && !std::string(v.data_in_subdir).empty()) { // filter by subdir
                     // test on existance, disable test case if not found
-                    const tackle::path_string data_in_subdir = TestCaseWithDataReference::s_TESTS_REF_DIR + v.data_in_subdir;
+                    const tackle::path_string data_in_subdir = TestCaseWithDataReference::s_TESTS_REF_DIR / v.data_in_subdir;
                     if (!utility::is_path_exists(data_in_subdir, true) || !utility::is_directory_path(data_in_subdir, true)) {
                         TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
                             "tests input data subdirectory is not found: \"%s\".\n", data_in_subdir.c_str());
@@ -317,14 +325,14 @@ namespace test
             if (!do_exclude) {
                 // test case global initialization
                 if (v.init_func) {
-                    auto test_case_inits_it = std::find(g_test_cases_inits.begin(), g_test_cases_inits.end(), TestCaseFuncRef{ v.init_func });
+                    auto test_case_inits_it = std::find(g_test_cases_inits.begin(), g_test_cases_inits.end(), TestCaseInitFuncRef{ v.init_func });
                     if (test_case_inits_it != g_test_cases_inits.end()) {
                         test_case_inits_it->refs++;
                     }
                     else {
                         try {
                             if (v.init_func()) {
-                                g_test_cases_inits.push_back(TestCaseFuncRef{ v.init_func });
+                                g_test_cases_inits.push_back(TestCaseInitFuncRef{ v.init_func });
                                 v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00020000; // globally initialized
                             }
                             else {
@@ -460,14 +468,14 @@ namespace test
                     if (!(v.flags & 0x00010000)) {
                         // test case global uninitialization
                         if (v.uninit_func) {
-                            auto test_case_uninits_it = std::find(g_test_cases_uninits.begin(), g_test_cases_uninits.end(), TestCaseFuncRef{ v.uninit_func });
+                            auto test_case_uninits_it = std::find(g_test_cases_uninits.begin(), g_test_cases_uninits.end(), TestCaseUninitFuncRef{ v.uninit_func });
                             if (test_case_uninits_it != g_test_cases_uninits.end()) {
                                 test_case_uninits_it->refs++;
                             }
                             else {
                                 try {
                                     v.uninit_func();
-                                    g_test_cases_uninits.push_back(TestCaseFuncRef{ v.uninit_func });
+                                    g_test_cases_uninits.push_back(TestCaseUninitFuncRef{ v.uninit_func });
                                     v.flags |= TCF_PRIVATE_FLAGS_MASK & 0x00040000; // globally uninitialized
                                 }
                                 catch (const std::exception & ex) {
@@ -642,18 +650,18 @@ const tackle::path_string & TestCaseStaticBase::get_data_out_var(const char * er
 tackle::path_string TestCaseStaticBase::get_data_in_root(const char * error_msg_prefix, const tackle::path_string & test_case_name, const tackle::path_string & test_name)
 {
     const tackle::path_string & data_in_subdir = test::get_data_in_subdir(test_case_name, test_name);
-    return get_data_in_var(error_msg_prefix) + data_in_subdir;
+    return get_data_in_var(error_msg_prefix) / data_in_subdir;
 }
 
 tackle::path_string TestCaseStaticBase::get_data_out_root(const char * error_msg_prefix, const tackle::path_string & test_case_name, const tackle::path_string & test_name)
 {
     const tackle::path_string & data_out_subdir = test::get_data_out_subdir(test_case_name, test_name);
-    return get_data_out_var(error_msg_prefix) + data_out_subdir;
+    return get_data_out_var(error_msg_prefix) / data_out_subdir;
 }
 
 tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_data_in_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -663,7 +671,7 @@ tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_
 
 tackle::path_string TestCaseStaticBase::get_data_out_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_data_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -673,7 +681,7 @@ tackle::path_string TestCaseStaticBase::get_data_out_dir_path(const char * error
 
 tackle::path_string TestCaseStaticBase::get_data_in_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_data_in_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_data_in_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -683,7 +691,7 @@ tackle::path_string TestCaseStaticBase::get_data_in_file_path(const char * error
 
 tackle::path_string TestCaseStaticBase::get_data_out_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_data_out_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_data_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -718,7 +726,7 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_ms
     const tackle::path_string & root_dir_var = get_ref_var(error_msg_prefix);
 
     const bool has_prefix_dir = !prefix_dir.empty();
-    const tackle::path_string ref_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "ref" : "") + suffix_dir;
+    const tackle::path_string ref_dir = root_dir_var / prefix_dir / (has_prefix_dir ? "ref" : "") / suffix_dir;
 
     // reference directory must already exist at first request
     if (!utility::is_directory_path(ref_dir, true)) {
@@ -731,7 +739,7 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_ms
 
 tackle::path_string TestCaseWithDataReference::get_ref_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_ref_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -741,7 +749,7 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir_path(const char * err
 
 tackle::path_string TestCaseWithDataReference::get_ref_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_ref_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_ref_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -776,7 +784,7 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir(const char * error_ms
     const tackle::path_string & root_dir_var = get_gen_var(error_msg_prefix);
 
     const bool has_prefix_dir = !prefix_dir.empty();
-    const tackle::path_string gen_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "gen" : "") + suffix_dir;
+    const tackle::path_string gen_dir = root_dir_var / prefix_dir / (has_prefix_dir ? "gen" : "") / suffix_dir;
 
     // generated direcory must be created if not done yet
     if (!utility::is_path_exists(gen_dir, true)) {
@@ -788,7 +796,7 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir(const char * error_ms
 
 tackle::path_string TestCaseWithDataGenerator::get_gen_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_gen_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -798,7 +806,7 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir_path(const char * err
 
 tackle::path_string TestCaseWithDataGenerator::get_gen_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_gen_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_gen_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -833,7 +841,7 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir(const char * error_msg_p
     const tackle::path_string & root_dir_var = get_out_var(error_msg_prefix);
 
     const bool has_prefix_dir = !prefix_dir.empty();
-    const tackle::path_string out_dir = root_dir_var + prefix_dir + (has_prefix_dir ? "out" : "") + suffix_dir;
+    const tackle::path_string out_dir = root_dir_var / prefix_dir / (has_prefix_dir ? "out" : "") / suffix_dir;
 
     // output direcory must be created if not done yet
     if (!utility::is_path_exists(out_dir, true)) {
@@ -845,7 +853,7 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir(const char * error_msg_p
 
 tackle::path_string TestCaseWithDataOutput::get_out_dir_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
             error_msg_prefix, path));
@@ -855,7 +863,7 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir_path(const char * error_
 
 tackle::path_string TestCaseWithDataOutput::get_out_file_path(const char * error_msg_prefix, const tackle::path_string & path_suffix)
 {
-    const tackle::path_string & path = get_out_var(error_msg_prefix) + path_suffix;
+    const tackle::path_string & path = get_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
         DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
             error_msg_prefix, path));
