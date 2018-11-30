@@ -193,7 +193,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<T0 &>([=](auto & v) -> T0 &
+            return m_aligned_storage.template invoke_if_returnable<T0 &>([=](T0 & v) -> T0 &
             {
                 return v;
             });
@@ -209,7 +209,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<const T0 &>([=](const auto & v) -> const T0 &
+            return m_aligned_storage.template invoke_if_returnable<const T0 &>([=](const T0 & v) -> const T0 &
             {
                 return v;
             });
@@ -225,7 +225,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<T1 &>([=](auto & v) -> T1 &
+            return m_aligned_storage.template invoke_if_returnable<T1 &>([=](T1 & v) -> T1 &
             {
                 return v;
             });
@@ -241,7 +241,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<const T1 &>([=](const auto & v) -> const T1 &
+            return m_aligned_storage.template invoke_if_returnable<const T1 &>([=](const T1 & v) -> const T1 &
             {
                 return v;
             });
@@ -257,7 +257,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<T2 &>([=](auto & v) -> T2 &
+            return m_aligned_storage.template invoke_if_returnable<T2 &>([=](T2 & v) -> T2 &
             {
                 return v;
             });
@@ -273,7 +273,7 @@ namespace tackle
             //  After this point if lambda return parameter is not convertible to declared return type, then return value does return as unconstructed!
             //
 
-            return m_aligned_storage.template invoke_if_returnable<const T2 &>([=](const auto & v) -> const T2 &
+            return m_aligned_storage.template invoke_if_returnable<const T2 &>([=](const T2 & v) -> const T2 &
             {
                 return v;
             });

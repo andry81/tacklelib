@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <cstdint>
 #include <cwchar>
-#include <cuchar>
+#include <uchar.h> // in GCC `cuchar` header might not exist
 #include <memory>
 #include <algorithm>
 #include <type_traits>
@@ -147,7 +147,7 @@ namespace tackle {
 
     }
 
-    template <typename CharT, typename ...Args>
+    template <typename CharT, typename... Args>
     FORCE_INLINE static CONSTEXPR
         typename details::fst<literal_char_array<CharT, sizeof...(Args)>,
             typename std::enable_if<
@@ -246,18 +246,6 @@ namespace tackle {
         // back slash separator has meaning only on the Windows systems in the UNC paths
         static CONSTEXPR const CharT filesystem_unc_dir_separator_char = backward_slash_char;
     };
-
-    template <typename CharT>
-    CONSTEXPR typename literal_separators<CharT>::forward_slash_str_t
-        literal_separators<CharT>::forward_slash_str                = UTILITY_LITERAL_STRING("/", CharT);
-
-    template <typename CharT>
-    CONSTEXPR typename literal_separators<CharT>::backward_slash_str_t
-        literal_separators<CharT>::backward_slash_str               = UTILITY_LITERAL_STRING("\\", CharT);
-
-    template <typename CharT>
-    CONSTEXPR typename literal_separators<CharT>::space_str_t
-        literal_separators<CharT>::space_str                        = UTILITY_LITERAL_STRING(" ", CharT);
 
 }
 

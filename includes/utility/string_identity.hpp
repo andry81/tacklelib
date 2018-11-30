@@ -10,7 +10,7 @@
 #include <utility/type_identity.hpp>
 
 #include <cwchar>
-#include <cuchar>
+#include <uchar.h> // in GCC `cuchar` header might not exist
 #include <string>
 #include <memory>
 #include <type_traits>

@@ -19,7 +19,7 @@ namespace tackle
     template <class t_elem, class t_traits, class t_alloc>
     class FileHandle : public SmartHandle<FILE>
     {
-        using base_type = SmartHandle;
+        using base_type = SmartHandle<FILE>;
 
     public:
         using string_type = std::basic_string<t_elem, t_traits, t_alloc>;

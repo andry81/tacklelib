@@ -59,7 +59,7 @@
 // returns current test name token contained test name and test name index
 //
 #define TEST_NAME_TOKEN() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->name(); \
         return name_ptr_; \
     }(TEST_CASE_GET_INFO())
@@ -67,7 +67,7 @@
 // returns current test name
 //
 #define TEST_NAME() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->name(); \
         /* split name by / */ \
         auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \
@@ -78,7 +78,7 @@
 // returns current test name index
 //
 #define TEST_NAME_INDEX() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->name(); \
         /* split name by / */ \
         auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \
@@ -89,7 +89,7 @@
 // returns current test case name token contained test case name prefix and name
 //
 #define TEST_CASE_NAME_TOKEN() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         return name_ptr_; \
     }(TEST_CASE_GET_INFO())
@@ -97,7 +97,7 @@
 // returns current test case name
 //
 #define TEST_CASE_NAME() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         /* split name by / */ \
         auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \
@@ -108,7 +108,7 @@
 // returns current test case name prefix
 //
 #define TEST_CASE_NAME_PREFIX() \
-    [](auto * test_case_info_ptr_) -> tackle::path_string { \
+    [](const ::testing::TestInfo * test_case_info_ptr_) -> tackle::path_string { \
         auto * name_ptr_ = test_case_info_ptr_->test_case_name(); \
         /* split name by / */ \
         auto * name_suffix_ptr_ = strrchr(name_ptr_, '/'); \

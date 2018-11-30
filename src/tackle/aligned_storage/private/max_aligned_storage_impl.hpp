@@ -26,8 +26,8 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct_default(std::addressof(m_storage), UTILITY_PP_FUNCSIG, \
+            if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
+                construct_default(utility::addressof(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not default constructable: Type=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -59,8 +59,8 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct(std::addressof(m_storage), r, UTILITY_PP_FUNCSIG, \
+            if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
+                construct(utility::addressof(m_storage), r, UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -91,8 +91,8 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            if (::utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
-                construct(std::addressof(m_storage), std::move(r), UTILITY_PP_FUNCSIG, \
+            if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
+                construct(utility::addressof(m_storage), std::forward<Ref>(r), UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
                 m_type_index = type_index; \
             } \
@@ -123,7 +123,7 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            ::new (std::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(s)); \
+            ::new (utility::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(s)); \
             m_type_index = s.m_type_index; \
         } else goto default_
 
@@ -154,7 +154,7 @@ namespace tackle
 
     #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            ::new (std::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(s))); \
+            ::new (utility::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(s))); \
             m_type_index = s.m_type_index; \
         } else goto default_
 
@@ -221,7 +221,7 @@ namespace tackle
     #define TACKLE_PP_ASSIGN_MACRO_RIGHT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             const auto & right_value = *utility::cast_addressof<const right_storage_type_t *>(s); \
-            ::utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
+            utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
                 call(left_value, right_value, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } \
@@ -266,8 +266,8 @@ namespace tackle
     #define TACKLE_PP_ASSIGN_XREF_MACRO_RIGHT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto && right_value = std::move(*utility::cast_addressof<const right_storage_type_t *>(s)); \
-            ::utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
-                call(left_value, std::move(right_value), UTILITY_PP_FUNCSIG, \
+            utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
+                call(left_value, right_value, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } \
         else goto default_
@@ -300,7 +300,7 @@ namespace tackle
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
-            ::utility::assign_dispatcher<Ref, storage_type_t, true>:: \
+            utility::assign_dispatcher<Ref, storage_type_t, true>:: \
                 call(left_value, r, UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
@@ -332,8 +332,8 @@ namespace tackle
     #define TACKLE_PP_ASSIGN_XREF_MACRO_LEFT(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
-            ::utility::assign_dispatcher<Ref, storage_type_t, true>:: \
-                call(left_value, std::move(r), UTILITY_PP_FUNCSIG, \
+            utility::assign_dispatcher<Ref, storage_type_t, true>:: \
+                call(left_value, std::forward<Ref>(r), UTILITY_PP_FUNCSIG, \
                     "%s: From type is not convertible to the To type: From=\"%s\" To=\"%s\"", throw_exceptions_on_type_error); \
         } else goto default_
 
@@ -363,7 +363,7 @@ namespace tackle
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            return ::utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
+            return utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
@@ -397,7 +397,7 @@ namespace tackle
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            return ::utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
+            return utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
@@ -431,7 +431,7 @@ namespace tackle
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
+            return utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \
@@ -468,7 +468,7 @@ namespace tackle
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
         if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
-            return ::utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
+            return utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: functor has not convertible first parameter type: From=\"%s\" To=\"%s\" Ret=\"%s\"", throw_exceptions_on_type_error); \

@@ -1,4 +1,6 @@
 #include <utility/memory.hpp>
+#include <utility/string.hpp>
+#include <utility/utility.hpp>
 
 #include <tackle/file_handle.hpp>
 
@@ -12,9 +14,9 @@
 #include "windows.h"
 #include "psapi.h"
 #elif defined(UTILITY_PLATFORM_POSIX)
-#include "<cstdlib>"
-#include "<cstdio>"
-#include "<string>"
+#include <cstdlib>
+#include <cstdio>
+#include <string>
 #else
 #error platform is not implemented
 #endif
@@ -49,18 +51,20 @@ namespace utility {
                 return pmc.PrivateUsage;
             }
 #elif defined(UTILITY_PLATFORM_POSIX)
-            char tmp_buf[256];
+            std::string buf;
             if (proc_id) {
-                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(tmp_buf), "/proc/%zu/status", proc_id);
+                buf = string_format(256, "/proc/%zu/status", proc_id);
             }
             else {
-                strncpy(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("/proc/self/status"));
+                buf = "/proc/self/status";
             }
-            const tackle::FileHandleA proc_file_handle = utility::open_file(tmp_buf, "r", utility::SharedAccess_DenyNone);
+            const tackle::FileHandleA proc_file_handle = utility::open_file(tackle::generic_path_string{ buf }, "r", utility::SharedAccess_DenyNone);
 
             size_t mem_size = 0;
 
-            while (fgets(tmp_buf, utility::static_size(tmp_buf), proc_file_handle.get())) {
+            char tmp_buf[4096];
+
+            while (std::fgets(tmp_buf, utility::static_size(tmp_buf), proc_file_handle.get())) {
                 if (!strncmp(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("VmSize:"))) {
                     mem_size = strlen(tmp_buf);
                     const char* p = tmp_buf;

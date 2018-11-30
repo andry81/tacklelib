@@ -19,6 +19,7 @@
 #include <utility/platform.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/type_traits.hpp>
+#include <utility/addressof.hpp>
 #include <utility/assert.hpp>
 #include <utility/memory.hpp>
 #include <utility/utility.hpp>
@@ -133,22 +134,22 @@ namespace tackle
 
         FORCE_INLINE void * address()
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const void * address() const
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE volatile void * address() volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
         FORCE_INLINE const volatile void * address() const volatile
         {
-            return std::addressof(m_storage);
+            return utility::addressof(m_storage);
         }
 
     private:

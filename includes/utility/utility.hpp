@@ -51,6 +51,15 @@
 #error platform is not implemented
 #endif
 
+// forwards
+namespace tackle
+{
+    template <class t_elem, class t_traits, class t_alloc>
+    class FileHandle;
+
+    using FileHandleA = FileHandle<char, std::char_traits<char>, std::allocator<char> >;
+    using FileHandleW = FileHandle<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
+}
 
 namespace tackle
 {
@@ -110,8 +119,6 @@ namespace utility
         SharedAccess_DenyRead   = 0x30,         // deny read mode
         SharedAccess_DenyNone   = 0x40,         // deny none mode
         SharedAccess_Secure     = 0x80          // secure mode
-#else
-#error platform is not implemented
 #endif
     };
 
@@ -121,34 +128,28 @@ namespace utility
     bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_bloc);
     bool is_files_equal(tackle::FileHandleW left_file_handle, tackle::FileHandleW right_file_handle, size_t read_block_size);
 
+#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
     bool convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
     bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
-#endif
 
     tackle::unc_path_string convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
     tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::unc_path_string convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
     tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
-#endif
 
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error);
     bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path, bool throw_on_error);
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error);
     bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path, bool throw_on_error);
-#endif
 
     tackle::generic_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error);
     tackle::generic_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring, bool throw_on_error);
 
-#if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::native_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error);
     tackle::native_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring, bool throw_on_error);
 #endif

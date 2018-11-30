@@ -10,9 +10,12 @@
 #include <utility/type_identity.hpp>
 #include <utility/static_assert.hpp>
 #include <utility/debug.hpp>
+#include <utility/string.hpp>
 
 #include <type_traits>
+#include <typeinfo>
 #include <tuple>
+#include <array>
 
 #include <cstdint>
 #include <cstring>
@@ -21,21 +24,27 @@
 #define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
 
 
-#ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_INTEGER_SEQUENCE
-// in case if not declared
-namespace std
-{
-//    template<class T, T... Vals>
-//    struct integer_sequence
-//    {
-//    };
-}
-#endif
-
 namespace utility
 {
-    template<size_t... _Vals>
-    using index_sequence = std::integer_sequence<size_t, _Vals...>;
+    template <typename T>
+    struct function_traits;
+
+    template<typename T, size_t... I>
+    struct integer_sequence
+    {
+        static_assert(std::is_integral<T>::value, "T must be integral type.");
+
+        using type          = integer_sequence<T, I...>;
+        using value_type    = T;
+
+        static CONSTEXPR size_t size()
+        {
+            return sizeof...(I);
+        }
+    };
+
+    template<size_t... Indexes>
+    using index_sequence = integer_sequence<size_t, Indexes...>;
 
     // remove_reference + remove_cv
     template <typename T>
@@ -51,10 +60,246 @@ namespace utility
         return N;
     }
 
-    template <typename ...T>
+    template <typename... T>
     FORCE_INLINE CONSTEXPR size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
+    }
+
+    // index_sequence C++11 implementation
+    // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
+    //
+
+    namespace detail
+    {
+        template <std::size_t N, size_t... NextIndexes>
+        struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, NextIndexes...>
+        {
+        };
+
+        template <std::size_t... NextIndexes>
+        struct index_sequence_helper<0U, NextIndexes...>
+        {
+            using type = index_sequence<NextIndexes...>;
+        };
+    }
+
+    template <std::size_t N>
+    using make_index_sequence_t = typename detail::index_sequence_helper<N>::type;
+
+    // tuple from array C++11 implementation
+    // Based on: https://stackoverflow.com/questions/37029886/how-to-construct-a-tuple-from-an-array/37031202#37031202
+    //
+
+    // T[N] -> std::tuple<T...>
+
+    template <typename T, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple(T (& arr)[N], index_sequence<Indexes...>) ->
+        std::tuple<typename std::remove_reference<decltype(arr[Indexes])>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return std::tuple<typename std::remove_reference<decltype(arr[Indexes])>::type...>{};
+    }
+
+    template <typename T, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple(T (& arr)[N]) -> decltype(make_tuple(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple(arr, make_index_sequence_t<N>{});
+    }
+
+    // From[N] -> utility::tuple<To...>
+
+    template <typename To, typename From, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+        std::tuple<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return std::tuple<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>{};
+    }
+
+    template <typename To, typename From, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple_with_cast(From (& arr)[N]) ->
+        decltype(make_tuple_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple_with_cast<To>(arr, make_index_sequence_t<N>{});
+    }
+
+    // T[N] -> utility::tuple_identities<T...>
+
+    template <typename T, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities(T (& arr)[N], index_sequence<Indexes...>)
+        -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>{};
+    }
+
+    template <typename T, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities(T (& arr)[N]) ->
+        decltype(make_tuple_identities(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple_identities(arr, make_index_sequence_t<N>{});
+    }
+
+    // From[N] -> utility::tuple_identities<To...>
+
+    template <typename To, typename From, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+        tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>{};
+    }
+
+    template <typename To, typename From, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(From (& arr)[N]) ->
+        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{});
+    }
+
+    // std::array<T, N> -> utility::tuple_identities<T...>
+
+    template <typename T, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities(const std::array<T, N> & arr, index_sequence<Indexes...>)
+        -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>{};
+    }
+
+    template <typename T, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities(const std::array<T, N> & arr) ->
+        decltype(make_tuple_identities(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple_identities(arr, make_index_sequence_t<N>{});
+    }
+
+    // std::array<From, N> -> utility::tuple_identities<To...>
+
+    template <typename To, typename From, size_t N, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(const std::array<From, N> & arr, index_sequence<Indexes...>) ->
+        tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
+    {
+        static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
+        return tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>{};
+    }
+
+    template <typename To, typename From, size_t N>
+    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(const std::array<From, N> & arr) ->
+        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    {
+        return make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{});
+    }
+
+    template <typename Functor>
+    using functor_return_type_t = typename std::result_of<Functor>::type;
+
+//    template <typename Functor>
+//    using functor_return_type_t = typename function_traits<Functor>::return_type;
+
+    // without decltype(auto)...
+    namespace detail
+    {
+        // T[N] -> f(Args &&...)
+
+        template <typename Functor, typename T, size_t N, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], index_sequence<Indexes...>) ->
+            decltype(f(arr[Indexes]...))
+        {
+            return f(arr[Indexes]...);
+        }
+
+        template <typename Functor, typename T, size_t N, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], index_sequence<Indexes...>, Args &&... args) ->
+            decltype(f(args..., arr[Indexes]...))
+        {
+            return f(args..., arr[Indexes]...);
+        }
+
+        // std::array<T, N> -> f(Args &&...)
+
+        template <typename Functor, typename T, size_t N, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, index_sequence<Indexes...>) ->
+            decltype(f(arr[Indexes]...))
+        {
+            return f(arr[Indexes]...);
+        }
+
+        template <typename Functor, typename T, size_t N, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, index_sequence<Indexes...>, Args &&... args) ->
+            decltype(f(args..., arr[Indexes]...))
+        {
+            return f(args..., arr[Indexes]...);
+        }
+
+        // From[N] -> f(To{ Args && }...)
+
+        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], index_sequence<Indexes...>) ->
+            decltype(f(static_cast<To>(arr[Indexes])...))
+        {
+            return f(static_cast<To>(arr[Indexes])...);
+        }
+
+        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], index_sequence<Indexes...>, Args &&... args) ->
+            decltype(f(args..., static_cast<To>(arr[Indexes])...))
+        {
+            return f(args..., static_cast<To>(arr[Indexes])...);
+        }
+
+        // std::array<From, N> -> f(To{ Args && }...)
+
+        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, index_sequence<Indexes...>) ->
+            decltype(f(static_cast<To>(arr[Indexes])...))
+        {
+            return f(static_cast<To>(arr[Indexes])...);
+        }
+
+        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, index_sequence<Indexes...>, Args &&... args) ->
+            decltype(f(args..., static_cast<To>(arr[Indexes])...))
+        {
+            return f(args..., static_cast<To>(arr[Indexes])...);
+        }
+    }
+
+    // T[N] -> f(Args &&...)
+
+    template <typename Functor, typename T, size_t N, typename... Args>
+    FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], Args &&... args) ->
+        decltype(detail::apply(f, arr, make_index_sequence_t<N>{}, args...))
+    {
+        return detail::apply(f, arr, make_index_sequence_t<N>{}, args...);
+    }
+
+    // std::array<T, N> -> f(Args &&...)
+
+    template <typename Functor, typename T, size_t N, typename... Args>
+    FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, Args &&... args) ->
+        decltype(detail::apply(f, arr, make_index_sequence_t<N>{}, args...))
+    {
+        return detail::apply(f, arr, make_index_sequence_t<N>{}, args...);
+    }
+
+    // From[N] -> f(To{ Args && }...)
+
+    template <typename To, typename Functor, typename From, size_t N, typename... Args>
+    FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], Args &&... args) ->
+        decltype(detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...))
+    {
+        return detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...);
+    }
+
+    // std::array<From, N> -> f(To{ Args && }...)
+
+    template <typename To, typename Functor, typename From, size_t N, typename... Args>
+    FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, Args &&... args) ->
+        decltype(detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...))
+    {
+        return detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...);
     }
 
     // Represents unconstructed decayed type value, to suppress compilation error on return types which default constructor has been deleted.
@@ -84,28 +329,92 @@ namespace utility
     // Based on: https://stackoverflow.com/questions/37617677/implementing-a-compile-time-static-if-logic-for-different-string-types-in-a-co
     //
 
+    //// static_if by overload
+
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR auto static_if(std::true_type, T t, F f)
+    FORCE_INLINE CONSTEXPR T static_if(std::true_type, T t, F)
     {
+        // c++11: body of constexpr function must consist only of single return-statement
         return t;
     }
 
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR auto static_if(std::false_type, T t, F f)
+    FORCE_INLINE CONSTEXPR F static_if(std::false_type, T, F f)
     {
+        // c++11: body of constexpr function must consist only of single return-statement
         return f;
     }
 
+    //// static_if by explicit template argument
+
     template <bool B, typename T, typename F>
-    FORCE_INLINE CONSTEXPR auto static_if(T t, F f)
+    FORCE_INLINE CONSTEXPR auto static_if(T t, F f) -> typename std::conditional<B, T, F>::type
     {
         return static_if(std::integral_constant<bool, B>{}, t, f);
     }
 
-    template <bool B, typename T>
-    FORCE_INLINE CONSTEXPR auto static_if(T t)
+    //// static_if_true by overload
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR T static_if_true(std::true_type, T t)
     {
-        return static_if(std::integral_constant<bool, B>{}, t, [](auto&&...) {});
+        return t;
+    }
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR void static_if_true(std::false_type, T t)
+    {
+    }
+
+    //// static_if_false by overload
+
+    template <typename F>
+    FORCE_INLINE CONSTEXPR void static_if_false(std::true_type, F f)
+    {
+    }
+
+    template <typename F>
+    FORCE_INLINE CONSTEXPR F static_if_false(std::false_type, F f)
+    {
+        return f;
+    }
+
+    namespace detail
+    {
+        template <bool B>
+        struct static_if_helper
+        {
+            template <typename T>
+            static constexpr T invoke(T t)
+            {
+                return t;
+            }
+        };
+
+        template <>
+        struct static_if_helper<false>
+        {
+            template <typename T>
+            static constexpr void invoke(T)
+            {
+            }
+        };
+    }
+
+    //// static_if_true by explicit template argument
+
+    template <bool B, typename T>
+    constexpr auto static_if_true(T t) -> typename std::conditional<B, T, void>::type
+    {
+        return detail::static_if_helper<B>::invoke(t);
+    }
+
+    //// static_if_false by explicit template argument
+
+    template <bool B, typename F>
+    constexpr auto static_if_false(F f) -> typename std::conditional<B, void, F>::type
+    {
+        return detail::static_if_helper<!B>::invoke(f);
     }
 
     template <typename T>
@@ -117,9 +426,6 @@ namespace utility
         //
         static CONSTEXPR const bool value = (std::is_integral<T>::value || std::is_enum<T>::value);
     };
-
-    template <typename T>
-    struct function_traits;
 
     // Type qualification adaptor for a function parameter.
     // Based on `boost` library (https://www.boost.org)
@@ -158,7 +464,7 @@ namespace utility
        using param_type       = T &;
     };
 
-    template <typename T, std::size_t N>
+    template <typename T, size_t N>
     struct call_traits<T[N]>
     {
     private:
@@ -170,7 +476,7 @@ namespace utility
        using param_type       = const T * const;
     };
 
-    template <typename T, std::size_t N>
+    template <typename T, size_t N>
     struct call_traits<const T[N]>
     {
     private:
@@ -206,26 +512,6 @@ namespace utility
         runtime_for_lt(functor, 0, static_size(container));
     }
 
-    // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
-    //
-
-    namespace detail
-    {
-        template <std::size_t N, std::size_t... Next>
-        struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, Next...>
-        {
-        };
-
-        template <std::size_t... Next>
-        struct index_sequence_helper<0U, Next...>
-        {
-            using type = index_sequence<Next...>;
-        };
-    }
-
-    template <std::size_t N>
-    using make_index_sequence = typename detail::index_sequence_helper<N>::type;
-
     // `constexpr for` implementation.
     // Based on: https://stackoverflow.com/questions/42005229/why-for-loop-isnt-a-compile-time-expression-and-extended-constexpr-allows-for-l
     //
@@ -233,68 +519,34 @@ namespace utility
     template <typename T>
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
-    template<typename Functor, std::size_t... S>
-    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, index_sequence<S...>)
+    template<typename Functor, size_t... Indexes>
+    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, index_sequence<Indexes...>)
     {
-        return static_consume({ (function(std::integral_constant<std::size_t, S>{}), 0)... });
+        return static_consume({ (function(std::integral_constant<std::size_t, Indexes>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
     FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
     {
-        return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence<Size>());
+        return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence_t<Size>());
     }
 
     // Generalized `for_each` through the `std::tuple` container.
     // Based on: https://stackoverflow.com/questions/1198260/iterate-over-tuple/6894436#6894436
     //
 
-    template <std::size_t I = 0, typename FuncT, typename... Tp>
-    FORCE_INLINE typename std::enable_if<I == sizeof...(Tp), void>::type
-        for_each(std::tuple<Tp...> &, const FuncT &)
+    template <std::size_t I = 0, typename Functor, typename... Args>
+    FORCE_INLINE typename std::enable_if<I == sizeof...(Args), void>::type
+        for_each(std::tuple<Args...> &, Functor &&)
     {
     }
 
-    template<std::size_t I = 0, typename FuncT, typename... Tp>
-    FORCE_INLINE typename std::enable_if<I < sizeof...(Tp), void>::type
-        for_each(std::tuple<Tp...> & t, const FuncT & f)
+    template<std::size_t I = 0, typename Functor, typename... Args>
+    FORCE_INLINE typename std::enable_if<I < sizeof...(Args), void>::type
+        for_each(std::tuple<Args...> & t, Functor && f)
     {
         f(std::get<I>(t));
-        for_each<I + 1, FuncT, Tp...>(t, f);
-    }
-
-    template <typename Functor>
-    using functor_return_type_t = typename std::result_of<Functor>::type;
-
-//    template <typename Functor>
-//    using functor_return_type_t = typename function_traits<Functor>::return_type;
-
-    // without decltype(auto)...
-    namespace detail
-    {
-        template <typename Functor, typename T, std::size_t N, std::size_t... Indexes>
-        FORCE_INLINE auto apply(Functor && f, T (&arr)[N], index_sequence<Indexes...>) -> functor_return_type_t<Functor>
-        {
-            return f(arr[Indexes]...);
-        }
-
-        template <typename Ret, typename Functor, typename T, std::size_t N, std::size_t... Indexes>
-        FORCE_INLINE Ret apply_with_cast(Functor && f, T(&arr)[N], index_sequence<Indexes...>)
-        {
-            return f(arr[Indexes]...);
-        }
-    }
-
-    template <typename Functor, typename T, std::size_t N>
-    FORCE_INLINE auto apply(Functor && f, T(&t)[N]) -> functor_return_type_t<Functor>
-    {
-        return detail::apply(f, t, make_index_sequence<N>{});
-    }
-
-    template <typename Ret, typename Functor, typename T, std::size_t N>
-    FORCE_INLINE Ret apply_with_cast(Functor && f, T(&t)[N])
-    {
-        return detail::apply_with_cast<Ret>(f, t, make_index_sequence<N>{});
+        for_each<I + 1, Functor, Args...>(t, f);
     }
 
     // `is_callable` implementation.
@@ -310,75 +562,75 @@ namespace utility
     };
 
     // function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...), U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)volatile, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const volatile, U> : std::true_type {};
 
     // pointer-to-function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(*)(Args...), U> : std::true_type {};
 
     // reference-to-function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(&)(Args...), U> : std::true_type {};
 
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)volatile&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const volatile&, U> : std::true_type {};
 
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...) && , U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const&&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)volatile&&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args...)const volatile&&, U> : std::true_type {};
 
     // variadic-function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...), U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)volatile, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const volatile, U> : std::true_type {};
 
     // pointer-to-variadic-function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(*)(Args..., ...), U> : std::true_type {};
 
     // reference-to-variadic-function
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(&)(Args..., ...), U> : std::true_type {};
 
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)&, U> : std::true_type {};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const&, U> : std::true_type{};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)volatile&, U> : std::true_type{};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const volatile&, U> : std::true_type{};
 
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)&&, U> : std::true_type{};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const&&, U> : std::true_type{};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)volatile&&, U> : std::true_type{};
-    template<typename T, typename U, typename ...Args>
+    template<typename T, typename U, typename... Args>
     struct is_callable<T(Args..., ...)const volatile&&, U> : std::true_type{};
 
     template<typename T>
@@ -428,7 +680,7 @@ namespace utility
     {
     };
 
-    template <template <typename...> class Tmpl, typename ...Args>
+    template <template <typename...> class Tmpl, typename... Args>
     struct is_template<Tmpl<Args...> > : std::true_type
     {
     };
@@ -728,10 +980,8 @@ namespace utility
     {
         static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
         {
-            char buf[1024];
-            buf[0] = '\0';
-            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name());
-            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(
+                utility::string_format(1024, error_msg_fmt, func, typeid(Type).name()));
 
             return false;
         }
@@ -757,7 +1007,7 @@ namespace utility
         {
             UTILITY_UNUSED_STATEMENT2(func, error_msg_fmt);
 
-            ::new (storage_ptr) Type(std::move(r));
+            ::new (storage_ptr) Type(std::forward<Ref>(r));
 
             return true;
         }
@@ -769,10 +1019,8 @@ namespace utility
         template <typename Ref>
         static FORCE_INLINE bool construct(void * storage_ptr, const Ref & r, const char * func, const char * error_msg_fmt)
         {
-            char buf[1024];
-            buf[0] = '\0';
-            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
-            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(
+                utility::string_format(1024, error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name()));
 
             return false;
         }
@@ -780,10 +1028,8 @@ namespace utility
         template <typename Ref>
         static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
         {
-            char buf[1024];
-            buf[0] = '\0';
-            snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name());
-            DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+            DEBUG_BREAK_THROW(true) std::runtime_error(
+                utility::string_format(1024, error_msg_fmt, func, typeid(Type).name(), typeid(Ref).name()));
 
             return false;
         }
@@ -803,7 +1049,7 @@ namespace utility
         template <typename Ref>
         static FORCE_INLINE bool construct(void * storage_ptr, Ref && r, const char * func, const char * error_msg_fmt)
         {
-            return construct_if_convertible<Type, std::is_convertible<Ref, Type>::value>::construct(storage_ptr, std::move(r), func, error_msg_fmt);
+            return construct_if_convertible<Type, std::is_convertible<Ref, Type>::value>::construct(storage_ptr, std::forward<Ref>(r), func, error_msg_fmt);
         }
 
         static FORCE_INLINE bool construct_default(void * storage_ptr, const char * func, const char * error_msg_fmt)
@@ -841,34 +1087,32 @@ namespace utility
     template <typename Ret, typename From, typename To, bool Convertable>
     struct invoke_if_convertible
     {
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r);
         }
 
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
-            return f(std::move(r));
+            return f(std::forward<Ref>(r));
         }
     };
 
     template <typename Ret, typename From, typename To>
     struct invoke_if_convertible<Ret, From, To, false>
     {
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT2(f, r);
 
             if(throw_exceptions_on_type_error) {
-                char buf[1024];
-                buf[0] = '\0';
-                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
-                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    utility::string_format(1024, error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name()));
             }
 
             // CAUTION:
@@ -880,16 +1124,14 @@ namespace utility
             return utility::unconstructed_value(utility::identity<Ret>());
         }
 
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT2(f, r);
 
             if(throw_exceptions_on_type_error) {
-                char buf[1024];
-                buf[0] = '\0';
-                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name());
-                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    utility::string_format(1024, error_msg_fmt, func, typeid(From).name(), typeid(To).name(), typeid(Ret).name()));
             }
 
             // CAUTION:
@@ -907,11 +1149,11 @@ namespace utility
     template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled, bool IsExtractable>
     struct invoke_dispatcher
     {
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
-            using return_type = typename remove_cvref<typename utility::function_traits<F>::return_type>::type;
-            using unqual_arg0_type = typename std::remove_cvref<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type;
+            using return_type = typename remove_cvref<typename utility::function_traits<Functor>::return_type>::type;
+            using unqual_arg0_type = typename remove_cvref<typename utility::function_traits<Functor>::TEMPLATE_SCOPE arg<0>::type>::type;
             using found_it_t = typename TypeFind<TypeList, unqual_arg0_type>::type;
 
             static_assert(!std::is_same<found_it_t, EndIt>::value,
@@ -922,11 +1164,11 @@ namespace utility
                 call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
         }
 
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
-            using return_type = typename remove_cvref<typename utility::function_traits<F>::return_type>::type;
-            using unqual_arg0_type = typename remove_cvref<typename utility::function_traits<F>::TEMPLATE_SCOPE arg<0>::type>::type;
+            using return_type = typename remove_cvref<typename utility::function_traits<Functor>::return_type>::type;
+            using unqual_arg0_type = typename remove_cvref<typename utility::function_traits<Functor>::TEMPLATE_SCOPE arg<0>::type>::type;
             using found_it_t = typename TypeFind<TypeList, unqual_arg0_type>::type;
 
             static_assert(!std::is_same<found_it_t, EndIt>::value,
@@ -934,43 +1176,43 @@ namespace utility
 
             return invoke_if_convertible<Ret, Ref, unqual_arg0_type,
                 std::is_convertible<Ref, unqual_arg0_type>::value && std::is_convertible<return_type, Ret>::value>::
-                call(f, std::move(r), func, error_msg_fmt, throw_exceptions_on_type_error);
+                call(f, std::forward<Ref>(r), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 
     template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt>
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, true, false>
     {
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
             return f(r); // call as generic or cast
         }
 
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
-            return f(std::move(r)); // call as generic or cast
+            return f(std::forward<Ref>(r)); // call as generic or cast
         }
     };
 
     template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsExtractable>
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, false, IsExtractable>
     {
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, const Ref & r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             return invoke_if_convertible<Ret, Ref, Ret, false>::
                 call(f, r, func, error_msg_fmt, throw_exceptions_on_type_error);
         }
 
-        template <typename F, typename Ref>
-        static FORCE_INLINE Ret call(F & f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
+        template <typename Functor, typename Ref>
+        static FORCE_INLINE Ret call(Functor && f, Ref && r, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             return invoke_if_convertible<Ret, Ref, Ret, false>::
-                call(f, std::move(r), func, error_msg_fmt, throw_exceptions_on_type_error);
+                call(f, std::forward<Ref>(r), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 
@@ -997,7 +1239,7 @@ namespace utility
         static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             UTILITY_UNUSED_STATEMENT3(func, error_msg_fmt, throw_exceptions_on_type_error);
-            return to = std::move(from);
+            return to = std::forward<From>(from);
         }
     };
 
@@ -1010,10 +1252,8 @@ namespace utility
             UTILITY_UNUSED_STATEMENT(from);
 
             if (throw_exceptions_on_type_error) {
-                char buf[1024];
-                buf[0] = '\0';
-                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
-                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    utility::string_format(1024, error_msg_fmt, func, typeid(From).name(), typeid(To).name()));
             }
 
             return to;
@@ -1025,10 +1265,8 @@ namespace utility
             UTILITY_UNUSED_STATEMENT(from);
 
             if (throw_exceptions_on_type_error) {
-                char buf[1024];
-                buf[0] = '\0';
-                snprintf(UTILITY_STR_WITH_STATIC_SIZE_TUPLE(buf), error_msg_fmt, func, typeid(From).name(), typeid(To).name());
-                DEBUG_BREAK_THROW(true) std::runtime_error(buf);
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+                    utility::string_format(1024, error_msg_fmt, func, typeid(From).name(), typeid(To).name()));
             }
 
             return to;
@@ -1049,7 +1287,7 @@ namespace utility
         static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             return assign_if_convertible<std::is_convertible<From, To>::value>::
-                call(to, std::move(from), func, error_msg_fmt, throw_exceptions_on_type_error);
+                call(to, std::forward<From>(from), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 
@@ -1083,7 +1321,7 @@ namespace utility
         static FORCE_INLINE To & call(To & to, From && from, const char * func, const char * error_msg_fmt, bool throw_exceptions_on_type_error)
         {
             return assign_if_enabled<From, To, IsEnabled>::
-                call(to, std::move(from), func, error_msg_fmt, throw_exceptions_on_type_error);
+                call(to, std::forward<From>(from), func, error_msg_fmt, throw_exceptions_on_type_error);
         }
     };
 

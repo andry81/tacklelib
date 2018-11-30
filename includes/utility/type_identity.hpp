@@ -11,6 +11,7 @@
 #include <utility/static_assert.hpp> // required here only for UTILITY_PARAM_LOOKUP_BY_ERROR macro
 
 #include <type_traits>
+#include <tuple>
 
 
 // to suppress warnings around compile time expression or values
@@ -42,8 +43,269 @@
     char * __integral_lookup[size] = 1
 
 // available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
+//
 #define UTILITY_IS_TYPE_COMPLETE(type) ::utility::is_type_complete<type, __COUNTER__>::value
 
+// Checks expression on constexpr nature.
+// Based on: https://stackoverflow.com/questions/13299394/is-is-constexpr-possible-in-c11/13305072#13305072
+//
+// CAUTION:
+//
+//  Where it does work:
+//  * This will work at least in GCC 5.4 (C++11) and MSVC 2015 Update 3.
+//  * This will work on functions with implementation.
+//  * This will work on variables in any scope.
+//
+//  Where it does not work:
+//  * This won't work, for example, in clang 3.8.0!
+//  * This won't work on function declarations.
+//  * This won't work on functions return `void` (all `constexpr` functions in C++11 must have only not void return statement).
+//
+#define UTILITY_IS_CONSTEXPR_VALUE(...) noexcept(::utility::makeprval(__VA_ARGS__))
+
+// Checks existence of member function.
+// Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
+//
+
+// detection of static or not static functions depended on FuncSignature template argument
+#define DEFINE_UTILITY_MEMBER_FUNCTION_CHECKER_WITH_SIGNATURE(checker_name, func_name) \
+    template<typename FuncScopeType, typename FuncSignature> \
+    struct checker_name \
+    { \
+        static_assert(std::is_pointer<FuncSignature>::value || std::is_member_pointer<FuncSignature>::value, \
+            "FuncSignature must be a pointer or pointer to member type"); \
+        \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <typename U_, U_> struct type_check_any; \
+        template <typename T_>  static yes & check(type_check_any<FuncSignature, &T_::func_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+// detection of static only functions depended on FuncSignature template argument
+#define DEFINE_UTILITY_STATIC_MEMBER_FUNCTION_CHECKER_WITH_SIGNATURE(checker_name, func_name) \
+    template<typename FuncScopeType, typename FuncSignature> \
+    struct checker_name \
+    { \
+        static_assert(!std::is_pointer<FuncSignature>::value && !std::is_member_pointer<FuncSignature>::value, \
+            "FuncSignature must not be a pointer or pointer to member, use plain function type"); \
+        \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <typename U_, U_ *> struct type_check_free_pointer; \
+        template <typename T_>  static yes & check(type_check_free_pointer<FuncSignature, &T_::func_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+// detection of not static only functions depended on FuncSignature template argument
+#define DEFINE_UTILITY_NOTSTATIC_MEMBER_FUNCTION_CHECKER_WITH_SIGNATURE(checker_name, func_name) \
+    template<typename FuncScopeType, typename FuncSignature> \
+    struct checker_name \
+    { \
+        static_assert(std::is_member_pointer<FuncSignature>::value, "FuncSignature must be a pointer to member"); \
+        \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <FuncSignature> struct type_check_not_static_pointer {}; \
+        template <typename T_>  static yes & check(type_check_not_static_pointer<&T_::func_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+// Checks existence of data member depended on MemberType template argument
+// Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
+//
+
+// detection of static or not static functions depended on MemberType template argument
+#define DEFINE_UTILITY_MEMBER_DATA_CHECKER_WITH_SIGNATURE(checker_name, member_name) \
+    template<typename MemberScopeType, typename MemberType> \
+    struct checker_name \
+    { \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <typename U_, U_> struct type_check_any; \
+        template <typename T_>  static yes & check(type_check_any<MemberType, &T_::member_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+// detection of static only functions depended on MemberType template argument
+#define DEFINE_UTILITY_STATIC_MEMBER_DATA_CHECKER_WITH_SIGNATURE(checker_name, member_name) \
+    template<typename MemberScopeType, typename MemberType> \
+    struct checker_name \
+    { \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <typename U_, U_ *> struct type_check_free_pointer; \
+        template <typename T_>  static yes & check(type_check_free_pointer<MemberType, &T_::member_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+// detection of not static only functions depended on MemberType template argument
+#define DEFINE_UTILITY_NOTSTATIC_MEMBER_DATA_CHECKER_WITH_SIGNATURE(checker_name, member_name) \
+    template<typename MemberScopeType, typename MemberType> \
+    struct checker_name \
+    { \
+        using yes = char[1]; \
+        using no  = char[2]; \
+        \
+        template <typename U_, typename T_, U_ T_::*> struct type_check_not_static_pointer {}; \
+        template <typename T_>  static yes & check(type_check_not_static_pointer<MemberType, T_, &T_::member_name> *); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(nullptr)) == sizeof(yes)); \
+    };
+
+
+// Checks existence of data member.
+// Based on: https://stackoverflow.com/questions/15232758/detecting-constexpr-with-sfinae/15236647#15236647 
+//
+
+// detects only static data members
+#define DEFINE_UTILITY_STATIC_MEMBER_DATA_CHECKER(checker_name, member_name) \
+    template<typename MemberScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template <typename U_, U_ *> struct yes_free_pointer { yes yes_; }; \
+        template <typename T_>  static yes_free_pointer<decltype(T_::member_name), &T_::member_name> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(0)) == sizeof(yes)); \
+    };
+
+// detects only not static data members
+#define DEFINE_UTILITY_NOTSTATIC_MEMBER_DATA_CHECKER(checker_name, member_name) \
+    template<typename MemberScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template <typename U_, typename T_, U_ T_::*> struct yes_not_static_pointer { yes yes_;}; \
+        template <typename T_>  static yes_not_static_pointer<decltype(T_::member_name), T_, &T_::member_name> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(0)) == sizeof(yes)); \
+    };
+
+
+// Checks existence of constexpr member function.
+// Based on: https://stackoverflow.com/questions/15232758/detecting-constexpr-with-sfinae/15236647#15236647 
+//
+
+// detects only static constexpr functions
+#define DEFINE_UTILITY_STATIC_CONSTEXPR_MEMBER_FUNCTION_CHECKER_WITH_ARGS(checker_name, func_name, ...) \
+    template<typename FuncScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_static_constexpr { yes yes_; }; \
+        template <typename T_>  static yes_static_constexpr<(T_::func_name(__VA_ARGS__), 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(0)) == sizeof(yes)); \
+    };
+
+// detects only static constexpr functions
+#define DEFINE_UTILITY_STATIC_CONSTEXPR_MEMBER_FUNCTION_CHECKER(checker_name, func_call) \
+    template<typename FuncScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_static_constexpr { yes yes_; }; \
+        template <typename T_>  static yes_static_constexpr<(T_::func_call, 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(0)) == sizeof(yes)); \
+    };
+
+// detects static constexpr or not static constexpr functions
+#define DEFINE_UTILITY_CONSTEXPR_MEMBER_FUNCTION_CHECKER_WITH_ARGS(checker_name, func_name, ...) \
+    template<typename FuncScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_any_constexpr { yes yes_; }; \
+        template <typename T_>  static yes_any_constexpr<(static_cast<T_ *>(nullptr)->func_name(__VA_ARGS__), 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(0)) == sizeof(yes)); \
+    };
+
+// detects static constexpr or not static constexpr functions
+#define DEFINE_UTILITY_CONSTEXPR_MEMBER_FUNCTION_CHECKER(checker_name, func_call) \
+    template<typename FuncScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_any_constexpr { yes yes_; }; \
+        template <typename T_>  static yes_any_constexpr<(static_cast<T_ *>(nullptr)->func_call, 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<FuncScopeType>(0)) == sizeof(yes)); \
+    };
+
+// Checks existence of constexpr data member.
+// Based on: https://stackoverflow.com/questions/15232758/detecting-constexpr-with-sfinae/15236647#15236647 
+//
+
+// incomplete
+/*
+// detects only static constexpr data members
+#define DEFINE_UTILITY_STATIC_CONSTEXPR_MEMBER_CHECKER(checker_name, member_name) \
+    template<typename MemberScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_any_constexpr { yes yes_; }; \
+        template <typename U_, U_ *> struct free_pointer {}; \
+        template <typename T_>  static yes_any_constexpr<(free_pointer<decltype(T_::member_name), &T_::member_name>{}, 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(0)) == sizeof(yes)); \
+    };
+
+// detects static constexpr or not static constexpr data members
+#define DEFINE_UTILITY_CONSTEXPR_MEMBER_CHECKER(checker_name, member_name, ...) \
+    template<typename MemberScopeType> \
+    struct checker_name \
+    { \
+        using no  = char[1]; \
+        using yes = char[2]; \
+        \
+        template<int> struct yes_any_constexpr { yes yes_; }; \
+        template <typename U_, typename T_, U_ T_::*> struct not_static_pointer { yes yes_;}; \
+        template <typename T_>  static yes_any_constexpr<(not_static_pointer<decltype(T_::member_name), T_, &T_::member_name>{}, 0)> & check(int); \
+        template <typename>     static no & check(...); \
+        \
+        static CONSTEXPR const bool value = (sizeof(check<MemberScopeType>(0)) == sizeof(yes)); \
+    };*/
 
 namespace utility
 {
@@ -86,6 +348,12 @@ namespace {
     struct identity
     {
         using type = T;
+    };
+
+    template <typename... Type>
+    struct tuple_identities
+    {
+        using tuple_type = std::tuple<Type...>;
     };
 
     // type-by-value identity
@@ -157,6 +425,37 @@ namespace {
         static CONSTEXPR const bool false_value = !std::is_same<int_identity<N>, int_identity<N> >::value;
     };
 
+    // custom more convenient `enable_if` implementation.
+    // Based on: https://www.reddit.com/r/cpp_questions/comments/3zn1n9/why_is_this_use_of_enable_if_invalid/
+    //
+
+    template <bool B, class Type, typename... Dependencies>
+    struct dependent_enable_if
+    {
+    };
+
+    template<class Type, typename... Dependencies>
+    struct dependent_enable_if<true, Type, Dependencies...>
+    {
+        using type = Type;
+    };
+
+    template <bool B, class Type, typename... Dependencies>
+    struct dependent_disable_if
+    {
+    };
+
+    template<class Type, typename... Dependencies>
+    struct dependent_disable_if<false, Type, Dependencies...>
+    {
+        using type = Type;
+    };
+
+    template<typename T>
+    CONSTEXPR typename std::remove_reference<T>::type makeprval(T && t)
+    {
+        return t;
+    }
 }
 
 #endif

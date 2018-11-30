@@ -1,5 +1,6 @@
 * text=auto !eol
 /.svnignore -text
+/README_EN.txt -text
 _scripts/__init__.bat -text
 _scripts/__init__.sh -text
 _scripts/admin/chown_mod.sh -text
@@ -49,8 +50,10 @@ includes/tackle/interface_handle.hpp -text
 includes/tackle/log/log_handle.hpp -text
 includes/tackle/path_string.hpp -text
 includes/tackle/smart_handle.hpp -text
+includes/tackle/static_constexpr.hpp -text
 includes/tackle/string.hpp -text
 includes/tacklelib.hpp -text
+includes/utility/addressof.hpp -text
 includes/utility/assert.hpp -text
 includes/utility/debug.hpp -text
 includes/utility/library.hpp -text
@@ -69,6 +72,7 @@ includes/utility/time.hpp -text
 includes/utility/type_identity.hpp -text
 includes/utility/type_traits.hpp -text
 includes/utility/utility.hpp -text
+/license.txt -text
 src/.svnignore -text
 src/common.cpp -text
 src/common.hpp -text
@@ -81,6 +85,7 @@ src/tackle/aligned_storage/private/aligned_storage_by_decl.hpp -text
 src/tackle/aligned_storage/private/aligned_storage_by_impl.hpp -text
 src/tackle/aligned_storage/private/max_aligned_storage_decl.hpp -text
 src/tackle/aligned_storage/private/max_aligned_storage_impl.hpp -text
+src/tackle/date_time.cpp -text
 src/tackle/file_handle.cpp -text
 src/tackle/file_reader.cpp -text
 src/tackle/file_reader.hpp -text

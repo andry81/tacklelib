@@ -9,37 +9,76 @@
 #include <utility/preprocessor.hpp>
 #include <utility/platform.hpp>
 
+#include <string>
+#include <cwchar>
+#include <uchar.h>  // in GCC `cuchar` header might not exist
 
-#define DEBUG_FUNC_LINE_A                       ::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_A()                ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)      ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
 
-#define DEBUG_FUNCSIG_LINE_A                    ::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
-#define DEBUG_FUNCSIG_LINE_MAKE_A()             ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
-#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)   ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_A                           ::tackle::DebugFileLineA{ UTILITY_PP_FILE, UTILITY_PP_LINE }
+#define DEBUG_FILE_LINE_MAKE_A()                    ::tackle::DebugFileLineInlineStackA::make(::tackle::DebugFileLineA{ UTILITY_PP_FILE, UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_PUSH_A(stack)          ::tackle::DebugFileLineInlineStackA::make_push(stack, ::tackle::DebugFileLineA{ UTILITY_PP_FILE, UTILITY_PP_LINE })
 
-#define DEBUG_FUNC_LINE_W                       ::tackle::DebugFuncLineW{ UTILITY_PP_FUNC, UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_W()                ::tackle::DebugFuncLineInlineStackW::make(::tackle::DebugFuncLineW{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_W(stack)      ::tackle::DebugFuncLineInlineStackW::make_push(stack, ::tackle::DebugFuncLineW{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_W                           ::tackle::DebugFileLineW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE }
+#define DEBUG_FILE_LINE_MAKE_W()                    ::tackle::DebugFileLineInlineStackW::make(::tackle::DebugFileLineW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_PUSH_W(stack)          ::tackle::DebugFileLineInlineStackW::make_push(stack, ::tackle::DebugFileLineW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE })
 
-#define DEBUG_FUNCSIG_LINE_W                    ::tackle::DebugFuncLineW{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
-#define DEBUG_FUNCSIG_LINE_MAKE_W()             ::tackle::DebugFuncLineInlineStackW::make(::tackle::DebugFuncLineW{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
-#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_W(stack)   ::tackle::DebugFuncLineInlineStackW::make_push(stack, ::tackle::DebugFuncLineW{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+
+#define DEBUG_FUNC_LINE_A                           ::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE }
+#define DEBUG_FUNC_LINE_MAKE_A()                    ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)          ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_PP_FUNC, UTILITY_PP_LINE })
+
+
+#define DEBUG_FUNCSIG_LINE_A                        ::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE }
+#define DEBUG_FUNCSIG_LINE_MAKE_A()                 ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)       ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_PP_FUNCSIG, UTILITY_PP_LINE })
+
+
+#define DEBUG_FILE_LINE_FUNC_A                      ::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC }
+#define DEBUG_FILE_LINE_FUNC_MAKE_A()               ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A(stack)     ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
+
+#define DEBUG_FILE_LINE_FUNC_W                      ::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNC }
+#define DEBUG_FILE_LINE_FUNC_MAKE_W()               ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W(stack)     ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNC })
+
+
+#define DEBUG_FILE_LINE_FUNCSIG_A                   ::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG }
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_A()            ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A(stack)  ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ UTILITY_PP_FILE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
+
+#define DEBUG_FILE_LINE_FUNCSIG_W                   ::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG }
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_W()            ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_W(stack)  ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG })
 
 
 namespace tackle
 {
-    struct DebugFuncLineA
+    template <class t_elem>
+    struct DebugFileLine
     {
-        std::string     func;
+        const t_elem *  file;
         int             line;
     };
 
-    struct DebugFuncLineW
+    struct DebugFuncLineA
     {
-        std::wstring    func;
+        const char *    func;
         int             line;
     };
+
+    using DebugFileLineA = DebugFileLine<char>;
+    using DebugFileLineW = DebugFileLine<wchar_t>;
+
+    template <class t_elem>
+    struct DebugFileLineFunc
+    {
+        const t_elem *  file;
+        int             line;
+        const char *    func;
+    };
+
+    using DebugFileLineFuncA = DebugFileLineFunc<char>;
+    using DebugFileLineFuncW = DebugFileLineFunc<wchar_t>;
 
     template <typename T>
     class inline_stack
@@ -64,7 +103,13 @@ namespace tackle
         T                       top;
     };
 
-    using DebugFuncLineInlineStackA = inline_stack<DebugFuncLineA>;
+    using DebugFileLineInlineStackA     = inline_stack<DebugFileLineA>;
+    using DebugFuncLineInlineStackA     = inline_stack<DebugFuncLineA>;
+    using DebugFileLineFuncInlineStackA = inline_stack<DebugFileLineFuncA>;
+
+    using DebugFileLineInlineStackW     = inline_stack<DebugFileLineW>;
+    //using DebugFuncLineInlineStackW     = inline_stack<DebugFuncLineW>;
+    using DebugFileLineFuncInlineStackW = inline_stack<DebugFileLineFuncW>;
 }
 
 #endif
