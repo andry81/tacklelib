@@ -1,5 +1,0 @@
-_out
-environment_config.cmake
-environment_local.vars
-environment_local.cmake
-CMakeLists.txt.user

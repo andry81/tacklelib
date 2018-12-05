@@ -1,3 +1,6 @@
+2018.12.05:
+* refactor: tacklelib scripts and template configuration files moved into standalone repository
+
 2018.11.30:
 * fixed: build under linux, use C++11 only
 * fixed: mutiple fixes for compile and link under linux
