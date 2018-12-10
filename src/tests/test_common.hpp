@@ -1,17 +1,14 @@
 #pragma once
 
-#include "common.hpp"
+#include "src/common.hpp"
 
 // commons exclicitly for tests ONLY
-#include "testlib/testlib.hpp"
-#include "testlib/gtest_ext.hpp"
+#include <src/testlib/testlib.hpp>
+#include <src/testlib/gtest_ext.hpp>
 
-#include <spacetracker.hpp>
-#include <tle_manager.hpp>
+#include <tacklelib/utility/math.hpp>
 
-#include <utility/math.hpp>
-
-#include <tackle/date_time.hpp>
+#include <tacklelib/tackle/date_time.hpp>
 
 #include <chrono>
 #include <boost/filesystem.hpp>

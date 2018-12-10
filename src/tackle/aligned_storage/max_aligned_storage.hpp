@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <tackle/aligned_storage/private/max_aligned_storage_decl.hpp>
-#include <tackle/aligned_storage/private/max_aligned_storage_impl.hpp>
+#include <src/tackle/aligned_storage/private/max_aligned_storage_decl.hpp>
+#include <src/tackle/aligned_storage/private/max_aligned_storage_impl.hpp>

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <tacklelib_private.hpp>
+#include <src/tacklelib_private.hpp>
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_ARC_7ZIP_LZMA_ENCODER)
 
-#include <utility/platform.hpp>
-#include <utility/debug.hpp>
-#include <utility/assert.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/debug.hpp>
+#include <tacklelib/utility/assert.hpp>
 
-#include <tackle/smart_handle.hpp>
+#include <tacklelib/tackle/smart_handle.hpp>
 
 #include <fmt/format.h>
 

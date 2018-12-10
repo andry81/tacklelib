@@ -1,7 +1,7 @@
 #pragma once
 
 // include public header at first
-#include "../includes/debug.hpp"
+#include <tacklelib/debug.hpp>
 
 
 //// private headers common debug symbols

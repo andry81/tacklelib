@@ -1,7 +1,0 @@
-# command line for the cmake in the `_scripts/configure_nogen.bat` script
-
-"-DCONFIGURE_IN_FILE=%PROJECT_ROOT%/environment_local.cmake.in"
-"-DCONFIGURE_OUT_FILE=%PROJECT_ROOT%/environment_local.cmake"
-"-DPROJECT_ROOT=%PROJECT_ROOT%"
--P
-"%PROJECT_ROOT%/cmake/ConfigureFile.cmake"

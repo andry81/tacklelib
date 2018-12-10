@@ -1,4 +1,7 @@
 #pragma once
 
-// Used to direct inclusion of private `tacklelib.hpp` implementation
-#include "tacklelib.hpp"
+#include "setup.hpp"        // setup symbols
+#include "debug.hpp"        // debug symbols
+#include "optimization.hpp" // optimization symbols
+
+#include <tacklelib/utility/platform.hpp>

@@ -1,10 +1,10 @@
 #include "test_common.hpp"
 
-#include <utility/math.hpp>
-#include <utility/time.hpp>
-#include <utility/utility.hpp>
+#include <tacklelib/utility/math.hpp>
+#include <tacklelib/utility/time.hpp>
+#include <tacklelib/utility/utility.hpp>
 
-#include <tackle/path_string.hpp>
+#include <tacklelib/tackle/path_string.hpp>
 
 namespace {
     namespace ti = utility::time;
@@ -237,12 +237,12 @@ TEST(FunctionsTest, unroll_copy)
 
 template <size_t t_out_ref_size, size_t t_ref_size>
 void test_stride_copy(size_t stride_size, size_t stride_step,
-    size_t ref_size, size_t from_buf_offset_, const int(&ref)[t_ref_size],
+    size_t ref_size, size_t from_buf_offset_, const int (& ref)[t_ref_size],
     size_t out_size, const int (& out_ref)[t_out_ref_size])
 {
     ASSERT_GE(ref_size, out_size);
     ASSERT_GE(out_size, t_out_ref_size);
-    int out[(std::max)(t_ref_size, t_out_ref_size) + 1];
+    int out[math::size_max_of<t_ref_size, t_out_ref_size>::value + 1];
     size_t to_buf_offset;
 
     memset(out, 0, utility::static_size(out) * sizeof(out[0]));

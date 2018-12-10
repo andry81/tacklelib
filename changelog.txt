@@ -1,3 +1,29 @@
+2018.12.10:
+* new: cmake: targets install rules
+* fixed: build under linux
+* fixed: deque std::bad_alloc throw around invalid grow size expression
+
+2018.12.09:
+* fixed: msvc2015u3 ICE around statics in the vector.hpp
+
+2018.12.08:
+* new: cmake: added `add_target_link_directories` function to call to `target_link_directories` function instead of `link_directories` function in the cmake beginning from version 3.13.0
+* new: `get_target_link_libraries_recursively` function
+
+2018.12.06:
+* new: uniform pi-constant getter function - `math:pi`
+* refactor: global includes refactor
+
+2018.12.05:
+* new: cmake: root cmake list with dependencies search
+* changed: cmake: minor improvement
+* changed: minor math.hpp improvement
+* changed: moved tackle/geometry/vector.hpp into template classes to detach them from `real` type
+* refactor: renamed `includes` directory into `tacklelib` to enable the library user to use unique inclusion paths after the `#include` definitions in the user c++ sources and cmake file lists
+* refactor: extracted `configure_src.bat` and `configure_src.sh` scripts from tacklib scripts repository
+* refactor: removed `version.hpp` header usage (must be used from a target project instead)
+* refactor: `Common.cmake` and other basic modules moved from `tacklelib--cmake` repository to support calls in the root `CMakeLists.txt` file
+
 2018.12.05:
 * refactor: tacklelib scripts and template configuration files moved into standalone repository
 

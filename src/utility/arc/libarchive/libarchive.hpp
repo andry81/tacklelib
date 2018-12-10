@@ -1,12 +1,12 @@
 #pragma once
 
-#include <tacklelib_private.hpp>
+#include <src/tacklelib_private.hpp>
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_ARC_LIBARCHIVE)
 
-#include <tackle/path_string.hpp>
+#include <tacklelib/tackle/path_string.hpp>
 
-#include "libarchive/archive.h"
+#include <libarchive/archive.h> // required for format codes
 
 #include <cstdint>
 #include <string>

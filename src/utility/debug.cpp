@@ -1,5 +1,5 @@
-#include <utility/debug.hpp>
-#include <utility/platform.hpp>
+#include <tacklelib/utility/debug.hpp>
+#include <tacklelib/utility/platform.hpp>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #include <windows.h>

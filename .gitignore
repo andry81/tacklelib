@@ -2,8 +2,9 @@
 /_out
 /environment_local.cmake
 /environment_local.vars
-includes/debug.hpp
-includes/optimization.hpp
-includes/version.hpp
+include/tacklelib/debug.hpp
+include/tacklelib/optimization.hpp
+include/tacklelib/setup.hpp
 src/debug.hpp
 src/optimization.hpp
+src/setup.hpp

@@ -1,21 +1,23 @@
 #pragma once
 
-#include <tacklelib_private.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/platform.hpp>
-#include <utility/debug.hpp>
-#include <utility/assert.hpp>
-#include <utility/locale.hpp>
-#include <utility/string.hpp>
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_P7_LOGGER)
 
-#include <tackle/debug.hpp>
-#include <tackle/smart_handle.hpp>
-#include <tackle/log/log_handle.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/debug.hpp>
+#include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/locale.hpp>
+#include <tacklelib/utility/string.hpp>
+
+#include <tacklelib/tackle/debug.hpp>
+#include <tacklelib/tackle/smart_handle.hpp>
+#include <tacklelib/tackle/log/log_handle.hpp>
 
 #include <fmt/format.h>
 
-#include "P7_Trace.h"
-#include "P7_Telemetry.h"
+#include <P7_Trace.h>
+#include <P7_Telemetry.h>
 
 #include <vector>
 #include <string>
@@ -985,3 +987,5 @@ namespace utility {
     };
 
 }
+
+#endif

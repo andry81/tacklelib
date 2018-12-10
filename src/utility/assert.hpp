@@ -8,11 +8,11 @@
 #ifndef UTILITY_ASSERT_HPP
 #define UTILITY_ASSERT_HPP
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/preprocessor.hpp>
-#include <utility/platform.hpp>
-#include <utility/debug.hpp>
+#include <tacklelib/utility/preprocessor.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/debug.hpp>
 
 #if !defined(GTEST_INCLUDE_FROM_EXTERNAL)
 

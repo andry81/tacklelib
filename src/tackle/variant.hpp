@@ -4,17 +4,17 @@
 #ifndef TACKLE_VARIANT_DECL_HPP
 #define TACKLE_VARIANT_DECL_HPP
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/platform.hpp>
-#include <utility/type_identity.hpp>
-#include <utility/static_assert.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/assert.hpp>
-#include <utility/debug.hpp>
-#include <utility/memory.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/type_identity.hpp>
+#include <tacklelib/utility/static_assert.hpp>
+#include <tacklelib/utility/type_traits.hpp>
+#include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/debug.hpp>
+#include <tacklelib/utility/memory.hpp>
 
-#include <tackle/aligned_storage/max_aligned_storage.hpp>
+#include <src/tackle/aligned_storage/max_aligned_storage.hpp>
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/find.hpp>
