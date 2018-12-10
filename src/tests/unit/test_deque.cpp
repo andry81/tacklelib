@@ -1,6 +1,6 @@
 #include "test_common.hpp"
 
-#include <tackle/deque.hpp>
+#include <tacklelib/tackle/deque.hpp>
 
 #include <vector>
 #include <deque>

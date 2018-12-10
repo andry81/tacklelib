@@ -1,6 +1,0 @@
-# command line for the cmake in the `_scripts/configure_gen.sh` script
-
-$PROJECT_ROOT
--G
-$CMAKE_GENERATOR_TOOLSET
--DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE

@@ -4,18 +4,18 @@
 #error This header must be used explicitly in a test declared environment. Use respective definitions to declare a test environment.
 #endif
 
-#include <tacklelib_private.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/assert_private.hpp>   // must uses private `assert.hpp` implementation!
+#include <src/utility/assert_private.hpp>   // must uses private `assert.hpp` implementation!
 
-#include <utility/utility.hpp>
-#include <utility/platform.hpp>
-#include <utility/static_assert.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/math.hpp>
-#include <utility/algorithm.hpp>
+#include <tacklelib/utility/utility.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/static_assert.hpp>
+#include <tacklelib/utility/type_traits.hpp>
+#include <tacklelib/utility/math.hpp>
+#include <src/utility/algorithm.hpp>
 
-#include <tackle/path_string.hpp>
+#include <tacklelib/tackle/path_string.hpp>
 
 #include <iostream>
 #include <sstream>

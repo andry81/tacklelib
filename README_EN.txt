@@ -1,19 +1,22 @@
 * README_EN.txt
-* 2018.11.28
+* 2018.12.07
 * tacklelib
 
 1. DESCRIPTION
 2. LICENSE
 3. REPOSITORIES
 4. PREREQUISITES
-5. DEPLOY
-6. AUTHOR EMAIL
+5. DEPENDECIES
+5.1. Required library dependencies
+5.2. Optional library dependencies
+6. CONFIGURE
+7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-The C++11 library which may respresents the same ideas as introduced in
-BoostC++/STL/Loki libraries and at first focused for extension of already
+The C++11 generic library which may respresents the same ideas as introduced in
+Boost/STL/Loki C++ libraries and at first focused for extension of already
 existed C++ code. Sources has been written under MSVC2015 Update 3 and
 recompiled in GCC v5.4. As a backbone build system the cmake v3 is used.
 
@@ -43,13 +46,75 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 1. C++11 compiler: MSVC 2015 update 3 or GCC v5.4
+2. cmake list modules: https://svn.code.sf.net/p/tacklelib/cmake/trunk
 
 -------------------------------------------------------------------------------
-5. DEPLOY
+5. DEPENDECIES
 -------------------------------------------------------------------------------
-No examples here. It is in the TODO list.
+
+For more details, the `tacklelib--scripts` repository
+(https://sf.net/p/tacklelib/scripts) contains the `envorinment_local.cmake.in`
+template file which describes all variables required to set for user before
+the build.
+
+You must use scripts inside the `_scripts` directory and prepared
+configuration files in the root to build the `tacklelib` project.
+Otherwise you have to set at least all dependent variables on yourself before
+call to the cmake.
 
 -------------------------------------------------------------------------------
-6. AUTHOR EMAIL
+5.1. Required library dependencies
+-------------------------------------------------------------------------------
+
+# multipurpose
+
+* boost
+  original: https://www.boost.org
+
+# utility
+
+* fmt       (C++ string safe formatter)
+  forked:   https://sf.net/p/tacklelib/3dparty--fmt
+  original: https://github.com/fmtlib/fmt
+
+-------------------------------------------------------------------------------
+5.2. Optional library dependencies
+-------------------------------------------------------------------------------
+
+# utility
+
+* pystring  (python C++ string functions)
+  forked:   https://sf.net/p/tacklelib/3dparty--pystring
+  original: https://github.com/imageworks/pystring
+
+# logger
+
+* p7 logger client
+  forked:   https://sf.net/p/tacklelib/3dparty--p7client
+  original: http://baical.net/p7.html
+
+# test
+
+* google test
+  original: https://github.com/abseil/googletest
+
+# packer
+
+* libarchive
+  original: https://www.libarchive.org
+
+* xz utils
+  original: https://tukaani.org/xz/
+
+-------------------------------------------------------------------------------
+6. CONFIGURE
+-------------------------------------------------------------------------------
+
+To generate sources which are not included in version control call the
+`_scripts/configure_src.bat` under Windows or
+`_scripts/configure_src.bat` under Linux script.
+
+-------------------------------------------------------------------------------
+7. AUTHOR EMAIL
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

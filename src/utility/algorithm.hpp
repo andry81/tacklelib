@@ -1,11 +1,11 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/utility.hpp>
-#include <utility/static_assert.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/math.hpp>
+#include <tacklelib/utility/utility.hpp>
+#include <tacklelib/utility/static_assert.hpp>
+#include <tacklelib/utility/type_traits.hpp>
+#include <tacklelib/utility/math.hpp>
 
 #include <boost/chrono.hpp>
 
@@ -62,7 +62,7 @@ namespace utility
         if (unrolled_size >= size) {
             switch(size) {
                 case 0: break;
-                #include "utility/algorithm/generated/unroll_copy_switch.hpp"
+                #include <src/utility/algorithm/generated/unroll_copy_switch.hpp>
                 default: DEBUG_ASSERT_TRUE(false);
             }
         }
@@ -84,7 +84,7 @@ namespace utility
         if (unrolled_size >= size) {
             switch(size) {
                 case 0: break;
-                #include "utility/algorithm/generated/unroll_copy_switch.hpp"
+                #include <src/utility/algorithm/generated/unroll_copy_switch.hpp>
                 default: DEBUG_ASSERT_TRUE(false);
             }
         }

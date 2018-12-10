@@ -1,9 +1,9 @@
-#include <utility/utility.hpp>
-#include <utility/assert.hpp>
-#include <utility/locale.hpp>
-#include <utility/memory.hpp>
+#include <tacklelib/utility/utility.hpp>
+#include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/locale.hpp>
+#include <tacklelib/utility/memory.hpp>
 
-#include <tackle/file_handle.hpp>
+#include <tacklelib/tackle/file_handle.hpp>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/scope_exit.hpp>
@@ -20,7 +20,10 @@
 #include <Crtdbg.h>     // for debug stuff
 #include <Winnetwk.h>   // for WNetGetUniversalName()
 #include <Lm.h>         // for NetShareGetInfo()
+
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
 #include <pystring.h>   // from 3dparty pystring
+#endif
 #endif
 
 
@@ -372,6 +375,8 @@ namespace {
         return std::forward<typename generic_basic_path_string_t::base_type>(from_path);
     }
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
+
     // Based on: https://stackoverflow.com/questions/2316927/how-to-convert-unc-to-local-path
     //
 
@@ -596,6 +601,8 @@ namespace {
 
         return std::move(to_path);
     }
+
+#endif
 
     // converts `x:/folder` -> `\\?\x:folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1151,6 +1158,8 @@ namespace {
         return _is_files_equal(std::move(left_file_handle), std::move(right_file_handle), read_block_size);
     }
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
+
 #if defined(UTILITY_PLATFORM_WINDOWS)
     bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)
     {
@@ -1263,6 +1272,8 @@ namespace {
 
         return _convert_network_unc_to_local_path(from_path_rref, tackle::tag_native_path_basic_string<wchar_t>{}, throw_on_error);
     }
+#endif
+
 #endif
 
     bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error)

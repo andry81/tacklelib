@@ -1,12 +1,12 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/platform.hpp>
-#include <utility/memory.hpp>
-#include <utility/utility.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/memory.hpp>
+#include <tacklelib/utility/utility.hpp>
 
-#include <tackle/file_handle.hpp>
+#include <tacklelib/tackle/file_handle.hpp>
 
 #include <vector>
 

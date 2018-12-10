@@ -1,16 +1,16 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/utility.hpp>
-#include <utility/static_assert.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/assert.hpp>
-#include <utility/math.hpp>
-#include <utility/algorithm.hpp>
+#include <tacklelib/utility/utility.hpp>
+#include <tacklelib/utility/static_assert.hpp>
+#include <tacklelib/utility/type_traits.hpp>
+#include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/math.hpp>
+#include <tacklelib/utility/algorithm.hpp>
 
-#include <tackle/aligned_storage/max_aligned_storage.hpp>
-#include <tackle/deque.hpp>
+#include <tacklelib/tackle/aligned_storage/max_aligned_storage.hpp>
+#include <tacklelib/tackle/deque.hpp>
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/list.hpp>

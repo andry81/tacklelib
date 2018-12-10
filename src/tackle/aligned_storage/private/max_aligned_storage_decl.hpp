@@ -4,20 +4,20 @@
 #ifndef TACKLE_MAX_ALIGNED_STORAGE_DECL_HPP
 #define TACKLE_MAX_ALIGNED_STORAGE_DECL_HPP
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
 // private headers
-#include <utility/assert_private.hpp>
+#include <src/utility/assert_private.hpp>
 
 // public headers
-#include <utility/platform.hpp>
-#include <utility/type_traits.hpp>
-#include <utility/addressof.hpp>
-#include <utility/assert.hpp>
-#include <utility/memory.hpp>
-#include <utility/utility.hpp>
+#include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/type_traits.hpp>
+#include <tacklelib/utility/addressof.hpp>
+#include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/memory.hpp>
+#include <tacklelib/utility/utility.hpp>
 
-#include <tackle/aligned_storage/aligned_storage_base.hpp>
+#include <tacklelib/tackle/aligned_storage/aligned_storage_base.hpp>
 
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/cat.hpp>

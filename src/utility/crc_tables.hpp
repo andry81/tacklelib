@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <utility/platform.hpp>
+#include <tacklelib/utility/platform.hpp>
 
 #include <cstdint>
 

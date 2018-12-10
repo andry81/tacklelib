@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tacklelib.hpp>
+#include <src/tacklelib_private.hpp>
 
-#include <tackle/aligned_storage/private/aligned_storage_by_decl.hpp>
-#include <tackle/aligned_storage/private/aligned_storage_by_impl.hpp>
+#include <tacklelib/tackle/aligned_storage/private/aligned_storage_by_decl.hpp>
+#include <tacklelib/tackle/aligned_storage/private/aligned_storage_by_impl.hpp>

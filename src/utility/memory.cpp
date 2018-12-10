@@ -1,8 +1,8 @@
-#include <utility/memory.hpp>
-#include <utility/string.hpp>
-#include <utility/utility.hpp>
+#include <tacklelib/utility/memory.hpp>
+#include <tacklelib/utility/string.hpp>
+#include <tacklelib/utility/utility.hpp>
 
-#include <tackle/file_handle.hpp>
+#include <tacklelib/tackle/file_handle.hpp>
 
 #include <boost/scope_exit.hpp>
 
