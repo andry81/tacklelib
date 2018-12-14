@@ -58,6 +58,7 @@ include/tacklelib/utility/type_traits.hpp -text
 include/tacklelib/utility/utility.hpp -text
 /license.txt -text
 src/.svnignore -text
+src/common.hpp -text
 src/debug.hpp.in -text
 src/optimization.hpp.in -text
 src/setup.hpp.in -text

@@ -241,7 +241,7 @@ function(generate_regex_replace_expression out_regex_match_var out_regex_replace
 endfunction()
 
 macro(configure_environment supported_compilers)
-  # basic checks, must be  executed each time
+  # basic checks, must be executed each time
   declare_builtin_variables()
 
   set(has_supported_compiler 0)
