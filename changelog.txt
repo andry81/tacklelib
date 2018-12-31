@@ -1,3 +1,6 @@
+2018.12.31:
+* changed: minor improvements
+
 2018.12.10:
 * new: cmake: targets install rules
 * fixed: build under linux

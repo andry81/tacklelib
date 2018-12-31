@@ -757,15 +757,22 @@ namespace utility
         return std::modf(d, &whole);
     }
 
-
-    FORCE_INLINE double calibrate_tick_step_to_closest_power_of_10(double min, double max, size_t ticks)
+    // Calculates tick step between min/max range closest to power-of-10 and if not enough, then
+    // splits in twice down to a value multiple to `5` and if not enough, then
+    // splits in twice down to a value multiple to `2`.
+    // The idea all of this is to end a floating point value by a finite set of digits on an axis multiple either to power-of-10 or to `5` or to `2`.
+    //
+    template <typename U, typename T>
+    FORCE_INLINE U calibrate_ruler_tick_step_to_closest_power_of_10(T min, T max, size_t ticks, const U & float_point_identity = U{})
     {
+        static_assert(std::is_floating_point<U>::value, "U must be a floating point type");
+
         DEBUG_ASSERT_LT(min, max);
         DEBUG_ASSERT_LT(0U, ticks);
 
-        const double distance = max - min;
+        const T distance = max - min;
 
-        double tick_step = distance / ticks;
+        U tick_step = U(distance) / ticks;
 
         int tick_step_exp;
         std::frexp(tick_step, &tick_step_exp);
@@ -774,13 +781,15 @@ namespace utility
             size_t rounded_integer_part_numerator;
             size_t rounded_integer_part_denominator;
 
-            const double tick_step_power_of_10 = tick_step_exp * std::log(2) / std::log(10);
+            const U tick_step_power_of_10 = U(tick_step_exp) * std::log(U(2)) / std::log(U(10)); // must cast to float point arithmetic
             DEBUG_ASSERT_GE(0, tick_step_power_of_10);
 
-            const size_t num_digits_in_power_of_10 = size_t(std::floor(tick_step_power_of_10 >= 0 ? tick_step_power_of_10 : -tick_step_power_of_10 + 1));
-            const int signed_num_digits_in_power_of_10 = tick_step_power_of_10 >= 0 ? num_digits_in_power_of_10 : -int(num_digits_in_power_of_10);
+            const size_t num_digits_in_power_of_10 = size_t(std::floor(tick_step_power_of_10 >= 0 ?
+                tick_step_power_of_10 : -tick_step_power_of_10 + 1));
+            const auto signed_num_digits_in_power_of_10 = tick_step_power_of_10 >= 0 ?
+                math::make_signed_from(num_digits_in_power_of_10) : -math::make_signed_from(num_digits_in_power_of_10);
 
-            double closest_value_with_integer_part = tick_step * std::pow(10.0, double(num_digits_in_power_of_10));
+            U closest_value_with_integer_part = tick_step * std::pow(U(10.0), num_digits_in_power_of_10);
 
             if (closest_value_with_integer_part >= 5) {
                 rounded_integer_part_numerator = 5;
@@ -792,13 +801,13 @@ namespace utility
             }
 
             tick_step = rounded_integer_part_numerator *
-                std::pow(10.0, tick_step_power_of_10 >= 0 ?
-                    double(num_digits_in_power_of_10) : -double(num_digits_in_power_of_10)) / rounded_integer_part_denominator; // drop the rest fraction
+                std::pow(U(10.0), tick_step_power_of_10 >= 0 ?
+                    math::make_signed_from(num_digits_in_power_of_10) : -math::make_signed_from(num_digits_in_power_of_10)) / rounded_integer_part_denominator; // drop the rest fraction
 
             // calibration through overflow/underflow
 
-            double prev_tick_step;
-            double next_tick_step = tick_step;
+            U prev_tick_step;
+            U next_tick_step = tick_step;
             size_t rounded_integer_part_next_numerator = rounded_integer_part_numerator;
 
             if (next_tick_step * ticks < 2 * distance) {
@@ -809,10 +818,12 @@ namespace utility
 
                     rounded_integer_part_next_numerator *= 2;
                     next_tick_step = rounded_integer_part_next_numerator *
-                        std::pow(10.0, double(signed_num_digits_in_power_of_10)) / rounded_integer_part_denominator;
+                        std::pow(U(10.0), signed_num_digits_in_power_of_10) / rounded_integer_part_denominator;
                 } while (next_tick_step * ticks < 2 * distance);
 
-                next_tick_step = tick_step = prev_tick_step;
+                tick_step = prev_tick_step;
+
+                next_tick_step = prev_tick_step;
             }
 
             size_t rounded_integer_part_next_denominator = rounded_integer_part_denominator;
@@ -825,26 +836,26 @@ namespace utility
 
                     rounded_integer_part_next_denominator *= 2;
                     next_tick_step = rounded_integer_part_numerator *
-                        std::pow(10.0, double(signed_num_digits_in_power_of_10)) / rounded_integer_part_next_denominator;
+                        std::pow(U(10.0), signed_num_digits_in_power_of_10) / rounded_integer_part_next_denominator;
                 } while (next_tick_step * ticks >= distance);
 
                 tick_step = prev_tick_step;
             }
         }
         else {
-            double closest_value_with_integer_part = std::floor(tick_step / 5) * 5;
+            U closest_value_with_integer_part = std::floor(tick_step / 5) * 5;
             if (!closest_value_with_integer_part) {
                 closest_value_with_integer_part = std::floor(tick_step);
             }
 
-            double rounded_integer_part_numerator = size_t(closest_value_with_integer_part + 0.5);
-            double rounded_integer_part_denominator = 1;
+            U rounded_integer_part_numerator = size_t(closest_value_with_integer_part + 0.5);
+            U rounded_integer_part_denominator = 1;
 
             // calibration through overflow/underflow
 
-            double prev_tick_step;
-            double next_tick_step = tick_step;
-            double rounded_integer_part_next_numerator = rounded_integer_part_numerator;
+            U prev_tick_step;
+            U next_tick_step = tick_step;
+            U rounded_integer_part_next_numerator = rounded_integer_part_numerator;
 
             if (next_tick_step * ticks < 2 * distance) {
                 do {
@@ -856,10 +867,12 @@ namespace utility
                     next_tick_step = rounded_integer_part_next_numerator / rounded_integer_part_denominator;
                 } while (next_tick_step * ticks < 2 * distance);
 
-                next_tick_step = tick_step = prev_tick_step;
+                tick_step = prev_tick_step;
+
+                next_tick_step = prev_tick_step;
             }
 
-            double rounded_integer_part_next_denominator = rounded_integer_part_denominator;
+            U rounded_integer_part_next_denominator = rounded_integer_part_denominator;
 
             if (next_tick_step * ticks >= distance) {
                 do {

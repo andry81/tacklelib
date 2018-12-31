@@ -896,6 +896,12 @@ namespace math
 #endif
 
     template <typename T>
+    FORCE_INLINE CONSTEXPR_RETURN auto make_signed_from(T v) -> decltype(static_cast<std::make_signed<T>::type>(v))
+    {
+        return static_cast<std::make_signed<T>::type>(v);
+    }
+
+    template <typename T>
     FORCE_INLINE CONSTEXPR T positive_max(const T & v = T())
     {
         return (std::numeric_limits<T>::max)();
