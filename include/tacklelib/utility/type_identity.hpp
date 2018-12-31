@@ -60,7 +60,7 @@
 //  Where it does not work:
 //  * This won't work, for example, in clang 3.8.0!
 //  * This won't work on function declarations.
-//  * This won't work on functions returning `void` (all `constexpr` functions in C++11 must have only not void return statement).
+//  * This won't work on functions returning `void` (tip: all `constexpr` functions in C++11 must consist only from single and not a void return statement).
 //
 #define UTILITY_IS_CONSTEXPR_VALUE(...) noexcept(::utility::makeprval(__VA_ARGS__))
 

@@ -23,15 +23,15 @@ namespace tackle
     // CAUTION:
     //
     //  Exists only for evalution of returned expression on `constexpr` type for the sake of implementation under C++11
-    //  standard limited compiler.
-    //  In C++11 you must use `static_constexpr_value::construct_get` to request a static constexpr value of respected type.
+    //  standard limited compiler, because C++11 standard states that the consexpr function must use basically a single return statement in the body of a constexpr function.
+    //  So, in C++11 you must use `static_constexpr_value::construct_get` to request a static constexpr value of respected type.
     //  Direct usage of a class scoped static value can compromise the static initialization order, you must use a
     //  function to request a static value construction on demand!
     //
 
     //  Type `T` must be `constexpr` constructible here.
     //
-    template <typename T, bool is_constexpr_initalizer>
+    template <typename T, bool is_constexpr_initializer>
     class static_constexpr_value
     {
         using unconst_type      = typename std::remove_const<T>::type;
@@ -40,7 +40,7 @@ namespace tackle
         // CAUTION:
         //  This typename has not much sense here because rvalue does not has any address and
         //  GCC compiler would show the address of a value returned by the construct_get function as `(nul)`!
-        //  The only readon it exists is to avoid additional compilation errors on instantiation
+        //  The only reason it has to exist is to avoid additional compilation errors on instantiation
         //  of such ill-formed pointers.
         //
         using address_type      = const unconst_type *;
