@@ -16,8 +16,8 @@
 //      - must be unique per library.
 //      - should be defined only from static/shared library targets.
 //      - should NOT be defined from not a library target.
-//      - must be defined in a library interface header and before `library_api_define.hpp` header inclusion in the header
-//        (automatically undefines at the end of the `library_api_define.hpp` header).
+//      - must be defined in a library interface header, but before `library_api_define.hpp` header inclusion
+//        (automatically undefines in the `library_api_define.hpp` header).
 //  * LIBRARY_API_EXPORTS_<library_api_namespace>
 //      - defines export state of a library target defined in LIBRARY_API_NAMESPACE.
 //      - should be defined only from static/shared library targets.

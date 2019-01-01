@@ -134,7 +134,7 @@
 #define ANGLE_RAD_IN_DEG(angle_rad)                 ::math::angle_radians_in_degrees(angle_rad)
 #define ANGLE_RAD_IN_DEG_IF(in_degrees, angle_rad)  ((in_degrees) ? ANGLE_RAD_IN_DEG(angle_rad) : (angle_rad))
 
-// value_type is required to intersept implicit cast to class arithmetic type
+// value_type is required to intercept implicit cast to class arithmetic type
 
 #define DEG_45_IN_RAD(type_angle)                   ::math::angle_degrees_in_radians(type_angle, ::utility::int_identity<45>())
 #define DEG_45_IN_RAD_IF(type_angle, in_radians)    ((in_radians) ? DEG_45_IN_RAD(type_angle) : 45)
@@ -715,7 +715,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
     template <typename T>
-    FORCE_INLINE CONSTEXPR char sign_to_positive_char(const T & v)
+    FORCE_INLINE CONSTEXPR_RETURN char sign_to_positive_char(const T & v)
     {
         return (
             v > 0 ?
@@ -736,7 +736,7 @@ namespace math
     }
 
     // the bool type is exceptional
-    FORCE_INLINE_ALWAYS CONSTEXPR bool negate(bool v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN bool negate(bool v)
     {
         // The false is the same as zero, which have no effect of negation.
         // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
@@ -746,12 +746,12 @@ namespace math
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP14
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
-    FORCE_INLINE_ALWAYS CONSTEXPR unsigned int negate(unsigned int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN unsigned int negate(unsigned int i)
     {
         return static_cast<unsigned int>(-static_cast<int>(i));
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR unsigned long negate(unsigned long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN unsigned long negate(unsigned long i)
     {
         return static_cast<unsigned long>(-static_cast<long>(i));
     }
@@ -759,20 +759,20 @@ namespace math
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
     // must be template to make `enable_if` dependent on a type substitution
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN
         typename utility::dependent_enable_if<!std::is_same<unsigned long long, uint64_t>::value, unsigned long long, T>::type
             negate(unsigned long long i, T = utility::int_identity<0>{}) // `utility::int_identity<0>` for `unsigned long long`
     {
-        return static_cast<unsigned long long>(-static_cast<unsigned long long>(i));
+        return static_cast<unsigned long long>(-static_cast<long long>(i));
     }
 #endif
 
-    FORCE_INLINE_ALWAYS CONSTEXPR int negate(int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int negate(int i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR long negate(long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN long negate(long i)
     {
         return -i;
     }
@@ -780,7 +780,7 @@ namespace math
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
     // must be template to make `enable_if` dependent on a type substitution
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN
         typename utility::dependent_enable_if<!std::is_same<long long, int64_t>::value, long long, T>::type
             negate(long long i, T = utility::int_identity<1>{}) // `utility::int_identity<1>` for `long long`
     {
@@ -788,28 +788,28 @@ namespace math
     }
 #endif
 
-    FORCE_INLINE_ALWAYS CONSTEXPR int64_t negate(int64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int64_t negate(int64_t i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR int64_t negate(uint64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int64_t negate(uint64_t i)
     {
         return static_cast<uint64_t>(-static_cast<int64_t>(i));
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR float negate(float v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN float negate(float v)
     {
         return -v;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR double negate(double v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN double negate(double v)
     {
         return -v;
     }
 
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR T negate(const T & v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN T negate(const T & v)
     {
         return -v;
     }
@@ -827,7 +827,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR T invoke(const type & v)
+            static CONSTEXPR_RETURN T invoke(const type & v)
             {
                 return std::negate<>()(v);
             }
@@ -838,7 +838,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR T invoke(const type & v)
+            static CONSTEXPR_RETURN T invoke(const type & v)
             {
                 // can be unsigned but castable to signed
                 return static_cast<typename std::make_unsigned<T>::type>(
@@ -852,7 +852,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR T invoke(const type & v)
+            static CONSTEXPR_RETURN T invoke(const type & v)
             {
                 return std::negate<>()(v);
             }
@@ -864,7 +864,7 @@ namespace math
         {
             using type = bool;
 
-            static CONSTEXPR bool invoke(bool v)
+            static CONSTEXPR_RETURN bool invoke(bool v)
             {
                 // The false is the same as zero, which have no effect of negation.
                 // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
@@ -881,7 +881,7 @@ namespace math
             // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
             static_assert(sizeof(type) && false, "type T must be signed or at least castable to signed through the std::make_signed");
 
-            static CONSTEXPR T invoke(const type & v)
+            static CONSTEXPR_RETURN T invoke(const type & v)
             {
                 return std::negate<>()(v); // just in case
             }
@@ -889,7 +889,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR T negate(const T & v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN T negate(const T & v)
     {
         return detail::_negate<std::is_signed<T>::value, utility::is_make_signed_valid<T>::value, T>::invoke(v);
     }
@@ -902,13 +902,13 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR T positive_max(const T & v = T())
+    FORCE_INLINE CONSTEXPR_RETURN T positive_max(const T & v = T())
     {
         return (std::numeric_limits<T>::max)();
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR T positive_min(const T & v = T())
+    FORCE_INLINE CONSTEXPR_RETURN T positive_min(const T & v = T())
     {
         return (
             std::is_floating_point<T>::value ?
