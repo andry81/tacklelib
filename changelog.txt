@@ -1,3 +1,9 @@
+2019.01.06:
+* fixed: utility/log: p7logger empty output
+
+2019.01.06:
+* fixed: cmake: missed archive_static from build
+
 2018.12.31:
 * changed: minor improvements
 
