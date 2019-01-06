@@ -137,7 +137,7 @@ namespace {
                 std::forward<decltype(args)>(args).c_str()...) ? true : false;
         }
 
-        static FORCE_INLINE std::vector<std::string> &&
+        static FORCE_INLINE std::vector<std::string>
             _p7TraceMultilineA(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
                 const std::string & fmt, Args... args)
         {
@@ -158,10 +158,10 @@ namespace {
                 text_lines.push_back(line);
             }
 
-            return std::move(text_lines);
+            return text_lines;
         }
 
-        static FORCE_INLINE std::vector<std::wstring> &&
+        static FORCE_INLINE std::vector<std::wstring>
             _p7TraceMultilineW(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
                 const std::wstring & fmt, Args... args)
         {
@@ -182,7 +182,7 @@ namespace {
                 text_lines.push_back(line);
             }
 
-            return std::move(text_lines);
+            return text_lines;
         }
     };
 

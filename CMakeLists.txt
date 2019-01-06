@@ -335,9 +335,12 @@ endif()
 
 add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive ${CMAKE_BUILD_ROOT}/_3dparty/arc/libarchive)
 
+set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+
 if (TARGET archive)
-  set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-  set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+  set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+  set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_ALL ON) # all except output libraries
 
   # libarchive has it's own cmake list, so we have to call it from here
   if (TACKLELIB_ADDRESS_MODEL)
@@ -347,9 +350,6 @@ if (TARGET archive)
   endif()
 endif()
 if (TARGET archive_static)
-  set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-  set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
-
   # libarchive has it's own cmake list, so we have to call it from here
   if (TACKLELIB_ADDRESS_MODEL)
     initialize_library_target_defaults(archive_static "${TACKLELIB_ADDRESS_MODEL}bit")
