@@ -434,8 +434,8 @@ namespace test
     void global_postinit(std::string & gtest_exclude_filter); 
     void global_uninit();
 
-    tackle::path_string get_data_in_subdir(tackle::path_string & test_case_name, const tackle::path_string & test_name);
-    tackle::path_string get_data_out_subdir(tackle::path_string & test_case_name, const tackle::path_string & test_name);
+    tackle::path_string get_data_in_subdir(const tackle::path_string & test_case_name, const tackle::path_string & test_name);
+    tackle::path_string get_data_out_subdir(const tackle::path_string & test_case_name, const tackle::path_string & test_name);
     tackle::path_string get_ref_in_subdir(const tackle::path_string & test_case_name, const tackle::path_string & test_name);
 
     void interrupt_test();

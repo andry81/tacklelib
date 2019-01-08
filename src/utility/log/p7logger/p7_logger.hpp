@@ -9,6 +9,7 @@
 #include <tacklelib/utility/assert.hpp>
 #include <tacklelib/utility/locale.hpp>
 #include <tacklelib/utility/string.hpp>
+#include <tacklelib/utility/utility.hpp>
 
 #include <tacklelib/tackle/debug.hpp>
 #include <tacklelib/tackle/smart_handle.hpp>
@@ -126,14 +127,24 @@ namespace {
         static FORCE_INLINE bool _p7TraceA(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
             const std::string & fmt, Args... args)
         {
-            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(),
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(),
                 std::forward<decltype(args)>(args).c_str()...) ? true : false;
         }
 
         static FORCE_INLINE bool _p7TraceW(IP7_Trace * p, uint16_t id, eP7Trace_Level lvl, IP7_Trace::hModule hmodule, const tackle::DebugFileLineFuncInlineStackA & inline_stack,
             const std::wstring & fmt, Args... args)
         {
-            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(),
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(),
                 std::forward<decltype(args)>(args).c_str()...) ? true : false;
         }
 
@@ -476,7 +487,12 @@ namespace {
                 p, id, lvl, m_hmodule, inline_stack, converted_fmt
             );
 #else
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #endif
         }
 
@@ -510,14 +526,24 @@ namespace {
 
             bool res_multiline = false;
 
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
             for(const auto & text_line : text_lines) {
-                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, L"%s",
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, L"%s",
                     text_line.c_str()) ? true : false;
             }
 
             return res_multiline;
 #else
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #endif
         }
 
@@ -532,7 +558,12 @@ namespace {
             }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #else
             std::string converted_fmt;
             std::string converted_args[sizeof...(args)];
@@ -564,7 +595,12 @@ namespace {
             }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, fmt.c_str(), args...) ? true : false;
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
+            return p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, fmt.c_str(), args...) ? true : false;
 #else
             std::string converted_fmt;
             std::string converted_args[sizeof...(args)];
@@ -585,8 +621,13 @@ namespace {
 
             bool res_multiline = false;
 
+            // try to make relative path to source file from cached module directory location
+            const tackle::generic_path_string file_path =
+                utility::truncate_path_relative_prefix(
+                    utility::get_relative_path(utility::get_module_dir_path(tackle::tag_generic_path_string{}, true), inline_stack.top.file, false));
+
             for(const auto & text_line : text_lines) {
-                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, inline_stack.top.file, inline_stack.top.func, "%s",
+                res_multiline |= p->Trace(id, lvl, m_hmodule, (tUINT16)inline_stack.top.line, file_path.c_str(), inline_stack.top.func, "%s",
                     text_line.c_str()) ? true : false;
             }
 
