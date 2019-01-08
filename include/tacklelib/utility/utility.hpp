@@ -398,20 +398,20 @@ namespace utility
     tackle::native_path_wstring get_parent_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string get_module_file_path(tackle::tag_generic_path_string);
-    tackle::generic_path_wstring get_module_file_path(tackle::tag_generic_path_wstring);
+    tackle::generic_path_string get_module_file_path(tackle::tag_generic_path_string, bool cached);
+    tackle::generic_path_wstring get_module_file_path(tackle::tag_generic_path_wstring, bool cached);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_module_file_path(tackle::tag_native_path_string);
-    tackle::native_path_wstring get_module_file_path(tackle::tag_native_path_wstring);
+    tackle::native_path_string get_module_file_path(tackle::tag_native_path_string, bool cached);
+    tackle::native_path_wstring get_module_file_path(tackle::tag_native_path_wstring, bool cached);
 #endif
 
-    tackle::generic_path_string get_module_dir_path(tackle::tag_generic_path_string);
-    tackle::generic_path_wstring get_module_dir_path(tackle::tag_generic_path_wstring);
+    tackle::generic_path_string get_module_dir_path(tackle::tag_generic_path_string, bool cached);
+    tackle::generic_path_wstring get_module_dir_path(tackle::tag_generic_path_wstring, bool cached);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_module_dir_path(tackle::tag_native_path_string);
-    tackle::native_path_wstring get_module_dir_path(tackle::tag_native_path_wstring);
+    tackle::native_path_string get_module_dir_path(tackle::tag_native_path_string, bool cached);
+    tackle::native_path_wstring get_module_dir_path(tackle::tag_native_path_wstring, bool cached);
 #endif
 
     tackle::generic_path_string get_lexically_normal_path(tackle::generic_path_string path);
@@ -444,6 +444,14 @@ namespace utility
 #if defined(UTILITY_PLATFORM_WINDOWS)
     tackle::native_path_string convert_to_native_path(tackle::native_path_string path);
     tackle::native_path_wstring convert_to_native_path(tackle::native_path_wstring path);
+#endif
+
+    tackle::generic_path_string truncate_path_relative_prefix(tackle::generic_path_string path);
+    tackle::generic_path_wstring truncate_path_relative_prefix(tackle::generic_path_wstring path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string truncate_path_relative_prefix(tackle::native_path_string path);
+    tackle::native_path_wstring truncate_path_relative_prefix(tackle::native_path_wstring path);
 #endif
 
     template<typename T>
