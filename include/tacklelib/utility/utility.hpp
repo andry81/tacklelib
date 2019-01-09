@@ -35,6 +35,7 @@
 #include <string>
 #include <stdexcept>
 #include <utility>
+#include <cstdint>
 
 #if defined(UTILITY_PLATFORM_POSIX)
 #include <termios.h>
@@ -430,6 +431,12 @@ namespace utility
     tackle::native_path_wstring get_lexically_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
 #endif
 
+    tackle::generic_path_string convert_to_generic_path(const char * path, size_t len);
+    tackle::generic_path_wstring convert_to_generic_path(const wchar_t * path, size_t len);
+
+    tackle::generic_path_string convert_to_generic_path(std::string path);
+    tackle::generic_path_wstring convert_to_generic_path(std::wstring path);
+
     tackle::generic_path_string convert_to_generic_path(tackle::generic_path_string path);
     tackle::generic_path_wstring convert_to_generic_path(tackle::generic_path_wstring path);
 
@@ -437,6 +444,12 @@ namespace utility
     tackle::generic_path_string convert_to_generic_path(tackle::native_path_string path);
     tackle::generic_path_wstring convert_to_generic_path(tackle::native_path_wstring path);
 #endif
+
+    tackle::native_path_string convert_to_native_path(const char * path, size_t len);
+    tackle::native_path_wstring convert_to_native_path(const wchar_t * path, size_t len);
+
+    tackle::native_path_string convert_to_native_path(std::string path);
+    tackle::native_path_wstring convert_to_native_path(std::wstring path);
 
     tackle::native_path_string convert_to_native_path(tackle::generic_path_string path);
     tackle::native_path_wstring convert_to_native_path(tackle::generic_path_wstring path);

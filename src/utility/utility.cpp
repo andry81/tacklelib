@@ -292,6 +292,28 @@ namespace {
         return true;
     }
 
+    FORCE_INLINE tackle::generic_path_string _convert_to_generic_path(const char * path, size_t len)
+    {
+        DEBUG_ASSERT_TRUE(path);
+        return boost::fs::path{ path, path + len }.generic_string();
+    }
+
+    FORCE_INLINE tackle::generic_path_wstring _convert_to_generic_path(const wchar_t * path, size_t len)
+    {
+        DEBUG_ASSERT_TRUE(path);
+        return boost::fs::path{ path, path + len }.generic_wstring();
+    }
+
+    FORCE_INLINE tackle::generic_path_string _convert_to_generic_path(std::string path)
+    {
+        return boost::fs::path{ std::move(path) }.generic_string();
+    }
+
+    FORCE_INLINE tackle::generic_path_wstring _convert_to_generic_path(std::wstring path)
+    {
+        return boost::fs::path{ std::move(path) }.generic_wstring();
+    }
+
     FORCE_INLINE tackle::generic_path_string _convert_to_generic_path(tackle::native_path_string path)
     {
         return boost::fs::path{ std::move(path.str()) }.generic_string();
@@ -313,6 +335,28 @@ namespace {
         return boost::fs::path{ std::move(path.str()) }.generic_wstring();
     }
 #endif
+
+    FORCE_INLINE tackle::native_path_string _convert_to_native_path(const char * path, size_t len)
+    {
+        DEBUG_ASSERT_TRUE(path);
+        return boost::fs::path{ path, path + len }.make_preferred().string();
+    }
+
+    FORCE_INLINE tackle::native_path_wstring _convert_to_native_path(const wchar_t * path, size_t len)
+    {
+        DEBUG_ASSERT_TRUE(path);
+        return boost::fs::path{ path, path + len }.make_preferred().wstring();
+    }
+
+    FORCE_INLINE tackle::native_path_string _convert_to_native_path(std::string path)
+    {
+        return boost::fs::path{ std::move(path) }.make_preferred().string();
+    }
+
+    FORCE_INLINE tackle::native_path_wstring _convert_to_native_path(std::wstring path)
+    {
+        return boost::fs::path{ std::move(path) }.make_preferred().wstring();
+    }
 
     FORCE_INLINE tackle::native_path_string _convert_to_native_path(tackle::generic_path_string path)
     {
@@ -2215,6 +2259,26 @@ namespace {
     }
 #endif
 
+    tackle::generic_path_string convert_to_generic_path(const char * path, size_t len)
+    {
+        return _convert_to_generic_path(path, len);
+    }
+
+    tackle::generic_path_wstring convert_to_generic_path(const wchar_t * path, size_t len)
+    {
+        return _convert_to_generic_path(path, len);
+    }
+
+    tackle::generic_path_string convert_to_generic_path(std::string path)
+    {
+        return _convert_to_generic_path(std::move(path));
+    }
+
+    tackle::generic_path_wstring convert_to_generic_path(std::wstring path)
+    {
+        return _convert_to_generic_path(std::move(path));
+    }
+
     tackle::generic_path_string convert_to_generic_path(tackle::generic_path_string path)
     {
         return _convert_to_generic_path(std::move(path));
@@ -2236,6 +2300,26 @@ namespace {
         return _convert_to_generic_path(std::move(path));
     }
 #endif
+
+    tackle::native_path_string convert_to_native_path(const char * path, size_t len)
+    {
+        return _convert_to_native_path(path, len);
+    }
+
+    tackle::native_path_wstring convert_to_native_path(const wchar_t * path, size_t len)
+    {
+        return _convert_to_native_path(path, len);
+    }
+
+    tackle::native_path_string convert_to_native_path(std::string path)
+    {
+        return _convert_to_native_path(std::move(path));
+    }
+
+    tackle::native_path_wstring convert_to_native_path(std::wstring path)
+    {
+        return _convert_to_native_path(std::move(path));
+    }
 
     tackle::native_path_string convert_to_native_path(tackle::generic_path_string path)
     {

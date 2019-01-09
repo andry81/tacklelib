@@ -67,6 +67,9 @@
 #define UTILITY_DEPENDENT_TYPENAME_COMPILE_ERROR_BY_INCOMPLETE_TYPE(dependent_type_name) \
     using UTILITY_PP_CONCAT(dependent_typename_compiler_error_by_incomplete_type_t, UTILITY_PP_LINE) = typename ::utility::incomplete_dependent_type<dependent_type_name>::type
 
+#define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str)     str, (::utility::static_size(str))
+#define UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(str)   str, (::utility::static_size(str) - 1)
+
 // Checks existence of member function.
 // Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
 //
@@ -476,6 +479,19 @@ namespace utility
     CONSTEXPR_RETURN typename std::remove_reference<T>::type makeprval(T && t)
     {
         return t;
+    }
+
+    // std::size is supported from C++17
+    template <typename T, size_t N>
+    FORCE_INLINE CONSTEXPR size_t static_size(const T (&)[N]) noexcept
+    {
+        return N;
+    }
+
+    template <typename... T>
+    FORCE_INLINE CONSTEXPR size_t static_size(const std::tuple<T...> &)
+    {
+        return std::tuple_size<std::tuple<T...> >::value;
     }
 }
 
