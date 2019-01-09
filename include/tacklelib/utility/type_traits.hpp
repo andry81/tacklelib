@@ -21,9 +21,6 @@
 #include <cstring>
 
 
-#define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str) str, ::utility::static_size(str)
-
-
 namespace utility
 {
     template <typename T>
@@ -52,19 +49,6 @@ namespace utility
     {
         using type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
     };
-
-    // std::size is supported from C++17
-    template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR size_t static_size(const T (&)[N]) noexcept
-    {
-        return N;
-    }
-
-    template <typename... T>
-    FORCE_INLINE CONSTEXPR size_t static_size(const std::tuple<T...> &)
-    {
-        return std::tuple_size<std::tuple<T...> >::value;
-    }
 
     // index_sequence C++11 implementation
     // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613

@@ -1,3 +1,8 @@
+2019.01.09:
+* fixed: utility/log: p7logger output empty source file paths in case of run from not origin built drive
+* new: utility/log: added PROJECT_ROOT macro to cut of source file absolute paths down to relative ones
+* refactor: utility: minor refactor
+
 2019.01.07:
 * fixed: utility: not all functions has been return generic path instead of native path
 * fixed: utility: log source file path conversion try into relative path where relative path is relative to the module directory
