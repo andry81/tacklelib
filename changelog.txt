@@ -1,3 +1,6 @@
+2019.01.14:
+* minor change
+
 2019.01.09:
 * fixed: utility/log: p7logger output empty source file paths in case of run from not origin built drive
 * new: utility/log: added PROJECT_ROOT macro to cut of source file absolute paths down to relative ones

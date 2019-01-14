@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/common.hpp"
+#include <src/common.hpp>
 
 // commons exclicitly for tests ONLY
 #include <src/testlib/testlib.hpp>
