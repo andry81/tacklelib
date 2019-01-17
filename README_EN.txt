@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2018.12.07
+* 2018.12.17
 * tacklelib
 
 1. DESCRIPTION
@@ -96,6 +96,7 @@ call to the cmake.
 # test
 
 * google test
+  patched, not published
   original: https://github.com/abseil/googletest
 
 # packer
@@ -112,7 +113,7 @@ call to the cmake.
 
 To generate sources which are not included in version control call the
 `_scripts/configure_src.bat` under Windows or
-`_scripts/configure_src.bat` under Linux script.
+`_scripts/configure_src.sh` under Linux script.
 
 -------------------------------------------------------------------------------
 7. AUTHOR EMAIL
