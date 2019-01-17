@@ -13,6 +13,7 @@ cmake/ConfigureFile.cmake -text
 cmake/EnableTargetsExtension.cmake -text
 cmake/FindEnvironment.cmake -text
 cmake/ForwardVariables.cmake -text
+examples/utility/log/p7logger/p7_logger_example1.cpp -text
 include/tacklelib/.svnignore -text
 include/tacklelib/debug.hpp.in -text
 include/tacklelib/optimization.hpp.in -text
