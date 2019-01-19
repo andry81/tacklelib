@@ -203,7 +203,7 @@ macro(declare_builtin_variables)
 
     message(STATUS "(*) CMAKE_VERSION=${CMAKE_VERSION}")
     message(STATUS "(*) CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-    message(STATUS "(*) CMAKE_C_COMPILER_ID=${CMAKE_C_COMPILER_ID} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "(*) OSTYPE=$ENV{OSTYPE} CMAKE_C_COMPILER_ID=${CMAKE_C_COMPILER_ID} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
 
     # check if generator is multiconfig
     get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -253,6 +253,20 @@ macro(configure_environment supported_compilers)
 
   if(NOT has_supported_compiler)
     message(FATAL_ERROR "platform is not implemented, supported compilers: ${supported_compilers}")
+  endif()
+
+  discover_variable(MSYS STRING "msys environment flag")
+  discover_variable(MINGW STRING "mingw environment flag")
+  discover_variable(CYGWIN STRING "cygwin environment flag")
+
+  # detection of msys/mingw/cygwin environments
+  if ("$ENV{OSTYPE}" STREQUAL "msys")
+    set(MSYS ON)
+    set(MINGW ON)
+  elseif ("$ENV{OSTYPE}" STREQUAL "mingw")
+    set(MINGW ON)
+  elseif ("$ENV{OSTYPE}" STREQUAL "cygwin")
+    set(CYGWIN ON)
   endif()
 
   if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
