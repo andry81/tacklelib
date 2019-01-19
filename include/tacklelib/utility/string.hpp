@@ -65,7 +65,7 @@ namespace utility {
         while (true) {
             str.resize(str_len);
 
-            const int final_n = vswprintf(const_cast<wchar_t *>(str.data()), str_len, fmt_str.c_str(), vl);
+            const int final_n = std::vswprintf(const_cast<wchar_t *>(str.data()), str_len, fmt_str.c_str(), vl);
 
             if (final_n < 0 || final_n >= int(str_len))
                 str_len += (std::abs)(final_n - int(str_len) + 1);
