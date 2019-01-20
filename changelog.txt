@@ -1,5 +1,5 @@
 2019.01.20:
-* fixed: configure.bat execution
+* fixed: configure_src.bat execution
 
 2019.01.19:
 * added: cmake: msys/mingw/cygwin detection support and respective enable/disable variables
