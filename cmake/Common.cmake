@@ -203,7 +203,8 @@ macro(declare_builtin_variables)
 
     message(STATUS "(*) CMAKE_VERSION=${CMAKE_VERSION}")
     message(STATUS "(*) CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-    message(STATUS "(*) OSTYPE=$ENV{OSTYPE} CMAKE_C_COMPILER_ID=${CMAKE_C_COMPILER_ID} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "(*) CMAKE_C_COMPILER_ID=${CMAKE_C_COMPILER_ID} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID} OSTYPE=$ENV{OSTYPE}")
+    message(STATUS "(*) CMAKE_C_COMPILER_ARCHITECTURE_ID=${CMAKE_C_COMPILER_ARCHITECTURE_ID} CMAKE_CXX_COMPILER_ARCHITECTURE_ID=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
 
     # check if generator is multiconfig
     get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -284,7 +285,15 @@ macro(configure_environment supported_compilers)
     discover_variable(CMAKE_INSTALL_ROOT  PATH "cmake install output directory root")
     discover_variable(CMAKE_CPACK_ROOT    PATH "cmake cpack/bundle output directory root")
 
-    if (DEFINED CMAKE_CACHEFILE_DIR)
+    # CAUTION:
+    #   We have to detect the executor to ignore a build directory change under particular executors.
+    #
+
+    if (COMMAND detect_qt_creator)
+      detect_qt_creator()
+    endif()
+
+    if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
       string(TOLOWER "${CMAKE_CACHEFILE_DIR}" cmake_cachefile_dir_lower)
       string(TOLOWER "${CMAKE_BUILD_ROOT}" cmake_build_root_lower)
       if (NOT cmake_cachefile_dir_lower STREQUAL cmake_build_root_lower)
@@ -351,7 +360,6 @@ macro(configure_environment supported_compilers)
     #   user to run the `_script/configure_nogen` BEFORE cmake direct execution by
     #   the IDE!
 
-    detect_qt_creator()
     if (IS_EXECUTED_BY_QT_CREATOR)
       if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake)
         message(FATAL_ERROR "(*) The `environment_local.cmake` is not properly generated, use the `_scripts/configure_nogen` to generage the file and then edit values manually!")

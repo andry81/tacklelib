@@ -1,4 +1,7 @@
 2019.01.20:
+* fixed: cmake: QtCreator correct detection out of Qt.cmake module
+
+2019.01.20:
 * fixed: configure_src.bat execution
 
 2019.01.19:
