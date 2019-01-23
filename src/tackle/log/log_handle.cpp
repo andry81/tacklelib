@@ -1,6 +1,6 @@
 #include <src/tacklelib_private.hpp>
 
-#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_P7_LOGGER)
+#if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_LOG_P7_LOGGER)
 
 #include <tacklelib/tackle/log/log_handle.hpp>
 

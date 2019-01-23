@@ -8,6 +8,7 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/string.hpp>
 
 #include <string>
@@ -40,6 +41,19 @@
 #define UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(char_type, ...) \
     ((void)(UTILITY_PP_MACRO_ARG0(__VA_ARGS__) * 0), ::tackle::literal_string_from_chars<char_type>(__VA_ARGS__, UTILITY_LITERAL_CHAR('\0', char_type)))
 
+// checker on an array string, but does not check if a literal (T[] - true, T* - false)
+#define UTILITY_IS_ARRAY_STRING(c_str)                  (sizeof(::utility::is_array_string::check(c_str)) == sizeof(::utility::is_array_string::yes))
+
+// uniform literal string checker
+#define UTILITY_IS_LITERAL_STRING(c_str)                (#c_str[0] == UTILITY_LITERAL_CHAR('\"', decltype(c_str[0])))
+
+// specialized literal string checker
+#define UTILITY_IS_LITERAL_STRING_WITH_PREFIX(c_str, prefix) (#c_str[0] == prefix '\"')
+
+// CAUTION:
+//  won't work in clang 3.8.0!
+//
+#define UTILITY_IS_CONSTEXPR_STRING(c_str)              UTILITY_IS_CONSTEXPR_VALUE(c_str[0])
 
 namespace tackle {
 
@@ -70,6 +84,17 @@ namespace tackle {
     template <size_t S> using literal_u32string_const_reference_arr = literal_basic_string_const_reference_arr<char32_t, S>;
     template <size_t S> using literal_u32string_reference_arr       = literal_basic_string_reference_arr<char32_t, S>;
 
+    namespace is_array_string {
+
+        using yes = char[1];
+        using no = char[2];
+
+        template <typename T, size_t S>
+        yes & check(const T(&)[S]);
+        no & check(...);
+
+    }
+
     //// literal_char_caster, literal_string_caster
 
     // template class to replace partial function specialization and avoid overload over different return types
@@ -81,7 +106,7 @@ namespace tackle {
     template <>
     struct literal_char_caster<char>
     {
-        FORCE_INLINE static CONSTEXPR char
+        static FORCE_INLINE CONSTEXPR char
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -95,7 +120,7 @@ namespace tackle {
     template <>
     struct literal_char_caster<wchar_t>
     {
-        FORCE_INLINE static CONSTEXPR wchar_t
+        static FORCE_INLINE CONSTEXPR wchar_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -109,7 +134,7 @@ namespace tackle {
     template <>
     struct literal_char_caster<char16_t>
     {
-        FORCE_INLINE static CONSTEXPR char16_t
+        static FORCE_INLINE CONSTEXPR char16_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -123,7 +148,7 @@ namespace tackle {
     template <>
     struct literal_char_caster<char32_t>
     {
-        FORCE_INLINE static CONSTEXPR char32_t
+        static FORCE_INLINE CONSTEXPR char32_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -148,7 +173,7 @@ namespace tackle {
     }
 
     template <typename CharT, typename... Args>
-    FORCE_INLINE static CONSTEXPR
+    static FORCE_INLINE CONSTEXPR
         typename details::fst<literal_char_array<CharT, sizeof...(Args)>,
             typename std::enable_if<
                 std::is_convertible<Args, CharT>::value
@@ -160,7 +185,7 @@ namespace tackle {
     }
 
     //template <typename CharT>
-    //FORCE_INLINE static CONSTEXPR auto
+    //static FORCE_INLINE CONSTEXPR auto
     //    literal_string_from_chars(CharT... args) -> literal_string_const_reference_arr<sizeof...(args)>
     //{
     //    return { args... };
@@ -170,7 +195,7 @@ namespace tackle {
     struct literal_string_caster<char>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR literal_string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -185,7 +210,7 @@ namespace tackle {
     struct literal_string_caster<wchar_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_wstring_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR literal_wstring_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -200,7 +225,7 @@ namespace tackle {
     struct literal_string_caster<char16_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_u16string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR literal_u16string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -215,7 +240,7 @@ namespace tackle {
     struct literal_string_caster<char32_t>
     {
         template <size_t S>
-        FORCE_INLINE static CONSTEXPR literal_u32string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR literal_u32string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,

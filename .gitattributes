@@ -106,3 +106,4 @@ src/utility/log/p7logger/p7_logger.hpp -text
 src/utility/memory.cpp -text
 src/utility/optimization.cpp -text
 src/utility/utility.cpp -text
+src/utility/utility/fmt/format.hpp -text

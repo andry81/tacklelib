@@ -85,21 +85,25 @@ namespace tackle
     using DebugFileLineFuncA = DebugFileLineFunc<char>;
     using DebugFileLineFuncW = DebugFileLineFunc<wchar_t>;
 
+    // CAUTION:
+    //  In some cases (for example, for a logger function calls) the `top` must be constructed from literal strings,
+    //  but there is no way to check it fully uniform and portably!
+    //
     template <typename T>
     class inline_stack
     {
     public:
-        inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
+        FORCE_INLINE inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
             next_ptr(next_ptr_), top(top_)
         {
         }
 
-        static inline_stack make(const T & top)
+        static FORCE_INLINE inline_stack make(const T & top)
         {
             return inline_stack{ top };
         }
 
-        static inline_stack make_push(const inline_stack & next_stack, const T & top)
+        static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
         {
             return inline_stack{ top, &next_stack };
         }

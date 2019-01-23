@@ -10,6 +10,8 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/optimization.hpp>
 
+#include <tacklelib/tackle/debug.hpp>
+
 #ifdef UTILITY_COMPILER_CXX_MSC
 #include <intrin.h>
 #else
@@ -50,6 +52,23 @@ namespace utility
     // break on true
     void debug_break(bool condition = false);
     bool is_under_debugger();
+
+    template <typename T, typename F>
+    FORCE_INLINE void trace_stack(const tackle::inline_stack<T> & dbg_stack, F && functor)
+    {
+        size_t index = 0;
+
+        functor(index, dbg_stack.top);
+
+        ++index;
+        const auto * next_ptr = dbg_stack.next_ptr;
+
+        while (next_ptr) {
+            functor(index, next_ptr->top);
+            ++index;
+            next_ptr = next_ptr->next_ptr;
+        }
+    }
 }
 
 #endif
