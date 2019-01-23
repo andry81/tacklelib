@@ -3,6 +3,7 @@
 * new: utility: UTILITY_CONST_EXPR_VALUE macro
 * new: utility: constexpr get_file_name_offset function to truncate __FILE__ definition up to a file name at compile time
 * new: utility: trace_stack minor debug function
+* new: urility: fmt library extension by fmt::format2 function with second format string
 * minor changes
 
 2019.01.23:
