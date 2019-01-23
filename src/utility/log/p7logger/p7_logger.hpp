@@ -35,6 +35,11 @@
 //   https://habr.com/post/313686/
 //
 
+// CAUTION:
+//  From the library documentation:
+//  N.B.: DO NOT USE VARIABLES for format string, file name, function name! You should always use
+//  CONSTANT TEXT like "My Format %d, %s", ”myfile.cpp”, “myfunction”
+//
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #elif defined(UTILITY_PLATFORM_LINUX)
@@ -230,7 +235,7 @@ namespace {
         }
 
     protected:
-        FORCE_INLINE static void _deleter(void * p)
+        static FORCE_INLINE void _deleter(void * p)
         {
             if (p) {
                 static_cast<IP7_Client *>(p)->Release();
@@ -323,7 +328,7 @@ namespace {
         }
 
     protected:
-        FORCE_INLINE static void _deleter(void * p)
+        static FORCE_INLINE void _deleter(void * p)
         {
             if (p) {
                 static_cast<IP7_Trace *>(p)->Release();
@@ -679,7 +684,7 @@ namespace {
         }
 
     protected:
-        FORCE_INLINE static void _deleter(void * p)
+        static FORCE_INLINE void _deleter(void * p)
         {
             if (p) {
                 static_cast<IP7_Telemetry *>(p)->Release();

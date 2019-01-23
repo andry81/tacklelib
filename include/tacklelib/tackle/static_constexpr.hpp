@@ -49,7 +49,7 @@ namespace tackle
         static CONSTEXPR const bool is_const_type_v = true;
 
         template <typename... Args>
-        FORCE_INLINE static CONSTEXPR_RETURN T construct_get(Args &&... args)
+        static FORCE_INLINE CONSTEXPR_RETURN T construct_get(Args &&... args)
         {
             return T{ args... };
         }
@@ -69,7 +69,7 @@ namespace tackle
         using reference_type    = typename std::conditional<is_const_type_v, const unconst_type &, unconst_type &>::type;
 
         template <typename... Args>
-        FORCE_INLINE static T & construct_get(Args &&... args)
+        static FORCE_INLINE T & construct_get(Args &&... args)
         {
             static T value{ args... };
             return value;

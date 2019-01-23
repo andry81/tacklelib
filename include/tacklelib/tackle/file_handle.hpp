@@ -25,7 +25,7 @@ namespace tackle
         using string_type = std::basic_string<t_elem, t_traits, t_alloc>;
 
     private:
-        FORCE_INLINE static void _deleter(void * p)
+        static FORCE_INLINE void _deleter(void * p)
         {
             if (p) {
                 fclose((FILE *)p);

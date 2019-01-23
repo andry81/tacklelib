@@ -37,7 +37,7 @@ namespace tackle {
         using base_type0 = TInterface;
         using base_type1 = TBase;
 
-        FORCE_INLINE static CONSTEXPR const int static_type_index()
+        static FORCE_INLINE CONSTEXPR const int static_type_index()
         {
             return TypeIndex;
         }

@@ -9,6 +9,10 @@
 #include <tacklelib/utility/platform.hpp>
 
 
+// CAUTION:
+//  * addressof function must be declared in a namespace, otherwise CAN FAIL SILENTLY!
+//
+
 namespace utility
 {
     template <typename T>
@@ -27,6 +31,27 @@ namespace utility
             reinterpret_cast<const T *>(
                 &const_cast<const char &>(
                     reinterpret_cast<const volatile char &>(arg)));
+    }
+
+    // Specific std::function address retrieve.
+    // Based on: https://stackoverflow.com/questions/18039723/c-trying-to-get-function-address-from-a-stdfunction/18039824#18039824
+    //
+
+    template <typename T, typename... U>
+    FORCE_INLINE auto addressof(T (func)(U...)) -> T(*)(U...)
+    {
+        return func;
+    }
+
+    template <typename T, typename... U>
+    FORCE_INLINE auto addressof(const std::function<T(U...)> & func) -> T(*)(U...)
+    {
+        auto func_ptr = func.template target<T(*)(U...)>(); // would return nullptr on a lambda
+        if (func_ptr) {
+            return *func_ptr;
+        }
+
+        return nullptr;
     }
 
     template <typename To, typename From>

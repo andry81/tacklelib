@@ -18,6 +18,9 @@
 // to suppress warnings around compile time expressions or values
 #define UTILITY_CONST_EXPR(exp) ::utility::const_expr<(exp) ? true : false>::value
 
+// to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
+#define UTILITY_CONST_EXPR_VALUE(exp) ::utility::const_expr_value<decltype(exp), exp>::value
+
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
 #define UTILITY_TYPENAME_LOOKUP_BY_ERROR(type_name) \
     using _type_lookup_t = decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::_not_overloadable_type *)0))
@@ -332,6 +335,14 @@ namespace utility
         static CONSTEXPR const bool value = B;
     };
 
+    // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
+    template <typename T, T v>
+    struct const_expr_value
+    {
+        static constexpr const T value = v;
+    };
+
+
     namespace
     {
         struct _not_overloadable_type {};
@@ -492,6 +503,56 @@ namespace utility
     FORCE_INLINE CONSTEXPR size_t static_size(const std::tuple<T...> &)
     {
         return std::tuple_size<std::tuple<T...> >::value;
+    }
+
+    // for parameter pack usage inside a static_assert
+
+    template <typename T0>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_all_true(T0 && v0)
+    {
+        return std::forward<T0>(v0) ? true : false;
+    }
+
+    template <typename T0, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_all_true(T0 && v0, Args &&... args)
+    {
+        return (std::forward<T0>(v0) ? true : false) && is_all_true(std::forward<Args>(args)...);
+    }
+
+    template <typename T0>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_all_false(T0 && v0)
+    {
+        return std::forward<T0>(v0) ? false : true;
+    }
+
+    template <typename T0, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_all_false(T0 && v0, Args &&... args)
+    {
+        return (std::forward<T0>(v0) ? false : true) && is_all_false(std::forward<Args>(args)...);
+    }
+
+    template <typename T0>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_any_true(T0 && v0)
+    {
+        return std::forward<T0>(v0) ? true : false;
+    }
+
+    template <typename T0, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_any_true(T0 && v0, Args &&... args)
+    {
+        return (std::forward<T0>(v0) ? true : false) || is_any_true(std::forward<Args>(args)...);
+    }
+
+    template <typename T0>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_any_false(T0 && v0)
+    {
+        return std::forward<T0>(v0) ? false : true;
+    }
+
+    template <typename T0, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN bool is_any_false(T0 && v0, Args &&... args)
+    {
+        return (std::forward<T0>(v0) ? false : true) || is_any_false(std::forward<Args>(args)...);
     }
 }
 

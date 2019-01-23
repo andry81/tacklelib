@@ -1,3 +1,20 @@
+2019.01.23:
+* new: tackle: UTILITY_IS_ARRAY_STRING/UTILITY_IS_LITERAL_STRING/UTILITY_IS_LITERAL_STRING_WITH_PREFIX/UTILITY_IS_CONSTEXPR_STRING macroses
+* new: utility: UTILITY_CONST_EXPR_VALUE macro
+* new: utility: constexpr get_file_name_offset function to truncate __FILE__ definition up to a file name at compile time
+* new: utility: trace_stack minor debug function
+* minor changes
+
+2019.01.23:
+* new: utility: addressof for functions and functors
+
+2019.01.21:
+* new: utility: is_all_true/is_all_false/is_any_true/is_any_false functions to use a parameter pack inside static_assert
+* new: debug: trace_stack function to portably dump stack trace by a local function parameter
+* new: utility/fmt: fmt library extension (fmt::format2 function) to format a string with 2 format strings
+* changed: utility/log: static assert args parameter on printf compatible arguments (not class type check)
+* refactor: minor refactor
+
 2019.01.20:
 * fixed: cmake: QtCreator correct detection out of Qt.cmake module
 

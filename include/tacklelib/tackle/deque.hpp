@@ -207,7 +207,7 @@ namespace tackle
         };
 
         template<typename T_, typename Allocator, typename... Args>
-        FORCE_INLINE static void construct_items(Allocator alloc, T_ * ptr, size_type0 head_index, size_type0 count, Args... args)
+        static FORCE_INLINE void construct_items(Allocator alloc, T_ * ptr, size_type0 head_index, size_type0 count, Args... args)
         {
             DEBUG_ASSERT_TRUE(ptr);
             DEBUG_ASSERT_TRUE(count);
@@ -219,7 +219,7 @@ namespace tackle
         }
 
         template<typename T_, typename Allocator, typename... Args>
-        FORCE_INLINE static T_ * allocate_construct_items(Allocator alloc, size_type0 capacity, size_type0 head_index, size_type0 count, Args... args)
+        static FORCE_INLINE T_ * allocate_construct_items(Allocator alloc, size_type0 capacity, size_type0 head_index, size_type0 count, Args... args)
         {
             T_ * ptr = alloc.allocate(capacity);
 
@@ -229,13 +229,13 @@ namespace tackle
         }
 
         template<typename T_, typename Allocator>
-        FORCE_INLINE static void deallocate_items(Allocator alloc, T_ * allocated_ptr, size_type0 capacity)
+        static FORCE_INLINE void deallocate_items(Allocator alloc, T_ * allocated_ptr, size_type0 capacity)
         {
             alloc.deallocate(allocated_ptr, capacity);
         }
 
         template<typename T_, typename Allocator, typename... Args>
-        FORCE_INLINE static void destruct_items(Allocator alloc, T_ * ptr, size_type0 count)
+        static FORCE_INLINE void destruct_items(Allocator alloc, T_ * ptr, size_type0 count)
         {
             if (!UTILITY_CONST_EXPR(std::is_trivially_copyable<T_>::value)) {
                 std::size_t i = DEBUG_VERIFY_TRUE(count);
@@ -247,7 +247,7 @@ namespace tackle
         }
 
         template<typename T_, typename Allocator, typename... Args>
-        FORCE_INLINE static std::unique_ptr<T_[], std::function<void(T_ *)> >
+        static FORCE_INLINE std::unique_ptr<T_[], std::function<void(T_ *)> >
             make_items_uptr(Allocator alloc, T_ * allocated_ptr, size_type0 capacity, size_type0 head_index, size_type0 count)
         {
             static const auto & deleter = [](T_ * ptr, Allocator alloc, size_type0 capacity, size_type0 head_index, size_type0 count)
