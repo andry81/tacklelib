@@ -6,19 +6,21 @@ cmake_minimum_required(VERSION 3.7)
 # * to request BUILDSYSTEM_TARGETS property from a directory.
 #
 
+# at least cmake 3.3 is required for:
+# * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
+#   `if(<variable|string> IN_LIST <variable>)`
+#
+
 ###############################################################################
 ## cmake policy change ########################################################
 ###############################################################################
 
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.3.0")
-  #  Policy CMP0057 is not set: Support new IN_LIST if () operator.  Run "cmake
-  #  --help-policy CMP0057" for policy details.  Use the cmake_policy command to
-  #  set the policy and suppress this warning.
-  #
-  #  IN_LIST will be interpreted as an operator when the policy is set to NEW.
-  #  Since the policy is not set the OLD behavior will be used.
-  cmake_policy(SET CMP0057 NEW) # cmake >= 3.3
-endif()
+#if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "X.Y.Z")
+#  #  Policy CMP00NN is not set: ...
+#  #
+#  #  ...
+#  cmake_policy(SET CMP00NN NEW) # cmake >= X.Y
+#endif()
 
 # enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -27,10 +29,14 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ## cmake builtin search paths and includes ####################################
 ###############################################################################
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake;${CMAKE_CURRENT_LIST_DIR}/cmake/_3dparty")
+
+# cmake extension variables, must be before the first include
+#set(ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS 1) # 0 - macro invokers, faster; 1 - function invokers, slower
 
 include(Common)
 include(EnableTargetsExtension)
+include(_3dparty/Qt)
 
 ###############################################################################
 ## builtin detection ##########################################################
@@ -46,67 +52,67 @@ set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 configure_environment("MSVC;GCC")
 
 ###############################################################################
-## discover environment variables #############################################
+## check environment variables ################################################
 ###############################################################################
 
-if (NOT CMAKE_BUILD_ROOT)
-  set(CMAKE_BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+check_variable(REQUIRED . TACKLELIB_ADDRESS_MODEL)
+check_variable(REQUIRED . TACKLELIB_LINK_TYPE)
 
-# tacklelib
+check_variable(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
-discover_variable(TACKLELIB_ADDRESS_MODEL PATH "tacklelib address model (could be `32` or `64` bit)")
-if (NOT TACKLELIB_ADDRESS_MODEL)
-  set(TACKLELIB_ADDRESS_MODEL 32) # 32 bit by default
-endif()
-
-discover_variable(TACKLELIB_LINK_TYPE STRING "general linkage type")
-if (NOT TACKLELIB_LINK_TYPE)
-  set(TACKLELIB_LINK_TYPE "static") # linkage by default
-endif()
-
-# log
-
-discover_variable(LOG_P7_CLIENT_ROOT PATH "c/c++ p7 client logger library")
+check_variable(OPTIONAL PATH CMAKE_LIBRARY_PATH)
+check_variable(OPTIONAL PATH NSIS_INSTALL_ROOT)
 
 # multi
 
-discover_variable(BOOST_ROOT PATH "boost library")
-
-# test
-
-discover_variable(GTEST_ROOT PATH "google test library")
-
-# arc
-
-discover_variable(ARC_LIBARCHIVE_ROOT PATH "libarchive archive library")
-discover_variable(ENABLE_LZMA PATH "libarchive lzma linkage flag")
-discover_variable(ENABLE_TAR PATH "libarchive tar build flag")
-discover_variable(ENABLE_CPIO PATH "libarchive cpio build flag")
-discover_variable(ENABLE_CAT PATH "libarchive cat build flag")
-discover_variable(ENABLE_TEST PATH "libarchive test build flag")
-discover_variable(ENABLE_COVERAGE PATH "libarchive code coverage")
-discover_variable(ENABLE_INSTALL PATH "libarchive install")
-
-discover_variable(ARC_XZ_UTILS_ROOT PATH "xz utils root directory")
-discover_variable(LIBLZMA_INCLUDE_DIR PATH "liblzma include directory")
-discover_variable(LIBLZMA_LIBRARY PATH "liblzma library file")
-discover_variable(LIBLZMA_HAS_AUTO_DECODER PATH "LibLZMA lzma_auto_decoder() is existing flag")
-discover_variable(LIBLZMA_HAS_EASY_ENCODER PATH "LibLZMA lzma_easy_encoder() is existing flag")
-discover_variable(LIBLZMA_HAS_LZMA_PRESET PATH "LibLZMA lzma_lzma_preset() is existing flag")
-
-#discover_variable(ARC_7ZIP_ROOT PATH "7zip archive library")
+check_variable(REQUIRED PATH BOOST_ROOT)
+check_variable(REQUIRED . Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 
 # utility
 
-discover_variable(UTILITY_FMT_ROOT PATH "fmt string formatting library")
-discover_variable(UTILITY_PYSTRING_ROOT PATH "pystring string utility library")
+check_variable(REQUIRED PATH UTILITY_FMT_ROOT)
+check_variable(OPTIONAL PATH UTILITY_PYSTRING_ROOT)
+
+# math
+
+check_variable(OPTIONAL PATH QD_ROOT)
+check_variable(OPTIONAL . ENABLE_QD_INTEGRATION)
+check_variable(OPTIONAL . ENABLE_QD_QD_INTEGRATION)
+check_variable(OPTIONAL . ENABLE_QD_DD_INTEGRATION)
+
+# log
+
+check_variable(OPTIONAL PATH LOG_P7_CLIENT_ROOT)
+
+# arc
+
+check_variable(REQUIRED PATH ARC_LIBARCHIVE_ROOT)
+check_variable(REQUIRED . ENABLE_LZMA)
+check_variable(REQUIRED . ENABLE_TAR)
+check_variable(REQUIRED . ENABLE_CPIO)
+check_variable(REQUIRED . ENABLE_CAT)
+check_variable(REQUIRED . ENABLE_TEST)
+check_variable(REQUIRED . ENABLE_COVERAGE)
+check_variable(REQUIRED . ENABLE_INSTALL)
+
+check_variable(REQUIRED PATH ARC_XZ_UTILS_ROOT)
+check_variable(REQUIRED PATH LIBLZMA_INCLUDE_DIR)
+check_variable(REQUIRED PATH LIBLZMA_LIBRARY)
+check_variable(REQUIRED . LIBLZMA_HAS_AUTO_DECODER)
+check_variable(REQUIRED . LIBLZMA_HAS_EASY_ENCODER)
+check_variable(REQUIRED . LIBLZMA_HAS_LZMA_PRESET)
+
+#check_variable(REQUIRED PATH ARC_7ZIP_ROOT)
 
 # tests
 
-discover_variable(TACKLELIB_SKIP_TESTLIB STRING "skip tacklelib.testlib target")
-discover_variable(TACKLELIB_SKIP_TESTS STRING "skip tacklelib tests")
+check_variable(OPTIONAL PATH GTEST_ROOT)
+check_variable(OPTIONAL . TACKLELIB_SKIP_TESTLIB)
+check_variable(OPTIONAL . TACKLELIB_SKIP_TESTS)
 
+###############################################################################
+## projects description #######################################################
+###############################################################################
 
 set(UNIT_TESTS_MAXOPT_TARGET_NAME tacklelib.unit_tests)           # maximal compiler optimization, custom optimization
 set(UNIT_TESTS_DEFOPT_TARGET_NAME tacklelib.unit_tests_defopt)    # default compiler optimization, no custom optimization
@@ -158,6 +164,9 @@ set(TESTS_TARGETS_LIBLINKED
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+###############################################################################
+## file globbing ##############################################################
+###############################################################################
 
 # public headers ONLY
 
@@ -267,6 +276,10 @@ if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
     endif()
   endif()
 endif()
+
+###############################################################################
+## global dependencies ########################################################
+###############################################################################
 
 # boost
 
@@ -430,6 +443,19 @@ if (LIBLZMA_FOUND)
   )
 endif()
 
+# to calculate relative path to source files in log output
+add_target_compile_definitions(${LIB_TARGET_NAME} *
+  PRIVATE
+    LOG_SRC_ROOT="${LOG_SRC_ROOT}"
+)
+
+# to declare export/import from source files
+add_target_compile_definitions(${LIB_TARGET_NAME} *
+  PRIVATE
+    LIBRARY_API
+    LIBRARY_API_EXPORTS_TACKLELIB
+)
+
 # we need the same Boost definitions here to maintain the link with the same libraries
 if (Boost_FOUND)
   add_target_compile_definitions(${LIB_TARGET_NAME} *
@@ -463,7 +489,7 @@ endif()
 if (WIN32)
   add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
-      _X86_ # in case of dynamic library is required for Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+      _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
   )
 endif()
 
@@ -608,7 +634,7 @@ if (TESTLIB_ENABLED)
   if (WIN32)
     add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
       PRIVATE
-        _X86_ # in case of dynamic library is required for Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+        _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
     )
   endif()
 
@@ -808,6 +834,12 @@ if (TESTS_ENABLED)
         ${target_definitions}
     )
 
+    # to calculate relative path to source files in log output
+    add_target_compile_definitions(${target} *
+      PRIVATE
+        LOG_SRC_ROOT="${LOG_SRC_ROOT}"
+    )
+
     if (NOT target_is_liblinked)
       # we must include these definitions to link dependency appropriately
       if (ARC_LIBARCHIVE_ROOT)
@@ -849,7 +881,7 @@ if (TESTS_ENABLED)
     if (WIN32)
       add_target_compile_definitions(${target} *
         PRIVATE
-          _X86_ # in case of dynamic library is required for Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+          _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
       )
     endif()
 
@@ -1043,7 +1075,7 @@ install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
 #    -D "CPACK_BUNDLE_TEMPLATE_CONFIG_FILE=${CPACK_BUNDLE_TEMPLATE_CONFIG_FILE}"
 #    -D "CPACK_BUNDLE_OUTPUT_CONFIG_FILE=${CPACK_BUNDLE_OUTPUT_CONFIG_FILE}"
 #    # this one must be after all `-D`s
-#    -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CPackMakeConfig.cmake"
+#    -P "${CMAKE_CURRENT_LIST_DIR}/cmake/tools/CPackMakeConfig.cmake"
 #  COMMAND "${CMAKE_CPACK_COMMAND}" 
 #    -G "NSIS"
 #    -C "$<CONFIGURATION>"
@@ -1053,9 +1085,26 @@ install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
 ## project folders ############################################################
 ###############################################################################
 
+## projects
+
+set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       UTILITY     . util)
+set_target_folder(CMAKE_CURRENT_LIST_DIR . * "tests" EXECUTABLE  . exe)
+set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
+
+## 3dparty
+
 # multi
 
 set_target_folder(BOOST_ROOT * * . * . _3dparty/multi/boost)
+
+# utility
+
+set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
+set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
+
+# math
+
+set_target_folder(QD_ROOT * * . * . _3dparty/math/qd)
 
 # log
 
@@ -1070,22 +1119,29 @@ set_target_folder(ARC_LIBARCHIVE_ROOT * * . * "UTILITY;EXECUTABLE;SHARED_LIBRARY
 set_target_folder(ARC_XZ_UTILS_ROOT   * * . * . _3dparty/arc/xz)
 set_target_folder(ARC_7ZIP_ROOT       * * . * . _3dparty/arc/7zip)
 
-# test
-
-set_target_folder(GTEST_ROOT * * . * . _3dparty/test/googletest)
-
-# utility
-
-set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
-set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
-
-# projects
-
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       UTILITY     . util)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * "tests" EXECUTABLE  . exe)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
-
 # tests
 
+set_target_folder(GTEST_ROOT * * . * . _3dparty/test/googletest)
 set_target_folder(CMAKE_CURRENT_LIST_DIR . "tests" . * . tests)
 set_target_folder(CMAKE_CURRENT_LIST_DIR . "build_check" . * . tests)
+
+###############################################################################
+## updated global flags and post process target properties ####################
+###############################################################################
+
+# to avoid cmake autogen specific warnings
+if (generated_headers)
+  set_property(SOURCE ${generated_headers}
+    PROPERTY SKIP_AUTOGEN ON
+    PROPERTY GENERATED ON
+  )
+
+  # to avoid cmake errors generation on source file absence
+  set_source_files_properties(${generated_headers}
+    PROPERTIES
+      SKIP_AUTOGEN ON
+      GENERATED ON
+  )
+endif()
+
+print_global_flags(*)

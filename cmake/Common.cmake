@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # at least cmake 3.9 is required for:
-#   * Multiconfig generator detection support: see the `GENERATOR_IS_MULTI_CONFIG` global property
+#   * Multiconfig generator detection support: https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
 #
 
 # CAUTION:
@@ -23,138 +23,88 @@ cmake_minimum_required(VERSION 3.9)
 #    would be revealed and might be different than after the very first set!
 #
 
+include(Std)
 include(ForwardVariables)
-
-macro(include_and_echo path)
-  message(STATUS "(*) Include: \"${path}\"")
-  include(${path})
-endmacro()
-
-macro(unset_all var)
-  unset(${var})
-  unset(${var} CACHE)
-endmacro()
-
-# returns "." if paths are equal
-function(subtract_absolute_paths from_path to_path var_out)
-  string(TOLOWER "${from_path}" from_path_lower)
-  string(TOLOWER "${to_path}" to_path_lower)
-
-  if (NOT from_path_lower STREQUAL "")
-    if (${to_path_lower} STREQUAL ${from_path_lower})
-      set(${var_out} "." PARENT_SCOPE)
-      return()
-    else()
-      file(RELATIVE_PATH rel_path ${to_path_lower} ${from_path_lower})
-      if (DEFINED rel_path)
-        string(SUBSTRING "${rel_path}" 0 2 rel_path_first_component)
-        if(NOT rel_path_first_component STREQUAL ".." AND NOT rel_path STREQUAL from_path_lower)
-          set(${var_out} ${rel_path} PARENT_SCOPE)
-          return()
-        endif()
-      endif()
-    endif()
-  endif()
-
-  set(${var_out} "" PARENT_SCOPE)
-endfunction()
-
-function(make_list_from_vargs var_out)
-  unset_all(${var_out})
-  foreach(arg IN LISTS ARGN)
-    list(APPEND ${var_out} ${arg})
-  endforeach()
-  set(${var_out} ${${var_out}} PARENT_SCOPE)
-endfunction()
-
-function(make_list_from_cmd_line var_out cmd_line)
-  set(new_list "")
-  set(cmd_line_list ${cmd_line})
-  separate_arguments(cmd_line_list)
-  foreach(arg IN LISTS cmd_line_list) # semicolon separated list in string
-    list(APPEND new_list ${arg})
-  endforeach()
-  set(${var_out} ${new_list} PARENT_SCOPE)
-endfunction()
-
-function(make_string_from_list var_out list_value)
-  set(new_str "")
-  foreach(arg IN LISTS list_value)
-    if(new_str)
-      set(new_str "${new_str}\;${arg}")
-    else()
-      set(new_str "${arg}")
-    endif()
-  endforeach()
-  set(${var_out} "${new_str}" PARENT_SCOPE)
-endfunction()
-
-function(make_string_from_list_var var_out list_var)
-  set(new_str "")
-  foreach(arg IN LISTS ${list_var})
-    if(new_str)
-      set(new_str "${new_str}\;${arg}")
-    else()
-      set(new_str "${arg}")
-    endif()
-  endforeach()
-  set(${var_out} "${new_str}" PARENT_SCOPE)
-endfunction()
+include(SetVarsFromFiles)
+include(FindGlobal3dpartyEnvironments)
+include(BuildProject)
 
 function(cache_or_discover_variable var cache_type desc)
   if(NOT DEFINED ${var} AND DEFINED ENV{${var}})
-    set(${var} $ENV{${var}} CACHE ${cache_type} ${desc}) # before the normal set, overwise it will remove the normal variable!
+    set(${var} $ENV{${var}} CACHE ${cache_type} ${desc}) # before the normal set, otherwise it will remove the normal variable!
     set(${var} $ENV{${var}} PARENT_SCOPE)
   endif()
 endfunction()
 
 function(discover_variable_to flag_var var_out var_name cache_type desc)
-  if(NOT var_out OR NOT var_name)
-    message(FATAL_ERROR "var_out and var_name variables must be not empty: var_out=\"${var_out}\" var_name=\"${var_name}\"")
+  if((NOT var_out) OR (NOT var_name))
+    message(FATAL_ERROR "var_out and var_name variables must be not empty: var_out=`${var_out}` var_name=`${var_name}`")
   endif()
+
+  unset(uncached_var)
+  unset(cached_var)
 
   get_variable(uncached_var cached_var ${var_name})
 
-  if(NOT DEFINED uncached_var)
-    if(DEFINED ENV{${var_name}})
-      # always force reset from environment
-      set(${var_out} $ENV{${var_name}} CACHE ${cache_type} ${desc} FORCE) # before the normal set, overwise it will remove the normal variable!
+  if (desc STREQUAL ".")
+    # reuse default description
+    get_property(desc CACHE "${var_name}" PROPERTY HELPSTRING)
+  endif()
+
+  if (DEFINED ENV{${var_name}})
+    set(env_var_defined 1)
+  else()
+    set(env_var_defined 0)
+  endif()
+
+  if (DEFINED cached_var)
+    set(cached_var_defined 1)
+  else()
+    set(cached_var_defined 0)
+  endif()
+
+  if (DEFINED uncached_var)
+    set(uncached_var_defined 1)
+  else()
+    set(uncached_var_defined 0)
+  endif()
+
+  # always set both cache and not cache values into the same value unconditionally, environment variable has priority over others
+  if(DEFINED ENV{${var_name}})
+    if ((NOT env_var_defined EQUAL cached_var_defined) OR (NOT cached_var_defined EQUAL uncached_var_defined) OR
+        (NOT "$ENV{${var_name}}" STREQUAL "${cached_var}") OR ("$ENV{${var_name}}" STREQUAL "${uncached_var}"))
+      set(${var_out} $ENV{${var_name}} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
       set(${var_out} $ENV{${var_name}} PARENT_SCOPE)
       set(${flag_var} 1 PARENT_SCOPE)
-    else()
-      set(${flag_var} 0 PARENT_SCOPE)
+      return()
     endif()
-  elseif(DEFINED ENV{${var_name}})
-    # if no cache then make cache from the normal value, always force reset from environment
-    set(${var_out} $ENV{${var_name}} CACHE ${cache_type} ${desc} FORCE) # before the normal set, overwise it will remove the normal variable!
-    # restore uncached variable removed by previous set with CACHE (ONLY in case if was no cache before)
-    if (uncached_var)
-      set(${var_out} ${uncached_var} PARENT_SCOPE)
-    else()
-      unset(${var_out} PARENT_SCOPE)
+  elseif (DEFINED cached_var)
+    if ((NOT cached_var_defined EQUAL uncached_var_defined) OR (NOT "${uncached_var}" STREQUAL "${uncached_var}"))
+      if ("${cached_var}" STREQUAL "" AND NOT "${uncached_var}" STREQUAL "")
+        message(WARNING "not empty not cache variable was rewrited by empty cache variable: ${var_name}=`${uncached_var}` -> ``")
+      endif()
+      set(${var_out} ${cached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
+      set(${var_out} ${cached_var} PARENT_SCOPE)
+      set(${flag_var} 2 PARENT_SCOPE)
+      return()
     endif()
-    set(${flag_var} 2 PARENT_SCOPE)
-  else()
-    # if no cache then make cache from the normal value
-    if (cached_var)
-      set(${var_out} ${cached_var} CACHE ${cache_type} ${desc})
-    else()
-      unset(${var_out} CACHE)
+  elseif (DEFINED uncached_var)
+    if (NOT "${cached_var}" STREQUAL "" AND "${uncached_var}" STREQUAL "")
+      message(WARNING "not empty cache variable was rewrited by empty not cache variable: ${var_name}=`${cached_var}` -> ``")
     endif()
-    # restore uncached variable removed by previous set with CACHE (ONLY in case if was no cache before)
-    if (uncached_var)
-      set(${var_out} ${uncached_var} PARENT_SCOPE)
-    else()
-      unset(${var_out} PARENT_SCOPE)
-    endif()
-    set(${flag_var} 0 PARENT_SCOPE)
+    set(${var_out} ${uncached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
+    set(${var_out} ${uncached_var} PARENT_SCOPE)
+    set(${flag_var} 3 PARENT_SCOPE)
+    return()
   endif()
+
+  set(${flag_var} 0 PARENT_SCOPE)
 endfunction()
 
 function(discover_variable var_name cache_type desc)
   discover_variable_to(is_discovered ${var_name} ${var_name} ${cache_type} ${desc})
   if(is_discovered)
-    message(STATUS "(*) discovered environment variable: ${var_name}=\"${${var_name}}\"")
+    message(STATUS "(*) discovered environment variable: ${var_name}=`${${var_name}}`")
   endif()
 endfunction()
 
@@ -162,77 +112,53 @@ function(discover_builtin_variables prefix_list cache_type desc)
   if(ARGN)
     foreach(prefix IN LISTS prefix_list)
       foreach(suffix IN LISTS ARGN)
-        set(var ${prefix}_${suffix})
-        discover_variable_to(is_discovered new_${var} ${var} ${cache_type} ${desc})
-        if(${var})
-          # append if was not empty
-          set(${var} "${${var}} ${new_${var}}")
+        string(TOUPPER "${suffix}" suffix_upper)
+        set(var ${prefix}_${suffix_upper})
+
+        if (desc STREQUAL ".")
+          # reuse default description
+          get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
         else()
-          set(${var} "${new_${var}}")
+          set(var_cache_desc "${desc}")
         endif()
-        set(${var} "${${var}}" PARENT_SCOPE)
-        #unset_all(new_${var})
+
+        # unique variable because in the cache scope
+        discover_variable_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+        # update cache with FORCE
+        set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
+        set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
+        unset_all(_F862E761_new_${var})
         if(is_discovered)
-          message(STATUS "(*) discovered environment variable: (builtin) ${var}=\"${${var}}\"")
+          message(STATUS "(*) discovered environment variable: (builtin) ${var}=`${${var}}`")
         endif()
       endforeach()
     endforeach()
   else()
     foreach(prefix IN LISTS prefix_list)
       set(var ${prefix})
-      discover_variable_to(is_discovered new_${var} ${var} ${cache_type} ${desc})
-      if(${var})
-        # append if was not empty
-        set(${var} "${${var}} ${new_${var}}")
+
+      if (desc STREQUAL ".")
+        # reuse default description
+        get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
       else()
-        set(${var} "${new_${var}}")
+        set(var_cache_desc "${desc}")
       endif()
-      set(${var} "${${var}}" PARENT_SCOPE)
-      #unset_all(new_${var})
+
+      # unique variable because in the cache scope
+      discover_variable_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+      # update cache with FORCE
+      set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
+      set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
+      unset_all(_F862E761_new_${var})
       if(is_discovered)
-        message(STATUS "(*) discovered environment variable: (builtin) ${var}=\"${${var}}\"")
+        message(STATUS "(*) discovered environment variable: (builtin) ${var}=`${${var}}`")
       endif()
     endforeach()
   endif()
 endfunction()
 
-macro(declare_builtin_variables)
-  # include guard
-  if (NOT DEFINED BUILDIN_VARIABLES_DECLARED)
-    set(BUILDIN_VARIABLES_DECLARED 1)
-
-    message(STATUS "(*) CMAKE_VERSION=${CMAKE_VERSION}")
-    message(STATUS "(*) CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-    message(STATUS "(*) CMAKE_C_COMPILER_ID=${CMAKE_C_COMPILER_ID} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID} OSTYPE=$ENV{OSTYPE}")
-    message(STATUS "(*) CMAKE_C_COMPILER_ARCHITECTURE_ID=${CMAKE_C_COMPILER_ARCHITECTURE_ID} CMAKE_CXX_COMPILER_ARCHITECTURE_ID=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
-
-    # check if generator is multiconfig
-    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-    message(STATUS "(*) GENERATOR_IS_MULTI_CONFIG=${GENERATOR_IS_MULTI_CONFIG} CMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES}")
-
-    # declare some variables
-    if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-      set(GCC 1)
-    endif()
-
-    if(GENERATOR_IS_MULTI_CONFIG)
-      set(CMAKE_DEFAULT_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES})
-    else()
-      set(CMAKE_DEFAULT_CONFIGURATION_TYPES Debug;Release;MinSizeRel;RelWithDebInfo)
-    endif()
-
-    set(CMAKE_NOTPRINTABLE_MATCH_CHARS " \t")
-    set(CMAKE_NOTFLAG_MATCH_CHARS "${CMAKE_NOTPRINTABLE_REGEX_CHARS}\"")
-    set(CMAKE_QUOTABLE_MATCH_CHARS ";,${CMAKE_NOTPRINTABLE_REGEX_CHARS}")
-
-    set(CMAKE_NOTPRINTABLE_REGEX_CHARS " \\t")
-    set(CMAKE_NOTFLAG_REGEX_CHARS "${CMAKE_NOTPRINTABLE_REGEX_CHARS}\"")
-    set(CMAKE_QUOTABLE_REGEX_CHARS ";,${CMAKE_NOTPRINTABLE_REGEX_CHARS}")
-  endif()
-endmacro()
-
 function(generate_regex_replace_expression out_regex_match_var out_regex_replace_var in_regex_match_var in_replace_to)
-  if(${in_regex_match_var} MATCHES "[^\\\\]\\(|^\\(" OR "${in_replace_to}" MATCHES "\\\\0|\\\\1|\\\\2|\\\\3|\\\\4|\\\\5|\\\\6|\\\\7|\\\\8|\\\\9")
+  if((${in_regex_match_var} MATCHES "[^\\\\]\\(|^\\(") OR ("${in_replace_to}" MATCHES "\\\\0|\\\\1|\\\\2|\\\\3|\\\\4|\\\\5|\\\\6|\\\\7|\\\\8|\\\\9"))
     message(FATAL_ERROR "generate_regex_replace_expression: input regex match expression does not support groups capture: in_regex_match_var=${${in_regex_match_var}} in_replace_to=${in_replace_to}")
   endif()
 
@@ -241,9 +167,218 @@ function(generate_regex_replace_expression out_regex_match_var out_regex_replace
   set(${out_regex_replace_var} "\\1${in_replace_to_escaped}\\2" PARENT_SCOPE)
 endfunction()
 
+function(check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig)
+  get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+  if(NOT DEFINED GENERATOR_IS_MULTI_CONFIG)
+    message(FATAL_ERROR "GENERATOR_IS_MULTI_CONFIG must be defined")
+  endif()
+  # WORKAROUND:
+  #   `CMAKE_CONFIGURATION_TYPES is not empty when empty`: https://gitlab.kitware.com/cmake/cmake/issues/19057
+  #
+  if((NOT GENERATOR_IS_MULTI_CONFIG AND NOT "${CMAKE_CONFIGURATION_TYPES}" STREQUAL "") OR
+     (GENERATOR_IS_MULTI_CONFIG AND "${CMAKE_CONFIGURATION_TYPES}" STREQUAL ""))
+    message(FATAL_ERROR "CMAKE_CONFIGURATION_TYPES variable must contain configuration names in case of a multiconfig generator presence and must be empty if not: GENERATOR_IS_MULTI_CONFIG=`${GENERATOR_IS_MULTI_CONFIG}` CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}`")
+  endif()
+endfunction()
+
+function(check_CMAKE_BUILD_TYPE_vs_multiconfig)
+  get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+  if(NOT DEFINED GENERATOR_IS_MULTI_CONFIG)
+    message(FATAL_ERROR "GENERATOR_IS_MULTI_CONFIG must be defined")
+  endif()
+  if((NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE) OR
+     (GENERATOR_IS_MULTI_CONFIG AND CMAKE_BUILD_TYPE))
+      message(FATAL_ERROR "CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig generator presence and must be set if not: GENERATOR_IS_MULTI_CONFIG=`${GENERATOR_IS_MULTI_CONFIG}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`")
+  endif()
+endfunction()
+
+function(check_global_variables_consistency)
+  # CMAKE_CONFIGURATION_TYPES consistency check
+  check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
+
+  # CMAKE_BUILD_TYPE consistency check
+  check_CMAKE_BUILD_TYPE_vs_multiconfig()
+endfunction()
+
+macro(declare_primary_builtin_variables)
+  get_property(CMAKE_CURRENT_PACKAGE_NEST_LVL GLOBAL PROPERTY CMAKE_CURRENT_PACKAGE_NEST_LVL)
+  if (DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    math(EXPR CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
+  else()
+    set(CMAKE_CURRENT_PACKAGE_NEST_LVL 0)
+  endif()
+  set_property(GLOBAL PROPERTY CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}")
+
+  if (CMAKE_CURRENT_PACKAGE_NEST_LVL LESS 10)
+    set(CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX "0${CMAKE_CURRENT_PACKAGE_NEST_LVL}")
+  else()
+    set(CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX "${CMAKE_CURRENT_PACKAGE_NEST_LVL}")
+  endif()
+
+  set(CMAKE_CURRENT_PACKAGE_NAME "${PROJECT_NAME}")
+  set(CMAKE_CURRENT_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
+  # top level project root
+  if (NOT CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    set(CMAKE_TOP_PACKAGE_NAME "${CMAKE_CURRENT_PACKAGE_NAME}")
+    set(CMAKE_TOP_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
+  # configuration values
+  message(STATUS "(*) PROJECT_NAME/CMAKE_CURRENT_PACKAGE_NAME=`${PROJECT_NAME}` CMAKE_CURRENT_PACKAGE_NEST_LVL=`${CMAKE_CURRENT_PACKAGE_NEST_LVL}` CMAKE_CURRENT_PACKAGE_SOURCE_DIR=`${CMAKE_CURRENT_PACKAGE_SOURCE_DIR}`")
+
+  message(STATUS "(*) CMAKE_VERSION=`${CMAKE_VERSION}`")
+  message(STATUS "(*) CMAKE_MODULE_PATH=`${CMAKE_MODULE_PATH}`")
+  message(STATUS "(*) CMAKE_C_COMPILER_ID=`${CMAKE_C_COMPILER_ID}` CMAKE_CXX_COMPILER_ID=`${CMAKE_CXX_COMPILER_ID}` OSTYPE=`$ENV{OSTYPE}`")
+  message(STATUS "(*) CMAKE_C_COMPILER_ARCHITECTURE_ID=`${CMAKE_C_COMPILER_ARCHITECTURE_ID}` CMAKE_CXX_COMPILER_ARCHITECTURE_ID=`${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}`")
+
+  # check if generator is multiconfig
+  get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+  message(STATUS "(*) GENERATOR_IS_MULTI_CONFIG=`${GENERATOR_IS_MULTI_CONFIG}` CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}` (default)")
+
+  # basic input values
+  message(STATUS "(*) CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}` CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_GENERATOR_TOOLSET=`${CMAKE_GENERATOR_TOOLSET}` CMAKE_GENERATOR_PLATFORM=`${CMAKE_GENERATOR_PLATFORM}`")
+
+  check_global_variables_consistency()
+
+  # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
+  #
+  # Absoft = Absoft Fortran (absoft.com)
+  # ADSP = Analog VisualDSP++ (analog.com)
+  # AppleClang = Apple Clang (apple.com)
+  # ARMCC = ARM Compiler (arm.com)
+  # Bruce = Bruce C Compiler
+  # CCur = Concurrent Fortran (ccur.com)
+  # Clang = LLVM Clang (clang.llvm.org)
+  # Cray = Cray Compiler (cray.com)
+  # Embarcadero, Borland = Embarcadero (embarcadero.com)
+  # Flang = Flang LLVM Fortran Compiler
+  # G95 = G95 Fortran (g95.org)
+  # GNU = GNU Compiler Collection (gcc.gnu.org)
+  # GHS = Green Hills Software (www.ghs.com)
+  # HP = Hewlett-Packard Compiler (hp.com)
+  # IAR = IAR Systems (iar.com)
+  # Intel = Intel Compiler (intel.com)
+  # MIPSpro = SGI MIPSpro (sgi.com)
+  # MSVC = Microsoft Visual Studio (microsoft.com)
+  # NVIDIA = NVIDIA CUDA Compiler (nvidia.com)
+  # OpenWatcom = Open Watcom (openwatcom.org)
+  # PGI = The Portland Group (pgroup.com)
+  # PathScale = PathScale (pathscale.com)
+  # SDCC = Small Device C Compiler (sdcc.sourceforge.net)
+  # SunPro = Oracle Solaris Studio (oracle.com)
+  # TI = Texas Instruments (ti.com)
+  # TinyCC = Tiny C Compiler (tinycc.org)
+  # XL, VisualAge, zOS = IBM XL (ibm.com)
+
+  # declare some variables
+  if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    set(GCC 1)
+  elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+    set(CLANG 1)
+  endif()
+
+  set(CMAKE_NOTPRINTABLE_MATCH_CHARS " \t")
+  set(CMAKE_NOTFLAG_MATCH_CHARS "${CMAKE_NOTPRINTABLE_REGEX_CHARS}\"")
+  set(CMAKE_QUOTABLE_MATCH_CHARS ";,${CMAKE_NOTPRINTABLE_REGEX_CHARS}")
+
+  set(CMAKE_NOTPRINTABLE_REGEX_CHARS " \\t")
+  set(CMAKE_NOTFLAG_REGEX_CHARS "${CMAKE_NOTPRINTABLE_REGEX_CHARS}\"")
+  set(CMAKE_QUOTABLE_REGEX_CHARS ";,${CMAKE_NOTPRINTABLE_REGEX_CHARS}")
+endmacro()
+
+macro(declare_secondary_builtin_variables)
+  discover_variable(MSYS                            STRING "msys environment flag")
+  discover_variable(MINGW                           STRING "mingw environment flag")
+  discover_variable(CYGWIN                          STRING "cygwin environment flag")
+endmacro()
+
+macro(declare_ternary_builtin_variables)
+  if (NOT DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    message(FATAL_ERROR "CMAKE_CURRENT_PACKAGE_NEST_LVL is not defined")
+  endif()
+
+  # only top level project can discovery or change global cmake flags
+  if (NOT CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    discover_builtin_variables(CMAKE_INSTALL_PREFIX       PATH .)
+
+    discover_builtin_variables(CMAKE_CXX_FLAGS            STRING .)
+    discover_builtin_variables(CMAKE_EXE_LINKER_FLAGS     STRING .)
+    discover_builtin_variables(CMAKE_MODULE_LINKER_FLAGS  STRING .)
+    discover_builtin_variables(CMAKE_STATIC_LINKER_FLAGS  STRING .)
+    discover_builtin_variables(CMAKE_SHARED_LINKER_FLAGS  STRING .)
+
+    # all other variables
+    if (CMAKE_CONFIGURATION_TYPES)
+      discover_builtin_variables("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
+          STRING . ${CMAKE_CONFIGURATION_TYPES})
+    else()
+      discover_builtin_variables("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
+          STRING . ${CMAKE_BUILD_TYPE})
+    endif()
+  endif()
+endmacro()
+
+macro(detect_environment)
+  # detection of msys/mingw/cygwin environments
+  if ("$ENV{OSTYPE}" MATCHES "msys.*")
+    set(MSYS ON)
+    set(MINGW ON)
+  elseif ("$ENV{OSTYPE}" MATCHES "mingw.*")
+    set(MINGW ON)
+  elseif ("$ENV{OSTYPE}" MATCHES "cygwin.*")
+    set(CYGWIN ON)
+  endif()
+
+  # CAUTION:
+  #   We have to detect the executor to ignore a build directory change under particular executors.
+  #
+  if (COMMAND detect_qt_creator)
+    detect_qt_creator()
+  endif()
+endmacro()
+
+macro(check_existence_of_required_variables)
+  BuildProject_CheckSystemVariablesExistence()
+
+  if(NOT DEFINED GENERATOR_IS_MULTI_CONFIG)
+    message(FATAL_ERROR "GENERATOR_IS_MULTI_CONFIG must be defined")
+  endif()
+
+  if (GENERATOR_IS_MULTI_CONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}")
+  else()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}/${CMAKE_BUILD_TYPE}")
+  endif()
+
+  if (NOT EXISTS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    message(FATAL_ERROR "CMAKE_RUNTIME_OUTPUT_DIRECTORY directory must be existed: `${CMAKE_RUNTIME_OUTPUT_DIRECTORY}`")
+  endif()
+  if (NOT EXISTS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+    message(FATAL_ERROR "CMAKE_LIBRARY_OUTPUT_DIRECTORY directory must be existed: `${CMAKE_LIBRARY_OUTPUT_DIRECTORY}`")
+  endif()
+endmacro()
+
+function(check_variable var_opt var_type var_name)
+  if ((var_opt STREQUAL "REQUIRED") OR (var_opt STREQUAL "DEFINED"))
+    if (NOT DEFINED ${var_name})
+      message(FATAL_ERROR "a variable must be defined: `${var_name}`")
+    endif()
+  endif()
+
+  if (var_type STREQUAL "PATH")
+    if ((var_opt STREQUAL "REQUIRED") OR (var_opt STREQUAL "OPTIONAL" AND DEFINED ${var_name}))
+      if (NOT EXISTS "${${var_name}}")
+        message(FATAL_ERROR "a path variable must issue an existed path: ${var_name}=`${${var_name}}`")
+      endif()
+    endif()
+  endif()
+endfunction()
+
 macro(configure_environment supported_compilers)
-  # basic checks, must be executed each time
-  declare_builtin_variables()
+  declare_primary_builtin_variables()
 
   set(has_supported_compiler 0)
   foreach(compiler ${supported_compilers})
@@ -256,202 +391,114 @@ macro(configure_environment supported_compilers)
     message(FATAL_ERROR "platform is not implemented, supported compilers: ${supported_compilers}")
   endif()
 
-  discover_variable(MSYS STRING "msys environment flag")
-  discover_variable(MINGW STRING "mingw environment flag")
-  discover_variable(CYGWIN STRING "cygwin environment flag")
+  declare_secondary_builtin_variables()
 
-  # detection of msys/mingw/cygwin environments
-  if ("$ENV{OSTYPE}" STREQUAL "msys")
-    set(MSYS ON)
-    set(MINGW ON)
-  elseif ("$ENV{OSTYPE}" STREQUAL "mingw")
-    set(MINGW ON)
-  elseif ("$ENV{OSTYPE}" STREQUAL "cygwin")
-    set(CYGWIN ON)
+  detect_environment()
+
+  # CAUTION:
+  #   From now and on a predefined set of configuration files must always exist before a cmake run!
+  #
+  if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/config/environment_system.vars")
+    message(FATAL_ERROR "(*) The `environment_system.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
+  endif()
+  if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/config/environment_user.vars")
+    message(FATAL_ERROR "(*) The `environment_user.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
   endif()
 
-  if(NOT GENERATOR_IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
-    message(FATAL_ERROR "CMAKE_BUILD_TYPE variable must be set explicitly under not multiconfig cmake generator!")
-  endif()
+  # CAUTION:
+  #   Never reconfigure configuration files from here, because they can have different versions which must be compared and merged externally!
+  #
 
-  if (NOT DEFINED CONFIGURE_ENVIRONMENT_EXECUTED)
-    set(CONFIGURE_ENVIRONMENT_EXECUTED 1)
+  # CAUTION:
+  #   An IDE like the QtCreator uses the `CMakeLists.txt.user` file to store and load cached
+  #   values of the cmake variables (may be already obsoleted in new versions).
+  #   But it's change in the cmake may won't promote respective change in the IDE.
+  #   To make it changed you have to CLOSE IDE AND DELETE FILE WITH THE CACHED VARIABLES - `CMakeLists.txt.user`!
 
-    # discover base set of shell variables
-    discover_variable(CMAKE_OUTPUT_ROOT   PATH "cmake output directory root")
-    discover_variable(CMAKE_BUILD_ROOT    PATH "cmake build output directory root")
-    discover_variable(CMAKE_BIN_ROOT      PATH "cmake binaries output directory root")
-    discover_variable(CMAKE_LIB_ROOT      PATH "cmake libraries output directory root")
-    discover_variable(CMAKE_INSTALL_ROOT  PATH "cmake install output directory root")
-    discover_variable(CMAKE_CPACK_ROOT    PATH "cmake cpack/bundle output directory root")
+  # Predefined start set of builtin local configuration files for load.
+  set(env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_system.vars")
 
-    # CAUTION:
-    #   We have to detect the executor to ignore a build directory change under particular executors.
-    #
+  # Preload local configuration files to set only predefined set of variables.
+  load_vars_from_files(-p
+    --grant_external_vars_for_assign "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM"
+    --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
+    --load_state_from_cmake_global_properties "_4BA54FD8_"
+    --save_state_into_cmake_global_properties "_4BA54FD8_"
+    "${env_var_file_path_load_list}")
 
-    if (COMMAND detect_qt_creator)
-      detect_qt_creator()
-    endif()
+  # system output directories variables
+  BuildProject_MakeOutputDirsVariables("${CMAKE_BUILD_TYPE}")
+
+  # can check only in the root project
+  if (NOT CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    # check system variables existence
+    BuildProject_CheckSystemVariablesExistence()
 
     if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
       string(TOLOWER "${CMAKE_CACHEFILE_DIR}" cmake_cachefile_dir_lower)
-      string(TOLOWER "${CMAKE_BUILD_ROOT}" cmake_build_root_lower)
-      if (NOT cmake_cachefile_dir_lower STREQUAL cmake_build_root_lower)
-        message(FATAL_ERROR "Cmake cache file directory is not the cmake build root directory which might means cmake was previous configured out of the build directory. To continue do remove the external cache file:\n CMAKE_BUILD_ROOT=\"${CMAKE_BUILD_ROOT}\"\n CMAKE_CACHEFILE_DIR=\"${CMAKE_CACHEFILE_DIR}\"")
+      string(TOLOWER "${CMAKE_BUILD_DIR}" cmake_build_dir_lower)
+      if (NOT cmake_cachefile_dir_lower STREQUAL cmake_build_dir_lower)
+        message(FATAL_ERROR "Cmake cache file directory is not the cmake build root directory which might means cmake was previous configured out of the build directory. To continue do remove the external cache file:\n CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
       endif()
       unset(cmake_cachefile_dir_lower)
-      unset(cmake_build_root_lower)
+      unset(cmake_build_dir_lower)
     endif()
-
-    discover_variable(CMAKE_RUNTIME_OUTPUT_DIRECTORY  PATH "cmake builtin variable runtime output directory")
-    discover_variable(CMAKE_LIBRARY_OUTPUT_DIRECTORY  PATH "cmake builtin variable libraries output directory")
-    discover_variable(CMAKE_INSTALL_PREFIX            PATH "cmake builtin variable install prefix")
-    discover_variable(CPACK_OUTPUT_FILE_PREFIX        PATH "cmake cpack builtin variable output directory")
-
-    discover_variable(PROJECT_ROOT        PATH "project with sources directory root")
-
-    # set special variables to default if is empty
-    if(NOT CMAKE_OUTPUT_ROOT)
-      set(CMAKE_OUTPUT_ROOT ${CMAKE_CURRENT_LIST_DIR}/_out)
-    endif()
-    if(NOT CMAKE_BUILD_ROOT)
-      set(CMAKE_BUILD_ROOT ${CMAKE_OUTPUT_ROOT}/build)
-    endif()
-    if(NOT CMAKE_BIN_ROOT)
-      set(CMAKE_BIN_ROOT ${CMAKE_OUTPUT_ROOT}/bin)
-    endif()
-    if(NOT CMAKE_LIB_ROOT)
-      set(CMAKE_LIB_ROOT ${CMAKE_OUTPUT_ROOT}/lib)
-    endif()
-    if(NOT CMAKE_INSTALL_ROOT)
-      set(CMAKE_INSTALL_ROOT ${CMAKE_OUTPUT_ROOT}/install)
-    endif()
-    if(NOT CMAKE_CPACK_ROOT)
-      set(CMAKE_CPACK_ROOT ${CMAKE_OUTPUT_ROOT}/pack)
-    endif()
-
-    if(NOT PROJECT_ROOT)
-      set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR})
-    endif()
-
-    if(GENERATOR_IS_MULTI_CONFIG)
-      if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BIN_ROOT})
-      endif()
-      if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIB_ROOT})
-      endif()
-
-      if (NOT CPACK_OUTPUT_FILE_PREFIX)
-        set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_CPACK_ROOT})
-      endif()
-    else()
-      set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BIN_ROOT})
-      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIB_ROOT})
-
-      set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_CPACK_ROOT})
-    endif()
-
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_ROOT}) # cmake creates the build type subdirectory on itself
-
-    # CAUTION:
-    #   We have to detect the executor to check if the `environment_local.cmake`
-    #   has to be already generated. If not we must stop immediately and warn the
-    #   user to run the `_script/configure_nogen` BEFORE cmake direct execution by
-    #   the IDE!
-
-    if (IS_EXECUTED_BY_QT_CREATOR)
-      if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake)
-        message(FATAL_ERROR "(*) The `environment_local.cmake` is not properly generated, use the `_scripts/configure_nogen` to generage the file and then edit values manually!")
-      endif()
-    endif()
-
-    # Always reconfigure `environment_config.cmake` for not multiconfig cmake generator.
-    # The `environment_config.cmake.in` must always exist.
-    if (GENERATOR_IS_MULTI_CONFIG)
-      configure_file_if_not_exist_and_include(${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake.in ${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake)
-    else()
-      reconfigure_file_and_include(${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake.in ${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake)
-    endif()
-
-    # generates `environment_local.cmake` from the `environment_local.cmake.in` if not done yet and includes it unconditionally
-    if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake.in)
-      configure_file_if_not_exist_and_include(${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake.in ${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake)
-    endif()
-
-    # CAUTION:
-    #   IDE like QtCreator uses `CMakeLists.txt.user` file to store and load cached
-    #   versions of cmake environment variables. But it's change in cmake may won't
-    #   promote respective change to IDE. To make it changed you have to CLOSE IDE
-    #   AND DELETE FILE WITH CACHED VARIABLES - `CMakeLists.txt.user`!
-
-    discover_variable(ENV_ROOT PATH "environment root directory")
-    discover_variable(ENV_FILENAME STRING "environment file name")
-
-    # searches `environment.cmake` and includes it, basically this environment contains global environment additional to the local environment
-    include(FindEnvironment)
-
-    # in case of intersection reinclude the local environment
-    if(EXISTS "${ENV_FILE}") # included
-      if (NOT CMAKE_BUILD_TYPE)
-        if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake)
-          include_and_echo(${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake)
-        endif()
-      else()
-        include_and_echo(${CMAKE_CURRENT_LIST_DIR}/environment_config.cmake)
-      endif()
-
-      if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake)
-        include_and_echo(${CMAKE_CURRENT_LIST_DIR}/environment_local.cmake)
-      endif()
-    endif()
-
-    # base set variables discovery
-    discover_variable(CMAKE_CONFIG_TYPES STRING "cmake externally declared configuration types")
-    if (CMAKE_CONFIG_TYPES)
-      # reset type to the list
-      make_list_from_cmd_line(CMAKE_CONFIG_TYPES "${CMAKE_CONFIG_TYPES}")
-      make_string_from_list_var(CMAKE_CONFIG_TYPES CMAKE_CONFIG_TYPES)
-      # override CMAKE_CONFIGURATION_TYPES
-      set(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIG_TYPES})
-      string(TOUPPER "${CMAKE_CONFIG_TYPES}" CMAKE_CONFIG_TYPES)
-      message(STATUS "(*) variable update: CMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES}")
-    else()
-      make_list_from_cmd_line(CMAKE_CONFIG_TYPES "${CMAKE_CONFIGURATION_TYPES}")
-      string(TOUPPER "${CMAKE_CONFIG_TYPES}" CMAKE_CONFIG_TYPES)
-      message(STATUS "(*) variable update: CMAKE_CONFIG_TYPES=${CMAKE_CONFIG_TYPES}")
-    endif()
-
-    discover_builtin_variables(CMAKE_CXX_FLAGS STRING "cmake compilation flags")
-    discover_builtin_variables(CMAKE_EXE_LINKER_FLAGS STRING "cmake exe linker flags")
-    discover_builtin_variables(CMAKE_MODULE_LINKER_FLAGS STRING "cmake module linker flags")
-    discover_builtin_variables(CMAKE_STATIC_LINKER_FLAGS STRING "cmake static linker flags")
-    discover_builtin_variables(CMAKE_SHARED_LINKER_FLAGS STRING "cmake shared linker flags")
-
-    # all other variables generated by `CMAKE_CONFIG_TYPES` suffix
-    discover_builtin_variables("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
-        STRING "cmake flags related to a configuration" ${CMAKE_CONFIG_TYPES})
+  else()
+    # must create predefines set of output directories because the external script has created directories only for the top level project
+    BuildProject_MakeOutputDirs()
   endif()
+
+  # Find environment variable files through the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variables
+  # to load them before the local environment variable files.
+  # Basically these environment files contain a global environment prepend a local environment.
+  #
+  FindGlobal3dpartyEnvironments(global_vars_file_path_list)
+
+  # Prepend a global list over a local list, because a local list must alway override a global list.
+  if (global_vars_file_path_list)
+    set(env_var_file_path_load_list "${global_vars_file_path_list};${env_var_file_path_load_list}")
+  endif()
+
+  # load user file from here
+  set(env_var_file_path_load_list "${env_var_file_path_load_list};${CMAKE_CURRENT_LIST_DIR}/config/environment_user.vars")
+
+  # Load all configuration files to ordered set of all variables except variables from the preload section.
+  load_vars_from_files(-p
+    --grant_assign_vars_assigned_in_files "${global_vars_file_path_list}"
+    --grant_assign_external_vars_assigning_in_files "${global_vars_file_path_list}"
+    --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
+    --load_state_from_cmake_global_properties "_4BA54FD8_"
+    --save_state_into_cmake_global_properties "_4BA54FD8_"
+    "${env_var_file_path_load_list}")
+
+  BuildProject_UpdateConfigTypes("${CMAKE_CONFIG_TYPES}")
+
+  declare_ternary_builtin_variables()
+
+  check_existence_of_required_variables()
 endmacro()
 
-function(configure_file_and_include_impl tmpl_file_path out_file_path do_recofigure)
-  if(NOT EXISTS ${tmpl_file_path})
-    message(FATAL_ERROR "template input file does not exist: \"${tmpl_file_path}\"")
+function(configure_file_impl tmpl_file_path out_file_path do_recofigure)
+  if(NOT EXISTS "${tmpl_file_path}")
+    message(FATAL_ERROR "template input file does not exist: `${tmpl_file_path}`")
   endif()
 
   get_filename_component(out_file_dir ${out_file_path} DIRECTORY)
-  if(NOT EXISTS ${out_file_dir})
-    message(FATAL_ERROR "output file directory does not exist: \"${out_file_dir}\"")
+  if(NOT EXISTS "${out_file_dir}")
+    message(FATAL_ERROR "output file directory does not exist: `${out_file_dir}`")
   endif()
 
   # override current environment variables by locally stored
-  if(do_recofigure OR NOT EXISTS "${out_file_path}")
-    message(STATUS "(*) Generating file: \"${tmpl_file_path}\" -> \"${out_file_path}\"")
+  if(do_recofigure OR (NOT EXISTS "${out_file_path}"))
+    message(STATUS "(*) Generating file: `${tmpl_file_path}` -> `${out_file_path}`")
     set(CONFIGURE_IN_FILE "${tmpl_file_path}")
     set(CONFIGURE_OUT_FILE "${out_file_path}")
-    include(ConfigureFile)
+    include(tools/ConfigureFile)
   endif()
+endfunction()
 
+function(configure_file_and_include_impl tmpl_file_path out_file_path do_recofigure)
+  configure_file_impl("${tmpl_file_path}" "${out_file_path}" ${do_recofigure})
   include_and_echo("${out_file_path}")
 endfunction()
 
@@ -461,6 +508,23 @@ endfunction()
 
 function(reconfigure_file_and_include tmpl_file_path out_file_path)
   configure_file_and_include_impl(${tmpl_file_path} ${out_file_path} 1)
+endfunction()
+
+function(configure_file_and_load_impl tmpl_file_path out_file_path do_recofigure do_print_vars_set)
+  configure_file_impl("${tmpl_file_path}" "${out_file_path}" ${do_recofigure})
+  if (do_print_vars_set)
+    load_vars_from_files(-p "${out_file_path}")
+  else()
+    load_vars_from_files("${out_file_path}")
+  endif()
+endfunction()
+
+function(configure_file_if_not_exist_and_load tmpl_file_path out_file_path do_print_vars_set)
+  configure_file_and_load_impl(${tmpl_file_path} ${out_file_path} 0 ${do_print_vars_set})
+endfunction()
+
+function(reconfigure_file_and_load tmpl_file_path out_file_path)
+  configure_file_and_load_impl(${tmpl_file_path} ${out_file_path} 1 ${do_print_vars_set})
 endfunction()
 
 function(exclude_paths_from_path_list exclude_list_var include_list_var path_list exclude_path_list verbose_flag)
@@ -610,7 +674,7 @@ function(source_group_by_path_list group_path type path_list include_path_list v
     foreach(include_path IN LISTS include_path_list)
       if("${path}" MATCHES "(.*)${include_path}(.*)")
         if(verbose_flag)
-          message(STATUS "(**) source_group_from_include_list: ${group_path} -> (${type}) \"${path}\"")
+          message(STATUS "(**) source_group_from_include_list: ${group_path} -> (${type}) `${path}`")
         endif()
         list(APPEND include_list ${path})
       endif()
@@ -629,7 +693,7 @@ function(source_group_by_file_path_list group_path type path_list include_file_p
     foreach(include_file_path IN LISTS include_file_path_list)
       if("${path}|" MATCHES "(.*)${include_file_path}\\|")
         if(verbose_flag)
-          message(STATUS "(**) source_group_from_include_list: ${group_path} -> (${type}) \"${path}\"")
+          message(STATUS "(**) source_group_from_include_list: ${group_path} -> (${type}) `${path}`")
         endif()
         list(APPEND include_list ${path})
       endif()
@@ -829,15 +893,27 @@ function(unregister_directory_scope_targets)
 endfunction()
 
 function(add_subdirectory_begin target_src_dir)
+  if (NOT DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    message(FATAL_ERROR "cmake project is not properly initialized, you must call `configure_environment` before add any package")
+  endif()
+
+  math(EXPR CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
+
   add_subdirectory_begin_message(${target_src_dir} ${ARGN})
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
   pushset_property_to_stack(GLOBAL CMAKE_CURRENT_PACKAGE_SOURCE_DIR ${target_src_dir_abs})
 endfunction()
 
 function(add_subdirectory_end target_src_dir)
+  if (NOT DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    message(FATAL_ERROR "cmake project is not properly initialized, you must call `configure_environment` before add any package")
+  endif()
+
   popset_property_from_stack(. GLOBAL CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
   unregister_directory_scope_targets()
   add_subdirectory_end_message(${target_src_dir} ${ARGN})
+
+  math(EXPR CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}-1")
 endfunction()
 
 macro(add_subdirectory_prepare_message)
@@ -857,7 +933,7 @@ macro(add_subdirectory_prepare_message)
   #message(PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR})
   #message(target_src_dir_abs=${target_src_dir_abs})
   file(RELATIVE_PATH target_src_dir_path ${PROJECT_SOURCE_DIR} ${target_src_dir_abs})
-  if(target_src_dir_path STREQUAL "." OR target_src_dir_path STREQUAL "")
+  if((target_src_dir_path STREQUAL ".") OR (target_src_dir_path STREQUAL ""))
     set(target_src_dir_path ${target_src_dir})
   endif()
 
@@ -865,27 +941,33 @@ macro(add_subdirectory_prepare_message)
   if(target_bin_dir)
     get_filename_component(target_bin_dir_abs ${target_bin_dir} ABSOLUTE)
     file(RELATIVE_PATH target_bin_dir_path ${PROJECT_SOURCE_DIR} ${target_bin_dir_abs})
-    if(target_bin_dir_path STREQUAL "." OR target_src_dir_path STREQUAL "")
+    if((target_bin_dir_path STREQUAL ".") OR (target_src_dir_path STREQUAL ""))
       set(target_bin_dir_path "${target_bin_dir}")
     endif()
 
-    set(target_bin_dir_msg_line " bin=\"${target_bin_dir_path}\"")
+    set(target_bin_dir_msg_line " bin=`${target_bin_dir_path}`")
   endif()
 endmacro()
 
 function(add_subdirectory_begin_message target_src_dir)
   add_subdirectory_prepare_message(${ARGV})
   get_property(current_package_name GLOBAL PROPERTY CMAKE_CURRENT_PACKAGE_NAME)
-  message("entering subdirectory: ${current_package_name}//\"${target_src_dir_path}\"${target_bin_dir_msg_line}...")
+  message("entering subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}...")
 endfunction()
 
 function(add_subdirectory_end_message target_src_dir)
   add_subdirectory_prepare_message(${ARGV})
   get_property(current_package_name GLOBAL PROPERTY CMAKE_CURRENT_PACKAGE_NAME)
-  message("leaving subdirectory: ${current_package_name}//\"${target_src_dir_path}\"${target_bin_dir_msg_line}")
+  message("leaving subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}")
 endfunction()
 
 function(find_package_begin package_src_dir_var package)
+  if (NOT DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    message(FATAL_ERROR "cmake project is not properly initialized, you must call `configure_environment` before add any package")
+  endif()
+
+  math(EXPR CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
+
   find_package_begin_message(${package_src_dir_var} ${package} ${ARGN})
   pushset_property_to_stack(GLOBAL CMAKE_CURRENT_PACKAGE_NAME ${package})
   if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
@@ -896,15 +978,21 @@ function(find_package_begin package_src_dir_var package)
 endfunction()
 
 function(find_package_end package_src_dir_var package)
+  if (NOT DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    message(FATAL_ERROR "cmake project is not properly initialized, you must call `configure_environment` before add any package")
+  endif()
+
   popset_property_from_stack(. GLOBAL CMAKE_CURRENT_PACKAGE_NAME)
   popset_property_from_stack(. GLOBAL CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
   unregister_directory_scope_targets()
   find_package_end_message(${package_src_dir_var} ${package} ${ARGN})
+
+  math(EXPR CMAKE_CURRENT_PACKAGE_NEST_LVL "${CMAKE_CURRENT_PACKAGE_NEST_LVL}-1")
 endfunction()
 
 function(find_package_begin_message package_src_dir_var package)
   if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    message("entering package: ${package}: ${package_src_dir_var}=\"${${package_src_dir_var}}\"...")
+    message("entering package: ${package}: ${package_src_dir_var}=`${${package_src_dir_var}}`...")
   else()
     message("entering package: ${package}...")
   endif()
@@ -912,7 +1000,7 @@ endfunction()
 
 function(find_package_end_message package_src_dir_var package)
   if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    message("leaving package: ${package}: ${package_src_dir_var}=\"${${package_src_dir_var}}\"")
+    message("leaving package: ${package}: ${package_src_dir_var}=`${${package_src_dir_var}}`")
   else()
     message("leaving package: ${package}")
   endif()
@@ -965,17 +1053,24 @@ function(add_pch_header create_pch_header from_pch_src to_pch_bin use_pch_header
 endfunction()
 
 macro(_parse_config_names_list_var list_var)
-  set(config_types_ "")
   set(config_types "")
   set(has_all_config_types 0)
   set(has_default_config_type 0)
+
+  check_global_variables_consistency()
+
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(_cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
+  else()
+    set(_cmake_config_types "${CMAKE_BUILD_TYPE}")
+  endif()
 
   if(${list_var})
     foreach(config_name IN LISTS ${list_var})
       if(${config_name} STREQUAL "*")
         set(has_all_config_types 1)
 
-        foreach(config_type IN LISTS CMAKE_DEFAULT_CONFIGURATION_TYPES)
+        foreach(config_type IN LISTS _cmake_config_types)
           list(APPEND config_types ${config_type})
         endforeach()
       else()
@@ -1091,7 +1186,15 @@ function(fix_global_flags)
 endfunction()
 
 function(set_global_link_type type)
-  set(_config_types .;${CMAKE_DEFAULT_CONFIGURATION_TYPES})
+  check_global_variables_consistency()
+
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(_cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
+  else()
+    set(_cmake_config_types "${CMAKE_BUILD_TYPE}")
+  endif()
+
+  set(_config_types .;${_cmake_config_types})
   _parse_config_names_list_var(_config_types)
 
   # all flags variables here must be list representable (index queriable)
@@ -1184,10 +1287,18 @@ endfunction()
 function(initialize_target_defaults_impl target flags_list)
   message(STATUS "Initializing target: ${target}...")
 
+  check_global_variables_consistency()
+
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
+  else()
+    set(cmake_config_types "${CMAKE_BUILD_TYPE}")
+  endif()
+
   if(TARGET ${target})
     get_target_property(target_type ${target} TYPE)
 
-    foreach(config_type IN LISTS CMAKE_DEFAULT_CONFIGURATION_TYPES)
+    foreach(config_type IN LISTS cmake_config_types)
       string(TOUPPER "${config_type}" config_type_upper)
 
       # definitions
@@ -1196,9 +1307,9 @@ function(initialize_target_defaults_impl target flags_list)
           PUBLIC
             _DEBUG
         )
-      elseif(config_type_upper STREQUAL "RELEASE" OR
-             config_type_upper STREQUAL "MINSIZEREL" OR
-             config_type_upper STREQUAL "RELWITHDEBINFO")
+      elseif((config_type_upper STREQUAL "RELEASE") OR
+             (config_type_upper STREQUAL "MINSIZEREL") OR
+             (config_type_upper STREQUAL "RELWITHDEBINFO"))
         add_target_compile_definitions(${target} ${config_type_upper}
           PUBLIC
             NDEBUG
@@ -1207,10 +1318,10 @@ function(initialize_target_defaults_impl target flags_list)
 
       # compilation flags
       if(MSVC)
-        if(target_type STREQUAL "EXECUTABLE" OR
-           target_type STREQUAL "STATIC_LIBRARY" OR
-           target_type STREQUAL "SHARED_LIBRARY" OR
-           target_type STREQUAL "MODULE_LIBRARY")
+        if((target_type STREQUAL "EXECUTABLE") OR
+           (target_type STREQUAL "STATIC_LIBRARY") OR
+           (target_type STREQUAL "SHARED_LIBRARY") OR
+           (target_type STREQUAL "MODULE_LIBRARY"))
           if(config_type_upper STREQUAL "DEBUG")
             add_target_compile_properties(${target} ${config_type_upper}
               /Od     # always drop optimization in debug
@@ -1218,16 +1329,16 @@ function(initialize_target_defaults_impl target flags_list)
           endif()
         endif()
       elseif(GCC)
-        if(target_type STREQUAL "EXECUTABLE" OR
-           target_type STREQUAL "STATIC_LIBRARY" OR
-           target_type STREQUAL "SHARED_LIBRARY" OR
-           target_type STREQUAL "MODULE_LIBRARY")
+        if((target_type STREQUAL "EXECUTABLE") OR
+           (target_type STREQUAL "STATIC_LIBRARY") OR
+           (target_type STREQUAL "SHARED_LIBRARY") OR
+           (target_type STREQUAL "MODULE_LIBRARY"))
           if(config_type_upper STREQUAL "DEBUG")
             add_target_compile_properties(${target} ${config_type_upper}
               -O0     # always drop optimization in debug
             )
           endif()
-          if(config_type_upper STREQUAL "DEBUG" OR config_type_upper STREQUAL "RELWITHDEBINFO")
+          if((config_type_upper STREQUAL "DEBUG") OR (config_type_upper STREQUAL "RELWITHDEBINFO"))
             add_target_compile_properties(${target} ${config_type_upper}
               -g
             )
@@ -1239,9 +1350,9 @@ function(initialize_target_defaults_impl target flags_list)
     foreach(flag IN LISTS flags_list)
       # indifferent to Windows or Linux, has meaning to console/GUI linkage.
       if(flag STREQUAL "console")
-        if(target_type STREQUAL "EXECUTABLE" OR
-           target_type STREQUAL "SHARED_LIBRARY" OR
-           target_type STREQUAL "MODULE_LIBRARY")
+        if((target_type STREQUAL "EXECUTABLE") OR
+           (target_type STREQUAL "SHARED_LIBRARY") OR
+           (target_type STREQUAL "MODULE_LIBRARY"))
           add_target_compile_definitions(${target} *
             PUBLIC
               _CONSOLE
@@ -1255,9 +1366,9 @@ function(initialize_target_defaults_impl target flags_list)
         endif()
 
       elseif(flag STREQUAL "gui")
-        if(target_type STREQUAL "EXECUTABLE" OR
-           target_type STREQUAL "SHARED_LIBRARY" OR
-           target_type STREQUAL "MODULE_LIBRARY")
+        if((target_type STREQUAL "EXECUTABLE") OR
+           (target_type STREQUAL "SHARED_LIBRARY") OR
+           (target_type STREQUAL "MODULE_LIBRARY"))
           add_target_compile_definitions(${target} *
             PUBLIC
               _WINDOWS
@@ -1292,7 +1403,7 @@ function(add_target_compile_definitions targets config_names inheritance_type)
     if(has_all_config_types OR has_default_config_type)
       foreach(target IN LISTS targets)
         foreach(arg IN LISTS ARGN)
-          if (arg STREQUAL "PRIVATE" OR arg STREQUAL "INTERFACE" OR arg STREQUAL "PUBLIC")
+          if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
             message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
           endif()
           # arg must be a string here
@@ -1303,7 +1414,7 @@ function(add_target_compile_definitions targets config_names inheritance_type)
       foreach(config_type IN LISTS config_types)
         foreach(target IN LISTS targets)
           foreach(arg IN LISTS ARGN)
-            if (arg STREQUAL "PRIVATE" OR arg STREQUAL "INTERFACE" OR arg STREQUAL "PUBLIC")
+            if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
               message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
             endif()
             # arg must be a string here
@@ -1365,7 +1476,7 @@ function(add_target_link_directories targets config_names inheritance_type)
     if(has_all_config_types OR has_default_config_type)
       foreach(target IN LISTS targets)
         foreach(arg IN LISTS ARGN)
-          if (arg STREQUAL "PRIVATE" OR arg STREQUAL "INTERFACE" OR arg STREQUAL "PUBLIC")
+          if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
             message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
           endif()
           # arg must be a string here
@@ -1380,7 +1491,7 @@ function(add_target_link_directories targets config_names inheritance_type)
       foreach(config_type IN LISTS config_types)
         foreach(target IN LISTS targets)
           foreach(arg IN LISTS ARGN)
-            if (arg STREQUAL "PRIVATE" OR arg STREQUAL "INTERFACE" OR arg STREQUAL "PUBLIC")
+            if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
               message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
             endif()
             # arg must be a string here
@@ -1404,14 +1515,14 @@ function(add_target_link_properties targets linker_type config_names)
   set(ignore_notstatic 0)
   set(ignore_static 0)
 
-  if (linker_type STREQUAL "*" OR linker_type STREQUAL ".")
+  if ((linker_type STREQUAL "*") OR (linker_type STREQUAL "."))
     # use in all linker types
   elseif (linker_type STREQUAL "STATIC")
     set(ignore_notstatic 1)
   elseif (linker_type STREQUAL "NOTSTATIC")
     set(ignore_static 1)
   else()
-    message(FATAL_ERROR "Unrecognized linker type: \"${linker_type}\"")
+    message(FATAL_ERROR "Unrecognized linker type: `${linker_type}`")
   endif()
 
   foreach(target IN LISTS targets)
@@ -1610,7 +1721,7 @@ function(set_target_property target_root_dir_var package_target_rel_path_pattern
     message(FATAL_ERROR "package target relative path pattern must not be empty")
   endif()
 
-  if(${target_root_dir_var} STREQUAL "" OR NOT IS_DIRECTORY "${${target_root_dir_var}}")
+  if((${target_root_dir_var} STREQUAL "") OR (NOT IS_DIRECTORY "${${target_root_dir_var}}"))
     return()
   endif()
 
@@ -1648,7 +1759,7 @@ function(set_target_property target_root_dir_var package_target_rel_path_pattern
     foreach (target_to_include IN LISTS target_pattern_include_list)
       # check on invalid include sequences at first
       if (target_to_include STREQUAL ".")
-        message(FATAL_ERROR "target include pattern should not contain sequences related ONLY to the exclude patterns: target_to_include=\"${target_to_include}\"")
+        message(FATAL_ERROR "target include pattern should not contain sequences related ONLY to the exclude patterns: target_to_include=`${target_to_include}`")
       endif()
 
       if (target_to_include STREQUAL "*")
@@ -1678,10 +1789,10 @@ function(set_target_property target_root_dir_var package_target_rel_path_pattern
     foreach (target_type_to_include IN LISTS target_type_include_list)
       # check on invalid include sequences at first
       if (target_type_to_include STREQUAL ".")
-        message(FATAL_ERROR "target type include pattern should not contain sequences related ONLY to the exclude patterns: target_type_to_include=\"${target_type_to_include}\"")
+        message(FATAL_ERROR "target type include pattern should not contain sequences related ONLY to the exclude patterns: target_type_to_include=`${target_type_to_include}`")
       endif()
 
-      if (target_type_to_include STREQUAL "*" OR target_type_to_include STREQUAL target_type)
+      if ((target_type_to_include STREQUAL "*") OR (target_type_to_include STREQUAL target_type))
         set(is_target_type_applied 1)
         foreach (target_type_to_exclude IN LISTS target_type_exclude_list)
           if (NOT target_type_to_exclude STREQUAL "" AND NOT target_type_to_exclude STREQUAL "." AND

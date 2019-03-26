@@ -26,51 +26,6 @@ namespace utility
     template <typename T>
     struct function_traits;
 
-    template<typename T, size_t... I>
-    struct integer_sequence
-    {
-        static_assert(std::is_integral<T>::value, "T must be integral type.");
-
-        using type          = integer_sequence<T, I...>;
-        using value_type    = T;
-
-        static CONSTEXPR size_t size()
-        {
-            return sizeof...(I);
-        }
-    };
-
-    template<size_t... Indexes>
-    using index_sequence = integer_sequence<size_t, Indexes...>;
-
-    // remove_reference + remove_cv
-    template <typename T>
-    struct remove_cvref
-    {
-        using type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-    };
-
-    // index_sequence C++11 implementation
-    // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
-    //
-
-    namespace detail
-    {
-        template <std::size_t N, size_t... NextIndexes>
-        struct index_sequence_helper : public index_sequence_helper<N - 1U, N - 1U, NextIndexes...>
-        {
-        };
-
-        template <std::size_t... NextIndexes>
-        struct index_sequence_helper<0U, NextIndexes...>
-        {
-            using type = index_sequence<NextIndexes...>;
-        };
-    }
-
-    template <std::size_t N>
-    using make_index_sequence_t = typename detail::index_sequence_helper<N>::type;
-
     // tuple from array C++11 implementation
     // Based on: https://stackoverflow.com/questions/37029886/how-to-construct-a-tuple-from-an-array/37031202#37031202
     //
@@ -78,7 +33,7 @@ namespace utility
     // T[N] -> std::tuple<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple(T (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple(T (& arr)[N], index_sequence<Indexes...>) ->
         std::tuple<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -86,15 +41,15 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple(T (& arr)[N]) -> decltype(make_tuple(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple(T (& arr)[N]) -> decltype(make_tuple(arr, make_index_sequence<N>{}))
     {
-        return make_tuple(arr, make_index_sequence_t<N>{});
+        return make_tuple(arr, make_index_sequence<N>{});
     }
 
     // From[N] -> utility::tuple<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
         std::tuple<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -102,16 +57,16 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple_with_cast(From (& arr)[N]) ->
-        decltype(make_tuple_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_with_cast(From (& arr)[N]) ->
+        decltype(make_tuple_with_cast<To>(arr, make_index_sequence<N>{}))
     {
-        return make_tuple_with_cast<To>(arr, make_index_sequence_t<N>{});
+        return make_tuple_with_cast<To>(arr, make_index_sequence<N>{});
     }
 
     // T[N] -> utility::tuple_identities<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities(T (& arr)[N], index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(T (& arr)[N], index_sequence<Indexes...>)
         -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -119,16 +74,16 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities(T (& arr)[N]) ->
-        decltype(make_tuple_identities(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(T (& arr)[N]) ->
+        decltype(make_tuple_identities(arr, make_index_sequence<N>{}))
     {
-        return make_tuple_identities(arr, make_index_sequence_t<N>{});
+        return make_tuple_identities(arr, make_index_sequence<N>{});
     }
 
     // From[N] -> utility::tuple_identities<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
         tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -136,16 +91,16 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(From (& arr)[N]) ->
-        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(From (& arr)[N]) ->
+        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{}))
     {
-        return make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{});
+        return make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{});
     }
 
     // std::array<T, N> -> utility::tuple_identities<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities(const std::array<T, N> & arr, index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(const std::array<T, N> & arr, index_sequence<Indexes...>)
         -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -153,16 +108,16 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities(const std::array<T, N> & arr) ->
-        decltype(make_tuple_identities(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(const std::array<T, N> & arr) ->
+        decltype(make_tuple_identities(arr, make_index_sequence<N>{}))
     {
-        return make_tuple_identities(arr, make_index_sequence_t<N>{});
+        return make_tuple_identities(arr, make_index_sequence<N>{});
     }
 
     // std::array<From, N> -> utility::tuple_identities<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(const std::array<From, N> & arr, index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(const std::array<From, N> & arr, index_sequence<Indexes...>) ->
         tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -170,10 +125,10 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR auto make_tuple_identities_with_cast(const std::array<From, N> & arr) ->
-        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{}))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(const std::array<From, N> & arr) ->
+        decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{}))
     {
-        return make_tuple_identities_with_cast<To>(arr, make_index_sequence_t<N>{});
+        return make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{});
     }
 
     template <typename Functor>
@@ -187,103 +142,103 @@ namespace utility
     {
         // T[N] -> f(Args &&...)
 
-        template <typename Functor, typename T, size_t N, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], index_sequence<Indexes...>) ->
+        template <typename Functor, size_t N, typename T, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&) ->
             decltype(f(arr[Indexes]...))
         {
             return f(arr[Indexes]...);
         }
 
-        template <typename Functor, typename T, size_t N, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], index_sequence<Indexes...>, Args &&... args) ->
-            decltype(f(args..., arr[Indexes]...))
+        template <typename Functor, size_t N, typename T, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
+            decltype(f(std::forward<Args>(args)..., arr[Indexes]...))
         {
-            return f(args..., arr[Indexes]...);
+            return f(std::forward<Args>(args)..., arr[Indexes]...);
         }
 
         // std::array<T, N> -> f(Args &&...)
 
-        template <typename Functor, typename T, size_t N, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, index_sequence<Indexes...>) ->
+        template <typename Functor, size_t N, typename T, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&) ->
             decltype(f(arr[Indexes]...))
         {
             return f(arr[Indexes]...);
         }
 
-        template <typename Functor, typename T, size_t N, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, index_sequence<Indexes...>, Args &&... args) ->
-            decltype(f(args..., arr[Indexes]...))
+        template <typename Functor, size_t N, typename T, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+            decltype(f(std::forward<Args>(args)..., arr[Indexes]...))
         {
-            return f(args..., arr[Indexes]...);
+            return f(std::forward<Args>(args)..., arr[Indexes]...);
         }
 
         // From[N] -> f(To{ Args && }...)
 
-        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], index_sequence<Indexes...>) ->
+        template <typename To, typename Functor, size_t N, typename From, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&) ->
             decltype(f(static_cast<To>(arr[Indexes])...))
         {
             return f(static_cast<To>(arr[Indexes])...);
         }
 
-        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], index_sequence<Indexes...>, Args &&... args) ->
-            decltype(f(args..., static_cast<To>(arr[Indexes])...))
+        template <typename To, typename Functor, size_t N, typename From, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
+            decltype(f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...))
         {
-            return f(args..., static_cast<To>(arr[Indexes])...);
+            return f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...);
         }
 
         // std::array<From, N> -> f(To{ Args && }...)
 
-        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, index_sequence<Indexes...>) ->
+        template <typename To, typename Functor, size_t N, typename From, size_t... Indexes>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&) ->
             decltype(f(static_cast<To>(arr[Indexes])...))
         {
             return f(static_cast<To>(arr[Indexes])...);
         }
 
-        template <typename To, typename Functor, typename From, size_t N, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, index_sequence<Indexes...>, Args &&... args) ->
-            decltype(f(args..., static_cast<To>(arr[Indexes])...))
+        template <typename To, typename Functor, size_t N, typename From, size_t... Indexes, typename... Args>
+        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+            decltype(f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...))
         {
-            return f(args..., static_cast<To>(arr[Indexes])...);
+            return f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...);
         }
     }
 
     // T[N] -> f(Args &&...)
 
-    template <typename Functor, typename T, size_t N, typename... Args>
-    FORCE_INLINE CONSTEXPR auto apply(Functor && f, T (& arr)[N], Args &&... args) ->
-        decltype(detail::apply(f, arr, make_index_sequence_t<N>{}, args...))
+    template <typename Functor, size_t N, typename T, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN auto apply(Functor && f, T (& arr)[N], Args &&... args) ->
+        decltype(detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
-        return detail::apply(f, arr, make_index_sequence_t<N>{}, args...);
+        return detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
     }
 
     // std::array<T, N> -> f(Args &&...)
 
-    template <typename Functor, typename T, size_t N, typename... Args>
-    FORCE_INLINE CONSTEXPR auto apply(Functor && f, const std::array<T, N> & arr, Args &&... args) ->
-        decltype(detail::apply(f, arr, make_index_sequence_t<N>{}, args...))
+    template <typename Functor, size_t N, typename T, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN auto apply(Functor && f, const std::array<T, N> & arr, Args &&... args) ->
+        decltype(detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
-        return detail::apply(f, arr, make_index_sequence_t<N>{}, args...);
+        return detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
     }
 
     // From[N] -> f(To{ Args && }...)
 
-    template <typename To, typename Functor, typename From, size_t N, typename... Args>
-    FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, From (& arr)[N], Args &&... args) ->
-        decltype(detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...))
+    template <typename To, typename Functor, size_t N, typename From, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN auto apply_with_cast(Functor && f, From (& arr)[N], Args &&... args) ->
+        decltype(detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
-        return detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...);
+        return detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
     }
 
     // std::array<From, N> -> f(To{ Args && }...)
 
-    template <typename To, typename Functor, typename From, size_t N, typename... Args>
-    FORCE_INLINE CONSTEXPR auto apply_with_cast(Functor && f, const std::array<From, N> & arr, Args &&... args) ->
-        decltype(detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...))
+    template <typename To, typename Functor, size_t N, typename From, typename... Args>
+    FORCE_INLINE CONSTEXPR_RETURN auto apply_with_cast(Functor && f, const std::array<From, N> & arr, Args &&... args) ->
+        decltype(detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
-        return detail::apply_with_cast<To>(f, arr, make_index_sequence_t<N>{}, args...);
+        return detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
     }
 
     // Represents unconstructed decayed type value, to suppress compilation error on return types which default constructor has been deleted.
@@ -316,14 +271,30 @@ namespace utility
     //// static_if by overload
 
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR T static_if(std::true_type, T t, F)
+    FORCE_INLINE CONSTEXPR_RETURN T static_if(std::true_type, T && t, F &&)
+    {
+        // c++11: body of constexpr function must consist only of single return-statement
+        return std::forward<T>(t);
+    }
+
+    // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+    template <typename T, typename F>
+    FORCE_INLINE CONSTEXPR_RETURN T & static_if(std::true_type, T & t, F &&)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return t;
     }
 
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR F static_if(std::false_type, T, F f)
+    FORCE_INLINE CONSTEXPR_RETURN F static_if(std::false_type, T &&, F && f)
+    {
+        // c++11: body of constexpr function must consist only of single return-statement
+        return std::forward<F>(f);
+    }
+
+    // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+    template <typename T, typename F>
+    FORCE_INLINE CONSTEXPR_RETURN F & static_if(std::false_type, T &&, F & f)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return f;
@@ -332,33 +303,47 @@ namespace utility
     //// static_if by explicit template argument
 
     template <bool B, typename T, typename F>
-    FORCE_INLINE CONSTEXPR auto static_if(T t, F f) -> typename std::conditional<B, T, F>::type
+    FORCE_INLINE CONSTEXPR_RETURN auto static_if(T && t, F && f) -> decltype(static_if(std::integral_constant<bool, B>{}, std::forward<T>(t), std::forward<F>(f)))
     {
-        return static_if(std::integral_constant<bool, B>{}, t, f);
+        return static_if(std::integral_constant<bool, B>{}, std::forward<T>(t), std::forward<F>(f));
     }
 
     //// static_if_true by overload
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR T static_if_true(std::true_type, T t)
+    FORCE_INLINE CONSTEXPR_RETURN T static_if_true(std::true_type, T && t)
+    {
+        return std::forward<T>(t);
+    }
+
+    // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_RETURN T & static_if_true(std::true_type, T & t)
     {
         return t;
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR void static_if_true(std::false_type, T t)
+    FORCE_INLINE CONSTEXPR_RETURN void static_if_true(std::false_type, T && t)
     {
     }
 
     //// static_if_false by overload
 
     template <typename F>
-    FORCE_INLINE CONSTEXPR void static_if_false(std::true_type, F f)
+    FORCE_INLINE CONSTEXPR_RETURN void static_if_false(std::true_type, F f)
     {
     }
 
     template <typename F>
-    FORCE_INLINE CONSTEXPR F static_if_false(std::false_type, F f)
+    FORCE_INLINE CONSTEXPR_RETURN F static_if_false(std::false_type, F && f)
+    {
+        return std::forward<T>(f);
+    }
+
+    // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+    template <typename F>
+    FORCE_INLINE CONSTEXPR_RETURN F & static_if_false(std::false_type, F & f)
     {
         return f;
     }
@@ -366,20 +351,27 @@ namespace utility
     namespace detail
     {
         template <bool B>
-        struct static_if_helper
+        struct _static_if
         {
             template <typename T>
-            static constexpr T invoke(T t)
+            static CONSTEXPR_RETURN T invoke(T && t)
+            {
+                return std::forward<T>(t);
+            }
+
+            // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+            template <typename T>
+            static CONSTEXPR_RETURN T & invoke(T & t)
             {
                 return t;
             }
         };
 
         template <>
-        struct static_if_helper<false>
+        struct _static_if<false>
         {
             template <typename T>
-            static constexpr void invoke(T)
+            static CONSTEXPR_RETURN void invoke(T &&)
             {
             }
         };
@@ -388,17 +380,17 @@ namespace utility
     //// static_if_true by explicit template argument
 
     template <bool B, typename T>
-    constexpr auto static_if_true(T t) -> typename std::conditional<B, T, void>::type
+    CONSTEXPR_RETURN auto static_if_true(T t) -> decltype(detail::_static_if<B>::invoke(t))
     {
-        return detail::static_if_helper<B>::invoke(t);
+        return detail::_static_if<B>::invoke(t);
     }
 
     //// static_if_false by explicit template argument
 
     template <bool B, typename F>
-    constexpr auto static_if_false(F f) -> typename std::conditional<B, void, F>::type
+    CONSTEXPR_RETURN auto static_if_false(F f) -> decltype(detail::_static_if<!B>::invoke(f))
     {
-        return detail::static_if_helper<!B>::invoke(f);
+        return detail::_static_if<!B>::invoke(f);
     }
 
     template <typename T>
@@ -418,13 +410,13 @@ namespace utility
     namespace detail
     {
         template <typename T, bool small_>
-        struct ct_imp
+        struct _ct_imp
         {
            typedef const T & param_type;
         };
 
         template <typename T>
-        struct ct_imp<T, true>
+        struct _ct_imp<T, true>
         {
            typedef const T param_type;
         };
@@ -436,7 +428,7 @@ namespace utility
        using value_type       = T;
        using reference        = T &;
        using const_reference  = const T &;
-       using param_type       = typename detail::ct_imp<T, (sizeof(T) <= sizeof(void*))>::param_type;
+       using param_type       = typename detail::_ct_imp<T, (sizeof(T) <= sizeof(void*))>::param_type;
     };
 
     template <typename T>
@@ -485,15 +477,15 @@ namespace utility
     //
 
     template <template <typename T_> class Functor, typename T>
-    FORCE_INLINE void runtime_foreach(T & container)
+    FORCE_INLINE void runtime_foreach(T && container)
     {
-        runtime_for_lt(Functor<T>{ container }, 0, static_size(container));
+        runtime_for_lt(Functor<T>{ std::forward<T>(container) }, 0, static_size(std::forward<T>(container)));
     }
 
     template <typename Functor, typename T>
-    FORCE_INLINE void runtime_foreach(T & container, Functor && functor)
+    FORCE_INLINE void runtime_foreach(T && container, Functor && functor)
     {
-        runtime_for_lt(functor, 0, static_size(container));
+        runtime_for_lt(functor, 0, static_size(std::forward<T>(container)));
     }
 
     // `constexpr for` implementation.
@@ -504,15 +496,15 @@ namespace utility
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
     template<typename Functor, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR void static_foreach_seq(Functor && function, index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_RETURN void static_foreach_seq(Functor && function, index_sequence<Indexes...>)
     {
         return static_consume({ (function(std::integral_constant<std::size_t, Indexes>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE CONSTEXPR void static_foreach(Functor && functor)
+    FORCE_INLINE CONSTEXPR_RETURN void static_foreach(Functor && functor)
     {
-        return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence_t<Size>());
+        return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence<Size>());
     }
 
     // Generalized `for_each` through the `std::tuple` container.
@@ -530,7 +522,7 @@ namespace utility
         for_each(std::tuple<Args...> & t, Functor && f)
     {
         f(std::get<I>(t));
-        for_each<I + 1, Functor, Args...>(t, f);
+        for_each<I + 1, Functor, Args...>(t, std::forward<Functor>(f));
     }
 
     // `is_callable` implementation.
@@ -638,12 +630,12 @@ namespace utility
         static bool const CONSTEXPR value = sizeof(Test<Derived>(0)) == sizeof(yes_t);
     };
 
-    // Simple `has_regular_parenthesis_operator` based on SFINAE, does detect ONLY regular `operator()`, does NOT detect templated `operator()`.
+    // Simple `has_regular_parentheses_operator` based on SFINAE, does detect ONLY regular `operator()`, does NOT detect templated `operator()`.
     // Based on: https://stackoverflow.com/questions/42480669/how-to-use-sfinae-to-check-whether-type-has-operator
     //
 
     template <typename T>
-    class has_regular_parenthesis_operator
+    class has_regular_parentheses_operator
     {
         using yes_t = char(&)[1];
         using no_t = char(&)[2];
@@ -691,7 +683,7 @@ namespace utility
     namespace detail
     {
         template<typename R, typename C, typename IsConst, typename IsVolatile, typename IsVariadic, typename... Args>
-        struct function_types
+        struct _function_types
         {
             static CONSTEXPR const size_t arity = sizeof...(Args);
 
@@ -715,189 +707,189 @@ namespace utility
 
     // function
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) const> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const> : detail::_function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) volatile> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) volatile> : detail::_function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...) const volatile> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...) const volatile> : detail::_function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // pointer-to-function
     template <typename R, typename... Args>
-    struct function_traits<R (*)(Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (*)(Args...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     // reference-to-function
     template <typename R, typename... Args>
-    struct function_traits<R (&)(Args...)> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (&)(Args...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)&> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&> : detail::_function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const&> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&> : detail::_function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)volatile&> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&> : detail::_function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const volatile&> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&> : detail::_function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)&&> : detail::function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)&&> : detail::_function_types<R, void, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const&&> : detail::function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const&&> : detail::_function_types<R, void, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)volatile&&> : detail::function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)volatile&&> : detail::_function_types<R, void, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args...)const volatile&&> : detail::function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (Args...)const volatile&&> : detail::_function_types<R, void, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const> : detail::_function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile> : detail::_function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile> : detail::_function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     // pointer-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (*)(Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (*)(Args..., ...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     // reference-to-variadic-function
     template <typename R, typename... Args>
-    struct function_traits<R (&)(Args..., ...)> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (&)(Args..., ...)> : detail::_function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)&> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&> : detail::_function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const&> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&> : detail::_function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile&> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&> : detail::_function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile&> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&> : detail::_function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)&&> : detail::function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)&&> : detail::_function_types<R, void, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const&&> : detail::function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const&&> : detail::_function_types<R, void, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)volatile&&> : detail::function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)volatile&&> : detail::_function_types<R, void, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename R, typename... Args>
-    struct function_traits<R (Args..., ...)const volatile&&> : detail::function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (Args..., ...)const volatile&&> : detail::_function_types<R, void, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
     // pointer-to-class-function
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)> : detail::function_types<R, C, std::false_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)> : detail::_function_types<R, C, std::false_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)const> : detail::function_types<R, C, std::true_type, std::false_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const> : detail::_function_types<R, C, std::true_type, std::false_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)volatile> : detail::function_types<R, C, std::false_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)volatile> : detail::_function_types<R, C, std::false_type, std::true_type, std::false_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args...)const volatile> : detail::function_types<R, C, std::true_type, std::true_type, std::false_type, Args...>
+    struct function_traits<R (C::*)(Args...)const volatile> : detail::_function_types<R, C, std::true_type, std::true_type, std::false_type, Args...>
     {
     };
 
     // pointer-to-class-variadic-function
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)> : detail::function_types<R, C, std::false_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)> : detail::_function_types<R, C, std::false_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)const> : detail::function_types<R, C, std::true_type, std::false_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const> : detail::_function_types<R, C, std::true_type, std::false_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)volatile> : detail::function_types<R, C, std::false_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)volatile> : detail::_function_types<R, C, std::false_type, std::true_type, std::true_type, Args...>
     {
     };
 
     template <typename C, typename R, typename... Args>
-    struct function_traits<R (C::*)(Args..., ...)const volatile> : detail::function_types<R, C, std::true_type, std::true_type, std::true_type, Args...>
+    struct function_traits<R (C::*)(Args..., ...)const volatile> : detail::_function_types<R, C, std::true_type, std::true_type, std::true_type, Args...>
     {
     };
 
@@ -916,8 +908,8 @@ namespace utility
             std::is_function<unref_type>::value, std::is_class<unref_type>::value,
             "type must be at least a function/class type");
         static_assert(is_callable<unref_type>::value, "type is not callable");
-        STATIC_ASSERT_TRUE2(std::is_function<unref_type>::value || has_regular_parenthesis_operator<unref_type>::value,
-            std::is_function<unref_type>::value, has_regular_parenthesis_operator<unref_type>::value,
+        STATIC_ASSERT_TRUE2(std::is_function<unref_type>::value || has_regular_parentheses_operator<unref_type>::value,
+            std::is_function<unref_type>::value, has_regular_parentheses_operator<unref_type>::value,
             "type is not a function and does not contain regular operator()");
 
         // to reduce excessive compiler errors output
@@ -941,7 +933,7 @@ namespace utility
     struct is_function_traits_extractable
     {
         using unref_type = typename std::remove_reference<T>::type;
-        static CONSTEXPR const bool value = is_callable<unref_type>::value && (std::is_function<unref_type>::value || std::is_class<unref_type>::value && has_regular_parenthesis_operator<unref_type>::value);
+        static CONSTEXPR const bool value = is_callable<unref_type>::value && (std::is_function<unref_type>::value || std::is_class<unref_type>::value && has_regular_parentheses_operator<unref_type>::value);
     };
 
     //// construct_if_constructible

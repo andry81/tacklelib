@@ -1,3 +1,5 @@
+include(Std)
+
 if (NOT CONFIGURE_IN_FILE)
   message(FATAL_ERROR "* CONFIGURE_IN_FILE variable must be defined!")
 endif()
@@ -7,5 +9,5 @@ endif()
 
 configure_file("${CONFIGURE_IN_FILE}" "${CONFIGURE_OUT_FILE}" @ONLY)
 
-unset(CONFIGURE_IN_FILE CACHE)
-unset(CONFIGURE_OUT_FILE CACHE)
+unset_all(CONFIGURE_IN_FILE)
+unset_all(CONFIGURE_OUT_FILE)

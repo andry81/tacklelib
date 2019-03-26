@@ -1,7 +1,7 @@
 # CAUTION:
 # 1. Be careful with the `set(... CACHE ...)` because it unsets the original
 #    variable!
-#    From documation:
+#    From documentation:
 #     "Finally, whenever a cache variable is added or modified by a command,
 #     CMake also removes the normal variable of the same name from the current
 #     scope so that an immediately following evaluation of it will expose the
@@ -14,15 +14,15 @@
 #    been already exist, because it actually does not change the cache value but
 #    changes state of the ${<var>} value. In another words if you try later to
 #    unset the original variable by the `unset(<var>)` then the cached value
-#    would be revealed and might be different than after the very first set!
+#    will be revealed and might be different than after a very first set!
 #
 
 function(is_variable is_var_out var_name)
-  if(NOT is_var_out OR is_var_out STREQUAL var_name)
+  if((NOT is_var_out) OR (is_var_out STREQUAL var_name))
     message(FATAL_ERROR "is_var_out must be not empty and not equal to var_name:\n is_var_out=\"${is_var_out}\"\n var_name=\"${var_name}\"")
   endif()
 
-  if (NOT DEFINED var_name OR var_name STREQUAL "" OR var_name STREQUAL ".")
+  if ((NOT DEFINED var_name) OR (var_name STREQUAL "" OR var_name STREQUAL "."))
     set(${is_var_out} 0 PARENT_SCOPE)
   endif()
 
@@ -292,7 +292,7 @@ function(get_variable uncached_var_out cached_var_out var_name)
     endif()
   else()
     if (cached_var_out_is_defined)
-      # propogate cached variant of a variable
+      # propagate cached variant of a variable
       if (DEFINED ${var_name})
         set(${cached_var_out} ${${var_name}} PARENT_SCOPE)
       else()
@@ -309,7 +309,7 @@ function(get_variable uncached_var_out cached_var_out var_name)
       # remove cached variant of a variable
       unset(${var_name} CACHE)
 
-      # propogate uncached variant of a variable
+      # propagate uncached variant of a variable
       if (DEFINED ${var_name})
         set(${uncached_var_out} ${${var_name}} PARENT_SCOPE)
       else()
@@ -351,14 +351,14 @@ function(begin_track_variables)
     endif()
 
     # we must compare with uncached variable variant ONLY
-    get_variable(_39067B90_old_${_39067B90_var} . ${_39067B90_var})
-    if (DEFINED _39067B90_old_${_39067B90_var})
-      set(_39067B90_old_${_39067B90_var} ${_39067B90_old_${_39067B90_var}} PARENT_SCOPE)
+    get_variable(_39067B90_old_var_${_39067B90_var} . ${_39067B90_var})
+    if (DEFINED _39067B90_old_var_${_39067B90_var})
+      set(_39067B90_old_var_${_39067B90_var} ${_39067B90_old_var_${_39067B90_var}} PARENT_SCOPE)
     # no need to unset because of uniqueness of a variable name
     #else()
-    #  unset(_39067B90_old_${_39067B90_var} PARENT_SCOPE)
+    #  unset(_39067B90_old_var_${_39067B90_var} PARENT_SCOPE)
     endif()
-    #message(" _39067B90_old_${_39067B90_var}=\"${_39067B90_old_${_39067B90_var}}\"")
+    #message(" _39067B90_old_var_${_39067B90_var}=\"${_39067B90_old_var_${_39067B90_var}}\"")
   endforeach()
 endfunction()
 
@@ -398,9 +398,9 @@ macro(forward_changed_variables_to_parent_scope)
     # we must compare with uncached variable variant ONLY
     get_variable(_39067B90_var_uncached . ${_39067B90_var})
 
-    if(DEFINED _39067B90_old_${_39067B90_var})
+    if(DEFINED _39067B90_old_var_${_39067B90_var})
       if (DEFINED _39067B90_var_uncached)
-        if(NOT _39067B90_var_uncached STREQUAL _39067B90_old_${_39067B90_var})
+        if(NOT _39067B90_var_uncached STREQUAL _39067B90_old_var_${_39067B90_var})
           set(${_39067B90_var} ${_39067B90_var_uncached} PARENT_SCOPE)
         endif()
       else()

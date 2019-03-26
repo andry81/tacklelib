@@ -13,7 +13,7 @@
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
 #include <fmt/format.h>
-#include <fmt/time.h>
+#include <fmt/chrono.h>
 #endif
 
 #include <string>
@@ -144,7 +144,7 @@ namespace time {
     FORCE_INLINE std::string strftime(const std::string & fmt, const std::tm & time)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-        const std::string fmt_format = utility::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+        const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
         return fmt::format(fmt_format, time);
 #else
         std::stringstream buffer;
@@ -160,7 +160,7 @@ namespace time {
     {
 // not implemented
 //#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-//        const std::string fmt_format = utility::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+//        const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
 //        return fmt::get_time(fmt_format, date_time_str);
 //#else
         time = std::tm{};
@@ -186,7 +186,7 @@ namespace time {
     {
 // not implemented
 //#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-//        const std::string fmt_format = utility::string_format(256, "{:%s}", fmt.c_str()); // faster than fmt format
+//        const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
 //        return fmt::get_time(fmt_format, date_time_str);
 //#else
         time = std::tm{};

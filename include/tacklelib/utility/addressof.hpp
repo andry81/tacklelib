@@ -8,6 +8,9 @@
 
 #include <tacklelib/utility/platform.hpp>
 
+#include <functional>
+#include <utility>
+
 
 // CAUTION:
 //  * addressof function must be declared in a namespace, otherwise CAN FAIL SILENTLY!
@@ -81,6 +84,14 @@ namespace utility
     // rvalue address does not exist
     template <typename To, typename From>
     To cast_addressof(From && v);
+
+    template <typename T, typename... Args>
+    FORCE_INLINE T & construct_static_as(Args &&... args)
+    {
+        static T value{ std::forward<decltype(args)>(args)... };
+        return value;
+    }
+
 }
 
 #endif

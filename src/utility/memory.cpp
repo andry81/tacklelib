@@ -64,8 +64,8 @@ namespace utility {
 
             char tmp_buf[4096];
 
-            while (std::fgets(tmp_buf, utility::static_size(tmp_buf), proc_file_handle.get())) {
-                if (!strncmp(tmp_buf, UTILITY_STR_WITH_STATIC_SIZE_TUPLE("VmSize:"))) {
+            while (std::fgets(tmp_buf, UTILITY_CONSTEXPR_SIZE(tmp_buf), proc_file_handle.get())) {
+                if (!strncmp(tmp_buf, UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE("VmSize:"))) {
                     mem_size = strlen(tmp_buf);
                     const char* p = tmp_buf;
                     while (*p <'0' || *p > '9') p++;
@@ -93,8 +93,8 @@ namespace utility {
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
-            CONSTEXPR_RETURN const auto & guard_sequence_str = _guard_sequence_str();
-            CONSTEXPR_RETURN const size_t guard_sequence_str_len = utility::static_size(guard_sequence_str) - 1;
+            CONSTEXPR const auto & const guard_sequence_str = _guard_sequence_str();
+            CONSTEXPR const size_t guard_sequence_str_len = UTILITY_CONSTEXPR_SIZE(guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 
@@ -147,8 +147,8 @@ namespace utility {
     void Buffer::_fill_buffer_guards()
     {
         if (m_size < m_reserve) {
-            CONSTEXPR_RETURN const auto & guard_sequence_str = _guard_sequence_str();
-            CONSTEXPR_RETURN const size_t guard_sequence_str_len = utility::static_size(guard_sequence_str) - 1;
+            CONSTEXPR const auto & guard_sequence_str = _guard_sequence_str();
+            CONSTEXPR const size_t guard_sequence_str_len = UTILITY_CONSTEXPR_SIZE(guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();
 

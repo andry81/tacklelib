@@ -25,7 +25,7 @@ namespace tackle
         } break; UTILITY_PP_LINE_TERMINATOR
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
                 construct_default(utility::addressof(m_storage), UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not default constructable: Type=\"%s\"")) { \
@@ -58,7 +58,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
                 construct(utility::addressof(m_storage), r, UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
@@ -90,7 +90,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             if (utility::construct_dispatcher<n, storage_type_t, (n < num_types_t::value)>:: \
                 construct(utility::addressof(m_storage), std::forward<Ref>(r), UTILITY_PP_FUNCSIG, \
                     "%s: storage type is not constructable by reference value: Type=\"%s\" Ref=\"%s\"")) { \
@@ -122,7 +122,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_XREF_MACRO
 
     #define TACKLE_PP_CONSTRUCT_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             ::new (utility::addressof(m_storage)) storage_type_t(*utility::cast_addressof<const storage_type_t *>(s)); \
             m_type_index = s.m_type_index; \
         } else goto default_
@@ -153,7 +153,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_MACRO
 
     #define TACKLE_PP_CONSTRUCT_XREF_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             ::new (utility::addressof(m_storage)) storage_type_t(std::move(*utility::cast_addressof<const storage_type_t *>(s))); \
             m_type_index = s.m_type_index; \
         } else goto default_
@@ -184,7 +184,7 @@ namespace tackle
     #undef TACKLE_PP_CONSTRUCT_XREF_MACRO
 
     #define TACKLE_PP_DESTRUCT_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             m_type_index = -1; \
             utility::cast_addressof<storage_type_t *>(m_storage)->storage_type_t::~storage_type_t(); \
         } else goto default_
@@ -208,7 +208,7 @@ namespace tackle
     #undef TACKLE_PP_DESTRUCT_MACRO
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             switch (s.type_index()) \
             { \
@@ -219,7 +219,7 @@ namespace tackle
         } else goto default_
 
     #define TACKLE_PP_ASSIGN_MACRO_RIGHT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             const auto & right_value = *utility::cast_addressof<const right_storage_type_t *>(s); \
             utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
                 call(left_value, right_value, UTILITY_PP_FUNCSIG, \
@@ -253,7 +253,7 @@ namespace tackle
     #undef TACKLE_PP_ASSIGN_MACRO_LEFT
 
     #define TACKLE_PP_ASSIGN_XREF_MACRO_LEFT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             switch (s.type_index()) \
             { \
@@ -264,7 +264,7 @@ namespace tackle
         } else goto default_
 
     #define TACKLE_PP_ASSIGN_XREF_MACRO_RIGHT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             auto && right_value = std::move(*utility::cast_addressof<const right_storage_type_t *>(s)); \
             utility::assign_dispatcher<right_storage_type_t, storage_type_t, true>:: \
                 call(left_value, right_value, UTILITY_PP_FUNCSIG, \
@@ -298,7 +298,7 @@ namespace tackle
     #undef TACKLE_PP_ASSIGN_XREF_MACRO_LEFT
 
     #define TACKLE_PP_ASSIGN_MACRO_LEFT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             utility::assign_dispatcher<Ref, storage_type_t, true>:: \
                 call(left_value, r, UTILITY_PP_FUNCSIG, \
@@ -330,7 +330,7 @@ namespace tackle
     #undef TACKLE_PP_ASSIGN_MACRO_LEFT
 
     #define TACKLE_PP_ASSIGN_XREF_MACRO_LEFT(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             auto & left_value = *utility::cast_addressof<storage_type_t *>(m_storage); \
             utility::assign_dispatcher<Ref, storage_type_t, true>:: \
                 call(left_value, std::forward<Ref>(r), UTILITY_PP_FUNCSIG, \
@@ -362,7 +362,7 @@ namespace tackle
     #undef TACKLE_PP_ASSIGN_XREF_MACRO_LEFT
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             return utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
@@ -396,7 +396,7 @@ namespace tackle
     #undef TACKLE_PP_INVOKE_MACRO
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             return utility::invoke_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 n < num_types_t::value, utility::is_function_traits_extractable<decltype(functor)>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
@@ -430,7 +430,7 @@ namespace tackle
     #undef TACKLE_PP_INVOKE_MACRO
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             return utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \
@@ -467,7 +467,7 @@ namespace tackle
     #undef TACKLE_PP_INVOKE_MACRO
 
     #define TACKLE_PP_INVOKE_MACRO(z, n) \
-        if (UTILITY_CONST_EXPR(n < num_types_t::value)) { \
+        if (UTILITY_CONSTEXPR(n < num_types_t::value)) { \
             return utility::invoke_if_returnable_dispatcher<n, R, storage_types_t, mpl::find, storage_types_end_it_t, \
                 (n < num_types_t::value), std::is_convertible<storage_type_t, unqual_return_type_t>::value>:: \
                 call(functor, *utility::cast_addressof<const storage_type_t *>(m_storage), UTILITY_PP_FUNCSIG, \

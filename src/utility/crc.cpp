@@ -41,6 +41,9 @@ namespace utility
     // 2. Understanding:    http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
     // 3. RFC1662 (HDLC FCS implementation): https://tools.ietf.org/html/rfc1662
 
+    // TODO:
+    //  1. Ideas to speed up: https://create.stephan-brumme.com/crc32/
+
     uint32_t crc(size_t width, uint32_t polynomial, uint32_t crc, const void * buf, size_t size, uint32_t crc_init,
         uint32_t xor_in, uint32_t xor_out, bool input_reflected, bool result_reflected)
     {

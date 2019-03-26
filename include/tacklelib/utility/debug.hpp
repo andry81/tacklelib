@@ -21,12 +21,13 @@
 
 
 // break point placeholder, useful inside custom user macroses to emulate function call break points
-#define BREAK_POINT_PLACEHOLDER() ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
+#define BREAK_POINT_PLACEHOLDER()                   ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
-#define DEBUG_BREAK(cond) \
-    if((cond) ? false : true); else __debugbreak() // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly)
+// won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly
+#define DEBUG_BREAK(exp) \
+    ((exp) ? false : true) ? decltype(__debugbreak())() : __debugbreak()
 
 #elif defined(UTILITY_PLATFORM_POSIX)
 
@@ -36,7 +37,7 @@
 // See for details: https://stackoverflow.com/questions/6859267/valgrind-unhandled-instruction-bytes-0xf-0xb-0xff-0x85
 //
 #define DEBUG_BREAK(exp) \
-    if((exp) ? false : true); else ::raise(SIGTRAP) // or: __builtin_trap()
+    ((exp) ? false : true) ? decltype(::raise(SIGTRAP))() : ::raise(SIGTRAP) // or: __builtin_trap()
 
 #else
 #error debug_break is not supported for this platform
@@ -44,7 +45,10 @@
 
 #define DEBUG_BREAK_IN_DEBUGGER(cond)               DEBUG_BREAK((cond) && ::utility::is_under_debugger())
 
-#define DEBUG_BREAK_THROW(cond)                     DEBUG_BREAK_IN_DEBUGGER(cond); throw
+// CAUTION:
+//  Can be in an expression context, so comma is required here and a user must surround the entire expression with the definition by the parentheses.
+//
+#define DEBUG_BREAK_THROW(cond)                     DEBUG_BREAK_IN_DEBUGGER(cond), throw
 
 
 namespace utility
@@ -58,13 +62,13 @@ namespace utility
     {
         size_t index = 0;
 
-        functor(index, dbg_stack.top);
+        std::forward<F>(functor)(index, dbg_stack.top);
 
         ++index;
         const auto * next_ptr = dbg_stack.next_ptr;
 
         while (next_ptr) {
-            functor(index, next_ptr->top);
+            std::forward<F>(functor)(index, next_ptr->top);
             ++index;
             next_ptr = next_ptr->next_ptr;
         }

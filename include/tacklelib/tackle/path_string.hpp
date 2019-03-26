@@ -285,9 +285,9 @@ namespace tackle
 
     template <typename t_elem, t_elem separator_char>
     struct tag_basic_path_string_by_separator_char :
-        std::conditional<UTILITY_CONST_EXPR(separator_char == literal_separators<t_elem>::forward_slash_char),
+        std::conditional<UTILITY_CONSTEXPR(separator_char == literal_separators<t_elem>::forward_slash_char),
             tag_generic_basic_path_string<t_elem>,
-            typename std::conditional<UTILITY_CONST_EXPR(separator_char == literal_separators<t_elem>::backward_slash_char),
+            typename std::conditional<UTILITY_CONSTEXPR(separator_char == literal_separators<t_elem>::backward_slash_char),
                 tag_native_basic_path_string<t_elem>,
                 utility::void_
             >::type

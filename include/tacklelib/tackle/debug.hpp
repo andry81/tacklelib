@@ -9,101 +9,392 @@
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
+#include <tacklelib/utility/static_constexpr.hpp>
+
+#include <tacklelib/tackle/tmpl_string.hpp>
+#include <tacklelib/tackle/constexpr_string.hpp>
 
 #include <string>
 #include <cwchar>
 #include <uchar.h>  // in GCC `cuchar` header might not exist
 
 
-#define DEBUG_FILE_LINE_A                           ::tackle::DebugFileLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE }
-#define DEBUG_FILE_LINE_MAKE_A()                    ::tackle::DebugFileLineInlineStackA::make(::tackle::DebugFileLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE })
-#define DEBUG_FILE_LINE_MAKE_PUSH_A(stack)          ::tackle::DebugFileLineInlineStackA::make_push(stack, ::tackle::DebugFileLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE })
+// CAUTION:
+//  TACKLE_TMPL_STRING macro has used to guarantee the same address for the same literal string, otherwise 2 the same literal strings may have different addresses following the C++ standard!
+//
 
-#define DEBUG_FILE_LINE_W                           ::tackle::DebugFileLineW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE }
-#define DEBUG_FILE_LINE_MAKE_W()                    ::tackle::DebugFileLineInlineStackW::make(::tackle::DebugFileLineW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE })
-#define DEBUG_FILE_LINE_MAKE_PUSH_W(stack)          ::tackle::DebugFileLineInlineStackW::make_push(stack, ::tackle::DebugFileLineW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE })
-
-
-#define DEBUG_FUNC_LINE_A                           ::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC), UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_A()                    ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC), UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)          ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC), UTILITY_PP_LINE })
-
-
-#define DEBUG_FUNCSIG_LINE_A                        ::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG), UTILITY_PP_LINE }
-#define DEBUG_FUNCSIG_LINE_MAKE_A()                 ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
-#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)       ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
-
-
-#define DEBUG_FILE_LINE_FUNC_A                      ::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) }
-#define DEBUG_FILE_LINE_FUNC_MAKE_A()               ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) })
-#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A(stack)     ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) })
-
-#define DEBUG_FILE_LINE_FUNC_W                      ::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) }
-#define DEBUG_FILE_LINE_FUNC_MAKE_W()               ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) })
-#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W(stack)     ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNC) })
+#define DEBUG_FUNC_LINE_A                               ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) }, \
+                                                        UTILITY_PP_LINE }
+#define DEBUG_FUNC_LINE_MAKE_A()                        ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)              ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE })
 
 
-#define DEBUG_FILE_LINE_FUNCSIG_A                   ::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) }
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_A()            ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) })
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A(stack)  ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) })
+#define DEBUG_FUNCSIG_LINE_A                            ::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE }
+#define DEBUG_FUNCSIG_LINE_MAKE_A()                     ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)           ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
 
-#define DEBUG_FILE_LINE_FUNCSIG_W                   ::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) }
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_W()            ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) })
-#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_W(stack)  ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FILE_WIDE), UTILITY_PP_LINE, UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(UTILITY_PP_FUNCSIG) })
+
+#define DEBUG_FILE_LINE_A_(truncate_file) \
+                                                        ::tackle::DebugFileLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) - 1 : 0)) } , \
+                                                            UTILITY_PP_LINE }
+#define DEBUG_FILE_LINE_A                               DEBUG_FILE_LINE_A_(true)
+
+#define DEBUG_FILE_LINE_MAKE_A_(truncate_file) \
+                                                        ::tackle::DebugFileLineInlineStackA::make(::tackle::DebugFileLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) - 1 : 0)) }, \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_A()                        DEBUG_FILE_LINE_MAKE_A_(true)
+
+#define DEBUG_FILE_LINE_MAKE_PUSH_A_(stack, truncate_file) \
+                                                        ::tackle::DebugFileLineInlineStackA::make_push(stack, ::tackle::DebugFileLineA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_PUSH_A(stack)              DEBUG_FILE_LINE_MAKE_PUSH_A_(stack, true)
+
+
+#define DEBUG_FILE_LINE_W_(truncate_file) \
+                                                        ::tackle::DebugFileLineW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1), \
+                                                            UTILITY_PP_LINE }
+#define DEBUG_FILE_LINE_W                               DEBUG_FILE_LINE_W_(true)
+
+#define DEBUG_FILE_LINE_MAKE_W_(truncate_file) \
+                                                        ::tackle::DebugFileLineInlineStackW::make(::tackle::DebugFileLineW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1), \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_W()                        DEBUG_FILE_LINE_MAKE_W_(true)
+
+#define DEBUG_FILE_LINE_MAKE_PUSH_W_(stack, truncate_file) \
+                                                        ::tackle::DebugFileLineInlineStackW::make_push(stack, ::tackle::DebugFileLineW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1), \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FILE_LINE_MAKE_PUSH_W(stack)              DEBUG_FILE_LINE_MAKE_PUSH_W_(stack, true)
+
+
+#define DEBUG_FILE_LINE_FUNC_A_(truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } }
+#define DEBUG_FILE_LINE_FUNC_A                          DEBUG_FILE_LINE_FUNC_A_(true, true)
+
+#define DEBUG_FILE_LINE_FUNC_MAKE_A_(truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } })
+#define DEBUG_FILE_LINE_FUNC_MAKE_A()                   DEBUG_FILE_LINE_FUNC_MAKE_A_(true, true)
+
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A_(stack, truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } })
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A(stack)         DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A_(stack, true, true)
+
+
+#define DEBUG_FILE_LINE_FUNC_W_(truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } }
+#define DEBUG_FILE_LINE_FUNC_W                          DEBUG_FILE_LINE_FUNC_W_(true, true)
+
+#define DEBUG_FILE_LINE_FUNC_MAKE_W_(truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } })
+#define DEBUG_FILE_LINE_FUNC_MAKE_W()                   DEBUG_FILE_LINE_FUNC_MAKE_W_(true, true)
+
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W_(stack, truncate_file, truncate_func) \
+                                                        ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNC) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) - 1) } })
+#define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W(stack)         DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W_(stack, true, true)
+
+
+#define DEBUG_FILE_LINE_FUNCSIG_A_(truncate_file) \
+                                                        ::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } }
+#define DEBUG_FILE_LINE_FUNCSIG_A                       DEBUG_FILE_LINE_FUNCSIG_A_(true)
+
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_A_(truncate_file) \
+                                                        ::tackle::DebugFileLineFuncInlineStackA::make(::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_A()                DEBUG_FILE_LINE_FUNCSIG_MAKE_A_(true)
+
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A_(stack, truncate_file) \
+                                                        ::tackle::DebugFileLineFuncInlineStackA::make_push(stack, ::tackle::DebugFileLineFuncA{ ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_string{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A(stack)      DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_A_(stack, true)
+
+
+#define DEBUG_FILE_LINE_FUNCSIG_W_(truncate_file) \
+                                                        ::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } }
+#define DEBUG_FILE_LINE_FUNCSIG_W                       DEBUG_FILE_LINE_FUNCSIG_W_(true)
+
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_W_(truncate_file) \
+                                                        ::tackle::DebugFileLineFuncInlineStackW::make(::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_W()                DEBUG_FILE_LINE_FUNCSIG_MAKE_W_(true)
+
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_W_(stack, truncate_file) \
+                                                        ::tackle::DebugFileLineFuncInlineStackW::make_push(stack, ::tackle::DebugFileLineFuncW{ ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE).c_str() + UTILITY_CONSTEXPR_VALUE(truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FILE_WIDE) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) - 1) }, \
+                                                            UTILITY_PP_LINE, \
+                                                        ::tackle::constexpr_wstring{ \
+                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG).c_str(), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(UTILITY_PP_FUNCSIG) - 1) } })
+#define DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_W(stack)      DEBUG_FILE_LINE_FUNCSIG_MAKE_PUSH_W_(stack, true)
 
 
 namespace tackle
 {
-    template <class t_elem>
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename>
+    struct TDebugFileLine;
+
+    template <typename CharT, CharT... tchars>
+    struct TDebugFileLine<utility::value_identities<CharT, tchars...> >
+    {
+        using file_type = tmpl_basic_string<0, CharT, tchars...>;
+
+        file_type   file;
+        int         line;
+    };
+
+    // implementation through raw c string with length
+    template <typename CharT>
+    struct DebugFilePathLine
+    {
+        FORCE_INLINE CONSTEXPR_RETURN DebugFilePathLine(const constexpr_basic_string<CharT> & file_, int line_) :
+            file(file_), line(line_)
+        {
+        }
+
+        constexpr_basic_string<CharT>   file;
+        int                             line;
+    };
+
+    // implementation through raw c string with length
+    template <typename CharT>
     struct DebugFileLine
     {
-        const t_elem *  file;
-        size_t          file_len;
-        int             line;
+        FORCE_INLINE CONSTEXPR_RETURN DebugFileLine(const constexpr_basic_string<CharT> & file_, int line_) :
+            file(file_), line(line_)
+        {
+        }
+
+        constexpr_basic_string<CharT>   file;
+        int                             line;
     };
 
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename>
+    struct TDebugFuncLineA;
+
+    template <char... chars>
+    struct TDebugFuncLineA<utility::value_identities<char, chars...> >
+    {
+        using func_type = tmpl_string<0, chars...>;
+
+        func_type   func;
+        int         line;
+    };
+
+    // implementation through raw c string with length
     struct DebugFuncLineA
     {
-        const char *    func;
-        size_t          func_len;
-        int             line;
+        FORCE_INLINE CONSTEXPR_RETURN DebugFuncLineA(const constexpr_string & func_, int line_) :
+            func(func_), line(line_)
+        {
+        }
+
+        constexpr_string    func;
+        int                 line;
     };
 
-    using DebugFileLineA = DebugFileLine<char>;
-    using DebugFileLineW = DebugFileLine<wchar_t>;
+    // implementation through tmpl_string, single parameter pack
+    template <char... chars>
+    using TDebugFileLineA = TDebugFileLine<utility::value_identities<char, chars...> >;
 
-    template <class t_elem>
+    template <wchar_t... wchars>
+    using TDebugFileLineW = TDebugFileLine<utility::value_identities<wchar_t, wchars...> >;
+
+    // implementation through raw c string with length
+    using DebugFilePathLineA    = DebugFilePathLine<char>;
+    using DebugFilePathLineW    = DebugFilePathLine<wchar_t>;
+
+    using DebugFileLineA        = DebugFileLine<char>;
+    using DebugFileLineW        = DebugFileLine<wchar_t>;
+
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename, typename>
+    struct TDebugFileLineFunc;
+
+    template <typename CharT, CharT... file_tchars, char... func_chars>
+    struct TDebugFileLineFunc<
+        utility::value_identities<CharT, file_tchars...>,
+        utility::value_identities<char, func_chars...>
+    >
+    {
+        using file_type = tmpl_basic_string<0, CharT, file_tchars...>;
+        using func_type = tmpl_string<0, func_chars...>;
+
+        file_type   file;
+        int         line;
+        func_type   func;
+    };
+
+    // implementation through raw c string with offset and length
+    template <typename CharT>
+    struct DebugFilePathLineFunc
+    {
+        FORCE_INLINE CONSTEXPR_RETURN DebugFilePathLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
+            file(file_), line(line_), func(func_)
+        {
+        }
+
+        constexpr_basic_string<CharT>   file;
+        int                             line;
+        constexpr_string                func;
+    };
+
+    template <typename CharT>
     struct DebugFileLineFunc
     {
-        const t_elem *  file;
-        size_t          file_len;
-        int             line;
-        const char *    func;
-        size_t          func_len;
+        FORCE_INLINE CONSTEXPR_RETURN DebugFileLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
+            file(file_), line(line_), func(func_)
+        {
+        }
+
+        constexpr_basic_string<CharT>   file;
+        int                             line;
+        constexpr_string                func;
     };
 
-    using DebugFileLineFuncA = DebugFileLineFunc<char>;
-    using DebugFileLineFuncW = DebugFileLineFunc<wchar_t>;
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename, typename>
+    struct TDebugFileLineFuncA;
+
+    template <char... file_chars, char... func_chars>
+    struct TDebugFileLineFuncA<
+        utility::value_identities<char, file_chars...>,
+        utility::value_identities<char, func_chars...>
+    >
+    {
+        using type = TDebugFileLineFunc<
+            utility::value_identities<char, file_chars...>,
+            utility::value_identities<char, func_chars...>
+        >;
+    };
+
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename, typename>
+    struct TDebugFileLineFuncW;
+
+    template <wchar_t... file_wchars, char... func_chars>
+    struct TDebugFileLineFuncW<
+        utility::value_identities<wchar_t, file_wchars...>,
+        utility::value_identities<char, func_chars...>
+    >
+    {
+        using type = TDebugFileLineFunc<
+            utility::value_identities<wchar_t, file_wchars...>,
+            utility::value_identities<char, func_chars...>
+        >;
+    };
+
+    // implementation through raw c string with length
+    using DebugFilePathLineFuncA    = DebugFilePathLineFunc<char>;
+    using DebugFilePathLineFuncW    = DebugFilePathLineFunc<wchar_t>;
+
+    using DebugFileLineFuncA        = DebugFileLineFunc<char>;
+    using DebugFileLineFuncW        = DebugFileLineFunc<wchar_t>;
 
     // CAUTION:
     //  In some cases (for example, for a logger function calls) the `top` must be constructed from literal strings,
-    //  but there is no way to check it fully uniform and portably!
+    //  but there is no way to check it fully uniform and portably, so allow it be as a raw pointer and a length.
     //
     template <typename T>
     class inline_stack
     {
     public:
-        FORCE_INLINE inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
+        using top_type = T;
+
+        CONSTEXPR_RETURN FORCE_INLINE inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
             next_ptr(next_ptr_), top(top_)
         {
         }
 
-        static FORCE_INLINE inline_stack make(const T & top)
+        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make(const T & top)
         {
             return inline_stack{ top };
         }
 
-        static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
+        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
         {
             return inline_stack{ top, &next_stack };
         }
@@ -112,13 +403,61 @@ namespace tackle
         T                       top;
     };
 
-    using DebugFileLineInlineStackA     = inline_stack<DebugFileLineA>;
-    using DebugFuncLineInlineStackA     = inline_stack<DebugFuncLineA>;
-    using DebugFileLineFuncInlineStackA = inline_stack<DebugFileLineFuncA>;
+    template <char... chars>
+    using TDebugFileLineInlineStackA        = inline_stack<TDebugFileLineA<chars...> >;
 
-    using DebugFileLineInlineStackW     = inline_stack<DebugFileLineW>;
-    //using DebugFuncLineInlineStackW     = inline_stack<DebugFuncLineW>;
-    using DebugFileLineFuncInlineStackW = inline_stack<DebugFileLineFuncW>;
+    template <wchar_t... wchars>
+    using TDebugFileLineInlineStackW        = inline_stack<TDebugFileLineW<wchars...> >;
+
+    template <char... chars>
+    using TDebugFuncLineInlineStackA        = inline_stack<TDebugFuncLineA<utility::value_identities<char, chars...> > >;
+
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename, typename>
+    struct TDebugFileLineFuncInlineStackA;
+
+    template <char... file_chars, char... func_chars>
+    struct TDebugFileLineFuncInlineStackA<
+        utility::value_identities<char, file_chars...>,
+        utility::value_identities<char, func_chars...>
+    >
+    {
+        using type = inline_stack<TDebugFileLineFuncA<
+            utility::value_identities<char, file_chars...>,
+            utility::value_identities<char, func_chars...>
+        > >;
+    };
+
+    // implementation through tmpl_string, multiple parameter packs through the specialization
+    template <typename, typename>
+    struct TDebugFileLineFuncInlineStackW;
+
+    template <wchar_t... file_wchars, char... func_chars>
+    struct TDebugFileLineFuncInlineStackW<
+        utility::value_identities<wchar_t, file_wchars...>,
+        utility::value_identities<char, func_chars...>
+    >
+    {
+        using type = inline_stack<TDebugFileLineFuncW<
+            utility::value_identities<wchar_t, file_wchars...>,
+            utility::value_identities<char, func_chars...>
+        > >;
+    };
+
+    // implementation through raw c string with length
+    using DebugFilePathLineInlineStackA     = inline_stack<DebugFilePathLineA>;
+    using DebugFilePathLineInlineStackW     = inline_stack<DebugFilePathLineW>;
+
+    using DebugFileLineInlineStackA         = inline_stack<DebugFileLineA>;
+    using DebugFileLineInlineStackW         = inline_stack<DebugFileLineW>;
+
+    using DebugFuncLineInlineStackA         = inline_stack<DebugFuncLineA>;
+
+    using DebugFilePathLineFuncInlineStackA = inline_stack<DebugFilePathLineFuncA>;
+    using DebugFilePathLineFuncInlineStackW = inline_stack<DebugFilePathLineFuncW>;
+
+    using DebugFileLineFuncInlineStackA     = inline_stack<DebugFileLineFuncA>;
+    using DebugFileLineFuncInlineStackW     = inline_stack<DebugFileLineFuncW>;
 }
 
 #endif

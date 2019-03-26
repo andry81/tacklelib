@@ -197,11 +197,11 @@ namespace tackle
         using max_aligned_storage_for_std_deques_t      = max_aligned_storage_from_mpl_container<std_deques_mpl_container_t>;
 
     public:
-        static const size_t max_size_value              = utility::static_if
-            <UTILITY_CONST_EXPR(max_aligned_storage_for_tackle_deques_t::max_size_value >= max_aligned_storage_for_std_deques_t::max_size_value)>
+        static CONSTEXPR const size_t max_size_value        = utility::static_if
+            <UTILITY_CONSTEXPR(max_aligned_storage_for_tackle_deques_t::max_size_value >= max_aligned_storage_for_std_deques_t::max_size_value)>
             (max_aligned_storage_for_tackle_deques_t::max_size_value, max_aligned_storage_for_std_deques_t::max_size_value);
-        static const size_t max_alignment_value         = utility::static_if
-            <UTILITY_CONST_EXPR(max_aligned_storage_for_tackle_deques_t::max_alignment_value >= max_aligned_storage_for_std_deques_t::max_alignment_value)>
+        static CONSTEXPR const size_t max_alignment_value   = utility::static_if
+            <UTILITY_CONSTEXPR(max_aligned_storage_for_tackle_deques_t::max_alignment_value >= max_aligned_storage_for_std_deques_t::max_alignment_value)>
             (max_aligned_storage_for_tackle_deques_t::max_alignment_value, max_aligned_storage_for_std_deques_t::max_alignment_value);
 
     private:
@@ -376,7 +376,7 @@ namespace tackle
     {
         return m_iterator_storage.template invoke<ChunkBufferCRef>([&](const auto & chunks_it)
         {
-            return ChunkBufferCRef{ chunks_it->buf, utility::static_size(chunks_it->buf) };
+            return ChunkBufferCRef{ chunks_it->buf, UTILITY_CONSTEXPR_SIZE(chunks_it->buf) };
         });
     }
 

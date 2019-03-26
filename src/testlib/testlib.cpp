@@ -3,7 +3,11 @@
 #include "testlib.hpp"
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#include <windows.h>
+// windows includes must be ordered here!
+#include <windef.h>
+#include <winbase.h>
+#include <winnt.h>
+#include <wincon.h>
 #endif
 
 #include <fmt/format.h>
@@ -30,7 +34,7 @@
         } \
         size_t var_size = 0; \
         char buf[4096] = {0}; \
-        if (!getenv_s(&var_size, buf, utility::static_size(buf), UTILITY_PP_STRINGIZE(var_name))) { \
+        if (!getenv_s(&var_size, buf, UTILITY_CONSTEXPR_SIZE(buf), UTILITY_PP_STRINGIZE(var_name))) { \
             class_name::UTILITY_PP_CONCAT(s_, var_name) = buf; \
             if (!class_name::UTILITY_PP_CONCAT(s_, var_name).empty() && utility::is_path_exists(class_name::UTILITY_PP_CONCAT(s_, var_name), true)) \
                 class_name::UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(s_is_, var_name), _exists) = true; \

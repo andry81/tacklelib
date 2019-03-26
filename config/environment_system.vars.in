@@ -1,0 +1,88 @@
+#%% version: 1
+
+# CAUTION:
+#  In case of usage the QtCreator there is set of special broken cases you have to avoid:
+#  1. Invalid characters in paths: `(`, `)` and `.`.
+#  2. Non english locale in paths.
+
+# CAUTION:
+#  This configuration file is designed to be portable between 3 interpreters: cmake, unix shell scripts, windows (cmd.exe) batch scripts,
+#  so it is made up to be simple as possible but not simplier as to support a single value or a values list
+#  together with an escape sequence, where the character `\` is not an escape sequence character.
+#  Use `$/<char>` to escape a `<char>` character which is a part of a configuration file format:
+#  `"` -> `$/"` or `(` -> `$/(` or `$/` -> `$/$/`
+#  Use `$/{` as a start sequence for a variable's value substitution: `$/{<variable>}`, where `<variable>`
+#  is already parsed variable from configuration file WITHOUT condition(s) or `:` characters. Otherwise a not yet parsed variable or
+#  invalid one will be replaced by the `*$/{<variable>}` sequence to fail the most usage cases in a file path,
+#  where `*` - is not valid character in a windows path and `/` is a character to block a file or directory creation with
+#  such a name on a Linux system (but not a block for `mkdir -p`!).
+#  In all other cases the `$/` sequence prints as is in all contexts: in a cmake script, in a unix shell script and in a
+#  windows batch script.
+
+# CAUTION:
+#  DO NOT USE `@` character pairs unescaped as a plain value as long as it is used as a placehoder in a replacement of `@<variable>@` sequence,
+#  where the `<variable>` is a cmake variable. For that case do replace all `@` characters by this escape sequence: `$/@`.
+#  It will block the substitution in case of an accidental match of `@<variable>@`, where the `<variable>` ends by the `$/` string.
+
+# NOTE:
+#  In a unix shell script a variable name with `:` character is not permitted, so variables with not allowed characters
+#  won't be visible in a windows batch script too.
+
+# FORMAT:
+#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
+#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
+#
+# <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
+# <os_name>:              OS variant name: WIN | UNIX | ...
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<major_ver>[.<minor_ver>]]
+# <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
+# <compiler_token_name>:  <compiler_name>[<compiler_version>]
+# <compiler_name>:        MSVC | GCC | CLANG | ...
+# <compiler_version>:     <major_version>[.<minor_version>]
+# <major_version>:        an integral value corresponding to the regex: [0-9]*
+# <minor_version>:        an integral value corresponding to the regex: [0-9]*
+# <arch_name>:            Architecture variant name: X86 | X64 | ...
+#
+# <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
+#
+
+# PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM THIS FILE:
+#
+# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:     Index in a file paths list from which this file have has an ordered load.
+# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:       Directory path from which this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL:         Current package nest level.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:  Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
+# CMAKE_CURRENT_PACKAGE_NAME:             Current package name this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:       Current package source directory this file being loaded from.
+# CMAKE_TOP_PACKAGE_NAME:                 Top package name.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:           Top package source directory.
+#
+
+CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
+CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX}_$/{CMAKE_CURRENT_PACKAGE_NAME}"
+CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
+CMAKE_BIN_ROOT="$/{CMAKE_OUTPUT_DIR}/bin"
+CMAKE_LIB_ROOT="$/{CMAKE_OUTPUT_DIR}/lib"
+CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install"  # cmake creates the build type subdirectory on itself
+CMAKE_CPACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
+
+#NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
+
+CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
+CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
+
+PROJECT_NAME=tacklelib
+PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
+PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}" # top parent project root in context of parent build
+
+_3DPARTY_GLOBAL_ROOTS_LIST=("d:/3dparty")
+_3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
+_3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
+
+CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel) # list variable
+CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
+
+CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
+CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
+
+CMAKE_GENERATOR:UNIX="Unix Makefiles"
