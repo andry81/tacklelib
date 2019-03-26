@@ -10,10 +10,24 @@
 #include <tacklelib/utility/type_identity.hpp>
 
 
-#define STATIC_ASSERT_PARAM(v1) ::utility::StaticAssertParam<decltype(v1), (v1)>
-#define STATIC_ASSERT_VALUE(v1) STATIC_ASSERT_PARAM(v1)::value
+// static asserts to use in an constexpr expression
+#define STATIC_ASSERT_CONSTEXPR_TRUE(exp)               (void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp)>()
+#define STATIC_ASSERT_CONSTEXPR_FALSE(exp)              (void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp)>()
 
-#define STATIC_ASSERT_TRUE(exp, msg)    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+// NOTE:
+//  The reson this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
+//  To do so we pass parameter values separately into template arguments to trigger a compiler to index them inside compile time error messsages.
+//
+// Example:
+//  STATIC_ASSERT_TRUE2(a != b, a, b, "my custom message"); // types of a and b will be printed in a compiler errors output in case if a == b
+//
+
+#define STATIC_ASSERT_PARAM(v1)                         ::utility::StaticAssertParam<decltype(v1), (v1)>
+#define STATIC_ASSERT_VALUE(v1)                         STATIC_ASSERT_PARAM(v1)::value
+
+#define STATIC_ASSERT_TRUE(exp, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+
 #define STATIC_ASSERT_TRUE1(exp, v1, msg) \
     static_assert(::utility::StaticAssertTrue<decltype(exp), (exp), \
                   STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
@@ -33,7 +47,9 @@
                   STATIC_ASSERT_PARAM(v3), \
                   STATIC_ASSERT_PARAM(v4) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
 
-#define STATIC_ASSERT_FALSE(exp, msg)   static_assert(::utility::StaticAssertFalse<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+#define STATIC_ASSERT_FALSE(exp, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+
 #define STATIC_ASSERT_FALSE1(exp, v1, msg) \
     static_assert(::utility::StaticAssertFalse<decltype(exp), (exp), \
                   STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
@@ -63,6 +79,17 @@
 
 namespace utility
 {
+    // static assert to use in an constexpr expression
+
+    template <bool v>
+    CONSTEXPR_RETURN bool static_assert_constexpr()
+    {
+        static_assert(v, "static_assert_true failed.");
+        return v;
+    }
+
+    // static asserts to use in an statement
+
     template <typename T, T v>
     struct StaticAssertParam
     {
@@ -74,7 +101,9 @@ namespace utility
     template <typename T, T v>
     struct StaticAssertTrue<T, v>
     {
-        static const bool value = (v ? true : false);
+        static CONSTEXPR const bool value = (v ? true : false);
+        // duplicate the error, to provoke compiler include complete error stack from here
+        static_assert(v ? true : false, "StaticAssertTrue failed.");
     };
 
     template <typename T, T v>
@@ -83,7 +112,7 @@ namespace utility
     template <typename T, T v, typename... Params>
     struct StaticAssertTrue
     {
-        static const bool value = (v ? true : false);
+        static CONSTEXPR const bool value = (v ? true : false);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? true : false, "StaticAssertTrue with parameters failed.");
     };
@@ -97,7 +126,9 @@ namespace utility
     template <typename T, T v>
     struct StaticAssertFalse<T, v>
     {
-        static const bool value = (v ? false : true);
+        static CONSTEXPR const bool value = (v ? false : true);
+        // duplicate the error, to provoke compiler include complete error stack from here
+        static_assert(v ? false : true, "StaticAssertFalse failed.");
     };
 
     template <typename T, T v>
@@ -106,7 +137,7 @@ namespace utility
     template <typename T, T v, typename... Params>
     struct StaticAssertFalse
     {
-        static const bool value = (v ? false : true);
+        static CONSTEXPR const bool value = ((void)StaticAssertFalse<T, v>{ "StaticAssertFalse with parameters failed." }, v ? false : true);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(v ? false : true, "StaticAssertFalse with parameters failed.");
     };
@@ -117,7 +148,7 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertEQ
     {
-        static const bool value = (u == v);
+        static CONSTEXPR const bool value = (u == v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u == v, "StaticAssertEQ failed.");
     };
@@ -128,7 +159,7 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertNE
     {
-        static const bool value = (u != v);
+        static CONSTEXPR const bool value = (u != v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u != v, "StaticAssertNE failed.");
     };
@@ -139,7 +170,7 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertLE
     {
-        static const bool value = (u <= v);
+        static CONSTEXPR const bool value = (u <= v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u <= v, "StaticAssertLE failed.");
     };
@@ -150,7 +181,7 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertLT
     {
-        static const bool value = (u < v);
+        static CONSTEXPR const bool value = (u < v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u < v, "StaticAssertLT failed.");
     };
@@ -161,7 +192,7 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertGE
     {
-        static const bool value = (u >= v);
+        static CONSTEXPR const bool value = (u >= v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u >= v, "StaticAssertGE failed.");
     };
@@ -172,26 +203,13 @@ namespace utility
     template <typename U, typename V, U u, V v>
     struct StaticAssertGT
     {
-        static const bool value = (u > v);
+        static CONSTEXPR const bool value = (u > v);
         // duplicate the error, to provoke compiler include complete error stack from here
         static_assert(u > v, "StaticAssertGT failed.");
     };
 
     template <typename U, typename V, U u, V v>
     const bool StaticAssertGT<U, V, u, v>::value;
-
-    // To compare strings in a static assert.
-    // See for details: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time
-    //
-    CONSTEXPR bool static_strings_equal(const char * a, const char * b)
-    {
-        return *a == *b && (*a == '\0' || static_strings_equal(a + 1, b + 1));
-    }
-
-    CONSTEXPR bool static_strings_equal(const wchar_t * a, const wchar_t * b)
-    {
-        return *a == *b && (*a == L'\0' || static_strings_equal(a + 1, b + 1));
-    }
 }
 
 #endif

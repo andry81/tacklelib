@@ -1,0 +1,8 @@
+# command line for the cmake in the `_scripts/*_generate_config.sh` script
+
+-DCMAKE_MODULE_PATH=$PROJECT_ROOT/cmake
+-DCONFIGURE_IN_FILE=$PROJECT_ROOT/config/environment_system.vars.in
+-DCONFIGURE_OUT_FILE=$PROJECT_ROOT/config/environment_system.vars
+-DPROJECT_ROOT=$PROJECT_ROOT
+-P
+$PROJECT_ROOT/cmake/tools/ConfigureFile.cmake

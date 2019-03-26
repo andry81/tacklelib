@@ -15,17 +15,36 @@
 #include <locale>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
+// windows includes must be ordered here!
 #include <windef.h>     // instead of windows.h
-#include <winbase.h>    // for GetLastError
+#include <winbase.h>    // for GetLastError and GetComputerName
+//#include <winnt.h>
 //#include <minwindef.h>  // for DWORD and etc
 //#include <wtypes.h>     // for HWND
 #include <Crtdbg.h>     // for debug stuff
 #include <Winnetwk.h>   // for WNetGetUniversalName()
 #include <Lm.h>         // for NetShareGetInfo()
+#include <Lmcons.h>     // for UNLEN
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
 #include <pystring.h>   // from 3dparty pystring
 #endif
+
+#else
+#include <unistd.h>     // for gethostname/getlogin_r
+#include <limits.h>
+
+#ifndef HOST_NAME_MAX
+#include <netdb.h>      // for the workaround: https://stackoverflow.com/questions/30084116/host-name-max-undefined-after-include-limits-h
+#ifndef HOST_NAME_MAX   // only in case if not yet defined!
+#ifndef MAXHOSTNAMELEN
+// workaround is not applicable
+#error MAXHOSTNAMELEN is not implemented
+#endif
+#define HOST_NAME_MAX   MAXHOSTNAMELEN  // not including null-terminated character!
+#endif
+#endif
+
 #endif
 
 
@@ -382,7 +401,7 @@ namespace {
 
     // From MSDN:
     //  CreateDirectoryA function:
-    //      For the ANSI version of this function, there is a default string size limit for paths of 248 characters(MAX_PATH - enough room for a 8.3 filename).
+    //      For the ANSI version of this function, there is a default string size limit for paths of 248 characters (MAX_PATH - enough room for a 8.3 filename).
     //      To extend this limit to 32,767 wide characters, call the Unicode version of the function and prepend `\\?\` to the path.
     //
 
@@ -1204,7 +1223,7 @@ namespace {
         const auto path_len = path.length();
         if (path_len >= 2) {
             // usual absolute windows path
-            if (path[1] == UTILITY_LITERAL_CHAR(':', t_elem)) {
+            if (path[1] == tackle::literal_separators<t_elem>::colon_char) {
                 path[0] = std::toupper(path[0], loc);
             }
         }
@@ -1224,7 +1243,7 @@ namespace {
         const auto path_len = path.length();
         if (path_len >= 2) {
             // usual absolute windows path
-            if (path[1] == UTILITY_LITERAL_CHAR(':', t_elem)) {
+            if (path[1] == tackle::literal_separators<t_elem>::colon_char) {
                 path[0] = std::toupper(path[0], loc);
             }
             // UNC windows path
@@ -1333,6 +1352,94 @@ namespace {
         return _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
             boost::dll::program_location().parent_path().generic_wstring() :
             boost::dll::program_location().parent_path().wstring(), loc);
+    }
+
+    FORCE_INLINE std::string _get_host_name(utility::tag_string)
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        char buf[MAX_COMPUTERNAME_LENGTH + 1]{ '\0' };
+        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        ::GetComputerNameA(buf, &buf_size);
+        return buf;
+#else
+        char hostname[HOST_NAME_MAX + 1]{ '\0' };
+        gethostname(hostname, HOST_NAME_MAX);
+
+        // from Linux docs:
+        //    gethostname() returns the null-terminated hostname in the character
+        //    array name, which has a length of len bytes. If the null-terminated
+        //    hostname is too large to fit, then the name is truncated, and no
+        //    error is returned(but see NOTES below). POSIX.1 says that if such
+        //    truncation occurs, then it is unspecified whether the returned buffer
+        //    includes a terminating null byte.
+        //
+        // So, we have to set null-terminating character explicitly, just in case!
+        hostname[HOST_NAME_MAX] = '\0';
+
+        return hostname;
+#endif
+    }
+
+    FORCE_INLINE std::wstring _get_host_name(utility::tag_wstring)
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        wchar_t buf[MAX_COMPUTERNAME_LENGTH + 1]{ '\0' };
+        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        ::GetComputerNameW(buf, &buf_size);
+        return buf;
+#else
+        char hostname[HOST_NAME_MAX + 1];
+        gethostname(hostname, HOST_NAME_MAX);
+
+        // from Linux docs:
+        //    gethostname() returns the null-terminated hostname in the character
+        //    array name, which has a length of len bytes. If the null-terminated
+        //    hostname is too large to fit, then the name is truncated, and no
+        //    error is returned(but see NOTES below). POSIX.1 says that if such
+        //    truncation occurs, then it is unspecified whether the returned buffer
+        //    includes a terminating null byte.
+        //
+        // So, we have to set null-terminating character explicitly, just in case!
+        hostname[HOST_NAME_MAX] = '\0';
+
+        return utility::convert_string_to_string(hostname, utility::tag_wstring);
+#endif
+    }
+
+    FORCE_INLINE std::string _get_user_name(utility::tag_string)
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        char buf[UNLEN + 1]{ '\0' };
+        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        ::GetUserNameA(buf, &buf_size);
+        return buf;
+#else
+        char username[LOGIN_NAME_MAX + 1]{ '\0' };
+        getlogin_r(username, LOGIN_NAME_MAX);
+
+        // just in case!
+        username[LOGIN_NAME_MAX] = '\0';
+
+        return username;
+#endif
+    }
+
+    FORCE_INLINE std::wstring _get_user_name(utility::tag_wstring)
+    {
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        wchar_t buf[UNLEN + 1]{ '\0' };
+        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        ::GetUserNameW(buf, &buf_size);
+        return buf;
+#else
+        char username[LOGIN_NAME_MAX + 1]{ '\0' };
+        getlogin_r(username, LOGIN_NAME_MAX);
+
+        // just in case!
+        username[LOGIN_NAME_MAX] = '\0';
+
+        return utility::convert_string_to_string(username, utility::tag_wstring);
+#endif
     }
 
 }
@@ -2364,5 +2471,65 @@ namespace {
         return std::regex_replace(std::move(path), std::wregex{ L"(\\.+\\\\)+" }, L"");
     }
 #endif
+
+    std::string get_host_name(utility::tag_string t, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = _get_host_name(t);
+            return s_cached_name;
+        }
+
+        return _get_host_name(t);
+    }
+
+    std::wstring get_host_name(utility::tag_wstring t, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = _get_host_name(t);
+            return s_cached_name;
+        }
+
+        return _get_host_name(t);
+    }
+
+    std::string get_user_name(utility::tag_string t, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = _get_user_name(t);
+            return s_cached_name;
+        }
+
+        return _get_user_name(t);
+    }
+
+    std::wstring get_user_name(utility::tag_wstring t, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = _get_user_name(t);
+            return s_cached_name;
+        }
+
+        return _get_user_name(t);
+    }
+
+    std::string get_module_file_name(utility::tag_string, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = boost::dll::program_location().filename().string();
+            return s_cached_name;
+        }
+
+        return std::move(boost::dll::program_location().filename().string());
+    }
+
+    std::wstring get_module_file_name(utility::tag_wstring, bool cached)
+    {
+        if (cached) {
+            static const auto s_cached_name = boost::dll::program_location().filename().wstring();
+            return s_cached_name;
+        }
+
+        return std::move(boost::dll::program_location().filename().wstring());
+    }
 
 }

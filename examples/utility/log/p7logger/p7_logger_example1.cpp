@@ -10,9 +10,6 @@
 #include <tacklelib/tackle/path_string.hpp>
 
 
-// workaround for the bug in v4.7 around __FILE__/__LINE__ caching
-#define P7_LOG_BASE_ID                          1024
-
 inline void boo(tackle::log_handle & log_handle)
 {
     DEBUG_ASSERT_TRUE(log_handle.is_kind_of(tackle::p7_trace_log_handle::static_type_index()));
@@ -20,7 +17,7 @@ inline void boo(tackle::log_handle & log_handle)
     auto log_trace_handle = dynamic_cast<tackle::p7_trace_log_handle &>(log_handle);
 
     // do some logging
-    LOG_P7_LOGM_INFO(log_trace_handle, P7_LOG_BASE_ID, "%s", "blabla...\nblabla");
+    LOG_P7M_CFMT_INFO(log_trace_handle, LOG_P7_DEFAULT_MODULE, LOG_P7_BASE_ID, "%s", "blabla...\nblabla");
 }
 
 inline void foo(tackle::log_handle & log_handle)

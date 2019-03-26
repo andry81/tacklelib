@@ -8,8 +8,10 @@
 
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
+#include <tacklelib/utility/addressof.hpp>
 
 #include <type_traits>
+#include <utility>
 
 
 #define TACKLE_STATIC_CONSTEXPR_VALUE_WITH_ARGS(type_name, ...) \
@@ -38,7 +40,7 @@ namespace tackle
 
     public:
         // CAUTION:
-        //  This typename has not much sense here because rvalue does not has any address and
+        //  This typename has not much sense here because rvalue does not have any address and
         //  GCC compiler would show the address of a value returned by the construct_get function as `(nul)`!
         //  The only reason it has to exist is to avoid additional compilation errors on instantiation
         //  of such ill-formed pointers.
@@ -51,7 +53,7 @@ namespace tackle
         template <typename... Args>
         static FORCE_INLINE CONSTEXPR_RETURN T construct_get(Args &&... args)
         {
-            return T{ args... };
+            return T{ std::forward<decltype(args)>(args)... };
         }
     };
 
@@ -69,10 +71,10 @@ namespace tackle
         using reference_type    = typename std::conditional<is_const_type_v, const unconst_type &, unconst_type &>::type;
 
         template <typename... Args>
-        static FORCE_INLINE T & construct_get(Args &&... args)
+        static FORCE_INLINE CONSTEXPR_RETURN T & construct_get(Args &&... args) // specialization must be constexpr too
         {
-            static T value{ args... };
-            return value;
+            // workaround for: `error C2134: 'tackle::static_constexpr_value<...,false>::construct_get': call does not result in a constant expression`
+            return utility::construct_static_as<T>(std::forward<decltype(args)>(args)...);
         }
     };
 }

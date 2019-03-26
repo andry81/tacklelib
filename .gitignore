@@ -1,5 +1,6 @@
 /CMakeLists.txt.user
 /_out
+config/*.vars
 /environment_local.cmake
 /environment_local.vars
 include/tacklelib/debug.hpp

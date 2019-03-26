@@ -2,12 +2,15 @@
 #include <tacklelib/utility/platform.hpp>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#include <windows.h>
+// windows includes must be ordered here!
+#include <windef.h>
+#include <winbase.h>
+//#include <winnt.h>
 #include <intrin.h>
 #elif defined(UTILITY_PLATFORM_POSIX)
 #include <sys/ptrace.h>
 #include <signal.h>
-static void signal_handler(int) { }
+//static void signal_handler(int) { }
 #else
 #error is_under_debugger is not supported for this platform
 #endif

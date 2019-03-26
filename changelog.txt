@@ -1,3 +1,73 @@
+2019.0X.XX:
+* new: tests: tmpl_string unit tests
+
+2019.03.26:
+* new: utility/log: added fmt::fmt usage into p7 logger preformat routines
+* refactor: utility/log: renamed PROJECT_ROOT macro to LOG_SRC_ROOT as more specialized version
+
+2019.03.25:
+* refactor: utility/log: p7 logger full refactored envolving usage of tmpl_basic_string and constexpr_basic_string classes
+
+2019.03.22:
+* refactor: tmpl_basic_string class refactor
+* refactor: constexpr_basic_string class refactor
+
+2019.03.20:
+* fixed: scripts/tools: fix in the `set_vars_from_locked_file_pair.sh` for the back compatability with a bash version lower than `bash-4.2-alpha`
+* fixed: scripts: fix in the `bash_entry` to run in the Cygwin 1.5.x and Linux
+
+2019.03.19:
+* fixed: scripts: fix in the `02_generate_config.sh` to run under cygwin 1.5.x in bash version 3.2.48(21)-release (i686-pc-cygwin)
+
+2019.03.19:
+* fixed: cmake: rewrited and simplified `discover_builtin_variables` function to make discovery only if all 3 or 2 storages are the same (either ENV+cache+not cache or cache+not cache), in all other casees cache and not cache variable values makes the same
+
+2019.03.14:
+* new: scripts: build scripts completely rewritered
+* new: cmake: new modules to support transparent configure and build from scripts and IDE
+* new: readme rewrited
+* new: config: all configuration files being called from scritps or cmake are moved into `config` subdirectory
+* changed: cmake,config: global redesign/refactor around cmake configuration files: all cmake (`*.cmake`) configuration failes converted into `*.vars` files and now has common format between 3 targets: cmake, unix shell scripts and windows batch scripts (has been wrote standalone cmake parser + windows/unix shell parent process variables loaders)
+
+2019.03.05:
+* changed: continue to refactor of the build system and sources
+
+2019.02.20:
+* new: cmake: `load_vars_from_file`/`set_vars_from_file`/`set_multigen_vars_from_lists` (SetVarsFromFile.cmake) functions to load configuration variables from standalone configuration file with support of single/list values, inline conditions, substitutions and character escaping
+* new: cmake: `copy_variables` (Std.cmake) function to copy parent scope variables into 2 arbitrary lists with names and values
+* refactor: utility: const_expr/CONST_EXPR renamed into constexpr_bool/CONSTEXPR
+
+2019.02.07:
+* new: tackle: constexpr_string class for compile-time string pointer and string size
+* new: tackle: tmpl_string class to store string as a template sequence of characters convertible back to character array representation with static storage duaration and much more
+* refactor: utility: global refactor
+
+2019.01.31:
+* fixed: utility: incorrect UTILITY_LITERAL_STRING_LEN macro
+* refactor: utility: added explicit function overloading for static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&) arguments
+* refactor: utility: moderate refactor
+
+2019.01.30:
+* new: utility: uninitialized char struct to construct big std::vector arrays w/o waste on initialization time
+* new: utility: get_host_name/get_user_name/get_module_name functions
+* new: utility: locale strings convertion directly from a static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&)
+* minor refactor
+
+2019.01.28:
+* refactor: utility/log: p7 logger macroses reworked
+
+2019.01.28:
+* fixed: utility: static_if usage around an array type returning by value
+
+2019.01.28:
+* fixed: utility: UTILITY_IS_CONSTEXPR_VALUE in clang compiler
+* new: utility: UTILITY_CONSTEXPR_SIZE macro to evaluate in compile time only context, when UTILITY_STATIC_SIZE can evaluate in both compile time and runtime contexts
+* new: utility: DEBUG_FILE_NAME_* macroses to insert source file name calculated from source file path in compile time
+
+2019.01.26:
+* new: utility: string_format overloads for a reference to character array
+* minor changes, code cleanup
+
 2019.01.23:
 * new: tackle: UTILITY_IS_ARRAY_STRING/UTILITY_IS_LITERAL_STRING/UTILITY_IS_LITERAL_STRING_WITH_PREFIX/UTILITY_IS_CONSTEXPR_STRING macroses
 * new: utility: UTILITY_CONST_EXPR_VALUE macro
@@ -67,7 +137,7 @@
 * new: `get_target_link_libraries_recursively` function
 
 2018.12.06:
-* new: uniform pi-constant getter function - `math:pi`
+* new: uniform pi-constant getter function - `math::pi`
 * refactor: global includes refactor
 
 2018.12.05:

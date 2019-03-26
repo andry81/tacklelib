@@ -1,0 +1,19 @@
+2019.03.20:
+* fixed: tools: fix in the `set_vars_from_locked_file_pair.sh` for the back compatability with a bash version lower than `bash-4.2-alpha`
+* fixed: fix in the `bash_entry` to run in the Cygwin 1.5.x and Linux
+* changed: minor readme update
+
+2019.03.19:
+* fixed: fix in the `02_generate_config.sh` to run under cygwin 1.5.x in bash version 3.2.48(21)-release (i686-pc-cygwin)
+
+2019.03.18:
+* fixed: configure in cygwin/Linux
+
+2019.03.14:
+* changed: scripts global redesign end
+
+2019.02.09:
+* changed: scripts global redesign start
+
+2019.02.08:
+* new: separate changelog for scripts

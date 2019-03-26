@@ -953,11 +953,11 @@ namespace math
 
         // uniform pi calculation logic
         template <size_t variant_index>
-        struct pi;
+        struct _pi;
 
         // by value signature
         template <typename FuncScopeType, typename FuncRetType, typename DataType>
-        using pi_by_value_t =
+        using _pi_by_value_t =
             typename std::conditional<check_type_pi_static_func_variant_0<FuncScopeType, FuncRetType()>::value,
                 utility::size_identity<0>,
                 typename std::conditional<check_type_pi_static_func_variant_1<FuncScopeType, FuncRetType()>::value,
@@ -979,7 +979,7 @@ namespace math
             >::type;
 
         template <typename FuncScopeType, typename FuncRetType, typename DataType>
-        using pi_by_const_reference_t =
+        using _pi_by_const_reference_t =
             typename std::conditional<check_type_pi_static_func_variant_0<FuncScopeType, const FuncRetType &()>::value,
                 utility::size_identity<0>,
                 typename std::conditional<check_type_pi_static_func_variant_1<FuncScopeType, const FuncRetType &()>::value,
@@ -1001,13 +1001,13 @@ namespace math
             >::type;
 
         template <typename FuncScopeType, typename FuncRetType, typename DataType>
-        using pi_t =
+        using _pi_t =
             typename std::conditional<
                 std::is_class<FuncScopeType>::value,
                 typename std::conditional<
-                    pi_by_value_t<FuncScopeType, FuncRetType, DataType>::value != size_max,
-                    utility::size_identity<pi_by_value_t<FuncScopeType, FuncRetType, DataType>::value>,
-                    utility::size_identity<pi_by_const_reference_t<FuncScopeType, FuncRetType, DataType>::value>
+                    _pi_by_value_t<FuncScopeType, FuncRetType, DataType>::value != size_max,
+                    utility::size_identity<_pi_by_value_t<FuncScopeType, FuncRetType, DataType>::value>,
+                    utility::size_identity<_pi_by_const_reference_t<FuncScopeType, FuncRetType, DataType>::value>
                 >::type,
                 utility::size_identity<size_max>
             >::type;
@@ -1016,7 +1016,7 @@ namespace math
         // Based on: https://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c/1728959
         //
         template <>
-        struct pi<size_max>
+        struct _pi<size_max>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1027,7 +1027,7 @@ namespace math
         };
 
         template <>
-        struct pi<0>
+        struct _pi<0>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1038,7 +1038,7 @@ namespace math
         };
 
         template <>
-        struct pi<1>
+        struct _pi<1>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1049,7 +1049,7 @@ namespace math
         };
 
         template <>
-        struct pi<2>
+        struct _pi<2>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1060,7 +1060,7 @@ namespace math
         };
 
         template <>
-        struct pi<100>
+        struct _pi<100>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1071,7 +1071,7 @@ namespace math
         };
 
         template <>
-        struct pi<101>
+        struct _pi<101>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1082,7 +1082,7 @@ namespace math
         };
 
         template <>
-        struct pi<102>
+        struct _pi<102>
         {
             template <typename T>
             static CONSTEXPR_RETURN auto get(const T & = T()) ->
@@ -1096,19 +1096,19 @@ namespace math
     // uniform pi-constant getter
     template <typename T>
     FORCE_INLINE CONSTEXPR_RETURN auto pi(const T & v = T()) ->
-        decltype(detail::pi<detail::pi_t<T, T, T>::value>::get(v))
+        decltype(detail::_pi<detail::_pi_t<T, T, T>::value>::get(v))
     {
-        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(T, detail::pi<detail::pi_t<T, T, T>::value>::get(v));
+        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(T, detail::_pi<detail::_pi_t<T, T, T>::value>::get(v));
     }
 
     FORCE_INLINE CONSTEXPR_RETURN float pi(float v = float())
     {
-        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(float, detail::pi<detail::pi_t<float, float, float>::value>::get(v));
+        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(float, detail::_pi<detail::_pi_t<float, float, float>::value>::get(v));
     }
 
     FORCE_INLINE CONSTEXPR_RETURN double pi(double v = double())
     {
-        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(double, detail::pi<detail::pi_t<double, double, double>::value>::get(v));
+        return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(double, detail::_pi<detail::_pi_t<double, double, double>::value>::get(v));
     }
 
     template <typename T>

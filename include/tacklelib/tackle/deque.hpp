@@ -211,7 +211,7 @@ namespace tackle
         {
             DEBUG_ASSERT_TRUE(ptr);
             DEBUG_ASSERT_TRUE(count);
-            if (!UTILITY_CONST_EXPR(std::is_trivially_copyable<T_>::value)) {
+            if (!UTILITY_CONSTEXPR(std::is_trivially_copyable<T_>::value)) {
                 for (std::size_t i = 0; i < count; ++i) {
                     alloc.construct(&ptr[head_index + i], std::forward<Args>(args)...);
                 }
@@ -237,7 +237,7 @@ namespace tackle
         template<typename T_, typename Allocator, typename... Args>
         static FORCE_INLINE void destruct_items(Allocator alloc, T_ * ptr, size_type0 count)
         {
-            if (!UTILITY_CONST_EXPR(std::is_trivially_copyable<T_>::value)) {
+            if (!UTILITY_CONSTEXPR(std::is_trivially_copyable<T_>::value)) {
                 std::size_t i = DEBUG_VERIFY_TRUE(count);
                 do {
                     --i;

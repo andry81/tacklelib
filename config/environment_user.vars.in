@@ -1,0 +1,114 @@
+#%% version: 1
+
+# CAUTION:
+#  In case of usage the QtCreator there is set of special broken cases you have to avoid:
+#  1. Invalid characters in paths: `(`, `)` and `.`.
+#  2. Non english locale in paths.
+
+# CAUTION:
+#  This configuration file is designed to be portable between 3 interpreters: cmake, unix shell scripts, windows (cmd.exe) batch scripts,
+#  so it is made up to be simple as possible but not simplier as to support a single value or a values list
+#  together with an escape sequence, where the character `\` is not an escape sequence character.
+#  Use `$/<char>` to escape a `<char>` character which is a part of a configuration file format:
+#  `"` -> `$/"` or `(` -> `$/(` or `$/` -> `$/$/`
+#  Use `$/{` as a start sequence for a variable's value substitution: `$/{<variable>}`, where `<variable>`
+#  is already parsed variable from configuration file WITHOUT condition(s) or `:` characters. Otherwise a not yet parsed variable or
+#  invalid one will be replaced by the `*$/{<variable>}` sequence to fail the most usage cases in a file path,
+#  where `*` - is not valid character in a windows path and `/` is a character to block a file or directory creation with
+#  such a name on a Linux system (but not a block for `mkdir -p`!).
+#  In all other cases the `$/` sequence prints as is in all contexts: in a cmake script, in a unix shell script and in a
+#  windows batch script.
+
+# CAUTION:
+#  DO NOT USE `@` character pairs unescaped as a plain value as long as it is used as a placehoder in a replacement of `@<variable>@` sequence,
+#  where the `<variable>` is a cmake variable. For that case do replace all `@` characters by this escape sequence: `$/@`.
+#  It will block the substitution in case of an accidental match of `@<variable>@`, where the `<variable>` ends by the `$/` string.
+
+# NOTE:
+#  In a unix shell script a variable name with `:` character is not permitted, so variables with not allowed characters
+#  won't be visible in a windows batch script too.
+
+# FORMAT:
+#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
+#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
+#
+# <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
+# <os_name>:              OS variant name: WIN | UNIX | ...
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<major_ver>[.<minor_ver>]]
+# <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
+# <compiler_token_name>:  <compiler_name>[<compiler_version>]
+# <compiler_name>:        MSVC | GCC | CLANG | ...
+# <compiler_version>:     <major_version>[.<minor_version>]
+# <major_version>:        an integral value corresponding to the regex: [0-9]*
+# <minor_version>:        an integral value corresponding to the regex: [0-9]*
+# <arch_name>:            Architecture variant name: X86 | X64 | ...
+#
+# <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
+#
+
+# PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM THIS FILE:
+#
+# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:     Index in a file paths list from which this file have has an ordered load.
+# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:       Directory path from which this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL:         Current package nest level.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:  Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
+# CMAKE_CURRENT_PACKAGE_NAME:             Current package name this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:       Current package source directory this file being loaded from.
+# CMAKE_TOP_PACKAGE_NAME:                 Top package name.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:           Top package source directory.
+#
+
+# to enable Mingw GCC compiler
+#MINGW:WIN=ON
+
+CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
+
+BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0"
+Boost_ARCHITECTURE:UNIX="-x86" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+
+# log
+LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client"
+
+# arc
+ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive"
+# cache is required here to override cache variables
+bool cache ENABLE_LZMA=1
+bool cache ENABLE_TAR=0
+bool cache ENABLE_CPIO=0
+bool cache ENABLE_CAT=0
+bool cache ENABLE_TEST=0
+bool cache ENABLE_COVERAGE=0
+bool cache ENABLE_INSTALL=0
+
+ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xz"
+cache LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
+
+# FindLibLZMA implementation does not support multi target libraries
+
+cache LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
+cache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
+
+bool LIBLZMA_HAS_AUTO_DECODER=1
+bool LIBLZMA_HAS_EASY_ENCODER=1
+bool LIBLZMA_HAS_LZMA_PRESET=1
+
+ARC_7ZIP_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/7zip"
+
+# test
+
+GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
+
+# math
+
+QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd"
+
+bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
+bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map double to qd_real inside sat libraries
+
+# utility
+
+TACKLELIB_LINK_TYPE="dynamic"
+TACKLELIB_ADDRESS_MODEL="32"
+
+UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt"
+UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring"

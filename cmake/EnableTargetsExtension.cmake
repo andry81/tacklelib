@@ -5,6 +5,15 @@ set(ENABLE_TARGETS_EXTENSION_INCLUDE_DEFINED 1)
 include(Common)
 include(ForwardVariables)
 
+# INFO:
+#   Detected inconsistency in multiple 3dparty projects, like fmt and libarchive, after call to add_subdirectory and others:
+#   fmt: https://github.com/fmtlib/fmt/issues/1081
+#   libarchive: https://github.com/libarchive/libarchive/issues/1163
+#   Has added the check to test several most important shared variables on inconsistent change from child projects to stop this
+#   bullshit at early pass!
+#
+
+
 if (NOT ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
   # much faster, but builtin variables ARGx are emulated here
 
@@ -18,10 +27,16 @@ if (NOT ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
 
   macro(add_custom_target_invoker)
     _add_custom_target(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
   endmacro()
 
   macro(add_subdirectory_invoker)
     _add_subdirectory(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
   endmacro()
 
   macro(add_target_subdirectory_invoker)
@@ -35,6 +50,9 @@ if (NOT ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     _add_subdirectory(${ARGV}) # DOES NOT CHANGE ARGVn arguments!
     add_subdirectory_end(${ARGV})
     end_emulate_shift_argv_arguments()
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
   endmacro()
 
   macro(find_package_invoker)
@@ -46,6 +64,9 @@ if (NOT ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #begin_emulate_shift_argv_arguments(${ARGV})
     _find_package(${ARGV})
     #end_emulate_shift_argv_arguments()
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
   endmacro()
 else()
   # slower, but builtin variables ARGx can be controlled here through the variable forwarding logic
@@ -57,7 +78,7 @@ else()
   function(add_library_invoker)
     # Now ARGx built-in variables would be related to the add_library_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
-    # But now we have to propogate all changed variables here into upper context by ourselves!
+    # But now we have to propagate all changed variables here into upper context by ourselves!
     begin_track_variables()
     _add_library(${ARGV})
     forward_changed_variables_to_parent_scope()
@@ -67,7 +88,7 @@ else()
   function(add_executable_invoker)
     # Now ARGx built-in variables would be related to the add_executable_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
-    # But now we have to propogate all changed variables here into upper context by ourselves!
+    # But now we have to propagate all changed variables here into upper context by ourselves!
     begin_track_variables()
     _add_executable(${ARGV})
     forward_changed_variables_to_parent_scope()
@@ -77,9 +98,13 @@ else()
   function(add_custom_target_invoker)
     # Now ARGx built-in variables would be related to the add_custom_target_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
-    # But now we have to propogate all changed variables here into upper context by ourselves!
+    # But now we have to propagate all changed variables here into upper context by ourselves!
     begin_track_variables()
     _add_custom_target(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
+
     forward_changed_variables_to_parent_scope()
     end_track_variables()
   endfunction()
@@ -87,15 +112,23 @@ else()
   macro(add_target_subdirectory_invoker)
     add_subdirectory_begin(${ARGV})
     add_subdirectory_invoker(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
+
     add_subdirectory_end(${ARGV})
   endmacro()
 
   function(add_subdirectory_invoker)
     # Now ARGx built-in variables would be related to the add_subdirectory_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
-    # But now we have to propogate all changed variables here into upper context by ourselves!
+    # But now we have to propagate all changed variables here into upper context by ourselves!
     begin_track_variables()
     _add_subdirectory(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
+
     forward_changed_variables_to_parent_scope()
     end_track_variables()
   endfunction()
@@ -103,9 +136,13 @@ else()
   function(find_package_invoker)
     # Now ARGx built-in variables would be related to the find_package_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
-    # But now we have to propogate all changed variables here into upper context by ourselves!
+    # But now we have to propagate all changed variables here into upper context by ourselves!
     begin_track_variables()
     _find_package(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    check_global_variables_consistency()
+
     forward_changed_variables_to_parent_scope()
     end_track_variables()
   endfunction()

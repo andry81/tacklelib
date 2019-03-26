@@ -21,53 +21,53 @@ namespace tackle
     template <class T0, class T1>
     class compressed_pair;
 
-    namespace details
+    namespace detail
     {
         template <class T0, class T1, bool t_is_same, bool t_is_first_empty, bool t_is_second_empty>
-        struct compressed_pair_selector;
+        struct _compressed_pair_selector;
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, false, false, false>
+        struct _compressed_pair_selector<T0, T1, false, false, false>
         {
             static const std::size_t value = 0; // T0 and T1 can not be compressed or should not be compressed
         };
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, false, true, true>
+        struct _compressed_pair_selector<T0, T1, false, true, true>
         {
             static const std::size_t value = 3; // T0 and T1 can be compressed and may has same addresses: &x.first() == &x.second()
         };
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, false, true, false>
+        struct _compressed_pair_selector<T0, T1, false, true, false>
         {
             static const std::size_t value = 1; // only T0 can be compressed or T0 and T1 can be compressed but should has different addresses: &x.first() != &x.second()
         };
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, false, false, true>
+        struct _compressed_pair_selector<T0, T1, false, false, true>
         {
             static const std::size_t value = 2; // only T1 can be compressed or T0 and T1 can be compressed but should has different addresses: &x.first() != &x.second()
         };
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, true, true, true>
+        struct _compressed_pair_selector<T0, T1, true, true, true>
         {
             static const std::size_t value = 1; // only T0 can be compressed or T0 and T1 can be compressed but should has different addresses: &x.first() != &x.second()
         };
 
         template <class T0, class T1>
-        struct compressed_pair_selector<T0, T1, true, false, false>
+        struct _compressed_pair_selector<T0, T1, true, false, false>
         {
             static const std::size_t value = 0; // T0 and T1 can not be compressed or should not be compressed
         };
 
-        template <class T0, class T1, std::size_t instance_index> class compressed_pair_imp;
+        template <class T0, class T1, std::size_t instance_index> class _compressed_pair_impl;
 
         // T0 and T1 can not be compressed or should not be compressed
 
         template <class T0, class T1>
-        class compressed_pair_imp<T0, T1, 0>
+        class _compressed_pair_impl<T0, T1, 0>
         {
         public:
             using first_type                = T0;
@@ -79,21 +79,21 @@ namespace tackle
             using first_const_reference     = typename utility::call_traits<first_type>::const_reference;
             using second_const_reference    = typename utility::call_traits<second_type>::const_reference;
 
-            FORCE_INLINE compressed_pair_imp()
+            FORCE_INLINE _compressed_pair_impl()
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x, second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x, second_param_type y) :
                 first_(x), second_(y)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x) :
                 first_(x)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(second_param_type y) :
                 second_(y)
             {
             }
@@ -132,7 +132,7 @@ namespace tackle
         // only T0 can be compressed or T0 and T1 can be compressed but should has different addresses: &x.first() != &x.second()
 
         template <class T0, class T1>
-        class compressed_pair_imp<T0, T1, 1> :
+        class _compressed_pair_impl<T0, T1, 1> :
             protected std::remove_cv<T0>::type
         {
         public:
@@ -147,21 +147,21 @@ namespace tackle
             using first_const_reference     = typename utility::call_traits<first_type>::const_reference;
             using second_const_reference    = typename utility::call_traits<second_type>::const_reference;
 
-            FORCE_INLINE compressed_pair_imp()
+            FORCE_INLINE _compressed_pair_impl()
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x, second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x, second_param_type y) :
                 base_type(x), second_(y)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x) :
                 base_type(x)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(second_param_type y) :
                 second_(y)
             {
             }
@@ -199,7 +199,7 @@ namespace tackle
         // only T1 can be compressed or T0 and T1 can be compressed but should has different addresses: &x.first() != &x.second()
 
         template <class T0, class T1>
-        class compressed_pair_imp<T0, T1, 2> :
+        class _compressed_pair_impl<T0, T1, 2> :
             protected std::remove_cv<T1>::type
         {
         public:
@@ -214,21 +214,21 @@ namespace tackle
             using first_const_reference     = typename utility::call_traits<first_type>::const_reference;
             using second_const_reference    = typename utility::call_traits<second_type>::const_reference;
 
-            FORCE_INLINE compressed_pair_imp()
+            FORCE_INLINE _compressed_pair_impl()
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x, second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x, second_param_type y) :
                 base_type(y), first_(x)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x) :
                 first_(x)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(second_param_type y) :
                 base_type(y)
             {
             }
@@ -266,7 +266,7 @@ namespace tackle
         // T0 and T1 can be compressed and may has same addresses: &x.first() == &x.second()
 
         template <class T0, class T1>
-        class compressed_pair_imp<T0, T1, 3> :
+        class _compressed_pair_impl<T0, T1, 3> :
             protected std::remove_cv<T0>::type,
             protected std::remove_cv<T1>::type
         {
@@ -283,21 +283,21 @@ namespace tackle
             using first_const_reference     = typename utility::call_traits<first_type>::const_reference;
             using second_const_reference    = typename utility::call_traits<second_type>::const_reference;
 
-            FORCE_INLINE compressed_pair_imp()
+            FORCE_INLINE _compressed_pair_impl()
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x, second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x, second_param_type y) :
                 base_type0(x), base_type1(y)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(first_param_type x) :
+            FORCE_INLINE _compressed_pair_impl(first_param_type x) :
                 base_type0(x)
             {
             }
 
-            FORCE_INLINE compressed_pair_imp(second_param_type y) :
+            FORCE_INLINE _compressed_pair_impl(second_param_type y) :
                 base_type1(y)
             {
             }
@@ -331,7 +331,7 @@ namespace tackle
 
     template <class T0, class T1>
     class compressed_pair :
-        private details::compressed_pair_imp<T0, T1, details::compressed_pair_selector<
+        private detail::_compressed_pair_impl<T0, T1, detail::_compressed_pair_selector<
             T0,
             T1,
             std::is_same<typename std::remove_cv<T0>::type, typename std::remove_cv<T1>::type>::value,
@@ -340,7 +340,7 @@ namespace tackle
         >
     {
     private:
-        using base_type = details::compressed_pair_imp<T0, T1, details::compressed_pair_selector<
+        using base_type = detail::_compressed_pair_impl<T0, T1, detail::_compressed_pair_selector<
             T0,
             T1,
             std::is_same<typename std::remove_cv<T0>::type, typename std::remove_cv<T1>::type>::value,
@@ -406,7 +406,7 @@ namespace tackle
 
     template <class T>
     class compressed_pair<T, T> :
-        private details::compressed_pair_imp<T, T, details::compressed_pair_selector<
+        private detail::_compressed_pair_impl<T, T, detail::_compressed_pair_selector<
             T,
             T,
             std::is_same<typename std::remove_cv<T>::type, typename std::remove_cv<T>::type>::value,
@@ -415,7 +415,7 @@ namespace tackle
         >
     {
     private:
-       using base_type = details::compressed_pair_imp<T, T, details::compressed_pair_selector<
+       using base_type = detail::_compressed_pair_impl<T, T, detail::_compressed_pair_selector<
             T,
             T,
             std::is_same<typename std::remove_cv<T>::type, typename std::remove_cv<T>::type>::value,

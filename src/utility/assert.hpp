@@ -12,6 +12,7 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/debug.hpp>
 
 #if !defined(GTEST_INCLUDE_FROM_EXTERNAL)
@@ -585,7 +586,7 @@
 
 #define ASSERT_VERIFY_ENABLED 0
 
-#define IF_ASSERT_VERIFY_ENABLED(x) if(false)
+#define IF_ASSERT_VERIFY_ENABLED(x) if(UTILITY_CONSTEXPR(false))
 
 #else
 
@@ -617,7 +618,7 @@
 
 #define ASSERT_VERIFY_ENABLED DEBUG_ASSERT_VERIFY_ENABLED
 
-#define IF_ASSERT_VERIFY_ENABLED(x) IF_DEBUG_ASSERT_VERIFY_ENABLED(x)
+#define IF_ASSERT_VERIFY_ENABLED(x) IF_DEBUG_ASSERT_VERIFY_ENABLED(UTILITY_CONSTEXPR(x))
 
 #elif defined(UNIT_TESTS)
 
@@ -645,7 +646,7 @@
 
 #define ASSERT_VERIFY_ENABLED 1
 
-#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+#define IF_ASSERT_VERIFY_ENABLED(x) if(UTILITY_CONSTEXPR(x))
 
 #else
 
@@ -671,7 +672,7 @@
 
 #define ASSERT_VERIFY_ENABLED 1
 
-#define IF_ASSERT_VERIFY_ENABLED(x) if(x)
+#define IF_ASSERT_VERIFY_ENABLED(x) if(UTILITY_CONSTEXPR(x))
 
 #endif
 
@@ -699,7 +700,7 @@
 
 #define ASSERT_VERIFY_ENABLED 0
 
-#define IF_ASSERT_VERIFY_ENABLED(x) if(false)
+#define IF_ASSERT_VERIFY_ENABLED(x) if(UTILITY_CONSTEXPR(false))
 
 #endif
 

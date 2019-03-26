@@ -8,18 +8,19 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
-#include <tacklelib/utility/static_assert.hpp> // required here only for UTILITY_STATIC_PARAM_LOOKUP_BY_ERROR macro
+#include <tacklelib/utility/static_assert.hpp> // required here only for UTILITY_CONSTEXPR_PARAM_LOOKUP_BY_ERROR macro
 
 #include <cstdint>
 #include <type_traits>
 #include <tuple>
 
 
-// to suppress warnings around compile time expressions or values
-#define UTILITY_CONST_EXPR(exp) ::utility::const_expr<(exp) ? true : false>::value
+// * to suppress warnings around compile time expressions or values
+// * to guarantee compile-timeness of an expression
+#define UTILITY_CONSTEXPR(exp)                          ::utility::constexpr_bool<(exp) ? true : false>::value
 
 // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
-#define UTILITY_CONST_EXPR_VALUE(exp) ::utility::const_expr_value<decltype(exp), exp>::value
+#define UTILITY_CONSTEXPR_VALUE(exp)                    ::utility::constexpr_value<decltype(exp), exp>::value
 
 // generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
 #define UTILITY_TYPENAME_LOOKUP_BY_ERROR(type_name) \
@@ -39,39 +40,45 @@
 #endif
 
 // lookup compile time template typename value
-#define UTILITY_STATIC_PARAM_LOOKUP_BY_ERROR(static_param) \
-    UTILITY_TYPENAME_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(static_param))
+#define UTILITY_CONSTEXPR_PARAM_LOOKUP_BY_ERROR(constexpr_param) \
+    UTILITY_TYPENAME_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(constexpr_param))
 
 // lookup compile time size value
-#define UTILITY_SIZE_LOOKUP_BY_ERROR(size) \
-    char * __integral_lookup[size] = 1
+#define UTILITY_SIZE_LOOKUP_BY_ERROR(size)              char * __integral_lookup[size] = 1
 
 // available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
 //
-#define UTILITY_IS_TYPE_COMPLETE(type) ::utility::is_type_complete<type, __COUNTER__>::value
+#define UTILITY_IS_TYPE_COMPLETE(type)                  ::utility::is_type_complete<type, __COUNTER__>::value
 
 // Checks expression on constexpr nature.
-// Based on: https://stackoverflow.com/questions/13299394/is-is-constexpr-possible-in-c11/13305072#13305072
+//
+// Based on:
+//  https://stackoverflow.com/questions/13299394/is-is-constexpr-possible-in-c11/13305072#13305072
+//  https://www.reddit.com/r/cpp/comments/7c208c/is_constexpr_a_macro_that_check_if_an_expression/
 //
 // CAUTION:
 //
 //  Where it does work:
-//  * This will work at least in GCC 5.4 (C++11) and MSVC 2015 Update 3.
-//  * This will work on functions with implementation.
+//  * This will work at least in C++11 compilers: GCC 5.4, MSVC 2015 Update 3 and clang 3.8.0.
+//  * This will work on void returning functions with implementation.
 //  * This will work on variables in any scope.
 //
 //  Where it does not work:
-//  * This won't work, for example, in clang 3.8.0!
 //  * This won't work on function declarations.
-//  * This won't work on functions returning `void` (tip: all `constexpr` functions in C++11 must consist only from single and not a void return statement).
+//  * This won't work on functions returning `void` (tip: all `constexpr` functions in C++11 must consist only from a single and not a void return statement).
 //
-#define UTILITY_IS_CONSTEXPR_VALUE(...) noexcept(::utility::makeprval(__VA_ARGS__))
+#ifndef UTILITY_COMPILER_CXX_CLANG
+#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(noexcept(::utility::makeprval((__VA_ARGS__))))
+#else
+#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(__builtin_constant_p((__VA_ARGS__))) // might be used for the GCC too
+#endif
 
 #define UTILITY_DEPENDENT_TYPENAME_COMPILE_ERROR_BY_INCOMPLETE_TYPE(dependent_type_name) \
     using UTILITY_PP_CONCAT(dependent_typename_compiler_error_by_incomplete_type_t, UTILITY_PP_LINE) = typename ::utility::incomplete_dependent_type<dependent_type_name>::type
 
-#define UTILITY_STR_WITH_STATIC_SIZE_TUPLE(str)     str, (::utility::static_size(str))
-#define UTILITY_STR_WITH_STATIC_LENGTH_TUPLE(str)   str, (::utility::static_size(str) - 1)
+#define UTILITY_CONSTEXPR_SIZE(seq)                     UTILITY_CONSTEXPR_VALUE(::utility::static_size(seq))
+
+#define UTILITY_STATIC_SIZE(seq)                        ::utility::static_size(seq)
 
 // Checks existence of member function.
 // Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
@@ -325,23 +332,24 @@
 
 namespace utility
 {
+    //// containers
+
     // replacement for mpl::void_, useful to suppress excessive errors output in particular places
     struct void_ { using type = void_; };
 
     // to suppress `warning C4127: conditional expression is constant`
     template <bool B>
-    struct const_expr
+    struct constexpr_bool
     {
         static CONSTEXPR const bool value = B;
     };
 
     // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
     template <typename T, T v>
-    struct const_expr_value
+    struct constexpr_value
     {
-        static constexpr const T value = v;
+        static CONSTEXPR const T value = v;
     };
-
 
     namespace
     {
@@ -377,13 +385,15 @@ namespace utility
         using type = T;
     };
 
+    // tuple identities
+
     template <typename... Type>
     struct tuple_identities
     {
         using tuple_type = std::tuple<Type...>;
     };
 
-    // type-by-value identity
+    // value identity / identities
 
     template <typename T, T v>
     struct value_identity
@@ -395,12 +405,30 @@ namespace utility
     template <typename T, T v>
     CONSTEXPR const T value_identity<T, v>::value;
 
+    template <typename T, T... v>
+    struct value_identities
+    {
+        using type = T;
+        static CONSTEXPR const T values[] = { v... };
+    };
+
+    // bool identity / identities
+
     template <bool b>
     struct bool_identity
     {
         using type = bool;
         static CONSTEXPR const bool value = b;
     };
+
+    template <bool... b>
+    struct bool_identities
+    {
+        using type = bool;
+        static CONSTEXPR const bool values[] = { b... };
+    };
+
+    // int identity / identities
 
     template <int v>
     struct int_identity
@@ -409,11 +437,27 @@ namespace utility
         static CONSTEXPR const int value = v;
     };
 
+    template <int... v>
+    struct int_identities
+    {
+        using type = int;
+        static CONSTEXPR const int values[] = { v... };
+    };
+
+    // size identity / identities
+
     template <size_t v>
     struct size_identity
     {
         using type = size_t;
         static CONSTEXPR const size_t value = v;
+    };
+
+    template <size_t... v>
+    struct size_identities
+    {
+        using type = size_t;
+        static CONSTEXPR const size_t values[] = { v... };
     };
 
     // for explicit partial specialization of type_index_identity_base
@@ -422,7 +466,14 @@ namespace utility
     struct type_index_identity
     {
         using type = T;
-        static constexpr const int index = Index;
+        static CONSTEXPR const int index = Index;
+    };
+
+    template <typename T, int... Index>
+    struct type_index_identities
+    {
+        using type = T;
+        static CONSTEXPR const int indexes[] = { Index... };
     };
 
     template <typename T, int Index>
@@ -460,6 +511,12 @@ namespace utility
         static CONSTEXPR const bool false_value = !std::is_same<int_identity<N>, int_identity<N> >::value;
     };
 
+    template <size_t S>
+    struct dependent_size
+    {
+        static CONSTEXPR const bool false_value = !std::is_same<size_identity<S>, size_identity<S> >::value;
+    };
+
     // custom more convenient `enable_if` implementation.
     // Based on: https://www.reddit.com/r/cpp_questions/comments/3zn1n9/why_is_this_use_of_enable_if_invalid/
     //
@@ -486,11 +543,82 @@ namespace utility
         using type = Type;
     };
 
-    template<typename T>
-    CONSTEXPR_RETURN typename std::remove_reference<T>::type makeprval(T && t)
+    // remove_reference + remove_cv
+    template <typename T>
+    struct remove_cvref
     {
-        return t;
+        using type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+    };
+
+    // remove_pointer + remove_cv
+    template <typename T>
+    struct remove_cvptr
+    {
+        using type = typename std::remove_cv<typename std::remove_pointer<T>::type>::type;
+    };
+
+    // remove_reference + remove_cv + remove_pointer + remove_cv
+    template <typename T>
+    struct remove_cvrefcvptr
+    {
+        using type = typename remove_cvptr<typename remove_cvref<T>::type>::type;
+    };
+
+    template <typename T>
+    CONSTEXPR_RETURN typename remove_cvref<T>::type makeprval(T && v)
+    {
+        return v;
     }
+
+    // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
+    template <typename T>
+    CONSTEXPR_RETURN const typename remove_cvref<T>::type & makeprval(const T & v)
+    {
+        return v;
+    }
+
+    // integer_sequence/index_sequence implementation for C++11
+    // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
+    //
+
+    template<typename T, size_t... I>
+    struct integer_sequence
+    {
+        static_assert(std::is_integral<T>::value, "T must be integral type.");
+
+        using type          = integer_sequence<T, I...>;
+        using value_type    = T;
+
+        static CONSTEXPR_RETURN size_t size()
+        {
+            return sizeof...(I);
+        }
+    };
+
+    template<size_t... Indexes>
+    using index_sequence = integer_sequence<size_t, Indexes...>;
+
+    namespace detail
+    {
+        template <std::size_t N, size_t... NextIndexes>
+        struct _index_sequence : public _index_sequence<N - 1U, N - 1U, NextIndexes...>
+        {
+        };
+
+        template <std::size_t... NextIndexes>
+        struct _index_sequence<0U, NextIndexes...>
+        {
+            using type = index_sequence<NextIndexes...>;
+        };
+    }
+
+    template <std::size_t N>
+    struct make_index_sequence : detail::_index_sequence<N>::type
+    {
+    };
+
+
+    //// functions
 
     // std::size is supported from C++17
     template <typename T, size_t N>
@@ -553,6 +681,20 @@ namespace utility
     FORCE_INLINE CONSTEXPR_RETURN bool is_any_false(T0 && v0, Args &&... args)
     {
         return (std::forward<T0>(v0) ? false : true) || is_any_false(std::forward<Args>(args)...);
+    }
+
+    // move if movable, otherwise return a lvalue reference
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_RETURN typename remove_cvref<T>::type && move_if_movable(T && v)
+    {
+        return std::forward<T>(v);
+    }
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_RETURN T & move_if_movable(T & v)
+    {
+        return v;
     }
 }
 

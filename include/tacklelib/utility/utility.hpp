@@ -8,6 +8,7 @@
 
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
+#include <tacklelib/utility/static_constexpr.hpp>
 #include <tacklelib/utility/static_assert.hpp>
 #include <tacklelib/utility/type_traits.hpp>
 #include <tacklelib/utility/assert.hpp>
@@ -126,37 +127,7 @@ namespace utility
     uint64_t get_file_size(tackle::FileHandleA file_handle);
     uint64_t get_file_size(tackle::FileHandleW file_handle);
 
-    template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_offset(const char(&str)[S], size_t i = S - 1)
-    {
-        return (str[i] == '/' || str[i] == '\\') ? i + 1 : (i > 0 ? get_file_name_offset(str, i - 1) : 0);
-    }
-
-    template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_offset(const wchar_t(&str)[S], size_t i = S - 1)
-    {
-        return (str[i] == L'/' || str[i] == L'\\') ? i + 1 : (i > 0 ? get_file_name_offset(str, i - 1) : 0);
-    }
-
-    template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_offset(const char16_t(&str)[S], size_t i = S - 1)
-    {
-        return (str[i] == u'/' || str[i] == u'\\') ? i + 1 : (i > 0 ? get_file_name_offset(str, i - 1) : 0);
-    }
-
-    template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_offset(const char32_t(&str)[S], size_t i = S - 1)
-    {
-        return (str[i] == U'/' || str[i] == U'\\') ? i + 1 : (i > 0 ? get_file_name_offset(str, i - 1) : 0);
-    }
-
-    template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_offset(T(&str)[1])
-    {
-        return 0;
-    }
-
-    bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_bloc);
+    bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_block_size);
     bool is_files_equal(tackle::FileHandleW left_file_handle, tackle::FileHandleW right_file_handle, size_t read_block_size);
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
@@ -497,6 +468,15 @@ namespace utility
     tackle::native_path_wstring truncate_path_relative_prefix(tackle::native_path_wstring path);
 #endif
 
+    std::string get_host_name(utility::tag_string, bool cached);
+    std::wstring get_host_name(utility::tag_wstring, bool cached);
+
+    std::string get_user_name(utility::tag_string, bool cached);
+    std::wstring get_user_name(utility::tag_wstring, bool cached);
+
+    std::string get_module_name(utility::tag_string, bool cached);
+    std::wstring get_module_name(utility::tag_wstring, bool cached);
+
     template<typename T>
     FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 10, bool throw_on_error = false)
     {
@@ -508,29 +488,25 @@ namespace utility
         // by default suppress exceptions
         catch (const std::invalid_argument & ex) {
             UTILITY_UNUSED_STATEMENT(ex);
-            DEBUG_BREAK_IN_DEBUGGER(true);
             if (throw_on_error) {
-                throw;
+                DEBUG_BREAK_THROW(true);
             }
         }
         catch (const std::out_of_range & ex) {
             UTILITY_UNUSED_STATEMENT(ex);
-            DEBUG_BREAK_IN_DEBUGGER(true);
             if (throw_on_error) {
-                throw;
+                DEBUG_BREAK_THROW(true);
             }
         }
         catch (const std::exception & ex) {
             UTILITY_UNUSED_STATEMENT(ex);
-            DEBUG_BREAK_IN_DEBUGGER(true);
             if (throw_on_error) {
-                throw;
+                DEBUG_BREAK_THROW(true);
             }
         }
         catch (...) {
-            DEBUG_BREAK_IN_DEBUGGER(true);
             if (throw_on_error) {
-                throw;
+                DEBUG_BREAK_THROW(true);
             }
         }
 
@@ -541,7 +517,7 @@ namespace utility
     FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-        const std::string fmt_format = utility::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        const std::string fmt_format{ utility::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
         return fmt::format(fmt_format, int64_t(i));
 #else
         std::stringstream stream;
@@ -554,7 +530,7 @@ namespace utility
     FORCE_INLINE std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
-        const std::string fmt_format = utility::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0); // faster than fmt format
+        const std::string fmt_format{ utility::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
         return fmt::format(fmt_format, int64_t(i));
 #else
         std::stringstream stream;

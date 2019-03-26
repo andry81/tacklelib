@@ -13,7 +13,7 @@
 TEST(FunctionsTest, test_string_format_on_std_string_0_x1M)
 {
     for (size_t i = 0; i < 1000000; i++) {
-        const std::string v = utility::string_format(0, "%s+%u\n", "test test test", 12345);
+        const std::string v{ utility::string_format(0, "%s+%u\n", "test test test", 12345) };
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }
@@ -21,7 +21,7 @@ TEST(FunctionsTest, test_string_format_on_std_string_0_x1M)
 TEST(FunctionsTest, test_string_format_on_std_string_256_x1M)
 {
     for (size_t i = 0; i < 1000000; i++) {
-        const std::string v = utility::string_format(256, "%s+%u\n", "test test test", 12345);
+        const std::string v{ utility::string_format(256, "%s+%u\n", "test test test", 12345) };
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }

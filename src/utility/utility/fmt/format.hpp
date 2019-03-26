@@ -13,7 +13,7 @@ namespace fmt {
 
 template <typename S0, typename S1, typename... Args>
 inline std::basic_string<FMT_CHAR(S0)> format2(
-    const S0 && format_str0, const S1 && format_str1, const Args &&... args)
+    const S0 && format_str0, const S1 && format_str1, Args &&... args)
 {
     return format(std::forward<S0>(format_str0),
         format(std::forward<S1>(format_str1), std::forward<Args>(args)...));

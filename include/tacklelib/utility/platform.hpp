@@ -60,7 +60,14 @@
 #   error unknown platform
 #endif
 
-#if defined(__GNUC__)
+#if defined(__clang__)
+#   define UTILITY_COMPILER_CXX_CLANG
+#   define UTILITY_COMPILER_CXX "clang"
+#   define UTILITY_COMPILER_CXX_VERSION __clang_major__
+#   if __clang_major__ < 3
+#     error unsuported clang version
+#   endif
+#elif defined(__GNUC__)
 #   define UTILITY_COMPILER_CXX_GCC
 #   define UTILITY_COMPILER_CXX "gcc"
 #   define UTILITY_COMPILER_CXX_VERSION __GNUC__
@@ -99,16 +106,16 @@
 #   endif
 
 #elif defined(UTILITY_COMPILER_CXX_GCC)
-#   ifdef __x86_64__
+#   if defined(__x86_64__) || defined(__ppc64__)
 #       define UTILITY_PLATFORM_X64
-#   elif __i386__
+#   elif defined(__i386__)
 #       define UTILITY_PLATFORM_X32
 #   endif
 
 #else
-#   ifdef __x86_64__
+#   if defined(__x86_64__) || defined(__ppc64__)
 #       define UTILITY_PLATFORM_X64
-#   elif __i386__
+#   elif defined(__i386__)
 #       define UTILITY_PLATFORM_X32
 #   endif
 
