@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.03.14
+* 2019.03.31
 * tacklelib
 
 1. DESCRIPTION
@@ -375,9 +375,8 @@ Legend:
   04 forked:    NO, but has patches
   05 original:  [01] https://github.com/google/googletest
                 [01] https://github.com/abseil/googletest
-  06 build:     (default)   standalone build from sources
-  07 linkage:   (default)   prebuilded static libraries
-                (optional)  prebuilded shared libraries
+  06 build:     (default)   build from sources in a dependentee project
+  07 linkage:   (default)   as a static library
   08 variables: GTEST_ROOT, GOOGLETEST_VERSION
   09 patched:   YES, not published
   10 extended:  YES:
