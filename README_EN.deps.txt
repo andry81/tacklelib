@@ -369,7 +369,7 @@ Legend:
 * google test
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   1.8.1 (2018.08.31) #2fe3bd994b3189899d93f1d5a881e725e046fdc2
+  02 version:   release 1.8.1 (2018.08.31) #2fe3bd994b3189899d93f1d5a881e725e046fdc2
                 from https://github.com/google/googletest/releases
   03 desc:      C++ test library
   04 forked:    NO, but has patches
@@ -378,7 +378,7 @@ Legend:
   06 build:     (default)   standalone build from sources
   07 linkage:   (default)   prebuilded static libraries
                 (optional)  prebuilded shared libraries
-  08 variables: GTEST_ROOT
+  08 variables: GTEST_ROOT, GOOGLETEST_VERSION
   09 patched:   YES, not published
   10 extended:  YES:
                 [01] asserts replacement in the tacklelib library:

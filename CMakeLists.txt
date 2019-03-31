@@ -241,44 +241,7 @@ fix_global_flags(*)
 print_global_flags(*)
 
 ###############################################################################
-## dynamic dependencies #######################################################
-###############################################################################
-
-# test
-
-set(TESTLIB_ENABLED 0)
-set(TESTS_ENABLED 0)
-if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
-  if (MSVC)
-    if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-      set(GTEST_MSVC_SEARCH "MD")
-    elseif (TACKLELIB_LINK_TYPE STREQUAL "static")
-      set(GTEST_MSVC_SEARCH "MT")
-    endif()
-  elseif (GCC)
-    # nothing is required
-  endif()
-
-  find_package(GTest)
-
-  if (GTEST_FOUND AND NOT TACKLELIB_SKIP_TESTLIB)
-    set(TESTLIB_ENABLED 1)
-  endif()
-
-  # automatic tests enable by specific source file
-  if (GTEST_FOUND AND NOT TACKLELIB_SKIP_TESTS)
-    set(tests_sources_common_filtered ${tests_sources_common})
-    if (tests_sources_common_filtered)
-      list(FILTER tests_sources_common_filtered EXCLUDE REGEX "(.*)/test_main.cpp")
-      if (NOT "${tests_sources_common_filtered}" EQUAL "${tests_sources_common}")
-        set(TESTS_ENABLED 1)
-      endif()
-    endif()
-  endif()
-endif()
-
-###############################################################################
-## global dependencies ########################################################
+## find_package dependencies #######################################################
 ###############################################################################
 
 # boost
@@ -312,8 +275,44 @@ else()
 endif()
 
 ###############################################################################
-## static dependencies #######################################################
+## add_subdirectory dependencies ##############################################
 ###############################################################################
+
+# test
+
+set(TESTLIB_ENABLED 0)
+set(TESTS_ENABLED 0)
+if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
+  if (MSVC)
+    if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
+      set(GTEST_MSVC_SEARCH "MD")
+    elseif (TACKLELIB_LINK_TYPE STREQUAL "static")
+      set(GTEST_MSVC_SEARCH "MT")
+    endif()
+  elseif (GCC)
+    # nothing is required
+  endif()
+
+  #find_package(GTest)
+
+  #if (GTEST_FOUND AND NOT TACKLELIB_SKIP_TESTLIB)
+  if (NOT TACKLELIB_SKIP_TESTLIB)
+    set(TESTLIB_ENABLED 1)
+  endif()
+
+  # automatic tests enable by specific source file
+  #if (GTEST_FOUND AND NOT TACKLELIB_SKIP_TESTS)
+  if (NOT TACKLELIB_SKIP_TESTS)
+    set(tests_sources_common_filtered ${tests_sources_common})
+    if (tests_sources_common_filtered)
+      list(FILTER tests_sources_common_filtered EXCLUDE REGEX "(.*)/test_main.cpp")
+      if (NOT "${tests_sources_common_filtered}" EQUAL "${tests_sources_common}")
+        add_target_subdirectory(GTEST_ROOT gtest ${CMAKE_BUILD_ROOT}/_3dparty/test/googletest)
+        set(TESTS_ENABLED 1)
+      endif()
+    endif()
+  endif()
+endif()
 
 # fmt
 
@@ -603,12 +602,12 @@ if (TESTLIB_ENABLED)
     )
   endif()
 
-  if (GTEST_INCLUDE_DIRS)
-    target_include_directories(${TESTLIB_TARGET_NAME}
-      PUBLIC
-        ${GTEST_INCLUDE_DIRS}
-    )
-  endif()
+#  if (GTEST_INCLUDE_DIRS)
+#    target_include_directories(${TESTLIB_TARGET_NAME}
+#      PUBLIC
+#        ${GTEST_INCLUDE_DIRS}
+#    )
+#  endif()
 
   add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
     PUBLIC
@@ -645,23 +644,29 @@ if (TESTLIB_ENABLED)
     )
   endif()
 
-  if (GTEST_ROOT)
-    add_target_link_directories(${TESTLIB_TARGET_NAME} *
-      PRIVATE
-        ${GTEST_ROOT}/${_gtest_libpath_suffixes}
-    )
-  endif()
+#  if (GTEST_ROOT)
+#    add_target_link_directories(${TESTLIB_TARGET_NAME} *
+#      PRIVATE
+#        ${GTEST_ROOT}/${_gtest_libpath_suffixes}
+#    )
+#  endif()
 
   target_link_libraries(${TESTLIB_TARGET_NAME}
     PRIVATE
       ${LIB_TARGET_NAME}
-      ${GTEST_LIBRARIES}
   )
 
-  if (GTEST_LIBRARIES)
+#  if (GTEST_LIBRARIES)
+#    target_link_libraries(${TESTLIB_TARGET_NAME}
+#      PRIVATE
+#        ${GTEST_LIBRARIES}
+#    )
+#  endif()
+
+  if (TARGET gtest)
     target_link_libraries(${TESTLIB_TARGET_NAME}
       PRIVATE
-        ${GTEST_LIBRARIES}
+        gtest
     )
   endif()
 else()
@@ -822,12 +827,12 @@ if (TESTS_ENABLED)
       )
     endif()
 
-    if (GTEST_INCLUDE_DIRS)
-      target_include_directories(${target}
-        PRIVATE
-          ${GTEST_INCLUDE_DIRS}
-      )
-    endif()
+#    if (GTEST_INCLUDE_DIRS)
+#      target_include_directories(${target}
+#        PRIVATE
+#          ${GTEST_INCLUDE_DIRS}
+#      )
+#    endif()
 
     add_target_compile_definitions(${target} *
       PRIVATE
@@ -965,12 +970,12 @@ if (TESTS_ENABLED)
       )
     endif()
 
-    if (GTEST_ROOT)
-      add_target_link_directories(${target} *
-        PRIVATE
-          ${GTEST_ROOT}/${_gtest_libpath_suffixes}
-      )
-    endif()
+#    if (GTEST_ROOT)
+#      add_target_link_directories(${target} *
+#        PRIVATE
+#          ${GTEST_ROOT}/${_gtest_libpath_suffixes}
+#      )
+#    endif()
 
     # libraries must be different in case of the library linkage or direct library sources usage
     if (target_is_liblinked)
@@ -1000,10 +1005,17 @@ if (TESTS_ENABLED)
       )
     endif()
 
-    if (GTEST_LIBRARIES)
+#    if (GTEST_LIBRARIES)
+#      target_link_libraries(${target}
+#        PRIVATE
+#          ${GTEST_LIBRARIES}
+#      )
+#    endif()
+
+    if (TARGET gtest)
       target_link_libraries(${target}
         PRIVATE
-          ${GTEST_LIBRARIES}
+          gtest
       )
     endif()
 

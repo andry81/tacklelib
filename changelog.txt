@@ -1,6 +1,10 @@
 2019.0X.XX:
 * new: tests: tmpl_string unit tests
 
+2019.03.31:
+* changed: 3dparty: googletest: merge with the latest library changes at release 1.8.1 commit #2fe3bd994b3189899d93f1d5a881e725e046fdc2 (2018.08.31) from https://github.com/google/googletest/releases
+* changed: 3dparty: googletest: cmake: link googletest through the add_subdirectory instead of find_package
+
 2019.03.27:
 * changed: cmake: improved cmake cross generator usage on the same system by adding CMAKE_OUTPUT_GENERATOR_DIR variable between CMAKE_OUTPUT_ROOT and CMAKE_OUTPUT_DIR variables
 
