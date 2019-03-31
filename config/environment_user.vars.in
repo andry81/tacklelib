@@ -99,6 +99,7 @@ bool LIBLZMA_HAS_LZMA_PRESET=1
 
 # test
 
+GOOGLETEST_VERSION="1.8.1"
 GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 
 # math
