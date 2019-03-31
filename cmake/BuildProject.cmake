@@ -74,6 +74,15 @@ function(BuildProject_MakeOutputDirs)
 
   file(MAKE_DIRECTORY "${CMAKE_OUTPUT_ROOT}")
 
+  if (DEFINED CMAKE_OUTPUT_GENERATOR_DIR)
+    get_filename_component(CMAKE_OUTPUT_PARENT_DIR ${CMAKE_OUTPUT_GENERATOR_DIR} DIRECTORY)
+    if (NOT EXISTS "${CMAKE_OUTPUT_PARENT_DIR}")
+      message(FATAL_ERROR "parent directory of the CMAKE_OUTPUT_GENERATOR_DIR does not exist `${CMAKE_OUTPUT_GENERATOR_DIR}`")
+    endif()
+
+    file(MAKE_DIRECTORY "${CMAKE_OUTPUT_GENERATOR_DIR}")
+  endif()
+
   get_filename_component(CMAKE_OUTPUT_PARENT_DIR ${CMAKE_OUTPUT_DIR} DIRECTORY)
   if (NOT EXISTS "${CMAKE_OUTPUT_PARENT_DIR}")
     message(FATAL_ERROR "parent directory of the CMAKE_OUTPUT_DIR does not exist `${CMAKE_OUTPUT_DIR}`")

@@ -35,13 +35,13 @@ Call get_GENERATOR_IS_MULTI_CONFIG "$CMAKE_GENERATOR" || Exit
 if (( GENERATOR_IS_MULTI_CONFIG )); then
   # CMAKE_CONFIG_TYPES must not be defined
   if [[ -n "$CMAKE_BUILD_TYPE" ]]; then
-    echo "$0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`CMAKE_BUILD_TYPE\`." >&2
+    echo "$0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
     Exit 127
   fi
 else
   # CMAKE_CONFIG_TYPES must be defined
   if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
-    echo "$0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`CMAKE_BUILD_TYPE\`." >&2
+    echo "$0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
     Exit 128
   fi
 fi

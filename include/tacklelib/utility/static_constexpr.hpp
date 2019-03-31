@@ -11,9 +11,6 @@
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/string_identity.hpp>
 
-#include <tacklelib/tackle/tmpl_string.hpp>
-#include <tacklelib/tackle/constexpr_string.hpp>
-
 #include <cwchar>
 #include <uchar.h> // in GCC `cuchar` header might not exist
 
@@ -36,25 +33,25 @@ namespace utility
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char (& str)[S])
     {
-        return _get_file_name_constexpr_offset(str, S - 1);
+        return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const wchar_t (& str)[S])
     {
-        return _get_file_name_constexpr_offset(str, S - 1);
+        return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char16_t (& str)[S])
     {
-        return _get_file_name_constexpr_offset(str, S - 1);
+        return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char32_t (& str)[S])
     {
-        return _get_file_name_constexpr_offset(str, S - 1);
+        return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <typename T>
@@ -66,19 +63,7 @@ namespace utility
     template <typename T>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const T * const & str)
     {
-        return _get_file_name_constexpr_offset(str, constexpr_string_length(str));
-    }
-
-    template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
-    {
-        return _get_file_name_constexpr_offset(str, str.length());
-    }
-
-    template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
-    {
-        return _get_file_name_constexpr_offset(str, str.length());
+        return detail::_get_file_name_constexpr_offset(str, constexpr_string_length(str));
     }
 
     namespace detail
@@ -95,19 +80,19 @@ namespace utility
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const char (& str)[S])
     {
-        return _get_unmangled_src_func_constexpr_offset(str, S - 1);
+        return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const wchar_t (& str)[S])
     {
-        return _get_unmangled_src_func_constexpr_offset(str, S - 1);
+        return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const char16_t (& str)[S])
     {
-        return _get_unmangled_src_func_constexpr_offset(str, S - 1);
+        return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
@@ -125,19 +110,7 @@ namespace utility
     template <typename T>
     FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const T * const & str)
     {
-        return _get_unmangled_src_func_constexpr_offset(str, constexpr_string_length(str));
-    }
-
-    template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
-    {
-        return _get_unmangled_src_func_constexpr_offset(str, str.length());
-    }
-
-    template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
-    {
-        return _get_unmangled_src_func_constexpr_offset(str, str.length());
+        return detail::_get_unmangled_src_func_constexpr_offset(str, constexpr_string_length(str));
     }
 
 }

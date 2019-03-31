@@ -1,5 +1,5 @@
 2019.03.17:
-* fixed: SetVarsFromFiles.cmake: Multiple "ODR vialation" messages in case where a path is different from the cache storage only by the drive letter character case (cmake changes a path variables before write them into the cache). Read variable's ending to detect type of variable (*_ROOT, *_PATH, *_DIR, etc) to adopt a comparator code.
+* fixed: SetVarsFromFiles.cmake: Multiple "ODR violation" messages in case where a path is different from the cache storage only by the drive letter character case (cmake changes a path variables before write them into the cache). Read variable's ending to detect type of variable (*_ROOT, *_PATH, *_DIR, etc) to adopt a comparator code.
 
 2019.03.17:
 * fixed: operators precedence order issue after the OR operator in case of parentheses absence (added parentheses around every OR operator)

@@ -40,6 +40,7 @@ function Call()
   local IFS=$' \t\r\n'
   MakeCommandLine '' 1 "$@"
   echo ">$RETURN_VALUE"
+  echo
   "$@"
   LastError=$?
   return $LastError
@@ -49,7 +50,10 @@ function CallAndPrintIf()
 {
   local IFS=$' \t\r\n'
   MakeCommandLine '' 1 "${@:2}"
-  eval "$1" && echo ">$RETURN_VALUE"
+  eval "$1" && {
+    echo ">$RETURN_VALUE"
+    echo
+  }
   "${@:2}"
   LastError=$?
   return $LastError

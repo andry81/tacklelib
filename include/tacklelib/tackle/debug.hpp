@@ -10,6 +10,7 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/static_constexpr.hpp>
+#include <tacklelib/utility/stack_trace.hpp>
 
 #include <tacklelib/tackle/tmpl_string.hpp>
 #include <tacklelib/tackle/constexpr_string.hpp>
@@ -368,49 +369,20 @@ namespace tackle
     };
 
     // implementation through raw c string with length
-    using DebugFilePathLineFuncA    = DebugFilePathLineFunc<char>;
-    using DebugFilePathLineFuncW    = DebugFilePathLineFunc<wchar_t>;
+    using DebugFilePathLineFuncA        = DebugFilePathLineFunc<char>;
+    using DebugFilePathLineFuncW        = DebugFilePathLineFunc<wchar_t>;
 
-    using DebugFileLineFuncA        = DebugFileLineFunc<char>;
-    using DebugFileLineFuncW        = DebugFileLineFunc<wchar_t>;
-
-    // CAUTION:
-    //  In some cases (for example, for a logger function calls) the `top` must be constructed from literal strings,
-    //  but there is no way to check it fully uniform and portably, so allow it be as a raw pointer and a length.
-    //
-    template <typename T>
-    class inline_stack
-    {
-    public:
-        using top_type = T;
-
-        CONSTEXPR_RETURN FORCE_INLINE inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
-            next_ptr(next_ptr_), top(top_)
-        {
-        }
-
-        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make(const T & top)
-        {
-            return inline_stack{ top };
-        }
-
-        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
-        {
-            return inline_stack{ top, &next_stack };
-        }
-
-        const inline_stack *    next_ptr;
-        T                       top;
-    };
+    using DebugFileLineFuncA            = DebugFileLineFunc<char>;
+    using DebugFileLineFuncW            = DebugFileLineFunc<wchar_t>;
 
     template <char... chars>
-    using TDebugFileLineInlineStackA        = inline_stack<TDebugFileLineA<chars...> >;
+    using TDebugFileLineInlineStackA    = inline_stack<TDebugFileLineA<chars...> >;
 
     template <wchar_t... wchars>
-    using TDebugFileLineInlineStackW        = inline_stack<TDebugFileLineW<wchars...> >;
+    using TDebugFileLineInlineStackW    = inline_stack<TDebugFileLineW<wchars...> >;
 
     template <char... chars>
-    using TDebugFuncLineInlineStackA        = inline_stack<TDebugFuncLineA<utility::value_identities<char, chars...> > >;
+    using TDebugFuncLineInlineStackA    = inline_stack<TDebugFuncLineA<utility::value_identities<char, chars...> > >;
 
     // implementation through tmpl_string, multiple parameter packs through the specialization
     template <typename, typename>

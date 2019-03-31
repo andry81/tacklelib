@@ -15,7 +15,10 @@ source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || exit 
 function CallAndPrintIf()
 {
   local IFS=$' \t\r\n'
-  eval "$1" && echo ">>${@:2}"
+  eval "$1" && {
+    echo ">>${@:2}"
+    echo
+  }
   "${@:2}"
   LastError=$?
   return $LastError

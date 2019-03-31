@@ -222,15 +222,15 @@ TEST(FunctionsTest, unroll_copy)
     const int ref[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
     int out[16];
 
-    memset(out, 0, UTILITY_CONSTEXPR_SIZE(out) * sizeof(out[0]));
+    memset(out, 0, UTILITY_CONSTEXPR_ARRAY_SIZE(out) * sizeof(out[0]));
     UTILITY_COPY(ref, out, 5, 5);
     ASSERT_TRUE(!memcmp(ref, out, 5) && !out[5]);
 
-    memset(out, 0, UTILITY_CONSTEXPR_SIZE(out) * sizeof(out[0]));
+    memset(out, 0, UTILITY_CONSTEXPR_ARRAY_SIZE(out) * sizeof(out[0]));
     UTILITY_COPY(ref, out, 3, 7);
     ASSERT_TRUE(!memcmp(ref, out, 3) && !out[3]);
 
-    memset(out, 0, UTILITY_CONSTEXPR_SIZE(out) * sizeof(out[0]));
+    memset(out, 0, UTILITY_CONSTEXPR_ARRAY_SIZE(out) * sizeof(out[0]));
     UTILITY_COPY(ref, out, 7, 3);
     ASSERT_TRUE(!memcmp(ref, out, 7) && !out[7]);
 }
@@ -245,14 +245,15 @@ void test_stride_copy(size_t stride_size, size_t stride_step,
     int out[math::size_max_of<t_ref_size, t_out_ref_size>::value + 1];
     size_t to_buf_offset;
 
-    memset(out, 0, UTILITY_CONSTEXPR_SIZE(out) * sizeof(out[0]));
+
+    memset(out, 0, UTILITY_CONSTEXPR_ARRAY_SIZE(out) * sizeof(out[0]));
     const size_t from_buf_offset = UTILITY_STRIDE_COPY(to_buf_offset, ref, ref_size, stride_size, stride_step, out, out_size);
-    ASSERT_TRUE(!memcmp(out_ref, out, UTILITY_CONSTEXPR_SIZE(out_ref) * sizeof(out_ref[0])));
+    ASSERT_TRUE(!memcmp(out_ref, out, UTILITY_CONSTEXPR_ARRAY_SIZE(out_ref) * sizeof(out_ref[0])));
     if (out_size != t_out_ref_size) {
         ASSERT_FALSE(out[out_size]);
     }
     ASSERT_EQ(from_buf_offset, from_buf_offset_);
-    ASSERT_EQ(to_buf_offset, UTILITY_CONSTEXPR_SIZE(out_ref));
+    ASSERT_EQ(to_buf_offset, UTILITY_CONSTEXPR_ARRAY_SIZE(out_ref));
 }
 
 TEST(FunctionsTest, stride_copy)

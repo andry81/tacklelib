@@ -338,7 +338,7 @@ namespace utility
     template <typename F>
     FORCE_INLINE CONSTEXPR_RETURN F static_if_false(std::false_type, F && f)
     {
-        return std::forward<T>(f);
+        return std::forward<F>(f);
     }
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`

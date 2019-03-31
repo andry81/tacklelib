@@ -511,10 +511,20 @@ function MakeOutputDirectories()
 
   [[ ! -d "$CMAKE_OUTPUT_ROOT" ]] && { mkdir "$CMAKE_OUTPUT_ROOT" || return $?; }
 
+  if [[ ! -z ${CMAKE_OUTPUT_GENERATOR_DIR+x} ]]; then
+    GetNativeParentDir "$CMAKE_OUTPUT_GENERATOR_DIR"
+    if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
+      echo "$0: error: parent directory of the CMAKE_OUTPUT_GENERATOR_DIR does not exist \`$CMAKE_OUTPUT_GENERATOR_DIR\`" >&2
+      return 2
+    fi
+
+    [[ ! -d "$CMAKE_OUTPUT_GENERATOR_DIR" ]] && { mkdir "$CMAKE_OUTPUT_GENERATOR_DIR" || return $?; }
+  fi
+
   GetNativeParentDir "$CMAKE_OUTPUT_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_OUTPUT_DIR does not exist \`$CMAKE_OUTPUT_DIR\`" >&2
-    return 2
+    return 3
   fi
 
   [[ ! -d "$CMAKE_OUTPUT_DIR" ]] && { mkdir "$CMAKE_OUTPUT_DIR" || return $?; }

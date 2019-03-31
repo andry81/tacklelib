@@ -11,6 +11,7 @@
 #include <tacklelib/utility/assert.hpp>
 #include <tacklelib/utility/locale.hpp>
 #include <tacklelib/utility/string.hpp>
+#include <tacklelib/utility/stack_trace.hpp>
 #include <tacklelib/utility/utility.hpp>
 
 #include <tacklelib/tackle/debug.hpp>
@@ -66,8 +67,8 @@
 #define LOG_P7_CREATE_TELEMETRY(client, channel_name, ...) \
     client.create_telemetry(channel_name, ## __VA_ARGS__)
 
-#define LOG_P7_CREATE_TELEMETRY_PARAM(telemetry, param_catalog_name, min_value, max_value, alarm_value, is_enabled, ...) \
-    telemetry.create_param(param_catalog_name, min_value, max_value, alarm_value, is_enabled, ## __VA_ARGS__)
+#define LOG_P7_CREATE_TELEMETRY_PARAM(telemetry, param_catalog_name, min_value, alarm_min, max_value, alarm_max, is_enabled, ...) \
+    telemetry.create_param(param_catalog_name, min_value, alarm_min, max_value, alarm_max, is_enabled, ## __VA_ARGS__)
 
 
 // log immediate (constexpr) flags
@@ -231,7 +232,8 @@
 
 
 // workaround for the bug in v4.7 around __FILE__/__LINE__ caching
-#define LOG_P7_BASE_ID                          P7_TRACE_DESC_HARDCODED_COUNT
+#define LOG_P7_TRACE_DESC_HARDCODED_COUNT       1024                            // internal P7_TRACE_DESC_HARDCODED_COUNT definition
+#define LOG_P7_BASE_ID                          LOG_P7_TRACE_DESC_HARDCODED_COUNT
 
 #define LOG_P7_STRING_FORMAT_BUFFER_RESERVE     1024 // minimal reserve for a string output buffer in case of usage the utility::string_format funtion
 
@@ -310,7 +312,7 @@ namespace p7logger {
         //
         LogFlag_AllowToUseNotStaticFmt              = 0x40000000, // must be used together with LogFlag_UseStdPrintfCompatibleFmt and with LogFlag_AllowRuntimeClientSideConversion
 
-        // Will treat the `fmt` argument as compatible with the `fmt::fmt`/`fmt::print` function format string.
+        // Will treat the `fmt` argument as compatible with the `fmt::format`/`fmt::print` function format string.
         // This will require to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
         //
@@ -342,19 +344,19 @@ namespace detail {
             "Only one of 2 supported formats is available at a time");
 
         static_assert(
-            !(log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_AllowToMakeClientSideConversion),
-            "Current implementation is required the LogFlag_UseStdFmtCompatibleFmt flag to be set together with the LogFlag_AllowToMakeClientSideConversion flag");
+            !(log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
+            "Current implementation is required the LogFlag_UseStdFmtCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
 
         static_assert(
-            !(log_flags & LogFlag_UseStdPrintfCompatibleFmt) || (log_flags & LogFlag_AllowToMakeClientSideConversion),
-            "Current implementation is required the LogFlag_UseStdPrintfCompatibleFmt flag to be set together with the LogFlag_AllowToMakeClientSideConversion flag");
+            !(log_flags & LogFlag_UseStdPrintfCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
+            "Current implementation is required the LogFlag_UseStdPrintfCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
 
         static_assert(!is_multiline_log || (log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
             "Currently multiline log implementation available only through the client side evaluation through one of 2 supported format strings");
 
         // duplication for a standalone check for particularly multiline log
-        static_assert(!is_multiline_log || (log_flags & LogFlag_AllowToMakeClientSideConversion),
-            "Currently multiline log implementation has to be used together with the LogFlag_AllowToMakeClientSideConversion flag");
+        static_assert(!is_multiline_log || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
+            "Currently multiline log implementation has to be used together with the LogFlag_AllowRuntimeClientSideConversion flag");
     };
 
     template <uint32_t log_flags, bool is_multiline_log>
@@ -592,6 +594,11 @@ namespace detail {
         {
         }
 
+        FORCE_INLINE p7TraceModule(IP7_Trace::hModule hmodule, const tackle::p7_string & module_name) :
+            m_hmodule(hmodule), m_module_name(module_name)
+        {
+        }
+
         template <size_t S>
         FORCE_INLINE p7TraceModule(IP7_Trace::hModule hmodule, const tackle::p7_char (& module_name)[S]) :
             m_hmodule(hmodule), m_module_name(module_name)
@@ -660,6 +667,11 @@ namespace detail {
     protected:
         FORCE_INLINE p7TraceHandle(IP7_Trace * p, tackle::p7_string && channel_name) :
             base_type(p, _deleter), m_channel_name(std::move(channel_name))
+        {
+        }
+
+        FORCE_INLINE p7TraceHandle(IP7_Trace * p, const tackle::p7_string & channel_name) :
+            base_type(p, _deleter), m_channel_name(channel_name)
         {
         }
 
@@ -735,17 +747,7 @@ namespace detail {
         template <typename T>
         FORCE_INLINE bool register_thread(const T * const & thread_name, uint32_t thread_id, const tackle::DebugFileLineFuncInlineStackA & inline_stack);
 
-        FORCE_INLINE bool unregister_thread(uint32_t thread_id)
-        {
-            IP7_Trace * p = get();
-            if (!p) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(
-                    fmt::format("{:s}({:d}): null pointer dereference",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
-            }
-
-            return p->Unregister_Thread(thread_id) ? true : false;
-        }
+        FORCE_INLINE bool unregister_thread(uint32_t thread_id);
 
     private:
         template <typename T>
@@ -771,35 +773,35 @@ namespace detail {
 
     public:
         template <uint32_t log_flags, uint64_t str_id, char... chars, typename... Args>
-        FORCE_INLINE bool log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_string<str_id, chars...> & fmt, Args... args) const;
 
         template <uint32_t log_flags, typename... Args>
-        FORCE_INLINE bool log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_string & fmt, Args... args) const;
 
         template <uint32_t log_flags, uint64_t str_id, wchar_t... wchars, typename... Args>
-        FORCE_INLINE bool log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_wstring<str_id, wchars...> & fmt, Args... args) const;
 
         template <uint32_t log_flags, typename... Args>
-        FORCE_INLINE bool log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_wstring & fmt, Args... args) const;
 
         template <uint32_t log_flags, uint64_t str_id, char... chars, typename... Args>
-        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_string<str_id, chars...> & fmt, Args... args) const;
 
         template <uint32_t log_flags, typename... Args>
-        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_string & fmt, Args... args) const;
 
         template <uint32_t log_flags, uint64_t str_id, wchar_t... wchars, typename... Args>
-        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_wstring<str_id, wchars...> & fmt, Args... args) const;
 
         template <uint32_t log_flags, typename... Args>
-        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+        FORCE_INLINE bool log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
             const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_wstring & fmt, Args... args) const;
 
     private:
@@ -818,7 +820,7 @@ namespace detail {
     public:
         static FORCE_INLINE const p7TelemetryHandle & null()
         {
-            static const p7TelemetryHandle s_null = p7TelemetryHandle{ nullptr };
+            static const p7TelemetryHandle s_null = p7TelemetryHandle{ nullptr, TM("") };
             return s_null;
         }
 
@@ -843,8 +845,19 @@ namespace detail {
         FORCE_INLINE p7TelemetryHandle & operator =(p7TelemetryHandle &&) = default;
 
     protected:
-        FORCE_INLINE p7TelemetryHandle(IP7_Telemetry * p) :
-            base_type(p, _deleter)
+        FORCE_INLINE p7TelemetryHandle(IP7_Telemetry * p, tackle::p7_string && channel_name) :
+            base_type(p, _deleter), m_channel_name(std::move(channel_name))
+        {
+        }
+
+        FORCE_INLINE p7TelemetryHandle(IP7_Telemetry * p, const tackle::p7_string & channel_name) :
+            base_type(p, _deleter), m_channel_name(channel_name)
+        {
+        }
+
+        template <size_t S>
+        FORCE_INLINE p7TelemetryHandle(IP7_Telemetry * p, const tackle::p7_char (& channel_name)[S]) :
+            base_type(p, _deleter), m_channel_name(channel_name)
         {
         }
 
@@ -869,6 +882,11 @@ namespace detail {
             return base_type::get();
         }
 
+        FORCE_INLINE const tackle::p7_string & channel_name() const
+        {
+            return m_channel_name;
+        }
+
         FORCE_INLINE IP7_Telemetry * operator ->() const
         {
 
@@ -890,35 +908,38 @@ namespace detail {
     private:
         template <typename T>
         FORCE_INLINE p7TelemetryParamHandle _create_param(T && param_catalog_name, utility::tag_string,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
         template <typename T>
         FORCE_INLINE p7TelemetryParamHandle _create_param(T && param_catalog_name, utility::tag_wstring,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
 
     public:
         FORCE_INLINE p7TelemetryParamHandle create_param(std::string && param_catalog_name,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
         FORCE_INLINE p7TelemetryParamHandle create_param(const std::string & param_catalog_name,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
         template <size_t S>
         FORCE_INLINE p7TelemetryParamHandle create_param(const char (& param_catalog_name)[S],
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
         FORCE_INLINE p7TelemetryParamHandle create_param(std::wstring && param_catalog_name,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
         FORCE_INLINE p7TelemetryParamHandle create_param(const std::wstring & param_catalog_name,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
         template <size_t S>
         FORCE_INLINE p7TelemetryParamHandle create_param(const wchar_t (& param_catalog_name)[S],
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
 
         template <typename T>
         FORCE_INLINE p7TelemetryParamHandle create_param(const T * const & param_catalog_name,
-            int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+            tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const;
+
+    private:
+        tackle::p7_string   m_channel_name;
     };
 
 
@@ -933,7 +954,7 @@ namespace detail {
     public:
         static FORCE_INLINE const p7TelemetryParamHandle & null()
         {
-            static const p7TelemetryParamHandle s_null = p7TelemetryParamHandle{ p7TelemetryHandle::null(), 0 };
+            static const p7TelemetryParamHandle s_null = p7TelemetryParamHandle{ p7TelemetryHandle::null(), 0, TM("") };
             return s_null;
         }
 
@@ -950,9 +971,25 @@ namespace detail {
         FORCE_INLINE p7TelemetryParamHandle & operator =(p7TelemetryParamHandle &&) = default;
 
     protected:
-        FORCE_INLINE p7TelemetryParamHandle(p7TelemetryHandle telemetry_handle, uint8_t param_id) :
+        FORCE_INLINE p7TelemetryParamHandle(p7TelemetryHandle telemetry_handle, tUINT16 param_id, tackle::p7_string && param_catalog_name) :
             base_type(std::move(telemetry_handle)),
-            m_param_id(param_id)
+            m_param_id(param_id),
+            m_param_catalog_name(std::move(param_catalog_name))
+        {
+        }
+
+        FORCE_INLINE p7TelemetryParamHandle(p7TelemetryHandle telemetry_handle, tUINT16 param_id, const tackle::p7_string & param_catalog_name) :
+            base_type(std::move(telemetry_handle)),
+            m_param_id(param_id),
+            m_param_catalog_name(param_catalog_name)
+        {
+        }
+
+        template <size_t S>
+        FORCE_INLINE p7TelemetryParamHandle(p7TelemetryHandle telemetry_handle, tUINT16 param_id, const tackle::p7_char (&param_catalog_name)[S]) :
+            base_type(std::move(telemetry_handle)),
+            m_param_id(param_id),
+            m_param_catalog_name(param_catalog_name)
         {
         }
 
@@ -963,7 +1000,7 @@ namespace detail {
             m_param_id = handle.m_param_id;
         }
 
-        FORCE_INLINE bool add(int64_t value)
+        FORCE_INLINE bool add(tDOUBLE value)
         {
             IP7_Telemetry * p = base_type::get();
             if (!p) {
@@ -975,13 +1012,14 @@ namespace detail {
             return p->Add(m_param_id, value) ? true : false;
         }
 
-        FORCE_INLINE uint8_t id() const
+        FORCE_INLINE tUINT16 id() const
         {
             return m_param_id;
         }
 
     private:
-        uint8_t m_param_id;
+        tUINT16             m_param_id;
+        tackle::p7_string   m_param_catalog_name;
     };
 
 
@@ -1235,12 +1273,12 @@ namespace detail {
 
     FORCE_INLINE p7TelemetryHandle p7ClientHandle::create_telemetry(std::wstring && channel_name, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_telemetry(std::move(channel_name), utility::tag_string{}, nullptr, inline_stack);
+        return _create_telemetry(std::move(channel_name), utility::tag_wstring{}, nullptr, inline_stack);
     }
 
     FORCE_INLINE p7TelemetryHandle p7ClientHandle::create_telemetry(const std::wstring & channel_name, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_telemetry(channel_name, utility::tag_string{}, nullptr, inline_stack);
+        return _create_telemetry(channel_name, utility::tag_wstring{}, nullptr, inline_stack);
     }
 
     template <size_t S>
@@ -1284,13 +1322,13 @@ namespace detail {
     FORCE_INLINE p7TelemetryHandle p7ClientHandle::create_telemetry(std::wstring && channel_name, const stTelemetry_Conf & config,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_telemetry(std::move(channel_name), utility::tag_string{}, &config, inline_stack);
+        return _create_telemetry(std::move(channel_name), utility::tag_wstring{}, &config, inline_stack);
     }
 
     FORCE_INLINE p7TelemetryHandle p7ClientHandle::create_telemetry(const std::wstring & channel_name, const stTelemetry_Conf & config,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_telemetry(channel_name, utility::tag_string{}, &config, inline_stack);
+        return _create_telemetry(channel_name, utility::tag_wstring{}, &config, inline_stack);
     }
 
     template <size_t S>
@@ -1509,10 +1547,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, uint64_t str_id, char... chars, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_string<str_id, chars...> & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, char, true, false>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, char, true, false>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1545,7 +1583,7 @@ namespace detail {
         std::string fmt_utf8;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf8 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -1562,12 +1600,12 @@ namespace detail {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
-                utility::get_c_param(std::forward<Args>(args)...) ? true : false;
+                utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
-                fmt::fmt(fmt, std::forward<Args>(args)...)
+                fmt::format(fmt, std::forward<Args>(args)...)
             };
 
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1587,10 +1625,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_string & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, char, false, false>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, char, false, false>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1623,7 +1661,7 @@ namespace detail {
         std::string fmt_utf8;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf8 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -1640,12 +1678,12 @@ namespace detail {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
-                utility::get_c_param(std::forward<Args>(args)...) ? true : false;
+                utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
-                fmt::fmt(fmt, std::forward<Args>(args)...)
+                fmt::format(fmt, std::forward<Args>(args)...)
             };
 
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1665,10 +1703,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, uint64_t str_id, wchar_t... wchars, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_wstring<str_id, wchars...> & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, wchar_t, true, false>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, wchar_t, true, false>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1701,12 +1739,12 @@ namespace detail {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
-                utility::get_c_param(std::forward<Args>(args)...) ? true : false;
+                utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
-                fmt::fmt(fmt, std::forward<Args>(args)...)
+                fmt::format(fmt, std::forward<Args>(args)...)
             };
 
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1727,13 +1765,13 @@ namespace detail {
         std::wstring fmt_utf16;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf16 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
-        std::wstring fmt_utf8;
+        std::string fmt_utf8;
         utility::convert_string_to_string(fmt_utf16, fmt_utf8, utility::tag_string_conv_utf16_to_utf8{});
 
         return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1743,10 +1781,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_wstring & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, wchar_t, false, false>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, wchar_t, false, false>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1779,12 +1817,12 @@ namespace detail {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
-                utility::get_c_param(std::forward<Args>(args)...) ? true : false;
+                utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
-                fmt::fmt(fmt, std::forward<Args>(args)...)
+                fmt::format(fmt, std::forward<Args>(args)...)
             };
 
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1805,13 +1843,13 @@ namespace detail {
         std::wstring fmt_utf16;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf16 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
-        std::wstring fmt_utf8;
+        std::string fmt_utf8;
         utility::convert_string_to_string(fmt_utf16, fmt_utf8, utility::tag_string_conv_utf16_to_utf8{});
 
         return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
@@ -1821,10 +1859,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, uint64_t str_id, char... chars, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_string<str_id, chars...> & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, char, true, true>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, char, true, true>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1856,7 +1894,7 @@ namespace detail {
         std::string fmt_utf8;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf8 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -1899,10 +1937,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_string & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, char, false, true>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, char, false, true>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -1934,7 +1972,7 @@ namespace detail {
         std::string fmt_utf8;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf8 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -1977,10 +2015,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, uint64_t str_id, wchar_t... wchars, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::tmpl_wstring<str_id, wchars...> & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, wchar_t, true, true>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, wchar_t, true, true>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -2012,7 +2050,7 @@ namespace detail {
         std::wstring fmt_utf16;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf16 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -2055,10 +2093,10 @@ namespace detail {
     }
 
     template <uint32_t log_flags, typename... Args>
-    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, uint16_t id, eP7Trace_Level lvl,
+    FORCE_INLINE bool p7TraceHandle::log_multiline(const p7TraceModule & trace_module, tUINT16 id, eP7Trace_Level lvl,
         const tackle::DebugFileLineFuncInlineStackA & inline_stack, const tackle::constexpr_wstring & fmt, Args... args) const
     {
-        UTILITY_UNUSED_STATEMENT(_validate_log_flags<log_flags, wchar_t, false, true>());
+        UTILITY_UNUSED_STATEMENT((detail::_validate_log_flags<log_flags, wchar_t, false, true>()));
 
         IP7_Trace * p = get();
         if (!p) {
@@ -2090,7 +2128,7 @@ namespace detail {
         std::wstring fmt_utf16;
 
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
-            fmt_utf16 = fmt::fmt(fmt, std::forward<Args>(args)...);
+            fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
@@ -2139,7 +2177,7 @@ namespace detail {
 
     template <typename T>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::_create_param(T && param_catalog_name, utility::tag_string,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack)
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
@@ -2148,7 +2186,7 @@ namespace detail {
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
-        tUINT8 param_id = 0;
+        tUINT16 param_id = 0;
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
         auto param_catalog_name_converted{
@@ -2156,18 +2194,18 @@ namespace detail {
         };
 
         // CAUTION: as standalone to avoid `std::move` before the `.c_str()`!
-        auto * param_ptr = p->Create(param_catalog_name_converted.c_str(), min_value, max_value, alarm_value, is_enabled ? TRUE : FALSE, &param_id);
+        const tBOOL is_created = p->Create(param_catalog_name_converted.c_str(), min_value, alarm_min, max_value, alarm_max, is_enabled ? TRUE : FALSE, &param_id);
 
-        if (param_ptr) {
+        if (is_created) {
             return p7TelemetryParamHandle{
                 *this, param_id, std::move(param_catalog_name_converted)
             };
         }
 #else
         // CAUTION: as standalone to avoid `std::move` before the `.c_str()`!
-        auto * param_ptr = p->Create(utility::get_c_str(param_catalog_name), min_value, max_value, alarm_value, is_enabled ? TRUE : FALSE, &param_id);
+        const tBOOL is_created = p->Create(utility::get_c_str(param_catalog_name), min_value, alarm_min, max_value, alarm_max, is_enabled ? TRUE : FALSE, &param_id);
 
-        if (param_ptr) {
+        if (is_created) {
             return p7TelemetryParamHandle{
                 *this, param_id, std::move(param_catalog_name)
             };
@@ -2179,7 +2217,7 @@ namespace detail {
 
     template <typename T>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::_create_param(T && param_catalog_name, utility::tag_wstring,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack)
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
@@ -2188,13 +2226,13 @@ namespace detail {
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
         }
 
-        tUINT8 param_id = 0;
+        tUINT16 param_id = 0;
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
         // CAUTION: as standalone to avoid `std::move` before the `.c_str()`!
-        auto * param_ptr = p->Create(utility::get_c_str(param_catalog_name), min_value, max_value, alarm_value, is_enabled ? TRUE : FALSE, &param_id);
+        const tBOOL is_created = p->Create(utility::get_c_str(param_catalog_name), min_value, alarm_min, max_value, alarm_max, is_enabled ? TRUE : FALSE, &param_id);
 
-        if (param_ptr) {
+        if (is_created) {
             return p7TelemetryParamHandle{
                 *this, param_id, std::move(param_catalog_name)
             };
@@ -2205,9 +2243,9 @@ namespace detail {
         };
 
         // CAUTION: as standalone to avoid `std::move` before the `.c_str()`!
-        auto * param_ptr = p->Create(param_catalog_name_converted.c_str(), min_value, max_value, alarm_value, is_enabled ? TRUE : FALSE, &param_id);
+        const tBOOL is_created = p->Create(param_catalog_name_converted.c_str(), min_value, alarm_min, max_value, alarm_max, is_enabled ? TRUE : FALSE, &param_id);
 
-        if (param_ptr) {
+        if (is_created) {
             return p7TelemetryParamHandle{
                 *this, param_id, std::move(param_catalog_name_converted)
             };
@@ -2218,55 +2256,55 @@ namespace detail {
     }
 
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(std::string && param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(std::move(param_catalog_name), utility::tag_string{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(std::move(param_catalog_name), utility::tag_string{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const std::string & param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_string{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_string{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     template <size_t S>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const char (& param_catalog_name)[S],
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_string{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_string{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     template <>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const char * const & param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_string{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_string{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(std::wstring && param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(std::move(param_catalog_name), utility::tag_wstring{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(std::move(param_catalog_name), utility::tag_wstring{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const std::wstring & param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     template <size_t S>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const wchar_t (& param_catalog_name)[S],
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
     template <>
     FORCE_INLINE p7TelemetryParamHandle p7TelemetryHandle::create_param(const wchar_t * const & param_catalog_name,
-        int64_t min_value, int64_t max_value, int64_t alarm_value, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
+        tDOUBLE min_value, tDOUBLE alarm_min, tDOUBLE max_value, tDOUBLE alarm_max, bool is_enabled, const tackle::DebugFileLineFuncInlineStackA & inline_stack) const
     {
-        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, max_value, alarm_value, is_enabled, inline_stack);
+        return _create_param(param_catalog_name, utility::tag_wstring{}, min_value, alarm_min, max_value, alarm_max, is_enabled, inline_stack);
     }
 
 
@@ -2299,7 +2337,7 @@ namespace detail {
     template <typename T>
     FORCE_INLINE p7ClientHandle _p7_create_client(T && cmd_line, utility::tag_wstring)
     {
-        static_assert(utility::is_convertible_to_string<T>::value, "cmd_line must be convertible to a std::wstring type");
+        static_assert(utility::is_convertible_to_wstring<T>::value, "cmd_line must be convertible to a std::wstring type");
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
         return p7ClientHandle{
@@ -2375,6 +2413,41 @@ namespace detail {
 }
 }
 
+namespace utility {
+
+    // enable through partial specializations
+    template <>
+    struct type_index_identity_base<log::p7logger::p7ClientHandle, 1> :
+        type_index_identity<log::p7logger::p7ClientHandle, 1>
+    {
+    };
+
+    template <>
+    struct type_index_identity_base<log::p7logger::p7TraceHandle, 2> :
+        type_index_identity<log::p7logger::p7TraceHandle, 2>
+    {
+    };
+
+    template <>
+    struct type_index_identity_base<log::p7logger::p7TraceModule, 3> :
+        type_index_identity<log::p7logger::p7TraceModule, 3>
+    {
+    };
+
+    template <>
+    struct type_index_identity_base<log::p7logger::p7TelemetryHandle, 4> :
+        type_index_identity<log::p7logger::p7TelemetryHandle, 4>
+    {
+    };
+
+    template <>
+    struct type_index_identity_base<log::p7logger::p7TelemetryParamHandle, 5> :
+        type_index_identity<log::p7logger::p7TelemetryParamHandle, 5>
+    {
+    };
+
+}
+
 namespace tackle {
 
     using p7_client_log_handle              = t_log_handle<utility::log::p7logger::p7ClientHandle, 1>;
@@ -2423,41 +2496,6 @@ namespace tackle {
         p7_trace_log_handle             handle;
         p7_trace_log_module             module;
         uint32_t                        id;
-    };
-
-}
-
-namespace utility {
-
-    // enable through partial specializations
-    template <>
-    struct type_index_identity_base<log::p7logger::p7ClientHandle, 1> :
-        type_index_identity<log::p7logger::p7ClientHandle, 1>
-    {
-    };
-
-    template <>
-    struct type_index_identity_base<log::p7logger::p7TraceHandle, 2> :
-        type_index_identity<log::p7logger::p7TraceHandle, 2>
-    {
-    };
-
-    template <>
-    struct type_index_identity_base<log::p7logger::p7TraceModule, 3> :
-        type_index_identity<log::p7logger::p7TraceModule, 3>
-    {
-    };
-
-    template <>
-    struct type_index_identity_base<log::p7logger::p7TelemetryHandle, 4> :
-        type_index_identity<log::p7logger::p7TelemetryHandle, 4>
-    {
-    };
-
-    template <>
-    struct type_index_identity_base<log::p7logger::p7TelemetryParamHandle, 5> :
-        type_index_identity<log::p7logger::p7TelemetryParamHandle, 5>
-    {
     };
 
 }

@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_FILE_HANDLE_HPP
+#define TACKLE_FILE_HANDLE_HPP
+
 #include <tacklelib/tacklelib.hpp>
 
 #include <tacklelib/utility/platform.hpp>
@@ -94,3 +98,5 @@ namespace tackle
     using FileHandleA = FileHandle<char, std::char_traits<char>, std::allocator<char> >;
     using FileHandleW = FileHandle<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
 }
+
+#endif

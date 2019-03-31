@@ -92,14 +92,14 @@ namespace {
         auto && to_path_rref = std::move(to_path);
 
         if (throw_on_error) {
-            return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+            return separator_char == literal_separators<char>::forward_slash_char ?
                 boost::fs::relative(to_path_rref.str(), from_path_rref.str()).generic_string() :
                 boost::fs::relative(to_path_rref.str(), from_path_rref.str()).string();
         }
 
         boost::system::error_code ec;
 
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).generic_string() :
             boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).string();
     }
@@ -115,14 +115,14 @@ namespace {
         auto && to_path_rref = std::move(to_path);
 
         if (throw_on_error) {
-            return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+            return separator_char == literal_separators<wchar_t>::forward_slash_char ?
                 boost::fs::relative(to_path_rref.str(), from_path_rref.str()).generic_wstring() :
                 boost::fs::relative(to_path_rref.str(), from_path_rref.str()).wstring();
         }
 
         boost::system::error_code ec;
 
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).generic_wstring() :
             boost::fs::relative(to_path_rref.str(), from_path_rref.str(), ec).wstring();
     }
@@ -136,7 +136,7 @@ namespace {
         auto && from_path_rref = std::move(from_path);
         auto && to_path_rref = std::move(to_path);
 
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).generic_string() :
             boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).string();
     }
@@ -147,7 +147,7 @@ namespace {
             bool throw_on_error, tackle::tag_basic_path_string<separator_char>)
     {
         if (throw_on_error) {
-            return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+            return separator_char == literal_separators<char>::forward_slash_char ?
                 boost::fs::current_path().generic_string() :
                 boost::fs::current_path().string();
         }
@@ -155,7 +155,7 @@ namespace {
 
         boost::system::error_code ec;
 
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::current_path(ec).generic_string() :
             boost::fs::current_path(ec).string();
     }
@@ -166,7 +166,7 @@ namespace {
             bool throw_on_error, tackle::tag_basic_path_wstring<separator_char>)
     {
         if (throw_on_error) {
-            return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+            return separator_char == literal_separators<wchar_t>::forward_slash_char ?
                 boost::fs::current_path().generic_wstring() :
                 boost::fs::current_path().wstring();
         }
@@ -174,7 +174,7 @@ namespace {
 
         boost::system::error_code ec;
 
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::current_path(ec).generic_wstring() :
             boost::fs::current_path(ec).wstring();
     }
@@ -188,7 +188,7 @@ namespace {
         auto && from_path_rref = std::move(from_path);
         auto && to_path_rref = std::move(to_path);
 
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ? 
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).generic_wstring() :
             boost::fs::absolute(to_path_rref.str(), from_path_rref.str()).wstring();
     }
@@ -212,7 +212,7 @@ namespace {
         _get_lexically_normal_path(
             tackle::basic_path_string<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.lexically_normal().generic_string() :
             boost::fs::path{ std::move(path.str()) }.lexically_normal().string();
     }
@@ -222,7 +222,7 @@ namespace {
         _get_lexically_normal_path(
             tackle::basic_path_wstring<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ? 
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.lexically_normal().generic_wstring() :
             boost::fs::path{ std::move(path.str()) }.lexically_normal().wstring();
     }
@@ -233,7 +233,7 @@ namespace {
             tackle::basic_path_string<separator_char> from_path,
             tackle::basic_path_string<separator_char> to_path)
     {
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).generic_string() :
             boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).string();
     }
@@ -244,7 +244,7 @@ namespace {
             tackle::basic_path_wstring<separator_char> from_path,
             tackle::basic_path_wstring<separator_char> to_path)
     {
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).generic_wstring() :
             boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).wstring();
     }
@@ -481,11 +481,11 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_network_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -551,13 +551,13 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>
         _convert_local_to_network_unc_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-            tackle::tag_path_basic_string<t_elem, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            tackle::tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
             bool throw_on_error)
     {
-        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
         return_type_t to_path;
         _convert_local_to_network_unc_path(from_path, to_path, throw_on_error);
@@ -571,7 +571,7 @@ namespace {
     // converts `\\server\share\folder` -> `x:\folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_network_unc_to_local_path(
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path,
         bool throw_on_error)
     {
@@ -586,8 +586,8 @@ namespace {
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        const auto & backward_slash_str = tackle::literal_separators<t_elem>::backward_slash_str;
-        const auto space_char           = tackle::literal_separators<t_elem>::space_char;
+        const auto & backward_slash_str = literal_separators<t_elem>::backward_slash_str;
+        const auto space_char           = literal_separators<t_elem>::space_char;
 
         // get share name from UNC
         std::vector<basic_string_t> vecTokens;
@@ -687,7 +687,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
         _convert_network_unc_to_local_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
             tackle::tag_path_basic_string<t_elem, separator_char>,
             bool throw_on_error)
     {
@@ -705,7 +705,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_local_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -743,13 +743,13 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>
         _convert_local_to_local_unc_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-            tackle::tag_path_basic_string<t_elem, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            tackle::tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
             bool throw_on_error)
     {
-        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
         return_type_t to_path;
         _convert_local_to_local_unc_path(from_path, to_path, throw_on_error);
@@ -760,11 +760,11 @@ namespace {
     // converts `\\?\x:folder` -> `x:/folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_unc_to_local_path(
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path)
     {
         using basic_string_t = std::basic_string<t_elem, t_traits, t_alloc>;
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -788,7 +788,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
         _convert_local_unc_to_local_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
             tackle::tag_path_basic_string<t_elem, separator_char>)
     {
         using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -804,7 +804,7 @@ namespace {
         _fix_long_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
         auto && path_rref = std::move(path);
 
@@ -1158,7 +1158,7 @@ namespace {
         _get_file_name(
             tackle::basic_path_string<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.filename().generic_string() :
             boost::fs::path{ std::move(path.str()) }.filename().string();
     }
@@ -1168,7 +1168,7 @@ namespace {
         _get_file_name(
             tackle::basic_path_wstring<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.filename().generic_wstring() :
             boost::fs::path{ std::move(path.str()) }.filename().wstring();
     }
@@ -1178,7 +1178,7 @@ namespace {
         _get_file_name_stem(
             tackle::basic_path_string<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.stem().generic_string() :
             boost::fs::path{ std::move(path.str()) }.stem().string();
     }
@@ -1188,7 +1188,7 @@ namespace {
         _get_file_name_stem(
             tackle::basic_path_wstring<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.stem().generic_wstring() :
             boost::fs::path{ std::move(path.str()) }.stem().wstring();
     }
@@ -1198,7 +1198,7 @@ namespace {
         _get_parent_path(
             tackle::basic_path_string<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return separator_char == literal_separators<char>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.parent_path().generic_string() :
             boost::fs::path{ std::move(path.str()) }.parent_path().string();
     }
@@ -1208,22 +1208,22 @@ namespace {
         _get_parent_path(
             tackle::basic_path_wstring<separator_char> path)
     {
-        return separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::fs::path{ std::move(path.str()) }.parent_path().generic_wstring() :
             boost::fs::path{ std::move(path.str()) }.parent_path().wstring();
     }
 
     // windows can return different driver letter case in paths in case if under debugger or not, this function fixes that making a driver letter always be in uppercase
     template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::forward_slash_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::forward_slash_char>
         _fix_drive_letter_case_basic(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::forward_slash_char> path, const std::locale & loc)
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::forward_slash_char> path, const std::locale & loc)
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         const auto path_len = path.length();
         if (path_len >= 2) {
             // usual absolute windows path
-            if (path[1] == tackle::literal_separators<t_elem>::colon_char) {
+            if (path[1] == literal_separators<t_elem>::colon_char) {
                 path[0] = std::toupper(path[0], loc);
             }
         }
@@ -1235,15 +1235,15 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::backward_slash_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::backward_slash_char>
         _fix_drive_letter_case_basic(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, tackle::literal_separators<t_elem>::backward_slash_char> path, const std::locale & loc)
+            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::backward_slash_char> path, const std::locale & loc)
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         const auto path_len = path.length();
         if (path_len >= 2) {
             // usual absolute windows path
-            if (path[1] == tackle::literal_separators<t_elem>::colon_char) {
+            if (path[1] == literal_separators<t_elem>::colon_char) {
                 path[0] = std::toupper(path[0], loc);
             }
             // UNC windows path
@@ -1283,13 +1283,13 @@ namespace {
 
         if (cached) {
             static const auto s_cached_location =
-                _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<char>::forward_slash_char ?
+                _fix_drive_letter_case<separator_char>(separator_char == literal_separators<char>::forward_slash_char ?
                     boost::dll::program_location().generic_string() :
                     boost::dll::program_location().string(), loc);
             return s_cached_location;
         }
 
-        return _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return _fix_drive_letter_case<separator_char>(separator_char == literal_separators<char>::forward_slash_char ?
             boost::dll::program_location().generic_string() :
             boost::dll::program_location().string(), loc);
     }
@@ -1303,13 +1303,13 @@ namespace {
 
         if (cached) {
             static const auto s_cached_location =
-                _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+                _fix_drive_letter_case<separator_char>(separator_char == literal_separators<wchar_t>::forward_slash_char ?
                     boost::dll::program_location().generic_wstring() :
                     boost::dll::program_location().wstring(), loc);
             return s_cached_location;
         }
 
-        return _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return _fix_drive_letter_case<separator_char>(separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::dll::program_location().generic_wstring() :
             boost::dll::program_location().wstring(), loc);
     }
@@ -1323,13 +1323,13 @@ namespace {
 
         if (cached) {
             static const auto s_cached_location =
-                _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<char>::forward_slash_char ?
+                _fix_drive_letter_case<separator_char>(separator_char == literal_separators<char>::forward_slash_char ?
                     boost::dll::program_location().parent_path().generic_string() :
                     boost::dll::program_location().parent_path().string(), loc);
             return s_cached_location;
         }
 
-        return _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<char>::forward_slash_char ?
+        return _fix_drive_letter_case<separator_char>(separator_char == literal_separators<char>::forward_slash_char ?
             boost::dll::program_location().parent_path().generic_string() :
             boost::dll::program_location().parent_path().string(), loc);
     }
@@ -1343,13 +1343,13 @@ namespace {
 
         if (cached) {
             static const auto s_cached_location =
-                _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+                _fix_drive_letter_case<separator_char>(separator_char == literal_separators<wchar_t>::forward_slash_char ?
                     boost::dll::program_location().parent_path().generic_wstring() :
                     boost::dll::program_location().parent_path().wstring(), loc);
             return s_cached_location;
         }
 
-        return _fix_drive_letter_case<separator_char>(separator_char == tackle::literal_separators<wchar_t>::forward_slash_char ?
+        return _fix_drive_letter_case<separator_char>(separator_char == literal_separators<wchar_t>::forward_slash_char ?
             boost::dll::program_location().parent_path().generic_wstring() :
             boost::dll::program_location().parent_path().wstring(), loc);
     }
@@ -1402,7 +1402,7 @@ namespace {
         // So, we have to set null-terminating character explicitly, just in case!
         hostname[HOST_NAME_MAX] = '\0';
 
-        return utility::convert_string_to_string(hostname, utility::tag_wstring);
+        return utility::convert_string_to_string(hostname, utility::tag_wstring{}, utility::tag_string_conv_utf8_tofrom_utf16{});
 #endif
     }
 
@@ -1438,7 +1438,7 @@ namespace {
         // just in case!
         username[LOGIN_NAME_MAX] = '\0';
 
-        return utility::convert_string_to_string(username, utility::tag_wstring);
+        return utility::convert_string_to_string(username, utility::tag_wstring{}, utility::tag_string_conv_utf8_tofrom_utf16{});
 #endif
     }
 

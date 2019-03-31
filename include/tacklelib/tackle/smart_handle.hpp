@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_SMART_HANDLE_HPP
+#define TACKLE_SMART_HANDLE_HPP
+
 #include <tacklelib/tacklelib.hpp>
 
 #include <tacklelib/utility/preprocessor.hpp>
@@ -21,13 +25,6 @@ namespace tackle
 
     template <typename T, typename R = bool, typename Base = std::default_delete<T> >
     class ReleaseDeleter;
-
-    // deleting `void*` is undefined
-    template <>
-    class SmartHandle<void>;
-
-    template <typename R, typename Base>
-    class ReleaseDeleter<void, R, Base>;
 
     using ReleaseDeleterFunc = std::function<void(void *)>; // to pass everything behaving like a function
 
@@ -110,7 +107,7 @@ namespace tackle
         using DeleterType   = ReleaseDeleter<T>;
 
     protected:
-        FORCE_INLINE SmartHandle(T * p = 0, ReleaseDeleterFunc deleter_func = nullptr);
+        FORCE_INLINE SmartHandle(T * p = nullptr, ReleaseDeleterFunc deleter_func = nullptr);
         FORCE_INLINE SmartHandle(T * p, DeleterType deleter); // to call from derived implementation
 
     public:
@@ -123,7 +120,7 @@ namespace tackle
         FORCE_INLINE ~SmartHandle();
 
     protected:
-        FORCE_INLINE void reset(T * p = 0, ReleaseDeleterFunc deleter = nullptr);
+        FORCE_INLINE void reset(T * p = nullptr, ReleaseDeleterFunc deleter = nullptr);
         FORCE_INLINE void reset(T * p, DeleterType deleter); // to call from derived implementation
 
     public:
@@ -195,3 +192,5 @@ namespace tackle
         return static_cast<T *>(m_pv.get());
     }
 }
+
+#endif

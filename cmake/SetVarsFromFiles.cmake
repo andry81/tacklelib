@@ -151,6 +151,10 @@ endfunction()
 #                                 previous assignment was with a different value to any of these variables.
 #                                 Useful for unconditional assignment of variables from different packages or source directories.
 #
+#   --ignore_vars_reassign <ignore_vars_reassign_list>
+#                               - list of variables ignored for reassignment in any following variable files
+#                                 (by default would be a warning if a variable has been assigned before but in the load and a variable is not specialized version of a previous one)
+#
 # CONFIGURATION FILE FORMAT:
 #   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
 #   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
