@@ -17,8 +17,10 @@ TEST(TackleTmplStringTest, constexpr_)
         const auto s = TACKLE_TMPL_STRING(id, c_str_); \
         UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(s.size())); \
         UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(s.length())); \
-        static_assert(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), "sizes must be equal"); \
-        static_assert(UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), "lengths must be equal"); \
+        STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_)), STATIC_ASSERT_PARAM(s.size())); \
+        STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_)), STATIC_ASSERT_PARAM(s.length())); \
+        /*static_assert(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), "sizes must be equal"); \
+        static_assert(UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), "lengths must be equal");*/ \
         ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(s.size())); \
         ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
@@ -90,7 +92,7 @@ TEST(TackleTmplStringTest, constexpr_get2)
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal"); \
+        /*static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal");*/ \
         ASSERT_EQ(UTILITY_GET(s, index), c_char); \
     } (void)0
 
@@ -110,7 +112,7 @@ TEST(TackleTmplStringTest, constexpr_get2)
     { \
         const auto s = TACKLE_TMPL_SUBSTRING(id, c_str, constexpr_offset); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal"); \
+        /*static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal");*/ \
         ASSERT_EQ(UTILITY_GET(s, index), c_char); \
     } (void)0
 
