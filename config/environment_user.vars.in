@@ -67,7 +67,7 @@ CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
 BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0"
-Boost_ARCHITECTURE:UNIX="-x86" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+Boost_ARCHITECTURE:UNIX="-x32" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 
 # log
 LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client"
