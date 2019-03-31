@@ -76,9 +76,20 @@
 #define UTILITY_DEPENDENT_TYPENAME_COMPILE_ERROR_BY_INCOMPLETE_TYPE(dependent_type_name) \
     using UTILITY_PP_CONCAT(dependent_typename_compiler_error_by_incomplete_type_t, UTILITY_PP_LINE) = typename ::utility::incomplete_dependent_type<dependent_type_name>::type
 
+#define UTILITY_CONSTEXPR_ARRAY_SIZE_(c_arr)            (sizeof(c_arr) / sizeof((c_arr)[0]))
+#define UTILITY_CONSTEXPR_ARRAY_SIZE(c_arr)             UTILITY_CONSTEXPR_ARRAY_SIZE_(c_arr)
+
+#define UTILITY_CONSTEXPR_STRING_LEN(c_str)             (UTILITY_CONSTEXPR_ARRAY_SIZE(c_str) - 1)
+
 #define UTILITY_CONSTEXPR_SIZE(seq)                     UTILITY_CONSTEXPR_VALUE(::utility::static_size(seq))
 
 #define UTILITY_STATIC_SIZE(seq)                        ::utility::static_size(seq)
+
+#define UTILITY_CONSTEXPR_GET(value, constexpr_index) \
+    ::utility::constexpr_get<constexpr_index>(value)
+
+#define UTILITY_GET(value, constexpr_index) \
+    ::utility::get<constexpr_index>(value)
 
 // Checks existence of member function.
 // Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
@@ -338,14 +349,14 @@ namespace utility
     struct void_ { using type = void_; };
 
     // to suppress `warning C4127: conditional expression is constant`
-    template <bool B>
+    template <bool B, typename...>
     struct constexpr_bool
     {
         static CONSTEXPR const bool value = B;
     };
 
     // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
-    template <typename T, T v>
+    template <typename T, T v, typename...>
     struct constexpr_value
     {
         static CONSTEXPR const T value = v;
@@ -356,7 +367,7 @@ namespace utility
         struct _not_overloadable_type {};
     }
 
-    template <typename T>
+    template <typename T, typename...>
     struct type_lookup
     {
         using type = T;
@@ -581,7 +592,7 @@ namespace utility
     // Based on: https://stackoverflow.com/questions/49669958/details-of-stdmake-index-sequence-and-stdindex-sequence/49672613#49672613
     //
 
-    template<typename T, size_t... I>
+    template<typename T, T... I>
     struct integer_sequence
     {
         static_assert(std::is_integral<T>::value, "T must be integral type.");
@@ -617,8 +628,14 @@ namespace utility
     {
     };
 
+    template <typename T, size_t S>
+    using array_type = T[S];
 
     //// functions
+
+    // must overloaded separately
+    FORCE_INLINE CONSTEXPR_RETURN void get() {}
+    FORCE_INLINE CONSTEXPR_RETURN void constexpr_get() {}
 
     // std::size is supported from C++17
     template <typename T, size_t N>

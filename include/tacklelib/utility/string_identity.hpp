@@ -25,11 +25,6 @@
 #include <type_traits>
 
 
-#define UTILITY_STATIC_STRING_SIZE_(c_str)              (sizeof(c_str) / sizeof((c_str)[0]))
-#define UTILITY_STATIC_STRING_SIZE(c_str)               UTILITY_STATIC_STRING_SIZE_(c_str)
-
-#define UTILITY_STATIC_STRING_LEN(c_str)                (UTILITY_STATIC_STRING_SIZE(c_str) - 1)
-
 // hint: operator* applies to character literals, but not to double-quoted literals
 #define UTILITY_LITERAL_CHAR_(ansi_str, char_type)      ((void)((ansi_str) * 0), ::utility::literal_char_caster<typename ::utility::remove_cvref<char_type>::type>::cast_from(ansi_str, L ## ansi_str, u ## ansi_str, U ## ansi_str))
 #define UTILITY_LITERAL_CHAR(ansi_str, char_type)       UTILITY_LITERAL_CHAR_(ansi_str, char_type)
@@ -38,8 +33,8 @@
 #define UTILITY_LITERAL_STRING_(ansi_str, char_type)    ((void)((ansi_str)[0]), ::utility::literal_string_caster<typename ::utility::remove_cvref<char_type>::type>::cast_from(ansi_str, L ## ansi_str, u ## ansi_str, U ## ansi_str))
 #define UTILITY_LITERAL_STRING(ansi_str, char_type)     UTILITY_LITERAL_STRING_(ansi_str, char_type)
 
-#define UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(char_type, ...) \
-    ((void)((UTILITY_PP_MACRO_ARG0(__VA_ARGS__)) * 0), ::utility::literal_string_from_chars<typename ::utility::remove_cvref<char_type>::type>(__VA_ARGS__, UTILITY_LITERAL_CHAR('\0', char_type)))
+#define UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(char_type, char_value) \
+    ((void)((UTILITY_PP_MACRO_ARG0(char_value)) * 0), ::utility::literal_string_from_chars<typename ::utility::remove_cvref<char_type>::type>(char_value, UTILITY_LITERAL_CHAR('\0', char_type)))
 
 // checker on an array string, but does not check if a literal (T[] - true, T* - false)
 #define UTILITY_IS_ARRAY_STRING(c_str)                  UTILITY_CONSTEXPR_VALUE(sizeof(::utility::is_array_string::check(c_str)) == sizeof(::utility::is_array_string::yes))
@@ -61,7 +56,10 @@
 
 // string with safe offset through the static assert on an constexpr expression
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_AND_CONSTEXPR_OFFSET_TUPLE(str, constexpr_offset) \
-    (STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_SIZE(str)), UTILITY_CONSTEXPR_VALUE((str) + (constexpr_offset))), UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(str) - (constexpr_offset) - 1)
+    ( \
+        STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_SIZE(str), STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_SIZE(str))), \
+        UTILITY_CONSTEXPR_VALUE((str) + (constexpr_offset))), UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(str) - (constexpr_offset) - 1 \
+    )
 
 // string with safe offset through the runtime condition on a string static size
 #define UTILITY_STATIC_STRING_WITH_LENGTH_AND_OFFSET_TUPLE(str, offset) \
@@ -76,6 +74,64 @@
             static CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
             { \
                 return c_str; \
+            } \
+        }; \
+        return holder{}; \
+    }())
+
+// require `tmpl_basic_string_storage` from `tmpl_string.hpp`
+#define UTILITY_LITERAL_SUBSTRING_VALUE(c_str, constexpr_offset) \
+    ([]{ \
+        static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
+        struct holder \
+        { \
+            using char_type = std::remove_reference<decltype(c_str[0])>::type; \
+            using arr_size_identity = ::utility::size_identity<UTILITY_CONSTEXPR_ARRAY_SIZE(c_str)>; \
+            /*static CONSTEXPR const size_t arr_size = UTILITY_CONSTEXPR_ARRAY_SIZE(c_str);*/ \
+            \
+            template <size_t... N> \
+            static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<N...>) -> ::utility::array_type<char_type, arr_size_identity::value - constexpr_offset> & \
+            { \
+                return ::tackle::tmpl_basic_string_storage<0, char_type, c_str[constexpr_offset + N]..., UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
+            } \
+            /*static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<>) -> ::utility::array_type<char_type, arr_size_identity::value - constexpr_offset> & \
+            { \
+                return ::tackle::tmpl_basic_string_storage<0, char_type, UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
+            }*/ \
+            static CONSTEXPR_RETURN auto get() -> decltype(_make_tmpl_string_impl(::utility::make_index_sequence<arr_size_identity::value - constexpr_offset - 1>{})) \
+            { \
+                STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_offset < arr_size_identity::value, \
+                    STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(arr_size_identity::value)); \
+                return _make_tmpl_string_impl(::utility::make_index_sequence<arr_size_identity::value - constexpr_offset - 1>{}); \
+            } \
+        }; \
+        return holder{}; \
+    }())
+
+// require `tmpl_basic_string_storage` from `tmpl_string.hpp`
+#define UTILITY_LITERAL_SUBSTRING_VALUE2(c_str, constexpr_offset, constexpr_len) \
+    ([]{ \
+        static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
+        struct holder \
+        { \
+            using char_type = std::remove_reference<decltype(c_str[0])>::type; \
+            using arr_size_identity = ::utility::size_identity<UTILITY_CONSTEXPR_ARRAY_SIZE(c_str)>; \
+            /*static CONSTEXPR const size_t arr_size = UTILITY_CONSTEXPR_ARRAY_SIZE(c_str);*/ \
+            \
+            template <size_t... N> \
+            static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<N...>) -> ::utility::array_type<char_type, constexpr_len + 1> & \
+            { \
+                return ::tackle::tmpl_basic_string_storage<0, char_type, c_str[constexpr_offset + N]..., UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
+            } \
+            /*static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<>) -> ::utility::array_type<char_type, constexpr_len + 1> & \
+            { \
+                return ::tackle::tmpl_basic_string_storage<0, char_type, UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
+            }*/ \
+            static CONSTEXPR_RETURN auto get() -> decltype(_make_tmpl_string_impl(::utility::make_index_sequence<constexpr_len>{})) \
+            { \
+                STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_offset + constexpr_len < arr_size_identity::value, \
+                    STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(constexpr_len), STATIC_ASSERT_PARAM(arr_size_identity::value)); \
+                return _make_tmpl_string_impl(::utility::make_index_sequence<constexpr_len>{}); \
             } \
         }; \
         return holder{}; \
@@ -432,13 +488,13 @@ namespace utility {
     {
         // string types
 
-        using null_str_t                                            = literal_basic_string_const_reference_arr<CharT, UTILITY_STATIC_STRING_SIZE("")>;
+        using null_str_t                                            = literal_basic_string_const_reference_arr<CharT, UTILITY_CONSTEXPR_ARRAY_SIZE("")>;
 
-        using forward_slash_str_t                                   = literal_basic_string_const_reference_arr<CharT, UTILITY_STATIC_STRING_SIZE("/")>;
-        using backward_slash_str_t                                  = literal_basic_string_const_reference_arr<CharT, UTILITY_STATIC_STRING_SIZE("\\")>;
-        using space_str_t                                           = literal_basic_string_const_reference_arr<CharT, UTILITY_STATIC_STRING_SIZE(" ")>;
+        using forward_slash_str_t                                   = literal_basic_string_const_reference_arr<CharT, UTILITY_CONSTEXPR_ARRAY_SIZE("/")>;
+        using backward_slash_str_t                                  = literal_basic_string_const_reference_arr<CharT, UTILITY_CONSTEXPR_ARRAY_SIZE("\\")>;
+        using space_str_t                                           = literal_basic_string_const_reference_arr<CharT, UTILITY_CONSTEXPR_ARRAY_SIZE(" ")>;
 
-        using colon_str_t                                           = literal_basic_string_const_reference_arr<CharT, UTILITY_STATIC_STRING_SIZE(":")>;
+        using colon_str_t                                           = literal_basic_string_const_reference_arr<CharT, UTILITY_CONSTEXPR_ARRAY_SIZE(":")>;
 
         // string values
 

@@ -1,5 +1,9 @@
 #pragma once
 
+// DO NOT REMOVE, exists to avoid private/public headers mixing!
+#ifndef TACKLE_INTERFACE_HANDLE_HPP
+#define TACKLE_INTERFACE_HANDLE_HPP
+
 #include <tacklelib/tacklelib.hpp>
 
 #include <tacklelib/utility/platform.hpp>
@@ -64,3 +68,5 @@ namespace tackle {
         }
     };
 }
+
+#endif

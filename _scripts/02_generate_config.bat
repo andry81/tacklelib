@@ -70,6 +70,7 @@ exit /b 0
 
 :CMD
 echo.^>%*
+echo.
 (
   %*
 )

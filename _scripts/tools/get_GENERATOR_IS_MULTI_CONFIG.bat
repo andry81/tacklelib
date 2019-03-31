@@ -77,7 +77,10 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_locked_file_pair.bat" ^
 exit /b 0
 
 :CMD
-if %TOOLS_VERBOSE%0 NEQ 0 echo.^>^>%*
+if %TOOLS_VERBOSE%0 NEQ 0 (
+  echo.^>^>%*
+  echo.
+)
 (
   %*
 )

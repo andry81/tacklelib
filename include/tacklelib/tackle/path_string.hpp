@@ -9,6 +9,7 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/assert.hpp>
+#include <tacklelib/utility/string_identity.hpp>
 
 #include <tacklelib/tackle/string.hpp>
 
@@ -194,18 +195,18 @@ namespace tackle
     };
 
     // forward slash path strings
-    using path_string       = path_basic_string<char, std::char_traits<char>, std::allocator<char>, literal_separators<char>::forward_slash_char>;
-    using path_wstring      = path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, literal_separators<wchar_t>::forward_slash_char>;
+    using path_string       = path_basic_string<char, std::char_traits<char>, std::allocator<char>, utility::literal_separators<char>::forward_slash_char>;
+    using path_wstring      = path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, utility::literal_separators<wchar_t>::forward_slash_char>;
 
-    using path_u16string    = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, literal_separators<char16_t>::forward_slash_char>;
-    using path_u32string    = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, literal_separators<char32_t>::forward_slash_char>;
+    using path_u16string    = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, utility::literal_separators<char16_t>::forward_slash_char>;
+    using path_u32string    = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, utility::literal_separators<char32_t>::forward_slash_char>;
 
     // back slash path strings
-    using path_string_bs    = path_basic_string<char, std::char_traits<char>, std::allocator<char>, literal_separators<char>::backward_slash_char>;
-    using path_wstring_bs   = path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, literal_separators<wchar_t>::backward_slash_char>;
+    using path_string_bs    = path_basic_string<char, std::char_traits<char>, std::allocator<char>, utility::literal_separators<char>::backward_slash_char>;
+    using path_wstring_bs   = path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, utility::literal_separators<wchar_t>::backward_slash_char>;
 
-    using path_u16string_bs = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, literal_separators<char16_t>::backward_slash_char>;
-    using path_u32string_bs = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, literal_separators<char32_t>::backward_slash_char>;
+    using path_u16string_bs = path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, utility::literal_separators<char16_t>::backward_slash_char>;
+    using path_u32string_bs = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, utility::literal_separators<char32_t>::backward_slash_char>;
 
     template <char separator_char>
     using basic_path_string             = path_basic_string<char, std::char_traits<char>, std::allocator<char>, separator_char>;
@@ -217,15 +218,15 @@ namespace tackle
     using basic_path_u32string          = path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, separator_char>;
 
     template <class t_elem, class t_traits, class t_alloc>
-    using generic_basic_path_string     = path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::forward_slash_char>;
+    using generic_basic_path_string     = path_basic_string<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::forward_slash_char>;
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
     template <class t_elem, class t_traits, class t_alloc>
-    using native_basic_path_string      = path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::backward_slash_char>;
+    using native_basic_path_string      = path_basic_string<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::backward_slash_char>;
 #else
     // native and generic uses the same type here
     template <class t_elem, class t_traits, class t_alloc>
-    using native_basic_path_string      = path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::forward_slash_char>;
+    using native_basic_path_string      = path_basic_string<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::forward_slash_char>;
 #endif
 
     using generic_path_string           = generic_basic_path_string<char, std::char_traits<char>, std::allocator<char> >;
@@ -253,41 +254,41 @@ namespace tackle
     struct tag_basic_path_u32string     : tag_path_basic_string<char32_t, separator_char> {};
 
     template <typename t_elem>
-    struct tag_generic_path_basic_string : tag_path_basic_string<t_elem, literal_separators<t_elem>::forward_slash_char> {};
+    struct tag_generic_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
     template <typename t_elem>
-    struct tag_native_path_basic_string : tag_path_basic_string<t_elem, literal_separators<t_elem>::backward_slash_char> {};
+    struct tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::backward_slash_char> {};
 
-    struct tag_path_string              : tag_basic_path_string<literal_separators<char>::forward_slash_char> {};
-    struct tag_path_wstring             : tag_basic_path_wstring<literal_separators<wchar_t>::forward_slash_char> {};
-    struct tag_path_u16string           : tag_basic_path_u16string<literal_separators<char16_t>::forward_slash_char> {};
-    struct tag_path_u32string           : tag_basic_path_u32string<literal_separators<char32_t>::forward_slash_char> {};
+    struct tag_path_string              : tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
+    struct tag_path_wstring             : tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
+    struct tag_path_u16string           : tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
+    struct tag_path_u32string           : tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
 
-    struct tag_path_string_bs           : tag_basic_path_string<literal_separators<char>::backward_slash_char> {};
-    struct tag_path_wstring_bs          : tag_basic_path_wstring<literal_separators<wchar_t>::backward_slash_char> {};
-    struct tag_path_u16string_bs        : tag_basic_path_u16string<literal_separators<char16_t>::backward_slash_char> {};
-    struct tag_path_u32string_bs        : tag_basic_path_u32string<literal_separators<char32_t>::backward_slash_char> {};
+    struct tag_path_string_bs           : tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
+    struct tag_path_wstring_bs          : tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
+    struct tag_path_u16string_bs        : tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
+    struct tag_path_u32string_bs        : tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
 
     template <class t_elem>
     struct tag_generic_basic_path_string : tag_generic_path_basic_string<t_elem> {};
 
-    struct tag_generic_path_string      : tag_generic_path_basic_string<char>, tag_basic_path_string<literal_separators<char>::forward_slash_char> {};
-    struct tag_generic_path_wstring     : tag_generic_path_basic_string<wchar_t>, tag_basic_path_wstring<literal_separators<wchar_t>::forward_slash_char> {};
-    struct tag_generic_path_u16string   : tag_generic_path_basic_string<char16_t>, tag_basic_path_u16string<literal_separators<char16_t>::forward_slash_char> {};
-    struct tag_generic_path_u32string   : tag_generic_path_basic_string<char32_t>, tag_basic_path_u32string<literal_separators<char32_t>::forward_slash_char> {};
+    struct tag_generic_path_string      : tag_generic_path_basic_string<char>, tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
+    struct tag_generic_path_wstring     : tag_generic_path_basic_string<wchar_t>, tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
+    struct tag_generic_path_u16string   : tag_generic_path_basic_string<char16_t>, tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
+    struct tag_generic_path_u32string   : tag_generic_path_basic_string<char32_t>, tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
 
     template <class t_elem>
     struct tag_native_basic_path_string : tag_native_path_basic_string<t_elem> {};
 
-    struct tag_native_path_string       : tag_native_path_basic_string<char>, tag_basic_path_string<literal_separators<char>::backward_slash_char> {};
-    struct tag_native_path_wstring      : tag_native_path_basic_string<wchar_t>, tag_basic_path_wstring<literal_separators<wchar_t>::backward_slash_char> {};
-    struct tag_native_path_u16string    : tag_native_path_basic_string<char16_t>, tag_basic_path_u16string<literal_separators<char16_t>::backward_slash_char> {};
-    struct tag_native_path_u32string    : tag_native_path_basic_string<char32_t>, tag_basic_path_u32string<literal_separators<char32_t>::backward_slash_char> {};
+    struct tag_native_path_string       : tag_native_path_basic_string<char>, tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
+    struct tag_native_path_wstring      : tag_native_path_basic_string<wchar_t>, tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
+    struct tag_native_path_u16string    : tag_native_path_basic_string<char16_t>, tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
+    struct tag_native_path_u32string    : tag_native_path_basic_string<char32_t>, tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
 
     template <typename t_elem, t_elem separator_char>
     struct tag_basic_path_string_by_separator_char :
-        std::conditional<UTILITY_CONSTEXPR(separator_char == literal_separators<t_elem>::forward_slash_char),
+        std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::forward_slash_char),
             tag_generic_basic_path_string<t_elem>,
-            typename std::conditional<UTILITY_CONSTEXPR(separator_char == literal_separators<t_elem>::backward_slash_char),
+            typename std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::backward_slash_char),
                 tag_native_basic_path_string<t_elem>,
                 utility::void_
             >::type

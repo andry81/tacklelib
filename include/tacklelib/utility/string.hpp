@@ -53,10 +53,6 @@ namespace utility {
         return str.c_str();
     }
 
-    // rvalue forwading before the c-style string take is useless here, restrict it to force the user to reduce the code
-    template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN void get_c_str(T && str);
-
     template <uint64_t id, typename CharT, CharT... tchars>
     FORCE_INLINE CONSTEXPR_RETURN const CharT * get_c_param(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
@@ -263,21 +259,15 @@ namespace utility {
         return str;
     }
 
-    inline std::string string_format(size_t string_reserve, std::string && fmt_str, ...)
+    // CAUTION:
+    //  fmt_str must be a reference here, otherwise an error: 
+    //  `error C2338: va_start argument must not have reference type and must not be parenthesized`
+    //
+    inline std::string string_format(size_t string_reserve, std::string fmt_str, ...)
     {
         va_list vl;
         va_start(vl, fmt_str);
         std::string str{ std::move(string_format(string_reserve, std::move(fmt_str), vl)) };
-        va_end(vl);
-
-        return std::move(str);
-    }
-
-    inline std::string string_format(size_t string_reserve, const std::string & fmt_str, ...)
-    {
-        va_list vl;
-        va_start(vl, fmt_str);
-        std::string str{ std::move(string_format(string_reserve, fmt_str, vl)) };
         va_end(vl);
 
         return std::move(str);
@@ -293,21 +283,15 @@ namespace utility {
         return std::move(str);
     }
 
-    inline std::wstring string_format(size_t string_reserve, std::wstring && fmt_str, ...)
+    // CAUTION:
+    //  fmt_str must be a reference here, otherwise an error: 
+    //  `error C2338: va_start argument must not have reference type and must not be parenthesized`
+    //
+    inline std::wstring string_format(size_t string_reserve, std::wstring fmt_str, ...)
     {
         va_list vl;
         va_start(vl, fmt_str);
         std::wstring str{ std::move(string_format(string_reserve, std::move(fmt_str), vl)) };
-        va_end(vl);
-
-        return std::move(str);
-    }
-
-    inline std::wstring string_format(size_t string_reserve, const std::wstring & fmt_str, ...)
-    {
-        va_list vl;
-        va_start(vl, fmt_str);
-        std::wstring str{ std::move(string_format(string_reserve, fmt_str, vl)) };
         va_end(vl);
 
         return std::move(str);

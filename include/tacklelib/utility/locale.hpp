@@ -226,7 +226,7 @@ namespace utility {
     template <class Codecvt, class Walloc = std::allocator<wchar_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const char * astr, const char * astr_last, std::wstring_convert<Codecvt, wchar_t, Walloc, Balloc> && wstr_converter)
     {
-        return wstr_converter.from_bytes(astr, astr + astr_last);
+        return wstr_converter.from_bytes(astr, astr_last);
     }
 
     FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const std::string & astr, utility::wstring_identity)

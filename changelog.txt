@@ -1,6 +1,9 @@
 2019.0X.XX:
 * new: tests: tmpl_string unit tests
 
+2019.03.27:
+* changed: cmake: improved cmake cross generator usage on the same system by adding CMAKE_OUTPUT_GENERATOR_DIR variable between CMAKE_OUTPUT_ROOT and CMAKE_OUTPUT_DIR variables
+
 2019.03.26:
 * new: utility/log: added fmt::fmt usage into p7 logger preformat routines
 * refactor: utility/log: renamed PROJECT_ROOT macro to LOG_SRC_ROOT as more specialized version

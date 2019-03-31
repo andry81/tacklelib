@@ -66,7 +66,7 @@ namespace tackle
 namespace tackle
 {
     template <class t_elem, class t_traits, class t_alloc>
-    using unc_basic_path_string = path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+    using unc_basic_path_string = path_basic_string<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
 
     using unc_path_string       = unc_basic_path_string<char, std::char_traits<char>, std::allocator<char> >;
     using unc_path_wstring      = unc_basic_path_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
@@ -74,7 +74,7 @@ namespace tackle
     using unc_path_u32string    = unc_basic_path_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >;
 
     template <typename t_elem>
-    struct tag_unc_path_basic_string    : tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char> {};
+    struct tag_unc_path_basic_string    : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::filesystem_unc_dir_separator_char> {};
 
     template <class t_elem>
     struct tag_unc_basic_path_string    : tag_unc_path_basic_string<t_elem> {};

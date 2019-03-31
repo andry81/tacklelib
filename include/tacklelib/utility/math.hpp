@@ -896,9 +896,9 @@ namespace math
 #endif
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_signed_from(T v) -> decltype(static_cast<std::make_signed<T>::type>(v))
+    FORCE_INLINE CONSTEXPR_RETURN auto make_signed_from(T v) -> decltype(static_cast<typename std::make_signed<T>::type>(v))
     {
-        return static_cast<std::make_signed<T>::type>(v);
+        return static_cast<typename std::make_signed<T>::type>(v);
     }
 
     template <typename T>

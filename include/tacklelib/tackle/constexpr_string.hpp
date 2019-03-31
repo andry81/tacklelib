@@ -10,6 +10,7 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/string_identity.hpp>
+#include <tacklelib/utility/static_constexpr.hpp>
 #include <tacklelib/utility/debug.hpp>
 
 #include <tacklelib/tackle/tmpl_string.hpp>
@@ -23,7 +24,7 @@
 #include <type_traits>
 
 
-#define TACKLE_CONSTEXPR_STRING(c_str)  ::tackle::constexpr_basic_string<decltype((c_str)[0])>(c_str)
+#define TACKLE_CONSTEXPR_STRING(c_str)  ::tackle::constexpr_basic_string<::utility::remove_cvref<decltype((c_str)[0])>::type>(c_str)
 
 
 namespace tackle {
@@ -111,7 +112,7 @@ namespace detail {
     {
     public:
         template <size_t S>
-        using t_array_type  = CharT[S];
+        using t_array_type = CharT[S];
 
         FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string() :
             m_ptr(""),
@@ -155,14 +156,15 @@ namespace detail {
         {
         }
 
-        template <uint64_t id, typename CharT, CharT... chars>
+        template <uint64_t id, CharT... chars>
         FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const tmpl_basic_string<id, CharT, chars...> & str) :
             m_ptr(str.data()),
             m_size(str.size())
         {
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const std::string & str) :
+        template <typename t_traits, typename t_alloc>
+        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const std::basic_string<CharT, t_traits, t_alloc> & str) :
             m_ptr(detail::
                 _impl<UTILITY_IS_CONSTEXPR_VALUE(str.data())>::
                 _consexpr_validate_ptr(str.data(), str.size())
@@ -185,7 +187,7 @@ namespace detail {
             return (index < m_size - 1) ?
                 m_ptr[index] :
                 (DEBUG_BREAK_THROW(true) std::range_error("index must be in range"),
-                    tackle::literal_separators<CharT>::null_char);
+                    utility::literal_separators<CharT>::null_char);
         }
 #endif
 
@@ -260,6 +262,18 @@ namespace utility {
     FORCE_INLINE CONSTEXPR_RETURN size_t string_length(const tackle::constexpr_basic_string<CharT> & str)
     {
         return str.length();
+    }
+
+    template <typename CharT>
+    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
+    {
+        return detail::_get_file_name_constexpr_offset(str, str.length());
+    }
+
+    template <typename CharT>
+    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
+    {
+        return detail::_get_unmangled_src_func_constexpr_offset(str, str.length());
     }
 
 }

@@ -24,10 +24,20 @@ if not defined PARENT_DIR (
 
 if not exist "%CMAKE_OUTPUT_ROOT%" ( mkdir "%CMAKE_OUTPUT_ROOT%" || exit /b )
 
+if defined CMAKE_OUTPUT_GENERATOR_DIR (
+  call :PARENT_DIR "%%CMAKE_OUTPUT_GENERATOR_DIR%%"
+  if not defined PARENT_DIR (
+    echo.%~nx0: error: parent directory of the CMAKE_OUTPUT_GENERATOR_DIR does not exist "%CMAKE_OUTPUT_GENERATOR_DIR%".
+    exit /b 2
+  )
+
+  if not exist "%CMAKE_OUTPUT_DIR%" ( mkdir "%CMAKE_OUTPUT_DIR%" || exit /b )
+)
+
 call :PARENT_DIR "%%CMAKE_OUTPUT_DIR%%"
 if not defined PARENT_DIR (
   echo.%~nx0: error: parent directory of the CMAKE_OUTPUT_DIR does not exist "%CMAKE_OUTPUT_DIR%".
-  exit /b 2
+  exit /b 3
 )
 
 if not exist "%CMAKE_OUTPUT_DIR%" ( mkdir "%CMAKE_OUTPUT_DIR%" || exit /b )

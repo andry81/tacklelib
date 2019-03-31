@@ -93,7 +93,7 @@ namespace utility {
     void Buffer::check_buffer_guards()
     {
         if (m_size < m_reserve) {
-            CONSTEXPR const auto & const guard_sequence_str = _guard_sequence_str();
+            CONSTEXPR const auto & guard_sequence_str = _guard_sequence_str();
             CONSTEXPR const size_t guard_sequence_str_len = UTILITY_CONSTEXPR_SIZE(guard_sequence_str) - 1;
 
             uint8_t * buf_ptr = m_buf_ptr.get();

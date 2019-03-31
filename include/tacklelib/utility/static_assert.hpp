@@ -11,8 +11,8 @@
 
 
 // static asserts to use in an constexpr expression
-#define STATIC_ASSERT_CONSTEXPR_TRUE(exp)               (void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp)>()
-#define STATIC_ASSERT_CONSTEXPR_FALSE(exp)              (void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp)>()
+#define STATIC_ASSERT_CONSTEXPR_TRUE(exp, ...)          (void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >()
+#define STATIC_ASSERT_CONSTEXPR_FALSE(exp, ...)         (void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >()
 
 // NOTE:
 //  The reson this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
@@ -81,7 +81,7 @@ namespace utility
 {
     // static assert to use in an constexpr expression
 
-    template <bool v>
+    template <bool v, typename...>
     CONSTEXPR_RETURN bool static_assert_constexpr()
     {
         static_assert(v, "static_assert_true failed.");

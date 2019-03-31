@@ -20,6 +20,8 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <type_traits>
 
 
 namespace utility {
@@ -30,7 +32,9 @@ namespace _7zip {
 
     LzmaEncoderHandle create_lzma_encoder(ISzAllocPtr alloc);
 
-    class LzmaEncoderHandle : public tackle::SmartHandle<ISzAlloc>
+    using CLzmaEncHandleDeref = typename std::remove_pointer<CLzmaEncHandle>::type;
+
+    class LzmaEncoderHandle : public tackle::SmartHandle<CLzmaEncHandleDeref>
     {
         friend LzmaEncoderHandle create_lzma_encoder(ISzAllocPtr alloc);
 
@@ -53,10 +57,10 @@ namespace _7zip {
 
             FORCE_INLINE Deleter(const Deleter &) = default;
 
-            FORCE_INLINE void operator()(ISzAlloc * p) const
+            FORCE_INLINE void operator()(CLzmaEncHandle p) const
             {
                 if (p) {
-                    LzmaEnc_Destroy(static_cast<CLzmaEncHandle>(p), m_palloc, m_palloc);
+                    LzmaEnc_Destroy(p, m_palloc, m_palloc);
                 }
             }
 
