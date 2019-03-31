@@ -1,5 +1,5 @@
-2019.0X.XX:
-* new: tests: tmpl_string unit tests
+2019.03.31:
+* new: tests: unit: test_tmpl_string compilation fixes
 
 2019.03.31:
 * changed: 3dparty: googletest: merge with the latest library changes at release 1.8.1 commit #2fe3bd994b3189899d93f1d5a881e725e046fdc2 (2018.08.31) from https://github.com/google/googletest/releases

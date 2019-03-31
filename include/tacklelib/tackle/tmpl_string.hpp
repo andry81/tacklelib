@@ -35,6 +35,17 @@
     ::utility::detail::_make_tmpl_string<id>(UTILITY_LITERAL_STRING_VALUE_AS(ansi_str, char_type))
 
 
+namespace utility {
+
+    namespace detail {
+
+        template <size_t num_chars>
+        struct _impl;
+
+    }
+
+}
+
 namespace tackle {
 
     // template version storage
@@ -79,7 +90,11 @@ namespace tackle {
 //  note: or       'built-in C++ operator[](int)'
 //
 #if !defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_X64)
-        FORCE_INLINE CONSTEXPR_RETURN const CharT & operator[] (size_t index) const;
+        FORCE_INLINE CONSTEXPR_RETURN const CharT & operator[] (size_t index) const; // index - must compile time ONLY
+        {
+            return STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_IS_CONSTEXPR_VALUE(index),
+                UTILITY_CONSTEXPR_GET(*this, index));
+        }
 #endif
 
         static FORCE_INLINE CONSTEXPR_RETURN const CharT * c_str()
@@ -97,7 +112,13 @@ namespace tackle {
             return UTILITY_CONSTEXPR_VALUE(sizeof...(tchars));
         }
 
-        static FORCE_INLINE CONSTEXPR_RETURN size_t length();
+        // CAUTION:
+        //  must be implemented inside class to avoid ICE in msvc 2015 update 3
+        //
+        static FORCE_INLINE CONSTEXPR_RETURN size_t length()
+        {
+            return UTILITY_CONSTEXPR_VALUE((utility::detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _impl3<0, CharT, tchars...>::_constexpr_tmpl_string_length()));
+        }
 
         FORCE_INLINE CONSTEXPR_RETURN operator const CharT *() const
         {
@@ -179,19 +200,9 @@ namespace utility {
 
     namespace detail {
 
-        // string length for a template string
-
         template <size_t num_chars>
         struct _impl
         {
-            template <typename CharT, CharT c0, CharT... tail_tchars>
-            static FORCE_INLINE CONSTEXPR_RETURN size_t _tmpl_string_length(size_t next_index)
-            {
-                return c0 != utility::literal_separators<CharT>::null_char ?
-                    _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _tmpl_string_length<CharT, tail_tchars...>(next_index + 1) :
-                    next_index;
-            }
-
             // CAUTION:
             //  `_get_tmpl_basic_string_char` can search a range greater than the length of a string, because by default it uses the string size instead a string length!
             //
@@ -207,25 +218,42 @@ namespace utility {
             }
 
             template <size_t index, size_t next_index, size_t max_size, typename CharT, CharT c0, CharT... tail_tchars>
-            static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+            struct _impl2
             {
-                return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < next_index + sizeof...(tail_tchars),
-                        STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars)), STATIC_ASSERT_PARAM(next_index)),
-                    (index != next_index ?
-                        _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _constexpr_get_tmpl_basic_string_char<index, next_index + 1, max_size, CharT, tail_tchars...>() :
-                        c0));
-            }
+                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                {
+                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index != next_index && index < max_size && index < next_index + sizeof...(tail_tchars),
+                        STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(next_index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
+                        _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _impl2<index, next_index + 1, max_size, CharT, tail_tchars...>::_constexpr_get_tmpl_basic_string_char());
+                }
+            };
+
+            template <size_t index, size_t max_size, typename CharT, CharT c0, CharT... tail_tchars>
+            struct _impl2<index, index, max_size, CharT, c0, tail_tchars...>
+            {
+                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                {
+                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < index + sizeof...(tail_tchars),
+                        STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
+                        c0);
+                }
+            };
+
+            template <size_t next_index, typename CharT, CharT c0, CharT... tail_tchars>
+            struct _impl3
+            {
+                static FORCE_INLINE CONSTEXPR_RETURN size_t _constexpr_tmpl_string_length()
+                {
+                    return c0 != utility::literal_separators<CharT>::null_char ?
+                        _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _impl3<next_index + 1, CharT, tail_tchars...>::_constexpr_tmpl_string_length() :
+                        next_index;
+                }
+            };
         };
 
         template <>
         struct _impl<1>
         {
-            template <typename CharT, CharT c0>
-            static FORCE_INLINE CONSTEXPR_RETURN size_t _tmpl_string_length(size_t next_index)
-            {
-                return c0 != utility::literal_separators<CharT>::null_char ? next_index + 1 : next_index;
-            }
-
             template <size_t index, typename CharT, CharT c0>
             static FORCE_INLINE CONSTEXPR_RETURN CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
             {
@@ -236,12 +264,27 @@ namespace utility {
             }
 
             template <size_t index, size_t next_index, size_t max_size, typename CharT, CharT c0>
-            static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+            struct _impl2
             {
-                return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < next_index + 1 && index == next_index,
-                        STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(next_index)),
-                    c0);
-            }
+                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                {
+                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < next_index + 1 && index == next_index,
+                        STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(next_index), STATIC_ASSERT_PARAM(max_size)),
+                        c0);
+                }
+            };
+
+            // standalone class to avoid ICE in msvc 2015 update 3
+            template <size_t next_index, typename CharT, CharT c0>
+            struct _impl3
+            {
+                static FORCE_INLINE CONSTEXPR_RETURN size_t _constexpr_tmpl_string_length()
+                {
+                    return c0 != utility::literal_separators<CharT>::null_char ?
+                        next_index + 1 :
+                        next_index;
+                }
+            };
         };
 
         template <>
@@ -258,7 +301,7 @@ namespace utility {
     template <size_t index, typename CharT, CharT... tchars>
     FORCE_INLINE CONSTEXPR_RETURN CharT constexpr_get_tmpl_string_char()
     {
-        return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _constexpr_get_tmpl_basic_string_char<index, 0, size_t(~0), CharT, tchars...>()));
+        return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _impl2<index, 0, size_t(~0), CharT, tchars...>::_constexpr_get_tmpl_basic_string_char()));
     }
 
     template <size_t index, uint64_t id, typename CharT, CharT... tchars>
@@ -270,7 +313,7 @@ namespace utility {
     template <size_t index, uint64_t id, typename CharT, CharT... tchars>
     FORCE_INLINE CONSTEXPR_RETURN CharT constexpr_get(tackle::tmpl_basic_string<id, CharT, tchars...>)
     {
-        return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _constexpr_get_tmpl_basic_string_char<index, 0, size_t(~0), CharT, tchars...>()));
+        return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _impl2<index, 0, size_t(~0), CharT, tchars...>::_constexpr_get_tmpl_basic_string_char()));
     }
 
     // without decltype(auto) and std::move(str)...
@@ -349,30 +392,6 @@ namespace utility {
                 utility::make_index_sequence<sizeof(StaticGetter::get()) / sizeof(StaticGetter::get()[0])>{});
         }
 
-    }
-
-}
-
-
-namespace tackle {
-
-// Workaround for compilation error under MSVC2015u3 or higher (x86 only):
-//  error C2666: 'tmpl_basic_string<...>::operator []': 2 overloads have similar conversions
-//  ...
-//  note: or       'built-in C++ operator[(CharT, int)'
-//
-#if !defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_X64)
-    template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN const CharT & tmpl_basic_string<id, CharT, tchars...>::operator[] (size_t index) const // index - must compile time ONLY
-    {
-        return UTILITY_CONSTEXPR_GET(*this, index);
-    }
-#endif
-
-    template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN size_t tmpl_basic_string<id, CharT, tchars...>::length()
-    {
-        return UTILITY_CONSTEXPR_VALUE((utility::detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _tmpl_string_length<CharT, tchars...>(0)));
     }
 
 }
