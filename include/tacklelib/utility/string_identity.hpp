@@ -71,67 +71,9 @@
         static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
         struct holder \
         { \
-            static CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
+            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
             { \
                 return c_str; \
-            } \
-        }; \
-        return holder{}; \
-    }())
-
-// require `tmpl_basic_string_storage` from `tmpl_string.hpp`
-#define UTILITY_LITERAL_SUBSTRING_VALUE(c_str, constexpr_offset) \
-    ([]{ \
-        static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
-        struct holder \
-        { \
-            using char_type = std::remove_reference<decltype(c_str[0])>::type; \
-            using arr_size_identity = ::utility::size_identity<UTILITY_CONSTEXPR_ARRAY_SIZE(c_str)>; \
-            /*static CONSTEXPR const size_t arr_size = UTILITY_CONSTEXPR_ARRAY_SIZE(c_str);*/ \
-            \
-            template <size_t... N> \
-            static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<N...>) -> ::utility::array_type<char_type, arr_size_identity::value - constexpr_offset> & \
-            { \
-                return ::tackle::tmpl_basic_string_storage<0, char_type, c_str[constexpr_offset + N]..., UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
-            } \
-            /*static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<>) -> ::utility::array_type<char_type, arr_size_identity::value - constexpr_offset> & \
-            { \
-                return ::tackle::tmpl_basic_string_storage<0, char_type, UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
-            }*/ \
-            static CONSTEXPR_RETURN auto get() -> decltype(_make_tmpl_string_impl(::utility::make_index_sequence<arr_size_identity::value - constexpr_offset - 1>{})) \
-            { \
-                STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_offset < arr_size_identity::value, \
-                    STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(arr_size_identity::value)); \
-                return _make_tmpl_string_impl(::utility::make_index_sequence<arr_size_identity::value - constexpr_offset - 1>{}); \
-            } \
-        }; \
-        return holder{}; \
-    }())
-
-// require `tmpl_basic_string_storage` from `tmpl_string.hpp`
-#define UTILITY_LITERAL_SUBSTRING_VALUE2(c_str, constexpr_offset, constexpr_len) \
-    ([]{ \
-        static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
-        struct holder \
-        { \
-            using char_type = std::remove_reference<decltype(c_str[0])>::type; \
-            using arr_size_identity = ::utility::size_identity<UTILITY_CONSTEXPR_ARRAY_SIZE(c_str)>; \
-            /*static CONSTEXPR const size_t arr_size = UTILITY_CONSTEXPR_ARRAY_SIZE(c_str);*/ \
-            \
-            template <size_t... N> \
-            static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<N...>) -> ::utility::array_type<char_type, constexpr_len + 1> & \
-            { \
-                return ::tackle::tmpl_basic_string_storage<0, char_type, c_str[constexpr_offset + N]..., UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
-            } \
-            /*static CONSTEXPR_RETURN auto _make_tmpl_string_impl(::utility::index_sequence<>) -> ::utility::array_type<char_type, constexpr_len + 1> & \
-            { \
-                return ::tackle::tmpl_basic_string_storage<0, char_type, UTILITY_LITERAL_CHAR('\0', char_type)>::value; \
-            }*/ \
-            static CONSTEXPR_RETURN auto get() -> decltype(_make_tmpl_string_impl(::utility::make_index_sequence<constexpr_len>{})) \
-            { \
-                STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_offset + constexpr_len < arr_size_identity::value, \
-                    STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(constexpr_len), STATIC_ASSERT_PARAM(arr_size_identity::value)); \
-                return _make_tmpl_string_impl(::utility::make_index_sequence<constexpr_len>{}); \
             } \
         }; \
         return holder{}; \
@@ -142,7 +84,7 @@
         static_assert(UTILITY_IS_ARRAY_STRING(c_str), "c_str is not an array string"); \
         struct holder \
         { \
-            static CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
+            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
             { \
                 return c_str; \
             } \
@@ -155,7 +97,7 @@
         static_assert(UTILITY_IS_LITERAL_STRING(ansi_str), "ansi_str is not a literal string"); \
         struct holder \
         { \
-            static CONSTEXPR_RETURN auto get() -> \
+            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> \
                 decltype(UTILITY_LITERAL_STRING(ansi_str, char_type)) & \
             { \
                 return UTILITY_LITERAL_STRING(ansi_str, char_type); \
@@ -218,7 +160,7 @@ namespace utility {
                     tag_char16,
                     typename std::conditional<std::is_same<char32_t, t_elem>::value,
                         tag_char32,
-                        utility::void_
+                        void_
                     >::type
                 >::type
             >::type
@@ -590,7 +532,8 @@ namespace utility {
     template <typename CharT>
     FORCE_INLINE CONSTEXPR_RETURN size_t constexpr_string_length(const CharT * const & str)
     {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(str), detail::_string_length(str, 0));
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(str),
+            detail::_string_length(str, 0));
     }
 
     // string length for a runtime string

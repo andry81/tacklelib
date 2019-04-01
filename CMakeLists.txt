@@ -51,6 +51,10 @@ set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 
 configure_environment("MSVC;GCC")
 
+if (GCC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+endif()
+
 ###############################################################################
 ## check environment variables ################################################
 ###############################################################################

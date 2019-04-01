@@ -15,14 +15,10 @@ TEST(TackleTmplStringTest, constexpr_)
 #define TEST_TACKLE_TMPL_STRING(id, c_str_) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str_); \
-        UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(s.size())); \
-        UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(s.length())); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() having not compile time result"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() having not compile time result"); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_)), STATIC_ASSERT_PARAM(s.size())); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_)), STATIC_ASSERT_PARAM(s.length())); \
-        /*static_assert(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), "sizes must be equal"); \
-        static_assert(UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), "lengths must be equal");*/ \
-        ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(s.size())); \
-        ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
     } (void)0
 
@@ -44,8 +40,7 @@ TEST(TackleTmplStringTest, constexpr_get)
 #define TEST_TACKLE_TMPL_STRING(id, index, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str); \
-        UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index))); \
-        ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index))); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET having not compile time result"); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 0, "");
@@ -62,17 +57,16 @@ TEST(TackleTmplStringTest, constexpr_get)
 
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, index, c_str) \
     { \
-        const auto s = TACKLE_TMPL_SUBSTRING(id, c_str, constexpr_offset); \
-        UTILITY_UNUSED_STATEMENT(UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index))); \
-        ASSERT_TRUE(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index))); \
+        const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET having not compile time result"); \
     } (void)0
 
-    TEST_TACKLE_TMPL_STRING(0, 0, 0, "");
+    //TEST_TACKLE_TMPL_STRING(0, 0, 0, "");
     TEST_TACKLE_TMPL_STRING(0, 0, 0, "test");
     TEST_TACKLE_TMPL_STRING(0, 0, 0, L"");
     TEST_TACKLE_TMPL_STRING(0, 0, 0, L"test");
 
-    TEST_TACKLE_TMPL_STRING(1, 0, 0, "");
+    //TEST_TACKLE_TMPL_STRING(1, 0, 0, "");
     TEST_TACKLE_TMPL_STRING(1, 0, 0, "test");
     TEST_TACKLE_TMPL_STRING(1, 0, 0, L"");
     TEST_TACKLE_TMPL_STRING(1, 0, 0, L"test");
@@ -92,7 +86,6 @@ TEST(TackleTmplStringTest, constexpr_get2)
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        /*static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal");*/ \
         ASSERT_EQ(UTILITY_GET(s, index), c_char); \
     } (void)0
 
@@ -110,9 +103,8 @@ TEST(TackleTmplStringTest, constexpr_get2)
 
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, index, c_char, c_str) \
     { \
-        const auto s = TACKLE_TMPL_SUBSTRING(id, c_str, constexpr_offset); \
+        const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset); \
         STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        /*static_assert(UTILITY_CONSTEXPR_GET(s, index) == c_char, "characters must be equal");*/ \
         ASSERT_EQ(UTILITY_GET(s, index), c_char); \
     } (void)0
 
