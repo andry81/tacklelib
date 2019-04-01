@@ -8,47 +8,28 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
-#include <tacklelib/utility/static_assert.hpp> // required here only for UTILITY_CONSTEXPR_PARAM_LOOKUP_BY_ERROR macro
 
 #include <cstdint>
 #include <type_traits>
 #include <tuple>
 
 
+// CAUTION:
+//  Redundant parentheses are required here to bypass a tricky error in the GCC 5.4.x around expressions with `>` and `<` characters in case of usage inside another expressions with the same characters:
+//      `error: wrong number of template arguments (1, should be at least 2)`
+//      `error: macro "..." passed 2 arguments, but takes just 1`
+//
+
 // * to suppress warnings around compile time expressions or values
 // * to guarantee compile-timeness of an expression
-#define UTILITY_CONSTEXPR(exp)                          ::utility::constexpr_bool<(exp) ? true : false>::value
+#define UTILITY_CONSTEXPR(exp)                          (::utility::constexpr_bool<(exp) ? true : false>::value)
 
 // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
-#define UTILITY_CONSTEXPR_VALUE(exp)                    ::utility::constexpr_value<decltype(exp), exp>::value
-
-// generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
-#define UTILITY_TYPENAME_LOOKUP_BY_ERROR(type_name) \
-    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::_not_overloadable_type *)0))
-
-// the macro only for msvc compiler which has more useful error output if a scope class and a type are separated from each other
-#if defined(UTILITY_COMPILER_CXX_MSC)
-
-#define UTILITY_TYPENAME_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
-    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<class_name >::type_name*)0).operator ,(*(::utility::_not_overloadable_type *)0))
-
-#else
-
-#define UTILITY_TYPENAME_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
-    UTILITY_TYPENAME_LOOKUP_BY_ERROR(class_name::type_name)
-
-#endif
-
-// lookup compile time template typename value
-#define UTILITY_CONSTEXPR_PARAM_LOOKUP_BY_ERROR(constexpr_param) \
-    UTILITY_TYPENAME_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(constexpr_param))
-
-// lookup compile time size value
-#define UTILITY_SIZE_LOOKUP_BY_ERROR(size)              char * __integral_lookup[size] = 1
+#define UTILITY_CONSTEXPR_VALUE(exp)                    (::utility::constexpr_value<decltype(exp), (exp)>::value)
 
 // available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
 //
-#define UTILITY_IS_TYPE_COMPLETE(type)                  ::utility::is_type_complete<type, __COUNTER__>::value
+#define UTILITY_IS_TYPE_COMPLETE(type)                  (::utility::is_type_complete<(type), __COUNTER__>::value)
 
 // Checks expression on constexpr nature.
 //
@@ -76,20 +57,17 @@
 #define UTILITY_DEPENDENT_TYPENAME_COMPILE_ERROR_BY_INCOMPLETE_TYPE(dependent_type_name) \
     using UTILITY_PP_CONCAT(dependent_typename_compiler_error_by_incomplete_type_t, UTILITY_PP_LINE) = typename ::utility::incomplete_dependent_type<dependent_type_name>::type
 
-#define UTILITY_CONSTEXPR_ARRAY_SIZE_(c_arr)            (sizeof(c_arr) / sizeof((c_arr)[0]))
-#define UTILITY_CONSTEXPR_ARRAY_SIZE(c_arr)             UTILITY_CONSTEXPR_ARRAY_SIZE_(c_arr)
+#define UTILITY_CONSTEXPR_ARRAY_SIZE(c_arr)             UTILITY_CONSTEXPR_VALUE(sizeof(c_arr) / sizeof((c_arr)[0]))
 
-#define UTILITY_CONSTEXPR_STRING_LEN(c_str)             (UTILITY_CONSTEXPR_ARRAY_SIZE(c_str) - 1)
+#define UTILITY_CONSTEXPR_STRING_LEN(c_str)             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str) - 1)
 
 #define UTILITY_CONSTEXPR_SIZE(seq)                     UTILITY_CONSTEXPR_VALUE(::utility::static_size(seq))
 
 #define UTILITY_STATIC_SIZE(seq)                        ::utility::static_size(seq)
 
-#define UTILITY_CONSTEXPR_GET(value, constexpr_index) \
-    ::utility::constexpr_get<constexpr_index>(value)
+#define UTILITY_CONSTEXPR_GET(value, constexpr_index)   (::utility::constexpr_get<constexpr_index>(value))
 
-#define UTILITY_GET(value, constexpr_index) \
-    ::utility::get<constexpr_index>(value)
+#define UTILITY_GET(value, constexpr_index)             (::utility::get<constexpr_index>(value))
 
 // Checks existence of member function.
 // Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
@@ -355,12 +333,18 @@ namespace utility
         static CONSTEXPR const bool value = B;
     };
 
+    template <bool B, typename... types>
+    const bool constexpr_bool<B, types...>::value;
+
     // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
     template <typename T, T v, typename...>
     struct constexpr_value
     {
         static CONSTEXPR const T value = v;
     };
+
+    template <typename T, T v, typename... types>
+    const T constexpr_value<T, v, types...>::value;
 
     namespace
     {
@@ -633,9 +617,18 @@ namespace utility
 
     //// functions
 
-    // must overloaded separately
-    FORCE_INLINE CONSTEXPR_RETURN void get() {}
-    FORCE_INLINE CONSTEXPR_RETURN void constexpr_get() {}
+    // must be overloaded explicitly
+    template <size_t index>
+    FORCE_INLINE CONSTEXPR_RETURN void_ get(...)
+    {
+        return void_{};
+    }
+
+    template <size_t index>
+    FORCE_INLINE CONSTEXPR_RETURN void_ constexpr_get(...)
+    {
+        return void_{};
+    }
 
     // std::size is supported from C++17
     template <typename T, size_t N>

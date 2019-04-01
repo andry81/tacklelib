@@ -14,11 +14,17 @@
 #include <utility>
 
 
+// CAUTION:
+//  Redundant parentheses are required here to bypass a tricky error in the GCC 5.4.x around expressions with `>` and `<` characters in case of usage inside another expressions with the same characters:
+//      `error: wrong number of template arguments (1, should be at least 2)`
+//      `error: macro "..." passed 2 arguments, but takes just 1`
+//
+
 #define TACKLE_STATIC_CONSTEXPR_VALUE_WITH_ARGS(type_name, ...) \
-    ::tackle::static_constexpr_value<type_name, UTILITY_IS_CONSTEXPR_VALUE(type_name{ __VA_ARGS__ })>::construct_get(__VA_ARGS__)
+    (::tackle::static_constexpr_value<type_name, UTILITY_IS_CONSTEXPR_VALUE(type_name{ __VA_ARGS__ })>::construct_get(__VA_ARGS__))
 
 #define TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(type_name, ...) \
-    ::tackle::static_constexpr_value<type_name, UTILITY_IS_CONSTEXPR_VALUE(__VA_ARGS__)>::construct_get(__VA_ARGS__)
+    (::tackle::static_constexpr_value<type_name, UTILITY_IS_CONSTEXPR_VALUE(__VA_ARGS__)>::construct_get(__VA_ARGS__))
 
 namespace tackle
 {

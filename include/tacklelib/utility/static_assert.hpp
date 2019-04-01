@@ -10,9 +10,40 @@
 #include <tacklelib/utility/type_identity.hpp>
 
 
+// CAUTION:
+//  Redundant parentheses are required here to bypass a tricky error in the GCC 5.4.x around expressions with `>` and `<` characters in case of usage inside another expressions with the same characters:
+//      `error: wrong number of template arguments (1, should be at least 2)`
+//      `error: macro "..." passed 2 arguments, but takes just 1`
+//
+
+// lookup compile time template typename value
+#define UTILITY_CONSTEXPR_PARAM_LOOKUP_BY_ERROR(constexpr_param) \
+    UTILITY_TYPENAME_LOOKUP_BY_ERROR(STATIC_ASSERT_PARAM(constexpr_param))
+
+// generates compilation error and shows real type name (and place of declaration in some cases) in an error message, useful for debugging boost::mpl like recurrent types
+#define UTILITY_TYPENAME_LOOKUP_BY_ERROR(type_name) \
+    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<type_name >::type*)0).operator ,(*(::utility::_not_overloadable_type *)0))
+
+// the macro only for msvc compiler which has more useful error output if a scope class and a type are separated from each other
+#if defined(UTILITY_COMPILER_CXX_MSC)
+
+#define UTILITY_TYPENAME_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
+    using _type_lookup_t = decltype((*(typename ::utility::type_lookup<class_name >::type_name*)0).operator ,(*(::utility::_not_overloadable_type *)0))
+
+#else
+
+#define UTILITY_TYPENAME_LOOKUP_BY_ERROR_CLASS(class_name, type_name) \
+    UTILITY_TYPENAME_LOOKUP_BY_ERROR(class_name::type_name)
+
+#endif
+
+// lookup compile time size value
+#define UTILITY_SIZE_LOOKUP_BY_ERROR(size)              char * __integral_lookup[size] = 1
+
 // static asserts to use in an constexpr expression
-#define STATIC_ASSERT_CONSTEXPR_TRUE(exp, ...)          (void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >()
-#define STATIC_ASSERT_CONSTEXPR_FALSE(exp, ...)         (void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >()
+
+#define STATIC_ASSERT_CONSTEXPR_TRUE(exp, ...)          ((void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_FALSE(exp, ...)         ((void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
 
 // NOTE:
 //  The reson this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
@@ -23,7 +54,7 @@
 //
 
 #define STATIC_ASSERT_PARAM(v1)                         ::utility::StaticAssertParam<decltype(v1), (v1)>
-#define STATIC_ASSERT_VALUE(v1)                         STATIC_ASSERT_PARAM(v1)::value
+#define STATIC_ASSERT_VALUE(v1)                         (STATIC_ASSERT_PARAM(v1)::value)
 
 #define STATIC_ASSERT_TRUE(exp, msg) \
     static_assert(::utility::StaticAssertTrue<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)

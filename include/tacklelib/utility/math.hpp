@@ -24,44 +24,50 @@
 #include <algorithm>
 
 
-#define INT32_LOG2_FLOOR_CONSTEXPR(x)               ::math::int32_log2_floor<x>::value
-#define UINT32_LOG2_FLOOR_CONSTEXPR(x)              ::math::uint32_log2_floor<x>::value
-#define INT32_LOG2_CEIL_CONSTEXPR(x)                ::math::int32_log2_ceil<x>::value
-#define UINT32_LOG2_CEIL_CONSTEXPR(x)               ::math::uint32_log2_ceil<x>::value
+// CAUTION:
+//  Redundant parentheses are required here to bypass a tricky error in the GCC 5.4.x around expressions with `>` and `<` characters in case of usage inside another expressions with the same characters:
+//      `error: wrong number of template arguments (1, should be at least 2)`
+//      `error: macro "..." passed 2 arguments, but takes just 1`
+//
 
-#define INT32_POF2_FLOOR_CONSTEXPR(x)               ::math::int32_pof2_floor<x>::value
-#define UINT32_POF2_FLOOR_CONSTEXPR(x)              ::math::uint32_pof2_floor<x>::value
+#define INT32_LOG2_FLOOR_CONSTEXPR(x)               (::math::int32_log2_floor<x>::value)
+#define UINT32_LOG2_FLOOR_CONSTEXPR(x)              (::math::uint32_log2_floor<x>::value)
+#define INT32_LOG2_CEIL_CONSTEXPR(x)                (::math::int32_log2_ceil<x>::value)
+#define UINT32_LOG2_CEIL_CONSTEXPR(x)               (::math::uint32_log2_ceil<x>::value)
 
-#define INT32_POF2_CEIL_CONSTEXPR(x)                ::math::int32_pof2_ceil<x>::value
-#define UINT32_POF2_CEIL_CONSTEXPR(x)               ::math::uint32_pof2_ceil<x>::value
+#define INT32_POF2_FLOOR_CONSTEXPR(x)               (::math::int32_pof2_floor<x>::value)
+#define UINT32_POF2_FLOOR_CONSTEXPR(x)              (::math::uint32_pof2_floor<x>::value)
 
-#define INT32_LOG2_CONSTEXPR_VERIFY(x)              ::math::int32_log2_verify<x>::value
-#define UINT32_LOG2_CONSTEXPR_VERIFY(x)             ::math::uint32_log2_verify<x>::value
-#define STDSIZE_LOG2_CONSTEXPR_VERIFY(x)            ::math::stdsize_log2_verify<x>::value
+#define INT32_POF2_CEIL_CONSTEXPR(x)                (::math::int32_pof2_ceil<x>::value)
+#define UINT32_POF2_CEIL_CONSTEXPR(x)               (::math::uint32_pof2_ceil<x>::value)
 
-#define INT32_POF2_CONSTEXPR_VERIFY(x)              ::math::int32_pof2_verify<x>::value
-#define UINT32_POF2_CONSTEXPR_VERIFY(x)             ::math::uint32_pof2_verify<x>::value
+#define INT32_LOG2_CONSTEXPR_VERIFY(x)              (::math::int32_log2_verify<x>::value)
+#define UINT32_LOG2_CONSTEXPR_VERIFY(x)             (::math::uint32_log2_verify<x>::value)
+#define STDSIZE_LOG2_CONSTEXPR_VERIFY(x)            (::math::stdsize_log2_verify<x>::value)
+
+#define INT32_POF2_CONSTEXPR_VERIFY(x)              (::math::int32_pof2_verify<x>::value)
+#define UINT32_POF2_CONSTEXPR_VERIFY(x)             (::math::uint32_pof2_verify<x>::value)
 
 
-#define INT32_LOG2_FLOOR(x)                         ::math::int_log2_floor<int32_t>(x)
-#define UINT32_LOG2_FLOOR(x)                        ::math::int_log2_floor<uint32_t>(x)
-#define INT32_LOG2_CEIL(x)                          ::math::int_log2_ceil<int32_t>(x)
-#define UINT32_LOG2_CEIL(x)                         ::math::int_log2_ceil<uint32_t>(x)
+#define INT32_LOG2_FLOOR(x)                         (::math::int_log2_floor<int32_t>(x))
+#define UINT32_LOG2_FLOOR(x)                        (::math::int_log2_floor<uint32_t>(x))
+#define INT32_LOG2_CEIL(x)                          (::math::int_log2_ceil<int32_t>(x))
+#define UINT32_LOG2_CEIL(x)                         (::math::int_log2_ceil<uint32_t>(x))
 
-#define INT32_POF2_FLOOR(x)                         ::math::int_pof2_floor<int32_t>(x)
-#define UINT32_POF2_FLOOR(x)                        ::math::int_pof2_floor<uint32_t>(x)
-#define INT32_POF2_CEIL(x)                          ::math::int_pof2_ceil<int32_t>(x)
-#define UINT32_POF2_CEIL(x)                         ::math::int_pof2_ceil<uint32_t>(x)
+#define INT32_POF2_FLOOR(x)                         (::math::int_pof2_floor<int32_t>(x))
+#define UINT32_POF2_FLOOR(x)                        (::math::int_pof2_floor<uint32_t>(x))
+#define INT32_POF2_CEIL(x)                          (::math::int_pof2_ceil<int32_t>(x))
+#define UINT32_POF2_CEIL(x)                         (::math::int_pof2_ceil<uint32_t>(x))
 
-#define INT32_LOG2_FLOOR_VERIFY(x)                  ::math::int_log2_floor_verify<int32_t>(x)
-#define UINT32_LOG2_FLOOR_VERIFY(x)                 ::math::int_log2_floor_verify<uint32_t>(x)
-#define INT32_LOG2_CEIL_VERIFY(x)                   ::math::int_log2_ceil_verify<int32_t>(x)
-#define UINT32_LOG2_CEIL_VERIFY(x)                  ::math::int_log2_ceil_verify<uint32_t>(x)
+#define INT32_LOG2_FLOOR_VERIFY(x)                  (::math::int_log2_floor_verify<int32_t>(x))
+#define UINT32_LOG2_FLOOR_VERIFY(x)                 (::math::int_log2_floor_verify<uint32_t>(x))
+#define INT32_LOG2_CEIL_VERIFY(x)                   (::math::int_log2_ceil_verify<int32_t>(x))
+#define UINT32_LOG2_CEIL_VERIFY(x)                  (::math::int_log2_ceil_verify<uint32_t>(x))
 
-#define INT32_POF2_FLOOR_VERIFY(x)                  ::math::int_pof2_floor_verify<int32_t>(x)
-#define UINT32_POF2_FLOOR_VERIFY(x)                 ::math::int_pof2_floor_verify<uint32_t>(x)
-#define INT32_POF2_CEIL_VERIFY(x)                   ::math::int_pof2_ceil_verify<int32_t>(x)
-#define UINT32_POF2_CEIL_VERIFY(x)                  ::math::int_pof2_ceil_verify<uint32_t>(x)
+#define INT32_POF2_FLOOR_VERIFY(x)                  (::math::int_pof2_floor_verify<int32_t>(x))
+#define UINT32_POF2_FLOOR_VERIFY(x)                 (::math::int_pof2_floor_verify<uint32_t>(x))
+#define INT32_POF2_CEIL_VERIFY(x)                   (::math::int_pof2_ceil_verify<int32_t>(x))
+#define UINT32_POF2_CEIL_VERIFY(x)                  (::math::int_pof2_ceil_verify<uint32_t>(x))
 
 
 #define INT32_MULT_POF2_FLOOR_CONSTEXPR(x, y)       int32_t(int32_t(x) << INT32_LOG2_FLOOR_CONSTEXPR(y))
@@ -81,18 +87,18 @@
 #define UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y)      uint32_t(uint32_t(x) >> UINT32_LOG2_CONSTEXPR_VERIFY(y))
 #define STDSIZE_DIV_POF2_CONSTEXPR_VERIFY(x, y)     std::size_t(std::size_t(x) >> STDSIZE_LOG2_CONSTEXPR_VERIFY(y))
 
-#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
-#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
-#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)    ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) }
-#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)   ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)   (::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) })
+#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_Y(x, y)  (::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) })
+#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)    (::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) })
+#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_Y(x, y)   (::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) })
 
-#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y)  ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
-#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y) ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) }
-#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) }
-#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) }
+#define INT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y)  (::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_FLOOR_CONSTEXPR(y) - 1) })
+#define UINT32_DIVREM_POF2_FLOOR_CONSTEXPR_XY(x, y) (::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_CONSTEXPR(y) - 1) })
+#define INT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)   (::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_CONSTEXPR(x, y), int32_t(x) & (INT32_POF2_CEIL_CONSTEXPR(y) - 1) })
+#define UINT32_DIVREM_POF2_CEIL_CONSTEXPR_XY(x, y)  (::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_CONSTEXPR(x, y), uint32_t(x) & (UINT32_POF2_CEIL_CONSTEXPR(y) - 1) })
 
-#define INT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)   ::math::divrem<int32_t>{ INT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), int32_t(x) & (INT32_POF2_CONSTEXPR_VERIFY(y) - 1) }
-#define UINT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)  ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CONSTEXPR_VERIFY(y) - 1) }
+#define INT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)    (::math::divrem<int32_t>{ INT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), int32_t(x) & (INT32_POF2_CONSTEXPR_VERIFY(y) - 1) })
+#define UINT32_DIVREM_POF2_CONSTEXPR_VERIFY(x, y)   (::math::divrem<uint32_t>{ UINT32_DIV_POF2_CONSTEXPR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CONSTEXPR_VERIFY(y) - 1) })
 
 
 #define INT32_MULT_POF2_FLOOR(x, y)                 int32_t(int32_t(x) << INT32_LOG2_FLOOR(y))
@@ -115,15 +121,15 @@
 #define INT32_DIV_POF2_CEIL_VERIFY(x, y)            int32_t(int32_t(x) >> INT32_LOG2_CEIL_VERIFY(y))
 #define UINT32_DIV_POF2_CEIL_VERIFY(x, y)           uint32_t(uint32_t(x) >> UINT32_LOG2_CEIL_VERIFY(y))
 
-#define INT32_DIVREM_POF2_FLOOR(x, y)               ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR(y) - 1) }
-#define UINT32_DIVREM_POF2_FLOOR(x, y)              ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR(y) - 1) }
-#define INT32_DIVREM_POF2_CEIL(x, y)                ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL(y) - 1) }
-#define UINT32_DIVREM_POF2_CEIL(x, y)               ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL(y) - 1) }
+#define INT32_DIVREM_POF2_FLOOR(x, y)               (::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR(x, y), int32_t(x) & (INT32_POF2_FLOOR(y) - 1) })
+#define UINT32_DIVREM_POF2_FLOOR(x, y)              (::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR(x, y), uint32_t(x) & (UINT32_POF2_FLOOR(y) - 1) })
+#define INT32_DIVREM_POF2_CEIL(x, y)                (::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL(x, y), int32_t(x) & (INT32_POF2_CEIL(y) - 1) })
+#define UINT32_DIVREM_POF2_CEIL(x, y)               (::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL(x, y), uint32_t(x) & (UINT32_POF2_CEIL(y) - 1) })
 
-#define INT32_DIVREM_POF2_FLOOR_VERIFY(x, y)        ::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_VERIFY(x, y), int32_t(x) & (INT32_POF2_FLOOR_VERIFY(y) - 1) }
-#define UINT32_DIVREM_POF2_FLOOR_VERIFY(x, y)       ::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_VERIFY(y) - 1) }
-#define INT32_DIVREM_POF2_CEIL_VERIFY(x, y)         ::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_VERIFY(x, y), int32_t(x) & (INT32_POF2_CEIL_VERIFY(y) - 1) }
-#define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        ::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) }
+#define INT32_DIVREM_POF2_FLOOR_VERIFY(x, y)        (::math::divrem<int32_t>{ INT32_DIV_POF2_FLOOR_VERIFY(x, y), int32_t(x) & (INT32_POF2_FLOOR_VERIFY(y) - 1) })
+#define UINT32_DIVREM_POF2_FLOOR_VERIFY(x, y)       (::math::divrem<uint32_t>{ UINT32_DIV_POF2_FLOOR_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_FLOOR_VERIFY(y) - 1) })
+#define INT32_DIVREM_POF2_CEIL_VERIFY(x, y)         (::math::divrem<int32_t>{ INT32_DIV_POF2_CEIL_VERIFY(x, y), int32_t(x) & (INT32_POF2_CEIL_VERIFY(y) - 1) })
+#define UINT32_DIVREM_POF2_CEIL_VERIFY(x, y)        (::math::divrem<uint32_t>{ UINT32_DIV_POF2_CEIL_VERIFY(x, y), uint32_t(x) & (UINT32_POF2_CEIL_VERIFY(y) - 1) })
 
 
 // input angle must not be a class, otherwise you have to use overload version of `pi` in another group of macroses
