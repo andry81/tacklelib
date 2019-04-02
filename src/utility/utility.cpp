@@ -1358,7 +1358,7 @@ namespace {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         char buf[MAX_COMPUTERNAME_LENGTH + 1]{ '\0' };
-        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        DWORD buf_size = UTILITY_CONSTEXPR_ARRAY_SIZE(buf);
         ::GetComputerNameA(buf, &buf_size);
         return buf;
 #else
@@ -1384,7 +1384,7 @@ namespace {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         wchar_t buf[MAX_COMPUTERNAME_LENGTH + 1]{ '\0' };
-        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        DWORD buf_size = UTILITY_CONSTEXPR_ARRAY_SIZE(buf);
         ::GetComputerNameW(buf, &buf_size);
         return buf;
 #else
@@ -1410,7 +1410,7 @@ namespace {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         char buf[UNLEN + 1]{ '\0' };
-        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        DWORD buf_size = UTILITY_CONSTEXPR_ARRAY_SIZE(buf);
         ::GetUserNameA(buf, &buf_size);
         return buf;
 #else
@@ -1428,7 +1428,7 @@ namespace {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         wchar_t buf[UNLEN + 1]{ '\0' };
-        DWORD buf_size = UTILITY_CONSTEXPR_SIZE(buf);
+        DWORD buf_size = UTILITY_CONSTEXPR_ARRAY_SIZE(buf);
         ::GetUserNameW(buf, &buf_size);
         return buf;
 #else

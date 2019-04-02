@@ -4,6 +4,7 @@
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
 /README_EN.txt -text
+_3dparty/.svnignore -text
 _scripts/01_generate_src.bat -text
 _scripts/01_generate_src.sh -text
 _scripts/02_generate_config.bat -text

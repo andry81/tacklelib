@@ -455,6 +455,38 @@ namespace utility
         static CONSTEXPR const size_t values[] = { v... };
     };
 
+    // uint32_t identity / identities
+
+    template <uint32_t v>
+    struct uint32_identity
+    {
+        using type = uint32_t;
+        static CONSTEXPR const uint32_t value = v;
+    };
+
+    template <uint32_t... v>
+    struct uint32_identities
+    {
+        using type = uint32_t;
+        static CONSTEXPR const uint32_t values[] = { v... };
+    };
+
+    // uint64_t identity / identities
+
+    template <uint64_t v>
+    struct uint64_identity
+    {
+        using type = uint64_t;
+        static CONSTEXPR const uint64_t value = v;
+    };
+
+    template <uint64_t... v>
+    struct uint64_identities
+    {
+        using type = uint64_t;
+        static CONSTEXPR const uint64_t values[] = { v... };
+    };
+
     // for explicit partial specialization of type_index_identity_base
 
     template <typename T, int Index>

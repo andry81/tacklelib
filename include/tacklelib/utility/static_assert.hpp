@@ -45,6 +45,9 @@
 #define STATIC_ASSERT_CONSTEXPR_TRUE(exp, ...)          ((void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
 #define STATIC_ASSERT_CONSTEXPR_FALSE(exp, ...)         ((void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
 
+#define STATIC_ASSERT_CONSTEXPR_TRUE_ID(id, exp, ...)   ((void)::utility::static_assert_constexpr_id<id, UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, exp, ...)  ((void)::utility::static_assert_constexpr_id<id, !UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
+
 // NOTE:
 //  The reson this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
 //  To do so we pass parameter values separately into template arguments to trigger a compiler to index them inside compile time error messsages.
@@ -114,6 +117,13 @@ namespace utility
 
     template <bool v, typename...>
     CONSTEXPR_RETURN bool static_assert_constexpr()
+    {
+        static_assert(v, "static_assert_true failed.");
+        return v;
+    }
+
+    template <int id, bool v, typename...>
+    CONSTEXPR_RETURN bool static_assert_constexpr_id()
     {
         static_assert(v, "static_assert_true failed.");
         return v;

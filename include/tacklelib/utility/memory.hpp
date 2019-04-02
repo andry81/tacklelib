@@ -107,7 +107,7 @@ namespace utility
 
     protected:
         using BufPtr = std::unique_ptr<uint8_t[]>;
-        using GuardSequenceStr_t = char [49];
+        using GuardSequenceStr_t = char[49];
 
         static FORCE_INLINE CONSTEXPR_RETURN const GuardSequenceStr_t & _guard_sequence_str()
         {

@@ -1,4 +1,5 @@
 /CMakeLists.txt.user
+_3dparty/*.*
 /_out
 config/*.vars
 /environment_local.cmake
