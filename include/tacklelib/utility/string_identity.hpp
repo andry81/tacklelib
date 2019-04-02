@@ -48,22 +48,22 @@
 
 #define UTILITY_IS_CONSTEXPR_STRING(c_str)              UTILITY_IS_CONSTEXPR_VALUE((c_str)[0])
 
-#define UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE(str)     str, (UTILITY_CONSTEXPR_SIZE(str))
-#define UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(str)   str, (UTILITY_CONSTEXPR_SIZE(str) - 1)
+#define UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE(str)     str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
+#define UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(str)   str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
 
-#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      str, (UTILITY_STATIC_SIZE(str))
-#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    str, (UTILITY_STATIC_SIZE(str) - 1)
+#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
+#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
 
 // string with safe offset through the static assert on an constexpr expression
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_AND_CONSTEXPR_OFFSET_TUPLE(str, constexpr_offset) \
     ( \
-        STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_SIZE(str), STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_SIZE(str))), \
-        UTILITY_CONSTEXPR_VALUE((str) + (constexpr_offset))), UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_SIZE(str) - (constexpr_offset) - 1 \
+        STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str), STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(str))), \
+        UTILITY_CONSTEXPR_VALUE((str) + (constexpr_offset))), UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (constexpr_offset) - 1 \
     )
 
 // string with safe offset through the runtime condition on a string static size
 #define UTILITY_STATIC_STRING_WITH_LENGTH_AND_OFFSET_TUPLE(str, offset) \
-    (((offset) < UTILITY_STATIC_SIZE(str)) ? (str) + (offset) : (str) + UTILITY_STATIC_SIZE(str) - 1), (((offset) < UTILITY_STATIC_SIZE(str)) ? (UTILITY_STATIC_SIZE(str) - (offset) - 1) : 0)
+    (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? (str) + (offset) : (str) + UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1), (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (offset) - 1) : 0)
 
 
 #define UTILITY_LITERAL_STRING_VALUE(c_str) \

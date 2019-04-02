@@ -36,16 +36,6 @@
     (::utility::make_tmpl_string_from_getter<(id)>(UTILITY_LITERAL_STRING_VALUE_AS(ansi_str, char_type)))
 
 
-namespace tackle {
-
-    template <uint64_t id, typename CharT, CharT... tchars>
-    struct tmpl_basic_string_storage;
-
-    template <uint64_t id, typename CharT, CharT... tchars>
-    class tmpl_basic_string;
-
-}
-
 namespace utility {
 
     namespace detail {
@@ -53,98 +43,6 @@ namespace utility {
         template <size_t num_chars>
         struct _impl;
 
-        // make_tmpl_string
-
-        template <uint64_t id, typename StaticGetter, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN
-            tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[N]...>
-            _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>)
-        {
-            return {};
-        }
-
-        template <uint64_t id, size_t offset, typename StaticGetter, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN
-            tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[offset + N]...,
-                UTILITY_LITERAL_CHAR('\0', typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type)>
-            _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>, size_identity<offset>)
-        {
-            return {};
-        }
-
-        template <uint64_t substr_id, size_t offset, uint64_t id, size_t... N, typename CharT, CharT... tchars>
-        FORCE_INLINE CONSTEXPR_RETURN
-            tackle::tmpl_basic_string<substr_id, CharT, (tackle::tmpl_basic_string_storage<id, CharT, tchars...>::value)[offset + N]...,
-                UTILITY_LITERAL_CHAR('\0', CharT)>
-            _make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>, index_sequence<N...>, size_identity<offset>)
-        {
-            return {};
-        }
-
-        template <uint64_t id, size_t offset, typename CharT, size_t S, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, sizeof...(N) + 1> &
-            _make_tmpl_string_from_array_impl(const CharT (& c_str)[S], index_sequence<N...>, size_identity<offset>)
-        {
-            return tackle::tmpl_basic_string_storage<id, CharT, c_str[offset + N]..., UTILITY_LITERAL_CHAR('\0', CharT)>::value;
-        }
-
-    }
-
-    template <uint64_t id, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter) ->
-        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{}))
-    {
-        return detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{});
-    }
-
-    template <uint64_t id, size_t offset, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>) ->
-        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()) - offset - 1>{}, size_identity<offset>{}))
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
-            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()))),
-            detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()) - offset - 1>{}, size_identity<offset>{}));
-    }
-
-    template <uint64_t id, size_t offset, size_t len, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>, size_identity<len>) ->
-        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<len>{}, size_identity<offset>{}))
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
-            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()))),
-            detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<len>{}, size_identity<offset>{}));
-    }
-
-    template <uint64_t substr_id, size_t offset, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>, size_identity<offset>) ->
-        decltype(detail::_make_tmpl_string_from_tmpl_string<substr_id>(tackle::tmpl_basic_string<id, CharT, tchars...>{}, make_index_sequence<sizeof...(tchars) - offset - 1>{}, size_identity<offset>{}))
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < sizeof...(tchars),
-            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(sizeof...(tchars))),
-            detail::_make_tmpl_string_from_tmpl_string<substr_id>(tackle::tmpl_basic_string<id, CharT, tchars...>{}, make_index_sequence<sizeof...(tchars) - offset - 1>{}, size_identity<offset>{}));
-    }
-
-    template <uint64_t substr_id, size_t offset, size_t len, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>, size_identity<offset>, size_identity<len>) ->
-        decltype(detail::_make_tmpl_string_from_tmpl_string<substr_id>(tackle::tmpl_basic_string<id, CharT, tchars...>{}, make_index_sequence<len>{}, size_identity<offset>{}))
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < sizeof...(tchars),
-            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(sizeof...(tchars))),
-            detail::_make_tmpl_string_from_tmpl_string<substr_id>(tackle::tmpl_basic_string<id, CharT, tchars...>{}, make_index_sequence<len>{}, size_identity<offset>{}));
-    }
-
-    template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, S - offset> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>)
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(S)),
-            detail::_make_tmpl_string_from_array_impl<id>(c_str, make_index_sequence<S - offset - 1>{}, size_identity<offset>{}));
-    }
-
-    template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, len + 1> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>, size_identity<len>)
-    {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(S)),
-            detail::_make_tmpl_string_from_array_impl<id>(c_str, make_index_sequence<len>{}, size_identity<offset>{}));
     }
 
 }
@@ -182,9 +80,21 @@ namespace tackle {
         {
         }
 
+        // to be able to return by value
+        FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string(const tmpl_basic_string &) = default;
+
     private:
         // block conversion from a C raw string, from a literal string or from a static string in an overload resolution logic
         tmpl_basic_string(const CharT *);
+
+    private:
+        template <uint64_t substr_id, size_t offset, size_t... N>
+        static FORCE_INLINE CONSTEXPR_RETURN
+            tmpl_basic_string<substr_id, CharT, storage_type::value[offset + N]..., UTILITY_LITERAL_CHAR('\0', CharT)>
+            _make_tmpl_string_from_tmpl_string(utility::index_sequence<N...>)
+        {
+            return {};
+        }
 
     public:
 // Workaround for compilation error under MSVC2015u3 or higher (x86 only):
@@ -216,24 +126,28 @@ namespace tackle {
         }
 
         template <uint64_t substr_id>
-        static FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string<substr_id, CharT, tchars...> substr()
+        static FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string substr()
         {
             return {};
         }
 
         template <uint64_t substr_id, size_t offset>
-        static FORCE_INLINE CONSTEXPR_RETURN auto substr(size_t) ->
-            decltype(utility::make_tmpl_string_from_tmpl_string<substr_id, offset>(tmpl_basic_string<id, CharT, tchars...>{}, utility::size_identity<offset>{}))
+        static CONSTEXPR_RETURN auto substr(size_t) ->
+            decltype(_make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<offset < sizeof...(tchars) ? sizeof...(tchars) - offset - 1 : 0>{}))
         {
-            return utility::make_tmpl_string_from_tmpl_string<substr_id>(tmpl_basic_string<id, CharT, tchars...>{}, utility::size_identity<offset>{});
+            return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < sizeof...(tchars),
+                STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(sizeof...(tchars))),
+                _make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<offset < sizeof...(tchars) ? sizeof...(tchars) - offset - 1 : 0>{}));
         }
 
-        /*template <uint64_t substr_id, size_t offset, size_t len>
-        static FORCE_INLINE CONSTEXPR_RETURN auto substr(size_t, size_t) ->
-            decltype(utility::make_tmpl_string_from_tmpl_string<substr_id>(tmpl_basic_string<id, CharT, tchars...>{}, utility::size_identity<offset>{}, utility::size_identity<len>{}))
+        template <uint64_t substr_id, size_t offset, size_t len>
+        static CONSTEXPR_RETURN auto substr(size_t, size_t) ->
+            decltype(_make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<len>{}))
         {
-            return utility::make_tmpl_string_from_tmpl_string<substr_id>(tmpl_basic_string<id, CharT, tchars...>{}, utility::size_identity<offset>{}, utility::size_identity<len>{});
-        }*/
+            return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < sizeof...(tchars),
+                STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(sizeof...(tchars))),
+                _make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<len>{}));
+        }
 
         // CAUTION:
         //  must be implemented inside class to avoid ICE in msvc 2015 update 3
@@ -332,7 +246,7 @@ namespace utility {
             template <size_t index, typename CharT, CharT c0, CharT... tail_tchars>
             static FORCE_INLINE CONSTEXPR_RETURN CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
             {
-                return (index < max_size && index < next_index + sizeof...(tail_tchars)) ?
+                return (index < max_size && index < next_index + 1 + sizeof...(tail_tchars)) ?
                     (index != next_index ?
                         _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _get_tmpl_basic_string_char<index, CharT, tail_tchars...>(next_index + 1) :
                         c0) :
@@ -345,7 +259,7 @@ namespace utility {
             {
                 static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
                 {
-                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index != next_index && index < max_size && index < next_index + sizeof...(tail_tchars),
+                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index != next_index && index < max_size && index < next_index + 1 + sizeof...(tail_tchars),
                         STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(next_index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
                         _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _impl2<index, next_index + 1, max_size, CharT, tail_tchars...>::_constexpr_get_tmpl_basic_string_char());
                 }
@@ -356,7 +270,7 @@ namespace utility {
             {
                 static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
                 {
-                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < index + sizeof...(tail_tchars),
+                    return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < index + 1 + sizeof...(tail_tchars),
                         STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
                         c0);
                 }
@@ -504,6 +418,93 @@ namespace utility {
     FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, str.length());
+    }
+
+    namespace detail {
+
+        // make_tmpl_string
+
+        template <uint64_t id, typename StaticGetter, size_t... N>
+        FORCE_INLINE CONSTEXPR_RETURN
+            tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[N]...>
+            _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>)
+        {
+            return {};
+        }
+
+        template <uint64_t id, size_t offset, typename StaticGetter, size_t... N>
+        FORCE_INLINE CONSTEXPR_RETURN
+            tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[offset + N]...,
+                UTILITY_LITERAL_CHAR('\0', typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type)>
+            _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>, size_identity<offset>)
+        {
+            return {};
+        }
+
+        template <uint64_t substr_id, size_t offset, uint64_t id, typename CharT, CharT... tchars, size_t... N>
+        FORCE_INLINE CONSTEXPR_RETURN
+            tackle::tmpl_basic_string<substr_id, CharT, (tackle::tmpl_basic_string_storage<id, CharT, tchars...>::value)[offset + N]...,
+                UTILITY_LITERAL_CHAR('\0', CharT)>
+            _make_tmpl_string_from_tmpl_string(index_sequence<N...>)
+        {
+            return {};
+        }
+
+        template <uint64_t id, size_t offset, typename CharT, size_t S, size_t... N>
+        FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, sizeof...(N) + 1> &
+            _make_tmpl_string_from_array_impl(const CharT (& c_str)[S], index_sequence<N...>)
+        {
+            return tackle::tmpl_basic_string_storage<id, CharT, c_str[offset + N]..., UTILITY_LITERAL_CHAR('\0', CharT)>::value;
+        }
+
+    }
+
+    template <uint64_t id, typename StaticGetter>
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter) ->
+        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{}))
+    {
+        return detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{});
+    }
+
+    template <uint64_t id, size_t offset, typename StaticGetter>
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>) ->
+        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()) - offset - 1>{}, size_identity<offset>{}))
+    {
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
+            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()))),
+            detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()) - offset - 1>{}, size_identity<offset>{}));
+    }
+
+    template <uint64_t id, size_t offset, size_t len, typename StaticGetter>
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>, size_identity<len>) ->
+        decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<len>{}, size_identity<offset>{}))
+    {
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
+            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()))),
+            detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<len>{}, size_identity<offset>{}));
+    }
+
+    template <uint64_t substr_id, size_t offset, size_t len, uint64_t id, typename CharT, CharT... tchars>
+    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>) ->
+        decltype(detail::_make_tmpl_string_from_tmpl_string<substr_id, offset, len, id, CharT, tchars...>(make_index_sequence<len>{}))
+    {
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < sizeof...(tchars),
+            STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(sizeof...(tchars))),
+            detail::_make_tmpl_string_from_tmpl_string<substr_id, offset, len, id, CharT, tchars...>(make_index_sequence<len>{}));
+    }
+
+    template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
+    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, S - offset> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>)
+    {
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(S)),
+            detail::_make_tmpl_string_from_array_impl<id, offset>(c_str, make_index_sequence<S - offset - 1>{}));
+    }
+
+    template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
+    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, len + 1> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>, size_identity<len>)
+    {
+        return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(S)),
+            detail::_make_tmpl_string_from_array_impl<id, offset>(c_str, make_index_sequence<len>{}));
     }
 
 }

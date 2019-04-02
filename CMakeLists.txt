@@ -22,6 +22,23 @@ cmake_minimum_required(VERSION 3.7)
 #  cmake_policy(SET CMP00NN NEW) # cmake >= X.Y
 #endif()
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+  #  Policy CMP0075 is not set: Include file check macros honor
+  #  CMAKE_REQUIRED_LIBRARIES.  Run "cmake --help-policy CMP0075" for policy
+  #  details.  Use the cmake_policy command to set the policy and suppress this
+  #  warning.
+  #
+  #  CMAKE_REQUIRED_LIBRARIES is set to:
+  #
+  #    .../_3dparty/arc/xz/lib/Release/Win32/liblzma/liblzma.lib
+  #
+  #  For compatibility with CMake 3.11 and below this check is ignoring it.
+
+  # use global override to avoid policy drop in case where a 3dparty cmake list declared cmake version requirement less than 3.12.0
+  set(CMAKE_POLICY_DEFAULT_CMP0075 NEW)
+  #cmake_policy(SET CMP0075 NEW) # cmake >= 3.12
+endif()
+
 # enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
