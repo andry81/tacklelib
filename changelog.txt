@@ -1,3 +1,6 @@
+2019.04.10:
+* fixed: minor configure fixes
+
 2019.04.03:
 * fixed: test_tmpl_string compilation in the msvc 2015 update 3, msvc 2017
 * changed: tests: unit: added more test_tmpl_string tests
