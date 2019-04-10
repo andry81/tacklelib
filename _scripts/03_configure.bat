@@ -57,7 +57,7 @@ call "%%PROJECT_ROOT%%/_scripts/tools/update_build_type.bat" || exit /b
 
 :INIT2
 if %GENERATOR_IS_MULTI_CONFIG%0 EQU 0 (
-  call "%%PROJECT_ROOT%%/_scripts/tools/check_build_type.bat" ^
+  call :CMD "%%PROJECT_ROOT%%/_scripts/tools/check_build_type.bat" ^
     "%%CMAKE_BUILD_TYPE%%" "%%CMAKE_CONFIG_TYPES%%" || exit /b
 )
 

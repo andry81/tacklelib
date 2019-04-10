@@ -34,13 +34,12 @@
 #
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
-# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<major_ver>[.<minor_ver>]]
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+#   <compiler_token_name>: MSVC | GCC | CLANG | ...
+#   <compiler_version>:   <major_version>[.<minor_version>]
+#     <major_version>:    an integral value corresponding to the regex: [0-9]*
+#     <minor_version>:    an integral value corresponding to the regex: [0-9]*
 # <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
-# <compiler_token_name>:  <compiler_name>[<compiler_version>]
-# <compiler_name>:        MSVC | GCC | CLANG | ...
-# <compiler_version>:     <major_version>[.<minor_version>]
-# <major_version>:        an integral value corresponding to the regex: [0-9]*
-# <minor_version>:        an integral value corresponding to the regex: [0-9]*
 # <arch_name>:            Architecture variant name: X86 | X64 | ...
 #
 # <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
@@ -66,7 +65,7 @@ CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
-BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0"
+BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
 Boost_ARCHITECTURE:UNIX="-x32" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 
 # log

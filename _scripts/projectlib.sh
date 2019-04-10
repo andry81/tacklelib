@@ -110,7 +110,7 @@ function Configure()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit

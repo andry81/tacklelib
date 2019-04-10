@@ -34,13 +34,12 @@
 #
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
-# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<major_ver>[.<minor_ver>]]
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+#   <compiler_token_name>: MSVC | GCC | CLANG | ...
+#   <compiler_version>:   <major_version>[.<minor_version>]
+#     <major_version>:    an integral value corresponding to the regex: [0-9]*
+#     <minor_version>:    an integral value corresponding to the regex: [0-9]*
 # <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
-# <compiler_token_name>:  <compiler_name>[<compiler_version>]
-# <compiler_name>:        MSVC | GCC | CLANG | ...
-# <compiler_version>:     <major_version>[.<minor_version>]
-# <major_version>:        an integral value corresponding to the regex: [0-9]*
-# <minor_version>:        an integral value corresponding to the regex: [0-9]*
 # <arch_name>:            Architecture variant name: X86 | X64 | ...
 #
 # <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
@@ -82,7 +81,7 @@ PROJECT_NAME=tacklelib
 PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
 PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}" # top parent project root in context of parent build
 
-_3DPARTY_GLOBAL_ROOTS_LIST=("d:/3dparty")
+_3DPARTY_GLOBAL_ROOTS_LIST=("d:/_3dparty")
 _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
 _3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
 
