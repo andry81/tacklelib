@@ -1,3 +1,6 @@
+2019.04.10:
+* fixed: minor configure fixes
+
 2019.04.05:
 * changed: copied latest `bash_entry` implementation directly into standalone scripts for admin maintaince purposes w/o `bash_entry` installation requirement
 

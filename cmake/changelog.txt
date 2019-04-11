@@ -1,3 +1,6 @@
+2019.04.11:
+* fixed: set_vars_from_files issue around `file(STRINGS ...)` function reported here: https://gitlab.kitware.com/cmake/cmake/issues/19156 (`Not paired `]` or `[` characters breaks "file(STRINGS"`)
+
 2019.03.17:
 * fixed: SetVarsFromFiles.cmake: Multiple "ODR violation" messages in case where a path is different from the cache storage only by the drive letter character case (cmake changes a path variables before write them into the cache). Read variable's ending to detect type of variable (*_ROOT, *_PATH, *_DIR, etc) to adopt a comparator code.
 
