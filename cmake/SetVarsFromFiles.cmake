@@ -630,10 +630,29 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     # with out any filter here to enable to use of the line number to reference it in a parse error
     file(STRINGS "${file_path}" file_content)
 
+    # CAUTION:
+    #   The `file(STRINGS` and some other functions has deep sitting issues which prevents to write reliable and consistent parsers:
+    #   https://gitlab.kitware.com/cmake/cmake/issues/19156: `Not paired `]` or `[` characters breaks "file(STRINGS"`
+    #   https://gitlab.kitware.com/cmake/cmake/issues/18946: `;-escape list implicit unescaping`
+    #   To bypass the first issue we have to replace all `[` and `]` characters by a special sequence to enclose single standing characters
+    #   by respective opposite character in a pair.
+    #
+
+    # WORKAROUND: we have to replace because `file(STRINGS` does a break on not closed `]` or `[` characters
+    string(REGEX REPLACE "\\?" "?0?" file_content "${file_content}")
+    string(REGEX REPLACE "\\[" "?1?" file_content "${file_content}")
+    string(REGEX REPLACE "\\]" "?2?" file_content "${file_content}")
+
     set(var_file_content_line 0)
 
     foreach (var_line IN LISTS file_content)
       math(EXPR var_file_content_line "${var_file_content_line}+1")
+
+      # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+      string(REGEX REPLACE "\;" "\\\;" var_line "${var_line}")
+      string(REGEX REPLACE "\\?0\\?" "?" var_line "${var_line}")
+      string(REGEX REPLACE "\\?1\\?" "[" var_line "${var_line}")
+      string(REGEX REPLACE "\\?2\\?" "]" var_line "${var_line}")
 
       if((NOT var_line MATCHES "^[^#\"]+=") OR (NOT var_line MATCHES "([^=]+)=(.*)"))
         continue()
