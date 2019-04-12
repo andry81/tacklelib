@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2019.03.18
+* 2019.04.12
 * tacklelib
 
 1. DESCRIPTION
@@ -130,18 +130,18 @@ cd ~/Archive/Applications/Dev/CMake
 
 # download manually or through the wget utility
 >
-wget https://cmake.org/files/v3.11/cmake-3.11.0-Linux-x86_64.sh
+wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh
 
 >
 sudo apt remove cmake
-sudo bash ./cmake-3.11.0-Linux-x86_64.sh
+sudo bash ./cmake-3.14.0-Linux-x86_64.sh
 
 >
 mkdir -p ~/Applications/Dev/CMake
-mv ~/Archive/Applications/Dev/CMake/cmake-3.11.0-Linux-x86_64 ~/Applications/Dev/CMake
+sudo mv ~/Archive/Applications/Dev/CMake/cmake-3.14.0-Linux-x86_64 ~/Applications/Dev/CMake
 
 >
-echo "export PATH=\$PATH:/home/tester/Applications/Dev/CMake/cmake-3.11.0-Linux-x86_64/bin" >> ~/.bash_profile
+echo "export PATH=\$PATH:/home/tester/Applications/Dev/CMake/cmake-3.14.0-Linux-x86_64/bin" >> ~/.bash_profile
 
 # !!! relogin !!!
 
@@ -210,14 +210,14 @@ cd ~/_3dparty/linux_mint_gcc_x86/boost
 
 # download manually or through the wget utility
 >
-wget -O boost_1_63_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2/download
+wget -O boost_1_69_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.69.0/boost_1_69_0.tar.bz2/download
 
 >
-tar xvfo boost_1_63_0.tar.bz2
+tar xvfo boost_1_69_0.tar.bz2
 
 # configure
 >
-cd boost_1_63_0
+cd boost_1_69_0
 ./bootstrap.sh
 
 # CAUTION
@@ -230,35 +230,35 @@ cd boost_1_63_0
 
 ## full build, all static
 ##>
-##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 ##stage
 #
 ## full build, all shared
 ##>
-##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 ##stage
 
 # partial build, all static
 >
-./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
 stage
 
 # partial build, all shared
 >
-./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
 stage
 
 # install, all static
 >
-sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
 install
 
 # install, all shared
 >
-sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_63_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
+sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
 install
 
