@@ -1,3 +1,6 @@
+2019.04.12:
+* changed: Linux readme update
+
 2019.04.11:
 * fixed: set_vars_from_files issue around `file(STRINGS ...)` function reported here: https://gitlab.kitware.com/cmake/cmake/issues/19156 (`Not paired `]` or `[` characters breaks "file(STRINGS"`)
 
