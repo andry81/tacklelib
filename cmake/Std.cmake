@@ -39,7 +39,7 @@ function(ListJoin out_var in_list_var separator)
   foreach(value IN LISTS in_list)
     math(EXPR index "${index}+1")
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+    string(REGEX REPLACE "\;" "\\\;" value "${value}")
     #list(LENGTH value len)
     #message("ListJoin: [${len}] value=${value}")
     if (index)
@@ -86,7 +86,7 @@ function(ListGet out_var in_list_var)
     if (index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+      string(REGEX REPLACE "\;" "\\\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListGet: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -158,7 +158,7 @@ function(ListRemoveAt out_var in_list_var)
     if (NOT index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+      string(REGEX REPLACE "\;" "\\\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListRemoveAt: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -231,7 +231,7 @@ function(ListSublist out_var begin_index length in_list_var)
   while(index LESS index_upper)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+    string(REGEX REPLACE "\;" "\\\;" value "${value}")
     #list(LENGTH value value_len)
     #message("ListSublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -298,7 +298,7 @@ function(ListRemoveSublist out_var begin_index length in_list_var)
   while(index LESS begin_index)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+    string(REGEX REPLACE "\;" "\\\;" value "${value}")
     #list(LENGTH value value_len)
     #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -319,7 +319,7 @@ function(ListRemoveSublist out_var begin_index length in_list_var)
     while(index LESS in_list_len)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}")
+      string(REGEX REPLACE "\;" "\\\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -401,7 +401,7 @@ function(copy_variables)
     list(APPEND ${ARGV1} "${_24C487FA_var_name}")
     #ListJoin(_24C487FA_var_value ${_24C487FA_var_name} "\;")
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REGEX REPLACE "([;])" "\\\\\\1" _24C487FA_var_value "${${_24C487FA_var_name}}")
+    string(REGEX REPLACE "\;" "\\\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
     list(APPEND ${ARGV2} "${_24C487FA_var_value}")
 
     #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
@@ -476,7 +476,7 @@ macro(make_argv_var_from_ARGV_end)
   set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
 
   # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-  string(REGEX REPLACE "([;])" "\\\\\\1" _BBD57550_argv_value "${_BBD57550_argv_value}")
+  string(REGEX REPLACE "\;" "\\\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
 
   list(APPEND argv "${_BBD57550_argv_value}")
   list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
@@ -486,7 +486,7 @@ macro(make_argv_var_from_ARGV_end)
 
     set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REGEX REPLACE "([;])" "\\\\\\1" _BBD57550_argv_value "${_BBD57550_argv_value}")
+    string(REGEX REPLACE "\;" "\\\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
     list(APPEND argv "${_BBD57550_argv_value}")
     list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
   endwhile()
@@ -542,7 +542,7 @@ macro(make_argn_var_from_ARGV_ARGN_end)
       set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
       #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
       # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-      string(REGEX REPLACE "([;])" "\\\\\\1" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
+      string(REGEX REPLACE "\;" "\\\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
       list(APPEND argn "${_9E220B1D_argv_value}")
       list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
 
@@ -622,7 +622,7 @@ function(make_argv_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
       if (script_file_path_offset GREATER_EQUAL 0 )
         if (script_file_path_offset LESS cmake_arg_index)
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-          string(REGEX REPLACE "([;])" "\\\\\\1" arg_value "${arg_value}")
+          string(REGEX REPLACE "\;" "\\\;" arg_value "${arg_value}")
           list(APPEND ${out_var} "${arg_value}")
         else()
           # Parse the value as a path to the script file, convert to the absolute path and
@@ -719,7 +719,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
   # parse flags until no flags
   list(GET func_argv 0 func_flags)
   # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-  string(REGEX REPLACE "([;])" "\\\\\\1" func_flags "${func_flags}")
+  string(REGEX REPLACE "\;" "\\\;" func_flags "${func_flags}")
 
   string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
 
@@ -825,7 +825,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
             foreach (multichar_flag_var IN LISTS multichar_flag_vars_sublist)
               list(GET func_argv ${func_argv_index} multichar_flag_var_value)
               # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-              string(REGEX REPLACE "([;])" "\\\\\\1" multichar_flag_var_value_escaped "${multichar_flag_var_value}")
+              string(REGEX REPLACE "\;" "\\\;" multichar_flag_var_value_escaped "${multichar_flag_var_value}")
 
               if ((multichar_flag_var STREQUAL ".") OR (multichar_flag_var STREQUAL "*"))
                 set(multichar_flag_var "")
@@ -854,7 +854,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
     # read next flags
     list(GET func_argv ${func_argv_index} func_flags)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "([;])" "\\\\\\1" func_flags "${func_flags}")
+    string(REGEX REPLACE "\;" "\\\;" func_flags "${func_flags}")
 
     string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
   endwhile()
@@ -909,7 +909,7 @@ function(escape_list_expansion out_var in_list)
 
   foreach(arg IN LISTS in_list)
     # 1. WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REGEX REPLACE "([;])" "\\\\\\1" escaped_arg "${arg}")
+    string(REGEX REPLACE "\;" "\\\;" escaped_arg "${arg}")
     # 2. another escape sequence to retain exact values in the list after pass into a function without quotes: `foo(${mylist})`
     string(REGEX REPLACE "([\\\\])" "\\\\\\1" escaped_arg "${escaped_arg}")
     #message("arg: `${arg}` -> `${escaped_arg}`")
