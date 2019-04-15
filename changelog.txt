@@ -1,4 +1,7 @@
 2019.04.15:
+* removed: `_3dparty` directory is removed to enable creation of a symbol link instead of the directory
+
+2019.04.15:
 * refactor: cmake: replaced a specific regex workaround to a bit faster version
 
 2019.04.12:
