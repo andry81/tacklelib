@@ -1,3 +1,6 @@
+2019.04.15:
+* refactor: cmake: replaced a specific regex workaround to a bit faster version
+
 2019.04.12:
 * changed: Linux readme update
 

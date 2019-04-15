@@ -564,7 +564,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     if (make_var_name_index LESS make_vars_values_len)
       list(GET make_vars_values ${make_var_name_index} make_var_value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "([;])" "\\\\\\1" make_var_value "${make_var_value}")
+      string(REGEX REPLACE "\;" "\\\;" make_var_value "${make_var_value}")
 
       set(config_${make_var_name} "${make_var_value}")
     else()
@@ -1052,7 +1052,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                     # a list item end, record a value
                     math(EXPR value_len "${index}-${value_from_index}")
                     string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                    string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
+                    string(REGEX REPLACE "\;" "\\\;" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
                     set(var_last_substed_value "${var_last_substed_value}${value}")
                     list(APPEND var_values_list "${var_last_substed_value}")
                     set(last_record_char_index ${index})
@@ -1076,7 +1076,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(is_str_quote_open 0)
                 math(EXPR value_len "${index}-${value_from_index}")
                 string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
+                string(REGEX REPLACE "\;" "\\\;" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
                 set(var_last_substed_value "${var_last_substed_value}${value}")
                 list(APPEND var_values_list "${var_last_substed_value}")
                 set(last_record_char_index ${index})
@@ -1159,7 +1159,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                       set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                       math(EXPR value_len "${index}-${value_from_index}")
                       string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                      string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
+                      string(REGEX REPLACE "\;" "\\\;" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
                       set(var_last_substed_value "${var_last_substed_value}${value}")
                       list(APPEND var_values_list "${var_last_substed_value}")
                       set(last_record_char_index ${index})
@@ -1203,7 +1203,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             math(EXPR value_len "${index}-${value_from_index}-2")
             if (value_len GREATER_EQUAL 0)
               string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-              string(REGEX REPLACE "([;])" "\\\\\\1" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
+              string(REGEX REPLACE "\;" "\\\;" value "${value}") # WORKAROUND: fix ;-escape implicit unescaping
               set(var_last_substed_value "${var_last_substed_value}${value}")
             endif()
 
@@ -1567,19 +1567,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       foreach (gen_config_name IN LISTS config_gen_names_for_${gen_var_name})
         #message("${gen_var_name} -> ${gen_config_name} -> ${config_gen_for_${gen_config_name}_${gen_var_name}}")
-        string(REGEX REPLACE "([;])" "\\\\\\1" gen_var_escaped_value "${config_gen_for_${gen_config_name}_${gen_var_name}}")
+        string(REGEX REPLACE "\;" "\\\;" gen_var_escaped_value "${config_gen_for_${gen_config_name}_${gen_var_name}}")
         list(APPEND gen_var_escaped_values "${gen_var_escaped_value}")
       endforeach()
       set(gen_var_names "${config_gen_names_for_${gen_var_name}}")
 
       if (config_gen_is_defined_forall_${gen_var_name})
         list(APPEND gen_var_names "*")
-        string(REGEX REPLACE "([;])" "\\\\\\1" gen_var_escaped_value "${config_gen_forall_${gen_var_name}}")
+        string(REGEX REPLACE "\;" "\\\;" gen_var_escaped_value "${config_gen_forall_${gen_var_name}}")
         list(APPEND gen_var_escaped_values "${gen_var_escaped_value}")
       endif()
 
-      string(REGEX REPLACE "([;])" "\\\\\\1" gen_var_escaped_names "${gen_var_names}")
-      string(REGEX REPLACE "([;])" "\\\\\\1" gen_var_dbl_escaped_values "${gen_var_escaped_values}")
+      string(REGEX REPLACE "\;" "\\\;" gen_var_escaped_names "${gen_var_names}")
+      string(REGEX REPLACE "\;" "\\\;" gen_var_dbl_escaped_values "${gen_var_escaped_values}")
 
       list(APPEND config_gen_names_list "${gen_var_escaped_names}")
       list(APPEND config_gen_values_list "${gen_var_dbl_escaped_values}")
