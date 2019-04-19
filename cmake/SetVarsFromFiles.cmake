@@ -128,14 +128,14 @@ endfunction()
 #   -a                          - append values into `varlines_file`, `vars_file` and `values_file`
 #
 #   --grant_external_vars_for_assign <grant_external_vars_for_assign_list>
-#                               - list of variables granted for unconditional assignment if has been assigned before the load
-#                                 (by default would be an error if a variable has been assigned before the load and a new value is not equal to the previous)
+#                               - list of variables granted for unconditional assignment if has been assigned before the load call
+#                                 (by default would be an error if a variable has been assigned before the load call and a new value is not equal to the previous)
 #
 #   --grant_assign_vars_assigned_in_files <grant_assign_vars_assigned_in_files_list>
 #                               - list of files with assigned variables granted for unconditional assignment in other variable files going to be loaded
 #
 #   --grant_assign_external_vars_assigning_in_files <grant_assign_external_vars_assigning_in_files_list>
-#                               - list of files with variables granted for unconditional assignment if has been assigned before the load
+#                               - list of files with variables granted for unconditional assignment if has been assigned before the load call
 #
 #   --include_vars_filter <include_vars_filter_list>
 #                               - list of variables included to assign
@@ -150,10 +150,6 @@ endfunction()
 #                               - list of variables which grants unconditional assignment permission on variables with different name if
 #                                 previous assignment was with a different value to any of these variables.
 #                                 Useful for unconditional assignment of variables from different packages or source directories.
-#
-#   --ignore_vars_reassign <ignore_vars_reassign_list>
-#                               - list of variables ignored for reassignment in any following variable files
-#                                 (by default would be a warning if a variable has been assigned before but in the load and a variable is not specialized version of a previous one)
 #
 # CONFIGURATION FILE FORMAT:
 #   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
@@ -692,10 +688,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # non exclusive cmake cache set, not cache value does set too
       set(use_cache_var 0)
 
-      # exclusive cmake cache set, not cache value does remove, all other variable types must not be declared
+      # exclusive cmake cache set, a not cache value does remove, all other variable types must not be declared
       set(use_only_cache_var 0)
 
-      set(use_force_var 0)
+      set(use_force_cache_var 0) # cache with force, has meaning only together with the cache
+
+      set(use_force_var 0) # force to set a value without a check on collision or assign validation
 
       # non exclusive cmake environment variable set, all other variable types does set too
       set(use_env_var 0)
@@ -727,6 +725,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(use_cache_var 1)
         endif()
 
+        if ("FORCE_CACHE" IN_LIST var_name_attr_list_upper)
+          set(use_force_cache_var 1)
+        endif()
+
         if ("FORCE" IN_LIST var_name_attr_list_upper)
           set(use_force_var 1)
         endif()
@@ -743,6 +745,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       if (use_only_cache_var AND use_only_env_var)
         message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: [${var_file_content_line}] `${var_token}`")
+      endif()
+
+      if (use_cache_var OR use_only_cache_var OR use_force_cache_var)
+        message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
       endif()
 
       string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -1385,7 +1391,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   # use original help string
                   get_property(cache_var_desc CACHE "${var_name}" PROPERTY HELPSTRING)
 
-                  if (use_force_var)
+                  if (use_force_cache_var)
                     # in quotes to enable a save variable's type as a list
                     set(${var_name} "${var_parsed_value}" CACHE ${cache_var_type} "${cache_var_desc}" FORCE)
                   else()
