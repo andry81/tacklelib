@@ -36,6 +36,48 @@ include(Version)
 #   * The same setter but from a command line file
 #
 
+# RULES FOR VARIABLES LOAD OR SET:
+#
+# 1. All variables being loaded from a single load or set function is treated as constant,
+#    which means the parser must throw an a warning and ignore a variable assign if variable
+#    has been set in the same load or set function AND has having exact pattern match with the
+#    previous applied assignment of the same variable if has any.
+#    Example:
+#       AAA=10
+#       AAA=20 # <- assign would be ignored with a warning
+# 2. A complete pattern matched variable is a variable which template parameters after the colon character
+#    (:<os_name>:<compiler_name>:<config_name>:<arch_name>)
+#    are completely (not partially) matched to the function respective input parameters.
+#    Example:
+#       # input: os_name=WIN compiler_name=MSVC config_name=RELEASE arch_name=*
+#       AAA:WIN:MSVC:RELEASE:X86=10 # <- would be set if all template parameters are matched completely to the function input
+# 3. A partially matched variable is a variable which template parameters after the colon character
+#    (:<os_name>:<compiler_name>:<config_name>:<arch_name>) are matched partially
+#    (either one or several parameters are matched, but not all).
+#    Example:
+#       # input: os_name=UNIX compiler_name=GCC config_name=* arch_name=*
+#       AAA::GCC=20 # <- would be set if t least second template parameter is matched to the function input
+# 4. A variable w/o explicitly declared template parameters is not applicable for a pattern match but
+#    treated as always matched to any input respective parameters of the load or set function.
+# 5. If before the load or set function a variable already has been set, then a
+#    very first variable being assigned in the load or set function must has the same value,
+#    otherwise the variable is treated as not connected to the variable has existed before
+#    the call and an error would be thrown.
+# 6. A complete pattern matched variable has assign priority over a partially matched variable which
+#    in turn has greater priority over a lesser matched variable.
+#    Example:
+#       # input: os_name=UNIX compiler_name=GCC config_name=* arch_name=*
+#       AAA=10                  # no pattern but matched, assignment would be applied if variable either was not set before the call or was set to the same value
+#       AAA:UNIX=20             # prioritized match over previously applied assignment, assignment would be applied
+#       AAA:UNIX:GCC=30         # prioritized match over previously applied assignment, assignment would be applied
+#       AAA=40                  # no pattern but matched, less priority match versus previously applied assignment, assignment would be ignored with a warning
+#       AAA::GCC=50             # still less priority match versus previously applied assignment, assignment would be ignored with a warning
+#       AAA:UNIX:GCC=60         # equal priority match versus previously applied assignment, assignment would be treated as a constant variable change and ignored with a warning
+#       AAA:UNIX:GCC:RELEASE=70 # prioritized match over previously applied assignment, assignment would be applied
+#
+# All other cases is not represent above can be controlled over the command line options/parameters/flags of the load or set functions.
+#
+
 # CAUTION:
 #   Function must be without arguments to avoid argument variable intersection with the parent scope!
 #
@@ -357,7 +399,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   ListGet(list_separator_char argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  set(use_takens_late_expansion 0)
+  set(use_vars_late_expansion 0)
 
   if (NOT argn_len EQUAL argn_index)
     # set of trailing optional arguments either not used or used all together
@@ -367,7 +409,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
     endif()
 
-    set(use_takens_late_expansion 1)
+    set(use_vars_late_expansion 1)
 
     ListGet(out_var_config_gen_var_lines_list argn ${argn_index})
     math(EXPR argn_index "${argn_index}+1")
@@ -389,7 +431,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   endif()
 
   # config_name consistency check
-  if(use_takens_late_expansion AND is_config_name_value_can_late_expand)
+  if(use_vars_late_expansion AND is_config_name_value_can_late_expand)
     if (CMAKE_CONFIGURATION_TYPES STREQUAL "")
       message(FATAL_ERROR "CMAKE_CONFIGURATION_TYPES variable must contain configuration names in case of empty config_name argument to construct complement generator expressions: CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}`")
     endif()
@@ -691,15 +733,25 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # exclusive cmake cache set, a not cache value does remove, all other variable types must not be declared
       set(use_only_cache_var 0)
 
-      set(use_force_cache_var 0) # cache with force, has meaning only together with the cache
+      # cache with force, has meaning only together with the cache attribute
+      set(use_force_cache_var 0)
 
-      set(use_force_var 0) # force to set a value without a check on collision or assign validation
+      # force to set a value without a check on collision or assign validation
+      set(use_force_var 0)
 
       # non exclusive cmake environment variable set, all other variable types does set too
       set(use_env_var 0)
 
       # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
       set(use_only_env_var 0)
+
+      # Use only top level variable for current granulation.
+      # If a variable has having the `package` attrubute, then top level to the package granulation (all load files from the first package).
+      # If a variable has not having the `package` attrubute, then top level to the load file granulation (first load file).
+      set(use_top_var 0)
+
+      # use package level variable, has meaning only together with the top level attribute
+      set(use_package_var 0)
 
       if (var_name_token_list_len GREATER 1)
         list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
@@ -738,6 +790,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         elseif ("ENV" IN_LIST var_name_attr_list_upper)
           set(use_env_var 1)
         endif()
+
+        if ("TOP" IN_LIST var_name_attr_list_upper)
+          set(use_top_var 1)
+        endif()
+
+        if ("PACKAGE" IN_LIST var_name_attr_list_upper)
+          set(use_package_var 1)
+        endif()
       else()
         set(var_name_attr_list "")
         set(var_set_msg_name_attr_prefix_str "")
@@ -749,6 +809,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       if (use_cache_var OR use_only_cache_var OR use_force_cache_var)
         message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
+      endif()
+
+      if (use_top_var OR use_package_var)
+        message(FATAL_ERROR "The variable PACKAGE attribute must be declared only together with the top attribute (TOP): [${var_file_content_line}] `${var_token}`")
       endif()
 
       string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -792,6 +856,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           continue()
         endif()
       endif()
+
+      # check variable on a collision with builtin variable
+      foreach (injected_var_name IN LISTS injected_vars_list)
+        if (var_name STREQUAL injected_var_name)
+          message(FATAL_ERROR "variable is a builtin variable which can not be changed: `${file_path}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]")
+        endif()
+      endforeach()
 
       # other not silent ignore checks...
 
@@ -911,13 +982,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set(var_token_suffix "${var_os_name}:${var_compiler_name}:${var_config_name}:${var_arch_name}")
 
       set(is_var_in_ODR_check_list 0)
-
-      # check variable on a collision with builtin variable
-      foreach (injected_var_name IN LISTS injected_vars_list)
-        if (var_name STREQUAL injected_var_name)
-          message(FATAL_ERROR "variable is a builtin variable which can not be changed: `${file_path}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]")
-        endif()
-      endforeach()
 
       # check variable on a collision to prevent the assignment
       set(do_collision_check 1)
@@ -1434,7 +1498,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
             endif()
 
-            # duplicated variable as we can't directly (re)read a parent scope variable which was set from a child scope
+            # duplicate variable's value here as we can't directly (re)read a parent scope variable which was set from a child scope
             set(config_${var_name} "${var_parsed_value}")
 
             if (print_vars_set)
@@ -1453,7 +1517,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               message("[${file_path_index}:${var_file_content_line}] [${var_token_suffix_note}] ${var_set_msg_name_attr_prefix_str}${var_name}=`${config_${var_name}}`${var_set_msg_suffix_str}")
             endif()
 
-            # save variable token suffix to compare it later
+            # save variable token suffix and other parameter to compare it later
             set(config_${var_name}_file_path "${file_path}")
             set(config_${var_name}_file_index "${file_path_index}")
             set(config_${var_name}_line "${var_file_content_line}")
@@ -1487,7 +1551,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
 
           # Variable with potential late expansion expression
-          if (use_takens_late_expansion AND is_config_name_value_can_late_expand)
+          if (use_vars_late_expansion AND is_config_name_value_can_late_expand)
             list(FIND config_gen_vars_list "${var_name}" config_gen_var_index)
             if (config_gen_var_index LESS 0)
               # not found, create
@@ -1598,7 +1662,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_gen_values_list "")
   endif()
 
-  if (use_takens_late_expansion)
+  if (use_vars_late_expansion)
     set(${out_var_config_gen_var_lines_list} "${config_gen_var_lines_list}" PARENT_SCOPE)
     set(${out_var_config_gen_vars_list} "${config_gen_vars_list}" PARENT_SCOPE)
     set(${out_var_config_gen_names_list} "${config_gen_names_list}" PARENT_SCOPE)
