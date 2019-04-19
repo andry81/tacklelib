@@ -30,50 +30,50 @@
 namespace utility {
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN CharT * get_c_str(CharT * str)
+    FORCE_INLINE CONSTEXPR_FUNC CharT * get_c_str(CharT * str)
     {
         return str;
     }
 
     template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN const CharT * get_c_str(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const CharT * get_c_str(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
         return str.c_str();
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN const CharT * get_c_str(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const CharT * get_c_str(const tackle::constexpr_basic_string<CharT> & str)
     {
         return str.c_str();
     }
 
     template <typename t_elem, typename t_traits, typename t_alloc>
-    FORCE_INLINE CONSTEXPR_RETURN const t_elem * get_c_str(const std::basic_string<t_elem, t_traits, t_alloc> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const t_elem * get_c_str(const std::basic_string<t_elem, t_traits, t_alloc> & str)
     {
         return str.c_str();
     }
 
     template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN const CharT * get_c_param(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const CharT * get_c_param(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
         return str.c_str();
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN const CharT * get_c_param(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const CharT * get_c_param(const tackle::constexpr_basic_string<CharT> & str)
     {
         return str.c_str();
     }
 
     template <typename t_elem, typename t_traits, typename t_alloc>
-    FORCE_INLINE CONSTEXPR_RETURN const t_elem * get_c_param(const std::basic_string<t_elem, t_traits, t_alloc> & str)
+    FORCE_INLINE CONSTEXPR_FUNC const t_elem * get_c_param(const std::basic_string<t_elem, t_traits, t_alloc> & str)
     {
         return str.c_str();
     }
 
     // pass parameter as is for all other types
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T & get_c_param(T & param)
+    FORCE_INLINE CONSTEXPR_FUNC T & get_c_param(T & param)
     {
         return param;
     }

@@ -695,7 +695,7 @@ namespace math
 
     // sign convertion into -1,0,+1 integer
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN int sign_to_int(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC int sign_to_int(const T & v)
     {
         return (
             v > 0 ?
@@ -708,7 +708,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> `+`
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN char sign_to_char(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC char sign_to_char(const T & v)
     {
         return (
             v > 0 ?
@@ -721,7 +721,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN char sign_to_positive_char(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC char sign_to_positive_char(const T & v)
     {
         return (
             v > 0 ?
@@ -732,7 +732,7 @@ namespace math
 
     // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> ` `
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN char sign_to_negative_char(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC char sign_to_negative_char(const T & v)
     {
         return (
             v < 0 ?
@@ -742,7 +742,7 @@ namespace math
     }
 
     // the bool type is exceptional
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN bool negate(bool v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC bool negate(bool v)
     {
         // The false is the same as zero, which have no effect of negation.
         // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
@@ -752,12 +752,12 @@ namespace math
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CPP14
     // to suppress compilation warning:
     //  `warning C4146 : unary minus operator applied to unsigned type, result still unsigned`
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN unsigned int negate(unsigned int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC unsigned int negate(unsigned int i)
     {
         return static_cast<unsigned int>(-static_cast<int>(i));
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN unsigned long negate(unsigned long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC unsigned long negate(unsigned long i)
     {
         return static_cast<unsigned long>(-static_cast<long>(i));
     }
@@ -765,7 +765,7 @@ namespace math
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
     // must be template to make `enable_if` dependent on a type substitution
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC
         typename utility::dependent_enable_if<!std::is_same<unsigned long long, uint64_t>::value, unsigned long long, T>::type
             negate(unsigned long long i, T = utility::int_identity<0>{}) // `utility::int_identity<0>` for `unsigned long long`
     {
@@ -773,12 +773,12 @@ namespace math
     }
 #endif
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int negate(int i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC int negate(int i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN long negate(long i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC long negate(long i)
     {
         return -i;
     }
@@ -786,7 +786,7 @@ namespace math
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
     // must be template to make `enable_if` dependent on a type substitution
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC
         typename utility::dependent_enable_if<!std::is_same<long long, int64_t>::value, long long, T>::type
             negate(long long i, T = utility::int_identity<1>{}) // `utility::int_identity<1>` for `long long`
     {
@@ -794,28 +794,28 @@ namespace math
     }
 #endif
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int64_t negate(int64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC int64_t negate(int64_t i)
     {
         return -i;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN int64_t negate(uint64_t i)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC int64_t negate(uint64_t i)
     {
         return static_cast<uint64_t>(-static_cast<int64_t>(i));
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN float negate(float v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC float negate(float v)
     {
         return -v;
     }
 
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN double negate(double v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC double negate(double v)
     {
         return -v;
     }
 
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN T negate(const T & v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC T negate(const T & v)
     {
         return -v;
     }
@@ -833,7 +833,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR_RETURN T invoke(const type & v)
+            static CONSTEXPR_FUNC T invoke(const type & v)
             {
                 return std::negate<>()(v);
             }
@@ -844,7 +844,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR_RETURN T invoke(const type & v)
+            static CONSTEXPR_FUNC T invoke(const type & v)
             {
                 // can be unsigned but castable to signed
                 return static_cast<typename std::make_unsigned<T>::type>(
@@ -858,7 +858,7 @@ namespace math
         {
             using type = T;
 
-            static CONSTEXPR_RETURN T invoke(const type & v)
+            static CONSTEXPR_FUNC T invoke(const type & v)
             {
                 return std::negate<>()(v);
             }
@@ -870,7 +870,7 @@ namespace math
         {
             using type = bool;
 
-            static CONSTEXPR_RETURN bool invoke(bool v)
+            static CONSTEXPR_FUNC bool invoke(bool v)
             {
                 // The false is the same as zero, which have no effect of negation.
                 // The true is the same as not zero, negates to a non zero value, which is still true and have no effect of negation too.
@@ -887,7 +887,7 @@ namespace math
             // (still ill-formed, see: https://stackoverflow.com/questions/30078818/static-assert-dependent-on-non-type-template-parameter-different-behavior-on-gc)
             static_assert(sizeof(type) && false, "type T must be signed or at least castable to signed through the std::make_signed");
 
-            static CONSTEXPR_RETURN T invoke(const type & v)
+            static CONSTEXPR_FUNC T invoke(const type & v)
             {
                 return std::negate<>()(v); // just in case
             }
@@ -895,26 +895,26 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE_ALWAYS CONSTEXPR_RETURN T negate(const T & v)
+    FORCE_INLINE_ALWAYS CONSTEXPR_FUNC T negate(const T & v)
     {
         return detail::_negate<std::is_signed<T>::value, utility::is_make_signed_valid<T>::value, T>::invoke(v);
     }
 #endif
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_signed_from(T v) -> decltype(static_cast<typename std::make_signed<T>::type>(v))
+    FORCE_INLINE CONSTEXPR_FUNC auto make_signed_from(T v) -> decltype(static_cast<typename std::make_signed<T>::type>(v))
     {
         return static_cast<typename std::make_signed<T>::type>(v);
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T positive_max(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T positive_max(const T & v = T())
     {
         return (std::numeric_limits<T>::max)();
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T positive_min(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T positive_min(const T & v = T())
     {
         return (
             std::is_floating_point<T>::value ?
@@ -924,7 +924,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T negative_max(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T negative_max(const T & v = T())
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
@@ -936,7 +936,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T negative_min(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T negative_min(const T & v = T())
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
@@ -1025,7 +1025,7 @@ namespace math
         struct _pi<size_max>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(std::acos(T{ -1 }))
             {
                 return std::acos(T{ -1 });
@@ -1036,7 +1036,7 @@ namespace math
         struct _pi<0>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::_pi())
             {
                 return T::_pi();
@@ -1047,7 +1047,7 @@ namespace math
         struct _pi<1>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::pi())
             {
                 return T::pi();
@@ -1058,7 +1058,7 @@ namespace math
         struct _pi<2>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::pi_())
             {
                 return T::pi_();
@@ -1069,7 +1069,7 @@ namespace math
         struct _pi<100>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::_pi)
             {
                 return T::_pi;
@@ -1080,7 +1080,7 @@ namespace math
         struct _pi<101>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::pi)
             {
                 return T::pi;
@@ -1091,7 +1091,7 @@ namespace math
         struct _pi<102>
         {
             template <typename T>
-            static CONSTEXPR_RETURN auto get(const T & = T()) ->
+            static CONSTEXPR_FUNC auto get(const T & = T()) ->
                 decltype(T::pi_)
             {
                 return T::pi_;
@@ -1101,24 +1101,24 @@ namespace math
 
     // uniform pi-constant getter
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN auto pi(const T & v = T()) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto pi(const T & v = T()) ->
         decltype(detail::_pi<detail::_pi_t<T, T, T>::value>::get(v))
     {
         return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(T, detail::_pi<detail::_pi_t<T, T, T>::value>::get(v));
     }
 
-    FORCE_INLINE CONSTEXPR_RETURN float pi(float v = float())
+    FORCE_INLINE CONSTEXPR_FUNC float pi(float v = float())
     {
         return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(float, detail::_pi<detail::_pi_t<float, float, float>::value>::get(v));
     }
 
-    FORCE_INLINE CONSTEXPR_RETURN double pi(double v = double())
+    FORCE_INLINE CONSTEXPR_FUNC double pi(double v = double())
     {
         return TACKLE_STATIC_CONSTEXPR_VALUE_WITH_INITER(double, detail::_pi<detail::_pi_t<double, double, double>::value>::get(v));
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T is_signed_min_max(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC T is_signed_min_max(const T & v)
     {
         static_assert(std::is_signed<T>::value, "type T must be signed");
 
@@ -1126,7 +1126,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T is_unsigned_min_max(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC T is_unsigned_min_max(const T & v)
     {
         static_assert(std::is_unsigned<T>::value, "type T must be unsigned");
 
@@ -1134,7 +1134,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_valid_float(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_valid_float(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
@@ -1142,7 +1142,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_valid_not_zero_float(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_valid_not_zero_float(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
 
@@ -1150,7 +1150,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T positive_infinity(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T positive_infinity(const T & v = T())
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
         static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
@@ -1159,7 +1159,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T negative_infinity(const T & v = T())
+    FORCE_INLINE CONSTEXPR_FUNC T negative_infinity(const T & v = T())
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
         static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
@@ -1168,7 +1168,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T signed_infinity(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC T signed_infinity(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
         static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
@@ -1182,7 +1182,7 @@ namespace math
 
     // has difference with the `std::inf`, does test `has_infinity` statically
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_infinite(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_infinite(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
         static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");
@@ -1191,7 +1191,7 @@ namespace math
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T float_round_to_signed_infinity(const T & v)
+    FORCE_INLINE CONSTEXPR_FUNC T float_round_to_signed_infinity(const T & v)
     {
         static_assert(std::is_floating_point<T>::value, "type T must be float");
         static_assert(std::numeric_limits<T>::has_infinity, "type T must has infinity");

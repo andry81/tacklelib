@@ -592,14 +592,14 @@ namespace utility
     };
 
     template <typename T>
-    CONSTEXPR_RETURN typename remove_cvref<T>::type makeprval(T && v)
+    CONSTEXPR_FUNC typename remove_cvref<T>::type makeprval(T && v)
     {
         return v;
     }
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename T>
-    CONSTEXPR_RETURN const typename remove_cvref<T>::type & makeprval(const T & v)
+    CONSTEXPR_FUNC const typename remove_cvref<T>::type & makeprval(const T & v)
     {
         return v;
     }
@@ -616,7 +616,7 @@ namespace utility
         using type          = integer_sequence<T, I...>;
         using value_type    = T;
 
-        static CONSTEXPR_RETURN size_t size()
+        static CONSTEXPR_FUNC size_t size()
         {
             return sizeof...(I);
         }
@@ -651,13 +651,13 @@ namespace utility
 
     // must be overloaded explicitly
     template <size_t index>
-    FORCE_INLINE CONSTEXPR_RETURN void_ get(...)
+    FORCE_INLINE CONSTEXPR_FUNC void_ get(...)
     {
         return void_{};
     }
 
     template <size_t index>
-    FORCE_INLINE CONSTEXPR_RETURN void_ constexpr_get(...)
+    FORCE_INLINE CONSTEXPR_FUNC void_ constexpr_get(...)
     {
         return void_{};
     }
@@ -678,49 +678,49 @@ namespace utility
     // for parameter pack usage inside a static_assert
 
     template <typename T0>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_all_true(T0 && v0)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_all_true(T0 && v0)
     {
         return std::forward<T0>(v0) ? true : false;
     }
 
     template <typename T0, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_all_true(T0 && v0, Args &&... args)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_all_true(T0 && v0, Args &&... args)
     {
         return (std::forward<T0>(v0) ? true : false) && is_all_true(std::forward<Args>(args)...);
     }
 
     template <typename T0>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_all_false(T0 && v0)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_all_false(T0 && v0)
     {
         return std::forward<T0>(v0) ? false : true;
     }
 
     template <typename T0, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_all_false(T0 && v0, Args &&... args)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_all_false(T0 && v0, Args &&... args)
     {
         return (std::forward<T0>(v0) ? false : true) && is_all_false(std::forward<Args>(args)...);
     }
 
     template <typename T0>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_any_true(T0 && v0)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_any_true(T0 && v0)
     {
         return std::forward<T0>(v0) ? true : false;
     }
 
     template <typename T0, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_any_true(T0 && v0, Args &&... args)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_any_true(T0 && v0, Args &&... args)
     {
         return (std::forward<T0>(v0) ? true : false) || is_any_true(std::forward<Args>(args)...);
     }
 
     template <typename T0>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_any_false(T0 && v0)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_any_false(T0 && v0)
     {
         return std::forward<T0>(v0) ? false : true;
     }
 
     template <typename T0, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_any_false(T0 && v0, Args &&... args)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_any_false(T0 && v0, Args &&... args)
     {
         return (std::forward<T0>(v0) ? false : true) || is_any_false(std::forward<Args>(args)...);
     }
@@ -728,13 +728,13 @@ namespace utility
     // move if movable, otherwise return a lvalue reference
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN typename remove_cvref<T>::type && move_if_movable(T && v)
+    FORCE_INLINE CONSTEXPR_FUNC typename remove_cvref<T>::type && move_if_movable(T && v)
     {
         return std::forward<T>(v);
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T & move_if_movable(T & v)
+    FORCE_INLINE CONSTEXPR_FUNC T & move_if_movable(T & v)
     {
         return v;
     }

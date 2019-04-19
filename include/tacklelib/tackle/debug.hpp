@@ -230,7 +230,7 @@ namespace tackle
     template <typename CharT>
     struct DebugFilePathLine
     {
-        FORCE_INLINE CONSTEXPR_RETURN DebugFilePathLine(const constexpr_basic_string<CharT> & file_, int line_) :
+        FORCE_INLINE CONSTEXPR_FUNC DebugFilePathLine(const constexpr_basic_string<CharT> & file_, int line_) :
             file(file_), line(line_)
         {
         }
@@ -243,7 +243,7 @@ namespace tackle
     template <typename CharT>
     struct DebugFileLine
     {
-        FORCE_INLINE CONSTEXPR_RETURN DebugFileLine(const constexpr_basic_string<CharT> & file_, int line_) :
+        FORCE_INLINE CONSTEXPR_FUNC DebugFileLine(const constexpr_basic_string<CharT> & file_, int line_) :
             file(file_), line(line_)
         {
         }
@@ -268,7 +268,7 @@ namespace tackle
     // implementation through raw c string with length
     struct DebugFuncLineA
     {
-        FORCE_INLINE CONSTEXPR_RETURN DebugFuncLineA(const constexpr_string & func_, int line_) :
+        FORCE_INLINE CONSTEXPR_FUNC DebugFuncLineA(const constexpr_string & func_, int line_) :
             func(func_), line(line_)
         {
         }
@@ -313,7 +313,7 @@ namespace tackle
     template <typename CharT>
     struct DebugFilePathLineFunc
     {
-        FORCE_INLINE CONSTEXPR_RETURN DebugFilePathLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
+        FORCE_INLINE CONSTEXPR_FUNC DebugFilePathLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
             file(file_), line(line_), func(func_)
         {
         }
@@ -326,7 +326,7 @@ namespace tackle
     template <typename CharT>
     struct DebugFileLineFunc
     {
-        FORCE_INLINE CONSTEXPR_RETURN DebugFileLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
+        FORCE_INLINE CONSTEXPR_FUNC DebugFileLineFunc(const constexpr_basic_string<CharT> & file_, int line_, const constexpr_string & func_) :
             file(file_), line(line_), func(func_)
         {
         }

@@ -116,14 +116,14 @@ namespace utility
     // static assert to use in an constexpr expression
 
     template <bool v, typename...>
-    CONSTEXPR_RETURN bool static_assert_constexpr()
+    CONSTEXPR_FUNC bool static_assert_constexpr()
     {
         static_assert(v, "static_assert_true failed.");
         return v;
     }
 
     template <int id, bool v, typename...>
-    CONSTEXPR_RETURN bool static_assert_constexpr_id()
+    CONSTEXPR_FUNC bool static_assert_constexpr_id()
     {
         static_assert(v, "static_assert_true failed.");
         return v;
