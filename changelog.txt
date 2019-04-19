@@ -1,4 +1,8 @@
 2019.04.19:
+* new: details rules of variables expansion for respective functions in the `SetVarsFromFiles.cmake`
+* minor refactor and fixup, preparation for the usage of the `top [package]` variable attributes
+
+2019.04.19:
 * fixed: minor fix around `force` attribute around variable name (the `force` (without `cache`) and the `cache force` has having different meanings!)
 * minor cleanup
 
