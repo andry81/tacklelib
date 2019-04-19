@@ -33,7 +33,7 @@ namespace utility
     // T[N] -> std::tuple<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple(T (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple(T (& arr)[N], index_sequence<Indexes...>) ->
         std::tuple<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -41,7 +41,7 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple(T (& arr)[N]) -> decltype(make_tuple(arr, make_index_sequence<N>{}))
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple(T (& arr)[N]) -> decltype(make_tuple(arr, make_index_sequence<N>{}))
     {
         return make_tuple(arr, make_index_sequence<N>{});
     }
@@ -49,7 +49,7 @@ namespace utility
     // From[N] -> utility::tuple<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
         std::tuple<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -57,7 +57,7 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_with_cast(From (& arr)[N]) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_with_cast(From (& arr)[N]) ->
         decltype(make_tuple_with_cast<To>(arr, make_index_sequence<N>{}))
     {
         return make_tuple_with_cast<To>(arr, make_index_sequence<N>{});
@@ -66,7 +66,7 @@ namespace utility
     // T[N] -> utility::tuple_identities<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(T (& arr)[N], index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities(T (& arr)[N], index_sequence<Indexes...>)
         -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -74,7 +74,7 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(T (& arr)[N]) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities(T (& arr)[N]) ->
         decltype(make_tuple_identities(arr, make_index_sequence<N>{}))
     {
         return make_tuple_identities(arr, make_index_sequence<N>{});
@@ -83,7 +83,7 @@ namespace utility
     // From[N] -> utility::tuple_identities<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities_with_cast(From (& arr)[N], index_sequence<Indexes...>) ->
         tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -91,7 +91,7 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(From (& arr)[N]) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities_with_cast(From (& arr)[N]) ->
         decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{}))
     {
         return make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{});
@@ -100,7 +100,7 @@ namespace utility
     // std::array<T, N> -> utility::tuple_identities<T...>
 
     template <typename T, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(const std::array<T, N> & arr, index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities(const std::array<T, N> & arr, index_sequence<Indexes...>)
         -> tuple_identities<typename std::remove_reference<decltype(arr[Indexes])>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -108,7 +108,7 @@ namespace utility
     }
 
     template <typename T, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities(const std::array<T, N> & arr) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities(const std::array<T, N> & arr) ->
         decltype(make_tuple_identities(arr, make_index_sequence<N>{}))
     {
         return make_tuple_identities(arr, make_index_sequence<N>{});
@@ -117,7 +117,7 @@ namespace utility
     // std::array<From, N> -> utility::tuple_identities<To...>
 
     template <typename To, typename From, size_t N, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(const std::array<From, N> & arr, index_sequence<Indexes...>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities_with_cast(const std::array<From, N> & arr, index_sequence<Indexes...>) ->
         tuple_identities<typename std::remove_reference<decltype(static_cast<To>(arr[Indexes]))>::type...>
     {
         static_assert(N == sizeof...(Indexes), "index_sequence sizeof must be equal to the size of input array");
@@ -125,7 +125,7 @@ namespace utility
     }
 
     template <typename To, typename From, size_t N>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tuple_identities_with_cast(const std::array<From, N> & arr) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tuple_identities_with_cast(const std::array<From, N> & arr) ->
         decltype(make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{}))
     {
         return make_tuple_identities_with_cast<To>(arr, make_index_sequence<N>{});
@@ -143,14 +143,14 @@ namespace utility
         // T[N] -> f(Args &&...)
 
         template <typename Functor, size_t N, typename T, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&) ->
             decltype(f(arr[Indexes]...))
         {
             return f(arr[Indexes]...);
         }
 
         template <typename Functor, size_t N, typename T, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, T (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., arr[Indexes]...))
         {
             return f(std::forward<Args>(args)..., arr[Indexes]...);
@@ -159,14 +159,14 @@ namespace utility
         // std::array<T, N> -> f(Args &&...)
 
         template <typename Functor, size_t N, typename T, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&) ->
             decltype(f(arr[Indexes]...))
         {
             return f(arr[Indexes]...);
         }
 
         template <typename Functor, size_t N, typename T, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, const std::array<T, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., arr[Indexes]...))
         {
             return f(std::forward<Args>(args)..., arr[Indexes]...);
@@ -175,14 +175,14 @@ namespace utility
         // From[N] -> f(To{ Args && }...)
 
         template <typename To, typename Functor, size_t N, typename From, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&) ->
             decltype(f(static_cast<To>(arr[Indexes])...))
         {
             return f(static_cast<To>(arr[Indexes])...);
         }
 
         template <typename To, typename Functor, size_t N, typename From, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, From (& arr)[N], utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...))
         {
             return f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...);
@@ -191,14 +191,14 @@ namespace utility
         // std::array<From, N> -> f(To{ Args && }...)
 
         template <typename To, typename Functor, size_t N, typename From, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&) ->
             decltype(f(static_cast<To>(arr[Indexes])...))
         {
             return f(static_cast<To>(arr[Indexes])...);
         }
 
         template <typename To, typename Functor, size_t N, typename From, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, const std::array<From, N> & arr, utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...))
         {
             return f(std::forward<Args>(args)..., static_cast<To>(arr[Indexes])...);
@@ -208,7 +208,7 @@ namespace utility
     // T[N] -> f(Args &&...)
 
     template <typename Functor, size_t N, typename T, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply(Functor && f, T (& arr)[N], Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply(Functor && f, T (& arr)[N], Args &&... args) ->
         decltype(detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
         return detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
@@ -217,7 +217,7 @@ namespace utility
     // std::array<T, N> -> f(Args &&...)
 
     template <typename Functor, size_t N, typename T, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply(Functor && f, const std::array<T, N> & arr, Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply(Functor && f, const std::array<T, N> & arr, Args &&... args) ->
         decltype(detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
         return detail::_apply(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
@@ -226,7 +226,7 @@ namespace utility
     // From[N] -> f(To{ Args && }...)
 
     template <typename To, typename Functor, size_t N, typename From, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply_with_cast(Functor && f, From (& arr)[N], Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply_with_cast(Functor && f, From (& arr)[N], Args &&... args) ->
         decltype(detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
         return detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
@@ -235,7 +235,7 @@ namespace utility
     // std::array<From, N> -> f(To{ Args && }...)
 
     template <typename To, typename Functor, size_t N, typename From, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply_with_cast(Functor && f, const std::array<From, N> & arr, Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply_with_cast(Functor && f, const std::array<From, N> & arr, Args &&... args) ->
         decltype(detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...))
     {
         return detail::_apply_with_cast<To>(f, arr, make_index_sequence<N>{}, std::forward<Args>(args)...);
@@ -271,7 +271,7 @@ namespace utility
     //// static_if by overload
 
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR_RETURN T static_if(std::true_type, T && t, F &&)
+    FORCE_INLINE CONSTEXPR_FUNC T static_if(std::true_type, T && t, F &&)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return std::forward<T>(t);
@@ -279,14 +279,14 @@ namespace utility
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR_RETURN T & static_if(std::true_type, T & t, F &&)
+    FORCE_INLINE CONSTEXPR_FUNC T & static_if(std::true_type, T & t, F &&)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return t;
     }
 
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR_RETURN F static_if(std::false_type, T &&, F && f)
+    FORCE_INLINE CONSTEXPR_FUNC F static_if(std::false_type, T &&, F && f)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return std::forward<F>(f);
@@ -294,7 +294,7 @@ namespace utility
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename T, typename F>
-    FORCE_INLINE CONSTEXPR_RETURN F & static_if(std::false_type, T &&, F & f)
+    FORCE_INLINE CONSTEXPR_FUNC F & static_if(std::false_type, T &&, F & f)
     {
         // c++11: body of constexpr function must consist only of single return-statement
         return f;
@@ -303,7 +303,7 @@ namespace utility
     //// static_if by explicit template argument
 
     template <bool B, typename T, typename F>
-    FORCE_INLINE CONSTEXPR_RETURN auto static_if(T && t, F && f) -> decltype(static_if(std::integral_constant<bool, B>{}, std::forward<T>(t), std::forward<F>(f)))
+    FORCE_INLINE CONSTEXPR_FUNC auto static_if(T && t, F && f) -> decltype(static_if(std::integral_constant<bool, B>{}, std::forward<T>(t), std::forward<F>(f)))
     {
         return static_if(std::integral_constant<bool, B>{}, std::forward<T>(t), std::forward<F>(f));
     }
@@ -311,39 +311,39 @@ namespace utility
     //// static_if_true by overload
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T static_if_true(std::true_type, T && t)
+    FORCE_INLINE CONSTEXPR_FUNC T static_if_true(std::true_type, T && t)
     {
         return std::forward<T>(t);
     }
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN T & static_if_true(std::true_type, T & t)
+    FORCE_INLINE CONSTEXPR_FUNC T & static_if_true(std::true_type, T & t)
     {
         return t;
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN void static_if_true(std::false_type, T && t)
+    FORCE_INLINE CONSTEXPR_FUNC void static_if_true(std::false_type, T && t)
     {
     }
 
     //// static_if_false by overload
 
     template <typename F>
-    FORCE_INLINE CONSTEXPR_RETURN void static_if_false(std::true_type, F f)
+    FORCE_INLINE CONSTEXPR_FUNC void static_if_false(std::true_type, F f)
     {
     }
 
     template <typename F>
-    FORCE_INLINE CONSTEXPR_RETURN F static_if_false(std::false_type, F && f)
+    FORCE_INLINE CONSTEXPR_FUNC F static_if_false(std::false_type, F && f)
     {
         return std::forward<F>(f);
     }
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename F>
-    FORCE_INLINE CONSTEXPR_RETURN F & static_if_false(std::false_type, F & f)
+    FORCE_INLINE CONSTEXPR_FUNC F & static_if_false(std::false_type, F & f)
     {
         return f;
     }
@@ -354,14 +354,14 @@ namespace utility
         struct _static_if
         {
             template <typename T>
-            static CONSTEXPR_RETURN T invoke(T && t)
+            static CONSTEXPR_FUNC T invoke(T && t)
             {
                 return std::forward<T>(t);
             }
 
             // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
             template <typename T>
-            static CONSTEXPR_RETURN T & invoke(T & t)
+            static CONSTEXPR_FUNC T & invoke(T & t)
             {
                 return t;
             }
@@ -371,7 +371,7 @@ namespace utility
         struct _static_if<false>
         {
             template <typename T>
-            static CONSTEXPR_RETURN void invoke(T &&)
+            static CONSTEXPR_FUNC void invoke(T &&)
             {
             }
         };
@@ -380,7 +380,7 @@ namespace utility
     //// static_if_true by explicit template argument
 
     template <bool B, typename T>
-    CONSTEXPR_RETURN auto static_if_true(T t) -> decltype(detail::_static_if<B>::invoke(t))
+    CONSTEXPR_FUNC auto static_if_true(T t) -> decltype(detail::_static_if<B>::invoke(t))
     {
         return detail::_static_if<B>::invoke(t);
     }
@@ -388,7 +388,7 @@ namespace utility
     //// static_if_false by explicit template argument
 
     template <bool B, typename F>
-    CONSTEXPR_RETURN auto static_if_false(F f) -> decltype(detail::_static_if<!B>::invoke(f))
+    CONSTEXPR_FUNC auto static_if_false(F f) -> decltype(detail::_static_if<!B>::invoke(f))
     {
         return detail::_static_if<!B>::invoke(f);
     }
@@ -496,13 +496,13 @@ namespace utility
     FORCE_INLINE void static_consume(std::initializer_list<T>) {}
 
     template<typename Functor, size_t... Indexes>
-    FORCE_INLINE CONSTEXPR_RETURN void static_foreach_seq(Functor && function, index_sequence<Indexes...>)
+    FORCE_INLINE CONSTEXPR_FUNC void static_foreach_seq(Functor && function, index_sequence<Indexes...>)
     {
         return static_consume({ (function(std::integral_constant<std::size_t, Indexes>{}), 0)... });
     }
 
     template<std::size_t Size, typename Functor>
-    FORCE_INLINE CONSTEXPR_RETURN void static_foreach(Functor && functor)
+    FORCE_INLINE CONSTEXPR_FUNC void static_foreach(Functor && functor)
     {
         return static_foreach_seq(std::forward<Functor>(functor), make_index_sequence<Size>());
     }

@@ -109,12 +109,12 @@ namespace utility
         using BufPtr = std::unique_ptr<uint8_t[]>;
         using GuardSequenceStr_t = char[49];
 
-        static FORCE_INLINE CONSTEXPR_RETURN const GuardSequenceStr_t & _guard_sequence_str()
+        static FORCE_INLINE CONSTEXPR_FUNC const GuardSequenceStr_t & _guard_sequence_str()
         {
             return "XYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZXYZ";
         }
 
-        static FORCE_INLINE CONSTEXPR_RETURN const size_t _guard_max_len()
+        static FORCE_INLINE CONSTEXPR_FUNC const size_t _guard_max_len()
         {
             return 256; // to avoid comparison slow down on big arrays
         }

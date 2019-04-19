@@ -37,7 +37,7 @@ namespace detail {
         // use compile-time assert
 
         template <typename CharT, size_t S>
-        static CONSTEXPR_RETURN const CharT * _consexpr_validate_ptr(const CharT (& str)[S])
+        static CONSTEXPR_FUNC const CharT * _consexpr_validate_ptr(const CharT (& str)[S])
         {
             // WORKAROUND:
             //  Use `string_length` in standalone `static_assert` instead of
@@ -48,7 +48,7 @@ namespace detail {
         }
 
         template <typename CharT>
-        static CONSTEXPR_RETURN const CharT * _consexpr_validate_ptr(const CharT * str, size_t size)
+        static CONSTEXPR_FUNC const CharT * _consexpr_validate_ptr(const CharT * str, size_t size)
         {
             // WORKAROUND:
             //  Use `string_length` in standalone `static_assert` instead of
@@ -59,13 +59,13 @@ namespace detail {
         }
 
         template <typename CharT, size_t S>
-        static CONSTEXPR_RETURN size_t _consexpr_validate_size(const CharT (& str)[S])
+        static CONSTEXPR_FUNC size_t _consexpr_validate_size(const CharT (& str)[S])
         {
             return S;
         }
 
         template <typename CharT>
-        static CONSTEXPR_RETURN size_t _consexpr_validate_size(const CharT * str, size_t size)
+        static CONSTEXPR_FUNC size_t _consexpr_validate_size(const CharT * str, size_t size)
         {
             return size;
         }
@@ -77,25 +77,25 @@ namespace detail {
         // return empty string instead of compile-time assert
 
         template <typename CharT, size_t S>
-        static CONSTEXPR_RETURN const CharT * _consexpr_validate_ptr(const CharT (& str)[S])
+        static CONSTEXPR_FUNC const CharT * _consexpr_validate_ptr(const CharT (& str)[S])
         {
             return (utility::detail::_string_length(str, 0) + 1 == S) ? str : utility::literal_separators<CharT>::null_str;
         }
 
         template <typename CharT>
-        static CONSTEXPR_RETURN const CharT * _consexpr_validate_ptr(const CharT * str, size_t size)
+        static CONSTEXPR_FUNC const CharT * _consexpr_validate_ptr(const CharT * str, size_t size)
         {
             return (utility::detail::_string_length(str, 0) + 1 == size) ? str : utility::literal_separators<CharT>::null_str;
         }
 
         template <typename CharT, size_t S>
-        static CONSTEXPR_RETURN size_t _consexpr_validate_size(const CharT (& str)[S])
+        static CONSTEXPR_FUNC size_t _consexpr_validate_size(const CharT (& str)[S])
         {
             return (utility::detail::_string_length(str, 0) + 1 == S) ? S : 1;
         }
 
         template <typename CharT>
-        static CONSTEXPR_RETURN size_t _consexpr_validate_size(const CharT * str, size_t size)
+        static CONSTEXPR_FUNC size_t _consexpr_validate_size(const CharT * str, size_t size)
         {
             return (utility::detail::_string_length(str, 0) + 1 == size) ? size : 1;
         }
@@ -114,17 +114,17 @@ namespace detail {
         template <size_t S>
         using t_array_type = CharT[S];
 
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string() :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string() :
             m_ptr(""),
             m_size(1)
         {
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(constexpr_basic_string &&) = default;
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const constexpr_basic_string &) = default;
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(constexpr_basic_string &&) = default;
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const constexpr_basic_string &) = default;
 
         template <size_t S>
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const CharT (& arr)[S]) :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const CharT (& arr)[S]) :
             m_ptr(detail::
                 _impl<UTILITY_IS_CONSTEXPR_VALUE(arr)>::
                 _consexpr_validate_ptr(arr)
@@ -137,14 +137,14 @@ namespace detail {
         }
 
         // we still need both constructors to reduce unnecessary casts to/from C-style character arrays
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const CharT * const & ptr) :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const CharT * const & ptr) :
             m_ptr(ptr),
             m_size(utility::string_length(ptr) + 1)
         {
         }
 
         // we still need both constructors to reduce unnecessary casts to/from C-style character arrays
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const CharT * ptr, size_t len) :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const CharT * ptr, size_t len) :
             m_ptr(detail::
                 _impl<UTILITY_IS_CONSTEXPR_VALUE(ptr)>::
                 _consexpr_validate_ptr(ptr, len + 1)
@@ -157,14 +157,14 @@ namespace detail {
         }
 
         template <uint64_t id, CharT... chars>
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const tmpl_basic_string<id, CharT, chars...> & str) :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const tmpl_basic_string<id, CharT, chars...> & str) :
             m_ptr(str.data()),
             m_size(str.size())
         {
         }
 
         template <typename t_traits, typename t_alloc>
-        FORCE_INLINE CONSTEXPR_RETURN constexpr_basic_string(const std::basic_string<CharT, t_traits, t_alloc> & str) :
+        FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const std::basic_string<CharT, t_traits, t_alloc> & str) :
             m_ptr(detail::
                 _impl<UTILITY_IS_CONSTEXPR_VALUE(str.data())>::
                 _consexpr_validate_ptr(str.data(), str.size())
@@ -182,7 +182,7 @@ namespace detail {
 //  note: or       'built-in C++ operator[(CharT, int)'
 //
 #if !defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_X64)
-        FORCE_INLINE CONSTEXPR_RETURN CharT operator [](size_t index) const
+        FORCE_INLINE CONSTEXPR_FUNC CharT operator [](size_t index) const
         {
             return (index < m_size - 1) ?
                 m_ptr[index] :
@@ -191,13 +191,13 @@ namespace detail {
         }
 #endif
 
-        FORCE_INLINE CONSTEXPR_RETURN const CharT * c_str() const
+        FORCE_INLINE CONSTEXPR_FUNC const CharT * c_str() const
         {
             return m_ptr;
         }
 
         template <size_t S>
-        FORCE_INLINE CONSTEXPR_RETURN const t_array_type<S> & data() const
+        FORCE_INLINE CONSTEXPR_FUNC const t_array_type<S> & data() const
         {
             return *((S == m_size) ?
                 reinterpret_cast<const CharT(*)[S]>(m_ptr) :
@@ -205,30 +205,30 @@ namespace detail {
                     reinterpret_cast<const CharT(*)[S]>(static_cast<const void *>(nullptr))));
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN size_t size() const
+        FORCE_INLINE CONSTEXPR_FUNC size_t size() const
         {
             return m_size;
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN size_t length() const
+        FORCE_INLINE CONSTEXPR_FUNC size_t length() const
         {
             return m_size - 1;
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN operator const CharT *() const
+        FORCE_INLINE CONSTEXPR_FUNC operator const CharT *() const
         {
             return c_str();
         }
 
         template <size_t S>
-        FORCE_INLINE CONSTEXPR_RETURN operator const t_array_type<S> &() const
+        FORCE_INLINE CONSTEXPR_FUNC operator const t_array_type<S> &() const
         {
             return data<S>();
         }
 
         // specific operator for std::basic_string, for example, to enable usage of std::is_convertible<constexpr_string, std::string>::value
         template <typename t_traits, typename t_alloc>
-        FORCE_INLINE UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_RETURN
+        FORCE_INLINE UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC
             operator std::basic_string<CharT, t_traits, t_alloc>() const
         {
             return data<m_size>();
@@ -251,7 +251,7 @@ namespace utility {
     // string length for a constexpr string
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t constexpr_string_length(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t constexpr_string_length(const tackle::constexpr_basic_string<CharT> & str)
     {
         return str.length();
     }
@@ -259,19 +259,19 @@ namespace utility {
     // string length for a runtime string
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t string_length(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t string_length(const tackle::constexpr_basic_string<CharT> & str)
     {
         return str.length();
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
     {
         return detail::_get_file_name_constexpr_offset(str, str.length());
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const tackle::constexpr_basic_string<CharT> & str)
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, str.length());
     }

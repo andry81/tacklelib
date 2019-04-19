@@ -1,3 +1,6 @@
+2019.04.19:
+* refactor: rename `*CONSTEXPR_RETURN` into `*CONSTEXPR_FUNC`
+
 2019.04.15:
 * removed: `_3dparty` directory is removed to enable creation of a symbol link instead of the directory
 

@@ -20,7 +20,7 @@ namespace utility
     namespace detail
     {
         template <typename T>
-        FORCE_INLINE CONSTEXPR_RETURN size_t _get_file_name_constexpr_offset(T && str, size_t i)
+        FORCE_INLINE CONSTEXPR_FUNC size_t _get_file_name_constexpr_offset(T && str, size_t i)
         {
             using unqual_type_t = typename utility::remove_cvrefcvptr<T>::type;
             return (
@@ -31,37 +31,37 @@ namespace utility
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const char (& str)[S])
     {
         return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const wchar_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const wchar_t (& str)[S])
     {
         return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char16_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const char16_t (& str)[S])
     {
         return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const char32_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const char32_t (& str)[S])
     {
         return detail::_get_file_name_constexpr_offset(str, S - 1);
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const T (& str)[1])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const T (& str)[1])
     {
         return 0;
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const T * const & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const T * const & str)
     {
         return detail::_get_file_name_constexpr_offset(str, constexpr_string_length(str));
     }
@@ -69,7 +69,7 @@ namespace utility
     namespace detail
     {
         template <typename T>
-        FORCE_INLINE CONSTEXPR_RETURN size_t _get_unmangled_src_func_constexpr_offset(T && str, size_t i)
+        FORCE_INLINE CONSTEXPR_FUNC size_t _get_unmangled_src_func_constexpr_offset(T && str, size_t i)
         {
             using unqual_type_t = typename utility::remove_cvrefcvptr<T>::type;
             return (str[i] == utility::literal_separators<unqual_type_t>::colon_char) ?
@@ -78,37 +78,37 @@ namespace utility
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const char (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const char (& str)[S])
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const wchar_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const wchar_t (& str)[S])
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const char16_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const char16_t (& str)[S])
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const char32_t (& str)[S])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const char32_t (& str)[S])
     {
         return _get_unmangled_src_func_constexpr_offset(str, S - 1);
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const T (& str)[1])
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const T (& str)[1])
     {
         return 0;
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const T * const & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const T * const & str)
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, constexpr_string_length(str));
     }

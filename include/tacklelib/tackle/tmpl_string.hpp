@@ -76,12 +76,12 @@ namespace tackle {
         using storage_type          = tmpl_basic_string_storage<id, CharT, tchars...>;
 
         // to be able to create the string value to use template parameters deduction from a function argument
-        FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string()
+        FORCE_INLINE CONSTEXPR_FUNC tmpl_basic_string()
         {
         }
 
         // to be able to return by value
-        FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string(const tmpl_basic_string &) = default;
+        FORCE_INLINE CONSTEXPR_FUNC tmpl_basic_string(const tmpl_basic_string &) = default;
 
     private:
         // block conversion from a C raw string, from a literal string or from a static string in an overload resolution logic
@@ -89,7 +89,7 @@ namespace tackle {
 
     private:
         template <uint64_t substr_id, size_t offset, size_t... N>
-        static FORCE_INLINE CONSTEXPR_RETURN
+        static FORCE_INLINE CONSTEXPR_FUNC
             tmpl_basic_string<substr_id, CharT, storage_type::value[offset + N]..., UTILITY_LITERAL_CHAR('\0', CharT)>
             _make_tmpl_string_from_tmpl_string(utility::index_sequence<N...>)
         {
@@ -103,36 +103,36 @@ namespace tackle {
 //  note: or       'built-in C++ operator[](int)'
 //
 #if !defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_X64)
-        FORCE_INLINE CONSTEXPR_RETURN const CharT & operator[] (size_t index) const // index - must compile time ONLY
+        FORCE_INLINE CONSTEXPR_FUNC const CharT & operator[] (size_t index) const // index - must compile time ONLY
         {
             return (STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_IS_CONSTEXPR_VALUE(index)),
                 UTILITY_CONSTEXPR_GET(*this, index));
         }
 #endif
 
-        static FORCE_INLINE CONSTEXPR_RETURN const CharT * c_str()
+        static FORCE_INLINE CONSTEXPR_FUNC const CharT * c_str()
         {
             return storage_type::value;
         }
 
-        static FORCE_INLINE CONSTEXPR_RETURN const array_type & data()
+        static FORCE_INLINE CONSTEXPR_FUNC const array_type & data()
         {
             return storage_type::value;
         }
 
-        static FORCE_INLINE CONSTEXPR_RETURN size_t size()
+        static FORCE_INLINE CONSTEXPR_FUNC size_t size()
         {
             return UTILITY_CONSTEXPR_VALUE(sizeof...(tchars));
         }
 
         template <uint64_t substr_id>
-        static FORCE_INLINE CONSTEXPR_RETURN tmpl_basic_string substr()
+        static FORCE_INLINE CONSTEXPR_FUNC tmpl_basic_string substr()
         {
             return {};
         }
 
         template <uint64_t substr_id, size_t offset>
-        static CONSTEXPR_RETURN auto substr(size_t) ->
+        static CONSTEXPR_FUNC auto substr(size_t) ->
             decltype(_make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<offset < sizeof...(tchars) ? sizeof...(tchars) - offset - 1 : 0>{}))
         {
             return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < sizeof...(tchars),
@@ -141,7 +141,7 @@ namespace tackle {
         }
 
         template <uint64_t substr_id, size_t offset, size_t len>
-        static CONSTEXPR_RETURN auto substr(size_t, size_t) ->
+        static CONSTEXPR_FUNC auto substr(size_t, size_t) ->
             decltype(_make_tmpl_string_from_tmpl_string<substr_id, offset>(utility::make_index_sequence<len>{}))
         {
             return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < sizeof...(tchars),
@@ -152,24 +152,24 @@ namespace tackle {
         // CAUTION:
         //  must be implemented inside class to avoid ICE in msvc 2015 update 3
         //
-        static FORCE_INLINE CONSTEXPR_RETURN size_t length()
+        static FORCE_INLINE CONSTEXPR_FUNC size_t length()
         {
             return UTILITY_CONSTEXPR_VALUE((utility::detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _impl3<0, CharT, tchars...>::_constexpr_tmpl_string_length()));
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN operator const CharT *() const
+        FORCE_INLINE CONSTEXPR_FUNC operator const CharT *() const
         {
             return c_str();
         }
 
-        FORCE_INLINE CONSTEXPR_RETURN operator const array_type &() const
+        FORCE_INLINE CONSTEXPR_FUNC operator const array_type &() const
         {
             return data();
         }
 
         // specific operator for std::basic_string, for example, to enable usage of std::is_convertible<tmpl_string, std::string>::value
         template <typename t_traits, typename t_alloc>
-        FORCE_INLINE UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_RETURN
+        FORCE_INLINE UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC
             operator std::basic_string<CharT, t_traits, t_alloc>() const
         {
             return data();
@@ -244,7 +244,7 @@ namespace utility {
             //  `_get_tmpl_basic_string_char` can search a range greater than the length of a string, because by default it uses the string size instead a string length!
             //
             template <size_t index, typename CharT, CharT c0, CharT... tail_tchars>
-            static FORCE_INLINE CONSTEXPR_RETURN CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
+            static FORCE_INLINE CONSTEXPR_FUNC CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
             {
                 return (index < max_size && index < next_index + 1 + sizeof...(tail_tchars)) ?
                     (index != next_index ?
@@ -257,7 +257,7 @@ namespace utility {
             template <size_t index, size_t next_index, size_t max_size, typename CharT, CharT c0, CharT... tail_tchars>
             struct _impl2
             {
-                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                static FORCE_INLINE CONSTEXPR_FUNC CharT _constexpr_get_tmpl_basic_string_char()
                 {
                     return (STATIC_ASSERT_CONSTEXPR_TRUE(index != next_index && index < max_size && index < next_index + 1 + sizeof...(tail_tchars),
                         STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(next_index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
@@ -268,7 +268,7 @@ namespace utility {
             template <size_t index, size_t max_size, typename CharT, CharT c0, CharT... tail_tchars>
             struct _impl2<index, index, max_size, CharT, c0, tail_tchars...>
             {
-                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                static FORCE_INLINE CONSTEXPR_FUNC CharT _constexpr_get_tmpl_basic_string_char()
                 {
                     return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < index + 1 + sizeof...(tail_tchars),
                         STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(max_size), STATIC_ASSERT_PARAM(sizeof...(tail_tchars))),
@@ -279,7 +279,7 @@ namespace utility {
             template <size_t next_index, typename CharT, CharT c0, CharT... tail_tchars>
             struct _impl3
             {
-                static FORCE_INLINE CONSTEXPR_RETURN size_t _constexpr_tmpl_string_length()
+                static FORCE_INLINE CONSTEXPR_FUNC size_t _constexpr_tmpl_string_length()
                 {
                     return (c0 != utility::literal_separators<CharT>::null_char ?
                         _impl<sizeof...(tail_tchars)>::TEMPLATE_SCOPE _impl3<next_index + 1, CharT, tail_tchars...>::_constexpr_tmpl_string_length() :
@@ -292,7 +292,7 @@ namespace utility {
         struct _impl<1>
         {
             template <size_t index, typename CharT, CharT c0>
-            static FORCE_INLINE CONSTEXPR_RETURN CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
+            static FORCE_INLINE CONSTEXPR_FUNC CharT _get_tmpl_basic_string_char(size_t next_index, size_t max_size = size_t(~0))
             {
                 return (index < max_size && index < next_index + 1 && index == next_index) ?
                     c0 :
@@ -303,7 +303,7 @@ namespace utility {
             template <size_t index, size_t next_index, size_t max_size, typename CharT, CharT c0>
             struct _impl2
             {
-                static FORCE_INLINE CONSTEXPR_RETURN CharT _constexpr_get_tmpl_basic_string_char()
+                static FORCE_INLINE CONSTEXPR_FUNC CharT _constexpr_get_tmpl_basic_string_char()
                 {
                     return (STATIC_ASSERT_CONSTEXPR_TRUE(index < max_size && index < next_index + 1 && index == next_index,
                         STATIC_ASSERT_PARAM(index), STATIC_ASSERT_PARAM(next_index), STATIC_ASSERT_PARAM(max_size)),
@@ -315,7 +315,7 @@ namespace utility {
             template <size_t next_index, typename CharT, CharT c0>
             struct _impl3
             {
-                static FORCE_INLINE CONSTEXPR_RETURN size_t _constexpr_tmpl_string_length()
+                static FORCE_INLINE CONSTEXPR_FUNC size_t _constexpr_tmpl_string_length()
                 {
                     return (c0 != utility::literal_separators<CharT>::null_char ?
                         next_index + 1 :
@@ -330,25 +330,25 @@ namespace utility {
     }
 
     template <size_t index, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN CharT get_tmpl_string_char()
+    FORCE_INLINE CONSTEXPR_FUNC CharT get_tmpl_string_char()
     {
         return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _get_tmpl_basic_string_char<index, CharT, tchars...>(0)));
     }
 
     template <size_t index, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN CharT constexpr_get()
+    FORCE_INLINE CONSTEXPR_FUNC CharT constexpr_get()
     {
         return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _impl2<index, 0, size_t(~0), CharT, tchars...>::_constexpr_get_tmpl_basic_string_char()));
     }
 
     template <size_t index, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN CharT get(const tackle::tmpl_basic_string<id, CharT, tchars...> &)
+    FORCE_INLINE CONSTEXPR_FUNC CharT get(const tackle::tmpl_basic_string<id, CharT, tchars...> &)
     {
         return UTILITY_CONSTEXPR_VALUE((detail::_impl<sizeof...(tchars)>::TEMPLATE_SCOPE _get_tmpl_basic_string_char<index, CharT, tchars...>(0)));
     }
 
     template <size_t index, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN CharT constexpr_get(const tackle::tmpl_basic_string<id, CharT, tchars...> &)
+    FORCE_INLINE CONSTEXPR_FUNC CharT constexpr_get(const tackle::tmpl_basic_string<id, CharT, tchars...> &)
     {
         return UTILITY_CONSTEXPR_VALUE((constexpr_get<index, id, CharT, tchars...>()));
     }
@@ -359,14 +359,14 @@ namespace utility {
         // CharT[N] -> f(Args &&...)
 
         template <typename Functor, uint64_t id, typename CharT, CharT... tchars, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&) ->
             decltype(f(get<Indexes>(str)...))
         {
             return f(get<Indexes>(str)...);
         }
 
         template <typename Functor, uint64_t id, typename CharT, CharT... tchars, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., get<Indexes>(str)...))
         {
             return f(std::forward<Args>(args)..., get<Indexes>(str)...);
@@ -375,14 +375,14 @@ namespace utility {
         // CharT[N] -> f(To{ Args && }...)
 
         template <typename To, typename Functor, uint64_t id, typename CharT, CharT... tchars, size_t... Indexes>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&) ->
             decltype(f(static_cast<To>(get<Indexes>(str))...))
         {
             return f(static_cast<To>(get<Indexes>(str))...);
         }
 
         template <typename To, typename Functor, uint64_t id, typename CharT, CharT... tchars, size_t... Indexes, typename... Args>
-        FORCE_INLINE CONSTEXPR_RETURN auto _apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&, Args &&... args) ->
+        FORCE_INLINE CONSTEXPR_FUNC auto _apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, utility::index_sequence<Indexes...> &&, Args &&... args) ->
             decltype(f(std::forward<Args>(args)..., static_cast<To>(get<Indexes>(str))...))
         {
             return f(std::forward<Args>(args)..., static_cast<To>(get<Indexes>(str))...);
@@ -393,7 +393,7 @@ namespace utility {
     // CharT[N] -> f(Args &&...)
 
     template <typename Functor, uint64_t id, typename CharT, CharT... tchars, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, Args &&... args) ->
         decltype(detail::_apply(f, str, make_index_sequence<tackle::tmpl_basic_string<id, CharT, tchars...>::size()>{}, std::forward<Args>(args)...))
     {
         return detail::_apply(f, str, make_index_sequence<str.size()>{}, std::forward<Args>(args)...);
@@ -402,20 +402,20 @@ namespace utility {
     // CharT[N] -> f(To{ Args && }...)
 
     template <typename To, typename Functor, uint64_t id, typename CharT, CharT... tchars, typename... Args>
-    FORCE_INLINE CONSTEXPR_RETURN auto apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, Args &&... args) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto apply_with_cast(Functor && f, tackle::tmpl_basic_string<id, CharT, tchars...> && str, Args &&... args) ->
         decltype(detail::_apply_with_cast<To>(f, str, make_index_sequence<tackle::tmpl_basic_string<id, CharT, tchars...>::size()>{}, std::forward<Args>(args)...))
     {
         return detail::_apply_with_cast<To>(f, str, make_index_sequence<str.size()>{}, std::forward<Args>(args)...);
     }
 
     template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_file_name_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_file_name_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
         return detail::_get_file_name_constexpr_offset(str, str.length());
     }
 
     template <uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN size_t get_unmangled_src_func_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t get_unmangled_src_func_constexpr_offset(const tackle::tmpl_basic_string<id, CharT, tchars...> & str)
     {
         return detail::_get_unmangled_src_func_constexpr_offset(str, str.length());
     }
@@ -425,7 +425,7 @@ namespace utility {
         // make_tmpl_string
 
         template <uint64_t id, typename StaticGetter, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN
+        FORCE_INLINE CONSTEXPR_FUNC
             tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[N]...>
             _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>)
         {
@@ -433,7 +433,7 @@ namespace utility {
         }
 
         template <uint64_t id, size_t offset, typename StaticGetter, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN
+        FORCE_INLINE CONSTEXPR_FUNC
             tackle::tmpl_basic_string<id, typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type, StaticGetter::get()[offset + N]...,
                 UTILITY_LITERAL_CHAR('\0', typename utility::remove_cvref<decltype(StaticGetter::get()[0])>::type)>
             _make_tmpl_string_from_getter(StaticGetter, index_sequence<N...>, size_identity<offset>)
@@ -442,7 +442,7 @@ namespace utility {
         }
 
         template <uint64_t substr_id, size_t offset, uint64_t id, typename CharT, CharT... tchars, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN
+        FORCE_INLINE CONSTEXPR_FUNC
             tackle::tmpl_basic_string<substr_id, CharT, (tackle::tmpl_basic_string_storage<id, CharT, tchars...>::value)[offset + N]...,
                 UTILITY_LITERAL_CHAR('\0', CharT)>
             _make_tmpl_string_from_tmpl_string(index_sequence<N...>)
@@ -451,7 +451,7 @@ namespace utility {
         }
 
         template <uint64_t id, size_t offset, typename CharT, size_t S, size_t... N>
-        FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, sizeof...(N) + 1> &
+        FORCE_INLINE CONSTEXPR_FUNC const array_type<CharT, sizeof...(N) + 1> &
             _make_tmpl_string_from_array_impl(const CharT (& c_str)[S], index_sequence<N...>)
         {
             return tackle::tmpl_basic_string_storage<id, CharT, c_str[offset + N]..., UTILITY_LITERAL_CHAR('\0', CharT)>::value;
@@ -460,14 +460,14 @@ namespace utility {
     }
 
     template <uint64_t id, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tmpl_string_from_getter(StaticGetter getter) ->
         decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{}))
     {
         return detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get())>{});
     }
 
     template <uint64_t id, size_t offset, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>) ->
         decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()) - offset - 1>{}, size_identity<offset>{}))
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
@@ -476,7 +476,7 @@ namespace utility {
     }
 
     template <uint64_t id, size_t offset, size_t len, typename StaticGetter>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>, size_identity<len>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tmpl_string_from_getter(StaticGetter getter, size_identity<offset>, size_identity<len>) ->
         decltype(detail::_make_tmpl_string_from_getter<id>(getter, make_index_sequence<len>{}, size_identity<offset>{}))
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < UTILITY_CONSTEXPR_ARRAY_SIZE(StaticGetter::get()),
@@ -485,7 +485,7 @@ namespace utility {
     }
 
     template <uint64_t substr_id, size_t offset, size_t len, uint64_t id, typename CharT, CharT... tchars>
-    FORCE_INLINE CONSTEXPR_RETURN auto make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>) ->
+    FORCE_INLINE CONSTEXPR_FUNC auto make_tmpl_string_from_tmpl_string(tackle::tmpl_basic_string<id, CharT, tchars...>) ->
         decltype(detail::_make_tmpl_string_from_tmpl_string<substr_id, offset, len, id, CharT, tchars...>(make_index_sequence<len>{}))
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < sizeof...(tchars),
@@ -494,14 +494,14 @@ namespace utility {
     }
 
     template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, S - offset> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>)
+    FORCE_INLINE CONSTEXPR_FUNC const array_type<CharT, S - offset> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>)
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(offset < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(S)),
             detail::_make_tmpl_string_from_array_impl<id, offset>(c_str, make_index_sequence<S - offset - 1>{}));
     }
 
     template <uint64_t id, size_t offset, size_t len, typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN const array_type<CharT, len + 1> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>, size_identity<len>)
+    FORCE_INLINE CONSTEXPR_FUNC const array_type<CharT, len + 1> & make_tmpl_string_from_array(const CharT (& c_str)[S], size_identity<offset>, size_identity<len>)
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(offset + len < S, STATIC_ASSERT_PARAM(offset), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(S)),
             detail::_make_tmpl_string_from_array_impl<id, offset>(c_str, make_index_sequence<len>{}));

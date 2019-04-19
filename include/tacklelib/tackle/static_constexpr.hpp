@@ -57,7 +57,7 @@ namespace tackle
         static CONSTEXPR const bool is_const_type_v = true;
 
         template <typename... Args>
-        static FORCE_INLINE CONSTEXPR_RETURN T construct_get(Args &&... args)
+        static FORCE_INLINE CONSTEXPR_FUNC T construct_get(Args &&... args)
         {
             return T{ std::forward<decltype(args)>(args)... };
         }
@@ -77,7 +77,7 @@ namespace tackle
         using reference_type    = typename std::conditional<is_const_type_v, const unconst_type &, unconst_type &>::type;
 
         template <typename... Args>
-        static FORCE_INLINE CONSTEXPR_RETURN T & construct_get(Args &&... args) // specialization must be constexpr too
+        static FORCE_INLINE CONSTEXPR_FUNC T & construct_get(Args &&... args) // specialization must be constexpr too
         {
             // workaround for: `error C2134: 'tackle::static_constexpr_value<...,false>::construct_get': call does not result in a constant expression`
             return utility::construct_static_as<T>(std::forward<decltype(args)>(args)...);

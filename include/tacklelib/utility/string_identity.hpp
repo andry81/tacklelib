@@ -71,7 +71,7 @@
         static_assert(UTILITY_IS_LITERAL_STRING(c_str), "c_str is not a literal string"); \
         struct holder \
         { \
-            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
+            static FORCE_INLINE CONSTEXPR_FUNC auto get() -> decltype(c_str) & \
             { \
                 return c_str; \
             } \
@@ -84,7 +84,7 @@
         static_assert(UTILITY_IS_ARRAY_STRING(c_str), "c_str is not an array string"); \
         struct holder \
         { \
-            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> decltype(c_str) & \
+            static FORCE_INLINE CONSTEXPR_FUNC auto get() -> decltype(c_str) & \
             { \
                 return c_str; \
             } \
@@ -97,7 +97,7 @@
         static_assert(UTILITY_IS_LITERAL_STRING(ansi_str), "ansi_str is not a literal string"); \
         struct holder \
         { \
-            static FORCE_INLINE CONSTEXPR_RETURN auto get() -> \
+            static FORCE_INLINE CONSTEXPR_FUNC auto get() -> \
                 decltype(UTILITY_LITERAL_STRING(ansi_str, char_type)) & \
             { \
                 return UTILITY_LITERAL_STRING(ansi_str, char_type); \
@@ -273,7 +273,7 @@ namespace utility {
     template <>
     struct literal_char_caster<char>
     {
-        static FORCE_INLINE CONSTEXPR_RETURN char
+        static FORCE_INLINE CONSTEXPR_FUNC char
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -287,7 +287,7 @@ namespace utility {
     template <>
     struct literal_char_caster<wchar_t>
     {
-        static FORCE_INLINE CONSTEXPR_RETURN wchar_t
+        static FORCE_INLINE CONSTEXPR_FUNC wchar_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -301,7 +301,7 @@ namespace utility {
     template <>
     struct literal_char_caster<char16_t>
     {
-        static FORCE_INLINE CONSTEXPR_RETURN char16_t
+        static FORCE_INLINE CONSTEXPR_FUNC char16_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -315,7 +315,7 @@ namespace utility {
     template <>
     struct literal_char_caster<char32_t>
     {
-        static FORCE_INLINE CONSTEXPR_RETURN char32_t
+        static FORCE_INLINE CONSTEXPR_FUNC char32_t
             cast_from(
                 char ach,
                 wchar_t wch,
@@ -340,7 +340,7 @@ namespace utility {
     }
 
     template <typename CharT, typename... Args>
-    static FORCE_INLINE CONSTEXPR_RETURN
+    static FORCE_INLINE CONSTEXPR_FUNC
         typename detail::_fst<literal_char_array<CharT, sizeof...(Args)>,
             typename std::enable_if<
                 std::is_convertible<Args, CharT>::value
@@ -367,7 +367,7 @@ namespace utility {
     struct literal_string_caster<char>
     {
         template <size_t S>
-        static FORCE_INLINE CONSTEXPR_RETURN literal_string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR_FUNC literal_string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -382,7 +382,7 @@ namespace utility {
     struct literal_string_caster<wchar_t>
     {
         template <size_t S>
-        static FORCE_INLINE CONSTEXPR_RETURN literal_wstring_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR_FUNC literal_wstring_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -397,7 +397,7 @@ namespace utility {
     struct literal_string_caster<char16_t>
     {
         template <size_t S>
-        static FORCE_INLINE CONSTEXPR_RETURN literal_u16string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR_FUNC literal_u16string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -412,7 +412,7 @@ namespace utility {
     struct literal_string_caster<char32_t>
     {
         template <size_t S>
-        static FORCE_INLINE CONSTEXPR_RETURN literal_u32string_const_reference_arr<S>
+        static FORCE_INLINE CONSTEXPR_FUNC literal_u32string_const_reference_arr<S>
             cast_from(
                 literal_string_const_reference_arr<S> astr,
                 literal_wstring_const_reference_arr<S> wstr,
@@ -507,13 +507,13 @@ namespace utility {
     namespace detail
     {
         template <typename CharT, size_t S>
-        FORCE_INLINE CONSTEXPR_RETURN size_t _string_length(const CharT (& str)[S], size_t i)
+        FORCE_INLINE CONSTEXPR_FUNC size_t _string_length(const CharT (& str)[S], size_t i)
         {
             return S - 1;
         }
 
         template <typename CharT>
-        FORCE_INLINE CONSTEXPR_RETURN size_t _string_length(const CharT * const & str, size_t i)
+        FORCE_INLINE CONSTEXPR_FUNC size_t _string_length(const CharT * const & str, size_t i)
         {
             using unqual_type_t = typename utility::remove_cvrefcvptr<CharT>::type;
             return (str[i] == utility::literal_separators<unqual_type_t>::null_char) ?
@@ -524,13 +524,13 @@ namespace utility {
     // string length for a constexpr string
 
     template <typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t constexpr_string_length(const CharT (& str)[S]) noexcept
+    FORCE_INLINE CONSTEXPR_FUNC size_t constexpr_string_length(const CharT (& str)[S]) noexcept
     {
         return S - 1; // no need static assert here
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t constexpr_string_length(const CharT * const & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t constexpr_string_length(const CharT * const & str)
     {
         return (STATIC_ASSERT_CONSTEXPR_TRUE(str),
             detail::_string_length(str, 0));
@@ -539,19 +539,19 @@ namespace utility {
     // string length for a runtime string
 
     template <typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN size_t string_length(const CharT (& str)[S]) noexcept
+    FORCE_INLINE CONSTEXPR_FUNC size_t string_length(const CharT (& str)[S]) noexcept
     {
         return S - 1;
     }
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN size_t string_length(const CharT * const & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t string_length(const CharT * const & str)
     {
         return detail::_string_length(str, 0);
     }
 
     template <typename t_elem, typename t_traits, typename t_alloc>
-    FORCE_INLINE CONSTEXPR_RETURN size_t string_length(const std::basic_string<t_elem, t_traits, t_alloc> & str)
+    FORCE_INLINE CONSTEXPR_FUNC size_t string_length(const std::basic_string<t_elem, t_traits, t_alloc> & str)
     {
         return str.length();
     }
@@ -561,19 +561,19 @@ namespace utility {
     //
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_equal_c_str(const CharT * const & a, const CharT * const & b)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT * const & a, const CharT * const & b)
     {
         return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || is_equal_c_str(a + 1, b + 1));
     }
 
     template <typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_equal_c_str(const CharT (& a)[S], const CharT (& b)[S])
+    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT (& a)[S], const CharT (& b)[S])
     {
         return is_equal_c_str(a + 0, b + 0);
     }
 
     template <typename CharT, size_t S0, size_t S1>
-    FORCE_INLINE CONSTEXPR_RETURN bool is_equal_c_str(const CharT (& a)[S0], const CharT (& b)[S1])
+    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT (& a)[S0], const CharT (& b)[S1])
     {
         return false;
     }

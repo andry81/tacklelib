@@ -23,17 +23,17 @@ namespace tackle
     public:
         using top_type = T;
 
-        FORCE_INLINE CONSTEXPR_RETURN inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
+        FORCE_INLINE CONSTEXPR_FUNC inline_stack(const T & top_, const inline_stack * next_ptr_ = nullptr) :
             next_ptr(next_ptr_), top(top_)
         {
         }
 
-        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make(const T & top)
+        CONSTEXPR_FUNC static FORCE_INLINE inline_stack make(const T & top)
         {
             return inline_stack{ top };
         }
 
-        CONSTEXPR_RETURN static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
+        CONSTEXPR_FUNC static FORCE_INLINE inline_stack make_push(const inline_stack & next_stack, const T & top)
         {
             return inline_stack{ top, &next_stack };
         }
