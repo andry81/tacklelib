@@ -423,7 +423,7 @@ macro(configure_environment supported_compilers)
     --grant_external_vars_for_assign "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM"
     --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
-    --save_state_into_cmake_global_properties "_4BA54FD8_"
+    #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
     "${env_var_file_path_load_list}")
 
   # system output directories variables
@@ -466,6 +466,7 @@ macro(configure_environment supported_compilers)
   load_vars_from_files(-p
     --grant_assign_vars_assigned_in_files "${global_vars_file_path_list}"
     --grant_assign_external_vars_assigning_in_files "${global_vars_file_path_list}"
+    #--grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
     --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
     --save_state_into_cmake_global_properties "_4BA54FD8_"
