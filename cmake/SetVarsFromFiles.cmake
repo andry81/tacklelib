@@ -39,41 +39,50 @@ include(Version)
 # RULES FOR VARIABLES LOAD OR SET:
 #
 # 1. All variables being loaded from a single load or set function is treated as constant,
-#    which means the parser must throw an a warning and ignore a variable assign if variable
+#    which means the parser must throw an a warning and ignore a variable assign if a variable
 #    has been set in the same load or set function AND has having exact pattern match with the
 #    previous applied assignment of the same variable if has any.
 #    Example:
 #       AAA=10
 #       AAA=20 # <- assign would be ignored with a warning
-# 2. A complete pattern matched variable is a variable which template parameters after the colon character
+# 2. All variables being loaded in a not top package are ignored by default.
+#    To allow load in a not top package a variable must be declared with the `override` attribute.
+#    Example:
+#       # CMAKE_CURRENT_PACKAGE_NEST_LVL=0
+#       AAA=10
+#       # CMAKE_CURRENT_PACKAGE_NEST_LVL=1
+#       override AAA=20 # <- assignment would be applied respectively to a single load rules
+#       # CMAKE_CURRENT_PACKAGE_NEST_LVL=2
+#       AAA=30          # <- assignment would be silently ignored
+# 3. A complete pattern matched variable is a variable which template parameters after the colon character
 #    (:<os_name>:<compiler_name>:<config_name>:<arch_name>)
 #    are completely (not partially) matched to the function respective input parameters.
 #    Example:
 #       # input: os_name=WIN compiler_name=MSVC config_name=RELEASE arch_name=*
 #       AAA:WIN:MSVC:RELEASE:X86=10 # <- would be set if all template parameters are matched completely to the function input
-# 3. A partially matched variable is a variable which template parameters after the colon character
+# 4. A partially matched variable is a variable which template parameters after the colon character
 #    (:<os_name>:<compiler_name>:<config_name>:<arch_name>) are matched partially
 #    (either one or several parameters are matched, but not all).
 #    Example:
 #       # input: os_name=UNIX compiler_name=GCC config_name=* arch_name=*
-#       AAA::GCC=20 # <- would be set if t least second template parameter is matched to the function input
-# 4. A variable w/o explicitly declared template parameters is not applicable for a pattern match but
+#       AAA::GCC=20 # <- would be set if at least second template parameter is matched to the function input
+# 5. A variable w/o explicitly declared template parameters is not applicable for a pattern match but
 #    treated as always matched to any input respective parameters of the load or set function.
-# 5. If before the load or set function a variable already has been set, then a
+# 6. If before the load or set function a variable already has been set, then a
 #    very first variable being assigned in the load or set function must has the same value,
 #    otherwise the variable is treated as not connected to the variable has existed before
 #    the call and an error would be thrown.
-# 6. A complete pattern matched variable has assign priority over a partially matched variable which
-#    in turn has greater priority over a lesser matched variable.
+# 7. A complete or more specialized pattern matched variable has assign priority over a partially or less specialized pattern matched variable which
+#    in turn has greater priority over a lesser specialized pattern matched variable.
 #    Example:
 #       # input: os_name=UNIX compiler_name=GCC config_name=* arch_name=*
-#       AAA=10                  # no pattern but matched, assignment would be applied if variable either was not set before the call or was set to the same value
-#       AAA:UNIX=20             # prioritized match over previously applied assignment, assignment would be applied
-#       AAA:UNIX:GCC=30         # prioritized match over previously applied assignment, assignment would be applied
+#       AAA=10                  # no pattern but matched, assignment would be applied if variable either was not set before the call or was set externally to the same value
+#       AAA:UNIX=20             # more specialized match over previously applied assignment, assignment would be applied
+#       AAA:UNIX:GCC=30         # more specialized match over previously applied assignment, assignment would be applied
 #       AAA=40                  # no pattern but matched, less priority match versus previously applied assignment, assignment would be ignored with a warning
 #       AAA::GCC=50             # still less priority match versus previously applied assignment, assignment would be ignored with a warning
 #       AAA:UNIX:GCC=60         # equal priority match versus previously applied assignment, assignment would be treated as a constant variable change and ignored with a warning
-#       AAA:UNIX:GCC:RELEASE=70 # prioritized match over previously applied assignment, assignment would be applied
+#       AAA:UNIX:GCC:RELEASE=70 # more specialized match over previously applied assignment, assignment would be applied
 #
 # All other cases is not represent above can be controlled over the command line options/parameters/flags of the load or set functions.
 #
@@ -112,6 +121,9 @@ function(load_vars_from_files_impl) # WITH OUT ARGUMENTS!
 
   set(flag_args "")
 
+  set(load_state_from_cmake_global_properties 0)
+  set(save_state_into_cmake_global_properties 0)
+
   # copy all flag parameters into a variable without parsing them
   parse_function_optional_flags_into_vars_impl(
     argn_index
@@ -120,12 +132,17 @@ function(load_vars_from_files_impl) # WITH OUT ARGUMENTS!
     ""
     ""
     "varlines\;.\;.;vars\;.\;.;values\;.\;.;flock\;.\;.;ignore_statement_if_no_filter;\
-ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;.;\
-grant_assign_vars_assigned_in_files\;.\;.;grant_assign_external_vars_assigning_in_files\;.\;.;\
-grant_assign_for_variables\;.\;.;grant_assign_on_variables_change\;.\;.;\
-include_vars_filter\;.\;.;exclude_vars_filter\;.\;.;\
-load_state_from_cmake_global_properties\;.\;.;\
-save_state_into_cmake_global_properties\;.\;.;\
+ignore_statement_if_no_filter_config_name;\
+ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;.;\
+grant_assign_vars_assigned_in_files\;.\;.;\
+grant_assign_external_vars_assigning_in_files\;.\;.;\
+grant_assign_vars_by_override_in_files\;.\;.;\
+grant_assign_for_variables\;.\;.;\
+grant_assign_on_variables_change\;.\;.;\
+include_vars_filter\;.\;.;\
+exclude_vars_filter\;.\;.;\
+load_state_from_cmake_global_properties\;load_state_from_cmake_global_properties\;.;\
+save_state_into_cmake_global_properties\;save_state_into_cmake_global_properties\;.;\
 make_vars\;.\;.\;."
     flag_args
   )
@@ -140,7 +157,11 @@ make_vars\;.\;.\;."
   list(GET argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  message("* Loading variables from `${file_paths}`...")
+  if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
+    message("* Loading variables from `${file_paths}`...")
+  else()
+    message("* Preloading variables from `${file_paths}`...")
+  endif()
 
   if (NOT CMAKE_BUILD_TYPE)
     list(APPEND flag_args "--ignore_statement_if_no_filter_config_name")
@@ -177,7 +198,10 @@ endfunction()
 #                               - list of files with assigned variables granted for unconditional assignment in other variable files going to be loaded
 #
 #   --grant_assign_external_vars_assigning_in_files <grant_assign_external_vars_assigning_in_files_list>
-#                               - list of files with variables granted for unconditional assignment if has been assigned before the load call
+#                               - list of files with variables granted for unconditional assignment if variables has been assigned before the load call
+#
+#   --grant_assign_vars_by_override_in_files <grant_assign_vars_by_override_in_files_list>
+#                               - list of files with variables granted for unconditional assignment as if variables has been declared together with the `override` attribute
 #
 #   --include_vars_filter <include_vars_filter_list>
 #                               - list of variables included to assign
@@ -193,42 +217,23 @@ endfunction()
 #                                 previous assignment was with a different value to any of these variables.
 #                                 Useful for unconditional assignment of variables from different packages or source directories.
 #
+# <file_paths>:           Sublist of file paths to load from.
+#
 # CONFIGURATION FILE FORMAT:
 #   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
 #   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
 #
-# file_paths:
-#   Sublist of file paths to load from.
+# <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
+# <os_name>:              OS variant name: WIN | UNIX | ...
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+#   <compiler_token_name>: MSVC | GCC | CLANG | ...
+#   <compiler_version>:   <major_version>[.<minor_version>]
+#     <major_version>:    an integral value corresponding to the regex: [0-9]*
+#     <minor_version>:    an integral value corresponding to the regex: [0-9]*
+# <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
+# <arch_name>:            Architecture variant name: X86 | X64 | ...
 #
-# variable:
-#   Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
-#
-# os_name:
-#   OS variant name: WIN | UNIX | ...
-#
-# compiler_name:
-#   Compiler variant name with version support: <compiler_token_name>[<major_ver>[.<minor_ver>]]
-#
-# compiler_token_name:
-#   <compiler_name>[<compiler_version>]
-#
-# compiler_name:
-#   MSVC | GCC | CLANG | ...
-#
-# compiler_version:
-#   <major_version>[.<minor_version>]
-#
-# major_version:
-#   an integral value corresponding to the regex: [0-9]*
-#
-# minor_version:
-#   an integral value corresponding to the regex: [0-9]*
-#
-# arch_name:
-#   Architecture variant name: X86 | X64 | ...
-#
-# value:
-#   Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
+# <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
 #
 # PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM BEING PARSED FILE:
 #
@@ -318,6 +323,7 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   unset(grant_external_vars_for_assign_list)
   unset(grant_assign_vars_assigned_in_files_list)
   unset(grant_assign_external_vars_assigning_in_files_list)
+  unset(grant_assign_vars_by_override_in_files_list)
   unset(grant_assign_for_variables)
   unset(grant_assign_on_variables_change_list)
   unset(include_vars_filter_list)
@@ -335,11 +341,15 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
     "E\;set_vars"
     "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;a\;append_to_files"
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;\
-flock\;.\;flock_file_path;ignore_statement_if_no_filter\;ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name\;ignore_statement_if_no_filter_config_name;\
-ignore_late_expansion_statements\;ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;grant_external_vars_for_assign_list;\
+flock\;.\;flock_file_path;ignore_statement_if_no_filter\;ignore_statement_if_no_filter;\
+ignore_statement_if_no_filter_config_name\;ignore_statement_if_no_filter_config_name;\
+ignore_late_expansion_statements\;ignore_late_expansion_statements;\
+grant_external_vars_for_assign\;.\;grant_external_vars_for_assign_list;\
 grant_assign_vars_assigned_in_files\;.\;grant_assign_vars_assigned_in_files_list;\
 grant_assign_external_vars_assigning_in_files\;.\;grant_assign_external_vars_assigning_in_files_list;\
-grant_assign_for_variables\;.\;grant_assign_for_variables_list;grant_assign_on_variables_change\;.\;grant_assign_on_variables_change_list;\
+grant_assign_vars_by_override_in_files\;.\;grant_assign_vars_by_override_in_files_list;\
+grant_assign_for_variables\;.\;grant_assign_for_variables_list;\
+grant_assign_on_variables_change\;.\;grant_assign_on_variables_change_list;\
 include_vars_filter\;.\;include_vars_filter_list;exclude_vars_filter\;.\;exclude_vars_filter_list;\
 load_state_from_cmake_global_properties\;.\;load_state_from_cmake_global_properties_prefix;\
 save_state_into_cmake_global_properties\;.\;save_state_into_cmake_global_properties_prefix;\
@@ -530,11 +540,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   set(config_gen_values_list ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
 
   # load state
+  set(config_load_index -1)
+
   if (load_state_from_cmake_global_properties_prefix)
     get_property(config_var_names GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_var_names)
     #message("loading: vars: ${config_var_names}")
 
     foreach(config_var_name IN LISTS config_var_names)
+      get_property(config_load_index
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_load_index)
+
+      get_property(config_${config_var_name}_load_index
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_load_index)
+
       get_property(config_${config_var_name}_file_path
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_file_path)
       get_property(config_${config_var_name}_file_index
@@ -549,6 +567,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_config_name)
       get_property(config_${config_var_name}_arch_name
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_arch_name)
+
+      get_property(config_${config_var_name}_top_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_var)
+
+      get_property(config_${config_var_name}_package_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_package_var)
+
       get_property(config_${config_var_name}_has_values_onchange_list
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_has_values_onchange_list)
       get_property(config_${config_var_name}_var_values_onchange_list
@@ -559,6 +584,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   else()
     set(config_var_names "")
   endif()
+
+  math(EXPR config_load_index "${config_load_index}+1")
 
   # special injected variables
   set(injected_vars_list
@@ -577,13 +604,21 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endif()
 
     set(config_${injected_var_name} "${${injected_var_name}}")
-    set(config_${injected_var_name}_file_path "") # does not have associated file path
-    set(config_${injected_var_name}_file_index -1) # does not have associated file index
-    set(config_${injected_var_name}_line 0) # does not have associated file line
+
+    set(config_${injected_var_name}_load_index ${config_load_index})
+
+    set(config_${injected_var_name}_file_path "")   # does not have associated file path
+    set(config_${injected_var_name}_file_index -1)  # does not have associated file index
+    set(config_${injected_var_name}_line 0)         # does not have associated file line
     set(config_${injected_var_name}_os_name "")
     set(config_${injected_var_name}_compiler_name "")
     set(config_${injected_var_name}_config_name "")
     set(config_${injected_var_name}_arch_name "")
+
+    set(config_${injected_var_name}_top_var 0)
+
+    set(config_${injected_var_name}_package_var 0)
+
     set(config_${injected_var_name}_has_values_onchange_list 0)
     set(config_${injected_var_name}_var_values_onchange_list "")
   endforeach()
@@ -610,13 +645,20 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set(config_${make_var_name} "*\$/{${make_var_name}}")
     endif()
 
-    set(config_${make_var_name}_file_path "") # does not have associated file path
-    set(config_${make_var_name}_file_index -1) # does not have associated file index
-    set(config_${make_var_name}_line 0) # does not have associated file line
+    set(config_${make_var_name}_load_index ${config_load_index})
+
+    set(config_${make_var_name}_file_path "")   # does not have associated file path
+    set(config_${make_var_name}_file_index -1)  # does not have associated file index
+    set(config_${make_var_name}_line 0)         # does not have associated file line
     set(config_${make_var_name}_os_name "")
     set(config_${make_var_name}_compiler_name "")
     set(config_${make_var_name}_config_name "")
     set(config_${make_var_name}_arch_name "")
+
+    set(config_${make_var_name}_top_var 0)
+
+    set(config_${make_var_name}_package_var 0)
+
     set(config_${make_var_name}_has_values_onchange_list 0)
     set(config_${make_var_name}_var_values_onchange_list "")
   endforeach()
@@ -745,13 +787,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
       set(use_only_env_var 0)
 
-      # Use only top level variable for current granulation.
+      # Use top level variable to warn a variable assignment out of top level.
       # If a variable has having the `package` attrubute, then top level to the package granulation (all load files from the first package).
       # If a variable has not having the `package` attrubute, then top level to the load file granulation (first load file).
       set(use_top_var 0)
 
-      # use package level variable, has meaning only together with the top level attribute
+      # use package level variable
       set(use_package_var 0)
+
+      # use variable overriding to the previous level variable
+      set(use_override_var 0)
 
       if (var_name_token_list_len GREATER 1)
         list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
@@ -798,6 +843,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if ("PACKAGE" IN_LIST var_name_attr_list_upper)
           set(use_package_var 1)
         endif()
+
+        if ("OVERRIDE" IN_LIST var_name_attr_list_upper)
+          set(use_override_var 1)
+        endif()
       else()
         set(var_name_attr_list "")
         set(var_set_msg_name_attr_prefix_str "")
@@ -807,12 +856,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: [${var_file_content_line}] `${var_token}`")
       endif()
 
-      if (use_cache_var OR use_only_cache_var OR use_force_cache_var)
+      if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
         message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
       endif()
 
-      if (use_top_var OR use_package_var)
-        message(FATAL_ERROR "The variable PACKAGE attribute must be declared only together with the top attribute (TOP): [${var_file_content_line}] `${var_token}`")
+      if (use_top_var AND use_override_var)
+        message(FATAL_ERROR "The variable TOP attribute must no be declared together with the override attribute (OVERRIDE): [${var_file_content_line}] `${var_token}`")
       endif()
 
       string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -860,7 +909,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # check variable on a collision with builtin variable
       foreach (injected_var_name IN LISTS injected_vars_list)
         if (var_name STREQUAL injected_var_name)
-          message(FATAL_ERROR "variable is a builtin variable which can not be changed: `${file_path}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]")
+          message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]")
         endif()
       endforeach()
 
@@ -981,6 +1030,38 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set(var_token_suffix_to_process "${var_os_name_to_process}:${var_compiler_name_to_process}:${var_config_name_to_process}:${var_arch_name_to_process}")
       set(var_token_suffix "${var_os_name}:${var_compiler_name}:${var_config_name}:${var_arch_name}")
 
+      # assignment with override check
+      set(do_assign_w_override_check 1)
+
+      if (grant_assign_vars_by_override_in_files_list AND file_path IN_LIST grant_assign_vars_by_override_in_files_list)
+        set(do_assign_w_override_check 0)
+      endif()
+
+      if (do_assign_w_override_check)
+        if (config_${var_name}_package_var)
+          if (NOT use_override_var AND CMAKE_CURRENT_PACKAGE_NEST_LVL)
+            # variable is not from top level package, ignore it
+
+            if (config_${var_name}_top_var)
+              # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
+              message(FATAL_ERROR "The top level variable is assigned w/o `override` attribute in a not top level configuration: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+
+            continue()
+          endif()
+        else()
+          if (NOT use_override_var AND file_path_index)
+            # variable is not from first load file, ignore it
+
+            if (config_${var_name}_top_var)
+              # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
+              message(FATAL_ERROR "The top level variable is assigned w/o `override` attribute in a not top level configuration: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+
+          endif()
+        endif()
+      endif()
+
       set(is_var_in_ODR_check_list 0)
 
       # check variable on a collision to prevent the assignment
@@ -1047,7 +1128,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               # is specialization, allow to change
             else()
               # is not specialization, deny change
-              message(WARNING "variable already assigned and can be subsequently changed only through the specialization: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
               continue()
             endif()
           endif()
@@ -1514,10 +1595,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_set_msg_suffix_str " (`${var_values_joined_list}`)")
               endif()
 
-              message("[${file_path_index}:${var_file_content_line}] [${var_token_suffix_note}] ${var_set_msg_name_attr_prefix_str}${var_name}=`${config_${var_name}}`${var_set_msg_suffix_str}")
+              message("[${config_load_index}:${file_path_index}:${var_file_content_line}] [${var_token_suffix_note}] ${var_set_msg_name_attr_prefix_str}${var_name}=`${config_${var_name}}`${var_set_msg_suffix_str}")
             endif()
 
             # save variable token suffix and other parameter to compare it later
+            set(config_${var_name}_load_index "${config_load_index}")
             set(config_${var_name}_file_path "${file_path}")
             set(config_${var_name}_file_index "${file_path_index}")
             set(config_${var_name}_line "${var_file_content_line}")
@@ -1525,6 +1607,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
             set(config_${var_name}_config_name "${var_config_name_upper}")
             set(config_${var_name}_arch_name "${var_arch_name_upper}")
+
+            if (use_top_var)
+              set(config_${var_name}_top_var 1)
+            endif()
+
+            if (use_package_var)
+              set(config_${var_name}_package_var 1)
+            endif()
 
             if (grant_assign_on_variables_change_list AND NOT var_name IN_LIST grant_assign_on_variables_change_list)
               # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
@@ -1606,6 +1696,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     foreach(config_var_name IN LISTS config_var_names)
       #message("config_var_name=${config_var_name} -> `${config_${config_var_name}_file_path}`")
 
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_load_index
+        "${config_load_index}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_load_index
+        "${config_${config_var_name}_load_index}")
+
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_file_path
         "${config_${config_var_name}_file_path}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_file_index
@@ -1620,6 +1716,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         "${config_${config_var_name}_config_name}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_arch_name
         "${config_${config_var_name}_arch_name}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_var
+        "${config_${config_var_name}_top_var}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_package_var
+        "${config_${config_var_name}_package_var}")
+
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_has_values_onchange_list
         "${config_${config_var_name}_has_values_onchange_list}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_var_values_onchange_list
@@ -1718,7 +1821,9 @@ function(set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;flock\;.\;flock_file_path;\
 ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;.;\
 grant_assign_vars_assigned_in_files\;.\;.;grant_assign_external_vars_assigning_in_files\;.\;.;\
-grant_assign_for_variables\;.\;.;grant_assign_on_variables_change\;.\;.;\
+grant_assign_vars_by_override_in_files\;.\;.;grant_assign_vars_by_override_in_files\;.\;.;\
+grant_assign_for_variables\;.\;.;\
+grant_assign_on_variables_change\;.\;.;\
 include_vars_filter\;.\;.;exclude_vars_filter\;.\;.;\
 load_state_from_cmake_global_properties\;.\;.;\
 save_state_into_cmake_global_properties\;.\;.;\

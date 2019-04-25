@@ -57,13 +57,13 @@
 # CMAKE_TOP_PACKAGE_SOURCE_DIR:           Top package source directory.
 #
 
-CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
-CMAKE_GENERATOR_PLATFORM:WIN=Win32 # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `system_environment.vars` stage
+top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
+top CMAKE_GENERATOR_PLATFORM:WIN=Win32 # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `system_environment.vars` stage
 
-CMAKE_GENERATOR:UNIX="Unix Makefiles"
-CMAKE_GENERATOR_PLATFORM:UNIX=""
+top CMAKE_GENERATOR:UNIX="Unix Makefiles"
+top CMAKE_GENERATOR_PLATFORM:UNIX=""
 
-CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
+top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
 CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_GENERATOR_DIR}/$/{CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX}--$/{CMAKE_CURRENT_PACKAGE_NAME}"
 CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
@@ -74,16 +74,17 @@ CMAKE_CPACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
 #NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
 
-CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
-CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
+top CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
+top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
 
 PROJECT_NAME=tacklelib
 PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
-PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}" # top parent project root in context of parent build
+top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}" # top parent project root in context of parent build
 
+# CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
 _3DPARTY_GLOBAL_ROOTS_LIST=("d:/_3dparty")
 _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
 _3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
 
-CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel) # list variable
-CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
+top CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel) # list variable
+top CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
