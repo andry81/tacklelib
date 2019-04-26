@@ -416,7 +416,8 @@ macro(configure_environment supported_compilers)
   #   To make it changed you have to CLOSE IDE AND DELETE FILE WITH THE CACHED VARIABLES - `CMakeLists.txt.user`!
 
   # Predefined start set of builtin local configuration files for load.
-  set(env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_system.vars")
+  set(sys_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_system.vars")
+  set(user_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_user.vars")
 
   # Preload local configuration files to set only predefined set of variables.
   load_vars_from_files(-p
@@ -424,7 +425,7 @@ macro(configure_environment supported_compilers)
     --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
     #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
-    "${env_var_file_path_load_list}")
+    "${sys_env_var_file_path_load_list}")
 
   # system output directories variables
   BuildProject_MakeOutputDirsVariables("${CMAKE_BUILD_TYPE}")
@@ -455,18 +456,19 @@ macro(configure_environment supported_compilers)
   FindGlobal3dpartyEnvironments(global_vars_file_path_list)
 
   # Prepend a global list over a local list, because a local list must alway override a global list.
+  set(env_var_file_path_load_list "${sys_env_var_file_path_load_list};${user_env_var_file_path_load_list}")
   if (global_vars_file_path_list)
     set(env_var_file_path_load_list "${global_vars_file_path_list};${env_var_file_path_load_list}")
   endif()
 
-  # load user file from here
-  set(env_var_file_path_load_list "${env_var_file_path_load_list};${CMAKE_CURRENT_LIST_DIR}/config/environment_user.vars")
-
   # Load all configuration files to ordered set of all variables except variables from the preload section.
   load_vars_from_files(-p
-    --grant_assign_vars_assigned_in_files "${global_vars_file_path_list}"
+    --grant_no_check_assign_vars_assigned_in_files "${global_vars_file_path_list}"
     --grant_assign_external_vars_assigning_in_files "${global_vars_file_path_list}"
-    #--grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
+    --grant_assign_vars_as_top_in_files "${global_vars_file_path_list}"
+    --grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
+    # user configuration always loads as a top level, not top level variables are ignored
+    --grant_subpackage_assign_ignore_in_files "${user_env_var_file_path_load_list}"
     --grant_assign_on_variables_change "CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
     --save_state_into_cmake_global_properties "_4BA54FD8_"
