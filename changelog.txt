@@ -1,4 +1,7 @@
 2019.04.29:
+* new: deploy: application execution wrapper script
+
+2019.04.29:
 * changed: _scripts: minor update
 
 2019.04.25:

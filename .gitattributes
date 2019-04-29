@@ -94,6 +94,7 @@ config/_scripts/07/07_pack.cache_cmds.in -text
 config/_scripts/07/07_pack.sh.in -text
 config/environment_system.vars.in -text
 config/environment_user.vars.in -text
+deploy/approot/${PROJECT_NAME}.sh -text
 examples/utility/log/p7logger/p7_logger_example1.cpp -text
 include/tacklelib/.svnignore -text
 include/tacklelib/debug.hpp.in -text
