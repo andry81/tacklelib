@@ -465,7 +465,8 @@ macro(configure_environment supported_compilers)
   load_vars_from_files(-p
     --grant_no_check_assign_vars_assigned_in_files "${global_vars_file_path_list}"
     --grant_assign_external_vars_assigning_in_files "${global_vars_file_path_list}"
-    --grant_assign_vars_as_top_in_files "${global_vars_file_path_list}"
+    #--grant_assign_vars_as_top_in_files "${global_vars_file_path_list}"
+    --grant_assign_vars_as_final_in_files "${global_vars_file_path_list}"
     --grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
     # user configuration always loads as a top level, not top level variables are ignored
     --grant_subpackage_assign_ignore_in_files "${user_env_var_file_path_load_list}"

@@ -147,7 +147,8 @@ ignore_statement_if_no_filter_config_name;\
 ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;.;\
 grant_no_check_assign_vars_assigned_in_files\;.\;.;\
 grant_assign_external_vars_assigning_in_files\;.\;.;\
-grant_assign_vars_as_top_in_files\;.\;.;\
+grant_assign_vars_as_top_package_in_files\;.\;.;\
+grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
 grant_subpackage_assign_ignore_in_files\;.\;.;\
 grant_assign_for_variables\;.\;.;\
@@ -213,8 +214,11 @@ endfunction()
 #   --grant_assign_external_vars_assigning_in_files <grant_assign_external_vars_assigning_in_files_list>
 #                               - list of files with variables granted for unconditional assignment if variables has been assigned before a very first load call
 #
-#   --grant_assign_vars_as_top_in_files <grant_assign_vars_as_top_in_files_list>
+#   --grant_assign_vars_as_top_package_in_files <grant_assign_vars_as_top_package_in_files_list>
 #                               - List of files with variables granted for unconditional assignment as variables with `top` attribute.
+#
+#   --grant_assign_vars_as_final_in_files <grant_assign_vars_as_final_in_files_list>
+#                               - List of files with variables granted for unconditional assignment as variables with `final` attribute.
 #
 #   --grant_assign_vars_by_override_in_files <grant_assign_vars_by_override_in_files_list>
 #                               - List of files with variables w/o explicit `override` and `top` attributes granted for unconditional assignment as if variables
@@ -344,7 +348,8 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   unset(grant_external_vars_for_assign_list)
   unset(grant_no_check_assign_vars_assigned_in_files_list)
   unset(grant_assign_external_vars_assigning_in_files_list)
-  unset(grant_assign_vars_as_top_in_files_list)
+  unset(grant_assign_vars_as_top_package_in_files_list)
+  unset(grant_assign_vars_as_final_in_files_list)
   unset(grant_assign_vars_by_override_in_files_list)
   unset(grant_subpackage_assign_ignore_in_files_list)
   unset(grant_assign_for_variables)
@@ -370,7 +375,8 @@ ignore_late_expansion_statements\;ignore_late_expansion_statements;\
 grant_external_vars_for_assign\;.\;grant_external_vars_for_assign_list;\
 grant_no_check_assign_vars_assigned_in_files\;.\;grant_no_check_assign_vars_assigned_in_files_list;\
 grant_assign_external_vars_assigning_in_files\;.\;grant_assign_external_vars_assigning_in_files_list;\
-grant_assign_vars_as_top_in_files\;.\;grant_assign_vars_as_top_in_files_list;\
+grant_assign_vars_as_top_package_in_files\;.\;grant_assign_vars_as_top_package_in_files_list;\
+grant_assign_vars_as_final_in_files\;.\;grant_assign_vars_as_final_in_files_list;\
 grant_assign_vars_by_override_in_files\;.\;grant_assign_vars_by_override_in_files_list;\
 grant_subpackage_assign_ignore_in_files\;.\;grant_subpackage_assign_ignore_in_files_list;\
 grant_assign_for_variables\;.\;grant_assign_for_variables_list;\
@@ -609,8 +615,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_property(config_${config_var_name}_arch_name
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_arch_name)
 
-      get_property(config_${config_var_name}_top_var
-        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_var)
+      get_property(config_${config_var_name}_top_package_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_package_var)
+      get_property(config_${config_var_name}_final_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_final_var)
 
       get_property(config_${config_var_name}_has_values_onchange_list
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_has_values_onchange_list)
@@ -655,7 +663,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${injected_var_name}_config_name "")
     set(config_${injected_var_name}_arch_name "")
 
-    set(config_${injected_var_name}_top_var 0)
+    set(config_${injected_var_name}_top_package_var 0)
+    set(config_${injected_var_name}_final_var 0)
 
     set(config_${injected_var_name}_has_values_onchange_list 0)
     set(config_${injected_var_name}_var_values_onchange_list "")
@@ -695,7 +704,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${make_var_name}_config_name "")
     set(config_${make_var_name}_arch_name "")
 
-    set(config_${make_var_name}_top_var 0)
+    set(config_${make_var_name}_top_package_var 0)
+    set(config_${make_var_name}_final_var 0)
 
     set(config_${make_var_name}_has_values_onchange_list 0)
     set(config_${make_var_name}_var_values_onchange_list "")
@@ -704,7 +714,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   # update all input paths to make them comparable
   foreach (file_path_list_name
     grant_no_check_assign_vars_assigned_in_files_list;grant_assign_external_vars_assigning_in_files_list;
-    grant_assign_vars_as_top_in_files_list;grant_assign_vars_by_override_in_files_list;grant_subpackage_assign_ignore_in_files_list)
+    grant_assign_vars_as_top_package_in_files_list;grant_assign_vars_as_final_in_files_list;
+    grant_assign_vars_by_override_in_files_list;grant_subpackage_assign_ignore_in_files_list)
     set(${file_path_list_name}_c "")
 
     foreach (file_path IN LISTS ${file_path_list_name})
@@ -750,6 +761,27 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set (file_path_c "${file_path_abs}")
     else()
       string(TOUPPER "${file_path_abs}" file_path_c)
+    endif()
+
+    # update attributes per file basis
+    set(use_all_top_package_var 0)
+    if (grant_assign_vars_as_top_package_in_files_list_c AND file_path_c IN_LIST grant_assign_vars_as_top_package_in_files_list_c)
+      set(use_all_top_package_var 1)
+    endif()
+
+    set(use_all_final_var 0)
+    if (grant_assign_vars_as_final_in_files_list_c AND file_path_c IN_LIST grant_assign_vars_as_final_in_files_list_c)
+      set(use_all_final_var 1)
+    endif()
+
+    set(use_all_override_var 0)
+    if (grant_assign_vars_by_override_in_files_list_c AND file_path_c IN_LIST grant_assign_vars_by_override_in_files_list_c)
+      set(use_all_override_var 1)
+    endif()
+
+    set(use_all_ignore_var 0)
+    if (grant_subpackage_assign_ignore_in_files_list_c AND file_path_c IN_LIST grant_subpackage_assign_ignore_in_files_list_c)
+      set(use_all_ignore_var 1)
     endif()
 
     if ((NOT make_vars_names) OR (NOT "CMAKE_CURRENT_PACKAGE_NAME" IN_LIST make_vars_names))
@@ -829,6 +861,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         message(FATAL_ERROR "invalid variable token: [${var_file_content_line}] `${var_token}`")
       endif()
 
+      if (NOT DEFINED config_${var_name}_defined)
+        set(config_${var_name}_defined 0)
+      endif()
+
       set(var_type "")
 
       # non exclusive cmake cache set, not cache value does set too
@@ -849,15 +885,26 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
       set(use_only_env_var 0)
 
-      # Use top level variable to warn a variable assignment out of top level.
-      # If a variable has having the `package` attrubute, then top level to the package granulation (all load files from the first package).
-      # If a variable has not having the `package` attrubute, then top level to the load file granulation (first load file).
-      set(use_top_attr_var 0) # if actually declared with `top` attribute
-      set(use_top_cast_var 0) # if externally casted to a top variable (can have no `top` attribute)
+      # use top level variable to throw an error or ignore the assignment if a variable assignment is out of top level package
+      set(use_top_package_var 0)
+
+      # use final variable assignment to throw an error on next variable assignment
+      set(use_final_var 0)
 
       # use variable overriding to the previous level variable
-      set(use_override_attr_var 0)  # if actually declared with `override` attribute
-      set(use_override_cast_var 0)  # if externally casted to a override variable (can have no `override` attribute)
+      set(use_override_var 0)
+
+      if (use_all_top_package_var)
+        set(use_top_package_var 1)
+      endif()
+
+      if (use_all_final_var)
+        set(use_final_var 1)
+      endif()
+
+      if (use_all_override_var)
+        set(use_override_var 1)
+      endif()
 
       if (var_name_token_list_len GREATER 1)
         list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
@@ -897,20 +944,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(use_env_var 1)
         endif()
 
-        if ("TOP" IN_LIST var_name_attr_list_upper)
-          set(use_top_attr_var 1)
+        if (NOT use_top_package_var AND "TOP" IN_LIST var_name_attr_list_upper)
+          set(use_top_package_var 1)
         endif()
 
-        if (grant_assign_vars_as_top_in_files_list_c AND file_path_c IN_LIST grant_assign_vars_as_top_in_files_list_c)
-          set(use_top_cast_var 1)
+        if (NOT use_final_var AND "FINAL" IN_LIST var_name_attr_list_upper)
+          set(use_final_var 1)
         endif()
 
-        if ("OVERRIDE" IN_LIST var_name_attr_list_upper)
-          set(use_override_attr_var 1)
-        endif()
-
-        if (grant_assign_vars_by_override_in_files_list_c AND file_path_c IN_LIST grant_assign_vars_by_override_in_files_list_c)
-          set(use_override_cast_var 1)
+        if (NOT use_override_var AND "OVERRIDE" IN_LIST var_name_attr_list_upper)
+          set(use_override_var 1)
         endif()
       else()
         set(var_name_attr_list "")
@@ -923,6 +966,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
         message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
+      endif()
+
+      if (use_top_package_var AND use_final_var)
+        message(FATAL_ERROR "The variable TOP and FINAL attributes must not be used together: [${var_file_content_line}] `${var_token}`")
       endif()
 
       string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -970,11 +1017,17 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # check variable on a collision with builtin variable
       foreach (injected_var_name IN LISTS injected_vars_list)
         if (var_name STREQUAL injected_var_name)
-          message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]")
+          message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
         endif()
       endforeach()
 
       # other not silent ignore checks...
+
+      if (config_${var_name}_defined AND config_${var_name}_final_var)
+        if (NOT use_override_var)
+          message(FATAL_ERROR "The variable is a final variable which can not be assigned w/o override: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+        endif()
+      endif()
 
       if (var_os_name STREQUAL "")
         set(var_os_name_to_process "${os_name_to_filter}")
@@ -1087,33 +1140,27 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
       endif()
 
-      # save current processing variable token
-      set(var_token_suffix_to_process "${var_os_name_to_process}:${var_compiler_name_to_process}:${var_config_name_to_process}:${var_arch_name_to_process}")
-      set(var_token_suffix "${var_os_name}:${var_compiler_name}:${var_config_name}:${var_arch_name}")
-
-      if (config_${var_name}_defined AND NOT use_override_attr_var)
+      if (config_${var_name}_defined AND NOT use_override_var)
         # is another package variable?
         if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
           # variable is not from top level package, ignore it
 
-          if (config_${var_name}_top_var AND NOT use_top_attr_var)
+          if (config_${var_name}_top_package_var AND NOT use_top_package_var)
             # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
             message(FATAL_ERROR "The top level variable is assigned w/o `override` attribute in a not top level configuration: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-          elseif (NOT config_${var_name}_top_var AND use_top_attr_var)
+          elseif (NOT config_${var_name}_top_package_var AND use_top_package_var)
             # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
             message(FATAL_ERROR "The not top level variable is assigned w/ `top` attribute (and w/o `override` attribute) but has been declared w/o `top` attribute: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
           endif()
 
-          if (NOT use_override_cast_var)
-            if (config_${var_name}_top_var AND use_top_attr_var AND config_package_nest_lvl)
-              # a top only variable is not from a top level package, ignore it
-              continue()
-            endif()
+          if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
+            # a top only variable is not from a top level package, ignore it
+            continue()
+          endif()
 
-            # assignment implicit ignore through an external condition
-            if (grant_subpackage_assign_ignore_in_files_list_c AND file_path_c IN_LIST grant_subpackage_assign_ignore_in_files_list_c)
-              continue()
-            endif()
+          # assignment implicit ignore
+          if (use_all_ignore_var)
+            continue()
           endif()
         endif()
       endif()
@@ -1651,6 +1698,22 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_set_msg_suffix_str " (`${var_values_joined_list}`)")
               endif()
 
+              if (use_override_var)
+                if (var_set_msg_suffix_str)
+                  set(var_set_msg_suffix_str " (overriden)${var_set_msg_suffix_str}")
+                else()
+                  set(var_set_msg_suffix_str " (overriden)")
+                endif()
+              endif()
+
+              if (use_final_var OR config_${var_name}_defined AND config_${var_name}_final_var)
+                if (var_set_msg_suffix_str)
+                  set(var_set_msg_suffix_str " (final)${var_set_msg_suffix_str}")
+                else()
+                  set(var_set_msg_suffix_str " (final)")
+                endif()
+              endif()
+
               message("[${config_load_index}:${file_path_index}:${var_file_content_line}] [${var_token_suffix_note}] ${var_set_msg_name_attr_prefix_str}${var_name}=`${config_${var_name}}`${var_set_msg_suffix_str}")
             endif()
 
@@ -1666,10 +1729,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_config_name "${var_config_name_upper}")
             set(config_${var_name}_arch_name "${var_arch_name_upper}")
 
-            if (use_top_attr_var OR use_top_cast_var)
-              set(config_${var_name}_top_var 1)
+            if (use_top_package_var)
+              set(config_${var_name}_top_package_var 1)
             elseif (NOT config_${var_name}_defined)
-              set(config_${var_name}_top_var 0)
+              set(config_${var_name}_top_package_var 0)
+            endif()
+
+            if (use_final_var)
+              set(config_${var_name}_final_var 1)
+            elseif (NOT config_${var_name}_defined)
+              set(config_${var_name}_final_var 0)
             endif()
 
             if (grant_assign_on_variables_change_list AND NOT var_name IN_LIST grant_assign_on_variables_change_list)
@@ -1782,8 +1851,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_arch_name
         "${config_${config_var_name}_arch_name}")
 
-      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_var
-        "${config_${config_var_name}_top_var}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_package_var
+        "${config_${config_var_name}_top_package_var}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_final_var
+        "${config_${config_var_name}_final_var}")
 
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_has_values_onchange_list
         "${config_${config_var_name}_has_values_onchange_list}")
@@ -1885,7 +1956,8 @@ ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_l
 grant_external_vars_for_assign\;.\;.;\
 grant_no_check_assign_vars_assigned_in_files\;.\;.;\
 grant_assign_external_vars_assigning_in_files\;.\;.;\
-grant_assign_vars_as_top_in_files\;.\;.;\
+grant_assign_vars_as_top_package_in_files\;.\;.;\
+grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
 grant_subpackage_assign_ignore_in_files\;.\;.;\
 grant_assign_for_variables\;.\;.;\
