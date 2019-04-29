@@ -8,6 +8,12 @@
 2019.04.29:
 * changed: _scripts: minor update
 
+2019.04.26:
+* fixed: cmake: SetVarsFromFiles.cmake: update all case insensitive paths to correctly compare them
+* fixed: cmake: SetVarsFromFiles.cmake: `top` attributed variables usage
+* fixed: cmake: SetVarsFromFiles.cmake: not `override` attributed variables from the `environment_user.vars` configuration file now loads respective to the top level package (variable assignment does ignore in a not top level package if a variable was assigned in the top level package)
+* removed: cmake: SetVarsFromFiles.cmake: the `package` variable attribute is no longer needed, all variables must be treated as package level scoped (the `CMAKE_CURRENT_PACKAGE_NEST_LVL` variable usage now is a mandatory for that case)
+
 2019.04.25:
 * new: cmake: SetVarsFromFiles.cmake: top/package/override variable attributes to (1) ignore variables at not top level stages (both must have `top` attribute), (2) to throw an error on implicit override of a top variable (only one have `top` attribute), (3) excplicit override of any pattern matched variable (`override` attribute, where implicit override is a simple assignment) and etc and config update
 * changed: config: updated configs
