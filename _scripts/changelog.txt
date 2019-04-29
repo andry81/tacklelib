@@ -1,3 +1,6 @@
+2019.04.29:
+* changed: minor update
+
 2019.04.10:
 * fixed: minor configure fixes
 
