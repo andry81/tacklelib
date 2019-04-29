@@ -1,4 +1,8 @@
 2019.04.29:
+* fixed: cmake: configure w/o errors
+* new: cmake: SetVarsFromFiles.cmake: `final` variable attribute to seal a variable reassign with an error instead of a warning, keep usage of the `override` attribute to enable an overridable assignment
+
+2019.04.29:
 * new: deploy: application execution wrapper script
 
 2019.04.29:

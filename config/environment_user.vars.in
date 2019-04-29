@@ -65,8 +65,8 @@ override CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
-BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
-Boost_ARCHITECTURE:UNIX="-x32" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+override BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
+override Boost_ARCHITECTURE:UNIX="-x32" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 
 # log
 LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client"
@@ -99,14 +99,14 @@ bool LIBLZMA_HAS_LZMA_PRESET=1
 # test
 
 GOOGLETEST_VERSION="1.8.1"
-GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
+override GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 
 # math
 
 QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd"
 
 bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
-bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map double to qd_real inside sat libraries
+bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
 
 # utility
 
