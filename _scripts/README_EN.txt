@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.03.20
+* 2019.04.29
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -15,15 +15,6 @@
 The C++11 library support scripts to build a project from Windows (.bat) and
 Linux (.sh) platforms separately but with the same configuration files and
 variables.
-
-To configuration template files for variables at shell script and cmake levels:
-
-https://svn.code.sf.net/p/tacklelib/scripts--config/trunk
-
-To enable load and use configuration files and variables the cmake modules
-must be used:
-
-https://svn.code.sf.net/p/tacklelib/cmake/trunk
 
 The latest version is here: https://sf.net/p/tacklelib/scripts
 
