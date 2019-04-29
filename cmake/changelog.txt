@@ -1,3 +1,7 @@
+2019.04.29:
+* fixed: configure w/o errors
+* new: SetVarsFromFiles.cmake: `final` variable attribute to seal a variable reassign with an error instead of a warning, keep usage of the `override` attribute to enable an overridable assignment
+
 2019.04.26:
 * fixed: SetVarsFromFiles.cmake: update all case insensitive paths to correctly compare them
 * fixed: SetVarsFromFiles.cmake: `top` attributed variables usage
