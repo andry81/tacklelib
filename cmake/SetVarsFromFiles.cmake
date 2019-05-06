@@ -250,7 +250,7 @@ endfunction()
 #
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
-# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
 #   <compiler_token_name>: MSVC | GCC | CLANG | ...
 #   <compiler_version>:   <major_version>[.<minor_version>]
 #     <major_version>:    an integral value corresponding to the regex: [0-9]*

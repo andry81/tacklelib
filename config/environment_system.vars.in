@@ -34,7 +34,7 @@
 #
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
-# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
 #   <compiler_token_name>: MSVC | GCC | CLANG | ...
 #   <compiler_version>:   <major_version>[.<minor_version>]
 #     <major_version>:    an integral value corresponding to the regex: [0-9]*
@@ -58,10 +58,10 @@
 #
 
 top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
-top CMAKE_GENERATOR_PLATFORM:WIN=Win32 # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `system_environment.vars` stage
+top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
 
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
-top CMAKE_GENERATOR_PLATFORM:UNIX=""
+top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
 top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
@@ -69,7 +69,7 @@ CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_GENERATOR_DIR}/$/{CMAKE_CURRENT_PACKAGE_NEST_L
 CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
 CMAKE_BIN_ROOT="$/{CMAKE_OUTPUT_DIR}/bin"
 CMAKE_LIB_ROOT="$/{CMAKE_OUTPUT_DIR}/lib"
-CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install"  # cmake creates the build type subdirectory on itself
+CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install" # cmake creates the build type subdirectory on itself
 CMAKE_CPACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
 #NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
@@ -78,7 +78,7 @@ top CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
 top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
 
 PROJECT_NAME=tacklelib
-PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
+PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}"     # current project root
 top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}" # top parent project root in context of parent build
 
 # CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
