@@ -84,18 +84,71 @@ include(Version)
 #       AAA:UNIX:GCC=60         # equal priority match versus previously applied assignment, assignment would be treated as a constant variable change and ignored with a warning
 #       AAA:UNIX:GCC:RELEASE=70 # more specialized match over previously applied assignment, assignment would be applied
 #
-# All other cases is not represent above can be controlled over the command line options/parameters/flags of the load or set functions.
+# All other cases is not represented above can be controlled over the command line options/parameters/flags of the load or set functions.
 #
 
-# ASSIGNMENT STRATEGY BETWEEN ASSIGNMENTS WITH VARIABLE ATTRIBUTES AT DIFFERENT CONFIGURATION LEVELS (files or packages, including of the `package` attribute presence)
+# VARIABLE ATTRIBUTES LOGIC DESCRIPTION:
 #
-# '.  LEVEL N+1|             |             |
-#   '-------,  |             |             |
-# LEVEL N    '.|  <not set>  |  override   | top
-# -------------+-------------+-------------+--------
-#   <not set>  |  assign     |  assign     | error
-#   top        |  error      |  assign     | ignore
-#              |             |             |
+# <none>:
+#   Default assignment rules described above.
+#
+# `top`:
+#   A top level package variable (no need explicit `package` attribute).
+#   If a variable is at least in one package has been assigned with the `top` attribute, then the same variable
+#   must be assigned with the `top` attribute in all packages, otherwise an error would be thrown (a package mandatory).
+#   Only a top level package would allow assignment of a top level package variable using default rules, when
+#   all children packages would silently ignore the assignment of the same variable.
+#   All assignments in the same package after the first assignment with the `top` attribute must use the `override` attribute
+#   instead of the `top` attribute to declare intention to override an assignment of the top level package variable in the same package,
+#   otherwise the error would be thrown.
+#   Applies before the specialization phase and applies to all variable specializations at once.
+#   Incompatible with the `final` attribute.
+#
+# `final`:
+#   A variable with sealed assignment (final assignment).
+#   Must be always final (the `override` attribute is not applicable), otherwise an error would be thrown.
+#   Without the `package` attribute applies to a last assignment irrespective to a package.
+#   With the `package` attribute applies only to the current package, in next level package can be reassigned or sealed again.
+#   The attribute applies after the specialization phase but still not compatible with the `top` attribute.
+#
+# `override`:
+#   For a top level package variable reassignment in the same package (assign override) or in next level packages (top reapply).
+#   Applicable only after a variable has been declared as a top level variable at least once to reassign it by default assignment rules.
+#   Must be used to override an assignment of a top level package variable in the same package (`override` attribute without `top` attribute) or
+#   in next level packages (`top` with `override`), in all other cases would throw an error.
+#
+
+# ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN THE SAME PACKAGE
+#
+# Legend:
+#   OK      - allowed by default rules
+#   error   - not applicable, throws an error
+#
+# '. ASSIGN N+1|             |             |             |             |             |
+#   '-------,  |             |             |             |             |             |
+# ASSIGN N   '.|  <not set>  |  override   |  top        | top override|  final      |final package
+# -------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>    |  OK         |  error      |  error      |  error      |  OK         |  OK
+# top          |  error      |  OK         |  error      |  error      |  error      |  error
+# final        |  error      |  error      |  error      |  error      |  error      |  error
+# final package|  error      |  error      |  error      |  error      |  error      |  error
+#
+
+# ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN DIFFERENT PACKAGE LEVELS
+#
+# Legend:
+#   OK      - allowed by default rules
+#   error   - not applicable, throws an error
+#   ignore  - silent ignore
+#
+# '.  LEVEL N+1|             |             |             |             |             |
+#   '-------,  |             |             |             |             |             |
+#  LEVEL N   '.|  <not set>  |  override   |  top        | top override|  final      |final package
+# -------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>    |  OK         |  error      |  error      |  error      |  OK         |  OK
+# top          |  error      |  error      |  ignore     |  OK         |  error      |  error
+# final        |  error      |  error      |  error      |  error      |  error      |  error
+# final package|  OK         |  error      |  error      |  error      |  OK         |  OK
 #
 
 # CAUTION:
@@ -144,9 +197,10 @@ function(load_vars_from_files_impl) # WITH OUT ARGUMENTS!
     ""
     "varlines\;.\;.;vars\;.\;.;values\;.\;.;flock\;.\;.;ignore_statement_if_no_filter;\
 ignore_statement_if_no_filter_config_name;\
-ignore_late_expansion_statements;grant_external_vars_for_assign\;.\;.;\
-grant_no_check_assign_vars_assigned_in_files\;.\;.;\
-grant_assign_external_vars_assigning_in_files\;.\;.;\
+ignore_late_expansion_statements;\
+grant_external_vars_for_assign\;.\;.;\
+grant_external_vars_assign_in_files\;.\;.;\
+grant_no_collision_check_assign_vars_assigned_in_files\;.\;.;\
 grant_assign_vars_as_top_package_in_files\;.\;.;\
 grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
@@ -205,14 +259,15 @@ endfunction()
 #   -a                          - append values into `varlines_file`, `vars_file` and `values_file`
 #
 #   --grant_external_vars_for_assign <grant_external_vars_for_assign_list>
-#                               - list of variables granted for unconditional assignment if has been assigned before the load call
+#                               - list of variables granted for unconditional assignment if has been assigned before the first load call
 #                                 (by default would be an error if a variable has been assigned before the load call and a new value is not equal to the previous)
 #
-#   --grant_no_check_assign_vars_assigned_in_files <grant_no_check_assign_vars_assigned_in_files_list>
-#                               - list of files with assigned variables granted for assignment w/o collision check in other variable files going to be loaded
+#   --grant_external_vars_assign_in_files <grant_external_vars_assign_in_files_list>
+#                               - list of files with variables granted for unconditional assignment if a variable has been assigned before the first load call
+#                                 (by default would be an error if a variable has been assigned before the load call and a new value is not equal to the previous)
 #
-#   --grant_assign_external_vars_assigning_in_files <grant_assign_external_vars_assigning_in_files_list>
-#                               - list of files with variables granted for unconditional assignment if variables has been assigned before a very first load call
+#   --grant_no_collision_check_assign_vars_assigned_in_files <grant_no_collision_check_assign_vars_assigned_in_files_list>
+#                               - list of files with assigned variables granted for assignment w/o collision check in other variable files going to be loaded
 #
 #   --grant_assign_vars_as_top_package_in_files <grant_assign_vars_as_top_package_in_files_list>
 #                               - List of files with variables granted for unconditional assignment as variables with `top` attribute.
@@ -346,8 +401,8 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   unset(var_values_file_path)
   unset(flock_file_path)
   unset(grant_external_vars_for_assign_list)
-  unset(grant_no_check_assign_vars_assigned_in_files_list)
-  unset(grant_assign_external_vars_assigning_in_files_list)
+  unset(grant_external_vars_assign_in_files_list)
+  unset(grant_no_collision_check_assign_vars_assigned_in_files_list)
   unset(grant_assign_vars_as_top_package_in_files_list)
   unset(grant_assign_vars_as_final_in_files_list)
   unset(grant_assign_vars_by_override_in_files_list)
@@ -373,8 +428,8 @@ flock\;.\;flock_file_path;ignore_statement_if_no_filter\;ignore_statement_if_no_
 ignore_statement_if_no_filter_config_name\;ignore_statement_if_no_filter_config_name;\
 ignore_late_expansion_statements\;ignore_late_expansion_statements;\
 grant_external_vars_for_assign\;.\;grant_external_vars_for_assign_list;\
-grant_no_check_assign_vars_assigned_in_files\;.\;grant_no_check_assign_vars_assigned_in_files_list;\
-grant_assign_external_vars_assigning_in_files\;.\;grant_assign_external_vars_assigning_in_files_list;\
+grant_external_vars_assign_in_files\;.\;grant_external_vars_assign_in_files_list;\
+grant_no_collision_check_assign_vars_assigned_in_files\;.\;grant_no_collision_check_assign_vars_assigned_in_files_list;\
 grant_assign_vars_as_top_package_in_files\;.\;grant_assign_vars_as_top_package_in_files_list;\
 grant_assign_vars_as_final_in_files\;.\;grant_assign_vars_as_final_in_files_list;\
 grant_assign_vars_by_override_in_files\;.\;grant_assign_vars_by_override_in_files_list;\
@@ -713,7 +768,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   # update all input paths to make them comparable
   foreach (file_path_list_name
-    grant_no_check_assign_vars_assigned_in_files_list;grant_assign_external_vars_assigning_in_files_list;
+    grant_no_collision_check_assign_vars_assigned_in_files_list;grant_external_vars_assign_in_files_list;
     grant_assign_vars_as_top_package_in_files_list;grant_assign_vars_as_final_in_files_list;
     grant_assign_vars_by_override_in_files_list;grant_subpackage_assign_ignore_in_files_list)
     set(${file_path_list_name}_c "")
@@ -960,16 +1015,26 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(var_set_msg_name_attr_prefix_str "")
       endif()
 
+      # unconditionally applicable checks before any filter...
+
+      # cache_only + env_only
       if (use_only_cache_var AND use_only_env_var)
         message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: [${var_file_content_line}] `${var_token}`")
       endif()
 
+      # force_cache without cache and cache_only
       if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
         message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
       endif()
 
+      # top + final
       if (use_top_package_var AND use_final_var)
         message(FATAL_ERROR "The variable TOP and FINAL attributes must not be used together: [${var_file_content_line}] `${var_token}`")
+      endif()
+
+      # top with final reassign
+      if (config_${var_name}_defined AND config_${var_name}_top_package_var AND use_final_var)
+        message(FATAL_ERROR "The top variable can not be reassigned as a final variable: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
       endif()
 
       string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -1022,12 +1087,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       endforeach()
 
       # other not silent ignore checks...
-
-      if (config_${var_name}_defined AND config_${var_name}_final_var)
-        if (NOT use_override_var)
-          message(FATAL_ERROR "The variable is a final variable which can not be assigned w/o override: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
-        endif()
-      endif()
 
       if (var_os_name STREQUAL "")
         set(var_os_name_to_process "${os_name_to_filter}")
@@ -1214,7 +1273,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           # A variable is already assigned, but we have to check whether we can allow to specialize a variable, in case if the assignment is not explicitly granted.
 
-          if (grant_no_check_assign_vars_assigned_in_files_list_c AND config_${var_name}_file_path_c IN_LIST grant_no_check_assign_vars_assigned_in_files_list_c)
+          if (grant_no_collision_check_assign_vars_assigned_in_files_list_c AND config_${var_name}_file_path_c IN_LIST grant_no_collision_check_assign_vars_assigned_in_files_list_c)
             set(do_collision_check 0)
           endif()
 
@@ -1236,7 +1295,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
           endif()
         elseif (var_name IN_LIST parent_vars_list)
-          if (grant_assign_external_vars_assigning_in_files_list_c AND file_path_c IN_LIST grant_assign_external_vars_assigning_in_files_list_c)
+          if (grant_external_vars_assign_in_files_list_c AND file_path_c IN_LIST grant_external_vars_assign_in_files_list_c)
             set (do_collision_check 0)
           elseif (grant_external_vars_for_assign_list AND var_name IN_LIST grant_external_vars_for_assign_list)
             set (do_collision_check 0)
@@ -1249,6 +1308,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
           endif()
         endif()
+      endif()
+
+      # final (re)assign
+      if (config_${var_name}_defined AND config_${var_name}_final_var)
+        message(FATAL_ERROR "The variable is a final specialization variable which can not be reassigned or specialized anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
       endif()
 
       # state machine value parser
@@ -1706,11 +1770,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 endif()
               endif()
 
-              if (use_final_var OR config_${var_name}_defined AND config_${var_name}_final_var)
+              if (use_final_var OR (config_${var_name}_defined AND config_${var_name}_final_var))
                 if (var_set_msg_suffix_str)
-                  set(var_set_msg_suffix_str " (final)${var_set_msg_suffix_str}")
+                  set(var_set_msg_suffix_str " (finalized)${var_set_msg_suffix_str}")
                 else()
-                  set(var_set_msg_suffix_str " (final)")
+                  set(var_set_msg_suffix_str " (finalized)")
                 endif()
               endif()
 
@@ -1954,8 +2018,8 @@ function(set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;flock\;.\;flock_file_path;\
 ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;\
 grant_external_vars_for_assign\;.\;.;\
-grant_no_check_assign_vars_assigned_in_files\;.\;.;\
-grant_assign_external_vars_assigning_in_files\;.\;.;\
+grant_external_vars_assign_in_files\;.\;.;\
+grant_no_collision_check_assign_vars_assigned_in_files\;.\;.;\
 grant_assign_vars_as_top_package_in_files\;.\;.;\
 grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
