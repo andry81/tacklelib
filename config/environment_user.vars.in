@@ -83,11 +83,11 @@ bool cache ENABLE_COVERAGE=0
 bool cache ENABLE_INSTALL=0
 
 ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xz"
-cache LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
+cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
 
-cache LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
+cache force LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
 cache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
 
 bool LIBLZMA_HAS_AUTO_DECODER=1
