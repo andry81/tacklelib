@@ -1,4 +1,7 @@
 2019.05.07:
+* changed: readme update
+
+2019.05.07:
 * new: `TestLib.cmake` to test cmake modules from the cmake itself
 
 2019.05.06:

@@ -16,7 +16,10 @@ The tacklelib library cmake support modules to build a project from
 Windows and Linux platforms separately but with the same configuration files
 and variables.
 
-The latest version is here: https://sf.net/p/tacklelib/cmake
+The latest version is here:
+  https://sf.net/p/tacklelib/tacklelib/trunk/cmake
+  or
+  https://sf.net/p/tacklelib/cmake
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
@@ -32,6 +35,8 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
+  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
+  or
   * https://svn.code.sf.net/p/tacklelib/cmake/trunk
 First mirror:
   * https://github.com/andry81/tacklelib--cmake.git
@@ -41,14 +46,15 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-* cmake modules from:
-  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
+* cmake 3.14+ (https://cmake.org/download/ )
 
 -------------------------------------------------------------------------------
 5. TESTS
 -------------------------------------------------------------------------------
 * cmake modules tests:
   https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake_tests
+  or
+  https://svn.code.sf.net/p/tacklelib/cmake_tests/trunk
 
 -------------------------------------------------------------------------------
 6. AUTHOR EMAIL
