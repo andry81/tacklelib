@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.04.29
+* 2019.05.07
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -16,7 +16,10 @@ The C++11 library support scripts to build a project from Windows (.bat) and
 Linux (.sh) platforms separately but with the same configuration files and
 variables.
 
-The latest version is here: https://sf.net/p/tacklelib/scripts
+The latest version is here:
+  https://sf.net/p/tacklelib/tacklelib/trunk/_scripts
+  or
+  https://sf.net/p/tacklelib/scripts
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
@@ -32,6 +35,8 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
+  * https://sf.net/p/tacklelib/tacklelib/trunk/_scripts
+  or
   * https://svn.code.sf.net/p/tacklelib/scripts/trunk
 First mirror:
   * https://github.com/andry81/tacklelib--scripts.git
@@ -42,8 +47,13 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 * configuration template files:
+  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/config
+  or
   https://svn.code.sf.net/p/tacklelib/scripts--config/trunk
+
 * cmake modules:
+  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
+  or
   https://svn.code.sf.net/p/tacklelib/cmake/trunk
 
 -------------------------------------------------------------------------------
