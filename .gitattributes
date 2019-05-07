@@ -56,6 +56,7 @@ cmake/GenerateVersion.cmake -text
 cmake/README_EN.txt -text
 cmake/SetVarsFromFiles.cmake -text
 cmake/Std.cmake -text
+cmake/TestLib.cmake -text
 cmake/Version.cmake -text
 cmake/_3dparty/FindQwt.cmake -text
 cmake/_3dparty/FindWindowsSDK.cmake -text
@@ -67,6 +68,19 @@ cmake/tools/ConfigureFile.cmake -text
 cmake/tools/GenerateBuildVersion.cmake -text
 cmake/tools/GeneratorIsMulticonfig.cmd.cmake -text
 cmake/tools/SetVarsFromFiles.cmd.cmake -text
+cmake_tests/_scripts/__init__.bat -text
+cmake_tests/_scripts/__init__.sh -text
+cmake_tests/_scripts/test_all.bat -text
+cmake_tests/_scripts/test_all.sh -text
+cmake_tests/_scripts/tests_01_script_mode.bat -text
+cmake_tests/_scripts/tests_01_script_mode.sh -text
+cmake_tests/_scripts/tests_02_build_mode.bat -text
+cmake_tests/_scripts/tests_02_build_mode.sh -text
+cmake_tests/changelog.txt -text
+cmake_tests/test_all.cmake -text
+cmake_tests/tests_01_script_mode.cmake -text
+cmake_tests/tests_01_script_mode/tests_01_variables_specialization/01_simple_set.test.cmake -text
+cmake_tests/tests_02_build_mode.cmake -text
 config/.svnignore -text
 config/_scripts/01/01_generate_src.cache_cmds.in -text
 config/_scripts/01/01_generate_src.deps.bat.in -text

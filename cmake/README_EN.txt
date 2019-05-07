@@ -1,12 +1,13 @@
 * README_EN.txt
-* 2019.02.09
+* 2019.05.07
 * tacklelib--cmake
 
 1. DESCRIPTION
 2. LICENSE
 3. REPOSITORIES
 4. PREREQUISITES
-5. AUTHOR EMAIL
+5. TESTS
+6. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -44,6 +45,12 @@ Second mirror:
   https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
 
 -------------------------------------------------------------------------------
-5. AUTHOR EMAIL
+5. TESTS
+-------------------------------------------------------------------------------
+* cmake modules tests:
+  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake_tests
+
+-------------------------------------------------------------------------------
+6. AUTHOR EMAIL
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)
