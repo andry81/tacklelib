@@ -1,3 +1,8 @@
+2019.05.07:
+* new: cmake_tests: changelog file
+* new: cmake_tests: dummy cmake tests
+* new: cmake: `TestLib.cmake` to test cmake modules from the cmake itself
+
 2019.05.06:
 * changed: readme file
 * changed: minor changes

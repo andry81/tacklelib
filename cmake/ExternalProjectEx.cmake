@@ -1,4 +1,4 @@
-INCLUDE(ExternalProject)
+include(ExternalProject)
 
 # get external project property to an user defined variable
 function(get_project_property var name prop)

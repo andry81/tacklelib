@@ -1,0 +1,3 @@
+2019.05.07:
+* new: changelog file
+* new: dummy cmake tests
