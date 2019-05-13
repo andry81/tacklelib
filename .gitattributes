@@ -84,8 +84,8 @@ cmake_tests/_scripts/tests_02_build_mode.sh -text
 cmake_tests/changelog.txt -text
 cmake_tests/test_all.cmake -text
 cmake_tests/tests_01_script_mode.cmake -text
-cmake_tests/tests_01_script_mode/tests_01_std_functions/01_make_argv_var_from_ARGV.test.cmake -text
-cmake_tests/tests_01_script_mode/tests_02_variables_specialization/01_simple_set.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_01_Std_functions/01_make_argv_var_from_ARGV.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_02_SetVarsFromFiles_variables_specialization/01_simple_set.test.cmake -text
 cmake_tests/tests_02_build_mode.cmake -text
 config/.svnignore -text
 config/_scripts/01/01_generate_src.cache_cmds.in -text
