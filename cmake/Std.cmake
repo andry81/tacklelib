@@ -594,15 +594,20 @@ function(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
   set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list_encoded};;")
-  set(_9E220B1D_argv_joined_list2 ";;${_9E220B1D_argn_joined_list_encoded}")  # 2d phase list
+  # 2d phase list
+  if (NOT _9E220B1D_argv_joined_list_encoded STREQUAL "")
+    set(_9E220B1D_argv_joined_list2 ";;${_9E220B1D_argv_joined_list_encoded}")
+  else()
+    set(_9E220B1D_argv_joined_list2 ";")
+  endif()
 
   set(_9E220B1D_argn_offset -1)
   if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";;")
     # offset could be with last empty element here
     string(FIND "${_9E220B1D_argv_joined_list}" "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_offset REVERSE)
     # found substring must be the same size to the argn string length
-    string(LENGTH _9E220B1D_argv_joined_list _9E220B1D_argv_joined_list_len)
-    string(LENGTH _9E220B1D_argn_joined_list _9E220B1D_argn_joined_list_len)
+    string(LENGTH "${_9E220B1D_argv_joined_list}" _9E220B1D_argv_joined_list_len)
+    string(LENGTH "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_joined_list_len)
     math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
     if (NOT _9E220B1D_args_joined_list_len EQUAL _9E220B1D_argn_offset)
       set(_9E220B1D_argn_offset -1) # reset the offset
@@ -629,7 +634,12 @@ macro(make_argn_var_from_ARGV_ARGN_end)
     math(EXPR _9E220B1D_argn_offset "${_9E220B1D_argn_offset}")
 
     string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
-    set(_9E220B1D_args_joined_list ";${_9E220B1D_args_joined_list}")
+    if (NOT _9E220B1D_args_joined_list STREQUAL "")
+      # remove last `;` character
+      string(REGEX REPLACE "(.*)\;$" ";;\\1" _9E220B1D_args_joined_list "${_9E220B1D_args_joined_list}")
+    else()
+      set(_9E220B1D_args_joined_list ";")
+    endif()
 
     set(_9E220B1D_var_index 0)
 

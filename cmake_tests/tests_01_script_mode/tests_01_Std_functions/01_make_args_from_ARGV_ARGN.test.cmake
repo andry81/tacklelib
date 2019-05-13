@@ -32,6 +32,7 @@ endmacro()
 
 function(TestCase_macro_A_no_args)
   test_macro_A_no_args(0 1;2\;3 "4 5" ${test_seq_01})
+
   list(GET argn 0 argn0)
   list(GET argn 1 argn1)
   list(GET argn 2 argn2)
@@ -53,7 +54,7 @@ endfunction()
 
 function(TestCase_macro_A_with_args)
   test_macro_A_with_args(0 1;2\;3 "4 5" ${test_seq_01})
-  message(" ** argn=${argn}")
+
   list(GET argn 0 argn3)
   list(GET argn 1 argn4)
   list(GET argn 2 argn5)
