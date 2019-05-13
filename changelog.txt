@@ -1,3 +1,17 @@
+2019.05.13:
+* fixed: cmake: `make_argv_var_from_ARGV_begin` and `make_argv_var_from_ARGV_end` in complex expressions
+* fixed: cmake: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` in complex expressions
+* fixed: cmake: `make_var_from_CMAKE_ARGV_ARGC` in complex expressions
+* new: cmake: `MakeTemp.cmake` script to make a temporary directory from cmake
+* new: cmake: `Eval.cmake` script to evaluate a cmake expression from cmake (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\\{...}` to escape it instead))
+* new: cmake: `CMakeEval.cmd.cmake` script to evaluate a cmake expression from cmake script mode (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\{...}` to escape it instead))
+* new: cmake: `encode_control_chars`/`decode_control_chars` (`Std.cmake`) functions to help recode characters before call to macroses or inside `Eval` function (macroses has side effects in the cmake)
+* new: cmake: `ReturnCodeFile.cmake` module to read/write return codes out of cmake process
+* new: cmake: `TestModule.cmake` module to execute test cases in a test module
+* new: cmake_tests: more dummy test cases
+* changed: cmake: `TestLib.cmake` return code read from external cmake process
+* refactor: cmake: `string(REGEX REPLACE "\;" "\\\;" ...)` replaced by `string(REPLACE ";" "\;" ...)`
+
 2019.05.07:
 * changed: scripts: readme update
 * changed: cmake: readme update

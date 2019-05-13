@@ -39,7 +39,7 @@ function(ListJoin out_var in_list_var separator)
   foreach(value IN LISTS in_list)
     math(EXPR index "${index}+1")
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REGEX REPLACE "\;" "\\\;" value "${value}")
+    string(REPLACE ";" "\;" value "${value}")
     #list(LENGTH value len)
     #message("ListJoin: [${len}] value=${value}")
     if (index)
@@ -86,7 +86,7 @@ function(ListGet out_var in_list_var)
     if (index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "\;" "\\\;" value "${value}")
+      string(REPLACE ";" "\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListGet: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -158,7 +158,7 @@ function(ListRemoveAt out_var in_list_var)
     if (NOT index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "\;" "\\\;" value "${value}")
+      string(REPLACE ";" "\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListRemoveAt: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -231,7 +231,7 @@ function(ListSublist out_var begin_index length in_list_var)
   while(index LESS index_upper)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "\;" "\\\;" value "${value}")
+    string(REPLACE ";" "\;" value "${value}")
     #list(LENGTH value value_len)
     #message("ListSublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -298,7 +298,7 @@ function(ListRemoveSublist out_var begin_index length in_list_var)
   while(index LESS begin_index)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "\;" "\\\;" value "${value}")
+    string(REPLACE ";" "\;" value "${value}")
     #list(LENGTH value value_len)
     #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -319,7 +319,7 @@ function(ListRemoveSublist out_var begin_index length in_list_var)
     while(index LESS in_list_len)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REGEX REPLACE "\;" "\\\;" value "${value}")
+      string(REPLACE ";" "\;" value "${value}")
       #list(LENGTH value value_len)
       #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -401,7 +401,7 @@ function(copy_variables)
     list(APPEND ${ARGV1} "${_24C487FA_var_name}")
     #ListJoin(_24C487FA_var_value ${_24C487FA_var_name} "\;")
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REGEX REPLACE "\;" "\\\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
+    string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
     list(APPEND ${ARGV2} "${_24C487FA_var_value}")
 
     #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
@@ -454,14 +454,86 @@ function(subtract_absolute_paths from_path to_path var_out)
   set(${var_out} "" PARENT_SCOPE)
 endfunction()
 
-macro(make_argv_var_from_ARGV_begin joined_list)
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+#
+function(encode_control_chars in_value out_var)
+  string(REPLACE "\\" "\\\\" encoded_value "${in_value}")
+  string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
+  string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
+  string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
+  string(REPLACE "\$" "\\\$" encoded_value "${encoded_value}")
+  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+endfunction()
+
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+function(decode_control_chars in_value out_var)
+  set(decoded_value "")
+  set(index 0)
+  set(is_escaping 0)
+  string(LENGTH "${in_value}" value_len)
+
+  while (index LESS value_len)
+    string(SUBSTRING "${in_value}" ${index} 1 char)
+    if (NOT is_escaping)
+      if (NOT char STREQUAL "\\")
+        set(decoded_value "${decoded_value}${char}")
+      else()
+        set(is_escaping 1)
+      endif()
+    else()
+      if (char STREQUAL "n")
+        set(decoded_value "${decoded_value}\n")
+      elseif (char STREQUAL "r")
+        set(decoded_value "${decoded_value}\r")
+      elseif (char STREQUAL "t")
+        set(decoded_value "${decoded_value}\t")
+      elseif (char STREQUAL ";")
+        set(decoded_value "${decoded_value}\\;") # retain special control character escaping
+      else()
+        set(decoded_value "${decoded_value}${char}")
+      endif()
+      set(is_escaping 0)
+    endif()
+
+    math(EXPR index "${index}+1")
+  endwhile()
+
+  if (is_escaping)
+    set(decoded_value "${decoded_value}\\")
+  endif()
+
+  set(${out_var} "${decoded_value}" PARENT_SCOPE)
+endfunction()
+
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+function(make_argv_var_from_ARGV_begin argv_joined_list)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "make_argv_var_from_ARGV_begin must have only 1 argument")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(_BBD57550_argv_joined_list ";;${joined_list}")
-endmacro()
+  # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
+  encode_control_chars("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
+
+  set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
+
+  unset(argv)
+endfunction()
 
 macro(make_argv_var_from_ARGV_end)
   if (NOT ${ARGC} EQUAL 0)
@@ -473,22 +545,25 @@ macro(make_argv_var_from_ARGV_end)
   set(_BBD57550_argv_joined_list_accum ";")
 
   set(_BBD57550_var_index 0)
-  set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
 
-  # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-  string(REGEX REPLACE "\;" "\\\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
-
-  list(APPEND argv "${_BBD57550_argv_value}")
-  list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
-
-  while (NOT _BBD57550_argv_joined_list STREQUAL _BBD57550_argv_joined_list_accum AND _BBD57550_var_index LESS 32) # with finite loop insurance
-    math(EXPR _BBD57550_var_index "${_BBD57550_var_index}+1")
+  while (NOT _BBD57550_argv_joined_list STREQUAL _BBD57550_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_BBD57550_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
+    endif()
 
     set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
-    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REGEX REPLACE "\;" "\\\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
+
+    ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    #string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
     list(APPEND argv "${_BBD57550_argv_value}")
-    list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
+
+    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
+    encode_control_chars("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
+
+    list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
+
+    math(EXPR _BBD57550_var_index "${_BBD57550_var_index}+1")
   endwhile()
 
   # remove 2 first dummy empty strings
@@ -498,21 +573,48 @@ macro(make_argv_var_from_ARGV_end)
   unset(_BBD57550_argv_joined_list_accum)
   unset(_BBD57550_var_index)
   unset(_BBD57550_argv_value)
+  unset(_BBD57550_argv_value_encoded)
 endmacro()
 
-macro(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+function(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "make_argn_var_from_ARGV_ARGN_begin must have only 2 argument")
   endif()
 
+  # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
+  encode_control_chars("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
+  encode_control_chars("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
+
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(_9E220B1D_argv_joined_list ";;${argv_joined_list}")
-  set(_9E220B1D_argn_joined_list "${argn_joined_list}")
+  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
+  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list_encoded};;")
+  set(_9E220B1D_argv_joined_list2 ";;${_9E220B1D_argn_joined_list_encoded}")  # 2d phase list
+
   set(_9E220B1D_argn_offset -1)
-  if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL "")
+  if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";;")
+    # offset could be with last empty element here
     string(FIND "${_9E220B1D_argv_joined_list}" "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_offset REVERSE)
+    # found substring must be the same size to the argn string length
+    string(LENGTH _9E220B1D_argv_joined_list _9E220B1D_argv_joined_list_len)
+    string(LENGTH _9E220B1D_argn_joined_list _9E220B1D_argn_joined_list_len)
+    math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
+    if (NOT _9E220B1D_args_joined_list_len EQUAL _9E220B1D_argn_offset)
+      set(_9E220B1D_argn_offset -1) # reset the offset
+    endif()
   endif()
-endmacro()
+
+  unset(argn PARENT_SCOPE)
+  set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
+  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
+  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
+  set(_9E220B1D_argv_joined_list2 "${_9E220B1D_argv_joined_list2}" PARENT_SCOPE)
+endfunction()
 
 macro(make_argn_var_from_ARGV_ARGN_end)
   if (NOT ${ARGC} EQUAL 0)
@@ -524,27 +626,44 @@ macro(make_argn_var_from_ARGV_ARGN_end)
     set(argn ";")
     set(_9E220B1D_argv_joined_list_accum ";")
 
-    string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_argv_joined_list_truncated)
+    math(EXPR _9E220B1D_argn_offset "${_9E220B1D_argn_offset}")
 
-    # truncate last empty element
-    if (_9E220B1D_argv_joined_list_truncated MATCHES "(.*);$")
-      set(_9E220B1D_argv_joined_list_truncated "${CMAKE_MATCH_1}")
-    endif()
+    string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
+    set(_9E220B1D_args_joined_list ";${_9E220B1D_args_joined_list}")
 
     set(_9E220B1D_var_index 0)
 
-    while (NOT _9E220B1D_argv_joined_list_truncated STREQUAL _9E220B1D_argv_joined_list_accum AND _9E220B1D_var_index LESS 32) # with finite loop insurance
-      list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
+    while (NOT _9E220B1D_args_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+      # with finite loop insurance
+      if (_9E220B1D_var_index GREATER_EQUAL 64)
+        message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
+      endif()
+
+      # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
+      encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+
+      list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
+
       math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
     endwhile()
 
-    while (NOT _9E220B1D_argv_joined_list STREQUAL _9E220B1D_argv_joined_list_accum AND _9E220B1D_var_index LESS 32) # with finite loop insurance
+    while (NOT _9E220B1D_argv_joined_list2 STREQUAL _9E220B1D_argv_joined_list_accum)
+      # with finite loop insurance
+      if (_9E220B1D_var_index GREATER_EQUAL 64)
+        message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
+      endif()
+
       set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+
       #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
-      # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-      string(REGEX REPLACE "\;" "\\\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
+      ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
+      #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
       list(APPEND argn "${_9E220B1D_argv_value}")
-      list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
+
+      # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
+      encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+
+      list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
       math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
     endwhile()
@@ -555,12 +674,14 @@ macro(make_argn_var_from_ARGV_ARGN_end)
     unset(_9E220B1D_argv_joined_list_accum)
     unset(_9E220B1D_var_index)
     unset(_9E220B1D_argv_value)
+    unset(_9E220B1D_argv_value_encoded)
   else()
     set(argn "")
   endif()
 
   unset(_9E220B1D_argv_joined_list)
   unset(_9E220B1D_argn_joined_list)
+  unset(_9E220B1D_argv_joined_list2)
   unset(_9E220B1D_argn_offset)
 endmacro()
 
@@ -573,12 +694,14 @@ endmacro()
 #
 # flags:
 #   -P - Enumerate script arguments (including a script absolute file path) instead of a cmake process arguments
-#     (for the sciprt mode only, where the cmake has called with the `-P` flag).
+#     (for the script mode only, where the cmake has called with the `-P` flag).
 #
-function(make_argv_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
+function(make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
   make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
   make_argn_var_from_ARGV_ARGN_end()
+  #message("make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
+  #message("make_var_from_CMAKE_ARGV_ARGC: argn=${argn}")
 
   list(LENGTH argn argn_len)
   set(argn_index 0)
@@ -594,7 +717,7 @@ function(make_argv_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
     "")
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "make_argv_var_from_CMAKE_ARGV_ARGC function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
+    message(FATAL_ERROR "make_var_from_CMAKE_ARGV_ARGC function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
   endif()
 
   IsCmakeRole(SCRIPT is_in_script_mode)
@@ -619,10 +742,11 @@ function(make_argv_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
     set(script_file_path_offset -1)
     while(cmake_arg_index LESS CMAKE_ARGC)
       set(arg_value "${CMAKE_ARGV${cmake_arg_index}}")
+      #message("arg_value=${arg_value}")
       if (script_file_path_offset GREATER_EQUAL 0 )
         if (script_file_path_offset LESS cmake_arg_index)
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-          string(REGEX REPLACE "\;" "\\\;" arg_value "${arg_value}")
+          string(REPLACE ";" "\;" arg_value "${arg_value}")
           list(APPEND ${out_var} "${arg_value}")
         else()
           # Parse the value as a path to the script file, convert to the absolute path and
@@ -717,11 +841,17 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
   set(func_argv "${${func_argv_var}}")
 
   # parse flags until no flags
-  list(GET func_argv 0 func_flags)
-  # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-  string(REGEX REPLACE "\;" "\\\;" func_flags "${func_flags}")
+  list(LENGTH func_argv func_argv_len)
 
-  string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
+  if (func_argv_len GREATER 0)
+    list(GET func_argv 0 func_flags)
+    # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
+    string(REPLACE ";" "\;" func_flags "${func_flags}")
+
+    string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
+  else()
+    set(func_flags_prefix_char0 "")
+  endif()
 
   set(flags "")
 
@@ -825,7 +955,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
             foreach (multichar_flag_var IN LISTS multichar_flag_vars_sublist)
               list(GET func_argv ${func_argv_index} multichar_flag_var_value)
               # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-              string(REGEX REPLACE "\;" "\\\;" multichar_flag_var_value_escaped "${multichar_flag_var_value}")
+              string(REPLACE ";" "\;" multichar_flag_var_value_escaped "${multichar_flag_var_value}")
 
               if ((multichar_flag_var STREQUAL ".") OR (multichar_flag_var STREQUAL "*"))
                 set(multichar_flag_var "")
@@ -854,7 +984,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
     # read next flags
     list(GET func_argv ${func_argv_index} func_flags)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REGEX REPLACE "\;" "\\\;" func_flags "${func_flags}")
+    string(REPLACE ";" "\;" func_flags "${func_flags}")
 
     string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
   endwhile()
@@ -909,9 +1039,11 @@ function(escape_list_expansion out_var in_list)
 
   foreach(arg IN LISTS in_list)
     # 1. WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REGEX REPLACE "\;" "\\\;" escaped_arg "${arg}")
+    string(REPLACE ";" "\;" escaped_arg "${arg}")
     # 2. another escape sequence to retain exact values in the list after pass into a function without quotes: `foo(${mylist})`
-    string(REGEX REPLACE "([\\\\])" "\\\\\\1" escaped_arg "${escaped_arg}")
+    string(REPLACE "\\" "\\\\" escaped_arg "${escaped_arg}")
+    # 3. escape variables expansion
+    string(REPLACE "\$" "\\\$" escaped_arg "${escaped_arg}")
     #message("arg: `${arg}` -> `${escaped_arg}`")
     list(APPEND escaped_list "${escaped_arg}")
   endforeach()

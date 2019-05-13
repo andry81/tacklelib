@@ -162,7 +162,7 @@ function(generate_regex_replace_expression out_regex_match_var out_regex_replace
     message(FATAL_ERROR "generate_regex_replace_expression: input regex match expression does not support groups capture: in_regex_match_var=${${in_regex_match_var}} in_replace_to=${in_replace_to}")
   endif()
 
-  string(REGEX REPLACE "\\\\" "\\\\" in_replace_to_escaped "${in_replace_to}")
+  string(REPLACE "\\" "\\\\" in_replace_to_escaped "${in_replace_to}")
   set(${out_regex_match_var} "([${CMAKE_NOTFLAG_REGEX_CHARS}]*)${${in_regex_match_var}}([${CMAKE_NOTFLAG_REGEX_CHARS}]*)" PARENT_SCOPE)
   set(${out_regex_replace_var} "\\1${in_replace_to_escaped}\\2" PARENT_SCOPE)
 endfunction()
@@ -711,7 +711,7 @@ function(source_group_by_file_path_list group_path type path_list include_file_p
 endfunction()
 
 function(source_groups_from_dir_list source_group_root type path_dir_list path_glob_suffix)
-  string(REGEX REPLACE "/" "\\\\" source_group_root "${source_group_root}")
+  string(REPLACE "/" "\\" source_group_root "${source_group_root}")
 
   foreach(path_dir IN LISTS path_dir_list)
     #message(STATUS path_dir=${path_dir})
@@ -732,7 +732,7 @@ function(source_groups_from_dir_list source_group_root type path_dir_list path_g
       if(child_rel_path)
         get_filename_component(child_rel_dir ${child_rel_path} DIRECTORY)
 
-        string(REGEX REPLACE "/" "\\\\" source_group_dir "${child_rel_dir}")
+        string(REPLACE "/" "\\" source_group_dir "${child_rel_dir}")
         if(source_group_root)
           #message(STATUS "source_groups_from_dir_list: ${source_group_root}\\${source_group_dir} -> ${child_rel_path}")
           source_group("${source_group_root}\\${source_group_dir}" ${type} "${path_dir}/${child_path}")
