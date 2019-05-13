@@ -23,6 +23,7 @@ function(TestLib_Init)
   set(TESTLIB_LAST_ENTER_DIR "" PARENT_SCOPE)
 
   set(TESTLIB_TEST_ARGS "" PARENT_SCOPE)
+  set(TESTLIB_TESTPROC_INDEX 0 PARENT_SCOPE)
 
   if (NOT DEFINED TESTS_ROOT)
     message(FATAL_ERROR "TESTS_ROOT must be defined")
@@ -129,6 +130,8 @@ function(TestLib_Directory test_dir)
   set(TESTLIB_NUM_SUCCEEDED_TESTS "${TESTLIB_NUM_SUCCEEDED_TESTS_PARENT}" PARENT_SCOPE)
   set(TESTLIB_NUM_OVERALL_TESTS "${TESTLIB_NUM_OVERALL_TESTS_PARENT}" PARENT_SCOPE)
 
+  set(TESTLIB_TESTPROC_INDEX "${TESTLIB_TESTPROC_INDEX}" PARENT_SCOPE)
+
   message("Leaving directory: `${TESTLIB_LAST_ENTER_DIR}`: failed/succeeded of overall: ${TESTLIB_NUM_FAILED_TESTS}/${TESTLIB_NUM_SUCCEEDED_TESTS} of ${TESTLIB_NUM_OVERALL_TESTS}\n---\n")
 endfunction()
 
@@ -187,7 +190,8 @@ function(TestLib_Test test_dir test_file_name)
         "-DCMAKE_MODULE_PATH=${PROJECT_ROOT}/cmake;${PROJECT_ROOT}/cmake/_3dparty"
         "-DPROJECT_ROOT=${PROJECT_ROOT}"
         "-DTESTS_ROOT=${TESTS_ROOT}"
-        "-DCMAKE_TESTMODULE_RETCODE_DIR=${ret_code_dir}"
+        "-DTESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
+        "-DTESTLIB_TESTPROC_INDEX=${TESTLIB_TESTPROC_INDEX}"
         -P
         "${test_file_path}" ${TESTLIB_TEST_ARGS}
       WORKING_DIRECTORY
@@ -202,7 +206,8 @@ function(TestLib_Test test_dir test_file_name)
         "-DCMAKE_MODULE_PATH=${PROJECT_ROOT}/cmake;${PROJECT_ROOT}/cmake/_3dparty"
         "-DPROJECT_ROOT=${PROJECT_ROOT}"
         "-DTESTS_ROOT=${TESTS_ROOT}"
-        "-DCMAKE_TESTMODULE_RETCODE_DIR=${ret_code_dir}"
+        "-DTESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
+        "-DTESTLIB_TESTPROC_INDEX=${TESTLIB_TESTPROC_INDEX}"
         -P
         "${test_file_path}" ${TESTLIB_TEST_ARGS}
       RESULT_VARIABLE
@@ -231,6 +236,9 @@ function(TestLib_Test test_dir test_file_name)
   set(TESTLIB_NUM_OVERALL_TESTS "${TESTLIB_NUM_OVERALL_TESTS}" PARENT_SCOPE)
   set(TESTLIB_NUM_SUCCEEDED_TESTS "${TESTLIB_NUM_SUCCEEDED_TESTS}" PARENT_SCOPE)
   set(TESTLIB_NUM_FAILED_TESTS "${TESTLIB_NUM_FAILED_TESTS}" PARENT_SCOPE)
+
+  math(EXPR TESTLIB_TESTPROC_INDEX "${TESTLIB_TESTPROC_INDEX}+1")
+  set(TESTLIB_TESTPROC_INDEX "${TESTLIB_TESTPROC_INDEX}" PARENT_SCOPE)
 endfunction()
 
 endif()
