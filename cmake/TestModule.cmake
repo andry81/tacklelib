@@ -26,7 +26,7 @@ macro(TestModule_RunTestCases)
   TestModule_Init()
 
   foreach(test_func ${ARGN})
-    Eval("
+    Eval("\
 if (NOT TESTS_ROOT OR NOT IS_DIRECTORY \"$\\{TESTS_ROOT}\")
   message(FATAL_ERROR \"TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`$\\{TESTS_ROOT}`\")
 endif()
@@ -52,31 +52,41 @@ endif()
   TestModule_Exit()
 endmacro()
 
-macro(TestAssertTrue exp msg)
+macro(TestAssertTrue if_exp msg)
   if (NOT TESTMODULE_INITED)
     message(FATAL_ERROR "Test module process is not initialized properly, call to TestModule_Init to initialize the test module process")
   endif()
 
-  if (${exp})
+  Eval("\
+if (${if_exp})
+  set(TESTCASE_RETCODE 0)
+else()
+  set(TESTCASE_RETCODE 1)
+endif()
+")
+
+  set(TESTCASE_RETCODE "${TESTCASE_RETCODE}" PARENT_SCOPE)
+
+  if (NOT TESTCASE_RETCODE)
     # don't change return code in a failed state
     if (TESTMODULE_RETCODE EQUAL -1)
       # first time success return code
       set(TESTMODULE_RETCODE 0)
       set(TESTMODULE_RETCODE 0 PARENT_SCOPE)
     endif()
-    if (TESTCASE_RETCODE EQUAL -1)
-      # first time success return code
-      set(TESTCASE_RETCODE 0)
-      set(TESTCASE_RETCODE 0 PARENT_SCOPE)
-    endif()
   else()
-    message("[ ASSERT ] `${TESTMODULE_FILE}`: exp=`${exp}` msg=`${msg}`")
+    message("[ ASSERT ] `${TESTMODULE_FILE}`: ${TESTCASE_FUNC}: if_exp=`${if_exp}` msg=`${msg}`")
     set(TESTMODULE_RETCODE 1)
     set(TESTMODULE_RETCODE 1 PARENT_SCOPE)
-    set(TESTCASE_RETCODE 1)
-    set(TESTCASE_RETCODE 1 PARENT_SCOPE)
     return() # always return from a test case function on first fail
   endif()
+endmacro()
+
+# to propogate nested function test case results to the parent scope
+macro(TestCase_Return)
+  set(TESTCASE_RETCODE "${TESTCASE_RETCODE}" PARENT_SCOPE)
+  set(TESTMODULE_RETCODE "${TESTMODULE_RETCODE}" PARENT_SCOPE)
+  return()
 endmacro()
 
 endif()

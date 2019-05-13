@@ -25,20 +25,15 @@ macro(Eval)
 
   file(WRITE "${_67AB359F_temp_dir_path}/eval.cmake" "")
 
-  foreach(_67AB359F_arg IN LISTS argn)
-    ## WORKAROUND: we have to replace because `foreach(...)` discardes ;-escaping
-    #string(REPLACE ";" "\;" _67AB359F_arg "${_67AB359F_arg}") # regex is required to properly replace to `\;`
-    ## WORKAROUND: we have to replace because the backslash character is special escape character
-    #string(REPLACE "\\" "\\\\" _67AB359F_arg "${_67AB359F_arg}")
-    decode_control_chars("${_67AB359F_arg}" _67AB359F_arg)
-    file(APPEND "${_67AB359F_temp_dir_path}/eval.cmake" "${_67AB359F_arg}\n")
-  endforeach()
+  decode_control_chars("${argn}" _67AB359F_argn)
+
+  file(APPEND "${_67AB359F_temp_dir_path}/eval.cmake" "${_67AB359F_argn}\n")
 
   include("${_67AB359F_temp_dir_path}/eval.cmake")
 
   file(REMOVE_RECURSE "${_67AB359F_temp_dir_path}")
 
   unset(argn)
-  unset(_67AB359F_arg) # just in case
+  unset(_67AB359F_argn)
   unset(_67AB359F_temp_dir_path)
 endmacro()

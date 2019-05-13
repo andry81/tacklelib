@@ -1,4 +1,9 @@
 2019.05.13:
+* changed: cmake: implemented `TestAssertTrue(if_exp ...)` in the `TestModule.cmake` through the `Eval("if(${exp}) ...")` to be able to use the cmake if expressions in the first argument of the `TestAssertTrue` macro
+* changed: cmake: `Eval.cmake` minor impovement
+* changed: cmake: `TestModule.cmake` minor impovements
+
+2019.05.13:
 * changed: cmake: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
 
 2019.05.13:
