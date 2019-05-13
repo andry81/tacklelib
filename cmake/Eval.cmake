@@ -1,7 +1,11 @@
 include(Std)
+include(ForwardVariables)
 include(MakeTemp)
 
 macro(Eval)
+  # save specific variables to stack
+  pushset_variable_to_stack("argn" "${argn}")
+
   #message("=${ARGV}=")
   #message("=${ARGN}=")
   make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
@@ -29,11 +33,14 @@ macro(Eval)
 
   file(APPEND "${_67AB359F_temp_dir_path}/eval.cmake" "${_67AB359F_argn}\n")
 
+  unset(_67AB359F_argn)
+
+  # restore specific variables from stack
+  popset_variable_from_stack("argn")
+
   include("${_67AB359F_temp_dir_path}/eval.cmake")
 
   file(REMOVE_RECURSE "${_67AB359F_temp_dir_path}")
 
-  unset(argn)
-  unset(_67AB359F_argn)
   unset(_67AB359F_temp_dir_path)
 endmacro()

@@ -135,6 +135,10 @@ function(TestLib_Directory test_dir)
   message("Leaving directory: `${TESTLIB_LAST_ENTER_DIR}`: failed/succeeded of overall: ${TESTLIB_NUM_FAILED_TESTS}/${TESTLIB_NUM_SUCCEEDED_TESTS} of ${TESTLIB_NUM_OVERALL_TESTS}\n---\n")
 endfunction()
 
+macro(TestLib_Exit)
+  message("RESULTS: failed/succeeded of overall: ${TESTLIB_NUM_FAILED_TESTS}/${TESTLIB_NUM_SUCCEEDED_TESTS} of ${TESTLIB_NUM_OVERALL_TESTS}\n===\n")
+endmacro()
+
 macro(TestLib_Include test_dir test_file_name)
   if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL .)
     if (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}" AND

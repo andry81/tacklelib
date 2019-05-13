@@ -1,4 +1,10 @@
 2019.05.13:
+* fixed: cmake: `Eval.cmake` after tests
+* fixed: cmake: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` after tests
+* fixed: cmake_tests: `01_make_args_from_ARGV_ARGN.test.cmake` tests pass
+* changed: cmake: `TestLib.cmake` minor improvement
+
+2019.05.13:
 * refactor: cmake_tests: minor refactor
 
 2019.05.13:
