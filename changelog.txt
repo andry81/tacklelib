@@ -1,5 +1,5 @@
 2019.05.13:
-* changed: cmake: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to sort temporary directories in creation order
+* changed: cmake: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
 
 2019.05.13:
 * fixed: cmake: `make_argv_var_from_ARGV_begin` and `make_argv_var_from_ARGV_end` in complex expressions
