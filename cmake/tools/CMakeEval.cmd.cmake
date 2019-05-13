@@ -1,4 +1,5 @@
 include(Std)
+include(Eval)
 
 make_var_from_CMAKE_ARGV_ARGC(-P argv)
 #message("argv=${argv}")
@@ -9,4 +10,4 @@ ListSublist(argv_tail 1 -1 argv)
 escape_list_expansion(cmdline "${argv_tail}")
 #message("cmdline=${cmdline}")
 
-write_GENERATOR_IS_MULTI_CONFIG_into_file(${cmdline})
+Eval(${cmdline})
