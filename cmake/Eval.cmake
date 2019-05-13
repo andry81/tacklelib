@@ -16,7 +16,12 @@ macro(Eval)
   unset_ARGV()
   #message("Eval: argn=${argn}")
 
-  MakeTempDir("Cmake.Eval." 8 _67AB359F_temp_dir_path)
+  if (NOT TESTLIB_TESTPROC_INDEX STREQUAL "")
+    # running under TestLib, the macro can call under different cmake processes when the inner timestamp is not yet changed (timestamp has seconds resolution)
+    MakeTempDir("Cmake.Eval." "%Y'%m'%d''%H'%M'%SZ" "${TESTLIB_TESTPROC_INDEX}" 8 _67AB359F_temp_dir_path)
+  else()
+    MakeTempDir("Cmake.Eval." "%Y'%m'%d''%H'%M'%SZ" "" 8 _67AB359F_temp_dir_path)
+  endif()
 
   file(WRITE "${_67AB359F_temp_dir_path}/eval.cmake" "")
 

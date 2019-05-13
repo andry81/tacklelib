@@ -1,7 +1,12 @@
 include(MakeTemp)
 
 function(CreateReturnCodeFile dir_path_abs_var)
-  MakeTempDir("CMake.RetCode." 8 dir_path_abs)
+  if (NOT TESTLIB_TESTPROC_INDEX STREQUAL "")
+    # running under TestLib, the function can call under different cmake processes when the inner timestamp is not yet changed (timestamp has seconds resolution)
+    MakeTempDir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "${TESTLIB_TESTPROC_INDEX}" 8 dir_path_abs)
+  else()
+    MakeTempDir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "" 8 dir_path_abs)
+  endif()
   set(file_path_abs "${dir_path_abs}/ret_code.var")
   file(WRITE "${file_path_abs}" "") # not set yet
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)

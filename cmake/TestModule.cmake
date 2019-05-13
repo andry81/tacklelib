@@ -5,21 +5,21 @@ set(TESTMODULE_INCLUDE_DEFINED 1)
 include(ReturnCodeFile)
 include(Eval)
 
-if (NOT CMAKE_TESTMODULE_RETCODE_DIR OR NOT IS_DIRECTORY "${CMAKE_TESTMODULE_RETCODE_DIR}")
-  message(FATAL_ERROR "CMAKE_TESTMODULE_RETCODE_DIR variable must be defined externally before include this module: CMAKE_TESTMODULE_RETCODE_DIR=`${CMAKE_TESTMODULE_RETCODE_DIR}`")
+if (NOT TESTLIB_TESTPROC_RETCODE_DIR OR NOT IS_DIRECTORY "${TESTLIB_TESTPROC_RETCODE_DIR}")
+  message(FATAL_ERROR "TESTLIB_TESTPROC_RETCODE_DIR variable must be defined externally before include this module: TESTLIB_TESTPROC_RETCODE_DIR=`${TESTLIB_TESTPROC_RETCODE_DIR}`")
 endif()
 
 set(TESTMODULE_INITED 0)
 
 function(TestModule_Init)
-  SetReturnCodeToFile("${CMAKE_TESTMODULE_RETCODE_DIR}" -1) # init the default return code
+  SetReturnCodeToFile("${TESTLIB_TESTPROC_RETCODE_DIR}" -1) # init the default return code
   set(TESTMODULE_INITED 1 PARENT_SCOPE)
   set(TESTMODULE_RETCODE -1 PARENT_SCOPE)
   set(TESTCASE_RETCODE -1 PARENT_SCOPE)
 endfunction()
 
 function(TestModule_Exit)
-  SetReturnCodeToFile("${CMAKE_TESTMODULE_RETCODE_DIR}" "${TESTMODULE_RETCODE}") # save the module last return code
+  SetReturnCodeToFile("${TESTLIB_TESTPROC_RETCODE_DIR}" "${TESTMODULE_RETCODE}") # save the module last return code
 endfunction()
 
 macro(TestModule_RunTestCases)
