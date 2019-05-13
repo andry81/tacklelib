@@ -1,7 +1,10 @@
 2019.05.13:
-* changed: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
+* changed: implemented `TestAssertTrue(if_exp ...)` in the `TestModule.cmake` through the `Eval("if(${exp}) ...")` to be able to use the cmake if expressions in the first argument of the `TestAssertTrue` macro
 * changed: `Eval.cmake` minor impovement
 * changed: `TestModule.cmake` minor impovements
+
+2019.05.13:
+* changed: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
 
 2019.05.13:
 * fixed: `make_argv_var_from_ARGV_begin` and `make_argv_var_from_ARGV_end` in complex expressions
