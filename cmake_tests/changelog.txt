@@ -1,4 +1,7 @@
 2019.05.13:
+* refactor: `01_make_argv_var_from_ARGV.test.cmake` renamed to `01_make_args_from_ARGV_ARGN.test.cmake`
+
+2019.05.13:
 * changed: actual tests in `01_make_argv_var_from_ARGV.test.cmake` instead of dummies
 
 2019.05.13:

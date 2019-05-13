@@ -1,4 +1,7 @@
 2019.05.13:
+* refactor: cmake_tests: minor refactor
+
+2019.05.13:
 * changed: cmake: implemented `TestAssertTrue(if_exp ...)` in the `TestModule.cmake` through the `Eval("if(${exp}) ...")` to be able to use the cmake if expressions in the first argument of the `TestAssertTrue` macro
 * changed: cmake: `Eval.cmake` minor impovement
 * changed: cmake: `TestModule.cmake` minor impovements
