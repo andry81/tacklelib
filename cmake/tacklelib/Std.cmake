@@ -1,4 +1,11 @@
+# inclusion guard for protection and speedup
+if (NOT DEFINED TACKLELIB_STD_INCLUDE_DEFINED)
+set(TACKLELIB_STD_INCLUDE_DEFINED 1)
+
 cmake_minimum_required(VERSION 3.14)
+
+include(tacklelib/List)
+include(tacklelib/File)
 
 # at least cmake 3.14 is required for:
 #   * CMAKE_ROLE property: https://cmake.org/cmake/help/latest/prop_gbl/CMAKE_ROLE.html#prop_gbl:CMAKE_ROLE
@@ -8,365 +15,23 @@ cmake_minimum_required(VERSION 3.14)
 #   * Multiconfig generator detection support: https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
 #
 
-# at least cmake 3.3 is required for:
-# * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
-#   `if(<variable|string> IN_LIST <variable>)`
-#
-
 # at least cmake 3.7 is required for:
 # * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
 #   `if(<variable|string> GREATER_EQUAL <variable|string>)`
 #
 
-# Workaround for `list(JOIN ...)` implementation to workaround ;-escaped list implicit discarding.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/18946
+# at least cmake 3.3 is required for:
+# * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
+#   `if(<variable|string> IN_LIST <variable>)`
 #
-function(ListJoin out_var in_list_var separator)
-  if ((separator STREQUAL ";") OR (separator STREQUAL "\;")) # check on builtin control separator to faster join
-    set(${out_var} "${${in_list_var}}" PARENT_SCOPE)
-    return()
-  endif()
 
-  set(joined_value "")
-
-  set(in_list "${${in_list_var}}")
-  #message("join: ${in_list}")
-
-  set(index -1)
-
-  list(LENGTH in_list in_list_len)
-
-  foreach(value IN LISTS in_list)
-    math(EXPR index "${index}+1")
-    # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
-    #list(LENGTH value len)
-    #message("ListJoin: [${len}] value=${value}")
-    if (index)
-      set(joined_value "${joined_value}${separator}${value}")
-    else()
-      set(joined_value "${value}")
-    endif()
-  endforeach()
-
-  #message("joined: ${joined_value}")
-  set(${out_var} "${joined_value}" PARENT_SCOPE)
-endfunction()
-
-# Workaround for `list(GET ...)` implementation to workaround ;-escaped list implicit discarding.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/18946
-#
-function(ListGet out_var in_list_var)
-  if ("${ARGN}" STREQUAL "")
-    message(FATAL_ERROR "must have at least one index")
-  endif()
-
-  # CAUTION: empty list with one empty string treats as an empty list
-  set(out_list "")
-  set(left_list "")
-  set(right_list "")
-
-  set(in_list "${${in_list_var}}")
-
-  list(LENGTH in_list in_list_len)
-
-  if (NOT in_list_len)
-    set(${out_var} "" PARENT_SCOPE)
-    return()
-  endif()
-
-  set(index_list "${ARGN}")
-
-  # WORKAROUND: number of empty strings at the beginning of a list to workaround empty elements in empty list collapsing issue
-  set(num_first_empty_strings 0)
-  set(is_collapse_passed 0)
-
-  math(EXPR index_max "${in_list_len}-1")
-  foreach(index RANGE ${index_max})
-    if (index IN_LIST index_list)
-      list(GET in_list ${index} value)
-      # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
-      #list(LENGTH value value_len)
-      #message("ListGet: index=${index} [${value_len}] value=${value}")
-      # WORKAROUND: empty list with one empty string treats as an empty list
-      if (is_collapse_passed OR (NOT value STREQUAL ""))
-        list(APPEND right_list "${value}")
-        set(is_collapse_passed 1)
-      else()
-        # both are empty, counting empty strings instead of appending it
-        math(EXPR num_first_empty_strings "${num_first_empty_strings}+1")
-      endif()
-    endif()
-  endforeach()
-
-  # join together
-  if (num_first_empty_strings GREATER 1)
-    set(left_list ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    math(EXPR index_max "${num_first_empty_strings}-3")
-    if (index_max GREATER_EQUAL 0)
-      foreach (index RANGE ${index_max})
-        list(APPEND left_list "")
-      endforeach()
-    endif()
-    if (right_list)
-      list(APPEND out_list "${left_list}" "${right_list}")
-    else()
-      set(out_list "${left_list}")
-    endif()
-  elseif (num_first_empty_strings)
-    if (right_list)
-      list(APPEND out_list "" "${right_list}")
-    endif()
-  else()
-    set(out_list "${right_list}")
-  endif()
-
-  set(${out_var} "${out_list}" PARENT_SCOPE)
-endfunction()
-
-# Workaround for `list(REMOVE_AT ...)` implementation to workaround ;-escaped list implicit discarding.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/18946
-#
-function(ListRemoveAt out_var in_list_var)
-  if ("${ARGN}" STREQUAL "")
-    message(FATAL_ERROR "must have at least one index")
-  endif()
-
-  # CAUTION: empty list with one empty string treats as an empty list
-  set(out_list "")
-  set(left_list "")
-  set(right_list "")
-
-  set(in_list "${${in_list_var}}")
-
-  list(LENGTH in_list in_list_len)
-
-  if (NOT in_list_len)
-    set(${out_var} "" PARENT_SCOPE)
-    return()
-  endif()
-
-  set(index_list "${ARGN}")
-
-  # WORKAROUND: number of empty strings at the beginning of a list to workaround empty elements in empty list collapsing issue
-  set(num_first_empty_strings 0)
-  set(is_collapse_passed 0)
-
-  math(EXPR index_max "${in_list_len}-1")
-  foreach(index RANGE ${index_max})
-    if (NOT index IN_LIST index_list)
-      list(GET in_list ${index} value)
-      # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
-      #list(LENGTH value value_len)
-      #message("ListRemoveAt: index=${index} [${value_len}] value=${value}")
-      # WORKAROUND: empty list with one empty string treats as an empty list
-      if (is_collapse_passed OR (NOT value STREQUAL ""))
-        list(APPEND right_list "${value}")
-        set(is_collapse_passed 1)
-      else()
-        # both are empty, counting empty strings instead of appending it
-        math(EXPR num_first_empty_strings "${num_first_empty_strings}+1")
-      endif()
-    endif()
-  endforeach()
-
-  # join together
-  if (num_first_empty_strings GREATER 1)
-    set(left_list ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    math(EXPR index_max "${num_first_empty_strings}-3")
-    if (index_max GREATER_EQUAL 0)
-      foreach (index RANGE ${index_max})
-        list(APPEND left_list "")
-      endforeach()
-    endif()
-    if (right_list)
-      list(APPEND out_list "${left_list}" "${right_list}")
-    else()
-      set(out_list "${left_list}")
-    endif()
-  elseif (num_first_empty_strings)
-    if (right_list)
-      list(APPEND out_list "" "${right_list}")
-    endif()
-  else()
-    set(out_list "${right_list}")
-  endif()
-
-  set(${out_var} "${out_list}" PARENT_SCOPE)
-endfunction()
-
-# Workaround for `list(SUBLIST ...)` implementation to workaround ;-escaped list implicit discarding.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/18946
-#
-function(ListSublist out_var begin_index length in_list_var)
-  # CAUTION: empty list with one empty string treats as an empty list
-  set(out_list "")
-  set(left_list "")
-  set(right_list "")
-
-  set(in_list "${${in_list_var}}")
-
-  list(LENGTH in_list in_list_len)
-
-  if (NOT in_list_len)
-    set(${out_var} "" PARENT_SCOPE)
-    return()
-  endif()
-
-  set(index_list "${ARGN}")
-
-  # WORKAROUND: number of empty strings at the beginning of a list to workaround empty elements in empty list collapsing issue
-  set(num_first_empty_strings 0)
-  set(is_collapse_passed 0)
-
-  set(index ${begin_index})
-  if (length GREATER_EQUAL 0)
-    math(EXPR index_upper "${begin_index}+${length}")
-  else()
-    list(LENGTH ${in_list_var} index_upper)
-  endif()
-
-  while(index LESS index_upper)
-    list(GET in_list ${index} value)
-    # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
-    #list(LENGTH value value_len)
-    #message("ListSublist: index=${index} [${value_len}] value=${value}")
-    # WORKAROUND: empty list with one empty string treats as an empty list
-    if (is_collapse_passed OR (NOT value STREQUAL ""))
-      list(APPEND right_list "${value}")
-      set(is_collapse_passed 1)
-    else()
-      # both are empty, counting empty strings instead of appending it
-      math(EXPR num_first_empty_strings "${num_first_empty_strings}+1")
-    endif()
-
-    math(EXPR index "${index}+1")
-  endwhile()
-
-  # join together
-  if (num_first_empty_strings GREATER 1)
-    set(left_list ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    math(EXPR index_max "${num_first_empty_strings}-3")
-    if (index_max GREATER_EQUAL 0)
-      foreach (index RANGE ${index_max})
-        list(APPEND left_list "")
-      endforeach()
-    endif()
-    if (right_list)
-      list(APPEND out_list "${left_list}" "${right_list}")
-    else()
-      set(out_list "${left_list}")
-    endif()
-  elseif (num_first_empty_strings)
-    if (right_list)
-      list(APPEND out_list "" "${right_list}")
-    endif()
-  else()
-    set(out_list "${right_list}")
-  endif()
-
-  set(${out_var} "${out_list}" PARENT_SCOPE)
-endfunction()
-
-# faster replacement of the ListRemoveAt for ranges
-function(ListRemoveSublist out_var begin_index length in_list_var)
-  # CAUTION: empty list with one empty string treats as an empty list
-  set(out_list "")
-  set(left_list "")
-  set(right_list "")
-
-  set(in_list "${${in_list_var}}")
-
-  list(LENGTH in_list in_list_len)
-
-  if (NOT in_list_len)
-    set(${out_var} "" PARENT_SCOPE)
-    return()
-  endif()
-
-  set(index_list "${ARGN}")
-
-  # WORKAROUND: number of empty strings at the beginning of a list to workaround empty elements in empty list collapsing issue
-  set(num_first_empty_strings 0)
-  set(is_collapse_passed 0)
-
-  set(index 0)
-
-  while(index LESS begin_index)
-    list(GET in_list ${index} value)
-    # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
-    #list(LENGTH value value_len)
-    #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
-    # WORKAROUND: empty list with one empty string treats as an empty list
-    if (is_collapse_passed OR (NOT value STREQUAL ""))
-      list(APPEND right_list "${value}")
-      set(is_collapse_passed 1)
-    else()
-      # both are empty, counting empty strings instead of appending it
-      math(EXPR num_first_empty_strings "${num_first_empty_strings}+1")
-    endif()
-
-    math(EXPR index "${index}+1")
-  endwhile()
-
-  if (length GREATER_EQUAL 0)
-    math(EXPR index "${begin_index}+${length}")
-
-    while(index LESS in_list_len)
-      list(GET in_list ${index} value)
-      # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
-      #list(LENGTH value value_len)
-      #message("ListRemoveSublist: index=${index} [${value_len}] value=${value}")
-      # WORKAROUND: empty list with one empty string treats as an empty list
-      if (is_collapse_passed OR (NOT value STREQUAL ""))
-        list(APPEND right_list "${value}")
-        set(is_collapse_passed 1)
-      else()
-        # both are empty, counting empty strings instead of appending it
-        math(EXPR num_first_empty_strings "${num_first_empty_strings}+1")
-      endif()
-
-      math(EXPR index "${index}+1")
-    endwhile()
-  endif()
-
-  # join together
-  if (num_first_empty_strings GREATER 1)
-    set(left_list ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    math(EXPR index_max "${num_first_empty_strings}-3")
-    if (index_max GREATER_EQUAL 0)
-      foreach (index RANGE ${index_max})
-        list(APPEND left_list "")
-      endforeach()
-    endif()
-    if (right_list)
-      list(APPEND out_list "${left_list}" "${right_list}")
-    else()
-      set(out_list "${left_list}")
-    endif()
-  elseif (num_first_empty_strings)
-    if (right_list)
-      list(APPEND out_list "" "${right_list}")
-    endif()
-  else()
-    set(out_list "${right_list}")
-  endif()
-
-  set(${out_var} "${out_list}" PARENT_SCOPE)
-endfunction()
-
-function(copy_variables)
+function(tkl_copy_vars)
   # ARGV0 - out_vars_all_list
   # ARGV1 - out_vars_filtered_list  (names)
   # ARGV2 - out_vars_values_list    (values)
   # ARGV3 - var_prefix_filter
   if (NOT ${ARGC} EQUAL 4)
-    message(FATAL_ERROR "copy_variables function must be called with all 4 arguments")
+    message(FATAL_ERROR "function must be called with all 4 arguments")
   endif()
 
   get_cmake_property(${ARGV0} VARIABLES)
@@ -399,7 +64,7 @@ function(copy_variables)
     endif()
 
     list(APPEND ${ARGV1} "${_24C487FA_var_name}")
-    #ListJoin(_24C487FA_var_value ${_24C487FA_var_name} "\;")
+    #tkl_list_join(_24C487FA_var_value ${_24C487FA_var_name} "\;")
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
     string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
     list(APPEND ${ARGV2} "${_24C487FA_var_value}")
@@ -408,7 +73,7 @@ function(copy_variables)
   endforeach()
 
   # remove 2 first dummy empty strings
-  ListRemoveSublist(${ARGV2} 0 2 ${ARGV2})
+  tkl_list_remove_sublist(${ARGV2} 0 2 ${ARGV2})
 
   #list(LENGTH ${ARGV1} vars_len)
   #list(LENGTH ${ARGV2} vals_len)
@@ -420,39 +85,15 @@ function(copy_variables)
   set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
 endfunction()
 
-macro(include_and_echo path)
+macro(tkl_include_and_echo path)
   message(STATUS "(*) Include: \"${path}\"")
   include(${path})
 endmacro()
 
-macro(unset_all var)
+macro(tkl_unset_all var)
   unset(${var})
   unset(${var} CACHE)
 endmacro()
-
-# returns "." if paths are equal
-function(subtract_absolute_paths from_path to_path var_out)
-  string(TOLOWER "${from_path}" from_path_lower)
-  string(TOLOWER "${to_path}" to_path_lower)
-
-  if (NOT from_path_lower STREQUAL "")
-    if (${to_path_lower} STREQUAL ${from_path_lower})
-      set(${var_out} "." PARENT_SCOPE)
-      return()
-    else()
-      file(RELATIVE_PATH rel_path ${to_path_lower} ${from_path_lower})
-      if (DEFINED rel_path)
-        string(SUBSTRING "${rel_path}" 0 2 rel_path_first_component)
-        if(NOT rel_path_first_component STREQUAL ".." AND NOT rel_path STREQUAL from_path_lower)
-          set(${var_out} ${rel_path} PARENT_SCOPE)
-          return()
-        endif()
-      endif()
-    endif()
-  endif()
-
-  set(${var_out} "" PARENT_SCOPE)
-endfunction()
 
 # CAUTION:
 #   Must be a function to avoid expansion of variable arguments like:
@@ -461,7 +102,7 @@ endfunction()
 #   * `\n` into the line return
 #   etc
 #
-function(encode_control_chars in_value out_var)
+function(tkl_encode_control_chars in_value out_var)
   string(REPLACE "\\" "\\\\" encoded_value "${in_value}")
   string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
@@ -476,7 +117,7 @@ endfunction()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(decode_control_chars in_value out_var)
+function(tkl_decode_control_chars in_value out_var)
   set(decoded_value "")
   set(index 0)
   set(is_escaping 0)
@@ -521,27 +162,27 @@ endfunction()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(make_argv_var_from_ARGV_begin argv_joined_list)
+function(tkl_make_var_from_ARGV_begin argv_joined_list argv_var)
   if (NOT "${ARGN}" STREQUAL "")
-    message(FATAL_ERROR "make_argv_var_from_ARGV_begin must have only 1 argument")
+    message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  encode_control_chars("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
+  tkl_encode_control_chars("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
 
   set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
-  unset(argv)
+  unset(${argv_var})
 endfunction()
 
-macro(make_argv_var_from_ARGV_end)
-  if (NOT ${ARGC} EQUAL 0)
-    message(FATAL_ERROR "make_argv_var_from_ARGV_end must not have arguments")
+macro(tkl_make_var_from_ARGV_end argv_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(argv ";")
+  set(${argv_var} ";")
   set(_BBD57550_argv_joined_list_accum ";")
 
   set(_BBD57550_var_index 0)
@@ -556,10 +197,10 @@ macro(make_argv_var_from_ARGV_end)
 
     ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
     #string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
-    list(APPEND argv "${_BBD57550_argv_value}")
+    list(APPEND ${argv_var} "${_BBD57550_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    encode_control_chars("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
+    tkl_encode_control_chars("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
 
     list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
 
@@ -567,7 +208,7 @@ macro(make_argv_var_from_ARGV_end)
   endwhile()
 
   # remove 2 first dummy empty strings
-  ListRemoveSublist(argv 0 2 argv)
+  tkl_list_remove_sublist(${argv_var} 0 2 ${argv_var})
 
   unset(_BBD57550_argv_joined_list)
   unset(_BBD57550_argv_joined_list_accum)
@@ -582,14 +223,18 @@ endmacro()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
+#
+# Params:
+#   argv_var - optional
+#   argn_var - required
+function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list argv_var argn_var)
   if (NOT "${ARGN}" STREQUAL "")
-    message(FATAL_ERROR "make_argn_var_from_ARGV_ARGN_begin must have only 2 argument")
+    message(FATAL_ERROR "function must have only 4 arguments")
   endif()
 
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  encode_control_chars("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
-  encode_control_chars("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
+  tkl_encode_control_chars("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
+  tkl_encode_control_chars("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
@@ -605,7 +250,7 @@ function(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
   if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";;")
     # offset could be with last empty element here
     string(FIND "${_9E220B1D_argv_joined_list}" "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_offset REVERSE)
-    # found substring must be the same size to the argn string length
+    # found substring must be the same size to the ARGN string length
     string(LENGTH "${_9E220B1D_argv_joined_list}" _9E220B1D_argv_joined_list_len)
     string(LENGTH "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_joined_list_len)
     math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
@@ -614,21 +259,30 @@ function(make_argn_var_from_ARGV_ARGN_begin argv_joined_list argn_joined_list)
     endif()
   endif()
 
-  unset(argn PARENT_SCOPE)
+  if (NOT "${argv_var}" STREQUAL "")
+    unset(${argv_var} PARENT_SCOPE)
+  endif()
+  unset(${argn_var} PARENT_SCOPE)
   set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
   set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list2 "${_9E220B1D_argv_joined_list2}" PARENT_SCOPE)
 endfunction()
 
-macro(make_argn_var_from_ARGV_ARGN_end)
-  if (NOT ${ARGC} EQUAL 0)
-    message(FATAL_ERROR "make_argn_var_from_ARGV_ARGN_end must not have arguments")
+# Params:
+#   argv_var - optional
+#   argn_var - required
+macro(tkl_make_vars_from_ARGV_ARGN_end argv_var argn_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   if (_9E220B1D_argn_offset GREATER_EQUAL 0)
     # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    set(argn ";")
+    if (NOT "${argv_var}" STREQUAL "")
+      set(${argv_var} ";")
+    endif()
+    set(${argn_var} ";")
     set(_9E220B1D_argv_joined_list_accum ";")
 
     math(EXPR _9E220B1D_argn_offset "${_9E220B1D_argn_offset}")
@@ -649,8 +303,13 @@ macro(make_argn_var_from_ARGV_ARGN_end)
         message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
       endif()
 
+      if (NOT "${argv_var}" STREQUAL "")
+        set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+        list(APPEND ${argv_var} "${_9E220B1D_argv_value}")
+      endif()
+
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -668,10 +327,13 @@ macro(make_argn_var_from_ARGV_ARGN_end)
       #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
       ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
       #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
-      list(APPEND argn "${_9E220B1D_argv_value}")
+      if (NOT "${argv_var}" STREQUAL "")
+        list(APPEND ${argv_var} "${_9E220B1D_argv_value}")
+      endif()
+      list(APPEND ${argn_var} "${_9E220B1D_argv_value}")
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -679,14 +341,20 @@ macro(make_argn_var_from_ARGV_ARGN_end)
     endwhile()
 
     # remove 2 first dummy empty strings
-    ListRemoveSublist(argn 0 2 argn)
+    if (NOT "${argv_var}" STREQUAL "")
+      tkl_list_remove_sublist(${argv_var} 0 2 ${argv_var})
+    endif()
+    tkl_list_remove_sublist(${argn_var} 0 2 ${argn_var})
 
     unset(_9E220B1D_argv_joined_list_accum)
     unset(_9E220B1D_var_index)
     unset(_9E220B1D_argv_value)
     unset(_9E220B1D_argv_value_encoded)
   else()
-    set(argn "")
+    if (NOT "${argv_var}" STREQUAL "")
+      set(${argv_var} "")
+    endif()
+    set(${argn_var} "")
   endif()
 
   unset(_9E220B1D_argv_joined_list)
@@ -706,19 +374,19 @@ endmacro()
 #   -P - Enumerate script arguments (including a script absolute file path) instead of a cmake process arguments
 #     (for the script mode only, where the cmake has called with the `-P` flag).
 #
-function(make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
+function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  make_argn_var_from_ARGV_ARGN_end()
-  #message("make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
-  #message("make_var_from_CMAKE_ARGV_ARGC: argn=${argn}")
+  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
+  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argn=${argn}")
 
   list(LENGTH argn argn_len)
   set(argn_index 0)
   set(set_script_args 0)
 
   # parse flags until no flags
-  parse_function_optional_flags_into_vars(
+  tkl_parse_function_optional_flags_into_vars(
     argn_index
     argn
     "P"
@@ -727,10 +395,10 @@ function(make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
     "")
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "make_var_from_CMAKE_ARGV_ARGC function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
+    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
   endif()
 
-  IsCmakeRole(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(SCRIPT is_in_script_mode)
   if (NOT is_in_script_mode)
     message(FATAL_ERROR "call must be made from the script mode only")
   endif()
@@ -780,7 +448,7 @@ function(make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
   set(${out_var} "${${out_var}}" PARENT_SCOPE)
 endfunction()
 
-function(set_ARGV)
+function(tkl_set_ARGV)
   set(argv_index 0)
 
   while (argv_index LESS ${ARGC})
@@ -793,7 +461,7 @@ function(set_ARGV)
   endif()
 endfunction()
 
-function(unset_ARGV)
+function(tkl_unset_ARGV)
   set(argv_index 0)
 
   while (argv_index LESS ARGC_)
@@ -804,7 +472,7 @@ function(unset_ARGV)
   unset(ARGC_ PARENT_SCOPE)
 endfunction()
 
-function(print_ARGV)
+function(tkl_print_ARGV)
   set(argn_index 0)
 
   while(argn_index LESS ARGC_)
@@ -841,12 +509,12 @@ endfunction()
 #   Format:
 #     [string_flag0\;set1_var0\;var0_0[...\;var0_N][...;string_flagK\;set1_varK\;varK_0[...\;varK_M]]]
 #
-macro(parse_function_optional_flags_into_vars func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list)
-  parse_function_optional_flags_into_vars_impl("${func_argv_index_var}" "${func_argv_var}" "${func_char_flags_list}"
+macro(tkl_parse_function_optional_flags_into_vars func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list)
+  tkl_parse_function_optional_flags_into_vars_impl("${func_argv_index_var}" "${func_argv_var}" "${func_char_flags_list}"
     "${set0_params_list}" "${set1_params_list}" "${multichar_flag_params_list}" "")
 endmacro()
 
-function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list flags_out_var)
+function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list flags_out_var)
   set(func_argv_index "${${func_argv_index_var}}")
   set(func_argv "${${func_argv_var}}")
 
@@ -1009,7 +677,7 @@ function(parse_function_optional_flags_into_vars_impl func_argv_index_var func_a
   endif()
 endfunction()
 
-function(make_cmdline_from_list out_var)
+function(tkl_make_cmdline_from_list out_var)
   set(cmdline "")
 
   foreach(arg IN LISTS ARGN)
@@ -1043,7 +711,7 @@ endfunction()
 
 # To escape characters from cmake builtin escape discarder which will discard escaping
 # from `;` and `\` characters on passing list items into function arguments.
-function(escape_list_expansion out_var in_list)
+function(tkl_escape_list_expansion out_var in_list)
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(escaped_list ";")
 
@@ -1059,87 +727,13 @@ function(escape_list_expansion out_var in_list)
   endforeach()
 
   # remove 2 first dummy empty strings
-  ListRemoveSublist(escaped_list 0 2 escaped_list)
+  tkl_list_remove_sublist(escaped_list 0 2 escaped_list)
 
   set(${out_var} "${escaped_list}" PARENT_SCOPE)
 endfunction()
 
-# Workaround for `file(LOCK ...)` to avoid immediate cmake exit in case of usage in the script mode.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/19007
-#
-function(FileLockFile file_path scope_type)
-  IsCmakeRole(SCRIPT is_in_script_mode)
-  if (NOT is_in_script_mode)
-    file(LOCK "${file_path}" GUARD ${scope_type})
-  else()
-    file(LOCK "${file_path}")
-  endif()
-endfunction()
-
-# CAUTION:
-#   Function must be without arguments to:
-#   1. support optional leading arguments like flags beginning by the `-` character
-#
-# Usage:
-#   [<flags>] <out_file_path>
-#
-# flags:
-#   --flock <flock_file>        - file lock to lock write into <out_file_path> file
-#
-# out_file_path:
-#   File path to write in.
-#
-function(write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
-  # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  make_argn_var_from_ARGV_ARGN_end()
-
-  list(LENGTH argn argn_len)
-  set(argn_index 0)
-
-  unset(flock_file_path)
-
-  # parse flags until no flags
-  parse_function_optional_flags_into_vars(
-    argn_index
-    argn
-    ""
-    ""
-    ""
-    "flock\;.\;flock_file_path")
-
-  if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "write_GENERATOR_IS_MULTI_CONFIG_into_file function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
-  endif()
-
-  if (DEFINED flock_file_path)
-    get_filename_component(flock_file_path_abs "${flock_file_path}" ABSOLUTE)
-    get_filename_component(flock_dir_path "${flock_file_path_abs}" DIRECTORY)
-    if (NOT IS_DIRECTORY "${flock_dir_path}")
-      message(FATAL_ERROR "--flock argument must be path to a file in existed directory: `${flock_file_path_abs}`")
-    endif()
-  endif()
-
-  list(GET argn ${argn_index} out_file_path)
-  math(EXPR argn_index "${argn_index}+1")
-
-  get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-
-  # create create/truncate output files and append values under flock
-  if (DEFINED flock_file_path)
-    FileLockFile("${flock_file_path}" FILE)
-  endif()
-
-  file(WRITE "${out_file_path}" "${GENERATOR_IS_MULTI_CONFIG}")
-
-  if (DEFINED flock_file_path)
-    file(LOCK "${flock_file_path}" RELEASE)
-    file(REMOVE "${flock_file_path}")
-  endif()
-endfunction()
-
 # portable role checker
-function(IsCmakeRole role_name var_out)
+function(tkl_get_cmake_role role_name var_out)
   if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14.0")
     # https://cmake.org/cmake/help/latest/prop_gbl/CMAKE_ROLE.html#prop_gbl:CMAKE_ROLE
     get_property(cmake_role GLOBAL PROPERTY CMAKE_ROLE)
@@ -1162,7 +756,7 @@ function(IsCmakeRole role_name var_out)
   endif()
 endfunction()
 
-function(is_path_variable_by_name is_var_out var_name)
+function(tkl_is_path_var_by_name is_var_out var_name)
   # variable name endings
   set (var_ending_strs
     _ROOT _PATH _DIR _SUBDIR _DIRECTORY _SUBDIRECTORY _FILE
@@ -1251,3 +845,5 @@ function(is_path_variable_by_name is_var_out var_name)
   #message("var_name=`${var_name}` is not PATH")
   set(${is_var_out} 0 PARENT_SCOPE)
 endfunction()
+
+endif()

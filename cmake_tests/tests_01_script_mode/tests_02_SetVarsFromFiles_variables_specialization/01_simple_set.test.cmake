@@ -1,10 +1,10 @@
-include(TestModule)
+include(tacklelib/testlib/TestModule)
 
 function(HellowTestWorld)
   message("hello testworld!")
-  TestAssertTrue(1 "success hello")
+  tkl_test_assert_true(1 "success hello")
 endfunction()
 
-TestModule_RunTestCases(
+tkl_testmodule_run_test_cases(
   HellowTestWorld
 )

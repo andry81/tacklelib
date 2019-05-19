@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.03.31
+* 2019.05.15
 * tacklelib
 
 1. DESCRIPTION
@@ -116,7 +116,7 @@ Legend:
   02 version:   N/A
   03 desc:      tacklelib library cmake modules
   04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/cmake
+  05 original:  [01] https://sf.net/p/tacklelib/cmake/tacklelib
                 [02] https://github.com/andry81/tacklelib--cmake.git
   06 build:     N/A
   07 linkage:   N/A

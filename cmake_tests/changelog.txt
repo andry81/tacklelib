@@ -1,3 +1,6 @@
+2019.05.14:
+* new: more tests in `01_make_args_from_ARGV_ARGN.test.cmake`
+
 2019.05.13:
 * fixed: `01_make_args_from_ARGV_ARGN.test.cmake` tests pass
 

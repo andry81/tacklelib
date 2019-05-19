@@ -1,3 +1,7 @@
+# inclusion guard for protection and speedup
+if (NOT DEFINED TACKLELIB_SET_VARS_FROM_FILES_INCLUDE_DEFINED)
+set(TACKLELIB_SET_VARS_FROM_FILES_INCLUDE_DEFINED 1)
+
 cmake_minimum_required(VERSION 3.13)
 
 # at least cmake 3.13 is required for:
@@ -29,8 +33,8 @@ cmake_minimum_required(VERSION 3.13)
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
-include(Std)
-include(Version)
+include(tacklelib/Std)
+include(tacklelib/Version)
 
 # TODO:
 #   * The same setter but from a command line file
@@ -158,28 +162,28 @@ include(Version)
 #   [<flags>] "<file_path0>[...\;<file_pathN>]"
 #
 # flags:
-#   The same as in `set_vars_from_files` function.
+#   The same as in `tkl_set_vars_from_files` function.
 #
-macro(load_vars_from_files) # WITH OUT ARGUMENTS!
-  load_vars_from_files_impl_init()
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
+macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
+  tkl_load_vars_from_files_impl_init()
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  set_ARGV(
+  tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #print_ARGV()
-  make_argn_var_from_ARGV_ARGN_end()
-  unset_ARGV()
-  load_vars_from_files_impl()
+  #tkl_print_ARGV()
+  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_unset_ARGV()
+  tkl_load_vars_from_files_impl()
 endmacro()
 
-macro(load_vars_from_files_impl_init)
-  set_vars_from_files_impl_init()
+macro(tkl_load_vars_from_files_impl_init)
+  tkl_set_vars_from_files_impl_init()
 endmacro()
 
-function(load_vars_from_files_impl) # WITH OUT ARGUMENTS!
+function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
   list(LENGTH argn argn_len)
   set(argn_index 0)
 
@@ -189,7 +193,7 @@ function(load_vars_from_files_impl) # WITH OUT ARGUMENTS!
   set(save_state_into_cmake_global_properties 0)
 
   # copy all flag parameters into a variable without parsing them
-  parse_function_optional_flags_into_vars_impl(
+  tkl_parse_function_optional_flags_into_vars_impl(
     argn_index
     argn
     "p;e;E;a"
@@ -205,8 +209,8 @@ grant_assign_vars_as_top_package_in_files\;.\;.;\
 grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
 grant_subpackage_assign_ignore_in_files\;.\;.;\
-grant_assign_for_variables\;.\;.;\
-grant_assign_on_variables_change\;.\;.;\
+grant_assign_for_vars\;.\;.;\
+grant_assign_on_vars_change\;.\;.;\
 include_vars_filter\;.\;.;\
 exclude_vars_filter\;.\;.;\
 load_state_from_cmake_global_properties\;load_state_from_cmake_global_properties\;.;\
@@ -216,11 +220,11 @@ make_vars\;.\;.\;."
   )
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "load_vars_from_files function must be called at least with 1 variadic argument: argn_len=${argn_len} argn_index=${argn_index}")
+    message(FATAL_ERROR "function function must be called at least with 1 variadic argument: argn_len=${argn_len} argn_index=${argn_index}")
   endif()
 
   # CMAKE_BUILD_TYPE consistency check
-  check_CMAKE_BUILD_TYPE_vs_multiconfig()
+  tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
 
   list(GET argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
@@ -236,7 +240,7 @@ make_vars\;.\;.\;."
   endif()
   list(APPEND flag_vars "--ignore_late_expansion_statements")
 
-  set_vars_from_files_impl_with_args(${flag_args} "${file_paths}" "" "" "${CMAKE_BUILD_TYPE}" "" "")
+  tkl_set_vars_from_files_impl_with_args(${flag_args} "${file_paths}" "" "" "${CMAKE_BUILD_TYPE}" "" "")
 endfunction()
 
 # CAUTION:
@@ -289,10 +293,10 @@ endfunction()
 #   --exclude_vars_filter <exclude_vars_filter_list>
 #                               - list of variables excluded to assign
 #
-#   --grant_assign_for_variables <grant_assign_for_variables_list>
+#   --grant_assign_for_vars <grant_assign_for_vars_list>
 #                               - list of variables which has ganted unconditional assignment permission without any other conditions.
 #
-#   --grant_assign_on_variables_change <grant_assign_on_variables_change_list>
+#   --grant_assign_on_vars_change <grant_assign_on_vars_change_list>
 #                               - list of variables which grants unconditional assignment permission on variables with different name if
 #                                 previous assignment was with a different value to any of these variables.
 #                                 Useful for unconditional assignment of variables from different packages or source directories.
@@ -317,37 +321,37 @@ endfunction()
 #
 # PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM BEING PARSED FILE:
 #
-# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:     Index in a file paths list from which this file have has an ordered load.
-# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:       Directory path from which this file being loaded from.
-# CMAKE_CURRENT_PACKAGE_NEST_LVL:         Current package nest level.
-# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:  Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
-# CMAKE_CURRENT_PACKAGE_NAME:             Current package name this file being loaded from.
-# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:       Current package source directory this file being loaded from.
-# CMAKE_TOP_PACKAGE_NAME:                 Top package name.
-# CMAKE_TOP_PACKAGE_SOURCE_DIR:           Top package source directory.
+# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:         Index in a file paths list from which this file have has an ordered load.
+# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:           Directory path from which this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL:             Current package nest level.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:      Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
+# CMAKE_CURRENT_PACKAGE_NAME:                 Current package name this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:           Current package source directory this file being loaded from.
+# CMAKE_TOP_PACKAGE_NAME_NAME:                Top package name.
+# CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:          Top package source directory.
 #
-macro(set_vars_from_files) # WITH OUT ARGUMENTS!
+macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   if (NOT ${ARGC} GREATER_EQUAL 6)
-    message(FATAL_ERROR "set_vars_from_files function must be called at least with 6 not optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called at least with 6 not optional arguments: ${ARGC}")
   endif()
 
   #message("ARGV=${ARGV}")
-  set_vars_from_files_impl_init()
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
+  tkl_set_vars_from_files_impl_init()
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  set_ARGV(
+  tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #print_ARGV()
-  make_argn_var_from_ARGV_ARGN_end()
-  unset_ARGV()
-  set_vars_from_files_impl_no_args_func()
+  #tkl_print_ARGV()
+  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_unset_ARGV()
+  tkl_set_vars_from_files_impl_no_args_func()
 endmacro()
 
-macro(set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
-  copy_variables(parent_all_vars_list parent_vars_list parent_var_values_list _5A06EEFA_)
+macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
+  tkl_copy_vars(parent_all_vars_list parent_vars_list parent_var_values_list _5A06EEFA_)
 
   #list(LENGTH parent_vars_list parent_vars_list_len)
   #list(LENGTH parent_var_values_list parent_var_values_list_len)
@@ -355,35 +359,35 @@ macro(set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
   #message("[${parent_var_values_list_len}] parent_var_values_list=${parent_var_values_list}")
 
   # Parent variable are saved, now can create local variables!
-  IsCmakeRole(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(SCRIPT is_in_script_mode)
 
   if (NOT is_in_script_mode)
     # CMAKE_CONFIGURATION_TYPES consistency check, in case if not script mode
-    check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
+    tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
   endif()
 endmacro()
 
-macro(set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
+macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
   # we must recollect arguments here, because this implementation can be used separately with standalone arguments
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  set_ARGV(
+  tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #print_ARGV()
-  make_argn_var_from_ARGV_ARGN_end()
-  unset_ARGV()
+  #tkl_print_ARGV()
+  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_unset_ARGV()
 
-  set_vars_from_files_impl_no_args_macro()
+  tkl_set_vars_from_files_impl_no_args_macro()
 endmacro()
 
-function(set_vars_from_files_impl_no_args_func) # WITH OUT ARGUMENTS!
-  set_vars_from_files_impl_no_args_macro()
+function(tkl_set_vars_from_files_impl_no_args_func) # WITH OUT ARGUMENTS!
+  tkl_set_vars_from_files_impl_no_args_macro()
 endfunction()
 
-macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
+macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   list(LENGTH argn argn_len)
   set(argn_index 0)
 
@@ -407,8 +411,8 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   unset(grant_assign_vars_as_final_in_files_list)
   unset(grant_assign_vars_by_override_in_files_list)
   unset(grant_subpackage_assign_ignore_in_files_list)
-  unset(grant_assign_for_variables)
-  unset(grant_assign_on_variables_change_list)
+  unset(grant_assign_for_vars)
+  unset(grant_assign_on_vars_change_list)
   unset(include_vars_filter_list)
   unset(exclude_vars_filter_list)
   unset(load_state_from_cmake_global_properties_prefix)
@@ -417,7 +421,7 @@ macro(set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   unset(make_vars_values)
 
   # parse flags until no flags
-  parse_function_optional_flags_into_vars(
+  tkl_parse_function_optional_flags_into_vars(
     argn_index
     argn
     "p;e;E;a"
@@ -434,8 +438,8 @@ grant_assign_vars_as_top_package_in_files\;.\;grant_assign_vars_as_top_package_i
 grant_assign_vars_as_final_in_files\;.\;grant_assign_vars_as_final_in_files_list;\
 grant_assign_vars_by_override_in_files\;.\;grant_assign_vars_by_override_in_files_list;\
 grant_subpackage_assign_ignore_in_files\;.\;grant_subpackage_assign_ignore_in_files_list;\
-grant_assign_for_variables\;.\;grant_assign_for_variables_list;\
-grant_assign_on_variables_change\;.\;grant_assign_on_variables_change_list;\
+grant_assign_for_vars\;.\;grant_assign_for_vars_list;\
+grant_assign_on_vars_change\;.\;grant_assign_on_vars_change_list;\
 include_vars_filter\;.\;include_vars_filter_list;exclude_vars_filter\;.\;exclude_vars_filter_list;\
 load_state_from_cmake_global_properties\;.\;load_state_from_cmake_global_properties_prefix;\
 save_state_into_cmake_global_properties\;.\;save_state_into_cmake_global_properties_prefix;\
@@ -480,19 +484,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(GET argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(os_name argn ${argn_index})
+  tkl_list_get(os_name argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(compiler_name argn ${argn_index})
+  tkl_list_get(compiler_name argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(config_name argn ${argn_index})
+  tkl_list_get(config_name argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(arch_name argn ${argn_index})
+  tkl_list_get(arch_name argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(list_separator_char argn ${argn_index})
+  tkl_list_get(list_separator_char argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
   set(use_vars_late_expansion 0)
@@ -507,16 +511,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     set(use_vars_late_expansion 1)
 
-    ListGet(out_var_config_gen_var_lines_list argn ${argn_index})
+    tkl_list_get(out_var_config_gen_var_lines_list argn ${argn_index})
     math(EXPR argn_index "${argn_index}+1")
 
-    ListGet(out_var_config_gen_vars_list argn ${argn_index})
+    tkl_list_get(out_var_config_gen_vars_list argn ${argn_index})
     math(EXPR argn_index "${argn_index}+1")
 
-    ListGet(out_var_config_gen_names_list argn ${argn_index})      # single ;-escaped configuration names list per variable, the `*` name means `all others`
+    tkl_list_get(out_var_config_gen_names_list argn ${argn_index})      # single ;-escaped configuration names list per variable, the `*` name means `all others`
     math(EXPR argn_index "${argn_index}+1")
 
-    ListGet(out_var_config_gen_values_list argn ${argn_index})     # double ;-escaped values list per configuration name per variable
+    tkl_list_get(out_var_config_gen_values_list argn ${argn_index})     # double ;-escaped values list per configuration name per variable
     math(EXPR argn_index "${argn_index}+1")
   endif()
 
@@ -554,7 +558,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   string(TOUPPER "${config_name}" config_name_upper)
   string(TOUPPER "${arch_name}" arch_name_upper)
 
-  IsCmakeRole(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(SCRIPT is_in_script_mode)
 
   set(compare_var_path_values_as_case_sensitive 1)
 
@@ -582,11 +586,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   if (compiler_name STREQUAL "" AND NOT is_in_script_mode)
     if (MSVC)
-      get_msvc_version_token(compiler_name_to_filter)
+      tkl_get_msvc_version_token(compiler_name_to_filter)
     elseif (GCC)
-      get_gcc_version_token(compiler_name_to_filter)
+      tkl_get_gcc_version_token(compiler_name_to_filter)
     elseif (CLANG)
-      get_clang_version_token(compiler_name_to_filter)
+      tkl_get_clang_version_token(compiler_name_to_filter)
     else()
       message(FATAL_ERROR "compiler is not supported")
     endif()
@@ -628,8 +632,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   # load state
   set(config_load_index -1)
   set(config_package_nest_lvl -1)
-  if (DEFINED CMAKE_CURRENT_PACKAGE_NEST_LVL)
-    set(config_package_nest_lvl ${CMAKE_CURRENT_PACKAGE_NEST_LVL})
+  if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    set(config_package_nest_lvl ${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL})
   endif()
 
   if (load_state_from_cmake_global_properties_prefix)
@@ -693,7 +697,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     CMAKE_CURRENT_LOAD_VARS_FILE_INDEX;CMAKE_CURRENT_LOAD_VARS_FILE_DIR
     CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX
     CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR
-    CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR)
+    CMAKE_TOP_PACKAGE_NAME_NAME;CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR)
 
   foreach (injected_var_name IN LISTS injected_vars_list)
     if (injected_var_name STREQUAL "")
@@ -786,7 +790,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   # create create/truncate output files under flock
   if (DEFINED flock_file_path)
-    FileLockFile("${flock_file_path}" FILE)
+    tkl_file_lock("${flock_file_path}" FILE)
   endif()
   if (NOT append_to_files)
     if (DEFINED var_lines_file_path)
@@ -840,19 +844,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endif()
 
     if ((NOT make_vars_names) OR (NOT "CMAKE_CURRENT_PACKAGE_NAME" IN_LIST make_vars_names))
-      if (DEFINED CMAKE_CURRENT_PACKAGE_NAME)
-        set(config_CMAKE_CURRENT_PACKAGE_NAME "${CMAKE_CURRENT_PACKAGE_NAME}")
+      if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME)
+        set(config_CMAKE_CURRENT_PACKAGE_NAME "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       else()
         # use special unexisted directory value to differentiate it from the defined empty value
-        set(config_CMAKE_CURRENT_PACKAGE_NAME "*\$/{CMAKE_CURRENT_PACKAGE_NAME}")
+        set(config_CMAKE_CURRENT_PACKAGE_NAME "*\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       endif()
     endif()
     if ((NOT make_vars_names) OR (NOT "CMAKE_CURRENT_PACKAGE_SOURCE_DIR" IN_LIST make_vars_names))
-      if (DEFINED CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
-        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+      if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "${TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
       else()
         # use special unexisted directory value to differentiate it from the defined empty value
-        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "*\$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "*\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
       endif()
     endif()
 
@@ -1159,7 +1163,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       if (NOT var_compiler_name_to_process STREQUAL "")
         if (NOT compiler_name_to_filter STREQUAL "")
-          compare_compiler_tokens("${var_compiler_name_to_process}" "${compiler_name_to_filter}" is_equal_config_compilers)
+          tkl_compare_compiler_tokens("${var_compiler_name_to_process}" "${compiler_name_to_filter}" is_equal_config_compilers)
           if (NOT is_equal_config_compilers)
             # silently ignore valid tokens that didn't pass the filter
             continue()
@@ -1229,8 +1233,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # check variable on a collision to prevent the assignment
       set(do_collision_check 1)
 
-      if (grant_assign_for_variables_list)
-        foreach(grant_var_name IN LISTS grant_assign_for_variables_list)
+      if (grant_assign_for_vars_list)
+        foreach(grant_var_name IN LISTS grant_assign_for_vars_list)
           if (grant_var_name STREQUAL var_name)
             set(do_collision_check 0)
             break()
@@ -1239,15 +1243,15 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       endif()
 
       if (do_collision_check AND config_${var_name}_has_values_onchange_list AND
-          grant_assign_on_variables_change_list AND NOT var_name IN_LIST grant_assign_on_variables_change_list)
+          grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
         set(onchange_var_name_index -1)
         list(LENGTH config_${var_name}_var_values_onchange_list onchange_var_values_len)
 
-        foreach(onchange_var_name IN LISTS grant_assign_on_variables_change_list)
+        foreach(onchange_var_name IN LISTS grant_assign_on_vars_change_list)
           math(EXPR onchange_var_name_index "${onchange_var_name_index}+1")
 
           if (onchange_var_name_index LESS onchange_var_values_len)
-            ListGet(onchange_var_prev_value config_${var_name}_var_values_onchange_list ${onchange_var_name_index})
+            tkl_list_get(onchange_var_prev_value config_${var_name}_var_values_onchange_list ${onchange_var_name_index})
           else()
             set(onchange_var_prev_value "")
           endif()
@@ -1576,9 +1580,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
 
           # remove 2 first dummy empty strings
-          ListRemoveSublist(var_values_list 0 2 var_values_list)
+          tkl_list_remove_sublist(var_values_list 0 2 var_values_list)
 
-          ListJoin(var_values_joined_list var_values_list "${list_separator_char}")
+          tkl_list_join(var_values_joined_list var_values_list "${list_separator_char}")
 
           set(set_vars_to_files -1) # unknown or not need to know
           if ((NOT is_config_name_value_can_late_expand) OR (var_config_name STREQUAL ""))
@@ -1599,7 +1603,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(is_path_var_value 1)
             elseif (NOT compare_var_path_values_as_case_sensitive)
               # detect variable type by variable name variants
-              is_path_variable_by_name(is_path_var_value "${var_name}")
+              tkl_is_path_var_by_name(is_path_var_value "${var_name}")
             endif()
           endif()
 
@@ -1645,7 +1649,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
           else()
             # validate if variable has already existed and is an ODR variable
-            ListGet(var_first_value var_values_list 0)
+            tkl_list_get(var_first_value var_values_list 0)
 
             set(var_parsed_value "${var_first_value}")
 
@@ -1809,12 +1813,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_final_var 0)
             endif()
 
-            if (grant_assign_on_variables_change_list AND NOT var_name IN_LIST grant_assign_on_variables_change_list)
+            if (grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
               # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
               set(config_${var_name}_var_values_onchange_list ";")
               set(config_${var_name}_has_values_onchange_list 1)
 
-              foreach (onchange_var_name IN LISTS grant_assign_on_variables_change_list)
+              foreach (onchange_var_name IN LISTS grant_assign_on_vars_change_list)
                 if (DEFINED config_${onchange_var_name})
                   list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
                 else()
@@ -1824,7 +1828,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endforeach()
 
               # remove 2 first dummy empty strings
-              ListRemoveSublist(config_${var_name}_var_values_onchange_list 0 2 config_${var_name}_var_values_onchange_list)
+              tkl_list_remove_sublist(config_${var_name}_var_values_onchange_list 0 2 config_${var_name}_var_values_onchange_list)
             endif()
 
             set(config_${var_name}_defined 1)
@@ -1960,7 +1964,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endforeach()
 
     # remove 2 first dummy empty strings
-    ListRemoveSublist(config_gen_values_list 0 2 config_gen_values_list1)
+    tkl_list_remove_sublist(config_gen_values_list 0 2 config_gen_values_list1)
   else()
     # reset to 0 length
     set(config_gen_values_list "")
@@ -1983,21 +1987,21 @@ endmacro()
 #     [<out_var_config_gen_var_lines_list> <out_var_config_gen_vars_list> <out_var_config_gen_names_list> <out_var_config_gen_values_list>]
 #
 # flags:
-#   The same as in `set_vars_from_files` function plus these:
+#   The same as in `tkl_set_vars_from_files` function plus these:
 #   -F - additionally set full complement variables (if instead of multi variant configuration set has used only the all placeholder - `*`,
 #        this means `all configurations` (these kind of variables does not need to be set in this stage because already has been set in previous))
 #
-function(set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
+function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   if (NOT ${ARGC} GREATER_EQUAL 4)
-    message(FATAL_ERROR "set_vars_from_files function must be called at least with 4 not optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called at least with 4 not optional arguments: ${ARGC}")
   endif()
 
   # CMAKE_CONFIGURATION_TYPES consistency check
-  check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
+  tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
 
-  make_argn_var_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}")
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  make_argn_var_from_ARGV_ARGN_end()
+  tkl_make_vars_from_ARGV_ARGN_end("" argn)
 
   set(argn_index 0)
 
@@ -2013,7 +2017,7 @@ function(set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   unset(flock_file_path)
 
   # parse flags until no flags
-  parse_function_optional_flags_into_vars(
+  tkl_parse_function_optional_flags_into_vars(
     argn_index
     argn
     "p;e;E;F;a"
@@ -2028,8 +2032,8 @@ grant_assign_vars_as_top_package_in_files\;.\;.;\
 grant_assign_vars_as_final_in_files\;.\;.;\
 grant_assign_vars_by_override_in_files\;.\;.;\
 grant_subpackage_assign_ignore_in_files\;.\;.;\
-grant_assign_for_variables\;.\;.;\
-grant_assign_on_variables_change\;.\;.;\
+grant_assign_for_vars\;.\;.;\
+grant_assign_on_vars_change\;.\;.;\
 include_vars_filter\;.\;.;\
 exclude_vars_filter\;.\;.;\
 load_state_from_cmake_global_properties\;.\;.;\
@@ -2066,16 +2070,16 @@ make_vars\;.\;.\;."
     endif()
   endif()
 
-  ListGet(config_gen_var_lines_list_var argn ${argn_index})
+  tkl_list_get(config_gen_var_lines_list_var argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(config_gen_vars_list_var argn ${argn_index})
+  tkl_list_get(config_gen_vars_list_var argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(config_gen_names_list_var argn ${argn_index})
+  tkl_list_get(config_gen_names_list_var argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  ListGet(config_gen_values_list_var argn ${argn_index})
+  tkl_list_get(config_gen_values_list_var argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
   set(config_gen_var_lines_list "${${config_gen_var_lines_list_var}}")
@@ -2096,7 +2100,7 @@ make_vars\;.\;.\;."
 
   # create create/truncate output files and append values under flock
   if (DEFINED flock_file_path)
-    FileLockFile("${flock_file_path}" FILE)
+    tkl_file_lock("${flock_file_path}" FILE)
   endif()
   if (NOT append_to_files)
     if (DEFINED var_lines_file_path)
@@ -2214,3 +2218,5 @@ make_vars\;.\;.\;."
     file(REMOVE "${flock_file_path}")
   endif()
 endfunction()
+
+endif()

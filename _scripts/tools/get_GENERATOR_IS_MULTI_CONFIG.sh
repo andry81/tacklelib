@@ -57,7 +57,7 @@ function get_GENERATOR_IS_MULTI_CONFIG()
 
   # arguments: <out_file_file>
   CallAndPrintIf "(( TOOLS_VERBOSE ))" cmake -G "$CMAKE_GENERATOR" "-DCMAKE_MODULE_PATH=$PROJECT_ROOT/cmake" \
-  -P "$PROJECT_ROOT/cmake/tools/GeneratorIsMulticonfig.cmd.cmake" \
+  -P "$PROJECT_ROOT/cmake/tacklelib/tools/GeneratorIsMulticonfig.cmd.cmake" \
   --flock "$TEMP_OUTPUT_DIR/lock" "$TEMP_OUTPUT_DIR/var_values.lst" || return $?
 
   echo "GENERATOR_IS_MULTI_CONFIG" > "$TEMP_OUTPUT_DIR/var_names.lst" || return $?

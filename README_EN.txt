@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.06
+* 2019.05.19
 * tacklelib
 
 1. DESCRIPTION
@@ -117,113 +117,117 @@ and the Linux platforms.
 
 <root>
  |
- +- /"_3dparty"
+ +- /`_3dparty`
  |  #
  |  # Local 3dparty dependencies catalog.
  |
- +- /"_out"
+ +- /`_out`
  |  #
  |  # Temporary directory with build output.
  |
- +- /"_scripts"
+ +- /`_scripts`
  |  | #
  |  | # Scripts to generate, configure, build, install and pack the entire
  |  | # solution.
  |  | # Contains special `__init*__` script to allocate basic environment
  |  | # variables and make common preparations.
  |  |
- |  +-/"bash_entry"
+ |  +-/`bash_entry`
  |  |   #
  |  |   # Script for inclusion into all unix bash shell scripts a basic
  |  |   # functionality directly from the root `/bin` directory. Must be
  |  |   # appropriately copied into the `/bin` directory before the usage any
  |  |   # of below unix bash shell scripts.
  |  |
- |  +-/"01_generate_src.*"
+ |  +-/`01_generate_src.*`
  |  |   #
  |  |   # Script to generate source files in the root project and local 3dparty
  |  |   # subprojects and libraries which are should not be included in a
  |  |   # version control system.
  |  |
- |  +-/"02_generate_config.*"
+ |  +-/`02_generate_config.*`
  |  |   #
  |  |   # Script to generate configuration files in the `config` subdirectory
  |  |   # which are should not be included in a version control system.
  |  |
- |  +-/"03_configure.*"
+ |  +-/`03_configure.*`
  |  |   #
  |  |   # Script to call cmake configure step.
  |  |
- |  +-/"04_build.*"
+ |  +-/`04_build.*`
  |  |   #
  |  |   # Script to call cmake build step on an arbitrary target.
  |  |
- |  +-/"05_install.*"
+ |  +-/`05_install.*`
  |  |   #
  |  |   # Script to call cmake install step on the install target.
  |  |
- |  +-/"06_post_install.*"
+ |  +-/`06_post_install.*`
  |  |   #
  |  |   # Script to call not cmake post install step.
  |  |
- |  +-/"06_pack.*"
+ |  +-/`06_pack.*`
  |      #
  |      # Script to call cmake pack step on the bundle target.
  |
- +- /"cmake"
+ +- /`cmake`
  |    #
  |    # Directory with external cmake modules.
  |
- +- /"config"
+ +- /`cmake_tests`
+ |    #
+ |    # Directory with tests for cmake modules from the `cmake` subdirectory.
+ |
+ +- /`config`
  |  | #
  |  | # Directory with build configuration files.
  |  |
- |  +- /"_scripts
+ |  +- /`_scripts`
  |  |    #
  |  |    # Directory with text files conaining command lines for scripts from
  |  |    # `/_scripts` directory
  |  |
- |  +- "environment_system.vars.in"
+ |  +- `environment_system.vars.in`
  |  |   #
  |  |   # Template file with system set of environment variables
- |  |   # designed to be stored in version control system.
+ |  |   # designed to be stored in a version control system.
  |  |
- |  +- "environment_system.vars"
+ |  +- `environment_system.vars`
  |  |   #
  |  |   # Generated temporary file from `*.in` file with set of system
  |  |   # customized environment variables to set them locally.
  |  |   # Loads after the global/3dparty environment configuration file(s) but
  |  |   # before the user customized environment variables file.
  |  |
- |  +- "environment_user.vars.in"
+ |  +- `environment_user.vars.in`
  |  |   #
  |  |   # Template file with user set of environment variables
- |  |   # designed to be stored in version control system.
+ |  |   # designed to be stored in a version control system.
  |  |
- |  +- "environment_user.vars"
+ |  +- `environment_user.vars`
  |      #
  |      # Generated temporary file with set of user customized environment
  |      # variables to set them locally.
  |      # Loads after the system customized environment variables file.
  |
- +- /"deploy"
+ +- /`deploy`
  |    #
  |    # Directory to deploy files in postinstall phase.
  |
- +- /"doc"
+ +- /`doc`
  |    #
  |    # Directory with documentation files.
  |
- +- /"include"
+ +- /`include`
  |    #
  |    # Directory with public includes.
  |
- +- /"src"
+ +- /`src`
  |    #
  |    # Directory with sources to build.
  |
  |
- +- "CMakeLists.txt" 
+ +- `CMakeLists.txt`
      #
      # The cmake catalog root description file.
 
@@ -231,8 +235,8 @@ and the Linux platforms.
 7. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-* config/environment_system.vars
-* config/environment_user.vars
+* `config/environment_system.vars`
+* `config/environment_user.vars`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.
@@ -264,15 +268,15 @@ command in the `CMakeLists.txt` file, otherwise the error will be thrown.
 Optional variables to pinpoint the most top parent project root and the current
 project root. Has used as base variables to point project local 3dparty
 directories. Must be initialized from respective builtin
-CMAKE_TOP_PACKAGE_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
-variables which does initialize after the `configure_environment`
-(`/cmake/Common.cmake`) macro call.
+CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
+variables which does initialize after the `tkl_configure_environment`
+(`/cmake/tackelib/Project.cmake`) macro call.
 
 * _3DPARTY_GLOBAL_ROOTS_LIST, _3DPARTY_GLOBAL_ROOTS_FILE_LIST
 
 Optional variables which does define directories and files as a Cartesian
-product and has used from the `FindGlobal3dpartyEnvironments` function
-(`/cmake/FindGlobal3dpartyEnvironments.cmake`).
+product and has used from the `find_global_3dparty_environments` function
+(`/cmake/tacklelib/_3dparty/Global3dparty.cmake`).
 Is required in case of a global or an external 3dparty project or library
 which is not a local part of the project.
 Loads at first before the `/config/environment_system.vars` and

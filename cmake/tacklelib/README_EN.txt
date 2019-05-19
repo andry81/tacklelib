@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.07
+* 2019.05.15
 * tacklelib--cmake
 
 1. DESCRIPTION
@@ -17,7 +17,7 @@ Windows and Linux platforms separately but with the same configuration files
 and variables.
 
 The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/trunk/cmake
+  https://sf.net/p/tacklelib/tacklelib/trunk/cmake/tacklelib
   or
   https://sf.net/p/tacklelib/cmake
 
@@ -35,7 +35,7 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
+  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake/tacklelib
   or
   * https://svn.code.sf.net/p/tacklelib/cmake/trunk
 First mirror:

@@ -1,5 +1,5 @@
-include(TestLib)
+include(tacklelib/testlib/TestLib)
 
-TestLib_Init()
+tkl_testlib_init()
 
-TestLib_Directory(tests_02_build_mode)
+tkl_testlib_enter_dir(tests_02_build_mode)

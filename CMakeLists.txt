@@ -46,14 +46,14 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ## cmake builtin search paths and includes ####################################
 ###############################################################################
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake;${CMAKE_CURRENT_LIST_DIR}/cmake/_3dparty")
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake;${CMAKE_CURRENT_LIST_DIR}/cmake/tacklelib/_3dparty/modules")
 
 # cmake extension variables, must be before the first include
-#set(ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS 1) # 0 - macro invokers, faster; 1 - function invokers, slower
+#set(TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS 1) # 0 - macro invokers, faster; 1 - function invokers, slower
 
-include(Common)
-include(EnableTargetsExtension)
-include(_3dparty/Qt)
+include(tacklelib/Project)
+include(tacklelib/EnableTargetsExtension)
+include(tacklelib/_3dparty/Qt)
 
 ###############################################################################
 ## builtin detection ##########################################################
@@ -66,70 +66,66 @@ set(PROJECT_LIB_NAME tacklelib)
 set(LIB_TARGET_NAME ${PROJECT_LIB_NAME})
 set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 
-configure_environment("MSVC;GCC")
-
-if (GCC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif()
+tkl_configure_environment("${TACKLELIB_LINK_TYPE}" "MSVC;GCC")
 
 ###############################################################################
 ## check environment variables ################################################
 ###############################################################################
 
-check_variable(REQUIRED . TACKLELIB_ADDRESS_MODEL)
-check_variable(REQUIRED . TACKLELIB_LINK_TYPE)
+tkl_check_var(REQUIRED . TACKLELIB_ADDRESS_MODEL)
+tkl_check_var(REQUIRED . TACKLELIB_LINK_TYPE)
 
-check_variable(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
+tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
-check_variable(OPTIONAL PATH CMAKE_LIBRARY_PATH)
-check_variable(OPTIONAL PATH NSIS_INSTALL_ROOT)
+tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH)
+tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
 
 # multi
 
-check_variable(REQUIRED PATH BOOST_ROOT)
-check_variable(REQUIRED . Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+tkl_check_var(REQUIRED PATH BOOST_ROOT)
+tkl_check_var(REQUIRED . Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 
 # utility
 
-check_variable(REQUIRED PATH UTILITY_FMT_ROOT)
-check_variable(OPTIONAL PATH UTILITY_PYSTRING_ROOT)
+tkl_check_var(REQUIRED PATH UTILITY_FMT_ROOT)
+tkl_check_var(OPTIONAL PATH UTILITY_PYSTRING_ROOT)
 
 # math
 
-check_variable(OPTIONAL PATH QD_ROOT)
-check_variable(OPTIONAL . ENABLE_QD_INTEGRATION)
-check_variable(OPTIONAL . ENABLE_QD_QD_INTEGRATION)
-check_variable(OPTIONAL . ENABLE_QD_DD_INTEGRATION)
+tkl_check_var(OPTIONAL PATH QD_ROOT)
+tkl_check_var(OPTIONAL . ENABLE_QD_INTEGRATION)
+tkl_check_var(OPTIONAL . ENABLE_QD_QD_INTEGRATION)
+tkl_check_var(OPTIONAL . ENABLE_QD_DD_INTEGRATION)
 
 # log
 
-check_variable(OPTIONAL PATH LOG_P7_CLIENT_ROOT)
+tkl_check_var(OPTIONAL PATH LOG_P7_CLIENT_ROOT)
 
 # arc
 
-check_variable(REQUIRED PATH ARC_LIBARCHIVE_ROOT)
-check_variable(REQUIRED . ENABLE_LZMA)
-check_variable(REQUIRED . ENABLE_TAR)
-check_variable(REQUIRED . ENABLE_CPIO)
-check_variable(REQUIRED . ENABLE_CAT)
-check_variable(REQUIRED . ENABLE_TEST)
-check_variable(REQUIRED . ENABLE_COVERAGE)
-check_variable(REQUIRED . ENABLE_INSTALL)
+tkl_check_var(REQUIRED PATH ARC_LIBARCHIVE_ROOT)
+tkl_check_var(REQUIRED . ENABLE_LZMA)
+tkl_check_var(REQUIRED . ENABLE_TAR)
+tkl_check_var(REQUIRED . ENABLE_CPIO)
+tkl_check_var(REQUIRED . ENABLE_CAT)
+tkl_check_var(REQUIRED . ENABLE_TEST)
+tkl_check_var(REQUIRED . ENABLE_COVERAGE)
+tkl_check_var(REQUIRED . ENABLE_INSTALL)
 
-check_variable(REQUIRED PATH ARC_XZ_UTILS_ROOT)
-check_variable(REQUIRED PATH LIBLZMA_INCLUDE_DIR)
-check_variable(REQUIRED PATH LIBLZMA_LIBRARY)
-check_variable(REQUIRED . LIBLZMA_HAS_AUTO_DECODER)
-check_variable(REQUIRED . LIBLZMA_HAS_EASY_ENCODER)
-check_variable(REQUIRED . LIBLZMA_HAS_LZMA_PRESET)
+tkl_check_var(REQUIRED PATH ARC_XZ_UTILS_ROOT)
+tkl_check_var(REQUIRED PATH LIBLZMA_INCLUDE_DIR)
+tkl_check_var(REQUIRED PATH LIBLZMA_LIBRARY)
+tkl_check_var(REQUIRED . LIBLZMA_HAS_AUTO_DECODER)
+tkl_check_var(REQUIRED . LIBLZMA_HAS_EASY_ENCODER)
+tkl_check_var(REQUIRED . LIBLZMA_HAS_LZMA_PRESET)
 
-#check_variable(REQUIRED PATH ARC_7ZIP_ROOT)
+#tkl_check_var(REQUIRED PATH ARC_7ZIP_ROOT)
 
 # tests
 
-check_variable(OPTIONAL PATH GTEST_ROOT)
-check_variable(OPTIONAL . TACKLELIB_SKIP_TESTLIB)
-check_variable(OPTIONAL . TACKLELIB_SKIP_TESTS)
+tkl_check_var(OPTIONAL PATH GTEST_ROOT)
+tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTLIB)
+tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTS)
 
 ###############################################################################
 ## projects description #######################################################
@@ -223,12 +219,12 @@ file(GLOB tests_headers_common
 )
 
 # exclude tests
-exclude_paths_from_path_list(. lib_sources "${lib_sources}" "/tests" 0)
-exclude_paths_from_path_list(. lib_headers "${lib_headers}" "/tests" 0)
+tkl_exclude_paths_from_path_list(. lib_sources "${lib_sources}" "/tests" 0)
+tkl_exclude_paths_from_path_list(. lib_headers "${lib_headers}" "/tests" 0)
 
 # exclude testlib
-exclude_paths_from_path_list(. lib_sources "${lib_sources}" "/testlib" 0)
-exclude_paths_from_path_list(. lib_headers "${lib_headers}" "/testlib" 0)
+tkl_exclude_paths_from_path_list(. lib_sources "${lib_sources}" "/testlib" 0)
+tkl_exclude_paths_from_path_list(. lib_headers "${lib_headers}" "/testlib" 0)
 
 set(target_index 0)
 foreach(target IN LISTS TESTS_TARGET_NAMES)
@@ -240,26 +236,11 @@ foreach(target IN LISTS TESTS_TARGET_NAMES)
     ${CMAKE_CURRENT_LIST_DIR}/src/tests/${target_src_dir}/*.h*)
 
   # exclude marked as "out of project" (/~) files/directories by pattern
-  exclude_paths_from_path_list(. tests_sources_${target} "${tests_sources_${target}}" "/~" 0)
-  exclude_paths_from_path_list(. tests_headers_${target} "${tests_headers_${target}}" "/~" 0)
+  tkl_exclude_paths_from_path_list(. tests_sources_${target} "${tests_sources_${target}}" "/~" 0)
+  tkl_exclude_paths_from_path_list(. tests_headers_${target} "${tests_headers_${target}}" "/~" 0)
 
   MATH(EXPR target_index "${target_index}+1")
 endforeach()
-
-###############################################################################
-## global definitions #########################################################
-###############################################################################
-
-# set global linkage type (dynamic/static)
-set_global_link_type(${TACKLELIB_LINK_TYPE})
-
-# remove optimization parameters from global flags, do control it explicitly per source file or target basis
-remove_global_optimization_flags(*)
-
-# fix invalid cmake suggestions
-fix_global_flags(*)
-
-print_global_flags(*)
 
 ###############################################################################
 ## find_package dependencies #######################################################
@@ -328,7 +309,7 @@ if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
     if (tests_sources_common_filtered)
       list(FILTER tests_sources_common_filtered EXCLUDE REGEX "(.*)/test_main.cpp")
       if (NOT "${tests_sources_common_filtered}" EQUAL "${tests_sources_common}")
-        add_target_subdirectory(GTEST_ROOT gtest ${CMAKE_BUILD_ROOT}/_3dparty/test/googletest)
+        tkl_add_target_subdirectory(GTEST_ROOT gtest ${CMAKE_BUILD_ROOT}/_3dparty/test/googletest)
         set(TESTS_ENABLED 1)
       endif()
     endif()
@@ -337,18 +318,18 @@ endif()
 
 # fmt
 
-add_target_subdirectory(UTILITY_FMT_ROOT fmt ${CMAKE_BUILD_ROOT}/_3dparty/utility/fmt)
+tkl_add_target_subdirectory(UTILITY_FMT_ROOT fmt ${CMAKE_BUILD_ROOT}/_3dparty/utility/fmt)
 
 # fmt has it's own cmake list, so we have to call it from here
-initialize_library_target_defaults(fmt "${TACKLELIB_ADDRESS_MODEL}bit")
+tkl_initialize_library_target_defaults(fmt "${TACKLELIB_ADDRESS_MODEL}bit")
 
 # pystring
 
-add_target_subdirectory(UTILITY_PYSTRING_ROOT pystring ${CMAKE_BUILD_ROOT}/_3dparty/utility/pystring)
+tkl_add_target_subdirectory(UTILITY_PYSTRING_ROOT pystring ${CMAKE_BUILD_ROOT}/_3dparty/utility/pystring)
 
 # p7 logger
 
-add_target_subdirectory(LOG_P7_CLIENT_ROOT p7client ${CMAKE_BUILD_ROOT}/_3dparty/log/p7client)
+tkl_add_target_subdirectory(LOG_P7_CLIENT_ROOT p7client ${CMAKE_BUILD_ROOT}/_3dparty/log/p7client)
 
 if (TARGET p7client)
   get_target_property(INCLUDE_DIRS_p7client p7client INCLUDE_DIRECTORIES)
@@ -357,7 +338,7 @@ endif()
 
 # 7zip
 
-add_target_subdirectory(ARC_7ZIP_ROOT 7zip ${CMAKE_BUILD_ROOT}/_3dparty/arc/7zip)
+tkl_add_target_subdirectory(ARC_7ZIP_ROOT 7zip ${CMAKE_BUILD_ROOT}/_3dparty/arc/7zip)
 
 if (TARGET 7zip)
   get_target_property(INCLUDE_DIRS_7zip 7zip INCLUDE_DIRECTORIES)
@@ -366,28 +347,28 @@ endif()
 
 # libarchive
 
-add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive ${CMAKE_BUILD_ROOT}/_3dparty/arc/libarchive)
+tkl_add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive ${CMAKE_BUILD_ROOT}/_3dparty/arc/libarchive)
 
-set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
 
 if (TARGET archive)
-  set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-  set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+  tkl_set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+  tkl_set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_ALL ON) # all except output libraries
 
   # libarchive has it's own cmake list, so we have to call it from here
   if (TACKLELIB_ADDRESS_MODEL)
-    initialize_library_target_defaults(archive "${TACKLELIB_ADDRESS_MODEL}bit")
+    tkl_initialize_library_target_defaults(archive "${TACKLELIB_ADDRESS_MODEL}bit")
   else()
-    initialize_library_target_defaults(archive "")
+    tkl_initialize_library_target_defaults(archive "")
   endif()
 endif()
 if (TARGET archive_static)
   # libarchive has it's own cmake list, so we have to call it from here
   if (TACKLELIB_ADDRESS_MODEL)
-    initialize_library_target_defaults(archive_static "${TACKLELIB_ADDRESS_MODEL}bit")
+    tkl_initialize_library_target_defaults(archive_static "${TACKLELIB_ADDRESS_MODEL}bit")
   else()
-    initialize_library_target_defaults(archive_static "")
+    tkl_initialize_library_target_defaults(archive_static "")
   endif()
 endif()
 
@@ -401,11 +382,11 @@ add_library(${LIB_TARGET_NAME} STATIC
   ${lib_sources};${lib_headers};${public_headers}
 )
 
-initialize_library_target_defaults(${LIB_TARGET_NAME} "${TACKLELIB_ADDRESS_MODEL}bit")
+tkl_initialize_library_target_defaults(${LIB_TARGET_NAME} "${TACKLELIB_ADDRESS_MODEL}bit")
 
-source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
-source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
-source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
+tkl_source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
+tkl_source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
+tkl_source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
 
 target_include_directories(${LIB_TARGET_NAME}
   PUBLIC
@@ -464,13 +445,13 @@ if (LIBLZMA_FOUND)
 endif()
 
 # to calculate relative path to source files in log output
-add_target_compile_definitions(${LIB_TARGET_NAME} *
+tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
   PRIVATE
     LOG_SRC_ROOT="${LOG_SRC_ROOT}"
 )
 
 # to declare export/import from source files
-add_target_compile_definitions(${LIB_TARGET_NAME} *
+tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
   PRIVATE
     LIBRARY_API
     LIBRARY_API_EXPORTS_TACKLELIB
@@ -478,14 +459,14 @@ add_target_compile_definitions(${LIB_TARGET_NAME} *
 
 # we need the same Boost definitions here to maintain the link with the same libraries
 if (Boost_FOUND)
-  add_target_compile_definitions(${LIB_TARGET_NAME} *
+  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       BOOST_ALL_NO_LIB                    # Disable auto-linking
       BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
   )
 
   if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-    add_target_compile_definitions(${LIB_TARGET_NAME} *
+    tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
       PRIVATE
         BOOST_ALL_DYN_LINK
     )
@@ -493,21 +474,21 @@ if (Boost_FOUND)
 endif()
 
 if (ARC_LIBARCHIVE_ROOT)
-  add_target_compile_definitions(${LIB_TARGET_NAME} *
+  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       LIBARCHIVE_STATIC
   )
 endif()
 
 if (LIBLZMA_FOUND)
-  add_target_compile_definitions(${LIB_TARGET_NAME} *
+  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       LZMA_API_STATIC
   )
 endif()
 
 if (WIN32)
-  add_target_compile_definitions(${LIB_TARGET_NAME} *
+  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
   )
@@ -589,11 +570,11 @@ if (TESTLIB_ENABLED)
     ${testlib_sources};${testlib_headers};${public_headers}
   )
 
-  initialize_library_target_defaults(${TESTLIB_TARGET_NAME} "${TACKLELIB_ADDRESS_MODEL}bit")
+  tkl_initialize_library_target_defaults(${TESTLIB_TARGET_NAME} "${TACKLELIB_ADDRESS_MODEL}bit")
 
-  source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
-  source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
-  source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
+  tkl_source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
+  tkl_source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
+  tkl_source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
 
   target_include_directories(${TESTLIB_TARGET_NAME}
     PRIVATE
@@ -630,21 +611,21 @@ if (TESTLIB_ENABLED)
 #    )
 #  endif()
 
-  add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+  tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
     PUBLIC
       TACKLE_TESTLIB
   )
 
   # we need the same Boost definitions here to maintain the link with the same libraries
   if (Boost_FOUND)
-    add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
       PRIVATE
         BOOST_ALL_NO_LIB                    # Disable auto-linking
         BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
     )
 
     if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-      add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+      tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
         PRIVATE
           BOOST_ALL_DYN_LINK
       )
@@ -652,7 +633,7 @@ if (TESTLIB_ENABLED)
   endif()
 
   if (WIN32)
-    add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
       PRIVATE
         _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
     )
@@ -700,35 +681,35 @@ endif()
 
 # local optimization per target basis
 if (MSVC)
-  add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" RELEASE
+  tkl_add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" RELEASE
     /Ox     # Full Optimization
     /Ob2    # Inline Function Expansion: Any Suitable
     #/Oi     # Enable Intrinsic Functions
     /Ot     # Enable Intrinsic Functions
     /GL     # Whole Program Optimization
   )
-  add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" *
+  tkl_add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" *
     /MP
   )
 
-  add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" * RELEASE
+  tkl_add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" * RELEASE
     /LTCG   # Use Link Time Code Generation
   )
 elseif (GCC)
-  add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" RELEASE
+  tkl_add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" RELEASE
     -O3     # Full Optimization
     #/usr/bin/ranlib: .cpp.o: plugin needed to handle lto object
     #-flto   # Use Link Time Code Generation
   )
-  add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" *
+  tkl_add_target_compile_properties("${COMMON_OPT_APP_TARGET_NAMES}" *
     -pipe       # Use pipes rather than temporary files for communication between the various stages of compilation.
   )
 
   #/usr/bin/ranlib: .cpp.o: plugin needed to handle lto object
-  #add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" NOTSTATIC RELEASE
+  #tkl_add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" NOTSTATIC RELEASE
   #  -flto   # Use Link Time Code Generation
   #)
-  add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" NOTSTATIC *
+  tkl_add_target_link_properties("${COMMON_OPT_APP_TARGET_NAMES}" NOTSTATIC *
     -pipe   # Use pipes rather than temporary files for communication between the various stages of compilation.
   )
 endif()
@@ -743,7 +724,7 @@ if (TESTS_ENABLED)
   # inherit dependency include directories and libraries
   get_target_property(INTERFACE_COMPILE_DEFINITIONS_${LIB_TARGET_NAME} ${LIB_TARGET_NAME} INTERFACE_COMPILE_DEFINITIONS)
   get_target_property(INCLUDE_DIRS_${LIB_TARGET_NAME} ${LIB_TARGET_NAME} INCLUDE_DIRECTORIES)
-  get_target_link_libraries_recursively(LIBRARIES_${LIB_TARGET_NAME} ${LIB_TARGET_NAME})
+  tkl_get_target_link_libraries_recursively(LIBRARIES_${LIB_TARGET_NAME} ${LIB_TARGET_NAME})
 
   set(target_index 0)
   foreach(target IN LISTS TESTS_TARGET_NAMES)
@@ -763,7 +744,7 @@ if (TESTS_ENABLED)
       set(target_sources ${target_sources_common};${lib_sources};${testlib_sources})
     endif()
 
-    #add_pch_header(
+    #tkl_add_pch_header(
     #  "test_common.hpp" "src/tests/${target_src_dir}/pch.cpp" "pch/${target}/$<CONFIG>/test_common.pch" # create
     #  "test_common.hpp" "src/tests/test_common.hpp" # use + force include
     #  "${tests_sources_${target}}" 0) # input + output
@@ -772,7 +753,7 @@ if (TESTS_ENABLED)
       ${target_sources}
     )
 
-    initialize_executable_target_defaults(${target} "${TACKLELIB_ADDRESS_MODEL}bit;console")
+    tkl_initialize_executable_target_defaults(${target} "${TACKLELIB_ADDRESS_MODEL}bit;console")
 
     # exclude test_common.cpp from compilation to avoid symbols duplications from pch.cpp
     #set_source_files_properties(src/tests/test_common.cpp PROPERTIES
@@ -782,10 +763,10 @@ if (TESTS_ENABLED)
     set_source_files_properties(src/tests/bench/pch.cpp PROPERTIES
       HEADER_FILE_ONLY TRUE)
 
-    source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
-    source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
-    source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
-    source_groups_from_dir_list("tests" FILES ${CMAKE_CURRENT_LIST_DIR}/src/tests *)
+    tkl_source_groups_from_dir_list("Header Files (interface)" FILES ${CMAKE_CURRENT_LIST_DIR}/include *.h*)
+    tkl_source_groups_from_dir_list("Header Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.h*)
+    tkl_source_groups_from_dir_list("Source Files" FILES ${CMAKE_CURRENT_LIST_DIR}/src *.c*)
+    tkl_source_groups_from_dir_list("tests" FILES ${CMAKE_CURRENT_LIST_DIR}/src/tests *)
 
     target_include_directories(${target}
       PUBLIC
@@ -855,13 +836,13 @@ if (TESTS_ENABLED)
 #      )
 #    endif()
 
-    add_target_compile_definitions(${target} *
+    tkl_add_target_compile_definitions(${target} *
       PRIVATE
         ${target_definitions}
     )
 
     # to calculate relative path to source files in log output
-    add_target_compile_definitions(${target} *
+    tkl_add_target_compile_definitions(${target} *
       PRIVATE
         LOG_SRC_ROOT="${LOG_SRC_ROOT}"
     )
@@ -869,20 +850,20 @@ if (TESTS_ENABLED)
     if (NOT target_is_liblinked)
       # we must include these definitions to link dependency appropriately
       if (ARC_LIBARCHIVE_ROOT)
-        add_target_compile_definitions(${target} *
+        tkl_add_target_compile_definitions(${target} *
           PRIVATE
             LIBARCHIVE_STATIC
         )
       endif()
 
       if (LIBLZMA_FOUND)
-        add_target_compile_definitions(${target} *
+        tkl_add_target_compile_definitions(${target} *
           PRIVATE
             LZMA_API_STATIC
         )
       endif()
 
-      add_target_compile_definitions(${target} *
+      tkl_add_target_compile_definitions(${target} *
         PRIVATE
           ${INTERFACE_COMPILE_DEFINITIONS_${LIB_TARGET_NAME}}
       )
@@ -890,14 +871,14 @@ if (TESTS_ENABLED)
 
     # we need the same Boost definitions here to maintain the link with the same libraries
     if (Boost_FOUND)
-      add_target_compile_definitions(${target} *
+      tkl_add_target_compile_definitions(${target} *
         PRIVATE
           BOOST_ALL_NO_LIB                    # Disable auto-linking
           BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
       )
 
       if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-        add_target_compile_definitions(${target} *
+        tkl_add_target_compile_definitions(${target} *
           PRIVATE
             BOOST_ALL_DYN_LINK
         )
@@ -905,7 +886,7 @@ if (TESTS_ENABLED)
     endif()
 
     if (WIN32)
-      add_target_compile_definitions(${target} *
+      tkl_add_target_compile_definitions(${target} *
         PRIVATE
           _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
       )
@@ -914,68 +895,68 @@ if (TESTS_ENABLED)
     # local optimization per target basis
     if (${target} IN_LIST TESTS_MAXOPT_TARGETS)
       if (MSVC)
-        add_target_compile_properties(${target} RELEASE
+        tkl_add_target_compile_properties(${target} RELEASE
           /Ox     # Full Optimization
           /Ob2    # Inline Function Expansion: Any Suitable
           #/Oi     # Enable Intrinsic Functions
           /Ot     # Enable Intrinsic Functions
           /GL     # Whole Program Optimization
         )
-        add_target_compile_properties(${target} *
+        tkl_add_target_compile_properties(${target} *
           /MP
         )
 
-        add_target_link_properties(${target} * RELEASE
+        tkl_add_target_link_properties(${target} * RELEASE
           /LTCG   # Use Link Time Code Generation
         )
       elseif (GCC)
-        add_target_compile_properties(${target} RELEASE
+        tkl_add_target_compile_properties(${target} RELEASE
           -O3     # Full Optimization
           #/usr/bin/ranlib: .cpp.o: plugin needed to handle lto object
           #-flto   # Use Link Time Code Generation
         )
-        add_target_compile_properties(${target} *
+        tkl_add_target_compile_properties(${target} *
           -pipe   # Use pipes rather than temporary files for communication between the various stages of compilation.
         )
 
         #/usr/bin/ranlib: .cpp.o: plugin needed to handle lto object
-        #add_target_link_properties(${target} NOTSTATIC RELEASE
+        #tkl_add_target_link_properties(${target} NOTSTATIC RELEASE
         #  -flto   # Use Link Time Code Generation
         #)
-        add_target_link_properties(${target} NOTSTATIC *
+        tkl_add_target_link_properties(${target} NOTSTATIC *
           -pipe   # Use pipes rather than temporary files for communication between the various stages of compilation.
         )
       endif()
     else()
       if (MSVC)
-        add_target_compile_properties(${target} RELEASE
+        tkl_add_target_compile_properties(${target} RELEASE
           /O2     # Maximize Speed
         )
-        add_target_compile_properties(${target} *
+        tkl_add_target_compile_properties(${target} *
           /MP
         )
       elseif (GCC)
-        add_target_compile_properties(${target} RELEASE
+        tkl_add_target_compile_properties(${target} RELEASE
           -O2     # More Stable Optimization
         )
-        add_target_compile_properties(${target} *
+        tkl_add_target_compile_properties(${target} *
           -pipe   # Use pipes rather than temporary files for communication between the various stages of compilation.
         )
 
-        add_target_link_properties(${target} NOTSTATIC *
+        tkl_add_target_link_properties(${target} NOTSTATIC *
           -pipe   # Use pipes rather than temporary files for communication between the various stages of compilation.
         )
       endif()
     endif()
 
-    get_target_compile_property(COMPILE_OPTIONS_${target} ${target} .)
-    get_target_link_property(LINK_FLAGS_${target} ${target} .)
-    get_target_link_property(LINK_FLAGS_${target}_DEBUG ${target} DEBUG)
-    get_target_link_property(LINK_FLAGS_${target}_RELEASE ${target} RELEASE)
-    get_target_link_property(LINK_FLAGS_${target}_MINSIZEREL ${target} MINSIZEREL)
-    get_target_link_property(LINK_FLAGS_${target}_RELWITHDEBINFO ${target} RELWITHDEBINFO)
+    tkl_get_target_compile_property(COMPILE_OPTIONS_${target} ${target} .)
+    tkl_get_target_link_property(LINK_FLAGS_${target} ${target} .)
+    tkl_get_target_link_property(LINK_FLAGS_${target}_DEBUG ${target} DEBUG)
+    tkl_get_target_link_property(LINK_FLAGS_${target}_RELEASE ${target} RELEASE)
+    tkl_get_target_link_property(LINK_FLAGS_${target}_MINSIZEREL ${target} MINSIZEREL)
+    tkl_get_target_link_property(LINK_FLAGS_${target}_RELWITHDEBINFO ${target} RELWITHDEBINFO)
 
-    print_flags(
+    tkl_print_flags(
       COMPILE_OPTIONS_${target}
       LINK_FLAGS_${target}
       LINK_FLAGS_${target}_DEBUG
@@ -1108,7 +1089,7 @@ install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
 #    -D "CPACK_BUNDLE_TEMPLATE_CONFIG_FILE=${CPACK_BUNDLE_TEMPLATE_CONFIG_FILE}"
 #    -D "CPACK_BUNDLE_OUTPUT_CONFIG_FILE=${CPACK_BUNDLE_OUTPUT_CONFIG_FILE}"
 #    # this one must be after all `-D`s
-#    -P "${CMAKE_CURRENT_LIST_DIR}/cmake/tools/CPackMakeConfig.cmake"
+#    -P "${CMAKE_CURRENT_LIST_DIR}/cmake/tacklelib/tools/CPackMakeConfig.cmake"
 #  COMMAND "${CMAKE_CPACK_COMMAND}" 
 #    -G "NSIS"
 #    -C "$<CONFIGURATION>"
@@ -1120,43 +1101,43 @@ install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
 
 ## projects
 
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       UTILITY     . util)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * "tests" EXECUTABLE  . exe)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       UTILITY     . util)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * "tests" EXECUTABLE  . exe)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
 
 ## 3dparty
 
 # multi
 
-set_target_folder(BOOST_ROOT * * . * . _3dparty/multi/boost)
+tkl_set_target_folder(BOOST_ROOT * * . * . _3dparty/multi/boost)
 
 # utility
 
-set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
-set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
+tkl_set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
+tkl_set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
 
 # math
 
-set_target_folder(QD_ROOT * * . * . _3dparty/math/qd)
+tkl_set_target_folder(QD_ROOT * * . * . _3dparty/math/qd)
 
 # log
 
-set_target_folder(LOG_P7_CLIENT_ROOT * * . * . _3dparty/log/p7client)
+tkl_set_target_folder(LOG_P7_CLIENT_ROOT * * . * . _3dparty/log/p7client)
 
 # arc
 
-set_target_folder(ARC_LIBARCHIVE_ROOT * * . UTILITY     . _3dparty/arc/libarchive/util)
-set_target_folder(ARC_LIBARCHIVE_ROOT * * . EXECUTABLE  . _3dparty/arc/libarchive/exe)
-set_target_folder(ARC_LIBARCHIVE_ROOT * * . "SHARED_LIBRARY;STATIC_LIBRARY" . _3dparty/arc/libarchive/lib)
-set_target_folder(ARC_LIBARCHIVE_ROOT * * . * "UTILITY;EXECUTABLE;SHARED_LIBRARY;STATIC_LIBRARY" _3dparty/arc/libarchive)
-set_target_folder(ARC_XZ_UTILS_ROOT   * * . * . _3dparty/arc/xz)
-set_target_folder(ARC_7ZIP_ROOT       * * . * . _3dparty/arc/7zip)
+tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . UTILITY     . _3dparty/arc/libarchive/util)
+tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . EXECUTABLE  . _3dparty/arc/libarchive/exe)
+tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . "SHARED_LIBRARY;STATIC_LIBRARY" . _3dparty/arc/libarchive/lib)
+tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . * "UTILITY;EXECUTABLE;SHARED_LIBRARY;STATIC_LIBRARY" _3dparty/arc/libarchive)
+tkl_set_target_folder(ARC_XZ_UTILS_ROOT   * * . * . _3dparty/arc/xz)
+tkl_set_target_folder(ARC_7ZIP_ROOT       * * . * . _3dparty/arc/7zip)
 
 # tests
 
-set_target_folder(GTEST_ROOT * * . * . _3dparty/test/googletest)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . "tests" . * . tests)
-set_target_folder(CMAKE_CURRENT_LIST_DIR . "build_check" . * . tests)
+tkl_set_target_folder(GTEST_ROOT * * . * . _3dparty/test/googletest)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . "tests" . * . tests)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . "build_check" . * . tests)
 
 ###############################################################################
 ## updated global flags and post process target properties ####################
@@ -1177,4 +1158,4 @@ if (generated_headers)
   )
 endif()
 
-print_global_flags(*)
+tkl_print_global_flags(*)
