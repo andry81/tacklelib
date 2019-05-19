@@ -1,3 +1,25 @@
+2019.05.XX:
+* fixed: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
+* new: `Handlers.cmake` for a function/macro call handling/hooking
+* changed: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
+* changed: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
+* changed: `begin_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn` w/o arguments
+* changed: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
+* changed: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
+* changed: `List.cmake` extracted from `Std.cmake`
+* changed: other overall fixes and improvements
+* refactor: global directories, files, functions, macroses, global variables and properties changes:
+** all moved into `tacklelib` subdirectory to explicitly address modules with `tacklelib/` prefix in include commands and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl_` to all macroses and functions (except 3dparties, except standalone tools and hooks/handlers) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `TACKLELIB_` to all global variables (except 3dparties and standalone tools) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl::` to all properties to explicitly stand for the `tacklelib` and avoid accidental intersection with other cmake properties
+** all functions and macroses decapitalized to lower `snake_case` (except global variable names in macro/function names), all global variables capitalized to upper `SNAKE_CASE`
+** all function and macros names reworked
+** all file names in `PascalCase`
+** all directory names in lower `snake_case`
+** `Common.cmake` renamed into `Project.cmake` as related only to the project build
+** `BuildProject.cmake` merged into `Project.cmake`
+
 2019.05.13:
 * fixed: `Eval.cmake` after tests
 * fixed: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` after tests

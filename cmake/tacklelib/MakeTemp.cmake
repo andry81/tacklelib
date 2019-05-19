@@ -1,25 +1,27 @@
+# inclusion guard for protection and speedup
+if (NOT DEFINED TACKLELIB_MAKE_TEMP_INCLUDE_DEFINED)
+set(TACKLELIB_MAKE_TEMP_INCLUDE_DEFINED 1)
+
 cmake_minimum_required(VERSION 3.6)
 
 # at least cmake 3.6 is required for:
 #   * specific `%s` format specifier in the `string(TIMESTAMP ...)`: https://cmake.org/cmake/help/v3.6/command/string.html#timestamp
 #
 
-set(MAKETEMPDIR_LAST_TIMESTAMP "")
-set(MAKETEMPDIR_LAST_TIMESTAMP_INDEX 0) # additional suffix to the time limited by resolution in seconds
+set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "")
+set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX 0) # additional suffix to the time limited by resolution in seconds
 
-function(MakeTempDir dir_name_prefix time_fmt proc_index dir_random_name_suffix_len out_var)
+function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_suffix_len out_var)
   set(temp_base_dir "")
   if (DEFINED ENV{TMP} AND IS_DIRECTORY "$ENV{TMP}")
     set(temp_base_dir "$ENV{TMP}")
-  endif()
-  if (NOT temp_base_dir AND DEFINED ENV{TMPDIR} AND IS_DIRECTORY "$ENV{TMPDIR}")
+  elseif (DEFINED ENV{TMPDIR} AND IS_DIRECTORY "$ENV{TMPDIR}")
     set(temp_base_dir "$ENV{TMPDIR}")
-  endif()
-  if (NOT temp_base_dir AND DEFINED ENV{TEMP} AND IS_DIRECTORY "$ENV{TEMP}")
+  elseif (DEFINED ENV{TEMP} AND IS_DIRECTORY "$ENV{TEMP}")
     set(temp_base_dir "$ENV{TEMP}")
   endif()
 
-  if (NOT temp_base_dir)
+  if (temp_base_dir STREQUAL "")
     if (WIN32)
       if (DEFINED ENV{LOCALAPPDATA} AND IS_DIRECTORY "$ENV{LOCALAPPDATA}/Temp")
         set(temp_base_dir "$ENV{LOCALAPPDATA}/Temp")
@@ -31,26 +33,26 @@ function(MakeTempDir dir_name_prefix time_fmt proc_index dir_random_name_suffix_
     endif()
   endif()
 
-  if (NOT temp_base_dir)
-    message(FATAL_ERROR "temporary directory is nor reachable")
+  if (temp_base_dir STREQUAL "")
+    message(FATAL_ERROR "temporary directory is not reachable")
   endif()
 
   string(RANDOM LENGTH ${dir_random_name_suffix_len} random_suffix)
 
   if (time_fmt)
     string(TIMESTAMP timestamp_utc "${time_fmt}" UTC)
-    if (MAKETEMPDIR_LAST_TIMESTAMP)
-      if (MAKETEMPDIR_LAST_TIMESTAMP STREQUAL timestamp_utc)
-        math(EXPR MAKETEMPDIR_LAST_TIMESTAMP_INDEX "${MAKETEMPDIR_LAST_TIMESTAMP_INDEX}+1")
+    if (TACKLELIB_TEMP_DIR_LAST_TIMESTAMP)
+      if (TACKLELIB_TEMP_DIR_LAST_TIMESTAMP STREQUAL timestamp_utc)
+        math(EXPR TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}+1")
       else()
-        set(MAKETEMPDIR_LAST_TIMESTAMP_INDEX 0)
-        set(MAKETEMPDIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
+        set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX 0)
+        set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
       endif()
-      set(MAKETEMPDIR_LAST_TIMESTAMP_INDEX "${MAKETEMPDIR_LAST_TIMESTAMP_INDEX}" PARENT_SCOPE)
+      set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}" PARENT_SCOPE)
     endif()
-    set(MAKETEMPDIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
+    set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
 
-    set(timestamp_index_token ${MAKETEMPDIR_LAST_TIMESTAMP_INDEX})
+    set(timestamp_index_token ${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX})
     string(LENGTH "${timestamp_index_token}" timestamp_index_token_len)
     if (timestamp_index_token_len EQUAL 1)
       set(timestamp_index_token "0${timestamp_index_token}")
@@ -89,3 +91,5 @@ function(MakeTempDir dir_name_prefix time_fmt proc_index dir_random_name_suffix_
 
   set(${out_var} "${temp_dir_path_abs}" PARENT_SCOPE)
 endfunction()
+
+endif()

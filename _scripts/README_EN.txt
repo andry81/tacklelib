@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.07
+* 2019.05.15
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -52,7 +52,7 @@ Second mirror:
   https://svn.code.sf.net/p/tacklelib/scripts--config/trunk
 
 * cmake modules:
-  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake
+  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake/tacklelib
   or
   https://svn.code.sf.net/p/tacklelib/cmake/trunk
 

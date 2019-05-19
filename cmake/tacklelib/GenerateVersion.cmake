@@ -1,4 +1,4 @@
-function(generate_build_version_variables)
+function(generate_build_version_vars)
   string(TIMESTAMP BUILD_VERSION_DATE_TIME_STR "%Y-%m-%d %H:%M:%S" UTC)
   string(TIMESTAMP BUILD_VERSION_DATE_TIME_TOKEN "%Y_%m_%d_%H_%M_%S" UTC)
 

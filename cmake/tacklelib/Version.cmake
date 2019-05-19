@@ -1,3 +1,7 @@
+# inclusion guard for protection and speedup
+if (NOT DEFINED TACKLELIB_VERSION_INCLUDE_DEFINED)
+set(TACKELIB_VERSION_INCLUDE_DEFINED 1)
+
 # https://en.wikipedia.org/wiki/Microsoft_Visual_C
 #
 # MSC    1.0   _MSC_VER == 100
@@ -43,7 +47,7 @@
 # 1910-1919 = VS 15.0 (v141 toolset)
 # 1920-1929 = VS 16.0 (v142 toolset)
 
-function(get_msvc_version var_major_out var_minor_out)
+function(tkl_get_msvc_version var_major_out var_minor_out)
   if (NOT MSVC)
     message(FATAL_ERROR "MSVC compiler is not detected to request a version")
   endif()
@@ -92,7 +96,7 @@ function(get_msvc_version var_major_out var_minor_out)
   set(${var_minor_out} "${minor_version}" PARENT_SCOPE)
 endfunction()
 
-function(get_gcc_version var_major_out var_minor_out)
+function(tkl_get_gcc_version var_major_out var_minor_out)
   if (NOT GCC)
     message(FATAL_ERROR "GCC compiler is not detected to request a version")
   endif()
@@ -114,7 +118,7 @@ function(get_gcc_version var_major_out var_minor_out)
   set(var_minor_out "${minor_version}" PARENT_SCOPE)
 endfunction()
 
-function(get_clang_version var_major_out var_minor_out)
+function(tkl_get_clang_version var_major_out var_minor_out)
   if (NOT CLANG)
     message(FATAL_ERROR "CLANG compiler is not detected to request a version")
   endif()
@@ -136,22 +140,22 @@ function(get_clang_version var_major_out var_minor_out)
   set(var_minor_out "${minor_version}" PARENT_SCOPE)
 endfunction()
 
-function(get_msvc_version_token var_token_out)
-  get_msvc_version(msvc_major_ver msvc_minor_ver)
+function(tkl_get_msvc_version_token var_token_out)
+  tkl_get_msvc_version(msvc_major_ver msvc_minor_ver)
   set(${var_token_out} "MSVC${msvc_major_ver}.${msvc_minor_ver}" PARENT_SCOPE)
 endfunction()
 
-function(get_gcc_version_token var_token_out)
-  get_gcc_version(msvc_major_ver msvc_minor_ver)
+function(tkl_get_gcc_version_token var_token_out)
+  tkl_get_gcc_version(msvc_major_ver msvc_minor_ver)
   set(${var_token_out} "GCC${msvc_major_ver}.${msvc_minor_ver}" PARENT_SCOPE)
 endfunction()
 
-function(get_clang_version_token var_token_out)
-  get_clang_version(msvc_major_ver msvc_minor_ver)
+function(tkl_get_clang_version_token var_token_out)
+  tkl_get_clang_version(msvc_major_ver msvc_minor_ver)
   set(${var_token_out} "CLANG${msvc_major_ver}.${msvc_minor_ver}" PARENT_SCOPE)
 endfunction()
 
-function(compare_compiler_tokens compiler_token compiler_token_to_filter var_out)
+function(tkl_compare_compiler_tokens compiler_token compiler_token_to_filter var_out)
   string(TOUPPER "${compiler_token}" compiler_token_upper)
   string(TOUPPER "${compiler_token_to_filter}" compiler_token_to_filter_upper)
 
@@ -179,3 +183,5 @@ function(compare_compiler_tokens compiler_token compiler_token_to_filter var_out
     set(${var_out} 0 PARENT_SCOPE)
   endif()
 endfunction()
+
+endif()

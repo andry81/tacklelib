@@ -1,7 +1,4 @@
-include(Std)
-include(SetVarsFromFiles)
-
-function(FindGlobal3dpartyEnvironments out_global_vars_file_path_list_var)
+function(find_global_3dparty_environments out_global_vars_file_path_list_var)
   if (NOT _3DPARTY_GLOBAL_ROOTS_LIST)
     set(${out_global_vars_file_path_list_var} "" PARENT_SCOPE)
     return()

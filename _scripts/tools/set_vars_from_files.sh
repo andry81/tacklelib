@@ -47,7 +47,7 @@ function set_vars_from_files()
 
   # arguments: <flag0>[...<flagN>] "<file0>[...\;<fileN>]" <os_name> <compiler_name> <config_name> <arch_name> <list_separator_char>
   CallAndPrintIf "(( TOOLS_VERBOSE ))" cmake "-DCMAKE_MODULE_PATH=$PROJECT_ROOT/cmake" \
-    -P "$PROJECT_ROOT/cmake/tools/SetVarsFromFiles.cmd.cmake" \
+    -P "$PROJECT_ROOT/cmake/tacklelib/tools/SetVarsFromFiles.cmd.cmake" \
     "${@:7}" \
     --flock "$TEMP_OUTPUT_DIR/lock" --vars "$TEMP_OUTPUT_DIR/var_names.lst" --values "$TEMP_OUTPUT_DIR/var_values.lst" \
     "${@:1:6}" || return $?

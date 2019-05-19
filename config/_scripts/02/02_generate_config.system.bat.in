@@ -5,4 +5,4 @@
 "-DCONFIGURE_OUT_FILE=%PROJECT_ROOT%/config/environment_system.vars"
 "-DPROJECT_ROOT=%PROJECT_ROOT%"
 -P
-"%PROJECT_ROOT%/cmake/tools/ConfigureFile.cmake"
+"%PROJECT_ROOT%/cmake/tacklelib/tools/ConfigureFile.cmake"

@@ -47,14 +47,14 @@
 
 # PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM THIS FILE:
 #
-# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:     Index in a file paths list from which this file have has an ordered load.
-# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:       Directory path from which this file being loaded from.
-# CMAKE_CURRENT_PACKAGE_NEST_LVL:         Current package nest level.
-# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:  Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
-# CMAKE_CURRENT_PACKAGE_NAME:             Current package name this file being loaded from.
-# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:       Current package source directory this file being loaded from.
-# CMAKE_TOP_PACKAGE_NAME:                 Top package name.
-# CMAKE_TOP_PACKAGE_SOURCE_DIR:           Top package source directory.
+# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:           Index in a file paths list from which this file have has an ordered load.
+# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:             Directory path from which this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL:               Current package nest level.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:        Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
+# CMAKE_CURRENT_PACKAGE_NAME:                   Current package name this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:             Current package source directory this file being loaded from.
+# CMAKE_TOP_PACKAGE_NAME_NAME:                  Top package name.
+# CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:            Top package source directory.
 #
 
 top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
@@ -63,13 +63,13 @@ top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATO
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
 top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
-top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
+top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR}/_out"
 final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
 final package CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_GENERATOR_DIR}/$/{CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX}--$/{CMAKE_CURRENT_PACKAGE_NAME}"
 final package CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
 final package CMAKE_BIN_ROOT="$/{CMAKE_OUTPUT_DIR}/bin"
 final package CMAKE_LIB_ROOT="$/{CMAKE_OUTPUT_DIR}/lib"
-final package CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install" # cmake creates the build type subdirectory on itself
+final package CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install"   # cmake creates the build type subdirectory on itself
 final package CMAKE_CPACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
 #top NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
@@ -79,7 +79,7 @@ top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
 
 final package PROJECT_NAME=tacklelib
 final package PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
-top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}"           # top parent project root in context of parent build
+top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR}"      # top parent project root in context of parent build
 
 # CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
 final package _3DPARTY_GLOBAL_ROOTS_LIST=("d:/_3dparty")

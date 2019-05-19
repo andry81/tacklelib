@@ -1,7 +1,27 @@
+# inclusion guard for protection and speedup
+if (NOT DEFINED TACKLELIB_EXTERNAL_PROJECT_EX_INCLUDE_DEFINED)
+set(TACKLELIB_EXTERNAL_PROJECT_EX_INCLUDE_DEFINED 1)
+
 include(ExternalProject)
 
+# Usage example:
+# 
+# ExternalProject_Add(MyExternalProject
+#                     SOURCE_DIR
+#                         ...
+#                     CMAKE_ARGS
+#                         ...
+#                     INSTALL_COMMAND
+#                         ...
+#                     BUILD_ALWAYS
+#                         ...
+# )
+# tkl_configure_external_project(MyExternalProject)
+# tkl_get_external_project_property(MyExternalProject BINARY_DIR) 
+#
+
 # get external project property to an user defined variable
-function(get_project_property var name prop)
+function(tkl_get_external_project_property var name prop)
   string(TOUPPER "${var}" VAR)
   get_property(is_ep_set TARGET ${name} PROPERTY _EP_${prop} SET)
   if(NOT is_ep_set)
@@ -12,7 +32,7 @@ function(get_project_property var name prop)
 endfunction()
 
 # function exists to configure external project inplace
-function(ExternalProject_DoConfigure name)
+function(tkl_configure_external_project name)
   ExternalProject_Get_Property(${name} source_dir binary_dir tmp_dir)
 
   # Depend on other external projects (file-level).
@@ -99,5 +119,7 @@ function(ExternalProject_DoConfigure name)
     message(WARNING "Error output: " ${configure_ERROR})
   else()
     message(STATUS "Configure external project ${name} success")
-  endif()        
+  endif()
 endfunction()
+
+endif()
