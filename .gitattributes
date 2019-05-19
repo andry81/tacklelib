@@ -61,8 +61,6 @@ cmake/tacklelib/ReturnCodeFile.cmake -text
 cmake/tacklelib/SetVarsFromFiles.cmake -text
 cmake/tacklelib/Std.cmake -text
 cmake/tacklelib/Version.cmake -text
-cmake/tacklelib/_3dparty/FindQwt.cmake -text
-cmake/tacklelib/_3dparty/FindWindowsSDK.cmake -text
 cmake/tacklelib/_3dparty/Global3dparty.cmake -text
 cmake/tacklelib/_3dparty/Qt.cmake -text
 cmake/tacklelib/_3dparty/modules/FindQwt.cmake -text
