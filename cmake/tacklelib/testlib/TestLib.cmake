@@ -229,6 +229,10 @@ function(tkl_testlib_enter_dir test_dir)
 endfunction()
 
 macro(tkl_testlib_exit)
+  get_property(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL PROPERTY "tkl::testlib::num_overall_tests")
+  get_property(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL PROPERTY "tkl::testlib::num_succeeded_tests")
+  get_property(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL PROPERTY "tkl::testlib::num_failed_tests")
+
   message("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}\n===\n")
 endmacro()
 
