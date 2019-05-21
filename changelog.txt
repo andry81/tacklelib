@@ -1,3 +1,7 @@
+2019.05.22:
+* fixed: cmake: `TestLib.cmake` minor fixup
+* fixed: cmake_tests: minor fixup
+
 2019.05.21:
 * fixed: cmake: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
 * fixed: cmake: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )

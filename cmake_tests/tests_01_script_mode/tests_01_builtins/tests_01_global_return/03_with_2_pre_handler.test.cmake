@@ -12,7 +12,7 @@ endmacro()
 macro(return_pre_handler_2)
   math(EXPR return_handlers_call_counter ${return_handlers_call_counter}+1)
   if (return_handlers_call_counter EQUAL 2)
-    tkl_test_assert_true(1 "all handler called")
+    tkl_test_assert_true(1 "all handlers called")
   endif()
 endmacro()
 
