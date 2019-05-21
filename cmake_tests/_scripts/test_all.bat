@@ -11,7 +11,8 @@ call :CMD cmake ^
   "-DPROJECT_ROOT=%%PROJECT_ROOT%%" ^
   "-DTESTS_ROOT=%%TESTS_ROOT%%" ^
   "-DTEST_SCRIPT_FILE_NAME=%%TEST_SCRIPT_FILE_NAME%%" ^
-  -P "%%TESTS_ROOT%%/%%TEST_SCRIPT_FILE_NAME%%.cmake"
+  -P "%%TESTS_ROOT%%/%%TEST_SCRIPT_FILE_NAME%%.cmake" ^
+  %%*
 pause
 exit /b
 

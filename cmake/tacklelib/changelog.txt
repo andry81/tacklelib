@@ -1,12 +1,18 @@
-2019.05.XX:
+2019.05.21:
 * fixed: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
-* new: `Handlers.cmake` for a function/macro call handling/hooking
+* fixed: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )
+* new: `Handlers.cmake` for a function/macro call handling/hooking (incomplete)
+* new: `Reimpl.cmake` to explicitly register and check registration of a reimplementation of functions and macroses
 * changed: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
 * changed: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
-* changed: `begin_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn` w/o arguments
+* changed: `begin_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn` w/o arguments (incomplete)
 * changed: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
 * changed: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
 * changed: `List.cmake` extracted from `Std.cmake`
+* changed: `File.cmake` extracted from `Std.cmake`
+* changed: `Props.cmake` extracted from `Std.cmake`
+* changed: `Utility.cmake` extracted from `Std.cmake`
+* changed: improved `TestLib.cmake` and `TestModule.cmake` modules
 * changed: other overall fixes and improvements
 * refactor: global directories, files, functions, macroses, global variables and properties changes:
 ** all moved into `tacklelib` subdirectory to explicitly address modules with `tacklelib/` prefix in include commands and avoid accidental intersection with 3dparty cmake modules
