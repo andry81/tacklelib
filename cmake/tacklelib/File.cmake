@@ -4,6 +4,9 @@ set(TACKLELIB_FILE_INCLUDE_DEFINED 1)
 
 cmake_minimum_required(VERSION 3.7)
 
+include(tacklelib/Std)
+include(tacklelib/Reimpl)
+
 # at least cmake 3.7 is required for:
 # * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
 #   `if(<variable|string> GREATER_EQUAL <variable|string>)`
@@ -13,6 +16,22 @@ cmake_minimum_required(VERSION 3.7)
 # * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
 #   `if(<variable|string> IN_LIST <variable>)`
 #
+
+function(tkl_is_equal_paths mode path0 path1 out_var)
+  get_filename_component(abs_path0 "${path0}" ${mode})
+  get_filename_component(abs_path1 "${path1}" ${mode})
+  if (WIN32 OR WIN64)
+    # case insensitive compare
+    string(TOLOWER "${abs_path0}" abs_path0)
+    string(TOLOWER "${abs_path1}" abs_path1)
+  endif()
+
+  if (abs_path0 STREQUAL abs_path1)
+    set(${out_var} 1 PARENT_SCOPE)
+  else()
+    set(${out_var} 0 PARENT_SCOPE)
+  endif()
+endfunction()
 
 # returns "." if paths are equal
 function(tkl_subtract_absolute_paths from_path to_path var_out)
@@ -36,6 +55,56 @@ function(tkl_subtract_absolute_paths from_path to_path var_out)
   endif()
 
   set(${var_out} "" PARENT_SCOPE)
+endfunction()
+
+# Workaround for `file(REMOVE ...)` to bypass the command issues.
+# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
+#
+function(tkl_file_remove)
+  foreach(file_path IN LISTS ARGV)
+    # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
+    if (file_path STREQUAL "")
+      message(FATAL_ERROR "attemp to implicitly erase the current working directory")
+    endif()
+    if (WIN32 OR WIN64)
+      if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
+        message(FATAL_ERROR "attemp to erase the root of the current drive")
+      endif()
+    else()
+      if (file_path STREQUAL "/")
+        message(FATAL_ERROR "attemp to erase the root of the file system")
+      endif()
+    endif()
+
+    # call to previous implementation
+    #message("tkl_file_remove: ${file_path}")
+    _file(REMOVE "${file_path}")
+  endforeach()
+endfunction()
+
+# Workaround for `file(REMOVE_RECURSE ...)` to bypass the command issues.
+# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
+#
+function(tkl_file_remove_recurse)
+  foreach(file_path IN LISTS ARGV)
+    # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
+    if (file_path STREQUAL "")
+      message(FATAL_ERROR "attemp to implicitly erase the current working directory")
+    endif()
+    if (WIN32 OR WIN64)
+      if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
+        message(FATAL_ERROR "attemp to erase the root of the current drive")
+      endif()
+    else()
+      if (file_path STREQUAL "/")
+        message(FATAL_ERROR "attemp to erase the root of the file system")
+      endif()
+    endif()
+
+    # call to previous implementation
+    #message("tkl_file_remove_recurse: ${file_path}")
+    _file(REMOVE_RECURSE "${file_path}")
+  endforeach()
 endfunction()
 
 # Workaround for `file(LOCK ...)` to avoid immediate cmake exit in case of usage in the script mode.
@@ -108,8 +177,26 @@ function(write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
 
   if (DEFINED flock_file_path)
     file(LOCK "${flock_file_path}" RELEASE)
-    file(REMOVE "${flock_file_path}")
+    tkl_file_remove("${flock_file_path}")
   endif()
 endfunction()
+
+# CAUTION:
+#   Should not be overriden before!
+#   Exists to bypass issues has introduced here:
+#     https://gitlab.kitware.com/cmake/cmake/issues/19274
+#
+macro(file cmd)
+  if ("${cmd}" STREQUAL "REMOVE")
+    message(FATAL_ERROR "`file(REMOVE ...)` having issues with the removing, do use `tkl_file_remove` instead")
+  elseif ("${cmd}" STREQUAL "REMOVE_RECURSE")
+    message(FATAL_ERROR "`file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead")
+  endif()
+
+  # call to previous implementation
+  _file(${cmd} ${ARGN})
+endmacro()
+
+tkl_register_implementation(macro file)
 
 endif()

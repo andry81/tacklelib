@@ -1,10 +1,13 @@
 # inclusion guard for protection and speedup
-if (NOT DEFINED TACKLELIB_MAKE_TEMP_INCLUDE_DEFINED)
-set(TACKLELIB_MAKE_TEMP_INCLUDE_DEFINED 1)
+if (NOT DEFINED TACKLELIB_RETURN_CODE_FILE_INCLUDE_DEFINED)
+set(TACKLELIB_RETURN_CODE_FILE_INCLUDE_DEFINED 1)
 
+include(tacklelib/File)
 include(tacklelib/MakeTemp)
 
 function(tkl_make_ret_code_file_dir dir_path_abs_var)
+  get_property(TACKLELIB_TESTLIB_TESTPROC_INDEX GLOBAL PROPERTY "tkl::testlib::testproc::index")
+
   if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
     # running under TestLib, the function can call under different cmake processes when the inner timestamp is not yet changed (timestamp has seconds resolution)
     tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 dir_path_abs)
@@ -18,7 +21,7 @@ function(tkl_make_ret_code_file_dir dir_path_abs_var)
 endfunction()
 
 function(tkl_remove_ret_code_file_dir dir_path_abs)
-  file(REMOVE_RECURSE "${dir_path_abs}")
+  tkl_file_remove_recurse("${dir_path_abs}")
 endfunction()
 
 function(tkl_set_ret_code_to_file_dir dir_path_abs value)

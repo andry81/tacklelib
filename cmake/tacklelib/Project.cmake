@@ -274,11 +274,17 @@ macro(tkl_declare_primary_builtin_vars)
   # TinyCC = Tiny C Compiler (tinycc.org)
   # XL, VisualAge, zOS = IBM XL (ibm.com)
 
-  # declare some variables
-  if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    set(GCC 1)
-  elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
-    set(CLANG 1)
+  # declare some not yet builtin variables
+  if (NOT DEFINED GCC)
+    if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+      set(GCC 1)
+    endif()
+  endif()
+
+  if (NOT DEFINED CLANG)
+    if (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+      set(CLANG 1)
+    endif()
   endif()
 
   set(TACKLELIB_CMAKE_NOTPRINTABLE_MATCH_CHARS " \t")
@@ -428,7 +434,7 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
   #   But it's change in the cmake may won't promote respective change in the IDE.
   #   To make it changed you have to CLOSE IDE AND DELETE FILE WITH THE CACHED VARIABLES - `CMakeLists.txt.user`!
 
-  # Predefined start set of builtin local configuration files for load.
+  # The predefined set of builtin local configuration files for load.
   set(sys_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_system.vars")
   set(user_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/config/environment_user.vars")
 
@@ -449,13 +455,12 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
     tkl_check_existence_of_system_vars()
 
     if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
-      string(TOLOWER "${CMAKE_CACHEFILE_DIR}" cmake_cachefile_dir_lower)
-      string(TOLOWER "${CMAKE_BUILD_DIR}" cmake_build_dir_lower)
-      if (NOT cmake_cachefile_dir_lower STREQUAL cmake_build_dir_lower)
-        message(FATAL_ERROR "Cmake cache file directory is not the cmake build root directory which might means cmake was previous configured out of the build directory. To continue do remove the external cache file:\n CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
+      tkl_is_equal_paths(REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" _BA96124E_cmake_cachefile_dir_is_build_dir)
+      if (NOT _BA96124E_cmake_cachefile_dir_is_build_dir)
+        message(FATAL_ERROR "Cmake cache files directory is not the cmake build root directory which might means cmake was previous configured out of the build directory. \
+To continue do remove manually the external cache file:\n CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
       endif()
-      unset(cmake_cachefile_dir_lower)
-      unset(cmake_build_dir_lower)
+      unset(_BA96124E_cmake_cachefile_dir_is_build_dir)
     endif()
   else()
     # must create predefined set of output directories because the external script has created directories only for the top level project

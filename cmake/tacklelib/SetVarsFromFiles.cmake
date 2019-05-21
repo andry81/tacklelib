@@ -781,7 +781,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_filename_component(file_path_c "${file_path}" ABSOLUTE)
 
       if (NOT compare_var_path_values_as_case_sensitive)
-        string(TOUPPER "${file_path_c}" file_path_c)
+        string(TOLOWER "${file_path_c}" file_path_c)
       endif()
 
       list(APPEND ${file_path_list_name}_c "${file_path_c}")
@@ -819,7 +819,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     if (compare_var_path_values_as_case_sensitive)
       set (file_path_c "${file_path_abs}")
     else()
-      string(TOUPPER "${file_path_abs}" file_path_c)
+      string(TOLOWER "${file_path_abs}" file_path_c)
     endif()
 
     # update attributes per file basis
@@ -1884,7 +1884,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   if (DEFINED flock_file_path)
     file(LOCK "${flock_file_path}" RELEASE)
-    file(REMOVE "${flock_file_path}")
+    tkl_file_remove_recurse("${flock_file_path}")
   endif()
 
   # save state
@@ -2215,7 +2215,7 @@ make_vars\;.\;.\;."
 
   if (DEFINED flock_file_path)
     file(LOCK "${flock_file_path}" RELEASE)
-    file(REMOVE "${flock_file_path}")
+    tkl_file_remove_recurse("${flock_file_path}")
   endif()
 endfunction()
 

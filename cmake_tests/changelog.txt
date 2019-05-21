@@ -1,3 +1,7 @@
+2019.05.21:
+* new: scripts: passes all parameters from command line into back end cmake test modules
+* new: more tests
+
 2019.05.14:
 * new: more tests in `01_make_args_from_ARGV_ARGN.test.cmake`
 
