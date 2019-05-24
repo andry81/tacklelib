@@ -1,4 +1,8 @@
 2019.05.25:
+* fixed: `--path_match_filter` usage in `TestLib.cmake`
+* fixed: missed variable expansion in `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
 * fixed: multiple `tkl_testlib_exit` call
 * changed: removed initialization/uninitialization code from user test library/modules, make it explicit from standalone cmake scripts (`RunTestLib.cmake` and `RunTestModule.cmake`)
 
