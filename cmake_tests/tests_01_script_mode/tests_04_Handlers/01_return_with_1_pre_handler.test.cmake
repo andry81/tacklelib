@@ -1,7 +1,4 @@
-include(tacklelib/testlib/TestModule)
 include(tacklelib/Handlers)
-
-tkl_testmodule_init()
 
 macro(return_pre_handler)
   tkl_test_assert_true(1 "handler called")

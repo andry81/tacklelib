@@ -12,6 +12,7 @@ function(tkl_testlib_init)
   #
   tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
 
+  # single initialization
   if (TACKLELIB_TESTLIB_INITED)
     return()
   endif()
@@ -76,8 +77,8 @@ function(tkl_testlib_init)
     message(FATAL_ERROR "TESTS_ROOT must be defined")
   endif()
 
-  if (NOT DEFINED TEST_SCRIPT_FILE_NAME)
-    message(FATAL_ERROR "TEST_SCRIPT_FILE_NAME must be defined")
+  if (NOT DEFINED TACKLELIB_TESTLIB_TESTSCRIPT_FILE)
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTSCRIPT_FILE must be defined")
   endif()
 
   # CAUTION:
@@ -86,17 +87,42 @@ function(tkl_testlib_init)
   set_property(GLOBAL PROPERTY "tkl::testlib::inited" 1)
 endfunction()
 
-macro(tkl_testlib_set_working_dir dir)
+function(tkl_testlib_exit)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
+  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
+
+  tkl_testlib_print_msg("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}\n===\n")
+endfunction()
+
+function(tkl_testlib_set_working_dir dir)
   set(TACKLELIB_TESTLIB_WORKING_DIR "${dir}")
   set_property(GLOBAL PROPERTY "tkl::testlib::working_dir" "${TACKLELIB_TESTLIB_WORKING_DIR}")
-endmacro()
+endfunction()
 
-macro(tkl_testlib_set_test_args)
+function(tkl_testlib_set_test_args)
   set(TACKLELIB_TESTLIB_TEST_ARGS "${ARGN}")
   set_property(GLOBAL PROPERTY "tkl::testlib::test_args" "${TACKLELIB_TESTLIB_TEST_ARGS}")
-endmacro()
+endfunction()
+
+function(tkl_testlib_get_test_args out_var)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_ARGS "tkl::testlib::test_args" 1)
+  set(${out_var} "${TACKLELIB_TESTLIB_TEST_ARGS}" PARENT_SCOPE)
+endfunction()
 
 function(tkl_testlib_print_msg msg)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
   tkl_get_global_prop(enter_dir_msg "tkl::testlib::stdout::enter_dir_msg" 0)
   if (DEFINED enter_dir_msg)
     message("${enter_dir_msg}")
@@ -114,6 +140,12 @@ function(tkl_testlib_print_msg msg)
 endfunction()
 
 function(tkl_testlib_print_enter_dir_msg msg)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg" "${msg}")
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 1)
@@ -132,6 +164,12 @@ function(tkl_testlib_print_enter_dir_msg msg)
 endfunction()
 
 function(tkl_testlib_print_leave_dir_msg msg)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
   tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg")
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 0)
@@ -161,6 +199,12 @@ function(tkl_testlib_enter_dir test_dir)
   #      call to `tkl_testlib_test` function on each file, then
   #      exit the algorithm.
   #
+
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
 
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
@@ -288,22 +332,19 @@ function(tkl_testlib_enter_dir test_dir)
   endif()
 
   tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::last_enter_dir")
-  tkl_get_global_prop(TACKLELIB_TESTLIB_LAST_ENTER_DIR "tkl::testlib::last_enter_dir" 1)
 endfunction()
 
-macro(tkl_testlib_exit)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
-
-  tkl_testlib_print_msg("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}\n===\n")
-endmacro()
-
 macro(tkl_testlib_include test_dir test_file_name)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
   tkl_get_global_prop(TACKLELIB_TESTLIB_LAST_ENTER_DIR "tkl::testlib::last_enter_dir" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST "tkl::testlib::path_match_filter" 1)
 
-  if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL .)
+  if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL ".")
     if (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}" AND
         NOT IS_DIRECTORY "${TESTS_ROOT}/${test_dir}/${test_file_name}")
       if (TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST STREQUAL "")
@@ -423,9 +464,15 @@ macro(tkl_testlib_include test_dir test_file_name)
 endmacro()
 
 function(tkl_testlib_test test_dir test_file_name)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_INITED)
+    message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
+  endif()
+
   set(ret_code 0)
 
-  if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL .)
+  if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL ".")
     set(test_file_dir "${TESTS_ROOT}/${test_dir}")
     set(test_file_dir_prefix "${test_dir}/")
   else()
@@ -459,7 +506,9 @@ function(tkl_testlib_test test_dir test_file_name)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-  if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL .)
+  tkl_testlib_get_test_args(TACKLELIB_TESTLIB_TEST_ARGS)
+
+  if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
     execute_process(
       COMMAND
         "${CMAKE_COMMAND}"
@@ -468,8 +517,9 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTESTS_ROOT=${TESTS_ROOT}"
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
         -P
-        "${test_file_path}" ${TACKLELIB_TESTLIB_TEST_ARGS}
+        "${PROJECT_ROOT}/cmake/tacklelib/testlib/tools/RunTestModule.cmake"
       WORKING_DIRECTORY
         "${TACKLELIB_TESTLIB_WORKING_DIR}"
       RESULT_VARIABLE
@@ -484,8 +534,9 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTESTS_ROOT=${TESTS_ROOT}"
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
         -P
-        "${test_file_path}" ${TACKLELIB_TESTLIB_TEST_ARGS}
+        "${PROJECT_ROOT}/cmake/tacklelib/testlib/tools/RunTestModule.cmake"
       RESULT_VARIABLE
         TACKLELIB_TESTLIB_LAST_ERROR
     )
