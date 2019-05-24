@@ -1,3 +1,7 @@
+2019.05.24:
+* new: more tests for builtins and `Handlers.cmake`
+* refactor: tests order and names refactor
+
 2019.05.22:
 * fixed: minor fixup
 

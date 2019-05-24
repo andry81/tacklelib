@@ -14,12 +14,12 @@ macro(return_pre_handler_2)
   if (return_handlers_call_counter EQUAL 2)
     tkl_test_assert_true(1 "all handlers called")
   endif()
+
+  tkl_testmodule_update_status()
 endmacro()
 
-tkl_enable_handlers_for(PRE_ONLY macro return)
-tkl_add_handler_for_return(PRE return_pre_handler_1)
-tkl_add_handler_for_return(PRE return_pre_handler_2)
-
-tkl_testmodule_update_status()
+tkl_enable_handlers(PRE_ONLY macro return)
+tkl_add_handler(PRE return return_pre_handler_1)
+tkl_add_handler(PRE return return_pre_handler_2)
 
 return()

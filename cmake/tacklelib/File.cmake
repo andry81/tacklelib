@@ -18,9 +18,11 @@ include(tacklelib/Reimpl)
 #
 
 function(tkl_is_equal_paths mode path0 path1 out_var)
+  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE "tkl::file_system::case_sensitive" 0)
+
   get_filename_component(abs_path0 "${path0}" ${mode})
   get_filename_component(abs_path1 "${path1}" ${mode})
-  if (WIN32 OR WIN64)
+  if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE AND NOT TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE))
     # case insensitive compare
     string(TOLOWER "${abs_path0}" abs_path0)
     string(TOLOWER "${abs_path1}" abs_path1)
@@ -34,39 +36,41 @@ function(tkl_is_equal_paths mode path0 path1 out_var)
 endfunction()
 
 # returns "." if paths are equal
-function(tkl_subtract_absolute_paths from_path to_path var_out)
+function(tkl_subtract_absolute_paths from_path to_path out_var)
   string(TOLOWER "${from_path}" from_path_lower)
   string(TOLOWER "${to_path}" to_path_lower)
 
   if (NOT from_path_lower STREQUAL "")
     if (${to_path_lower} STREQUAL ${from_path_lower})
-      set(${var_out} "." PARENT_SCOPE)
+      set(${out_var} "." PARENT_SCOPE)
       return()
     else()
       file(RELATIVE_PATH rel_path ${to_path_lower} ${from_path_lower})
       if (DEFINED rel_path)
         string(SUBSTRING "${rel_path}" 0 2 rel_path_first_component)
         if(NOT rel_path_first_component STREQUAL ".." AND NOT rel_path STREQUAL from_path_lower)
-          set(${var_out} ${rel_path} PARENT_SCOPE)
+          set(${out_var} ${rel_path} PARENT_SCOPE)
           return()
         endif()
       endif()
     endif()
   endif()
 
-  set(${var_out} "" PARENT_SCOPE)
+  set(${out_var} "" PARENT_SCOPE)
 endfunction()
 
 # Workaround for `file(REMOVE ...)` to bypass the command issues.
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
 #
 function(tkl_file_remove)
+  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
+
   foreach(file_path IN LISTS ARGV)
     # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
     if (file_path STREQUAL "")
       message(FATAL_ERROR "attemp to implicitly erase the current working directory")
     endif()
-    if (WIN32 OR WIN64)
+    if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR AND NOT TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR))
       if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
         message(FATAL_ERROR "attemp to erase the root of the current drive")
       endif()
@@ -86,12 +90,14 @@ endfunction()
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
 #
 function(tkl_file_remove_recurse)
+  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
+
   foreach(file_path IN LISTS ARGV)
     # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
     if (file_path STREQUAL "")
       message(FATAL_ERROR "attemp to implicitly erase the current working directory")
     endif()
-    if (WIN32 OR WIN64)
+    if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR AND NOT TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR))
       if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
         message(FATAL_ERROR "attemp to erase the root of the current drive")
       endif()

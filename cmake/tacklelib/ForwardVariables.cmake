@@ -21,45 +21,45 @@ set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 #    will be revealed and might be different than after a very first set!
 #
 
-function(tkl_is_var is_var_out var_name)
-  if(("${is_var_out}" STREQUAL "") OR (is_var_out STREQUAL var_name))
-    message(FATAL_ERROR "is_var_out must be not empty and not equal to var_name:\n is_var_out=\"${is_var_out}\"\n var_name=\"${var_name}\"")
+function(tkl_is_var out_is_var_def var_name)
+  if(("${out_is_var_def}" STREQUAL "") OR (out_is_var_def STREQUAL var_name))
+    message(FATAL_ERROR "out_is_var_def must be not empty and not equal to var_name: out_is_var_def=`${out_is_var_def}` var_name=`${var_name}`")
   endif()
   if("${var_name}" STREQUAL "")
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
   if ((var_name STREQUAL ".") OR (NOT DEFINED ${var_name}))
-    set(${is_var_out} 0 PARENT_SCOPE)
+    set(${out_is_var_def} 0 PARENT_SCOPE)
   endif()
 
   get_cmake_property(vars_list VARIABLES)
 
   list(FIND vars_list ${var_name} var_index)
   if(NOT var_index EQUAL -1)
-    set(${is_var_out} 1 PARENT_SCOPE)
+    set(${out_is_var_def} 1 PARENT_SCOPE)
   else()
-    set(${is_var_out} 0 PARENT_SCOPE)
+    set(${out_is_var_def} 0 PARENT_SCOPE)
   endif()
 endfunction()
 
-function(tkl_is_ARGV_var is_var_out var_name)
+function(tkl_is_ARGV_var out_is_var_def var_name)
   # simple test w/o call to slow MATCH operator
   string(SUBSTRING "${var_name}" 0 4 var_prefix)
   if (var_prefix STREQUAL "ARGV")
-    set(${is_var_out} 1 PARENT_SCOPE)
+    set(${out_is_var_def} 1 PARENT_SCOPE)
   else()
-    set(${is_var_out} 0 PARENT_SCOPE)
+    set(${out_is_var_def} 0 PARENT_SCOPE)
   endif()
 endfunction()
 
-function(tkl_is_ARGx_var is_var_out var_name)
+function(tkl_is_ARGx_var out_is_var_def var_name)
   # simple test w/o call to slow MATCH operator
   string(SUBSTRING "${var_name}" 0 3 var_prefix)
   if (var_prefix STREQUAL "ARG")
-    set(${is_var_out} 1 PARENT_SCOPE)
+    set(${out_is_var_def} 1 PARENT_SCOPE)
   else()
-    set(${is_var_out} 0 PARENT_SCOPE)
+    set(${out_is_var_def} 0 PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -132,6 +132,14 @@ function(tkl_pop_var_from_stack var_name)
   set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size}::is_defined)
 endfunction()
 
+function(tkl_get_var_stack_size out_var var_name)
+  get_property(vars_stack_size GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size)
+  if (vars_stack_size STREQUAL "")
+    set(vars_stack_size 0)
+  endif()
+  set(out_var ${vars_stack_size} PARENT_SCOPE)
+endfunction()
+
 # custom user properties stack over properties
 
 macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
@@ -157,10 +165,14 @@ macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
   set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size ${_2BA2974B_props_stack_size})
 endmacro()
 
-function(tkl_pushset_prop_to_stack prop_entry prop_name var_value)
+function(tkl_pushset_prop_to_stack out_var prop_entry prop_name var_value)
   tkl_push_prop_to_stack_impl("${prop_entry}" "${prop_name}")
 
   set_property("${prop_entry}" PROPERTY "${prop_name}" "${var_value}")
+
+  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
+    set(${out_var} "${var_value}" PARENT_SCOPE)
+  endif()
 endfunction()
 
 function(tkl_pushunset_prop_to_stack prop_entry prop_name)
@@ -169,7 +181,7 @@ function(tkl_pushunset_prop_to_stack prop_entry prop_name)
   set_property("${prop_entry}" PROPERTY "${prop_name}") # unset property
 endfunction()
 
-function(tkl_pop_prop_from_stack var_out prop_entry prop_name)
+function(tkl_pop_prop_from_stack out_var prop_entry prop_name)
   # INFO:
   #   All variables here are unique just in case.
   #
@@ -200,9 +212,17 @@ function(tkl_pop_prop_from_stack var_out prop_entry prop_name)
   set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size})
   set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}::is_defined)
 
-  if (NOT var_out STREQUAL "" AND NOT var_out STREQUAL ".")
-    set(${var_out} "${_2BA2974B_prop_value}" PARENT_SCOPE)
+  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
+    set(${out_var} "${_2BA2974B_prop_value}" PARENT_SCOPE)
   endif()
+endfunction()
+
+function(tkl_get_prop_stack_size out_var prop_entry prop_name)
+  get_property(props_stack_size GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size)
+  if (props_stack_size STREQUAL "")
+    set(props_stack_size 0)
+  endif()
+  set(out_var ${props_stack_size} PARENT_SCOPE)
 endfunction()
 
 macro(tkl_begin_emulate_shift_ARGVn) # WITH OUT ARGUMENTS!
@@ -260,61 +280,61 @@ endmacro()
 # CAUTION:
 # 1. User must not use builtin ARGC/ARGV/ARGN/ARGV0..N variables because they are a part of function/macro call stack
 #
-function(tkl_get_var uncached_var_out cached_var_out var_name)
-  if (uncached_var_out AND NOT uncached_var_out STREQUAL ".")
-    set(uncached_var_out_is_defined 1)
+function(tkl_get_var out_uncached_var out_cached_var var_name)
+  if (out_uncached_var AND NOT out_uncached_var STREQUAL ".")
+    set(out_uncached_var_is_defined 1)
   else()
-    set(uncached_var_out_is_defined 0)
+    set(out_uncached_var_is_defined 0)
   endif()
 
-  if (cached_var_out AND NOT cached_var_out STREQUAL ".")
-    set(cached_var_out_is_defined 1)
+  if (out_cached_var AND NOT out_cached_var STREQUAL ".")
+    set(out_cached_var_is_defined 1)
   else()
-    set(cached_var_out_is_defined 0)
+    set(out_cached_var_is_defined 0)
   endif()
 
-  if (NOT uncached_var_out_is_defined AND NOT cached_var_out_is_defined)
+  if (NOT out_uncached_var_is_defined AND NOT out_cached_var_is_defined)
     message(FATAL_ERROR "at least one output variable must be defined")
   endif()
 
-  if (uncached_var_out_is_defined)
-    if (uncached_var_out STREQUAL var_name)
-      message(FATAL_ERROR "uncached_var_out and var_name variables must be different: \"${uncached_var_out}\"")
+  if (out_uncached_var_is_defined)
+    if (out_uncached_var STREQUAL var_name)
+      message(FATAL_ERROR "out_uncached_var and var_name variables must be different: `${out_uncached_var}`")
     endif()
   endif()
 
-  if (uncached_var_out_is_defined OR cached_var_out_is_defined)
-    if (uncached_var_out STREQUAL cached_var_out)
-      message(FATAL_ERROR "uncached_var_out and cached_var_out variables must be different: \"${cached_var_out}\"")
+  if (out_uncached_var_is_defined OR out_cached_var_is_defined)
+    if (out_uncached_var STREQUAL out_cached_var)
+      message(FATAL_ERROR "out_uncached_var and out_cached_var variables must be different: `${out_cached_var}`")
     endif()
   endif()
 
   # check for specific builtin variables
   string(SUBSTRING "${var_name}" 0 3 _5FC3B9AA_var_forbidden)
   if (_5FC3B9AA_var_forbidden STREQUAL "ARG")
-    message(FATAL_ERROR "specific builtin variables are forbidden to use: \"${var_name}\"")
+    message(FATAL_ERROR "specific builtin variables are forbidden to use: `${var_name}`")
   endif()
 
   get_property(_5FC3B9AA_var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
 
   if (NOT _5FC3B9AA_var_cache_value_is_set)
-    if (cached_var_out_is_defined)
-      unset(${uncached_var_out} PARENT_SCOPE)
+    if (out_cached_var_is_defined)
+      unset(${out_uncached_var} PARENT_SCOPE)
     endif()
-    if (uncached_var_out_is_defined)
-      set(${uncached_var_out} "${${var_name}}" PARENT_SCOPE)
+    if (out_uncached_var_is_defined)
+      set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
     endif()
   else()
-    if (cached_var_out_is_defined)
+    if (out_cached_var_is_defined)
       # propagate cached variant of a variable
       if (DEFINED ${var_name})
-        set(${cached_var_out} "${${var_name}}" PARENT_SCOPE)
+        set(${out_cached_var} "${${var_name}}" PARENT_SCOPE)
       else()
-        unset(${cached_var_out} PARENT_SCOPE)
+        unset(${out_cached_var} PARENT_SCOPE)
       endif()
     endif()
 
-    if (uncached_var_out_is_defined)
+    if (out_uncached_var_is_defined)
       # save cache properties of a variable
       get_property(_5FC3B9AA_var_cache_value CACHE "${var_name}" PROPERTY VALUE)
       get_property(_5FC3B9AA_var_cache_type CACHE "${var_name}" PROPERTY TYPE)
@@ -325,13 +345,13 @@ function(tkl_get_var uncached_var_out cached_var_out var_name)
 
       # propagate uncached variant of a variable
       if (DEFINED ${var_name})
-        set(${uncached_var_out} "${${var_name}}" PARENT_SCOPE)
+        set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
       else()
-        unset(${uncached_var_out} PARENT_SCOPE)
+        unset(${out_uncached_var} PARENT_SCOPE)
       endif()
 
       # restore cache properties of a variable
-      #message("set(${var_name} \"${_5FC3B9AA_var_cache_value}\" CACHE \"${_5FC3B9AA_var_cache_type}\" \"${_5FC3B9AA_var_cache_docstring}\")")
+      #message("set(${var_name} `${_5FC3B9AA_var_cache_value}` CACHE `${_5FC3B9AA_var_cache_type}` `${_5FC3B9AA_var_cache_docstring}`)")
       set(${var_name} "${_5FC3B9AA_var_cache_value}" CACHE ${_5FC3B9AA_var_cache_type} "${_5FC3B9AA_var_cache_docstring}")
     endif()
   endif()
@@ -372,7 +392,7 @@ function(tkl_begin_track_vars)
     #else()
     #  unset(_39067B90_old_var_${_39067B90_var} PARENT_SCOPE)
     endif()
-    #message(" _39067B90_old_var_${_39067B90_var}=\"${_39067B90_old_var_${_39067B90_var}}\"")
+    #message(" _39067B90_old_var_${_39067B90_var}=`${_39067B90_old_var_${_39067B90_var}}`")
   endforeach()
 endfunction()
 

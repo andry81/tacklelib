@@ -43,8 +43,8 @@ function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_s
   string(RANDOM LENGTH ${dir_random_name_suffix_len} random_suffix)
 
   if (time_fmt)
-    tkl_get_global_prop(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "tkl::temp_dir::last_timestamp")
-    tkl_get_global_prop(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "tkl::temp_dir::last_timestamp_index")
+    tkl_get_global_prop(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "tkl::temp_dir::last_timestamp" 1)
+    tkl_get_global_prop(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "tkl::temp_dir::last_timestamp_index" 1)
 
     string(TIMESTAMP timestamp_utc "${time_fmt}" UTC)
     if (TACKLELIB_TEMP_DIR_LAST_TIMESTAMP STREQUAL timestamp_utc)

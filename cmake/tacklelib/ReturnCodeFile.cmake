@@ -6,10 +6,10 @@ include(tacklelib/File)
 include(tacklelib/MakeTemp)
 
 function(tkl_make_ret_code_file_dir dir_path_abs_var)
-  get_property(TACKLELIB_TESTLIB_TESTPROC_INDEX GLOBAL PROPERTY "tkl::testlib::testproc::index")
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-    # running under TestLib, the function can call under different cmake processes when the inner timestamp is not yet changed (timestamp has seconds resolution)
+    # running under TestLib, the function can call under different cmake process when the inner timestamp is not yet changed (timestamp has seconds resolution)
     tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 dir_path_abs)
   else()
     tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "" 8 dir_path_abs)

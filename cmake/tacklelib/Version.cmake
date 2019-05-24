@@ -155,7 +155,7 @@ function(tkl_get_clang_version_token var_token_out)
   set(${var_token_out} "CLANG${msvc_major_ver}.${msvc_minor_ver}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_compare_compiler_tokens compiler_token compiler_token_to_filter var_out)
+function(tkl_compare_compiler_tokens compiler_token compiler_token_to_filter out_var)
   string(TOUPPER "${compiler_token}" compiler_token_upper)
   string(TOUPPER "${compiler_token_to_filter}" compiler_token_to_filter_upper)
 
@@ -178,9 +178,9 @@ function(tkl_compare_compiler_tokens compiler_token compiler_token_to_filter var
   if (compiler_token_name STREQUAL compiler_token_to_filter_name AND
       ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
       ((compiler_token_minor_version STREQUAL "") OR (compiler_token_to_filter_minor_version STREQUAL "") OR (compiler_token_minor_version EQUAL compiler_token_to_filter_minor_version)))
-    set(${var_out} 1 PARENT_SCOPE)
+    set(${out_var} 1 PARENT_SCOPE)
   else()
-    set(${var_out} 0 PARENT_SCOPE)
+    set(${out_var} 0 PARENT_SCOPE)
   endif()
 endfunction()
 

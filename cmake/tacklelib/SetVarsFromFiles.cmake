@@ -565,6 +565,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   if (os_name STREQUAL "" AND NOT is_in_script_mode)
     if (WIN32 OR WIN64)
       set(os_name_to_filter WIN)
+    elseif (MSYS)
+      set(os_name_to_filter MSYS)
+    elseif (MINGW)
+      set(os_name_to_filter MINGW)
+    elseif (CYGWIN)
+      set(os_name_to_filter CYGWIN)
     elseif (UNIX OR LINUX)
       set(os_name_to_filter UNIX)
     elseif (APPLE)
@@ -576,7 +582,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(os_name_to_filter "${os_name_upper}")
   endif()
 
-  if (os_name_to_filter STREQUAL "WIN")
+  if (os_name_to_filter STREQUAL "WIN" OR
+      os_name_to_filter STREQUAL "MSYS" OR
+      os_name_to_filter STREQUAL "MINGW" OR
+      os_name_to_filter STREQUAL "CYGWIN")
     set(compare_var_path_values_as_case_sensitive 0) # treats all Windows file systems as case insensitive
   endif()
 

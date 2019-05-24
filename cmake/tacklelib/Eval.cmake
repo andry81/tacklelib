@@ -4,10 +4,7 @@ set(TACKLELIB_EVAL_INCLUDE_DEFINED 1)
 
 include(tacklelib/Std)
 include(tacklelib/MakeTemp)
-include(tacklelib/Handlers)
 include(tacklelib/Reimpl)
-
-tkl_enable_handlers_for(PRE_ONLY macro return)
 
 # Usage:
 #   Special characters:
@@ -40,10 +37,12 @@ tkl_enable_handlers_for(PRE_ONLY macro return)
 #      https://gitlab.kitware.com/cmake/cmake/issues/19007
 #
 
+set_property(GLOBAL PROPERTY "tkl::eval::enabled" 1)
+
 macro(tkl_eval)
   #message("=${ARGV}=")
   #message("=${ARGN}=")
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" _67AB359F_eval_argn)
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" _67AB359F_eval_str)
   # in case of in a macro call we must pass all ARGV arguments explicitly
   tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
@@ -51,14 +50,14 @@ macro(tkl_eval)
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_vars_from_ARGV_ARGN_end("" _67AB359F_eval_argn)
+  tkl_make_vars_from_ARGV_ARGN_end("" _67AB359F_eval_str)
   tkl_unset_ARGV()
-  #message("tkl_eval: argn=${_67AB359F_eval_argn}")
+  #message("tkl_eval: argn=${_67AB359F_eval_str}")
 
-  get_property(TACKLELIB_TESTLIB_TESTPROC_INDEX GLOBAL PROPERTY "tkl::testlib::testproc::index")
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-    # running under TestLib, the macro can call under different cmake processes when the inner timestamp is not yet changed (timestamp has seconds resolution)
+    # running under TestLib, the macro can call under different cmake process when the inner timestamp is not yet changed (timestamp has seconds resolution)
     tkl_make_temp_dir("CMake.Eval." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 _67AB359F_temp_dir_path)
   else()
     tkl_make_temp_dir("CMake.Eval." "%Y'%m'%d''%H'%M'%SZ" "" 8 _67AB359F_temp_dir_path)
@@ -67,44 +66,44 @@ macro(tkl_eval)
   # builtin variables for the `eval` self testing from the `TestLib`
   set(TACKLELIB_EVAL_LAST_TEMP_DIR_PATH "${_67AB359F_temp_dir_path}")
 
-  tkl_decode_control_chars("${_67AB359F_eval_argn}" _67AB359F_eval_argn)
+  tkl_decode_control_chars("${_67AB359F_eval_str}" _67AB359F_eval_str)
 
   # CAUTION:
-  #   This conversion required ONLY if `file(...)` is reimplemented by a macro, which is by default in the `File.cmake`!
+  #   This conversion is required ONLY if `file(...)` is reimplemented as a macro, which is by default in the `File.cmake`!
   #   For details: https://gitlab.kitware.com/cmake/cmake/issues/19281
   #
   tkl_get_reimpl_prop(file)
 
   if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
-    tkl_escape_list_expansion(_67AB359F_eval_argn "${_67AB359F_eval_argn}")
+    tkl_escape_list_expansion(_67AB359F_eval_str "${_67AB359F_eval_str}")
   endif()
 
-  # 1. drop local variables at begin
-  # 2. the expression at the middle
-  # 3. self cleanup at the end
-  file(WRITE "${_67AB359F_temp_dir_path}/eval.cmake" "\
+  set(TACKLELIB_EVAL_LAST_STR "${_67AB359F_eval_str}")
+
+  get_property(_67AB359F_is_eval_enabled GLOBAL PROPERTY "tkl::eval::enabled")
+  if (_67AB359F_is_eval_enabled)
+    # 1. drop local variables at begin
+    # 2. the expression at the middle
+    # 3. self cleanup at the end
+    file(WRITE "${_67AB359F_temp_dir_path}/include.cmake" "\
 unset(_67AB359F_temp_dir_path)
-unset(_67AB359F_eval_argn)
+unset(_67AB359F_eval_str)
 
-# handler for the `return`
-macro(tkl_return_pre_only_handler)
-  # remove return handler before handling
-  tkl_remove_handler_for_return(PRE)
-  # cleanup before return
-  tkl_file_remove_recurse(\"${_67AB359F_temp_dir_path}\")
-endmacro()
-
-tkl_add_handler_for_return(PRE tkl_return_pre_only_handler)
+# cleanup before evaluate
+tkl_file_remove_recurse(\"${_67AB359F_temp_dir_path}\")
 
 # evaluating...
-${_67AB359F_eval_argn}
-
-# cleanup after evaluate
-tkl_file_remove_recurse(\"${_67AB359F_temp_dir_path}\")
+${_67AB359F_eval_str}
 ")
 
-  # evaluating...
-  include("${_67AB359F_temp_dir_path}/eval.cmake")
+    # evaluating...
+    include("${_67AB359F_temp_dir_path}/include.cmake")
+  else()
+    unset(_67AB359F_temp_dir_path)
+    unset(_67AB359F_eval_str)
+  endif()
 endmacro()
+
+tkl_register_implementation(macro tkl_eval)
 
 endif()
