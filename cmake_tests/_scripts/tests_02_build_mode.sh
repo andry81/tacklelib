@@ -13,14 +13,12 @@ source "${ScriptDirPath:-.}/__init__.sh" || exit $?
 
 (( NEST_LVL++ ))
 
-TACKLELIB_TESTLIB_TESTSCRIPT_FILE="${ScriptFileName%[.]*}"
-
 IFS=$' \t\r\n'
 Call cmake \
   "-DCMAKE_MODULE_PATH=$TESTS_ROOT;$PROJECT_ROOT/cmake" \
   "-DPROJECT_ROOT=$PROJECT_ROOT" \
   "-DTESTS_ROOT=$TESTS_ROOT" \
-  "-DTACKLELIB_TESTLIB_TESTSCRIPT_FILE=$TACKLELIB_TESTLIB_TESTSCRIPT_FILE" \
+  "-DTACKLELIB_TESTLIB_TESTSCRIPT_FILE=$TESTS_ROOT/${ScriptFileName%[.]*}.cmake" \
   -P \
   "$PROJECT_ROOT/cmake/tacklelib/testlib/tools/RunTestLib.cmake" \
   "$@"
