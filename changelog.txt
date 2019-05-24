@@ -1,3 +1,16 @@
+2019.05.24:
+* fixed: cmake: `Handlers.cmake` evaluation after add/remove handlers
+* fixed: cmake: the `--path_match_filter` in the `TestLib.cmake` is not properly ignored different character case in file paths in the Windows
+* new: cmake: standalone property getter in the `Props.cmake` to explicitly state the operation details
+* new: cmake: standalone properties to set/get file system case sensitivity and back slash separator support
+* new: cmake: `tkl_get_vars_stack_size`, `tkl_get_prop_stack_size` functions in the `ForwardVariables.cmake`
+* new: cmake_tests: more tests for builtins and `Handlers.cmake`
+* changed: cmake: internal include files cleanup in the `Handlers.cmake` now handles in the begginning of the execution intead of in the end
+* changed: cmake: the `--path_match_filter` in the `TestLib.cmake` now does ignore the printing of not processed directories enter/leave
+* changed: cmake: `TestLib.cmake` improvements
+* refactor: cmake: `var_out` function arguments renamed to `out_var`
+* refactor: cmake_tests: tests order and names refactor
+
 2019.05.22:
 * fixed: cmake: `TestLib.cmake` minor fixup
 * fixed: cmake_tests: minor fixup

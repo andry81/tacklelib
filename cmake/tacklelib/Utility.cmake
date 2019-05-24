@@ -9,8 +9,8 @@ set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 #   * `\n` into the line return
 #   etc
 #
-function(tkl_encode_control_chars in_value out_var)
-  string(REPLACE "\\" "\\\\" encoded_value "${in_value}")
+function(tkl_encode_control_chars in_str out_var)
+  string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
   string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
@@ -24,14 +24,14 @@ endfunction()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(tkl_decode_control_chars in_value out_var)
+function(tkl_decode_control_chars in_str out_var)
   set(decoded_value "")
   set(index 0)
   set(is_escaping 0)
-  string(LENGTH "${in_value}" value_len)
+  string(LENGTH "${in_str}" value_len)
 
   while (index LESS value_len)
-    string(SUBSTRING "${in_value}" ${index} 1 char)
+    string(SUBSTRING "${in_str}" ${index} 1 char)
     if (NOT is_escaping)
       if (NOT char STREQUAL "\\")
         set(decoded_value "${decoded_value}${char}")
@@ -63,14 +63,20 @@ function(tkl_decode_control_chars in_value out_var)
   set(${out_var} "${decoded_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_make_cmdline_from_list out_var)
+# INFO:
+#   This function is required for arguments convertion before an executable or shell call.
+#
+function(tkl_make_exec_cmdline_from_list out_var)
   set(cmdline "")
 
   foreach(arg IN LISTS ARGN)
-    if (NOT arg STREQUAL "")
-      string(REGEX REPLACE "([;\\\\\\\"])" "\\\\\\1" escaped_arg "${arg}")
+    # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+    string(REPLACE ";" "\;" arg "${arg}")
 
-      if (cmdline)
+    if (NOT arg STREQUAL "")
+      string(REGEX REPLACE "([\\\\\\\"\\\\\\\$])" "\\\\\\1" escaped_arg "${arg}")
+
+      if (NOT cmdline STREQUAL "")
         if(NOT arg MATCHES "[;, \t\"]")
           set(cmdline "${cmdline} ${escaped_arg}")
         else()
@@ -84,7 +90,7 @@ function(tkl_make_cmdline_from_list out_var)
         endif()
       endif()
     else()
-      if(cmdline)
+      if(NOT cmdline STREQUAL "")
         set(cmdline "${cmdline} \"\"")
       else()
         set(cmdline "\"\"")
@@ -95,18 +101,48 @@ function(tkl_make_cmdline_from_list out_var)
   set(${out_var} "${cmdline}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_make_eval_cmdline_from_vars_list out_var)
+# INFO:
+#   This function is required for arguments convertion before a macro call AFTER in a macro call (nested macro call).
+#   For details: https://gitlab.kitware.com/cmake/cmake/issues/19281
+#
+function(tkl_make_vars_escaped_expansion_cmdline_from_vars_list out_var)
   set(eval_cmdline "")
 
   foreach(arg_var IN LISTS ARGN)
     if (NOT arg_var STREQUAL "")
-      if (eval_cmdline)
+      if (NOT eval_cmdline STREQUAL "")
+        set(eval_cmdline "${eval_cmdline} \"\\\${${arg_var}}\"")
+      else()
+        set(eval_cmdline "\"\\\${${arg_var}}\"")
+      endif()
+    else()
+      if(NOT eval_cmdline STREQUAL "")
+        set(eval_cmdline "${eval_cmdline} \"\"")
+      else()
+        set(eval_cmdline "\"\"")
+      endif()
+    endif()
+  endforeach()
+
+  set(${out_var} "${eval_cmdline}" PARENT_SCOPE)
+endfunction()
+
+# INFO:
+#   This function is required for all other cases of a call except of a nested macro call for
+#   which the `tkl_make_macro_cmdline_from_macro_vars_list` function is designed.
+#
+function(tkl_make_vars_unescaped_expansion_cmdline_from_vars_list out_var)
+  set(eval_cmdline "")
+
+  foreach(arg_var IN LISTS ARGN)
+    if (NOT arg_var STREQUAL "")
+      if (NOT eval_cmdline STREQUAL "")
         set(eval_cmdline "${eval_cmdline} \"\${${arg_var}}\"")
       else()
         set(eval_cmdline "\"\${${arg_var}}\"")
       endif()
     else()
-      if(eval_cmdline)
+      if(NOT eval_cmdline STREQUAL "")
         set(eval_cmdline "${eval_cmdline} \"\"")
       else()
         set(eval_cmdline "\"\"")
@@ -140,7 +176,7 @@ function(tkl_escape_list_expansion out_var in_list)
   set(${out_var} "${escaped_list}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_is_path_var_by_name is_var_out var_name)
+function(tkl_is_path_var_by_name out_is_var var_name)
   # variable name endings
   set (var_ending_strs
     _ROOT _PATH _DIR _SUBDIR _DIRECTORY _SUBDIRECTORY _FILE
@@ -204,7 +240,7 @@ function(tkl_is_path_var_by_name is_var_out var_name)
 
       if (var_name_ending_upper STREQUAL "${var_ending_str}${var_ending_of_ending_str}")
         #message("var_name=`${var_name}` is PATH (ending=`${var_ending_str}${var_ending_of_ending_str}`)")
-        set(${is_var_out} 1 PARENT_SCOPE)
+        set(${is_out_is_var} 1 PARENT_SCOPE)
         return()
       endif()
     endforeach()
@@ -220,14 +256,76 @@ function(tkl_is_path_var_by_name is_var_out var_name)
       #message("== ${var_name_str}${var_ending_of_ending_str}")
       if ("${var_name_str}${var_ending_of_ending_str}" STREQUAL var_name_upper)
         #message("var_name=`${var_name}` is PATH")
-        set(${is_var_out} 1 PARENT_SCOPE)
+        set(${is_out_is_var} 1 PARENT_SCOPE)
         return()
       endif()
     endforeach()
   endforeach()
 
   #message("var_name=`${var_name}` is not PATH")
-  set(${is_var_out} 0 PARENT_SCOPE)
+  set(${is_out_is_var} 0 PARENT_SCOPE)
+endfunction()
+
+function(tkl_regex_to_lower in_str out_var)
+  set(regex_value "")
+  set(index 0)
+  set(is_escaping 0)
+  string(LENGTH "${in_str}" value_len)
+
+  while (index LESS value_len)
+    string(SUBSTRING "${in_str}" ${index} 1 char)
+    if (NOT is_escaping)
+      if (NOT char STREQUAL "\\")
+        string(TOLOWER "${char}" char)
+        set(regex_value "${regex_value}${char}")
+      else()
+        set(is_escaping 1)
+      endif()
+    else()
+      # retain character escaping
+      set(regex_value "${regex_value}\\${char}")
+      set(is_escaping 0)
+    endif()
+
+    math(EXPR index "${index}+1")
+  endwhile()
+
+  if (is_escaping)
+    set(regex_value "${regex_value}\\")
+  endif()
+
+  set(${out_var} "${regex_value}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_regex_to_upper in_str out_var)
+  set(regex_value "")
+  set(index 0)
+  set(is_escaping 0)
+  string(LENGTH "${in_str}" value_len)
+
+  while (index LESS value_len)
+    string(SUBSTRING "${in_str}" ${index} 1 char)
+    if (NOT is_escaping)
+      if (NOT char STREQUAL "\\")
+        string(TOUPPER "${char}" char)
+        set(regex_value "${regex_value}${char}")
+      else()
+        set(is_escaping 1)
+      endif()
+    else()
+      # retain character escaping
+      set(regex_value "${regex_value}\\${char}")
+      set(is_escaping 0)
+    endif()
+
+    math(EXPR index "${index}+1")
+  endwhile()
+
+  if (is_escaping)
+    set(regex_value "${regex_value}\\")
+  endif()
+
+  set(${out_var} "${regex_value}" PARENT_SCOPE)
 endfunction()
 
 endif()

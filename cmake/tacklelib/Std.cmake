@@ -37,27 +37,25 @@ function(tkl_copy_vars)
     message(FATAL_ERROR "function must be called with all 4 arguments")
   endif()
 
-  get_cmake_property(${ARGV0} VARIABLES)
-
   # reduce intersection probability with the parent scope variables through the unique variable name prefix
+  get_cmake_property(_24C487FA_vars_all_list VARIABLES)
+
   set(_24C487FA_var_name "")
   set(_24C487FA_var_name_prefix "")
   set(_24C487FA_var_value "")
 
   string(LENGTH "${ARGV3}" _24C487FA_var_prefix_filter_len)
 
-  if (NOT _24C487FA_var_prefix_filter_len)
-    message(FATAL_ERROR "ARGV3 must be not empty variable name prefix token")
-  endif()
-
   set(${ARGV1} "")
   set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
 
-  foreach (_24C487FA_var_name IN LISTS ${ARGV0})
-    string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
-    # copy values only from "parent scope" variables
-    if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
-      continue()
+  foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
+    if (_24C487FA_var_prefix_filter_len)
+      string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
+      # copy values only from "parent scope" variables
+      if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
+        continue()
+      endif()
     endif()
 
     # check for specific builtin variables
@@ -84,6 +82,9 @@ function(tkl_copy_vars)
   #message(vars_len=${vars_len})
   #message(vals_len=${vals_len})
 
+  if (NOT "${ARGV0}" STREQUAL "" AND NOT "${ARGV0}" STREQUAL ".")
+    set(${ARGV0} "${_24C487FA_vars_all_list}" PARENT_SCOPE)
+  endif()
   set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)
   set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
 endfunction()

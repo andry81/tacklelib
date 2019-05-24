@@ -5,8 +5,8 @@ set(TACKLELIB_REIMPL_INCLUDE_DEFINED 1)
 include(tacklelib/Props)
 
 macro(tkl_get_reimpl_prop func_name)
-  get_property(TACKLELIB_REIMPL_FOR_${func_name} GLOBAL PROPERTY "tkl::reimpl[${func_name}]")
-  get_property(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_${func_name} GLOBAL PROPERTY "tkl::reimpl[${func_name}]::keyword_declarator")
+  tkl_get_global_prop(TACKLELIB_REIMPL_FOR_${func_name} "tkl::reimpl[${func_name}]" 1)
+  tkl_get_global_prop(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_${func_name} "tkl::reimpl[${func_name}]::keyword_declarator" 0)
 endmacro()
 
 macro(tkl_register_implementation keyword_declarator func_name)
