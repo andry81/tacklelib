@@ -72,6 +72,8 @@ cmake/tacklelib/changelog.txt -text
 cmake/tacklelib/license.txt -text
 cmake/tacklelib/testlib/TestLib.cmake -text
 cmake/tacklelib/testlib/TestModule.cmake -text
+cmake/tacklelib/testlib/tools/RunTestLib.cmake -text
+cmake/tacklelib/testlib/tools/RunTestModule.cmake -text
 cmake/tacklelib/tools/CMakeEval.cmd.cmake -text
 cmake/tacklelib/tools/CPackMakeConfig.cmake -text
 cmake/tacklelib/tools/ConfigureFile.cmake -text

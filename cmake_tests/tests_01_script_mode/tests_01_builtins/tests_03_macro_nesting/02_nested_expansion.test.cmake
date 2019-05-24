@@ -1,7 +1,3 @@
-include(tacklelib/testlib/TestModule)
-
-tkl_testmodule_init()
-
 set(a 222)
 set(prefix "\\")
 set(suffix "\${a}")
@@ -28,5 +24,3 @@ endmacro()
 
 outter_macro("\\\\\\\\\\\\\\\\111\\\\\\\${a}")
 outter_function("\\\\\\\\\\\\\\\\111\\\\\\\${a}")
-
-tkl_testmodule_update_status()

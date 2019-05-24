@@ -1,7 +1,3 @@
-include(tacklelib/testlib/TestModule)
-
-tkl_testmodule_init()
-
 macro(outter_macro a)
   macro(inner_macro a)
     tkl_test_assert_true("\"${a}\" STREQUAL \"111\"" "a=${a}")
@@ -19,5 +15,3 @@ endfunction()
 
 outter_func(111)
 inner_macro(222)
-
-tkl_testmodule_update_status()

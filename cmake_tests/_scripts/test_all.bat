@@ -4,14 +4,15 @@ setlocal
 
 call "%%~dp0__init__.bat" || goto :EOF
 
-set "TEST_SCRIPT_FILE_NAME=%~n0"
+set "TACKLELIB_TESTLIB_TESTSCRIPT_FILE=%~n0"
 
 call :CMD cmake ^
   "-DCMAKE_MODULE_PATH=%%TESTS_ROOT%%;%%PROJECT_ROOT%%/cmake" ^
   "-DPROJECT_ROOT=%%PROJECT_ROOT%%" ^
   "-DTESTS_ROOT=%%TESTS_ROOT%%" ^
-  "-DTEST_SCRIPT_FILE_NAME=%%TEST_SCRIPT_FILE_NAME%%" ^
-  -P "%%TESTS_ROOT%%/%%TEST_SCRIPT_FILE_NAME%%.cmake" ^
+  "-DTACKLELIB_TESTLIB_TESTSCRIPT_FILE=%%TACKLELIB_TESTLIB_TESTSCRIPT_FILE%%" ^
+  -P ^
+  "%%PROJECT_ROOT%%/cmake/tacklelib/testlib/tools/RunTestLib.cmake" ^
   %%*
 pause
 exit /b

@@ -1,5 +1,3 @@
-include(tacklelib/testlib/TestModule)
-
 set(test_seq_01 a;b\;c)
 
 ### tkl_make_var_from_ARGV_begin + tkl_set_ARGV + tkl_make_var_from_ARGV_end + tkl_unset_ARGV (in a macro call)

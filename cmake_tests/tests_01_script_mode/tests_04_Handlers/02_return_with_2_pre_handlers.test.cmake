@@ -1,7 +1,4 @@
-include(tacklelib/testlib/TestModule)
 include(tacklelib/Handlers)
-
-tkl_testmodule_init()
 
 set(return_handlers_call_counter 0)
 

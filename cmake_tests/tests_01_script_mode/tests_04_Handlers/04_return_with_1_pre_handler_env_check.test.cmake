@@ -1,8 +1,5 @@
-include(tacklelib/testlib/TestModule)
 include(tacklelib/Std)
 include(tacklelib/Handlers)
-
-tkl_testmodule_init()
 
 macro(return_pre_handler)
   tkl_testmodule_update_status()

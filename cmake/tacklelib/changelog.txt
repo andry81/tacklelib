@@ -1,3 +1,7 @@
+2019.05.25:
+* fixed: multiple `tkl_testlib_exit` call
+* changed: removed initialization/uninitialization code from user test library/modules, make it explicit from standalone cmake scripts (`RunTestLib.cmake` and `RunTestModule.cmake`)
+
 2019.05.24:
 * fixed: `Handlers.cmake` evaluation after add/remove handlers
 * fixed: the `--path_match_filter` in the `TestLib.cmake` is not properly ignored different character case in file paths in the Windows

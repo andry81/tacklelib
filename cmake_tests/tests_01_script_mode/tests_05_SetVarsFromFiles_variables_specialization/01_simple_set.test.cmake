@@ -1,5 +1,3 @@
-include(tacklelib/testlib/TestModule)
-
 function(HellowTestWorld)
   message("hello testworld!")
   tkl_test_assert_true(1 "success hello")
