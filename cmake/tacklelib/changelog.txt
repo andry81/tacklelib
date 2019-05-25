@@ -1,3 +1,7 @@
+2019.05.26:
+* refactor: minor functions rename
+* missed changes
+
 2019.05.25:
 * fixed: improved character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
 * fixed: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others

@@ -270,7 +270,7 @@ tkl_register_implementation(\"${keyword_declarator}\" \"${gen_func_name}\")
       tkl_get_reimpl_prop(file . TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
 
       if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
-        tkl_encode_control_chars_for_macro("${_3528D0E3_include_str}" _3528D0E3_include_str)
+        tkl_escape_string_for_macro_args("${_3528D0E3_include_str}" _3528D0E3_include_str)
       endif()
 
       unset(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
@@ -325,7 +325,7 @@ tkl_generate_call_handler(\"${func_name}\" ${_EBC697D4_unescaped_expansion_cmdli
     tkl_get_reimpl_prop(file . TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
 
     if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
-      tkl_encode_control_chars_for_macro("${_3528D0E3_include_str}" _3528D0E3_include_str)
+      tkl_escape_string_for_macro_args("${_3528D0E3_include_str}" _3528D0E3_include_str)
     endif()
 
     unset(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)

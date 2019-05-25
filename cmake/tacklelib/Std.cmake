@@ -134,7 +134,7 @@ function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_encode_control_chars_from_ARGx("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
+  tkl_escape_string_from_ARGx("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
 
   set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
@@ -165,7 +165,7 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
     list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_encode_control_chars_from_ARGx("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
+    tkl_escape_string_from_ARGx("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded)
 
     list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
 
@@ -198,8 +198,8 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   endif()
 
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_encode_control_chars_from_ARGx("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
-  tkl_encode_control_chars_from_ARGx("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
+  tkl_escape_string_from_ARGx("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
+  tkl_escape_string_from_ARGx("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
@@ -274,7 +274,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
       endif()
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_encode_control_chars_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_escape_string_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded)
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -298,7 +298,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
       list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_encode_control_chars_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_escape_string_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded)
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 

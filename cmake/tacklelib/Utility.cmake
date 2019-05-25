@@ -2,7 +2,7 @@
 if (NOT DEFINED TACKLELIB_UTILITY_INCLUDE_DEFINED)
 set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 
-function(tkl_encode_control_chars_from_ARGx in_str out_var)
+function(tkl_escape_string_from_ARGx in_str out_var)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
@@ -11,7 +11,7 @@ function(tkl_encode_control_chars_from_ARGx in_str out_var)
   set(${out_var} "${encoded_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_encode_control_chars_for_macro in_str out_var)
+function(tkl_escape_string_for_macro_args in_str out_var)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
@@ -30,7 +30,7 @@ endfunction()
 #   character `;` in process of expanding in a cmake string and put it in an eval
 #   string (in a file) as is.
 #
-function(tkl_encode_control_chars_for_eval in_str out_var)
+function(tkl_escape_string_for_eval in_str out_var)
   set(encoded_value "")
   set(index 0)
   set(is_escaping 0)
