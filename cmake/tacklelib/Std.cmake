@@ -33,8 +33,8 @@ function(tkl_copy_vars)
   # ARGV1 - out_vars_filtered_list  (names)
   # ARGV2 - out_vars_values_list    (values)
   # ARGV3 - var_prefix_filter
-  if (NOT ${ARGC} EQUAL 4)
-    message(FATAL_ERROR "function must be called with all 4 arguments")
+  if (NOT ${ARGC} GREATER_EQUAL 1)
+    message(FATAL_ERROR "function must have at least 1 argument")
   endif()
 
   # reduce intersection probability with the parent scope variables through the unique variable name prefix
@@ -44,49 +44,71 @@ function(tkl_copy_vars)
   set(_24C487FA_var_name_prefix "")
   set(_24C487FA_var_value "")
 
-  string(LENGTH "${ARGV3}" _24C487FA_var_prefix_filter_len)
+  if (NOT "${ARGV3}" STREQUAL "" AND NOT "${ARGV3}" STREQUAL ".")
+    string(LENGTH "${ARGV3}" _24C487FA_var_prefix_filter_len)
+  else()
+    set(_24C487FA_var_prefix_filter_len 0)
+  endif()
 
-  set(${ARGV1} "")
-  set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+  if ((NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".") OR
+    (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL "."))
+    if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+      set(${ARGV1} "")
+    endif()
+    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+      set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+    endif()
 
-  foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
-    if (_24C487FA_var_prefix_filter_len)
-      string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
-      # copy values only from "parent scope" variables
-      if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
+    foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
+      if (_24C487FA_var_prefix_filter_len)
+        string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
+        # copy values only from "parent scope" variables
+        if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
+          continue()
+        endif()
+      endif()
+
+      # check for specific builtin variables
+      string(SUBSTRING "${_24C487FA_var_name}" 0 3 _24C487FA_var_name_prefix)
+      if (_24C487FA_var_name_prefix STREQUAL "ARG")
         continue()
       endif()
+
+      if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+        list(APPEND ${ARGV1} "${_24C487FA_var_name}")
+      endif()
+
+      if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+        # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+        string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
+
+        list(APPEND ${ARGV2} "${_24C487FA_var_value}")
+
+        #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
+      endif()
+    endforeach()
+
+    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+      # remove 2 first dummy empty strings
+      tkl_list_remove_sublist(${ARGV2} 0 2 ${ARGV2})
     endif()
 
-    # check for specific builtin variables
-    string(SUBSTRING "${_24C487FA_var_name}" 0 3 _24C487FA_var_name_prefix)
-    if (_24C487FA_var_name_prefix STREQUAL "ARG")
-      continue()
-    endif()
-
-    list(APPEND ${ARGV1} "${_24C487FA_var_name}")
-    #tkl_list_join(_24C487FA_var_value ${_24C487FA_var_name} "\;")
-    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
-    list(APPEND ${ARGV2} "${_24C487FA_var_value}")
-
-    #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
-  endforeach()
-
-  # remove 2 first dummy empty strings
-  tkl_list_remove_sublist(${ARGV2} 0 2 ${ARGV2})
-
-  #list(LENGTH ${ARGV1} vars_len)
-  #list(LENGTH ${ARGV2} vals_len)
-  #
-  #message(vars_len=${vars_len})
-  #message(vals_len=${vals_len})
+    #list(LENGTH ${ARGV1} vars_len)
+    #list(LENGTH ${ARGV2} vals_len)
+    #
+    #message(vars_len=${vars_len})
+    #message(vals_len=${vals_len})
+  endif()
 
   if (NOT "${ARGV0}" STREQUAL "" AND NOT "${ARGV0}" STREQUAL ".")
     set(${ARGV0} "${_24C487FA_vars_all_list}" PARENT_SCOPE)
   endif()
-  set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)
-  set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
+  if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+    set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)
+  endif()
+  if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+    set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
+  endif()
 endfunction()
 
 macro(tkl_include_and_echo path)
@@ -105,27 +127,27 @@ endmacro()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(tkl_make_var_from_ARGV_begin argv_joined_list argv_var)
+function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_encode_control_chars("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
+  tkl_encode_control_chars_from_ARGx("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
 
   set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
-  unset(${argv_var})
+  unset(${out_argv_var} PARENT_SCOPE)
 endfunction()
 
-macro(tkl_make_var_from_ARGV_end argv_var)
+macro(tkl_make_var_from_ARGV_end out_argv_var)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(${argv_var} ";")
+  set(${out_argv_var} ";")
   set(_BBD57550_argv_joined_list_accum ";")
 
   set(_BBD57550_var_index 0)
@@ -140,10 +162,10 @@ macro(tkl_make_var_from_ARGV_end argv_var)
 
     ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
     #string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
-    list(APPEND ${argv_var} "${_BBD57550_argv_value}")
+    list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_encode_control_chars("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
+    tkl_encode_control_chars_from_ARGx("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded) # w/o escaping
 
     list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
 
@@ -151,7 +173,7 @@ macro(tkl_make_var_from_ARGV_end argv_var)
   endwhile()
 
   # remove 2 first dummy empty strings
-  tkl_list_remove_sublist(${argv_var} 0 2 ${argv_var})
+  tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
 
   unset(_BBD57550_argv_joined_list)
   unset(_BBD57550_argv_joined_list_accum)
@@ -168,16 +190,16 @@ endmacro()
 #   etc
 #
 # Params:
-#   argv_var - optional
-#   argn_var - required
-function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list argv_var argn_var)
+#   out_argv_var - optional
+#   out_argn_var - required
+function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list out_argv_var out_argn_var)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "function must have only 4 arguments")
   endif()
 
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_encode_control_chars("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
-  tkl_encode_control_chars("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
+  tkl_encode_control_chars_from_ARGx("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
+  tkl_encode_control_chars_from_ARGx("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
@@ -202,10 +224,10 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ar
     endif()
   endif()
 
-  if (NOT "${argv_var}" STREQUAL "")
-    unset(${argv_var} PARENT_SCOPE)
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    unset(${out_argv_var} PARENT_SCOPE)
   endif()
-  unset(${argn_var} PARENT_SCOPE)
+  unset(${out_argn_var} PARENT_SCOPE)
   set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
   set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
@@ -213,19 +235,19 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ar
 endfunction()
 
 # Params:
-#   argv_var - optional
-#   argn_var - required
-macro(tkl_make_vars_from_ARGV_ARGN_end argv_var argn_var)
+#   out_argv_var - optional
+#   out_argn_var - required
+macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
   if (NOT "${ARGN}" STREQUAL "")
     message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
   if (_9E220B1D_argn_offset GREATER_EQUAL 0)
     # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    if (NOT "${argv_var}" STREQUAL "")
-      set(${argv_var} ";")
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      set(${out_argv_var} ";")
     endif()
-    set(${argn_var} ";")
+    set(${out_argn_var} ";")
     set(_9E220B1D_argv_joined_list_accum ";")
 
     math(EXPR _9E220B1D_argn_offset "${_9E220B1D_argn_offset}")
@@ -246,13 +268,13 @@ macro(tkl_make_vars_from_ARGV_ARGN_end argv_var argn_var)
         message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
       endif()
 
-      if (NOT "${argv_var}" STREQUAL "")
+      if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
         set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
-        list(APPEND ${argv_var} "${_9E220B1D_argv_value}")
+        list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
       endif()
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_encode_control_chars_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -270,13 +292,13 @@ macro(tkl_make_vars_from_ARGV_ARGN_end argv_var argn_var)
       #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
       ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
       #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
-      if (NOT "${argv_var}" STREQUAL "")
-        list(APPEND ${argv_var} "${_9E220B1D_argv_value}")
+      if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+        list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
       endif()
-      list(APPEND ${argn_var} "${_9E220B1D_argv_value}")
+      list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_encode_control_chars("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
+      tkl_encode_control_chars_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded) # w/o escaping
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -284,20 +306,20 @@ macro(tkl_make_vars_from_ARGV_ARGN_end argv_var argn_var)
     endwhile()
 
     # remove 2 first dummy empty strings
-    if (NOT "${argv_var}" STREQUAL "")
-      tkl_list_remove_sublist(${argv_var} 0 2 ${argv_var})
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
     endif()
-    tkl_list_remove_sublist(${argn_var} 0 2 ${argn_var})
+    tkl_list_remove_sublist(${out_argn_var} 0 2 ${out_argn_var})
 
     unset(_9E220B1D_argv_joined_list_accum)
     unset(_9E220B1D_var_index)
     unset(_9E220B1D_argv_value)
     unset(_9E220B1D_argv_value_encoded)
   else()
-    if (NOT "${argv_var}" STREQUAL "")
-      set(${argv_var} "")
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      set(${out_argv_var} "")
     endif()
-    set(${argn_var} "")
+    set(${out_argn_var} "")
   endif()
 
   unset(_9E220B1D_argv_joined_list)

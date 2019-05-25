@@ -116,7 +116,7 @@ function(test_func_A_with_args_01 arg0 arg1 arg2)
 
   tkl_test_assert_true("arg0 STREQUAL \"0\"" "arg0=${arg0}")
   tkl_test_assert_true("arg1 STREQUAL \"1\"" "arg1=${arg1}")
-  tkl_test_assert_true("arg2 STREQUAL \"2\;3\"" "arg2=${arg2}")
+  tkl_test_assert_true("arg2 STREQUAL \"2;3\"" "arg2=${arg2}")
 
   tkl_test_assert_true("argv0 STREQUAL \"0\"" "argv0=${argv0}")
   tkl_test_assert_true("argv1 STREQUAL \"1\"" "argv1=${argv1}")

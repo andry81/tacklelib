@@ -191,8 +191,10 @@ endfunction()
 #   Should not be overriden before!
 #   Exists to bypass issues has introduced here:
 #     https://gitlab.kitware.com/cmake/cmake/issues/19274
+#   Has to be a macro to avoid interception of a variable creation to pass it to a parent scope.
 #
 macro(file cmd)
+  #message("file: ${cmd} ${ARGN}")
   if ("${cmd}" STREQUAL "REMOVE")
     message(FATAL_ERROR "`file(REMOVE ...)` having issues with the removing, do use `tkl_file_remove` instead")
   elseif ("${cmd}" STREQUAL "REMOVE_RECURSE")

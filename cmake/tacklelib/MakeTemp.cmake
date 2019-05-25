@@ -10,10 +10,6 @@ include(tacklelib/Props)
 #   * specific `%s` format specifier in the `string(TIMESTAMP ...)`: https://cmake.org/cmake/help/v3.6/command/string.html#timestamp
 #
 
-tkl_set_global_prop_and_var(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "tkl::temp_dir::last_timestamp" "")
-# additional suffix to the time limited by resolution in seconds
-tkl_set_global_prop_and_var(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "tkl::temp_dir::last_timestamp_index" 0)
-
 function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_suffix_len out_var)
   set(temp_base_dir "")
   if (DEFINED ENV{TMP} AND IS_DIRECTORY "$ENV{TMP}")
@@ -51,10 +47,7 @@ function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_s
       math(EXPR TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}+1")
     else()
       set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX 0)
-      set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
     endif()
-    set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}" PARENT_SCOPE)
-    set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}" PARENT_SCOPE)
 
     set_property(GLOBAL PROPERTY "tkl::temp_dir::last_timestamp" "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP}")
     set_property(GLOBAL PROPERTY "tkl::temp_dir::last_timestamp_index" "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}")

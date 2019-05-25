@@ -42,8 +42,11 @@ function(tkl_testmodule_init)
     message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTMODULE_FILE file path must exist before include this module: TACKLELIB_TESTLIB_TESTMODULE_FILE=`${TACKLELIB_TESTLIB_TESTMODULE_FILE}`")
   endif()
 
-  file(RELATIVE_PATH TACKLELIB_TESTLIB_TESTMODULE_FILE_REL "${TESTS_ROOT}" "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
-  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::file" "${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL}")
+  file(RELATIVE_PATH TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH "${TESTS_ROOT}" "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
+  tkl_testmodule_test_file_shortcut("${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH}" TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT)
+
+  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::file_rel_path_shortcut" "${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}")
+  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::file_rel_path" "${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH}")
 
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
@@ -74,6 +77,21 @@ function(tkl_testmodule_print_msg msg)
   message("${msg}")
 endfunction()
 
+function(tkl_testmodule_test_file_shortcut test_file_path out_var)
+  # cut off trailing `.test.*`
+  string(TOLOWER "${test_file_path}" test_file_path_c)
+  string(REGEX REPLACE "\\.test\\.cmake\$" "" test_file_path_shortcut_c "${test_file_path_c}")
+  string(LENGTH "${test_file_path_c}" test_file_path_c_len)
+  string(LENGTH "${test_file_path_shortcut_c}" test_file_path_shortcut_c_len)
+  if (NOT test_file_path_c_len EQUAL test_file_path_shortcut_c_len)
+    string(SUBSTRING "${test_file_path}" 0 ${test_file_path_shortcut_c_len} test_file_path_shortcut)
+  else()
+    set(test_file_path_shortcut "${test_file_path}")
+  endif()
+
+  set(${out_var} "${test_file_path_shortcut}" PARENT_SCOPE)
+endfunction()
+
 function(tkl_testmodule_run_test_cases)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
@@ -81,7 +99,7 @@ function(tkl_testmodule_run_test_cases)
     message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
-  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL "tkl::testlib::testmodule::file" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT "tkl::testlib::testmodule::file_rel_path_shortcut" 1)
 
   foreach(test_func ${ARGN})
     tkl_eval("\
@@ -93,9 +111,9 @@ ${test_func}()
 tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" 1)
 
 if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
-  tkl_testmodule_print_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL}`: \${test_func}\")
+  tkl_testmodule_print_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: \${test_func}\")
 else()
-  tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL}`: \${test_func}\")
+  tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: \${test_func}\")
 endif()
 
 tkl_testmodule_update_status()
@@ -117,6 +135,7 @@ function(tkl_test_assert_true if_exp msg)
     message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
+  #message("if_exp=${if_exp}")
   tkl_eval("\
 if (${if_exp})
   set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 0)
@@ -136,13 +155,13 @@ endif()
       tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 0)
     endif()
   else()
-    tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL "tkl::testlib::testmodule::file" 1)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT "tkl::testlib::testmodule::file_rel_path_shortcut" 1)
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC "tkl::testlib::testcase::func" 1)
 
     if (NOT TACKLELIB_TESTLIB_TESTCASE_FUNC STREQUAL "")
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${if_exp}` msg=`${msg}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${if_exp}` msg=`${msg}`")
     else()
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL}`: if_exp=`${if_exp}` msg=`${msg}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${if_exp}` msg=`${msg}`")
     endif()
     tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
     return() # always return from a test case function on first fail
