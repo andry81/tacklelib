@@ -1,3 +1,9 @@
+2019.05.25:
+* fixed: `tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake` test pass
+* fixed: `tests_01_script_mode/tests_03_Std/02_make_args_from_ARGV_ARGN.test.cmake` test correction
+* fixed: `tests_01_script_mode/tests_02_TestLib/01_assert_expressions.test.cmake` test correction
+* fixed: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting/02_nested_expansion.test.cmake` test correction
+
 2019.05.24:
 * new: more tests for builtins and `Handlers.cmake`
 * refactor: tests order and names refactor

@@ -1,5 +1,5 @@
 macro(macro_assert a)
-  tkl_test_assert_true("a STREQUAL \"\"" "a=${a}")
+  tkl_test_assert_true("a STREQUAL \"a\"" "a=${a}")
   tkl_test_assert_true("\"${a}\" STREQUAL \"111\"" "a=${a}")
 endmacro()
 

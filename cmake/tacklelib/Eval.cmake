@@ -5,6 +5,7 @@ set(TACKLELIB_EVAL_INCLUDE_DEFINED 1)
 include(tacklelib/Std)
 include(tacklelib/MakeTemp)
 include(tacklelib/Reimpl)
+include(tacklelib/ForwardVariables)
 
 # Usage:
 #   Special characters:
@@ -39,20 +40,18 @@ include(tacklelib/Reimpl)
 
 set_property(GLOBAL PROPERTY "tkl::eval::enabled" 1)
 
-macro(tkl_eval)
+# CAUTION:
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
+#
+function(tkl_eval) # WITH OUT ARGUMENTS!
+  tkl_begin_track_vars()
+
   #message("=${ARGV}=")
   #message("=${ARGN}=")
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" _67AB359F_eval_str)
-  # in case of in a macro call we must pass all ARGV arguments explicitly
-  tkl_set_ARGV(
-    "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
-    "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
-    "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
-    "${ARGV30}" "${ARGV31}")
-  #tkl_print_ARGV()
+  # in case of in a function call we don't have to pass all ARGV arguments explicitly
   tkl_make_vars_from_ARGV_ARGN_end("" _67AB359F_eval_str)
-  tkl_unset_ARGV()
-  #message("tkl_eval: argn=${_67AB359F_eval_str}")
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
 
@@ -63,31 +62,19 @@ macro(tkl_eval)
     tkl_make_temp_dir("CMake.Eval." "%Y'%m'%d''%H'%M'%SZ" "" 8 _67AB359F_temp_dir_path)
   endif()
 
+  unset(TACKLELIB_TESTLIB_TESTPROC_INDEX)
+
   # builtin variables for the `eval` self testing from the `TestLib`
-  set(TACKLELIB_EVAL_LAST_TEMP_DIR_PATH "${_67AB359F_temp_dir_path}")
+  set_property(GLOBAL PROPERTY "tkl::eval::last_temp_dir_path" "${_67AB359F_temp_dir_path}")
 
-  tkl_decode_control_chars("${_67AB359F_eval_str}" _67AB359F_eval_str)
+  tkl_encode_control_chars_for_eval("${_67AB359F_eval_str}" _67AB359F_eval_str)
 
-  # CAUTION:
-  #   This conversion is required ONLY if `file(...)` is reimplemented as a macro, which is by default in the `File.cmake`!
-  #   For details: https://gitlab.kitware.com/cmake/cmake/issues/19281
-  #
-  tkl_get_reimpl_prop(file)
-
-  if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
-    tkl_escape_list_expansion(_67AB359F_eval_str "${_67AB359F_eval_str}")
-  endif()
-
-  set(TACKLELIB_EVAL_LAST_STR "${_67AB359F_eval_str}")
+  set_property(GLOBAL PROPERTY "tkl::eval::last_str" "${_67AB359F_eval_str}")
 
   get_property(_67AB359F_is_eval_enabled GLOBAL PROPERTY "tkl::eval::enabled")
   if (_67AB359F_is_eval_enabled)
-    # 1. drop local variables at begin
-    # 2. the expression at the middle
-    # 3. self cleanup at the end
-    file(WRITE "${_67AB359F_temp_dir_path}/include.cmake" "\
+    set(_67AB359F_include_str "\
 unset(_67AB359F_temp_dir_path)
-unset(_67AB359F_eval_str)
 
 # cleanup before evaluate
 tkl_file_remove_recurse(\"${_67AB359F_temp_dir_path}\")
@@ -96,14 +83,35 @@ tkl_file_remove_recurse(\"${_67AB359F_temp_dir_path}\")
 ${_67AB359F_eval_str}
 ")
 
+    # CAUTION:
+    #   This conversion required ONLY if `file(...)` is reimplemented as a macro, which is by default in the `File.cmake`!
+    #   For details: https://gitlab.kitware.com/cmake/cmake/issues/19281
+    #
+    tkl_get_reimpl_prop(file . TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
+
+    if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
+      tkl_encode_control_chars_for_macro("${_67AB359F_include_str}" _67AB359F_include_str)
+    endif()
+
+    unset(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
+
+    file(WRITE "${_67AB359F_temp_dir_path}/include.cmake" "${_67AB359F_include_str}")
+
+    unset(_67AB359F_is_eval_enabled)
+    unset(_67AB359F_eval_str)
+
     # evaluating...
     include("${_67AB359F_temp_dir_path}/include.cmake")
+
+    tkl_forward_changed_vars_to_parent_scope()
   else()
     unset(_67AB359F_temp_dir_path)
     unset(_67AB359F_eval_str)
   endif()
-endmacro()
 
-tkl_register_implementation(macro tkl_eval)
+  tkl_end_track_vars()
+endfunction()
+
+tkl_register_implementation(function tkl_eval)
 
 endif()

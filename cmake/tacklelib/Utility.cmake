@@ -2,19 +2,71 @@
 if (NOT DEFINED TACKLELIB_UTILITY_INCLUDE_DEFINED)
 set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 
-# CAUTION:
-#   Must be a function to avoid expansion of variable arguments like:
-#   * `${...}` into a value
-#   * `$\{...}` into `${...}`
-#   * `\n` into the line return
-#   etc
-#
-function(tkl_encode_control_chars in_str out_var)
+function(tkl_encode_control_chars_from_ARGx in_str out_var)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
-  string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
-  string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
-  string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
+  #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
+  #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
+  #string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
   string(REPLACE "\$" "\\\$" encoded_value "${encoded_value}")
+  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_encode_control_chars_for_macro in_str out_var)
+  string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
+  #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
+  #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
+  #string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
+  string(REPLACE "\$" "\\\$" encoded_value "${encoded_value}")
+  string(REPLACE ";" "\;" encoded_value "${encoded_value}")
+  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+endfunction()
+
+# DESCRIPTION:
+#   We can not translate the string `\\;\;;` into the `\\;\;;` (as is) because
+#   the cmake internally does expand the string into `\;\;;` BEFORE the function
+#   call, so the `\\;` and `\;` is not distinguishable from each other.
+#   So to somehow workaround this, we have to at least convert `\\;\;;` into
+#   the `\\\;\;;` to avoid a back slash character disappear before the
+#   character `;` in process of expanding in a cmake string and put it in an eval
+#   string (in a file) as is.
+#
+function(tkl_encode_control_chars_for_eval in_str out_var)
+  set(encoded_value "")
+  set(index 0)
+  set(is_escaping 0)
+  string(LENGTH "${in_str}" value_len)
+
+  while (index LESS value_len)
+    string(SUBSTRING "${in_str}" ${index} 1 char)
+    if (NOT is_escaping)
+      if (NOT char STREQUAL "\\")
+        set(encoded_value "${encoded_value}${char}")
+      else()
+        set(is_escaping 1)
+      endif()
+    else()
+      if (char STREQUAL ";")
+        set(encoded_value "${encoded_value}\;") # retain special control character escaping
+        set(is_escaping 0)
+      elseif (char STREQUAL "\$")
+        set(encoded_value "${encoded_value}\\\$") # retain special control character escaping
+        set(is_escaping 0)
+      else()
+        set(encoded_value "${encoded_value}\\\\")
+        if (NOT char STREQUAL "\\")
+          set(encoded_value "${encoded_value}${char}")
+          set(is_escaping 0)
+        endif()
+      endif()
+    endif()
+
+    math(EXPR index "${index}+1")
+  endwhile()
+
+  if (is_escaping)
+    set(encoded_value "${encoded_value}\\\\")
+  endif()
+
   set(${out_var} "${encoded_value}" PARENT_SCOPE)
 endfunction()
 
@@ -24,7 +76,7 @@ endfunction()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(tkl_decode_control_chars in_str out_var)
+function(tkl_decode_control_chars_from_cmd_arg in_str out_var)
   set(decoded_value "")
   set(index 0)
   set(is_escaping 0)
@@ -46,7 +98,7 @@ function(tkl_decode_control_chars in_str out_var)
       elseif (char STREQUAL "t")
         set(decoded_value "${decoded_value}\t")
       elseif (char STREQUAL ";")
-        set(decoded_value "${decoded_value}\\;") # retain special control character escaping
+        set(decoded_value "${decoded_value}\;") # retain special control character escaping
       else()
         set(decoded_value "${decoded_value}${char}")
       endif()

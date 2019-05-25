@@ -1,4 +1,15 @@
 2019.05.25:
+* fixed: cmake: improved character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
+* fixed: cmake: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others
+* fixed: cmake_tests: `tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake` test pass
+* fixed: cmake_tests: `tests_01_script_mode/tests_03_Std/02_make_args_from_ARGV_ARGN.test.cmake` test correction
+* fixed: cmake_tests: `tests_01_script_mode/tests_02_TestLib/01_assert_expressions.test.cmake` test correction
+* fixed: cmake_tests: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting/02_nested_expansion.test.cmake` test correction
+* new: cmake: standalone `tkl_encode_control_chars_for_eval` function to escape characters before pass to eval like functions
+* changed: cmake: `Handlers.cmake` variable names length reduced
+* changed: cmake: reduced test file path length (cutted off trailing `.test.cmake`) in tests output in the `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
 * fixed: cmake: `--path_match_filter` usage in `TestLib.cmake`
 * fixed: cmake: missed variable expansion in `TestLib.cmake` and `TestModule.cmake`
 

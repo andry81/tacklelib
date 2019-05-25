@@ -102,6 +102,7 @@ cmake_tests/tests_01_script_mode/tests_04_Handlers/02_return_with_2_pre_handlers
 cmake_tests/tests_01_script_mode/tests_04_Handlers/03_return_double_enable_handlers.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_05_SetVarsFromFiles_variables_specialization/01_simple_set.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_SetVarsFromFiles_attributes_collision/01_basic_checks.test.cmake -text
 cmake_tests/tests_02_build_mode.cmake -text
 config/.svnignore -text
 config/_scripts/01/01_generate_src.cache_cmds.in -text

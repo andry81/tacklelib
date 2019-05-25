@@ -223,6 +223,8 @@ function(tkl_testlib_enter_dir test_dir)
     endif()
   endif()
 
+  #message("tkl_testlib_enter_dir: ${test_dir_path}")
+
   # always set to special not zero value to provoke test to fail by default
   tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_LAST_ERROR "tkl::testlib::last_error" -1)
 
@@ -258,12 +260,6 @@ function(tkl_testlib_enter_dir test_dir)
 
       tkl_testlib_enter_dir("${file_name}")
     endforeach()
-
-    file(GLOB aaa
-      LIST_DIRECTORIES false
-      #RELATIVE "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
-      "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*.test.cmake"
-    )
 
     file(GLOB test_files
       LIST_DIRECTORIES false
@@ -364,6 +360,21 @@ macro(tkl_testlib_include test_dir test_file_name)
   endif()
 endmacro()
 
+function(tkl_testlib_test_file_shortcut test_file_path out_var)
+  # cut off trailing `.test.*`
+  string(TOLOWER "${test_file_path}" test_file_path_c)
+  string(REGEX REPLACE "\\.test\\.cmake\$" "" test_file_path_shortcut_c "${test_file_path_c}")
+  string(LENGTH "${test_file_path_c}" test_file_path_c_len)
+  string(LENGTH "${test_file_path_shortcut_c}" test_file_path_shortcut_c_len)
+  if (NOT test_file_path_c_len EQUAL test_file_path_shortcut_c_len)
+    string(SUBSTRING "${test_file_path}" 0 ${test_file_path_shortcut_c_len} test_file_path_shortcut)
+  else()
+    set(test_file_path_shortcut "${test_file_path}")
+  endif()
+
+  set(${out_var} "${test_file_path_shortcut}" PARENT_SCOPE)
+endfunction()
+
 function(tkl_testlib_test test_dir test_file_name)
   tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
 
@@ -390,6 +401,8 @@ function(tkl_testlib_test test_dir test_file_name)
 
   set(test_file_path "${test_file_dir}/${test_file_name_ext}")
 
+  #message("tkl_testlib_test: ${test_file_path}")
+
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 1)
   if (num_tests_run STREQUAL "")
     set(num_tests_run 0)
@@ -397,7 +410,9 @@ function(tkl_testlib_test test_dir test_file_name)
   math(EXPR num_tests_run ${num_tests_run}+1)
   set_property(GLOBAL PROPERTY "tkl::testlib::num_tests_run" ${num_tests_run})
 
-  tkl_testlib_print_msg("[RUNNING ] `${test_file_dir_prefix}${test_file_name_ext}`...")
+  tkl_testlib_test_file_shortcut("${test_file_dir_prefix}${test_file_name_ext}" TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT)
+
+  tkl_testlib_print_msg("[RUNNING ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`...")
 
   tkl_make_ret_code_file_dir(ret_code_dir)
 
@@ -455,10 +470,10 @@ function(tkl_testlib_test test_dir test_file_name)
 
   if (TACKLELIB_TESTLIB_LAST_ERROR EQUAL 0)
     math(EXPR TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}+1")
-    tkl_testlib_print_msg("[   OK   ] `${test_file_dir_prefix}${test_file_name_ext}`")
+    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`")
   else()
     math(EXPR TACKLELIB_TESTLIB_NUM_FAILED_TESTS "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}+1")
-    tkl_testlib_print_msg("[ FAILED ] `${test_file_dir_prefix}${test_file_name_ext}`")
+    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`")
   endif()
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")
