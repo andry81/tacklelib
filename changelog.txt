@@ -1,4 +1,8 @@
 2019.05.26:
+* refactor: cmake: minor functions rename
+* missed changes
+
+2019.05.26:
 * new: cmake_tests: `tests_01_script_mode/tests_04_Eval/01_simple_single_return.test.cmake`
 * new: cmake_tests: `tests_01_script_mode/tests_04_Eval/02_variable_set.test.cmake`
 * refactor: cmake_tests: tests reorder

@@ -12,12 +12,12 @@ include(tacklelib/ForwardVariables)
 #     `\`   - escape sequence character
 #     `\n`  - multiline separator
 #   Escape examples:
-#     `$\\{...}` or `\\\${...}` - to insert a variable expression without expansion
+#     `$\\{...}` or `\${...}` - to insert a variable expression without expansion
 #
 # CAUTION:
-#   You have to be careful with expressions passed into the function, because
-#   `tkl_eval` is a macro and a macro in the cmake having specific arguments
-#   expansion when the entire expansion feature in the cmake having issues.
+#   You have to be careful with expressions passed into a macro, because a macro
+#   in the cmake having a specific arguments expansion passes when the entire expansion
+#   feature in the cmake having issues.
 #
 #   Here is several issues related to the macro/variable/string expansion:
 #
@@ -67,7 +67,7 @@ function(tkl_eval) # WITH OUT ARGUMENTS!
   # builtin variables for the `eval` self testing from the `TestLib`
   set_property(GLOBAL PROPERTY "tkl::eval::last_temp_dir_path" "${_67AB359F_temp_dir_path}")
 
-  tkl_encode_control_chars_for_eval("${_67AB359F_eval_str}" _67AB359F_eval_str)
+  tkl_escape_string_for_eval("${_67AB359F_eval_str}" _67AB359F_eval_str)
 
   set_property(GLOBAL PROPERTY "tkl::eval::last_str" "${_67AB359F_eval_str}")
 
@@ -90,7 +90,7 @@ ${_67AB359F_eval_str}
     tkl_get_reimpl_prop(file . TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
 
     if (TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file STREQUAL "macro")
-      tkl_encode_control_chars_for_macro("${_67AB359F_include_str}" _67AB359F_include_str)
+      tkl_escape_string_for_macro_args("${_67AB359F_include_str}" _67AB359F_include_str)
     endif()
 
     unset(TACKLELIB_REIMPL_KEYWORD_DECLARATOR_FOR_file)
