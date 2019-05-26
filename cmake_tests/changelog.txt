@@ -1,4 +1,8 @@
 2019.05.26:
+* new: `tests_01_script_mode/tests_04_Eval/03_escaping.test.cmake`
+* changed: tests correction to always fail with message if test fails
+
+2019.05.26:
 * new: `tests_01_script_mode/tests_04_Eval/01_simple_single_return.test.cmake`
 * new: `tests_01_script_mode/tests_04_Eval/02_variable_set.test.cmake`
 * refactor: tests reorder

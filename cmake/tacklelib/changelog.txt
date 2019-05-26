@@ -1,5 +1,6 @@
 2019.05.26:
-* refactor: minor functions rename
+* fixed: missed to `TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX` increment in the `MakeTemp.cmake`
+* refactor: minor functions changes and rename
 * missed changes
 
 2019.05.25:

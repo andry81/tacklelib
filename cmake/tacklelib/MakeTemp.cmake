@@ -44,8 +44,9 @@ function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_s
 
     string(TIMESTAMP timestamp_utc "${time_fmt}" UTC)
     if (TACKLELIB_TEMP_DIR_LAST_TIMESTAMP STREQUAL timestamp_utc)
-      math(EXPR TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}+1")
+      math(EXPR TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX ${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}+1)
     else()
+      set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}")
       set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX 0)
     endif()
 
