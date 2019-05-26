@@ -1,4 +1,8 @@
 2019.05.26:
+* new: added TACKLELIB_TESTLIB_ROOT variable usage to address tacklelib testlib to customize tests entry point scripts
+* changed: minor changes for preparation to fix `source` command in shell scripts
+
+2019.05.26:
 * fixed: missed to `TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX` increment in the `MakeTemp.cmake`
 * refactor: minor functions changes and rename
 * missed changes

@@ -5,6 +5,10 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 
 SOURCE_TRAPLIB_SH=1 # including guard
 
+source "/bin/bash_entry" || exit $?
+
+ScriptBaseInit "$@"
+
 function GetTrapCmdLine()
 {
   local IFS=$' \t\r\n'
