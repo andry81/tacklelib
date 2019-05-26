@@ -19,6 +19,7 @@ Call cmake \
   "-DPROJECT_ROOT=$PROJECT_ROOT" \
   "-DTESTS_ROOT=$TESTS_ROOT" \
   "-DTACKLELIB_TESTLIB_TESTSCRIPT_FILE=$TESTS_ROOT/${ScriptFileName%[.]*}.cmake" \
+  "-DTACKLELIB_TESTLIB_ROOT=$PROJECT_ROOT/cmake/tacklelib/testlib" \
   -P \
   "$PROJECT_ROOT/cmake/tacklelib/testlib/tools/RunTestLib.cmake" \
   "$@"

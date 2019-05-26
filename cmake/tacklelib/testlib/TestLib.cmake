@@ -6,6 +6,10 @@ include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardVariables)
 
+if (NOT DEFINED TACKLELIB_TESTLIB_ROOT OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_ROOT}")
+  message(FATAL_ERROR "TACKLELIB_TESTLIB_ROOT variable must be defined externally before include this module: TACKLELIB_TESTLIB_ROOT=`${TACKLELIB_TESTLIB_ROOT}`")
+endif()
+
 function(tkl_testlib_init)
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
@@ -428,14 +432,14 @@ function(tkl_testlib_test test_dir test_file_name)
     execute_process(
       COMMAND
         "${CMAKE_COMMAND}"
-        "-DCMAKE_MODULE_PATH=${PROJECT_ROOT}/cmake"
+        "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
         "-DPROJECT_ROOT=${PROJECT_ROOT}"
         "-DTESTS_ROOT=${TESTS_ROOT}"
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
         -P
-        "${PROJECT_ROOT}/cmake/tacklelib/testlib/tools/RunTestModule.cmake"
+        "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
       WORKING_DIRECTORY
         "${TACKLELIB_TESTLIB_WORKING_DIR}"
       RESULT_VARIABLE
@@ -445,14 +449,14 @@ function(tkl_testlib_test test_dir test_file_name)
     execute_process(
       COMMAND
         "${CMAKE_COMMAND}"
-        "-DCMAKE_MODULE_PATH=${PROJECT_ROOT}/cmake"
+        "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
         "-DPROJECT_ROOT=${PROJECT_ROOT}"
         "-DTESTS_ROOT=${TESTS_ROOT}"
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
         -P
-        "${PROJECT_ROOT}/cmake/tacklelib/testlib/tools/RunTestModule.cmake"
+        "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
       RESULT_VARIABLE
         TACKLELIB_TESTLIB_LAST_ERROR
     )
