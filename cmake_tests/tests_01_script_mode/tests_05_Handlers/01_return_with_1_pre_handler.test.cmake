@@ -1,7 +1,7 @@
 include(tacklelib/Handlers)
 
 macro(return_pre_handler)
-  tkl_test_assert_true(1 "handler called")
+  tkl_test_assert_true(1)
 
   tkl_testmodule_update_status()
 endmacro()

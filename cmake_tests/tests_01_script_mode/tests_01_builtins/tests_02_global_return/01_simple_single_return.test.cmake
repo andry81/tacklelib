@@ -1,4 +1,4 @@
-tkl_test_assert_true(1 "always true")
+tkl_test_assert_true(1)
 
 tkl_testmodule_update_status()
 

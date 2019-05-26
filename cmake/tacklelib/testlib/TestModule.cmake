@@ -128,7 +128,7 @@ endfunction()
 #      when the escaping is a mandatory in case of a macro call from a macro:
 #      https://gitlab.kitware.com/cmake/cmake/issues/19281 )
 #
-function(tkl_test_assert_true if_exp msg)
+function(tkl_test_assert_true if_exp) # `${ARGV1}` - assertion message
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
@@ -159,9 +159,9 @@ endif()
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC "tkl::testlib::testcase::func" 1)
 
     if (NOT TACKLELIB_TESTLIB_TESTCASE_FUNC STREQUAL "")
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${if_exp}` msg=`${msg}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${if_exp}` msg=`${ARGV1}`")
     else()
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${if_exp}` msg=`${msg}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${if_exp}` msg=`${ARGV1}`")
     endif()
     tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
     return() # always return from a test case function on first fail

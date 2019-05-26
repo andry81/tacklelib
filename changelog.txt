@@ -1,5 +1,8 @@
 2019.05.26:
-* refactor: cmake: minor functions rename
+* fixed: cmake: missed to `TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX` increment in the `MakeTemp.cmake`
+* new: cmake_tests: `tests_01_script_mode/tests_04_Eval/03_escaping.test.cmake`
+* refactor: cmake: minor functions changes and rename
+* changed: cmake_tests: tests correction to always fail with message if test fails
 * missed changes
 
 2019.05.26:
