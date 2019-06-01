@@ -45,7 +45,7 @@ set_property(GLOBAL PROPERTY "tkl::eval::enabled" 1)
 #   Must be a function to:
 #   1. Avoid double expansion of the arguments.
 #
-function(tkl_eval_begin include_file_name str) # WITH OUT 2d ARGUMENT!
+function(tkl_eval_begin include_file_name str)
   if (NOT ${ARGC} EQUAL 2)
     message(FATAL_ERROR "function must have 2 arguments")
   endif()
@@ -84,7 +84,8 @@ endfunction()
 tkl_register_implementation(function tkl_eval_begin)
 
 # CAUTION:
-#   Have to be a function, but all local variables just in case still must be unique.
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
 #
 function(tkl_eval_append begin_include_file_name str)
   if (NOT ${ARGC} EQUAL 2)
@@ -109,7 +110,8 @@ endfunction()
 tkl_register_implementation(function tkl_eval_append)
 
 # CAUTION:
-#   Have to be a function, but all local variables just in case still must be unique.
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
 #
 function(tkl_eval_append_from_file begin_include_file_name file_path)
   if (NOT ${ARGC} EQUAL 2)
@@ -134,9 +136,10 @@ endfunction()
 tkl_register_implementation(function tkl_eval_append_from_file)
 
 # CAUTION:
-#   Have to be a function, but all local variables just in case still must be unique.
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
 #
-function(tkl_eval_end begin_include_file_name end_include_file_path) # WITH OUT ARGUMENTS!
+function(tkl_eval_end begin_include_file_name end_include_file_path)
   if (NOT ${ARGC} EQUAL 2)
     message(FATAL_ERROR "function must have 2 arguments")
   endif()
