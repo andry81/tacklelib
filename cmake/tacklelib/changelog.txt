@@ -1,4 +1,7 @@
 2019.06.01:
+* changed: minor cleanup (`Eval.cmake`)
+
+2019.06.01:
 * fixed: overall `EnableTargetExtension.cmake` fixup
 * fixed: [finished] overall `ForwardVariables.cmake` fixup
 * fixed: usage positive path match filter with negative match path filter in the `--path_match_filter` parameter (`TestLib.cmake`)
