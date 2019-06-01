@@ -28,6 +28,7 @@ function(tkl_testlib_init)
 
   # parameterized flag argument values
   unset(path_match_filter_list)
+  unset(test_case_match_filter_list)
 
   # parse flags until no flags
   tkl_parse_function_optional_flags_into_vars(
@@ -36,12 +37,16 @@ function(tkl_testlib_init)
     ""
     ""
     ""
-    "path_match_filter\;.\;path_match_filter_list")
+    "\
+path_match_filter\;.\;path_match_filter_list;\
+test_case_match_filter\;.\;test_case_match_filter_list\
+")
 
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
   set_property(GLOBAL PROPERTY "tkl::testlib::path_match_filter" "${path_match_filter_list}")
+  set_property(GLOBAL PROPERTY "tkl::testlib::test_case_match_filter" "${test_case_match_filter_list}")
 
   set(TACKLELIB_TESTLIB_CMAKE_ARGV "")
   set(cmake_arg_index 0)
@@ -211,6 +216,8 @@ function(tkl_testlib_enter_dir test_dir)
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
   tkl_get_global_prop(TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST "tkl::testlib::path_match_filter" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
+
   tkl_get_global_prop(TACKLELIB_TESTLIB_LAST_ENTER_DIR "tkl::testlib::last_enter_dir" 1)
 
   if (TACKLELIB_TESTLIB_LAST_ENTER_DIR)
@@ -280,23 +287,71 @@ function(tkl_testlib_enter_dir test_dir)
 
       if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE AND NOT TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE))
         foreach(test_file IN LISTS test_files)
+          set(is_exclusively_included 0)
+          set(is_excluded 0)
+
+          string(TOLOWER "${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${test_file}" test_file_path_c)
+
           foreach(TACKLELIB_TESTLIB_PATH_MATCH_FILTER IN LISTS TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST)
-            string(TOLOWER "${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${test_file}" test_file_path_c)
-            tkl_regex_to_lower("${TACKLELIB_TESTLIB_PATH_MATCH_FILTER}" regex_path_match_filter_c)
-            if ("${test_file_path_c}" MATCHES "${regex_path_match_filter_c}")
-              tkl_testlib_test("${TACKLELIB_TESTLIB_LAST_ENTER_DIR}" "${test_file}")
+            tkl_regex_to_lower(regex_path_match_filter_c "${TACKLELIB_TESTLIB_PATH_MATCH_FILTER}")
+
+            set(is_include_filter 1)
+            if (NOT regex_path_match_filter_c STREQUAL "")
+              string(SUBSTRING "${regex_path_match_filter_c}" 0 1 regex_path_match_filter_prefix_char)
+              if (regex_path_match_filter_prefix_char STREQUAL "-")
+                string(SUBSTRING "${regex_path_match_filter_c}" 1 -1 regex_path_match_filter_c)
+                set(is_include_filter 0)
+              elseif (regex_path_match_filter_prefix_char STREQUAL "+")
+                string(SUBSTRING "${regex_path_match_filter_c}" 1 -1 regex_path_match_filter_c)
+              endif()
+            endif()
+
+            if (NOT is_exclusively_included AND is_include_filter AND "${test_file_path_c}" MATCHES "${regex_path_match_filter_c}")
+              set(is_exclusively_included 1)
+            endif()
+
+            if (NOT is_include_filter AND "${test_file_path_c}" MATCHES "${regex_path_match_filter_c}")
+              set(is_excluded 1)
               break()
             endif()
           endforeach()
+
+          if (is_exclusively_included AND (NOT is_excluded))
+            tkl_testlib_test("${TACKLELIB_TESTLIB_LAST_ENTER_DIR}" "${test_file}")
+          endif()
         endforeach()
       else()
         foreach(test_file IN LISTS test_files)
+          set(is_exclusively_included 0)
+          set(is_excluded 0)
+
           foreach(TACKLELIB_TESTLIB_PATH_MATCH_FILTER IN LISTS TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST)
-            if ("${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${test_file}" MATCHES "${TACKLELIB_TESTLIB_PATH_MATCH_FILTER}")
-              tkl_testlib_test("${TACKLELIB_TESTLIB_LAST_ENTER_DIR}" "${test_file}")
+            set(regex_path_match_filter_c "${TACKLELIB_TESTLIB_PATH_MATCH_FILTER}")
+
+            set(is_include_filter 1)
+            if (NOT regex_path_match_filter_c STREQUAL "")
+              string(SUBSTRING "${regex_path_match_filter_c}" 0 1 regex_path_match_filter_prefix_char)
+              if (regex_path_match_filter_prefix_char STREQUAL "-")
+                string(SUBSTRING "${regex_path_match_filter_c}" 1 -1 regex_path_match_filter_c)
+                set(is_include_filter 0)
+              elseif (regex_path_match_filter_prefix_char STREQUAL "+")
+                string(SUBSTRING "${regex_path_match_filter_c}" 1 -1 regex_path_match_filter_c)
+              endif()
+            endif()
+
+            if (NOT is_exclusively_included AND is_include_filter AND "${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${test_file}" MATCHES "${regex_path_match_filter_c}")
+              set(is_exclusively_included 1)
+            endif()
+
+            if (NOT is_include_filter AND "${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${test_file}" MATCHES "${regex_path_match_filter_c}")
+              set(is_excluded 1)
               break()
             endif()
           endforeach()
+
+          if (is_exclusively_included AND (NOT is_excluded))
+            tkl_testlib_test("${TACKLELIB_TESTLIB_LAST_ENTER_DIR}" "${test_file}")
+          endif()
         endforeach()
       endif()
     endif()
@@ -339,7 +394,9 @@ macro(tkl_testlib_include test_dir test_file_name)
   endif()
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_LAST_ENTER_DIR "tkl::testlib::last_enter_dir" 1)
+
   tkl_get_global_prop(TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST "tkl::testlib::path_match_filter" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
 
   if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL ".")
     if (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}" AND
@@ -428,6 +485,8 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_testlib_get_test_args(TACKLELIB_TESTLIB_TEST_ARGS)
 
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
+
   if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
     execute_process(
       COMMAND
@@ -438,6 +497,7 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
+        "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
         -P
         "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
       WORKING_DIRECTORY
@@ -455,6 +515,7 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
+        "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
         -P
         "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
       RESULT_VARIABLE

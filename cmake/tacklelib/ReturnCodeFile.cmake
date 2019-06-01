@@ -15,7 +15,7 @@ function(tkl_make_ret_code_file_dir dir_path_abs_var)
     tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "" 8 dir_path_abs)
   endif()
   set(file_path_abs "${dir_path_abs}/ret_code.var")
-  file(WRITE "${file_path_abs}" "") # not set yet
+  tkl_file_write("${file_path_abs}" "") # not set yet
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)
   set(${dir_path_abs_var} "${dir_path_abs}" PARENT_SCOPE)
 endfunction()
@@ -26,13 +26,13 @@ endfunction()
 
 function(tkl_set_ret_code_to_file_dir dir_path_abs value)
   set(file_path_abs "${dir_path_abs}/ret_code.var")
-  file(WRITE "${file_path_abs}" "${value}") # not set yet
+  tkl_file_write("${file_path_abs}" "${value}") # not set yet
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)
 endfunction()
 
 function(tkl_get_ret_code_from_file_dir dir_path_abs value_var)
   set(file_path_abs "${dir_path_abs}/ret_code.var")
-  file(READ "${file_path_abs}" value OFFSET 0)
+  tkl_file_read(value "${file_path_abs}" OFFSET 0)
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)
   set(${value_var} "${value}" PARENT_SCOPE)
 endfunction()

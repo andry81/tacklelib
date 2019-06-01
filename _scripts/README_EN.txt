@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.15
+* 2019.05.29
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -17,9 +17,9 @@ Linux (.sh) platforms separately but with the same configuration files and
 variables.
 
 The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/trunk/_scripts
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_scripts/
   or
-  https://sf.net/p/tacklelib/scripts
+  https://sf.net/p/tacklelib/scripts/HEAD/tree/trunk/
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
@@ -35,8 +35,6 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://sf.net/p/tacklelib/tacklelib/trunk/_scripts
-  or
   * https://svn.code.sf.net/p/tacklelib/scripts/trunk
 First mirror:
   * https://github.com/andry81/tacklelib--scripts.git
@@ -46,15 +44,13 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-* configuration template files:
-  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/config
-  or
-  https://svn.code.sf.net/p/tacklelib/scripts--config/trunk
-
-* cmake modules:
-  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake/tacklelib
-  or
-  https://svn.code.sf.net/p/tacklelib/cmake/trunk
+* bash shell 3.2.48+ (to run unix shell scripts)
+* cmake 3.14+ :
+  https://cmake.org/download/
+* configuration template files :
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/config/
+* cmake modules :
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
 
 -------------------------------------------------------------------------------
 5. DEPLOY

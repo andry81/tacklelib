@@ -1,3 +1,32 @@
+2019.05.31:
+* fixed: tests fixup
+* new: `tests_01_script_mode/tests_05_ForwardVariables` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.30:
+* new: `tests_01_script_mode/tests_03_Utility` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.30:
+* new: `tests_01_script_mode/tests_03_Std/02_track_vars` tests
+* new: `tests_01_script_mode/tests_05_Eval` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.29:
+* new: readme file
+
+2019.05.28:
+* new: more `tests_01_script_mode/tests_04_Eval` tests
+* refactor: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting` renamed to ``tests_01_script_mode/tests_01_builtins/tests_03_command_nesting``
+* refactor: `tests_01_script_mode/tests_04_Eval` tests
+
+2019.05.27:
+* new: usage of new `include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative a script module directory path (incomplete)
+* changed: code cleanup
+
 2019.05.26:
 * new: `tests_01_script_mode/tests_04_Eval/03_escaping.test.cmake`
 * changed: tests correction to always fail with message if test fails

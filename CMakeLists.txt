@@ -49,7 +49,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake;${CMAKE_CURRENT_LIST_DIR}/cmake/tacklelib/_3dparty/modules")
 
 # cmake extension variables, must be before the first include
-#set(TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS 1) # 0 - macro invokers, faster; 1 - function invokers, slower
+#set(TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS 1) # 0 - macro handlers, faster; 1 - function handlers, slower
 
 include(tacklelib/Project)
 include(tacklelib/EnableTargetsExtension)

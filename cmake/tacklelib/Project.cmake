@@ -204,13 +204,13 @@ function(tkl_check_global_vars_consistency)
 endfunction()
 
 macro(tkl_declare_primary_builtin_vars)
-  tkl_get_global_prop(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL tkl::CMAKE_CURRENT_PACKAGE_NEST_LVL 0)
+  tkl_get_global_prop(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "tkl::CMAKE_CURRENT_PACKAGE_NEST_LVL" 0)
   if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
   else()
     set(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL 0)
   endif()
-  set_property(GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}")
+  set_property(GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NEST_LVL" "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}")
 
   if (TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL LESS 10)
     set(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX "0${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}")
@@ -805,10 +805,10 @@ function(tkl_declare_target_builtin_properties target)
 
   # avoid error: INTERFACE_LIBRARY targets may only have whitelisted properties.
   if(NOT target_type STREQUAL "INTERFACE_LIBRARY")
-    set_property(GLOBAL APPEND PROPERTY tkl::GLOBAL_TARGET_LIST ${target})
+    set_property(GLOBAL APPEND PROPERTY "tkl::GLOBAL_TARGET_LIST" ${target})
 
-    get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME SET)
-    get_property(is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR SET)
+    get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME SET)
+    get_property(is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" SET)
     get_property(is_target_PACKAGE_SOURCE_DIR_set TARGET ${target} PROPERTY PACKAGE_SOURCE_DIR SET)
 
     # back compatability, just in case
@@ -818,14 +818,14 @@ function(tkl_declare_target_builtin_properties target)
     endif()
 
     if (is_global_CMAKE_CURRENT_PACKAGE_NAME_set)
-      get_property(global_CMAKE_CURRENT_PACKAGE_NAME GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+      get_property(global_CMAKE_CURRENT_PACKAGE_NAME GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
       set_target_properties(${target} PROPERTIES PACKAGE_NAME "${global_CMAKE_CURRENT_PACKAGE_NAME}")
     else()
       set_target_properties(${target} PROPERTIES PACKAGE_NAME "${PROJECT_NAME}")
     endif()
 
     if (is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set)
-      get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+      get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
       set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
     else()
       # cmake list directory instead, but that is still not a package directory!
@@ -862,12 +862,12 @@ function(tkl_get_target_alias_from_command_line target_alias_var)
 endfunction()
 
 function(tkl_get_global_targets_list var)
-  get_property(${var} GLOBAL PROPERTY tkl::GLOBAL_TARGET_LIST)
+  get_property(${var} GLOBAL PROPERTY "tkl::GLOBAL_TARGET_LIST")
   set(${var} ${${var}} PARENT_SCOPE)
 endfunction()
 
 function(tkl_set_global_targets_list)
-  set_property(GLOBAL PROPERTY tkl::GLOBAL_TARGET_LIST ${ARGN})
+  set_property(GLOBAL PROPERTY "tkl::GLOBAL_TARGET_LIST" ${ARGN})
 endfunction()
 
 function(tkl_add_library_begin target)
@@ -880,7 +880,7 @@ function(tkl_add_library_end target)
 endfunction()
 
 function(tkl_add_library_target_begin_message target target_alias)
-  get_property(current_package_name GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+  get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
     message("adding library target: ${current_package_name}//${target}...")
@@ -899,7 +899,7 @@ function(tkl_add_executable_end target)
 endfunction()
 
 function(tkl_add_executable_target_begin_message target target_alias)
-  get_property(current_package_name GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+  get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
     message("adding executable target: ${current_package_name}//${target}...")
@@ -918,7 +918,7 @@ function(tkl_add_custom_target_end target)
 endfunction()
 
 function(tkl_add_custom_target_begin_message target target_alias)
-  get_property(current_package_name GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+  get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
     message("adding custom target: ${current_package_name}//${target}...")
@@ -964,7 +964,7 @@ function(tkl_add_subdirectory_begin target_src_dir)
 
   tkl_add_subdirectory_begin_message("${target_src_dir}" ${ARGN})
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
-  tkl_pushset_prop_to_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR ${target_src_dir_abs})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" ${target_src_dir_abs})
 endfunction()
 
 function(tkl_add_subdirectory_end target_src_dir)
@@ -972,7 +972,7 @@ function(tkl_add_subdirectory_end target_src_dir)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
   tkl_unregister_directory_scope_targets()
   tkl_add_subdirectory_end_message(${target_src_dir} ${ARGN})
 
@@ -1014,13 +1014,13 @@ endmacro()
 
 function(tkl_add_subdirectory_begin_message target_src_dir)
   tkl_add_subdirectory_prepare_message(${ARGV})
-  get_property(current_package_name GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+  get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
   message("entering subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}...")
 endfunction()
 
 function(tkl_add_subdirectory_end_message target_src_dir)
   tkl_add_subdirectory_prepare_message(${ARGV})
-  get_property(current_package_name GLOBAL PROPERTY tkl::CMAKE_CURRENT_PACKAGE_NAME)
+  get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
   message("leaving subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}")
 endfunction()
 
@@ -1032,11 +1032,11 @@ function(tkl_find_package_begin package_src_dir_var package)
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
   tkl_find_package_begin_message(${package_src_dir_var} ${package} ${ARGN})
-  tkl_pushset_prop_to_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_NAME ${package})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" ${package})
   if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    tkl_pushset_prop_to_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR ${${package_src_dir_var}})
+    tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" ${${package_src_dir_var}})
   else()
-    tkl_pushunset_prop_to_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+    tkl_pushunset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
   endif()
 endfunction()
 
@@ -1045,8 +1045,8 @@ function(tkl_find_package_end package_src_dir_var package)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_NAME)
-  tkl_pop_prop_from_stack(. GLOBAL tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
   tkl_unregister_directory_scope_targets()
   tkl_find_package_end_message(${package_src_dir_var} ${package} ${ARGN})
 

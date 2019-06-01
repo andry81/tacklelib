@@ -14,6 +14,13 @@ cmake_minimum_required(VERSION 3.7)
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
+# CMake Warning (dev) at ... (list):
+#  Policy CMP0007 is not set: list command no longer ignores empty elements.
+#  Run "cmake --help-policy CMP0007" for policy details.  Use the cmake_policy
+#  command to set the policy and suppress this warning. ...
+#
+cmake_policy(SET CMP0007 NEW)
+
 # Workaround for `list(JOIN ...)` implementation to workaround ;-escaped list implicit discarding.
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/18946
 #

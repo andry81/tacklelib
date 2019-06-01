@@ -3,6 +3,21 @@
 # Script ONLY for execution.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then 
 
+# WORKAROUND:
+#   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
+#   a global variable in an older version we have to replace the
+#   `declare -g` by a sequence of calls to `unset` and `eval`.
+#
+#   The `tkl_return_local` has used for both issues:
+#   1. To return a local variable.
+#   2. To replace the `declare -g`.
+#
+function tkl_return_local()
+{
+  unset $1 # must be local
+  eval "$1=\"\$2\""
+}
+
 function ScriptBaseInit()
 {
   if [[ -n "$BASH_LINENO" ]] && (( ${BASH_LINENO[${#BASH_LINENO[@]}-1]} > 0 )); then
@@ -11,33 +26,18 @@ function ScriptBaseInit()
     local ScriptFilePath="${0//\\//}"
   fi
 
-  GetAbsolutePathFromDirPath "$ScriptFilePath"
+  tkl_get_abs_path_from_dir "$ScriptFilePath"
   ScriptFilePath="${RETURN_VALUE}"
 
   local ScriptDirPath="${ScriptFilePath%[/]*}"
   local ScriptFileName="${ScriptFilePath##*[/]}"
 
-  return_local ScriptFilePath "${ScriptFilePath}"
-  return_local ScriptDirPath "${ScriptDirPath}"
-  return_local ScriptFileName "${ScriptFileName}"
+  tkl_return_local ScriptFilePath "${ScriptFilePath}"
+  tkl_return_local ScriptDirPath "${ScriptDirPath}"
+  tkl_return_local ScriptFileName "${ScriptFileName}"
 }
 
-# WORKAROUND:
-#   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
-#   a global variable in an older version we have to replace the
-#   `declare -g` by a sequence of calls to `unset` and `eval`.
-#
-#   The `return_local` has used for both issues:
-#   1. To return a local variable.
-#   2. To replace the `declare -g`.
-#
-function return_local()
-{
-  unset $1 # must be local
-  eval "$1=\"\$2\""
-}
-
-function GetAbsolutePathFromDirPath()
+function tkl_get_abs_path_from_dir()
 {
   # drop return value
   RETURN_VALUE="$1"
@@ -51,7 +51,7 @@ function GetAbsolutePathFromDirPath()
   #   path before the readlink in case if the path has specific native path
   #   characters.
   if [[ "${DirPath:1:1}" == ":" ]]; then
-    ConvertNativePathToBackend "$DirPath"
+    tkl_convert_native_path_to_backend "$DirPath"
     DirPath="$RETURN_VALUE"
   fi
 
@@ -66,7 +66,7 @@ function GetAbsolutePathFromDirPath()
   return 0
 }
 
-function ConvertNativePathToBackend()
+function tkl_convert_native_path_to_backend()
 {
   # drop return value
   RETURN_VALUE="$1"
@@ -115,7 +115,6 @@ ScriptFileNamePrefix="${ScriptFileName%[.]*}"
 
 function CallLr()
 {
-  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -125,7 +124,6 @@ function CallLr()
 
 function Call()
 {
-  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -183,7 +181,6 @@ MaxFileSize=$(( 1024 * 1024 ))
   Call export LD_LIBRARY_PATH=".:./lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #export QT_QPA_FONTDIR=./lib/fonts
 
-  IFS=$' \t\r\n'
   CallLr "$ScriptDirPath/$ScriptFileNamePrefix" "$@"
 
   GetTime

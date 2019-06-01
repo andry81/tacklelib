@@ -6,16 +6,14 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 SOURCE_PROJECTLIB_SH=1 # including guard
 
 source "/bin/bash_entry" || exit $?
-
-ScriptBaseInit "$@"
-
-source "${ScriptDirPath:-.}/buildlib.sh" || exit $?
+tkl_include "buildlib.sh" || exit $?
 
 function GenerateSrc()
 {
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${ScriptFileName%[.]*}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.in"
 
-  local IFS=$'|\t\r\n'; while read -r FromFilePath ToFilePath; do 
+  local IFS
+  while IFS=$'|\t\r\n' read -r FromFilePath ToFilePath; do
     [[ -z "${FromFilePath//[$' \t']/}" ]] && continue
     [[ -z "${ToFilePath//[$' \t']/}" ]] && continue
     [[ "${FromFilePath:i:1}" == "#" ]] && continue
@@ -26,9 +24,10 @@ function GenerateSrc()
     } > "$PROJECT_ROOT/$ToFilePath"
   done < "$CONFIG_FILE_IN"
 
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${ScriptFileName%[.]*}.deps.${ScriptFileName##*[.]}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
-  local IFS=$'|\t\r\n'; while read -r ScriptFilePath ScriptCmdLine; do 
+  local IFS
+  while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do
     [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
     [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
     ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
@@ -41,8 +40,8 @@ function GenerateSrc()
 
 function GenerateConfig()
 {
-  local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${ScriptFileName%[.]*}.system.${ScriptFileName##*[.]}.in"
-  local CMDLINE_USER_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${ScriptFileName%[.]*}.user.${ScriptFileName##*[.]}.in"
+  local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMDLINE_USER_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.user.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
@@ -53,10 +52,11 @@ function GenerateConfig()
   Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
   Call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $LastError
 
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${ScriptFileName%[.]*}.deps.${ScriptFileName##*[.]}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
   local IFS
 
-  IFS=$'|\t\r\n'; while read -r ScriptFilePath ScriptCmdLine; do 
+  local IFS
+  while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do 
     [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
     [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
     ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
@@ -83,16 +83,16 @@ function UpdateBuildType()
 {
   if [[ -n "$CMAKE_BUILD_TYPE" && -n "$CMAKE_CONFIG_ABBR_TYPES" ]]; then
     # convert abbrivated build type name to complete build type name
-    local IFS
     local i
     local j
 
     local is_found=0
     local config_abbr_type_index=0
-    IFS=$'; \t\r\n'; for i in $CMAKE_CONFIG_ABBR_TYPES; do
+
+    local IFS=$'; \t\r\n'; for i in $CMAKE_CONFIG_ABBR_TYPES; do
       if [[ "$i" == "$CMAKE_BUILD_TYPE" ]]; then
         local config_type_index=0
-        IFS=$'; \t\r\n'; for j in $CMAKE_CONFIG_TYPES; do
+        local IFS=$'; \t\r\n'; for j in $CMAKE_CONFIG_TYPES; do
           if (( config_abbr_type_index == config_type_index )); then
             # update build type
             CMAKE_BUILD_TYPE="$j"
@@ -286,7 +286,7 @@ function PostInstallImpl()
   local file_deps_root_list
   local file_deps_mkdir_list
   local file_deps_cpdir_list
-  local IFS=":"
+  local IFS=$':\t\r\n'
   declare -a "file_deps_root_list=(\$FILE_DEPS_ROOT_LIST)"
   declare -a "file_deps_mkdir_list=(\$FILE_DEPS_MKDIR_LIST)"
   declare -a "file_deps_cpdir_list=(\$FILE_DEPS_CPDIR_LIST)"
@@ -296,7 +296,7 @@ function PostInstallImpl()
 
   # copy directories recursively
   i=0
-  IFS=$' \t\r\n'; for dir in "${file_deps_cpdir_list[@]}"; do
+  for dir in "${file_deps_cpdir_list[@]}"; do
     (( i == 0 )) && from_dir="$dir"
     if (( (i % 2) == 1 )); then
       Call cp -R "$from_dir" "$dir" || return Exit
@@ -320,7 +320,7 @@ function PostInstallImpl()
 
   local file
 
-  IFS=$' \t\r\n'; for file in "${file_deps_root_list[@]}"; do
+  for file in "${file_deps_root_list[@]}"; do
     MoveFile -L "$file" "lib/" || return $?
   done
 
@@ -340,7 +340,7 @@ function PostInstallImpl()
   local file_name
 
   # rename files in the current directory beginning by the `$` character
-  IFS=$' \t\r\n'; for file in `find "$PWD" -type f -name "\\\$*"`; do
+  local IFS=$' \t\r\n'; for file in `find "$PWD" -type f -name "\\\$*"`; do
     GetFileDir "$file"
     file_dir="$RETURN_VALUE"
 
@@ -444,7 +444,7 @@ function CheckConfigVersion()
 
   if [[ -f "$VARS_USER_FILE" ]]; then
     # Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
-    IFS=$' \t\r\n'
+    local IFS=$' \t\r\n'
     read -r CMAKE_FILE_IN_VER_LINE < "$VARS_USER_FILE_IN"
     read -r CMAKE_FILE_VER_LINE < "$VARS_USER_FILE"
 
@@ -507,7 +507,7 @@ function MakeOutputDirectories()
     local CMAKE_CPACK_DIR="$CMAKE_CPACK_ROOT"
   fi
 
-  GetNativeParentDir "$CMAKE_OUTPUT_ROOT"
+  tkl_get_native_parent_dir "$CMAKE_OUTPUT_ROOT"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_OUTPUT_ROOT does not exist \`$CMAKE_OUTPUT_ROOT\`" >&2
     return 1
@@ -516,7 +516,7 @@ function MakeOutputDirectories()
   [[ ! -d "$CMAKE_OUTPUT_ROOT" ]] && { mkdir "$CMAKE_OUTPUT_ROOT" || return $?; }
 
   if [[ ! -z ${CMAKE_OUTPUT_GENERATOR_DIR+x} ]]; then
-    GetNativeParentDir "$CMAKE_OUTPUT_GENERATOR_DIR"
+    tkl_get_native_parent_dir "$CMAKE_OUTPUT_GENERATOR_DIR"
     if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
       echo "$0: error: parent directory of the CMAKE_OUTPUT_GENERATOR_DIR does not exist \`$CMAKE_OUTPUT_GENERATOR_DIR\`" >&2
       return 2
@@ -525,7 +525,7 @@ function MakeOutputDirectories()
     [[ ! -d "$CMAKE_OUTPUT_GENERATOR_DIR" ]] && { mkdir "$CMAKE_OUTPUT_GENERATOR_DIR" || return $?; }
   fi
 
-  GetNativeParentDir "$CMAKE_OUTPUT_DIR"
+  tkl_get_native_parent_dir "$CMAKE_OUTPUT_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_OUTPUT_DIR does not exist \`$CMAKE_OUTPUT_DIR\`" >&2
     return 3
@@ -538,40 +538,40 @@ function MakeOutputDirectories()
   [[ ! -d "$CMAKE_LIB_ROOT" ]] && { mkdir "$CMAKE_LIB_ROOT" || return $?; }
   [[ ! -d "$CMAKE_CPACK_ROOT" ]] && { mkdir "$CMAKE_CPACK_ROOT" || return $?; }
 
-  GetNativeParentDir "$CMAKE_BUILD_DIR"
+  tkl_get_native_parent_dir "$CMAKE_BUILD_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_BUILD_DIR does not exist \`$CMAKE_BUILD_DIR\`" >&2
     return 10
   fi
 
-  GetNativeParentDir "$CMAKE_BIN_DIR"
+  tkl_get_native_parent_dir "$CMAKE_BIN_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_BIN_DIR does not exist \`$CMAKE_BIN_DIR\`" >&2
     return 11
   fi
 
-  GetNativeParentDir "$CMAKE_LIB_DIR"
+  tkl_get_native_parent_dir "$CMAKE_LIB_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_LIB_DIR does not exist \`$CMAKE_LIB_DIR\`" >&2
     return 12
   fi
 
-  GetNativeParentDir "$CMAKE_INSTALL_ROOT"
+  tkl_get_native_parent_dir "$CMAKE_INSTALL_ROOT"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_INSTALL_ROOT does not exist \`$CMAKE_INSTALL_ROOT\`" >&2
     return 13
   fi
 
-  GetNativeParentDir "$CMAKE_CPACK_DIR"
+  tkl_get_native_parent_dir "$CMAKE_CPACK_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_CPACK_DIR does not exist \`$CMAKE_CPACK_DIR\`" >&2
     return 14
   fi
 
-  return_local CMAKE_BUILD_DIR "$CMAKE_BUILD_DIR"
-  return_local CMAKE_BIN_DIR "$CMAKE_BIN_DIR"
-  return_local CMAKE_LIB_DIR "$CMAKE_LIB_DIR"
-  return_local CMAKE_CPACK_DIR "$CMAKE_CPACK_DIR"
+  tkl_return_local CMAKE_BUILD_DIR "$CMAKE_BUILD_DIR"
+  tkl_return_local CMAKE_BIN_DIR "$CMAKE_BIN_DIR"
+  tkl_return_local CMAKE_LIB_DIR "$CMAKE_LIB_DIR"
+  tkl_return_local CMAKE_CPACK_DIR "$CMAKE_CPACK_DIR"
 
   [[ ! -d "$CMAKE_BUILD_DIR" ]] && { mkdir "$CMAKE_BUILD_DIR" || return $?; }
   [[ ! -d "$CMAKE_BIN_DIR" ]] && { mkdir "$CMAKE_BIN_DIR" || return $?; }

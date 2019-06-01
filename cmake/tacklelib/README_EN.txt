@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.15
+* 2019.05.29
 * tacklelib--cmake
 
 1. DESCRIPTION
@@ -17,9 +17,7 @@ Windows and Linux platforms separately but with the same configuration files
 and variables.
 
 The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/trunk/cmake/tacklelib
-  or
-  https://sf.net/p/tacklelib/cmake
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
@@ -46,15 +44,14 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-* cmake 3.14+ (https://cmake.org/download/ )
+* cmake 3.14+ :
+  https://cmake.org/download/
 
 -------------------------------------------------------------------------------
 5. TESTS
 -------------------------------------------------------------------------------
 * cmake modules tests:
-  https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake_tests
-  or
-  https://svn.code.sf.net/p/tacklelib/cmake_tests/trunk
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake_tests/
 
 -------------------------------------------------------------------------------
 6. AUTHOR EMAIL

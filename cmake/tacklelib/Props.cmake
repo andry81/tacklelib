@@ -32,7 +32,9 @@ endfunction()
 
 function(tkl_set_global_prop_and_var var_name prop_name value)
   set_property(GLOBAL PROPERTY "${prop_name}" "${value}")
-  set(${var_name} "${value}" PARENT_SCOPE)
+  if (NOT var_name STREQUAL "" AND NOT var_name STREQUAL ".")
+    set(${var_name} "${value}" PARENT_SCOPE)
+  endif()
 endfunction()
 
 function(tkl_append_global_prop prop_name value)
