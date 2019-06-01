@@ -14,7 +14,6 @@ source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || exit 
 
 function CallAndPrintIf()
 {
-  local IFS=$' \t\r\n'
   eval "$1" && {
     echo ">>${@:2}"
     echo
@@ -49,10 +48,15 @@ function get_GENERATOR_IS_MULTI_CONFIG()
   fi
 
   # cleanup on return
+  #
+  # CAUTION:
+  #   `trap - RETURN` is required here, otherwise the return trap would be called again in a parent scope function,
+  #   in case if there was no trap command!
+  #
   trap "rm -rf \"$TEMP_OUTPUT_DIR\" 2> /dev/null; trap - RETURN" RETURN 
 
   local RETURN_VALUE
-  ConvertBackendPathToNative "$TEMP_OUTPUT_DIR" s
+  tkl_convert_backend_path_to_native "$TEMP_OUTPUT_DIR" s
   TEMP_OUTPUT_DIR="$RETURN_VALUE"
 
   # arguments: <out_file_file>

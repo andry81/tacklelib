@@ -8,7 +8,7 @@
 # Script can be ONLY included by "source" command.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_ROOT_INIT1_SH} )); then 
 
-source "${ScriptDirPath:-.}/__init0__.sh" || exit $?
+tkl_include "__init0__.sh" || exit $?
 
 # optional compare in case of generator script
 CallAndPrintIf "(( INIT_VERBOSE ))" CheckConfigVersion "$IN_GENERATOR_SCRIPT" \

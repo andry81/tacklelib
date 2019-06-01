@@ -2,7 +2,7 @@
 if (NOT DEFINED TACKLELIB_UTILITY_INCLUDE_DEFINED)
 set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 
-function(tkl_escape_string_from_ARGx in_str out_var)
+function(tkl_escape_string_from_ARGx out_var in_str)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
@@ -11,7 +11,7 @@ function(tkl_escape_string_from_ARGx in_str out_var)
   set(${out_var} "${encoded_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_escape_string_for_macro_args in_str out_var)
+function(tkl_escape_string_for_macro_args out_var in_str)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
@@ -22,15 +22,35 @@ function(tkl_escape_string_for_macro_args in_str out_var)
 endfunction()
 
 # DESCRIPTION:
-#   We can not translate the string `\\;\;;` into the `\\;\;;` (as is) because
-#   the cmake internally does expand the string into `\;\;;` BEFORE the function
-#   call, so the `\\;` and `\;` is not distinguishable from each other.
-#   So to somehow workaround this, we have to at least convert `\\;\;;` into
-#   the `\\\;\;;` to avoid a back slash character disappear before the
-#   character `;` in process of expanding in a cmake string and put it in an eval
-#   string (in a file) as is.
+#   We can not translate the string `\;\\;` into the `\;\\;` and
+#   `\\\;\\\\;` into `\\\;\\\\;` as is (the cmake internally does expand the
+#   strings into the `\;\;` and `\\;\\;` respectively BEFORE the function
+#   call), so the `\;` to `\\;` and the `\\\;` to `\\\\;` is not
+#   distinguishable from each other.
+#   But to somehow workaround this, we have to at least convert
+#   the `\;\\;` into the `\;\\\;` and
+#   the `\\\;\\\\;` into the `\\\;\\\\\;` avoid a back slash character
+#   disappear before the character `;` in process of expanding in a cmake
+#   string and put it in an eval string (in a file) as is.
 #
-function(tkl_escape_string_for_eval in_str out_var)
+# This is table of raw string for particular set of cases and results after
+# the function is applied:
+#
+# Legend:
+#   `...` - raw string, no special escaping
+#
+# input          | output        || input         | output
+# ---------------+---------------||---------------+---------------
+# `\`            | `\\`          || `\\`          | `\\\\`
+# `\\\`          | `\\\\\\`      || `\\\\`        | `\\\\\\\\`
+# `\a`           | `\\a`         || `\\a`         | `\\\\a`
+# `\\\a`         | `\\\\\\a`     || `\\\\a`       | `\\\\\\\\a`
+# `\;`           | `\;`          || `\\;`         | `\\\;`
+# `\\\;`         | `\\\\\;`      || `\\\\;`       | `\\\\\\\;`
+# `\$`           | `\$`          || `\\$`         | `\\\$`
+# `\\\$`         | `\\\\\$`      || `\\\\$`       | `\\\\\\\$`
+#
+function(tkl_escape_string_for_eval out_var in_str)
   set(encoded_value "")
   set(index 0)
   set(is_escaping 0)
@@ -46,7 +66,7 @@ function(tkl_escape_string_for_eval in_str out_var)
       endif()
     else()
       if (char STREQUAL ";")
-        set(encoded_value "${encoded_value}\;") # retain special control character escaping
+        set(encoded_value "${encoded_value}\;")   # retain special control character escaping
         set(is_escaping 0)
       elseif (char STREQUAL "\$")
         set(encoded_value "${encoded_value}\\\$") # retain special control character escaping
@@ -76,7 +96,7 @@ endfunction()
 #   * `$\{...}` into `${...}`
 #   * `\n` into the line return
 #   etc
-function(tkl_decode_control_chars_from_cmd_arg in_str out_var)
+function(tkl_decode_control_chars_from_cmd_arg out_var in_str)
   set(decoded_value "")
   set(index 0)
   set(is_escaping 0)
@@ -318,7 +338,7 @@ function(tkl_is_path_var_by_name out_is_var var_name)
   set(${is_out_is_var} 0 PARENT_SCOPE)
 endfunction()
 
-function(tkl_regex_to_lower in_str out_var)
+function(tkl_regex_to_lower out_var in_str)
   set(regex_value "")
   set(index 0)
   set(is_escaping 0)
@@ -349,7 +369,7 @@ function(tkl_regex_to_lower in_str out_var)
   set(${out_var} "${regex_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_regex_to_upper in_str out_var)
+function(tkl_regex_to_upper out_var in_str)
   set(regex_value "")
   set(index 0)
   set(is_escaping 0)

@@ -3,6 +3,21 @@
 # Script ONLY for execution.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then 
 
+# WORKAROUND:
+#   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
+#   a global variable in an older version we have to replace the
+#   `declare -g` by a sequence of calls to `unset` and `eval`.
+#
+#   The `tkl_return_local` has used for both issues:
+#   1. To return a local variable.
+#   2. To replace the `declare -g`.
+#
+function tkl_return_local()
+{
+  unset $1 # must be local
+  eval "$1=\"\$2\""
+}
+
 function ScriptBaseInit()
 {
   if [[ -n "$BASH_LINENO" ]] && (( ${BASH_LINENO[${#BASH_LINENO[@]}-1]} > 0 )); then
@@ -11,33 +26,18 @@ function ScriptBaseInit()
     local ScriptFilePath="${0//\\//}"
   fi
 
-  GetAbsolutePathFromDirPath "$ScriptFilePath"
+  tkl_get_abs_path_from_dir "$ScriptFilePath"
   ScriptFilePath="${RETURN_VALUE}"
 
   local ScriptDirPath="${ScriptFilePath%[/]*}"
   local ScriptFileName="${ScriptFilePath##*[/]}"
 
-  return_local ScriptFilePath "${ScriptFilePath}"
-  return_local ScriptDirPath "${ScriptDirPath}"
-  return_local ScriptFileName "${ScriptFileName}"
+  tkl_return_local ScriptFilePath "${ScriptFilePath}"
+  tkl_return_local ScriptDirPath "${ScriptDirPath}"
+  tkl_return_local ScriptFileName "${ScriptFileName}"
 }
 
-# WORKAROUND:
-#   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
-#   a global variable in an older version we have to replace the
-#   `declare -g` by a sequence of calls to `unset` and `eval`.
-#
-#   The `return_local` has used for both issues:
-#   1. To return a local variable.
-#   2. To replace the `declare -g`.
-#
-function return_local()
-{
-  unset $1 # must be local
-  eval "$1=\"\$2\""
-}
-
-function GetAbsolutePathFromDirPath()
+function tkl_get_abs_path_from_dir()
 {
   # drop return value
   RETURN_VALUE="$1"
@@ -51,7 +51,7 @@ function GetAbsolutePathFromDirPath()
   #   path before the readlink in case if the path has specific native path
   #   characters.
   if [[ "${DirPath:1:1}" == ":" ]]; then
-    ConvertNativePathToBackend "$DirPath"
+    tkl_convert_native_path_to_backend "$DirPath"
     DirPath="$RETURN_VALUE"
   fi
 
@@ -66,7 +66,7 @@ function GetAbsolutePathFromDirPath()
   return 0
 }
 
-function ConvertNativePathToBackend()
+function tkl_convert_native_path_to_backend()
 {
   # drop return value
   RETURN_VALUE="$1"
@@ -147,7 +147,6 @@ fi
 
 function Call()
 {
-  local IFS=$' \t\r\n'
   echo ">$@"
   "$@"
   LastError=$?
@@ -156,13 +155,11 @@ function Call()
 
 function Pushd()
 {
-  local IFS=$' \t\r\n'
   pushd "$@" > /dev/null
 }
 
 function Popd()
 {
-  local IFS=$' \t\r\n'
   popd "$@" > /dev/null
 }
 
@@ -179,9 +176,9 @@ function FindFiles()
   local i
 
   i=0
-  IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
+  local IFS=$':\t\r\n'; for search_root in $SEARCH_ROOT_LIST; do
     if Pushd "$search_root"; then
-      IFS=":"; for file in $FILE_LIST_TO_FIND; do
+      local IFS=$':\t\r\n'; for file in $FILE_LIST_TO_FIND; do
         if [[ -f "$file" ]]; then
           file_list_to_find[i++]="$file"
           echo "  +$file"
@@ -202,7 +199,7 @@ function FindFiles()
 
   i=0
 
-  IFS=":"; for file in $FILE_LIST_TO_EXCLUDE; do
+  local IFS=$':\t\r\n'; for file in $FILE_LIST_TO_EXCLUDE; do
     file_list_to_exclude[i++]="$file"
     echo "  -$file"
     (( i++ ))
@@ -216,7 +213,7 @@ function FindFiles()
   local file_name2
   local is_file_excluded
   local iname_cmd_line=""
-  IFS=$' \t\r\n'; for file in "${file_list_to_find[@]}"; do
+  for file in "${file_list_to_find[@]}"; do
     GetFileName "$file"
     file_name="$RETURN_VALUE"
     is_file_excluded=0
@@ -242,8 +239,8 @@ function FindFiles()
 
   i=0
 
-  IFS=":"; for search_root in $SEARCH_ROOT_LIST; do
-    IFS=$' \t\r\n'; for file in `eval find "\$search_root/" $iname_cmd_line`; do
+  local IFS=$':\t\r\n'; for search_root in $SEARCH_ROOT_LIST; do
+    local IFS=$' \t\r\n'; for file in `eval find "\$search_root/" $iname_cmd_line`; do
       file_list_found[i++]="$file"
       echo "  -> $file"
       (( i++ ))
@@ -258,7 +255,6 @@ function ReadCommandLineFlags()
   local out_args_list_name_var="$1"
   shift
 
-  local IFS=$' \t\r\n'
   local args
   args=("$@")
   local args_len=${#@}
@@ -282,7 +278,6 @@ function RemoveEmptyArgs()
 {
   RETURN_VALUE=()
 
-  local IFS=$' \t\r\n'
   local args
   args=("$@")
 
@@ -292,7 +287,7 @@ function RemoveEmptyArgs()
 
   i=0
   j=0
-  IFS=$' \t\r\n'; for arg in "${args[@]}"; do
+  for arg in "${args[@]}"; do
     if [[ -n "$arg" ]]; then
       RETURN_VALUE[j++]="$arg"
     fi
@@ -342,7 +337,6 @@ function GetFileName()
 function MakeSymlink()
 {
   local flag_args=()
-  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -352,7 +346,7 @@ function MakeSymlink()
   local i
 
   i=0
-  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
+  for flag in "${flag_args[@]}"; do
     if [[ "${flag//I/}" != "$flag" ]]; then
       ignore_if_same_link_exist=1
       flag_args[i]="${flag//I/}" # remove external flag
@@ -364,7 +358,6 @@ function MakeSymlink()
     (( i++ ))
   done
 
-  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -385,7 +378,6 @@ function MakeSymlink()
     fi
   fi
 
-  IFS=$' \t\r\n'
   echo ">ln: ${flag_args[@]} \"$LinkPath\" -> \"$RefPath\""
   ln -s "${flag_args[@]}" "$Path" "$Name"
 
@@ -395,7 +387,6 @@ function MakeSymlink()
 function CopyFile()
 {
   local flag_args=()
-  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -405,7 +396,7 @@ function CopyFile()
   local i
 
   i=0
-  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
+  for flag in "${flag_args[@]}"; do
     if [[ "${flag//L/}" != "$flag" ]]; then
       create_symlinks=1
       flag_args[i]="${flag//L/}" # remove external flag
@@ -417,7 +408,6 @@ function CopyFile()
     (( i++ ))
   done
 
-  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -452,14 +442,14 @@ function CopyFile()
   local copy_to_list
   local i
 
-  IFS=$' \t\r\n'; for file in `find "$file_in_dir" -maxdepth 1 -type f -name "$file_in_name" -o -type l -name "$file_in_name"`; do
+  local IFS=$' \t\r\n'; for file in `find "$file_in_dir" -maxdepth 1 -type f -name "$file_in_name" -o -type l -name "$file_in_name"`; do
     if [[ -f "$file" && ! -L "$file" ]]; then
       GetFileDir "$file"
       file_dir="$RETURN_VALUE"
 
       copy_to_list=()
       i=0
-      IFS=$' \t\r\n'; for copy_to_file in "$@"; do
+      for copy_to_file in "$@"; do
         GetCanonicalPath "$copy_to_file"
         copy_to_file_abs="$RETURN_VALUE"
 
@@ -475,7 +465,6 @@ function CopyFile()
         fi
       done
 
-      IFS=$' \t\r\n'
       if (( ${#copy_to_list[@]} )); then
         Call cp "${flag_args[@]}" "$file" "${copy_to_list[@]}" || return $?
       fi
@@ -488,14 +477,13 @@ function CopyFile()
           GetFileName "$link_file"
           link_file_name="$RETURN_VALUE"
 
-          IFS=$' \t\r\n'
           CopyFile "${flag_args[@]}" "$link_file" "$@" || return $?
 
           GetFileName "$file"
           file_name="$RETURN_VALUE"
 
           if [[ "$link_file_name" != "$file_name" ]]; then
-            IFS=$' \t\r\n'; for copy_to_file in "$@"; do
+            for copy_to_file in "$@"; do
               GetCanonicalPath "$copy_to_file"
               copy_to_file_abs="$RETURN_VALUE"
 
@@ -524,8 +512,6 @@ function AppendItemToUArray()
 {
   # drop return value
   RETURN_VALUE=-1
-
-  local IFS=$' \t'
 
   local i
   local item
@@ -655,14 +641,15 @@ function CollectLddDeps()
     # collect all not found dependencies to throw the error at the end of the search
     not_found_lib_list=()
 
-    IFS=$' \t\r\n'; for scan_file in "${file_list_found[@]}"; do
+    for scan_file in "${file_list_found[@]}"; do
       echo "  $scan_file"
       [[ -n "$OUT_DEPS_FILE" ]] && echo "#%% $scan_file" >> "$OUT_DEPS_FILE"
 
       # first check the exit code because `ldd` prints an error to stdout instead of stderr
       $LDD_TOOL "$scan_file" > "$ldd_output_file" || continue
 
-      IFS=$' \t\r\n'; while read -r LinkName Op RefPath Address; do
+      local IFS
+      while IFS=$' \t\r\n' read -r LinkName Op RefPath Address; do
         if [[ "$Op" != "=>" ]]; then
           Address="$RefPath"
           RefPath="$Op"
@@ -720,7 +707,6 @@ function CollectLddDeps()
 
       echo
 
-      IFS=$' \t\r\n'
       if (( ${#not_found_lib_list[@]} )); then
         echo " * not found: ${not_found_lib_list[@]}"
         echo
@@ -733,7 +719,7 @@ function CollectLddDeps()
 
     local file
     local file_name
-    IFS=$' \t\r\n'; for file in "${file_list_to_exclude[@]}"; do
+    for file in "${file_list_to_exclude[@]}"; do
       GetFileName "$file"
       file_name="$RETURN_VALUE"
 
@@ -748,7 +734,7 @@ function CollectLddDeps()
       echo "$ScriptFileName: error: having not found dependencies." >&2
       echo "$ScriptFileName: info: not found dependencies list:"
 
-      IFS=$' \t\r\n'; for link_name in "${not_found_lib_list[@]}"; do
+      for link_name in "${not_found_lib_list[@]}"; do
         echo "  ${link_name}"
       done
       echo

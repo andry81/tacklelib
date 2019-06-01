@@ -34,6 +34,7 @@ cmake_minimum_required(VERSION 3.13)
 #
 
 include(tacklelib/Std)
+include(tacklelib/ForwardVariables)
 include(tacklelib/Version)
 
 # TODO:
@@ -166,7 +167,7 @@ include(tacklelib/Version)
 #
 macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
   tkl_load_vars_from_files_impl_init()
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
   tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
@@ -174,9 +175,10 @@ macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_var_from_ARGV_end("${ARGN}" _50FABB52_argn)
   tkl_unset_ARGV()
   tkl_load_vars_from_files_impl()
+  unset(_50FABB52_argn)
 endmacro()
 
 macro(tkl_load_vars_from_files_impl_init)
@@ -184,7 +186,7 @@ macro(tkl_load_vars_from_files_impl_init)
 endmacro()
 
 function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
-  list(LENGTH argn argn_len)
+  list(LENGTH _50FABB52_argn argn_len)
   set(argn_index 0)
 
   set(flag_args "")
@@ -195,7 +197,7 @@ function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
   # copy all flag parameters into a variable without parsing them
   tkl_parse_function_optional_flags_into_vars_impl(
     argn_index
-    argn
+    _50FABB52_argn
     "p;e;E;a"
     ""
     ""
@@ -226,7 +228,7 @@ make_vars\;.\;.\;."
   # CMAKE_BUILD_TYPE consistency check
   tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
 
-  list(GET argn ${argn_index} file_paths) # discardes ;-escaping
+  list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
   if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
@@ -337,7 +339,7 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
 
   #message("ARGV=${ARGV}")
   tkl_set_vars_from_files_impl_init()
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
   tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
@@ -345,9 +347,10 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_unset_ARGV()
   tkl_set_vars_from_files_impl_no_args_func()
+  unset(_50FABB52_argn)
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
@@ -369,7 +372,7 @@ endmacro()
 
 macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
   # we must recollect arguments here, because this implementation can be used separately with standalone arguments
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
   tkl_set_ARGV(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
@@ -377,10 +380,10 @@ macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_vars_from_ARGV_ARGN_end("" _50FABB52_argn)
   tkl_unset_ARGV()
-
   tkl_set_vars_from_files_impl_no_args_macro()
+  unset(_50FABB52_argn)
 endmacro()
 
 function(tkl_set_vars_from_files_impl_no_args_func) # WITH OUT ARGUMENTS!
@@ -388,7 +391,7 @@ function(tkl_set_vars_from_files_impl_no_args_func) # WITH OUT ARGUMENTS!
 endfunction()
 
 macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
-  list(LENGTH argn argn_len)
+  list(LENGTH _50FABB52_argn argn_len)
   set(argn_index 0)
 
   set(print_vars_set 0)
@@ -423,7 +426,7 @@ macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   # parse flags until no flags
   tkl_parse_function_optional_flags_into_vars(
     argn_index
-    argn
+    _50FABB52_argn
     "p;e;E;a"
     "E\;set_vars"
     "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;a\;append_to_files"
@@ -481,22 +484,22 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
   endif()
 
-  list(GET argn ${argn_index} file_paths) # discardes ;-escaping
+  list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(os_name argn ${argn_index})
+  tkl_list_get(os_name _50FABB52_argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(compiler_name argn ${argn_index})
+  tkl_list_get(compiler_name _50FABB52_argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(config_name argn ${argn_index})
+  tkl_list_get(config_name _50FABB52_argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(arch_name argn ${argn_index})
+  tkl_list_get(arch_name _50FABB52_argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(list_separator_char argn ${argn_index})
+  tkl_list_get(list_separator_char _50FABB52_argn ${argn_index})
   math(EXPR argn_index "${argn_index}+1")
 
   set(use_vars_late_expansion 0)
@@ -511,16 +514,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     set(use_vars_late_expansion 1)
 
-    tkl_list_get(out_var_config_gen_var_lines_list argn ${argn_index})
+    tkl_list_get(out_var_config_gen_var_lines_list _50FABB52_argn ${argn_index})
     math(EXPR argn_index "${argn_index}+1")
 
-    tkl_list_get(out_var_config_gen_vars_list argn ${argn_index})
+    tkl_list_get(out_var_config_gen_vars_list _50FABB52_argn ${argn_index})
     math(EXPR argn_index "${argn_index}+1")
 
-    tkl_list_get(out_var_config_gen_names_list argn ${argn_index})      # single ;-escaped configuration names list per variable, the `*` name means `all others`
+    tkl_list_get(out_var_config_gen_names_list _50FABB52_argn ${argn_index})      # single ;-escaped configuration names list per variable, the `*` name means `all others`
     math(EXPR argn_index "${argn_index}+1")
 
-    tkl_list_get(out_var_config_gen_values_list argn ${argn_index})     # double ;-escaped values list per configuration name per variable
+    tkl_list_get(out_var_config_gen_values_list _50FABB52_argn ${argn_index})     # double ;-escaped values list per configuration name per variable
     math(EXPR argn_index "${argn_index}+1")
   endif()
 
@@ -803,13 +806,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   endif()
   if (NOT append_to_files)
     if (DEFINED var_lines_file_path)
-      file(WRITE "${var_lines_file_path}" "")
+      tkl_file_write("${var_lines_file_path}" "")
     endif()
     if (DEFINED var_names_file_path)
-      file(WRITE "${var_names_file_path}" "")
+      tkl_file_write("${var_names_file_path}" "")
     endif()
     if (DEFINED var_values_file_path)
-      file(WRITE "${var_values_file_path}" "")
+      tkl_file_write("${var_values_file_path}" "")
     endif()
   endif()
 
@@ -870,31 +873,17 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endif()
 
     # with out any filter here to enable to use of the line number to reference it in a parse error
-    file(STRINGS "${file_path_abs}" file_content)
-
-    # CAUTION:
-    #   The `file(STRINGS` and some other functions has deep sitting issues which prevents to write reliable and consistent parsers:
-    #   https://gitlab.kitware.com/cmake/cmake/issues/19156: `Not paired `]` or `[` characters breaks "file(STRINGS"`
-    #   https://gitlab.kitware.com/cmake/cmake/issues/18946: `;-escape list implicit unescaping`
-    #   To bypass the first issue we have to replace all `[` and `]` characters by a special sequence to enclose single standing characters
-    #   by respective opposite character in a pair.
-    #
-
-    # WORKAROUND: we have to replace because `file(STRINGS` does a break on not closed `]` or `[` characters
-    string(REPLACE "\\?" "?0?" file_content "${file_content}")
-    string(REPLACE "\\[" "?1?" file_content "${file_content}")
-    string(REPLACE "\\]" "?2?" file_content "${file_content}")
+    tkl_file_encode_strings(file_content "${file_path_abs}")
 
     set(var_file_content_line 0)
 
     foreach (var_line IN LISTS file_content)
-      math(EXPR var_file_content_line "${var_file_content_line}+1")
+      math(EXPR var_file_content_line ${var_file_content_line}+1)
 
       # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
       string(REPLACE ";" "\;" var_line "${var_line}")
-      string(REPLACE "\\?0\\?" "?" var_line "${var_line}")
-      string(REPLACE "\\?1\\?" "[" var_line "${var_line}")
-      string(REPLACE "\\?2\\?" "]" var_line "${var_line}")
+
+      tkl_file_decode_string(var_line "${var_line}")
 
       if((NOT var_line MATCHES "^[^#\"]+=") OR (NOT var_line MATCHES "([^=]+)=(.*)"))
         continue()
@@ -1748,17 +1737,17 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
             else()
               if (DEFINED var_lines_file_path)
-                file(APPEND "${var_lines_file_path}" "${var_file_content_line}\n")
+                tkl_file_append("${var_lines_file_path}" "${var_file_content_line}\n")
               endif()
               if (DEFINED var_names_file_path)
-                file(APPEND "${var_names_file_path}" "${var_name}\n")
+                tkl_file_append("${var_names_file_path}" "${var_name}\n")
               endif()
               if (DEFINED var_values_file_path)
                 # truncate by line return
                 if (var_parsed_value MATCHES "([^\r\n]*)")
-                  file(APPEND "${var_values_file_path}" "${CMAKE_MATCH_1}\n")
+                  tkl_file_append("${var_values_file_path}" "${CMAKE_MATCH_1}\n")
                 else()
-                  file(APPEND "${var_values_file_path}" "${var_parsed_value}\n")
+                  tkl_file_append("${var_values_file_path}" "${var_parsed_value}\n")
                 endif()
               endif()
             endif()
@@ -1857,8 +1846,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               list(APPEND config_gen_vars_list "${var_name}")
             endif()
 
-            if(NOT DEFINED config_gen_is_defined_forall_${var_name})
-              set(config_gen_is_defined_forall_${var_name} 0)
+            if(NOT DEFINED config_gen_defined_forall_${var_name})
+              set(config_gen_defined_forall_${var_name} 0)
             endif()
             if(NOT DEFINED config_gen_names_for_${var_name})
               set(config_gen_names_for_${var_name} "")
@@ -1868,7 +1857,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             if (var_config_name STREQUAL "")
               # special syntax to hold an unescaped value for "all others" configurations
               set(config_gen_forall_${var_name} "${var_parsed_value}")
-              set(config_gen_is_defined_forall_${var_name} 1)
+              set(config_gen_defined_forall_${var_name} 1)
             else()
               set(config_gen_for_${var_config_name}_${var_name} "${var_parsed_value}")
               list(FIND config_gen_names_for_${var_name} "${var_config_name}" config_gen_name_index) # just in case
@@ -1959,7 +1948,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       endforeach()
       set(gen_var_names "${config_gen_names_for_${gen_var_name}}")
 
-      if (config_gen_is_defined_forall_${gen_var_name})
+      if (config_gen_defined_forall_${gen_var_name})
         list(APPEND gen_var_names "*")
         string(REPLACE "\;" "\\\;" gen_var_escaped_value "${config_gen_forall_${gen_var_name}}")
         list(APPEND gen_var_escaped_values "${gen_var_escaped_value}")
@@ -2008,7 +1997,7 @@ function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   # CMAKE_CONFIGURATION_TYPES consistency check
   tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
 
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
   tkl_make_vars_from_ARGV_ARGN_end("" argn)
 
@@ -2113,13 +2102,13 @@ make_vars\;.\;.\;."
   endif()
   if (NOT append_to_files)
     if (DEFINED var_lines_file_path)
-      file(WRITE "${var_lines_file_path}" "")
+      tkl_file_write("${var_lines_file_path}" "")
     endif()
     if (DEFINED var_names_file_path)
-      file(WRITE "${var_names_file_path}" "")
+      tkl_file_write("${var_names_file_path}" "")
     endif()
     if (DEFINED var_values_file_path)
-      file(WRITE "${var_values_file_path}" "")
+      tkl_file_write("${var_values_file_path}" "")
     endif()
   endif()
 
@@ -2206,17 +2195,17 @@ make_vars\;.\;.\;."
       endif()
     else()
       if (DEFINED var_lines_file_path)
-        file(APPEND "${var_lines_file_path}" "${var_line}\n")
+        tkl_file_append("${var_lines_file_path}" "${var_line}\n")
       endif()
       if (DEFINED var_names_file_path)
-        file(APPEND "${var_names_file_path}" "${var_name}\n")
+        tkl_file_append("${var_names_file_path}" "${var_name}\n")
       endif()
       if (DEFINED var_values_file_path)
         # truncate by line return
         if (var_multigen_value MATCHES "([^\r\n]*)")
-          file(APPEND "${var_values_file_path}" "${CMAKE_MATCH_1}\n")
+          tkl_file_append("${var_values_file_path}" "${CMAKE_MATCH_1}\n")
         else()
-          file(APPEND "${var_values_file_path}" "${var_multigen_value}\n")
+          tkl_file_append("${var_values_file_path}" "${var_multigen_value}\n")
         endif()
       endif()
     endif()

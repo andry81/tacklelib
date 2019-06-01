@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.19
+* 2019.05.29
 * tacklelib
 
 1. DESCRIPTION
@@ -39,7 +39,8 @@ read additionally another readme files:
 
 `README_EN.linux_x86_64.txt`
 
-The latest version is here: https://sf.net/p/tacklelib
+The latest version is here:
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
@@ -88,8 +89,9 @@ to run from:
 
 4. Interpreters:
 
-* bash shell 3.2.48+
-* cmake 3.14+ (https://cmake.org/download/ )
+* bash shell 3.2.48+ (to run unix shell scripts)
+* cmake 3.14+ :
+  https://cmake.org/download/
 
 Noticeable cmake changes from the version 3.14:
 

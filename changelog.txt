@@ -1,3 +1,64 @@
+2019.06.01:
+* fixed: cmake: overall `EnableTargetExtension.cmake` fixup
+* fixed: cmake: [finished] overall `ForwardVariables.cmake` fixup
+* fixed: cmake: usage positive path match filter with negative match path filter in the `--path_match_filter` parameter (`TestLib.cmake`)
+* fixed: cmake: test case match filter usage in the `--test_case_match_filter` parameter (`TestModule.cmake`)
+* fixed: cmake_tests: tests fixup
+* new: cmake: `tkl_eval_append` function to append expression from explicit string to currently being evaluated (`Eval.cmake`)
+* new: cmake: `tkl_eval_append_from_file` function to append expression to currently being evaluated expression from a file (`Eval.cmake`)
+* new: cmake: `tkl_file_write`, `tkl_file_append`, `tkl_file_append_from_file`, `tkl_file_read` functions to avoid arguments escaping in case of a macro (`File.cmake`)
+* changed: cmake: [finished] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: cmake: [cancelled] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: cmake: [initiated] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_vars_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* changed: cmake: `tkl_eval_begin` function changed to use explicit string parameter instead of "${ARGN}" (`Eval.cmake`)
+* changed: cmake: `SetVarsFromFile.cmake` dependent changes
+* removed: cmake: `tkl_get_last_eval_string` function as not actual anymore (`Eval.cmake`)
+
+2019.05.31:
+* fixed: cmake: [initiated] overall `ForwardVariables.cmake` fixup
+* new: cmake_tests: `tests_01_script_mode/tests_05_ForwardVariables` tests
+* changed: cmake: [initiated] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: cmake: [in progress] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.05.30:
+* new: cmake_tests: `tests_01_script_mode/tests_03_Utility` tests
+* changed: cmake: `Utility.cmake` refactor changes
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.05.30:
+* new: cmake_tests: `tests_01_script_mode/tests_03_ForwardVariables/02_track_vars` tests
+* new: cmake_tests: `tests_01_script_mode/tests_05_Eval` tests
+* changed: cmake_tests: tests correction changes
+* changed: cmake_tests:  global tests refactor changes
+
+2019.05.29:
+* fixed: cmake: CMP0007 policy warning (`List.cmake`)
+* changed: cmake: `SetVarsFromFiles.cmake` minor changes
+* changed: minor readme update
+
+2019.05.28:
+* new: cmake: added `--test_case_match_filter` command line parameter to filter per test case basis (testlib)
+* new: cmake: splitted `tkl_eval` into 2 functions (`tkl_eval_begin` and `tkl_eval_end`) to be able to directly access the prepared for inclusion file or pre process it, for example, in tests or by the `configure_file` call
+* new: cmake: extracted workaround for the `file(STRINGS ...)` into standalone functions `tkl_file_encode_strings`/`tkl_file_decode_string` (`File.cmake`)
+* new: cmake_tests: more `tests_01_script_mode/tests_04_Eval` tests
+* changed: cmake: implemented `tkl_eval` through the `tkl_eval_begin` and `tkl_eval_end` (`Eval.cmake`)
+* changed: cmake: `Handlers.cmake` implementation (finished)
+* refactor: cmake: `Handlers.cmake`, `Eval.cmake` variables rename
+* refactor: cmake: overall code cleanup
+* refactor: cmake_tests: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting` renamed to ``tests_01_script_mode/tests_01_builtins/tests_03_command_nesting``
+* refactor: cmake_tests: `tests_01_script_mode/tests_04_Eval` tests
+
+2019.05.27:
+* new: cmake: support different stack entries for pushing and popping variables to/from a stack (`ForwardVariables.cmake`)
+* new: scripts: [initiated] usage of new `include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative a script module directory path
+* changed: cmake: minor improvements
+* changed: scripts: minor improvements
+* changed: cmake_tests: code cleanup
+* changed: scripts: code cleanup
+
 2019.05.26:
 * new: cmake: added TACKLELIB_TESTLIB_ROOT variable usage to address tacklelib testlib to customize tests entry point scripts
 * changed: scripts: minor changes for preparation to fix `source` command in shell scripts
@@ -15,7 +76,7 @@
 * refactor: cmake_tests: tests reorder
 
 2019.05.25:
-* fixed: cmake: improved character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
+* fixed: cmake: character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
 * fixed: cmake: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others
 * fixed: cmake_tests: `tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake` test pass
 * fixed: cmake_tests: `tests_01_script_mode/tests_03_Std/02_make_args_from_ARGV_ARGN.test.cmake` test correction
@@ -53,13 +114,13 @@
 2019.05.21:
 * fixed: cmake: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
 * fixed: cmake: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )
-* new: cmake: Handlers.cmake` for a function/macro call handling/hooking (incomplete)
+* new: cmake: [initiated] Handlers.cmake` for a function/macro call handling/hooking
 * new: cmake: `Reimpl.cmake` to explicitly register and check registration of a reimplementation of functions and macroses
 * new: cmake_tests: scripts: passes all parameters from command line into back end cmake test modules
 * new: cmake_tests: more tests
 * changed: cmake: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
 * changed: cmake: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
-* changed: cmake: `begin_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn` w/o arguments (incomplete)
+* changed: cmake: [initiated] `begin_emulate_shift_argn_arguments`/`end_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn`/`end_emulate_shift_ARGVn` w/o arguments
 * changed: cmake: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
 * changed: cmake: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
 * changed: cmake: `List.cmake` extracted from `Std.cmake`

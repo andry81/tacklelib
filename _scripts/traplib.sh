@@ -7,15 +7,12 @@ SOURCE_TRAPLIB_SH=1 # including guard
 
 source "/bin/bash_entry" || exit $?
 
-ScriptBaseInit "$@"
-
-function GetTrapCmdLine()
+function tkl_get_trap_cmd_line()
 {
-  local IFS=$' \t\r\n'
-  GetTrapCmdLineImpl RETURN_VALUES "$@"
+  tkl_get_trap_cmd_line_impl RETURN_VALUES "$@"
 }
 
-function GetTrapCmdLineImpl()
+function tkl_get_trap_cmd_line_impl()
 {
   local out_var="$1"
   shift
@@ -23,7 +20,6 @@ function GetTrapCmdLineImpl()
   # drop return values
   eval "$out_var=()"
 
-  local IFS
   local trap_sig
   local stack_var
   local stack_arr
@@ -32,7 +28,7 @@ function GetTrapCmdLineImpl()
   local i
 
   i=0
-  IFS=$' \t\r\n'; for trap_sig in "$@"; do
+  for trap_sig in "$@"; do
     stack_var="_traplib_stack_${trap_sig}_cmdline"
     declare -a "stack_arr=(\"\${$stack_var[@]}\")"
     if (( ${#stack_arr[@]} )); then
@@ -53,7 +49,7 @@ function GetTrapCmdLineImpl()
   done
 }
 
-function PushTrap()
+function tkl_push_trap()
 {
   # drop return values
   EXIT_CODES=()
@@ -63,15 +59,13 @@ function PushTrap()
   [[ -z "$cmdline" ]] && return 0 # nothing to push
   shift
 
-  local IFS
-
   local trap_sig
   local stack_var
   local stack_arr
   local trap_cmdline_size
   local prev_cmdline
 
-  IFS=$' \t\r\n'; for trap_sig in "$@"; do
+  for trap_sig in "$@"; do
     stack_var="_traplib_stack_${trap_sig}_cmdline"
     declare -a "stack_arr=(\"\${$stack_var[@]}\")"
     trap_cmdline_size=${#stack_arr[@]}
@@ -88,13 +82,13 @@ function PushTrap()
       fi
     fi
     # update the signal trap command line
-    GetTrapCmdLine "$trap_sig"
+    tkl_get_trap_cmd_line "$trap_sig"
     trap "${RETURN_VALUES[0]}" "$trap_sig"
     EXIT_CODES[i++]=$?
   done
 }
 
-function PopTrap()
+function tkl_pop_trap()
 {
   # drop return values
   EXIT_CODES=()
@@ -110,8 +104,8 @@ function PopTrap()
   local i
 
   i=0
-  IFS=$' \t\r\n'; for trap_sig in "$@"; do
-    stack_var="_traplib_stack_${trap_sig}_cmdline"
+  for trap_sig in "$@"; do
+    stack_var="tkl__traps_stack__${trap_sig}"
     declare -a "stack_arr=(\"\${$stack_var[@]}\")"
     trap_cmdline_size=${#stack_arr[@]}
     if (( trap_cmdline_size )); then
@@ -123,7 +117,7 @@ function PopTrap()
 
       # update the signal trap command line
       if (( trap_cmdline_size )); then
-        GetTrapCmdLineImpl trap_cmdline "$trap_sig"
+        tkl_get_trap_cmd_line_impl trap_cmdline "$trap_sig"
         trap "${trap_cmdline[0]}" "$trap_sig"
       else
         trap "" "$trap_sig" # just clear the trap
@@ -137,20 +131,17 @@ function PopTrap()
   done
 }
 
-function PopExecTrap()
+function tkl_pop_exec_trap()
 {
   # drop exit codes
   EXIT_CODES=()
 
-  local IFS=$' \t\r\n'
+  tkl_pop_trap "$@"
 
-  PopTrap "$@"
-
+  local i=0
   local cmdline
-  local i
 
-  i=0
-  IFS=$' \t\r\n'; for cmdline in "${RETURN_VALUES[@]}"; do
+  for cmdline in "${RETURN_VALUES[@]}"; do
     # execute as function and store exit code
     eval "function _traplib_immediate_handler() { $cmdline; }"
     _traplib_immediate_handler

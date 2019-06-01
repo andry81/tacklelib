@@ -8,7 +8,7 @@
 # Script can be ONLY included by "source" command.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then 
 
-source "${ScriptDirPath:-.}/__init1__.sh" || exit $?
+tkl_include "__init1__.sh" || exit $?
 
 MakeOutputDirectories "$CMAKE_BUILD_TYPE" || Exit
 

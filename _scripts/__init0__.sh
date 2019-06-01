@@ -10,12 +10,12 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then
 
 [[ -z "$NEST_LVL" ]] && NEST_LVL=0
 
-source "${ScriptDirPath:-.}/projectlib.sh" || exit $?
+tkl_include "projectlib.sh" || exit $?
 
-ConvertBackendPathToNative "$ScriptDirPath/.." s || Exit
+tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/.." s || Exit
 
 PROJECT_ROOT="${RETURN_VALUE:-*\$}" # safety: replace by not applicable or unexisted directory if empty
-#PROJECT_ROOT="`/bin/readlink -f "$ScriptDirPath/.."`"
+#PROJECT_ROOT="`/bin/readlink -f "$BASH_SOURCE_DIR/.."`"
 
 CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/config/environment_system.vars.in"
 CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/config/environment_system.vars"

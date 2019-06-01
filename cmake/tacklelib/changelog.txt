@@ -1,3 +1,45 @@
+2019.06.01:
+* fixed: overall `EnableTargetExtension.cmake` fixup
+* fixed: [finished] overall `ForwardVariables.cmake` fixup
+* fixed: usage positive path match filter with negative match path filter in the `--path_match_filter` parameter (`TestLib.cmake`)
+* fixed: test case match filter usage in the `--test_case_match_filter` parameter (`TestModule.cmake`)
+* new: `tkl_eval_append` function to append expression from explicit string to currently being evaluated (`Eval.cmake`)
+* new: `tkl_eval_append_from_file` function to append expression to currently being evaluated expression from a file (`Eval.cmake`)
+* new: `tkl_file_write`, `tkl_file_append`, `tkl_file_append_from_file`, `tkl_file_read` functions to avoid arguments escaping in case of a macro (`File.cmake`)
+* changed: [finished] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: [cancelled] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: [initiated] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_vars_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* changed: `tkl_eval_begin` function changed to use explicit string parameter instead of "${ARGN}" (`Eval.cmake`)
+* changed: `SetVarsFromFile.cmake` dependent changes
+* removed: `tkl_get_last_eval_string` function as not actual anymore (`Eval.cmake`)
+
+2019.05.31:
+* fixed: [initiated] overall `ForwardVariables.cmake` fixup
+* changed: [initiated] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: [in progress] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+
+2019.05.30:
+* changed: `Utility.cmake` refactor changes
+
+2019.05.29:
+* fixed: CMP0007 policy warning (`List.cmake`)
+* new: added negative/positive (`+`/`-`) prefix into `--path_match_filter`/`--test_case_match_filter` arguments to nigate filter logic per filter value (testlib)
+* changed: `SetVarsFromFiles.cmake` minor changes
+* changed: minor readme update
+
+2019.05.28:
+* new: added `--test_case_match_filter` command line parameter to filter per test case basis (testlib)
+* new: splitted `tkl_eval` into 2 functions (`tkl_eval_begin` and `tkl_eval_end`) to be able to directly access the prepared for inclusion file or pre process it, for example, in tests or by the `configure_file` call
+* new: extracted workaround for the `file(STRINGS ...)` into standalone functions `tkl_file_encode_strings`/`tkl_file_decode_string` (`File.cmake`)
+* changed: implemented `tkl_eval` through the `tkl_eval_begin` and `tkl_eval_end` (`Eval.cmake`)
+* changed: `Handlers.cmake` implementation (finished)
+* refactor: `Handlers.cmake`, `Eval.cmake` variables rename
+* refactor: overall code cleanup
+
+2019.05.27:
+* new: support different stack entries for pushing and popping variables to/from a stack (`ForwardVariables.cmake`)
+* changed: minor improvements
+
 2019.05.26:
 * new: added TACKLELIB_TESTLIB_ROOT variable usage to address tacklelib testlib to customize tests entry point scripts
 * changed: minor changes for preparation to fix `source` command in shell scripts
@@ -8,7 +50,7 @@
 * missed changes
 
 2019.05.25:
-* fixed: improved character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
+* fixed: character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
 * fixed: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others
 * new: standalone `tkl_encode_control_chars_for_eval` function to escape characters before pass to eval like functions
 * changed: `Handlers.cmake` variable names length reduced
@@ -39,11 +81,11 @@
 2019.05.21:
 * fixed: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
 * fixed: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )
-* new: `Handlers.cmake` for a function/macro call handling/hooking (incomplete)
+* new: [initiated] `Handlers.cmake` for a function/macro call handling/hooking
 * new: `Reimpl.cmake` to explicitly register and check registration of a reimplementation of functions and macroses
 * changed: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
 * changed: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
-* changed: `begin_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn` w/o arguments (incomplete)
+* changed: [initiated] `begin_emulate_shift_argn_arguments`/`end_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn`/`end_emulate_shift_ARGVn` w/o arguments
 * changed: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
 * changed: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
 * changed: `List.cmake` extracted from `Std.cmake`

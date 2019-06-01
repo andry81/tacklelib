@@ -5,11 +5,10 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 
 SOURCE_BUILDLIB_SH=1 # including guard
 
+echo "--BASH_SOURCE_DIR=${BASH_SOURCE_DIR}--"
 source "/bin/bash_entry" || exit $?
-
-ScriptBaseInit "$@"
-
-source "${ScriptDirPath:-.}/traplib.sh" || exit $?
+echo "--BASH_SOURCE_DIR=${BASH_SOURCE_DIR}--"
+tkl_include "traplib.sh" || exit $?
 
 # Special exit code value variable has used by the specific set of functions
 # like `Call` and `Exit` to hold the exit code over the builtin functions like
@@ -40,7 +39,6 @@ function Exit()
 
 function Call()
 {
-  local IFS=$' \t\r\n'
   MakeCommandLine '' 1 "$@"
   echo ">$RETURN_VALUE"
   echo
@@ -51,7 +49,6 @@ function Call()
 
 function CallAndPrintIf()
 {
-  local IFS=$' \t\r\n'
   MakeCommandLine '' 1 "${@:2}"
   eval "$1" && {
     echo ">$RETURN_VALUE"
@@ -69,7 +66,6 @@ function SetError()
 
 function Pushd()
 {
-  local IFS=$' \t\r\n'
   if [[ -z "$@" ]]; then
     echo "Pushd: error: directory is not set." >&2
     return 254
@@ -79,7 +75,6 @@ function Pushd()
 
 function Popd()
 {
-  local IFS=$' \t\r\n'
   popd "$@" > /dev/null
 }
 
@@ -88,7 +83,6 @@ function ReadCommandLineFlags()
   local out_args_list_name_var="$1"
   shift
 
-  local IFS=$' \t\r\n'
   local args
   args=("$@")
   local args_len=${#@}
@@ -112,7 +106,6 @@ function RemoveEmptyArgs()
 {
   RETURN_VALUE=()
 
-  local IFS=$' \t\r\n'
   local args
   args=("$@")
 
@@ -122,7 +115,7 @@ function RemoveEmptyArgs()
 
   i=0
   j=0
-  IFS=$' \t\r\n'; for arg in "${args[@]}"; do
+  for arg in "${args[@]}"; do
     if [[ -n "$arg" ]]; then
       RETURN_VALUE[j++]="$arg"
     fi
@@ -172,16 +165,14 @@ function GetFileName()
 function MakeDir()
 {
   local flag_args=()
-  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
   local arg
-  IFS=$' \t\r\n'; for arg in "$@"; do
+  for arg in "$@"; do
     [[ ! -d "$arg" ]] && {
       MakeCommandLine '' 1 "$arg"
-      IFS=$' \t\r\n'
       echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
       mkdir "${flag_args[@]}" "$arg" || return $?
     }
@@ -193,7 +184,6 @@ function MakeDir()
 function MoveFile()
 {
   local flag_args=()
-  local IFS=$' \t\r\n'
 
   ReadCommandLineFlags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
@@ -203,7 +193,7 @@ function MoveFile()
   local i
 
   i=0
-  IFS=$' \t\r\n'; for flag in "${flag_args[@]}"; do
+  for flag in "${flag_args[@]}"; do
     if [[ "${flag//L/}" != "$flag" ]]; then
       move_symlinks=1
       flag_args[i]="${flag//L/}" # remove external flag
@@ -215,7 +205,6 @@ function MoveFile()
     (( i++ ))
   done
 
-  IFS=$' \t\r\n'
   RemoveEmptyArgs "${flag_args[@]}"
   flag_args=("${RETURN_VALUE[@]}")
 
@@ -245,9 +234,8 @@ function MoveFile()
     find_cmd="find \"\$file_in_dir\" -maxdepth 1 -type f -name \"\$file_in_name\""
   fi
 
-  IFS=$' \t\r\n'; for file in `eval $find_cmd`; do
+  local IFS=$' \t\r\n'; for file in `eval $find_cmd`; do
     MakeCommandLine '' 1 "$file" "$@"
-    IFS=$' \t\r\n'
     echo ">mv ${flag_args[@]} $RETURN_VALUE"
     mv "${flag_args[@]}" "$file" "$@" || return $?
   done
@@ -269,7 +257,7 @@ function JoinArgs()
 #   * mingw
 #   * linux mint 18.3 x64
 
-function FindChar()
+function tkl_find_char()
 {
   # drop return value
   RETURN_VALUE=""
@@ -325,7 +313,7 @@ function MakeCommandArgumentsFromFile()
   fi
 
   if [[ "$FilePath" != '-' ]]; then
-    ConvertBackendPathToNative "$FilePath" s || return 1
+    tkl_convert_backend_path_to_native "$FilePath" s || return 1
     FilePath="$RETURN_VALUE"
     [[ -f "$FilePath" ]] || return 2
   fi
@@ -384,10 +372,10 @@ function MakeCommandArgumentsFromFile()
       fi
       if [[ -n "$ConfigLine" ]]; then
         if (( DoEval )); then
-          EscapeString "$ConfigLine" '"' 0
+          tkl_escape_string "$ConfigLine" '"' 0
           eval ConfigLine=\"$RETURN_VALUE\"
         fi
-        EscapeString "$ConfigLine" '' 1
+        tkl_escape_string "$ConfigLine" '' 1
         ConfigLine="$RETURN_VALUE"
         if (( AlwaysQuoting )) || [[ "${ConfigLine//[$' \t\r\n'=]/}" != "$ConfigLine" ]]; then
           ConfigString="$ConfigString${ConfigString:+" "}'${ConfigLine}'"
@@ -448,7 +436,6 @@ function MakeCommandLineEx()
 
   shift 4
 
-  local IFS=$' \t\r\n'
   local Args
   Args=("$@")
 
@@ -462,9 +449,9 @@ function MakeCommandLineEx()
 
   case "$EscapeType" in
     0)
-      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
+      for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
-        EscapeString "$arg" "$EscapeChars" 0
+        tkl_escape_string "$arg" "$EscapeChars" 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
           CommandLine="$CommandLine${CommandLine:+" "}\"$RETURN_VALUE\""
@@ -477,9 +464,9 @@ function MakeCommandLineEx()
       ;;
 
     1)
-      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
+      for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
-        EscapeString "$arg" "$EscapeChars" 1
+        tkl_escape_string "$arg" "$EscapeChars" 1
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
           CommandLine="$CommandLine${CommandLine:+" "}'$RETURN_VALUE'"
@@ -492,10 +479,10 @@ function MakeCommandLineEx()
       ;;
 
     2)
-      IFS=$' \t\r\n'; for arg in "${Args[@]}"; do
+      for arg in "${Args[@]}"; do
         [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
-        EscapeString "$arg" "$EscapeChars" 2
-        EscapeString "$RETURN_VALUE" '' 0
+        tkl_escape_string "$arg" "$EscapeChars" 2
+        tkl_escape_string "$RETURN_VALUE" '' 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           CommandLine="$CommandLine${CommandLine:+" "}\"$RETURN_VALUE\""
         else

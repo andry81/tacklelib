@@ -21,6 +21,8 @@ set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 #    will be revealed and might be different than after a very first set!
 #
 
+include(tacklelib/List)
+
 function(tkl_is_var out_is_var_def var_name)
   if(("${out_is_var_def}" STREQUAL "") OR (out_is_var_def STREQUAL var_name))
     message(FATAL_ERROR "out_is_var_def must be not empty and not equal to var_name: out_is_var_def=`${out_is_var_def}` var_name=`${var_name}`")
@@ -43,113 +45,383 @@ function(tkl_is_var out_is_var_def var_name)
   endif()
 endfunction()
 
-function(tkl_is_ARGV_var out_is_var_def var_name)
-  # simple test w/o call to slow MATCH operator
-  string(SUBSTRING "${var_name}" 0 4 var_prefix)
-  if (var_prefix STREQUAL "ARGV")
-    set(${out_is_var_def} 1 PARENT_SCOPE)
+macro(tkl_is_ARGV_var out_is_var_def var_name)
+  if ("${var_name}" STREQUAL "ARGV" OR
+      "${var_name}" MATCHES "^ARGV[0-9]\$|^ARGV[1-9][0-9]+\$")
+    set(${out_is_var_def} 1)
   else()
-    set(${out_is_var_def} 0 PARENT_SCOPE)
+    set(${out_is_var_def} 0)
+  endif()
+endmacro()
+
+macro(tkl_is_ARGx_var out_is_var_def var_name)
+  if ("${var_name}" STREQUAL "ARGV" OR
+      "${var_name}" STREQUAL "ARGN" OR
+      "${var_name}" MATCHES "^ARGV[0-9]\$|^ARGV[1-9][0-9]+\$")
+    set(${out_is_var_def} 1)
+  else()
+    set(${out_is_var_def} 0)
+  endif()
+endmacro()
+
+# CAUTION:
+# 1. User must not use builtin ARGC/ARGV/ARGN/ARGV0..N variables because they are a part of function/macro call stack
+#
+function(tkl_get_var out_uncached_var out_cached_var var_name)
+  if (var_name STREQUAL "" OR var_name STREQUAL ".")
+    message(FATAL_ERROR "var_name must be not empty and valid")
+  endif()
+
+  if (out_uncached_var AND NOT out_uncached_var STREQUAL ".")
+    set(out_uncached_var_defined 1)
+  else()
+    set(out_uncached_var_defined 0)
+  endif()
+
+  if (out_cached_var AND NOT out_cached_var STREQUAL ".")
+    set(out_cached_var_defined 1)
+  else()
+    set(out_cached_var_defined 0)
+  endif()
+
+  if (NOT out_uncached_var_defined AND NOT out_cached_var_defined)
+    message(FATAL_ERROR "at least one output variable must be defined")
+  endif()
+
+  if (out_uncached_var_defined)
+    if (out_uncached_var STREQUAL var_name)
+      message(FATAL_ERROR "out_uncached_var and var_name variables must be different: `${out_uncached_var}`")
+    endif()
+  endif()
+
+  if (out_uncached_var_defined OR out_cached_var_defined)
+    if (out_uncached_var STREQUAL out_cached_var)
+      message(FATAL_ERROR "out_uncached_var and out_cached_var variables must be different: `${out_cached_var}`")
+    endif()
+  endif()
+
+  # check for specific builtin variables
+  tkl_is_ARGx_var(is_ARGx_var ${var_name})
+  if (is_ARGx_var)
+    message(FATAL_ERROR "specific builtin variables are forbidden to use: `${var_name}`")
+  endif()
+
+  get_property(var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
+
+  if (NOT var_cache_value_is_set)
+    if (out_cached_var_defined)
+      unset(${out_cached_var} PARENT_SCOPE)
+    endif()
+    if (out_uncached_var_defined)
+      set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
+    endif()
+  else()
+    if (out_cached_var_defined)
+      # propagate cached variant of a variable
+      if (DEFINED ${var_name})
+        set(${out_cached_var} "${${var_name}}" PARENT_SCOPE)
+      else()
+        unset(${out_cached_var} PARENT_SCOPE)
+      endif()
+    endif()
+
+    if (out_uncached_var_defined)
+      # save cache properties of a variable
+      get_property(var_cache_value CACHE "${var_name}" PROPERTY VALUE)
+      get_property(var_cache_type CACHE "${var_name}" PROPERTY TYPE)
+      get_property(var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
+
+      # remove cached variant of a variable
+      unset(${var_name} CACHE)
+
+      # propagate uncached variant of a variable
+      if (DEFINED ${var_name})
+        set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
+      else()
+        unset(${out_uncached_var} PARENT_SCOPE)
+      endif()
+
+      # restore cache properties of a variable
+      #message("set(${var_name} `${var_cache_value}` CACHE `${var_cache_type}` `${var_cache_docstring}`)")
+      set(${var_name} "${var_cache_value}" CACHE ${var_cache_type} "${var_cache_docstring}")
+    endif()
   endif()
 endfunction()
 
-function(tkl_is_ARGx_var out_is_var_def var_name)
-  # simple test w/o call to slow MATCH operator
-  string(SUBSTRING "${var_name}" 0 3 var_prefix)
-  if (var_prefix STREQUAL "ARG")
-    set(${out_is_var_def} 1 PARENT_SCOPE)
+function(tkl_copy_vars)
+  # ARGV0 - out_vars_all_list
+  # ARGV1 - out_vars_filtered_list  (names)
+  # ARGV2 - out_vars_values_list    (values)
+  # ARGV3 - var_prefix_filter
+  if (NOT ${ARGC} GREATER_EQUAL 1)
+    message(FATAL_ERROR "function must have at least 1 argument")
+  endif()
+
+  # reduce intersection probability with the parent scope variables through the unique local variable name prefix
+  get_cmake_property(_24C487FA_vars_all_list VARIABLES)
+
+  set(_24C487FA_var_name "")
+  set(_24C487FA_var_name_prefix "")
+  set(_24C487FA_var_value "")
+
+  if (NOT "${ARGV3}" STREQUAL "" AND NOT "${ARGV3}" STREQUAL ".")
+    string(LENGTH "${ARGV3}" _24C487FA_var_prefix_filter_len)
   else()
-    set(${out_is_var_def} 0 PARENT_SCOPE)
+    set(_24C487FA_var_prefix_filter_len 0)
+  endif()
+
+  if ((NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".") OR
+    (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL "."))
+    if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+      set(${ARGV1} "")
+    endif()
+    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+      set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+    endif()
+
+    foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
+      if (_24C487FA_var_prefix_filter_len)
+        string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
+        # copy values only from "parent scope" variables
+        if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
+          continue()
+        endif()
+      endif()
+
+      # check for specific builtin variables
+      tkl_is_ARGx_var(_24C487FA_is_ARGx_var ${_24C487FA_var_name})
+      if (_24C487FA_is_ARGx_var)
+        continue()
+      endif()
+
+      if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+        list(APPEND ${ARGV1} "${_24C487FA_var_name}")
+      endif()
+
+      if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+        # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+        string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
+
+        list(APPEND ${ARGV2} "${_24C487FA_var_value}")
+
+        #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
+      endif()
+    endforeach()
+
+    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+      # remove 2 first dummy empty strings
+      tkl_list_remove_sublist(${ARGV2} 0 2 ${ARGV2})
+    endif()
+
+    #list(LENGTH ${ARGV1} vars_len)
+    #list(LENGTH ${ARGV2} vals_len)
+    #
+    #message(vars_len=${vars_len})
+    #message(vals_len=${vals_len})
+  endif()
+
+  if (NOT "${ARGV0}" STREQUAL "" AND NOT "${ARGV0}" STREQUAL ".")
+    set(${ARGV0} "${_24C487FA_vars_all_list}" PARENT_SCOPE)
+  endif()
+  if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+    set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)
+  endif()
+  if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
+    set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
   endif()
 endfunction()
 
 # custom user variables stack over properties
 
-macro(tkl_push_var_to_stack_impl var_name)
+# CAUTION:
+#   All local variables after a macro call must be unset outside explicitly.
+#
+macro(tkl_push_var_to_stack_impl stack_entry var_name)
   # CAUTION:
-  #   All variables here must be unique irrespective to the function scope,
+  #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
   #
 
-  get_property(_2BA2974B_is_vars_stack_set GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size SET)
+  if ("${stack_entry}" STREQUAL "")
+    message(FATAL_ERROR "stack_entry must be not empty")
+  endif()
+  if ("${var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
+  endif()
+
+  get_property(_2BA2974B_is_vars_stack_set GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" SET)
   if (_2BA2974B_is_vars_stack_set)
-    get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size)
+    get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
   else()
     set(_2BA2974B_vars_stack_size 0)
   endif()
 
-  set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size} "${${var_name}}")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}" "${${var_name}}")
   if (DEFINED ${var_name})
-    set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size}::is_defined 1)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}::defined" 1)
   else()
-    set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size}::is_defined 0)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}::defined" 0)
   endif()
 
   math(EXPR _2BA2974B_vars_stack_size ${_2BA2974B_vars_stack_size}+1)
-  set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size ${_2BA2974B_vars_stack_size})
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" ${_2BA2974B_vars_stack_size})
+
+  # CAUTION:
+  #   All local variables here must be unset outside explicitly.
+  #
 endmacro()
 
-function(tkl_pushset_var_to_stack var_name var_value)
-  tkl_push_var_to_stack_impl(${var_name})
+function(tkl_pushset_var_to_stack stack_entry var_name var_value)
+  tkl_push_var_to_stack_impl("${stack_entry}" "${var_name}")
 
   set(${var_name} "${var_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_pushunset_var_to_stack var_name)
-  tkl_push_var_to_stack_impl(${var_name})
+function(tkl_pushunset_var_to_stack stack_entry var_name)
+  tkl_push_var_to_stack_impl("${stack_entry}" "${var_name}")
 
   unset(${var_name} PARENT_SCOPE)
 endfunction()
 
-function(tkl_pop_var_from_stack var_name)
+function(tkl_pop_var_from_stack stack_entry var_name)
   # INFO:
-  #   All variables here are unique just in case.
+  #   All local variables here are unique, just in case.
   #
 
-  get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size)
+  if ("${stack_entry}" STREQUAL "")
+    message(FATAL_ERROR "stack_entry must be not empty")
+  endif()
+  if ("${var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
+  endif()
+
+  get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
   if (NOT _2BA2974B_vars_stack_size)
     message(FATAL_ERROR "variables stack either undefined or empty")
   endif()
 
   math(EXPR _2BA2974B_vars_stack_next_size ${_2BA2974B_vars_stack_size}-1)
 
-  get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_next_size}::is_defined)
+  get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
   if (_2BA2974B_is_var_defined)
-    get_property(_2BA2974B_var_value GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_next_size})
+    get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}")
     set(${var_name} "${_2BA2974B_var_value}" PARENT_SCOPE)
   else()
     unset(${var_name} PARENT_SCOPE)
   endif()
 
   if (_2BA2974B_vars_stack_next_size)
-    set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size ${_2BA2974B_vars_stack_next_size})
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" ${_2BA2974B_vars_stack_next_size})
   else()
-    set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size) # unset property
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size})
-  set_property(GLOBAL PROPERTY tkl::vars_stack[${var_name}]::${_2BA2974B_vars_stack_size}::is_defined)
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
 endfunction()
 
-function(tkl_get_var_stack_size out_var var_name)
-  get_property(vars_stack_size GLOBAL PROPERTY tkl::vars_stack[${var_name}]::size)
+function(tkl_get_var_stack_size out_var stack_entry var_name)
+  if ("${stack_entry}" STREQUAL "")
+    message(FATAL_ERROR "stack_entry must be not empty")
+  endif()
+  if ("${var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
+  endif()
+
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
   if (vars_stack_size STREQUAL "")
     set(vars_stack_size 0)
   endif()
   set(out_var ${vars_stack_size} PARENT_SCOPE)
 endfunction()
 
-# custom user properties stack over properties
-
-macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
-  # INFO:
-  #   All variables here are unique just in case.
+macro(tkl_pushset_vars_ARGx_to_stack) # WITH OUT ARGUMENTS!
+  # WORKAROUND:
+  #  Because we can not change values of ARGC and ARGV0..N arguments, then we have to
+  #  replace them by local variables to obscure arguments from the upper caller context!
   #
 
-  get_property(_2BA2974B_is_props_stack_set GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size SET)
+  if (NOT ${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must be called with arguments")
+  endif()
+
+  tkl_pushset_var_to_stack(builtin ARGC "${ARGC}")
+
+  if (NOT "${ARGV}" STREQUAL "")
+    tkl_pushset_var_to_stack(builtin ARGV "${ARGV}")
+
+    # update ARGVn variables
+    set(_E8577C97_argv_index 0)
+    while(_E8577C97_argv_index LESS ${ARGC})
+      tkl_list_get(_E8577C97_arg ARGV ${_E8577C97_argv_index})
+      tkl_pushset_var_to_stack(builtin ARGV${_E8577C97_argv_index} "${_E8577C97_arg}")
+      math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
+    endforeach()
+  else()
+    tkl_pushset_var_to_stack(builtin ARGV "")
+  endif()
+
+  # cleanup local variables
+  unset(_E8577C97_arg)
+  unset(_E8577C97_argv_index)
+endmacro()
+
+macro(tkl_pop_vars_ARGVn_from_stack)
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must not be called with arguments")
+  endif()
+
+  if (NOT DEFINED ARGV OR NOT DEFINED ARGC)
+    message(FATAL_ERROR "both ARGV and ARGC variables must be already explicitly defined")
+  endif()
+
+  # unset ARGVn variables
+  set(_E8577C97_argv_index 0)
+  while(_E8577C97_argv_index LESS ARGC) # ARGC as a variable
+    unset(ARGV${_E8577C97_argv_index})
+    math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
+  endforeach()
+
+  # pop ARGVn variables
+  tkl_pop_var_from_stack(builtin ARGV)
+  tkl_pop_var_from_stack(builtin ARGC)
+
+  if (DEFINED ARGV)
+    set(_E8577C97_argv_index 0)
+    while(_E8577C97_argv_index LESS ARGC) # ARGC as a variable
+      tkl_pop_var_from_stack(builtin ARGV${_E8577C97_argv_index})
+      math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
+    endwhile()
+
+    # cleanup local variables
+    unset(_E8577C97_arg)
+  endif()
+
+  # cleanup local variables
+  unset(_E8577C97_argv_index)
+endmacro()
+
+# custom user properties stack over properties
+
+# CAUTION:
+#   All local variables after a macro call must be unset outside explicitly.
+#
+macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
+  # INFO:
+  #   All local variables here are unique, just in case.
+  #
+
+  if ("${prop_entry}" STREQUAL "")
+    message(FATAL_ERROR "prop_entry must be not empty")
+  endif()
+  if ("${prop_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty")
+  endif()
+
+  get_property(_2BA2974B_is_props_stack_set GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" SET)
   if (_2BA2974B_is_props_stack_set)
-    get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size)
+    get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
   else()
     set(_2BA2974B_props_stack_size 0)
   endif()
@@ -157,12 +429,16 @@ macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
   get_property(_2BA2974B_prop_value_set "${prop_entry}" PROPERTY "${prop_name}" SET)
   if (_2BA2974B_prop_value_set)
     get_property(_2BA2974B_prop_value "${prop_entry}" PROPERTY "${prop_name}")
-    set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size} "${_2BA2974B_prop_value}")
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}" "${_2BA2974B_prop_value}")
   endif()
-  set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}::is_defined ${_2BA2974B_prop_value_set})
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}::defined" ${_2BA2974B_prop_value_set})
 
   math(EXPR _2BA2974B_props_stack_size ${_2BA2974B_props_stack_size}+1)
-  set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size ${_2BA2974B_props_stack_size})
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" ${_2BA2974B_props_stack_size})
+
+  # CAUTION:
+  #   All local variables here must be unset outside explicitly.
+  #
 endmacro()
 
 function(tkl_pushset_prop_to_stack out_var prop_entry prop_name var_value)
@@ -183,19 +459,26 @@ endfunction()
 
 function(tkl_pop_prop_from_stack out_var prop_entry prop_name)
   # INFO:
-  #   All variables here are unique just in case.
+  #   All local variables here are unique, just in case.
   #
 
-  get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size)
+  if (prop_entry STREQUAL "")
+    message(FATAL_ERROR "prop_entry must be not empty")
+  endif()
+  if (prop_name STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty")
+  endif()
+
+  get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
   if (NOT _2BA2974B_props_stack_size)
     message(FATAL_ERROR "properties stack either undefined or empty")
   endif()
 
   math(EXPR _2BA2974B_props_stack_next_size ${_2BA2974B_props_stack_size}-1)
 
-  get_property(_2BA2974B_is_prop_defined GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}::is_defined)
+  get_property(_2BA2974B_is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
   if (_2BA2974B_is_prop_defined)
-    get_property(_2BA2974B_prop_value GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size})
+    get_property(_2BA2974B_prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}")
     set_property("${prop_entry}" PROPERTY "${prop_name}" "${_2BA2974B_prop_value}")
   else()
     set(_2BA2974B_prop_value "")
@@ -203,267 +486,130 @@ function(tkl_pop_prop_from_stack out_var prop_entry prop_name)
   endif()
 
   if (_2BA2974B_props_stack_next_size)
-    set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size ${_2BA2974B_props_stack_next_size})
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" ${_2BA2974B_props_stack_next_size})
   else()
-    set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size) # unset property
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size})
-  set_property(GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}::is_defined)
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
 
   if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
-    set(${out_var} "${_2BA2974B_prop_value}" PARENT_SCOPE)
+    if (_2BA2974B_is_prop_defined)
+      set(${out_var} "${_2BA2974B_prop_value}" PARENT_SCOPE)
+    else()
+      unset(${out_var} PARENT_SCOPE)
+    endif()
   endif()
 endfunction()
 
 function(tkl_get_prop_stack_size out_var prop_entry prop_name)
-  get_property(props_stack_size GLOBAL PROPERTY tkl::props_stack[${prop_entry}::${prop_name}]::size)
+  if (prop_entry STREQUAL "")
+    message(FATAL_ERROR "prop_entry must be not empty")
+  endif()
+  if (prop_name STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty")
+  endif()
+
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
   if (props_stack_size STREQUAL "")
     set(props_stack_size 0)
   endif()
   set(out_var ${props_stack_size} PARENT_SCOPE)
 endfunction()
 
-macro(tkl_begin_emulate_shift_ARGVn) # WITH OUT ARGUMENTS!
-  # WORKAROUND:
-  #  Because we can not change values of ARGV0..N arguments, then we have to
-  #  replace them by local variables to emulate arguments shift!
-  #
-
-  if (NOT ${ARGC} GREATER 0)
-    message(FATAL_ERROR "function must not be called with arguments")
-  endif()
-
-  if (NOT "${ARGV}" STREQUAL "")
-    tkl_pushset_var_to_stack(ARGV "${ARGV}")
-  else()
-    tkl_pushunset_var_to_stack(ARGV)
-  endif()
-
-  # update ARGVn variables
-  set(_6CFB89A4_index 0)
-  foreach(_6CFB89A4_arg IN LISTS ARGV)
-    if (NOT "${_6CFB89A4_arg}" STREQUAL "")
-      tkl_pushset_var_to_stack(ARGV${_6CFB89A4_index} "${_6CFB89A4_arg}")
-    else()
-      tkl_pushunset_var_to_stack(ARGV${_6CFB89A4_index})
-    endif()
-    math(EXPR _6CFB89A4_index ${_6CFB89A4_index}+1)
-  endforeach()
-
-  tkl_pushset_var_to_stack(_6CFB89A4_num_emul_argv ${_6CFB89A4_index})
-
-  # cleanup local variables
-  unset(_6CFB89A4_arg)
-  unset(_6CFB89A4_index)
-endmacro()
-
-macro(tkl_end_emulate_shift_ARGVn)
-  if (NOT ${ARGC} GREATER 0)
-    message(FATAL_ERROR "function must not be called with arguments")
-  endif()
-
-  set(_6CFB89A4_index 0)
-  while(_6CFB89A4_index LESS _6CFB89A4_num_emul_argv)
-    tkl_popset_var_from_stack(ARGV${_6CFB89A4_index})
-    math(EXPR _6CFB89A4_index ${_6CFB89A4_index}+1)
-  endwhile()
-  tkl_popset_var_from_stack(_6CFB89A4_num_emul_argv)
-
-  tkl_popset_var_from_stack(ARGV)
-
-  # cleanup local variables
-  unset(_6CFB89A4_index)
-endmacro()
-
-# CAUTION:
-# 1. User must not use builtin ARGC/ARGV/ARGN/ARGV0..N variables because they are a part of function/macro call stack
-#
-function(tkl_get_var out_uncached_var out_cached_var var_name)
-  if (out_uncached_var AND NOT out_uncached_var STREQUAL ".")
-    set(out_uncached_var_is_defined 1)
-  else()
-    set(out_uncached_var_is_defined 0)
-  endif()
-
-  if (out_cached_var AND NOT out_cached_var STREQUAL ".")
-    set(out_cached_var_is_defined 1)
-  else()
-    set(out_cached_var_is_defined 0)
-  endif()
-
-  if (NOT out_uncached_var_is_defined AND NOT out_cached_var_is_defined)
-    message(FATAL_ERROR "at least one output variable must be defined")
-  endif()
-
-  if (out_uncached_var_is_defined)
-    if (out_uncached_var STREQUAL var_name)
-      message(FATAL_ERROR "out_uncached_var and var_name variables must be different: `${out_uncached_var}`")
-    endif()
-  endif()
-
-  if (out_uncached_var_is_defined OR out_cached_var_is_defined)
-    if (out_uncached_var STREQUAL out_cached_var)
-      message(FATAL_ERROR "out_uncached_var and out_cached_var variables must be different: `${out_cached_var}`")
-    endif()
-  endif()
-
-  # check for specific builtin variables
-  string(SUBSTRING "${var_name}" 0 3 _5FC3B9AA_var_forbidden)
-  if (_5FC3B9AA_var_forbidden STREQUAL "ARG")
-    message(FATAL_ERROR "specific builtin variables are forbidden to use: `${var_name}`")
-  endif()
-
-  get_property(_5FC3B9AA_var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
-
-  if (NOT _5FC3B9AA_var_cache_value_is_set)
-    if (out_cached_var_is_defined)
-      unset(${out_uncached_var} PARENT_SCOPE)
-    endif()
-    if (out_uncached_var_is_defined)
-      set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
-    endif()
-  else()
-    if (out_cached_var_is_defined)
-      # propagate cached variant of a variable
-      if (DEFINED ${var_name})
-        set(${out_cached_var} "${${var_name}}" PARENT_SCOPE)
-      else()
-        unset(${out_cached_var} PARENT_SCOPE)
-      endif()
-    endif()
-
-    if (out_uncached_var_is_defined)
-      # save cache properties of a variable
-      get_property(_5FC3B9AA_var_cache_value CACHE "${var_name}" PROPERTY VALUE)
-      get_property(_5FC3B9AA_var_cache_type CACHE "${var_name}" PROPERTY TYPE)
-      get_property(_5FC3B9AA_var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
-
-      # remove cached variant of a variable
-      unset(${var_name} CACHE)
-
-      # propagate uncached variant of a variable
-      if (DEFINED ${var_name})
-        set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
-      else()
-        unset(${out_uncached_var} PARENT_SCOPE)
-      endif()
-
-      # restore cache properties of a variable
-      #message("set(${var_name} `${_5FC3B9AA_var_cache_value}` CACHE `${_5FC3B9AA_var_cache_type}` `${_5FC3B9AA_var_cache_docstring}`)")
-      set(${var_name} "${_5FC3B9AA_var_cache_value}" CACHE ${_5FC3B9AA_var_cache_type} "${_5FC3B9AA_var_cache_docstring}")
-    endif()
-  endif()
-endfunction()
-
 # Start to track variables for change or adding.
 # Note that variables starting with underscore are NOT ignored.
-function(tkl_begin_track_vars)
-  # all variables with the `_39067B90_` prefix will be gnored by the search logic itself
-  get_cmake_property(_39067B90_old_vars VARIABLES)
+#
+# CAUTION:
+#   Have to be a function, but all local variables still must be unique to
+#   avoid intersection with the parent one.
+#
+function(tkl_begin_track_vars) # WITH OUT ARGUMENTS!
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must be called without arguments")
+  endif()
 
-  #message(" _39067B90_old_vars=${_39067B90_old_vars}")
+  tkl_copy_vars(. _39067B90_filtered_vars)
 
-  foreach(_39067B90_var IN LISTS _39067B90_old_vars)
-    # check for this function variables
-    string(SUBSTRING "${_39067B90_var}" 0 10 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "_39067B90_")
-      continue()
-    endif()
+  #message(" _39067B90_filtered_vars=${_39067B90_filtered_vars}")
 
-    # check for special stack variables, should not be tracked, handles separately
-    string(SUBSTRING "${_39067B90_var}" 0 10 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "_2BA2974B_")
-      continue()
-    endif()
+  set(_39067B90_vars "")
+  set(_39067B90_vars_values "")
+  set(_39067B90_vars_defined "")
 
-    # check for specific builtin variables
-    string(SUBSTRING "${_39067B90_var}" 0 3 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "ARG")
-      continue()
-    endif()
+  foreach(_39067B90_var IN LISTS _39067B90_filtered_vars)
+    list(APPEND _39067B90_vars ${_39067B90_var})
 
     # we must compare with uncached variable variant ONLY
-    tkl_get_var(_39067B90_old_var_${_39067B90_var} . ${_39067B90_var})
-    if (DEFINED _39067B90_old_var_${_39067B90_var})
-      set(_39067B90_old_var_${_39067B90_var} ${_39067B90_old_var_${_39067B90_var}} PARENT_SCOPE)
-    # no need to unset because of uniqueness of a variable name
-    #else()
-    #  unset(_39067B90_old_var_${_39067B90_var} PARENT_SCOPE)
+    tkl_get_var(_39067B90_var_value . ${_39067B90_var})
+    if (DEFINED _39067B90_var_value)
+      # escape all list separator characters
+      string(REPLACE ";" "\;" _39067B90_var_value "${_39067B90_var_value}")
+
+      list(APPEND _39067B90_vars_values "${_39067B90_var_value}")
+      list(APPEND _39067B90_vars_defined 1)
+    else()
+      list(APPEND _39067B90_vars_values "")
+      list(APPEND _39067B90_vars_defined 0)
     endif()
-    #message(" _39067B90_old_var_${_39067B90_var}=`${_39067B90_old_var_${_39067B90_var}}`")
+    #message(" _39067B90_var=`${_39067B90_var}`")
   endforeach()
+
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::track_vars::vars_stack::vars" "${_39067B90_vars}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::track_vars::vars_stack::values" "${_39067B90_vars_values}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::track_vars::vars_stack::defined" "${_39067B90_vars_defined}")
 endfunction()
 
-# tkl_forward_changed_vars_to_parent_scope([exclusions])
-# Forwards variables that was added/changed since last call to start_track_vars() to the parent scope.
+# Forwards variables that was added/changed/removed since last call to `bagin_track_vars` to the parent scope.
 # Note that variables starting with underscore are NOT ignored.
-macro(tkl_forward_changed_vars_to_parent_scope)
-  # all variables with the `_39067B90_` prefix will be gnored by the search logic itself
-  get_cmake_property(_39067B90_vars VARIABLES)
-  set(_39067B90_ignore_vars ${ARGN})
+#
+# Parameters:
+#   ARGN - variables exclusion list
+#
+macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
+  # must be the first call
+  tkl_copy_vars(. _39067B90_filtered_vars)
 
-  #message(" _39067B90_vars=${_39067B90_vars}")
-  foreach(_39067B90_var IN LISTS _39067B90_vars)
-    list(FIND _39067B90_ignore_vars ${_39067B90_var} _39067B90_is_var_ignored)
-    if(NOT _39067B90_is_var_ignored EQUAL -1)
-      continue()
-    endif()
+  get_property(_39067B90_prev_vars GLOBAL PROPERTY "tkl::track_vars::vars_stack::vars")
 
-    # check for this function variables
-    string(SUBSTRING "${_39067B90_var}" 0 10 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "_39067B90_")
-      continue()
-    endif()
+  # to unset
+  set(_39067B90_vars_to_unset "${_39067B90_prev_vars}")
+  list(REMOVE_ITEM _39067B90_vars_to_unset ${_39067B90_filtered_vars})
 
-    # check for special stack variables, should not be tracked, handles separately
-    string(SUBSTRING "${_39067B90_var}" 0 10 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "_2BA2974B_")
-      continue()
-    endif()
+  # to set
+  set(_39067B90_vars_to_set "${_39067B90_filtered_vars}")
 
-    # check for specific builtin variables
-    string(SUBSTRING "${_39067B90_var}" 0 3 _39067B90_var_prefix)
-    if (_39067B90_var_prefix STREQUAL "ARG")
-      continue()
-    endif()
+  # to ignore
+  if (NOT "${ARGN}" STREQUAL "")
+    list(REMOVE_ITEM _39067B90_vars_to_unset ${ARGN})
+    list(REMOVE_ITEM _39067B90_vars_to_set ${ARGN})
+  endif()
 
-    # we must compare with uncached variable variant ONLY
-    tkl_get_var(_39067B90_var_uncached . ${_39067B90_var})
-
-    if(DEFINED _39067B90_old_var_${_39067B90_var})
-      if (DEFINED _39067B90_var_uncached)
-        if(NOT _39067B90_var_uncached STREQUAL _39067B90_old_var_${_39067B90_var})
-          set(${_39067B90_var} ${_39067B90_var_uncached} PARENT_SCOPE)
-        endif()
-      else()
-        unset(${_39067B90_var} PARENT_SCOPE)
-      endif()
-    elseif (DEFINED _39067B90_var_uncached)
-      set(${_39067B90_var} ${_39067B90_var_uncached} PARENT_SCOPE)
-    endif()
+  # propogate unset
+  foreach(_39067B90_var IN LISTS _39067B90_vars_to_unset)
+    unset(${_39067B90_var} PARENT_SCOPE)
   endforeach()
+
+  # propogate set
+  foreach(_39067B90_var IN LISTS _39067B90_vars_to_set)
+    set(${_39067B90_var} "${${_39067B90_var}}" PARENT_SCOPE)
+  endforeach()
+
+  unset(_39067B90_prev_vars)
+  unset(_39067B90_vars_to_unset)
+  unset(_39067B90_vars_to_set)
 endmacro()
 
-function(tkl_end_track_vars)
-  get_cmake_property(_9F05B048_vars VARIABLES)
-  #message(" _9F05B048_vars=${_9F05B048_vars}")
+macro(tkl_end_track_vars) # WITH OUT ARGUMENTS!
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must be called without arguments")
+  endif()
 
-  foreach(_9F05B048_var IN LISTS _9F05B048_vars)
-    string(SUBSTRING "${_9F05B048_var}" 0 10 _9F05B048_var_prefix)
-    if (NOT _9F05B048_var_prefix STREQUAL "_39067B90_")
-      continue()
-    endif()
-
-    unset(${_9F05B048_var} PARENT_SCOPE)
-    #unset(${_9F05B048_var}) # must be unset here too to retest at the end
-    #message(" unset ${_9F05B048_var}")
-  endforeach()
-
-  # CAUTION: For correct check all variables must be unset in the current scope too!
-  #get_cmake_property(_9F05B048_vars VARIABLES)
-  #message(" _9F05B048_vars=${_9F05B048_vars}")
-endfunction()
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::track_vars::vars_stack::vars")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::track_vars::vars_stack::values")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::track_vars::vars_stack::defined")
+endmacro()
 
 endif()

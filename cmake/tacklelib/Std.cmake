@@ -28,89 +28,6 @@ include(tacklelib/Utility)
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
-function(tkl_copy_vars)
-  # ARGV0 - out_vars_all_list
-  # ARGV1 - out_vars_filtered_list  (names)
-  # ARGV2 - out_vars_values_list    (values)
-  # ARGV3 - var_prefix_filter
-  if (NOT ${ARGC} GREATER_EQUAL 1)
-    message(FATAL_ERROR "function must have at least 1 argument")
-  endif()
-
-  # reduce intersection probability with the parent scope variables through the unique variable name prefix
-  get_cmake_property(_24C487FA_vars_all_list VARIABLES)
-
-  set(_24C487FA_var_name "")
-  set(_24C487FA_var_name_prefix "")
-  set(_24C487FA_var_value "")
-
-  if (NOT "${ARGV3}" STREQUAL "" AND NOT "${ARGV3}" STREQUAL ".")
-    string(LENGTH "${ARGV3}" _24C487FA_var_prefix_filter_len)
-  else()
-    set(_24C487FA_var_prefix_filter_len 0)
-  endif()
-
-  if ((NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".") OR
-    (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL "."))
-    if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
-      set(${ARGV1} "")
-    endif()
-    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
-      set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    endif()
-
-    foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
-      if (_24C487FA_var_prefix_filter_len)
-        string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
-        # copy values only from "parent scope" variables
-        if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
-          continue()
-        endif()
-      endif()
-
-      # check for specific builtin variables
-      string(SUBSTRING "${_24C487FA_var_name}" 0 3 _24C487FA_var_name_prefix)
-      if (_24C487FA_var_name_prefix STREQUAL "ARG")
-        continue()
-      endif()
-
-      if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
-        list(APPEND ${ARGV1} "${_24C487FA_var_name}")
-      endif()
-
-      if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
-        # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-        string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
-
-        list(APPEND ${ARGV2} "${_24C487FA_var_value}")
-
-        #message("${_24C487FA_var_name}=`${_24C487FA_var_value}`")
-      endif()
-    endforeach()
-
-    if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
-      # remove 2 first dummy empty strings
-      tkl_list_remove_sublist(${ARGV2} 0 2 ${ARGV2})
-    endif()
-
-    #list(LENGTH ${ARGV1} vars_len)
-    #list(LENGTH ${ARGV2} vals_len)
-    #
-    #message(vars_len=${vars_len})
-    #message(vals_len=${vals_len})
-  endif()
-
-  if (NOT "${ARGV0}" STREQUAL "" AND NOT "${ARGV0}" STREQUAL ".")
-    set(${ARGV0} "${_24C487FA_vars_all_list}" PARENT_SCOPE)
-  endif()
-  if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
-    set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)
-  endif()
-  if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
-    set(${ARGV2} "${${ARGV2}}" PARENT_SCOPE)
-  endif()
-endfunction()
-
 macro(tkl_include_and_echo path)
   message(STATUS "(*) Include: \"${path}\"")
   include(${path})
@@ -134,7 +51,7 @@ function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_from_ARGx("${argv_joined_list}" _BBD57550_argv_joined_list_encoded)
+  tkl_escape_string_from_ARGx(_BBD57550_argv_joined_list_encoded "${argv_joined_list}")
 
   set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
@@ -143,7 +60,7 @@ endfunction()
 
 macro(tkl_make_var_from_ARGV_end out_argv_var)
   if (NOT "${ARGN}" STREQUAL "")
-    message(FATAL_ERROR "function must have only 2 arguments")
+    message(FATAL_ERROR "function must have only 1 argument")
   endif()
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
@@ -165,7 +82,7 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
     list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_from_ARGx("${ARGV${_BBD57550_var_index}}" _BBD57550_argv_value_encoded)
+    tkl_escape_string_from_ARGx(_BBD57550_argv_value_encoded "${ARGV${_BBD57550_var_index}}")
 
     list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
 
@@ -198,8 +115,8 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   endif()
 
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_from_ARGx("${argv_joined_list}" _9E220B1D_argv_joined_list_encoded)
-  tkl_escape_string_from_ARGx("${argn_joined_list}" _9E220B1D_argn_joined_list_encoded)
+  tkl_escape_string_from_ARGx(_9E220B1D_argv_joined_list_encoded "${argv_joined_list}")
+  tkl_escape_string_from_ARGx(_9E220B1D_argn_joined_list_encoded "${argn_joined_list}")
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
@@ -274,7 +191,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
       endif()
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_escape_string_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded)
+      tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -298,7 +215,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
       list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
 
       # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_escape_string_from_ARGx("${ARGV${_9E220B1D_var_index}}" _9E220B1D_argv_value_encoded)
+      tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
 
       list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -340,9 +257,9 @@ endmacro()
 #     (for the script mode only, where the cmake has called with the `-P` flag).
 #
 function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_var_from_ARGV_begin("${ARGN}" argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_var_from_ARGV_end(argn)
   #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
   #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argn=${argn}")
 

@@ -60,7 +60,7 @@ function(tkl_subtract_absolute_paths from_path to_path out_var)
 endfunction()
 
 # Workaround for `file(REMOVE ...)` to bypass the command issues.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
+# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
 #
 function(tkl_file_remove)
   tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
@@ -87,7 +87,7 @@ function(tkl_file_remove)
 endfunction()
 
 # Workaround for `file(REMOVE_RECURSE ...)` to bypass the command issues.
-# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274
+# For details: https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
 #
 function(tkl_file_remove_recurse)
   tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
@@ -111,6 +111,93 @@ function(tkl_file_remove_recurse)
     #message("tkl_file_remove_recurse: ${file_path}")
     _file(REMOVE_RECURSE "${file_path}")
   endforeach()
+endfunction()
+
+# Workaround for `file(STRINGS ...)` to bypass the command issues.
+# For details: https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
+#
+# CAUTION:
+#   The `file(STRINGS` and some other functions has deep sitting issues which prevents to write reliable and consistent parsers:
+#   https://gitlab.kitware.com/cmake/cmake/issues/19156: `Not paired `]` or `[` characters breaks "file(STRINGS"`
+#   https://gitlab.kitware.com/cmake/cmake/issues/18946: `;-escape list implicit unescaping`
+#   To bypass the first issue we have to replace all `[` and `]` characters by a special sequence to enclose single standing characters
+#   by respective opposite character in a pair.
+#
+function(tkl_file_encode_strings out_var file_path)
+  _file(STRINGS "${file_path}" file_content)
+
+  # WORKAROUND: we have to replace because `file(STRINGS` does a break on not closed `]` or `[` characters
+  string(REPLACE "\\?" "?0?" file_content "${file_content}")
+  string(REPLACE "\\[" "?1?" file_content "${file_content}")
+  string(REPLACE "\\]" "?2?" file_content "${file_content}")
+
+  set(${out_var} "${file_content}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_file_decode_string out_var str)
+  string(REPLACE "\\?0\\?" "?" str "${str}")
+  string(REPLACE "\\?1\\?" "[" str "${str}")
+  string(REPLACE "\\?2\\?" "]" str "${str}")
+
+  set(${out_var} "${str}" PARENT_SCOPE)
+endfunction()
+
+## Workaround for `file(STRINGS ...)` to bypass the command issues.
+## For details: https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
+##
+#function(tkl_file_to_string out_var file_path)
+#  tkl_file_encode_strings(file_content "${file_path}")
+#
+#  set(file_content_out "")
+#  set(file_line_index 0)
+#
+#  foreach (var_line IN LISTS file_content)
+#    # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+#    string(REPLACE ";" "\;" file_line "${file_line}")
+#
+#    tkl_file_decode_string(file_line "${file_line}")
+#
+#    if (file_line_index)
+#      set(file_content_out "${file_content_out}\n")
+#    endif()
+#    set(file_content_out "${file_content_out}${file_line}")
+#
+#    math(EXPR file_line_index ${file_line_index}+1)
+#  endforeach()
+#
+#  set(${out_var} "${file_content_out}" PARENT_SCOPE)
+#endfunction()
+
+# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+#
+function(tkl_file_append file_path str)
+  _file(APPEND "${file_path}" "${str}" ${ARGN})
+endfunction()
+
+# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+#
+function(tkl_file_write file_path str)
+  _file(WRITE "${file_path}" "${str}" ${ARGN})
+endfunction()
+
+# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+#
+function(tkl_file_read out_var file_path)
+  _file(READ "${file_path}" file_content ${ARGN})
+  set(${out_var} "${file_content}" PARENT_SCOPE)
+endfunction()
+
+# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+#
+function(tkl_file_append_from_file to_file_path from_file_path prefix_str suffix_str)
+  tkl_file_read(file_content "${from_file_path}" OFFSET 0)
+  if (NOT prefix_str STREQUAL "")
+    _file(APPEND "${to_file_path}" "${prefix_str}")
+  endif()
+  _file(APPEND "${to_file_path}" "${file_content}")
+  if (NOT suffix_str STREQUAL "")
+    _file(APPEND "${to_file_path}" "${suffix_str}")
+  endif()
 endfunction()
 
 # Workaround for `file(LOCK ...)` to avoid immediate cmake exit in case of usage in the script mode.
@@ -139,9 +226,9 @@ endfunction()
 #   File path to write in.
 #
 function(write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
-  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" "" argn)
+  tkl_make_var_from_ARGV_begin("${ARGN}" argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_var_from_ARGV_end("" argn)
 
   list(LENGTH argn argn_len)
   set(argn_index 0)
@@ -179,7 +266,7 @@ function(write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
     tkl_file_lock("${flock_file_path}" FILE)
   endif()
 
-  file(WRITE "${out_file_path}" "${GENERATOR_IS_MULTI_CONFIG}")
+  tkl_file_write("${out_file_path}" "${GENERATOR_IS_MULTI_CONFIG}")
 
   if (DEFINED flock_file_path)
     file(LOCK "${flock_file_path}" RELEASE)
@@ -190,7 +277,8 @@ endfunction()
 # CAUTION:
 #   Should not be overriden before!
 #   Exists to bypass issues has introduced here:
-#     https://gitlab.kitware.com/cmake/cmake/issues/19274
+#     https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
+#     https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
 #   Has to be a macro to avoid interception of a variable creation to pass it to a parent scope.
 #
 macro(file cmd)
@@ -199,6 +287,8 @@ macro(file cmd)
     message(FATAL_ERROR "`file(REMOVE ...)` having issues with the removing, do use `tkl_file_remove` instead")
   elseif ("${cmd}" STREQUAL "REMOVE_RECURSE")
     message(FATAL_ERROR "`file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead")
+  elseif ("${cmd}" STREQUAL "STRINGS")
+    message(FATAL_ERROR "`file(STRINGS ...)` having issues with file strings reading, do use `tkl_file_encode_strings`/`tkl_file_decode_string` instead")
   endif()
 
   # call to previous implementation
