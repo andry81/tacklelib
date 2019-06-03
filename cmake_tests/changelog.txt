@@ -1,3 +1,10 @@
+2019.06.02:
+* fixed: `tests_01_script_mode/tests_07_Eval` tests pass
+* fixed: overall tests fixup
+* new: more `tests_01_script_mode` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
 2019.05.31:
 * fixed: tests fixup
 * new: `tests_01_script_mode/tests_05_ForwardVariables` tests

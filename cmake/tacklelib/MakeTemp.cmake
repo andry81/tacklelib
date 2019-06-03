@@ -10,7 +10,7 @@ include(tacklelib/Props)
 #   * specific `%s` format specifier in the `string(TIMESTAMP ...)`: https://cmake.org/cmake/help/v3.6/command/string.html#timestamp
 #
 
-function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_suffix_len out_var)
+function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_random_name_suffix_len)
   set(temp_base_dir "")
   if (DEFINED ENV{TMP} AND IS_DIRECTORY "$ENV{TMP}")
     set(temp_base_dir "$ENV{TMP}")
@@ -92,6 +92,20 @@ function(tkl_make_temp_dir dir_name_prefix time_fmt proc_index dir_random_name_s
   #message("tkl_make_temp_dir: ${temp_dir_path_abs}")
 
   set(${out_var} "${temp_dir_path_abs}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_make_basic_timestamp_temp_dir out_var dir_name_prefix dir_random_name_suffix_len)
+  # first time the call handler generation from a function
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
+
+  if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
+    # running under TestLib, the macro can call under different cmake processe when the inner timestamp is not yet changed (timestamp has seconds resolution)
+    tkl_make_temp_dir(temp_dir_path "${dir_name_prefix}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" ${dir_random_name_suffix_len})
+  else()
+    tkl_make_temp_dir(temp_dir_path "${dir_name_prefix}." "%Y'%m'%d''%H'%M'%SZ" "" ${dir_random_name_suffix_len})
+  endif()
+
+  set(${out_var} "${temp_dir_path}" PARENT_SCOPE)
 endfunction()
 
 endif()

@@ -1,7 +1,7 @@
 include(tacklelib/Utility)
 
 function(dbg_message msg)
-  message("${msg}")
+  #message("${msg}")
 endfunction()
 
 function(test_string_escape in_str ref_str)

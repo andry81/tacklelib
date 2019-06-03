@@ -147,7 +147,7 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   unset(${out_argn_var} PARENT_SCOPE)
   set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
-  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
+  #set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list2 "${_9E220B1D_argv_joined_list2}" PARENT_SCOPE)
 endfunction()
 
@@ -240,7 +240,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
   endif()
 
   unset(_9E220B1D_argv_joined_list)
-  unset(_9E220B1D_argn_joined_list)
+  #unset(_9E220B1D_argn_joined_list)
   unset(_9E220B1D_argv_joined_list2)
   unset(_9E220B1D_argn_offset)
 endmacro()
@@ -328,39 +328,6 @@ function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
   endif()
 
   set(${out_var} "${${out_var}}" PARENT_SCOPE)
-endfunction()
-
-function(tkl_set_ARGV)
-  set(argv_index 0)
-
-  while (argv_index LESS ${ARGC})
-    set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
-    math(EXPR argv_index "${argv_index}+1")
-  endwhile()
-
-  if (NOT "${ARGC}" STREQUAL "")
-    set(ARGC_ "${ARGC}" PARENT_SCOPE)
-  endif()
-endfunction()
-
-function(tkl_unset_ARGV)
-  set(argv_index 0)
-
-  while (argv_index LESS ARGC_)
-    set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
-    math(EXPR argv_index "${argv_index}+1")
-  endwhile()
-
-  unset(ARGC_ PARENT_SCOPE)
-endfunction()
-
-function(tkl_print_ARGV)
-  set(argn_index 0)
-
-  while(argn_index LESS ARGC_)
-    message("ARGV${argn_index}=`${ARGV${argn_index}}`")
-    math(EXPR argn_index "${argn_index}+1")
-  endwhile()
 endfunction()
 
 # Usage:

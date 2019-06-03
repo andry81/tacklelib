@@ -4,7 +4,7 @@ function(TestCase_var_expansion_01)
   set(a 111)
 
   tkl_eval("\
-if (\"${a}\" STREQUAL \"111\")
+if (\"\${a}\" STREQUAL \"111\")
   set(ret 1)
 else()
   set(ret 0)
@@ -67,10 +67,11 @@ function(TestCase_var_expansion_escaping_03)
 
   tkl_eval("set(b \"$\\{a}\")")
 
-  if (b STREQUAL "$\\{a}")
+  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\{a}")
     tkl_test_assert_true(1)
   else()
-    tkl_test_assert_true(0 "a=${a} b=${b}")
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
   endif()
 endfunction()
 
@@ -79,10 +80,11 @@ function(TestCase_var_expansion_escaping_04)
 
   tkl_eval("set(b \"\\\${a}\")")
 
+  tkl_test_assert_true("b STREQUAL \"\\\${a}\"" "1 a=${a} b=${b}")
   if (b STREQUAL "\${a}")
     tkl_test_assert_true(1)
   else()
-    tkl_test_assert_true(0 "a=${a} b=${b}")
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
   endif()
 endfunction()
 
@@ -90,7 +92,12 @@ function(TestCase_var_expansion_escaping_05)
   set(a 777)
   set(b "$\\{a}")
 
-  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "a=${a} b=${b}")
+  tkl_test_assert_true("b STREQUAL \"$\\\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\\{a}")
+    tkl_test_assert_true(1)
+  else()
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
+  endif()
 endfunction()
 
 function(TestCase_var_expansion_escaping_06)
@@ -98,6 +105,11 @@ function(TestCase_var_expansion_escaping_06)
   set(b "\${a}")
 
   tkl_test_assert_true("b STREQUAL \"\\\${a}\"" "a=${a} b=${b}")
+  if (b STREQUAL "\${a}")
+    tkl_test_assert_true(1)
+  else()
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
+  endif()
 endfunction()
 
 ###
@@ -175,10 +187,11 @@ endfunction()
 function(test_func_arg_expansion_escaping_03 a)
   tkl_eval("set(b \"$\\{a}\")")
 
-  if (b STREQUAL "$\\{a}")
+  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\{a}")
     tkl_test_assert_true(1)
   else()
-    tkl_test_assert_true(0 "a=${a} b=${b}")
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
   endif()
 endfunction()
 
@@ -189,10 +202,11 @@ endfunction()
 function(test_func_arg_expansion_escaping_04 a)
   tkl_eval("set(b \"\\\${a}\")")
 
+  tkl_test_assert_true("b STREQUAL \"\\\${a}\"" "1 a=${a} b=${b}")
   if (b STREQUAL "\${a}")
     tkl_test_assert_true(1)
   else()
-    tkl_test_assert_true(0 "a=${a} b=${b}")
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
   endif()
 endfunction()
 
@@ -203,7 +217,12 @@ endfunction()
 function(test_func_arg_expansion_escaping_05 a)
   set(b "$\\{a}")
 
-  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "a=${a} b=${b}")
+  tkl_test_assert_true("b STREQUAL \"$\\\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\\{a}")
+    tkl_test_assert_true(1)
+  else()
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
+  endif()
 endfunction()
 
 function(TestCase_func_arg_expansion_escaping_05)
@@ -213,7 +232,12 @@ endfunction()
 function(test_func_arg_expansion_escaping_06 a)
   set(b "\${a}")
 
-  tkl_test_assert_true("b STREQUAL \"\\\${a}\"" "a=${a} b=${b}")
+  tkl_test_assert_true("b STREQUAL \"\\\${a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "\${a}")
+    tkl_test_assert_true(1)
+  else()
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
+  endif()
 endfunction()
 
 function(TestCase_func_arg_expansion_escaping_06)
@@ -265,9 +289,9 @@ endfunction()
 ###
 
 macro(test_macro_arg_expansion_escaping_02 a)
-  tkl_eval("set(b \"$\{a}\")")
+  tkl_eval("set(b \"$\{a}\")") # macro parameters should not be visible inside the command
 
-  if (b STREQUAL "b") # specific case
+  if (b STREQUAL "") # specific case
     tkl_test_assert_true(1)
   else()
     tkl_test_assert_true(0 "a=${a} b=${b}")
@@ -281,10 +305,11 @@ endfunction()
 macro(test_macro_arg_expansion_escaping_03 a)
   tkl_eval("set(b \"$\\{a}\")")
 
-  if (b STREQUAL "$\\{a}")
+  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\{a}")
     tkl_test_assert_true(1)
   else()
-    tkl_test_assert_true(0 "a=${a} b=${b}")
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
   endif()
 endmacro()
 
@@ -295,7 +320,12 @@ endfunction()
 macro(test_macro_arg_expansion_escaping_05 a)
   set(b "$\\{a}")
 
-  tkl_test_assert_true("b STREQUAL \"$\\{a}\"" "a=${a} b=${b}")
+  tkl_test_assert_true("b STREQUAL \"$\\\\{a}\"" "1 a=${a} b=${b}")
+  if (b STREQUAL "$\\{a}")
+    tkl_test_assert_true(1)
+  else()
+    tkl_test_assert_true(0 "2 a=${a} b=${b}")
+  endif()
 endmacro()
 
 function(TestCase_macro_arg_expansion_escaping_05)
@@ -303,7 +333,7 @@ function(TestCase_macro_arg_expansion_escaping_05)
 endfunction()
 
 macro(test_macro_arg_expansion_escaping_09 a)
-  if (a STREQUAL "a")
+  if (a STREQUAL "a") # macro parameters does not exist as variables
     tkl_test_assert_true(1)
   else()
     tkl_test_assert_true(0 "a=${a}")

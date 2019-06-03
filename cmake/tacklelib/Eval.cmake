@@ -50,16 +50,7 @@ function(tkl_eval_begin include_file_name str)
     message(FATAL_ERROR "function must have 2 arguments")
   endif()
 
-  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
-
-  if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-    # running under TestLib, the macro can call under different cmake process when the inner timestamp is not yet changed (timestamp has seconds resolution)
-    tkl_make_temp_dir("CMake.Eval." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 eval_temp_dir_path)
-  else()
-    tkl_make_temp_dir("CMake.Eval." "%Y'%m'%d''%H'%M'%SZ" "" 8 eval_temp_dir_path)
-  endif()
-
-  unset(TACKLELIB_TESTLIB_TESTPROC_INDEX)
+  tkl_make_basic_timestamp_temp_dir(eval_temp_dir_path "CMake.Eval." 8)
 
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_dir_path" "${eval_temp_dir_path}")
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_name" "${include_file_name}")
@@ -157,6 +148,9 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
   unset(eval_include_file_name)
 
+  # unset the function parameters too
+  unset(begin_include_file_name)
+
   tkl_get_last_eval_include_file_path(_67AB359F_eval_include_file_path)
 
   if ("${end_include_file_path}" STREQUAL "" OR "${end_include_file_path}" STREQUAL ".")
@@ -164,13 +158,16 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
     tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
     tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
 
-    tkl_begin_track_vars()
+    # unset the function parameters too
+    unset(end_include_file_path)
+
+    tkl_track_vars_begin()
 
     # evaluating...
     include("${_67AB359F_eval_include_file_path}")
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   else()
     tkl_is_equal_paths(REALPATH "${_67AB359F_eval_include_file_path}" "${end_include_file_path}" eval_is_equal_include_file_paths)
     if (NOT eval_is_equal_include_file_paths)
@@ -182,8 +179,6 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
 
-      tkl_begin_track_vars()
-
       # CAUTION:
       #   We have to call to a nested evaluation to make an inclusion from a file.
       #
@@ -193,11 +188,16 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
       tkl_eval_append_from_file("include_recursive.cmake" "${end_include_file_path}")
 
+      # unset the function parameters too
+      unset(end_include_file_path)
+
+      tkl_track_vars_begin()
+
       # evaluating...
       tkl_eval_end("include_recursive.cmake" .)
 
       tkl_forward_changed_vars_to_parent_scope()
-      tkl_end_track_vars()
+      tkl_track_vars_end()
     else()
       unset(eval_is_equal_include_file_paths)
 
@@ -205,13 +205,16 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
 
-      tkl_begin_track_vars()
+      # unset the function parameters too
+      unset(end_include_file_path)
+
+      tkl_track_vars_begin()
 
       # evaluating...
       include("${_67AB359F_eval_include_file_path}")
 
       tkl_forward_changed_vars_to_parent_scope()
-      tkl_end_track_vars()
+      tkl_track_vars_end()
     endif()
   endif()
 endfunction()
@@ -227,13 +230,17 @@ function(tkl_eval str)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
 
-  tkl_begin_track_vars()
-
   tkl_eval_begin("include.cmake" "${str}")
+
+  # unset the function parameters too
+  unset(str)
+
+  tkl_track_vars_begin()
+
   tkl_eval_end("include.cmake" .)
 
   tkl_forward_changed_vars_to_parent_scope()
-  tkl_end_track_vars()
+  tkl_track_vars_end()
 endfunction()
 
 tkl_register_implementation(function tkl_eval)
@@ -247,14 +254,15 @@ function(tkl_eval_from_file file_path)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
 
-  tkl_begin_track_vars()
-
   tkl_eval_begin("include.cmake" "")
   tkl_eval_append_from_file("${file_path}")
+
+  tkl_track_vars_begin()
+
   tkl_eval_end("include.cmake" .)
 
   tkl_forward_changed_vars_to_parent_scope()
-  tkl_end_track_vars()
+  tkl_track_vars_end()
 endfunction()
 
 tkl_register_implementation(function tkl_eval_from_file)

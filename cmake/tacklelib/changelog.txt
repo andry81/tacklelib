@@ -1,3 +1,18 @@
+2019.06.03:
+* fixed: return recursion around `return` in the `Handlers.cmake`
+* changed: improved `ForwardArgs.cmake`
+
+2019.06.02:
+* fixed: missed to unset function parameters before call to the `tkl_eval_end` (`Eval.cmake`)
+* fixed: missed ARGC variable ignore in `tkl_begin_track_vars`/`tkl_end_track_vars`
+* fixed: `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` incomplete implementation (`ForwardArgs.cmake`)
+* fixed: `tkl_restore_vars_ARGVn_from_stack` to restore builtin ARGVn variables from the stack (`ForwardArgs.cmake`)
+* new: `tkl_make_basic_timestamp_temp_dir` function for basic temporary directory creation (`MakeTemp.cmake`)
+* new: enabled `tkl_test_assert_true` to use builtin ARGVn variables from the stack top (`ForwardArgs.cmake`)
+* changed: extracted `ForwardArgs.cmake` from `ForwardVariables.cmake`
+* changed: [finished] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* refactor: `tkl_begin_track_vars`/`tkl_end_track_vars` renamed to `tkl_track_vars_begin`/`tkl_track_vars_end`
+
 2019.06.01:
 * changed: minor cleanup (`Eval.cmake`)
 

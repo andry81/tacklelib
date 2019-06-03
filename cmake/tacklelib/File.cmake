@@ -109,7 +109,7 @@ function(tkl_file_remove_recurse)
 
     # call to previous implementation
     #message("tkl_file_remove_recurse: ${file_path}")
-    _file(REMOVE_RECURSE "${file_path}")
+    #_file(REMOVE_RECURSE "${file_path}")
   endforeach()
 endfunction()
 

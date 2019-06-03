@@ -51,7 +51,7 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #  We have to replace them reentrantly by a local context variables to
     #  avoid use ARGVn variables from an upper caller context.
     #
-    tkl_pushset_vars_ARGVn_to_stack(${ARGV})
+    tkl_pushset_macro_args_ARGVn_to_stack(${ARGV})
 
     tkl_add_subdirectory_begin(${ARGV})
 
@@ -72,7 +72,7 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #  We have to replace them reentrantly by a local context variables to
     #  avoid use ARGVn variables from an upper caller context.
     #
-    tkl_pushset_vars_ARGVn_to_stack(${ARGV})
+    tkl_pushset_macro_args_ARGVn_to_stack(${ARGV})
 
     _find_package(${ARGV})
 
@@ -86,31 +86,31 @@ else()
     # Now ARGx built-in variables would be related to the add_library_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
     # But now we have to propagate all changed variables here into upper context by ourselves!
-    tkl_begin_track_vars()
+    tkl_track_vars_begin()
 
     _add_library(${ARGV})
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   endfunction()
 
   function(tkl_add_executable_invoker)
     # Now ARGx built-in variables would be related to the add_executable_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
     # But now we have to propagate all changed variables here into upper context by ourselves!
-    tkl_begin_track_vars()
+    tkl_track_vars_begin()
 
     _add_executable(${ARGV})
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   endfunction()
 
   function(tkl_add_custom_target_invoker)
     # Now ARGx built-in variables would be related to the add_custom_target_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
     # But now we have to propagate all changed variables here into upper context by ourselves!
-    tkl_begin_track_vars()
+    tkl_track_vars_begin()
 
     _add_custom_target(${ARGV})
 
@@ -118,7 +118,7 @@ else()
     tkl_check_global_vars_consistency()
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   endfunction()
 
   # CAUTION:
@@ -138,7 +138,7 @@ else()
     # Now ARGx built-in variables would be related to the add_subdirectory_invoker function parameters list instead of upper caller
     # which might has different/shifted parameters list!
     # But now we have to propagate all changed variables here into upper context by ourselves!
-    tkl_begin_track_vars()
+    tkl_track_vars_begin()
 
     _add_subdirectory(${ARGV})
 
@@ -146,14 +146,14 @@ else()
     tkl_check_global_vars_consistency()
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   endfunction()
 
   function(tkl_find_package_invoker)
     # Now ARGx built-in variables would be related to the `tkl_find_package_invoker` function parameters list instead of upper caller
     # which might has different/shifted parameters list!
     # But now we have to propagate all changed variables here into upper context by ourselves!
-    tkl_begin_track_vars()
+    tkl_track_vars_begin()
 
     _find_package(${ARGV})
 
@@ -161,7 +161,7 @@ else()
     tkl_check_global_vars_consistency()
 
     tkl_forward_changed_vars_to_parent_scope()
-    tkl_end_track_vars()
+    tkl_track_vars_end()
   endfunction()
 endif()
 
