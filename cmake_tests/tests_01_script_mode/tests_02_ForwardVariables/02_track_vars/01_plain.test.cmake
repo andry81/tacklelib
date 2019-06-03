@@ -1,13 +1,13 @@
 include(tacklelib/ForwardVariables)
 
 function(test_track_vars)
-  tkl_begin_track_vars()
+  tkl_track_vars_begin()
 
   set(a 111)
   unset(b)
 
   tkl_forward_changed_vars_to_parent_scope()
-  tkl_end_track_vars()
+  tkl_track_vars_end()
 endfunction()
 
 set(b 222)

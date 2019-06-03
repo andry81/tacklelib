@@ -22,6 +22,7 @@ set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 #
 
 include(tacklelib/List)
+include(tacklelib/Props)
 
 function(tkl_is_var out_is_var_def var_name)
   if(("${out_is_var_def}" STREQUAL "") OR (out_is_var_def STREQUAL var_name))
@@ -57,6 +58,7 @@ endmacro()
 macro(tkl_is_ARGx_var out_is_var_def var_name)
   if ("${var_name}" STREQUAL "ARGV" OR
       "${var_name}" STREQUAL "ARGN" OR
+      "${var_name}" STREQUAL "ARGC" OR
       "${var_name}" MATCHES "^ARGV[0-9]\$|^ARGV[1-9][0-9]+\$")
     set(${out_is_var_def} 1)
   else()
@@ -333,74 +335,41 @@ function(tkl_get_var_stack_size out_var stack_entry var_name)
   if (vars_stack_size STREQUAL "")
     set(vars_stack_size 0)
   endif()
-  set(out_var ${vars_stack_size} PARENT_SCOPE)
+
+  set(${out_var} ${vars_stack_size} PARENT_SCOPE)
 endfunction()
 
-macro(tkl_pushset_vars_ARGx_to_stack) # WITH OUT ARGUMENTS!
-  # WORKAROUND:
-  #  Because we can not change values of ARGC and ARGV0..N arguments, then we have to
-  #  replace them by local variables to obscure arguments from the upper caller context!
-  #
-
-  if (NOT ${ARGC} GREATER 0)
-    message(FATAL_ERROR "function must be called with arguments")
+function(tkl_get_var_stack_value out_var stack_entry prop_name index)
+  if ("${stack_entry}" STREQUAL "")
+    message(FATAL_ERROR "stack_entry must be not empty")
+  endif()
+  if ("${var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  tkl_pushset_var_to_stack(builtin ARGC "${ARGC}")
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
+  if (vars_stack_size STREQUAL "")
+    set(vars_stack_size 0)
+  endif()
 
-  if (NOT "${ARGV}" STREQUAL "")
-    tkl_pushset_var_to_stack(builtin ARGV "${ARGV}")
+  if (NOT vars_stack_size)
+    message(FATAL_ERROR "variables stack either undefined or empty")
+  endif()
 
-    # update ARGVn variables
-    set(_E8577C97_argv_index 0)
-    while(_E8577C97_argv_index LESS ${ARGC})
-      tkl_list_get(_E8577C97_arg ARGV ${_E8577C97_argv_index})
-      tkl_pushset_var_to_stack(builtin ARGV${_E8577C97_argv_index} "${_E8577C97_arg}")
-      math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
-    endforeach()
+  if (NOT index LESS vars_stack_size)
+    message(FATAL_ERROR "index out of stack bounds: index=${index} vars_stack_size=${vars_stack_size}")
+  endif()
+
+  math(EXPR vars_stack_index ${vars_stack_size}-1-${index})
+
+  get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${vars_stack_index}::defined")
+  if (is_var_defined)
+    get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${vars_stack_index}")
+    set(${var_name} "${var_value}" PARENT_SCOPE)
   else()
-    tkl_pushset_var_to_stack(builtin ARGV "")
+    unset(${var_name} PARENT_SCOPE)
   endif()
-
-  # cleanup local variables
-  unset(_E8577C97_arg)
-  unset(_E8577C97_argv_index)
-endmacro()
-
-macro(tkl_pop_vars_ARGVn_from_stack)
-  if (${ARGC} GREATER 0)
-    message(FATAL_ERROR "function must not be called with arguments")
-  endif()
-
-  if (NOT DEFINED ARGV OR NOT DEFINED ARGC)
-    message(FATAL_ERROR "both ARGV and ARGC variables must be already explicitly defined")
-  endif()
-
-  # unset ARGVn variables
-  set(_E8577C97_argv_index 0)
-  while(_E8577C97_argv_index LESS ARGC) # ARGC as a variable
-    unset(ARGV${_E8577C97_argv_index})
-    math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
-  endforeach()
-
-  # pop ARGVn variables
-  tkl_pop_var_from_stack(builtin ARGV)
-  tkl_pop_var_from_stack(builtin ARGC)
-
-  if (DEFINED ARGV)
-    set(_E8577C97_argv_index 0)
-    while(_E8577C97_argv_index LESS ARGC) # ARGC as a variable
-      tkl_pop_var_from_stack(builtin ARGV${_E8577C97_argv_index})
-      math(EXPR _E8577C97_argv_index ${_E8577C97_argv_index}+1)
-    endwhile()
-
-    # cleanup local variables
-    unset(_E8577C97_arg)
-  endif()
-
-  # cleanup local variables
-  unset(_E8577C97_argv_index)
-endmacro()
+endfunction()
 
 # custom user properties stack over properties
 
@@ -516,7 +485,40 @@ function(tkl_get_prop_stack_size out_var prop_entry prop_name)
   if (props_stack_size STREQUAL "")
     set(props_stack_size 0)
   endif()
-  set(out_var ${props_stack_size} PARENT_SCOPE)
+
+  set(${out_var} ${props_stack_size} PARENT_SCOPE)
+endfunction()
+
+function(tkl_get_prop_stack_value out_var prop_entry prop_name index)
+  if (prop_entry STREQUAL "")
+    message(FATAL_ERROR "prop_entry must be not empty")
+  endif()
+  if (prop_name STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty")
+  endif()
+
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
+  if (props_stack_size STREQUAL "")
+    set(props_stack_size 0)
+  endif()
+
+  if (NOT props_stack_size)
+    message(FATAL_ERROR "properties stack either undefined or empty")
+  endif()
+
+  if (NOT index LESS props_stack_size)
+    message(FATAL_ERROR "index out of stack bounds: index=${index} props_stack_size=${props_stack_size}")
+  endif()
+
+  math(EXPR props_stack_index ${props_stack_size}-1-${index})
+
+  get_property(is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${props_stack_index}::defined")
+  if (is_prop_defined)
+    get_property(prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${props_stack_index}")
+    set(${out_var} "${prop_value}" PARENT_SCOPE)
+  else()
+    unset(${out_var} PARENT_SCOPE) # unset property
+  endif()
 endfunction()
 
 # Start to track variables for change or adding.
@@ -526,7 +528,7 @@ endfunction()
 #   Have to be a function, but all local variables still must be unique to
 #   avoid intersection with the parent one.
 #
-function(tkl_begin_track_vars) # WITH OUT ARGUMENTS!
+function(tkl_track_vars_begin) # WITH OUT ARGUMENTS!
   if (${ARGC} GREATER 0)
     message(FATAL_ERROR "function must be called without arguments")
   endif()
@@ -572,7 +574,10 @@ macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
   # must be the first call
   tkl_copy_vars(. _39067B90_filtered_vars)
 
-  get_property(_39067B90_prev_vars GLOBAL PROPERTY "tkl::track_vars::vars_stack::vars")
+  tkl_get_global_prop(_39067B90_prev_vars "tkl::track_vars::vars_stack::vars" 0)
+  if (NOT DEFINED _39067B90_prev_vars)
+    message(FATAL_ERROR "the function is called out of `tkl_track_vars_begin`/`tkl_track_vars_end` scope")
+  endif()
 
   # to unset
   set(_39067B90_vars_to_unset "${_39067B90_prev_vars}")
@@ -602,7 +607,7 @@ macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
   unset(_39067B90_vars_to_set)
 endmacro()
 
-macro(tkl_end_track_vars) # WITH OUT ARGUMENTS!
+macro(tkl_track_vars_end) # WITH OUT ARGUMENTS!
   if (${ARGC} GREATER 0)
     message(FATAL_ERROR "function must be called without arguments")
   endif()

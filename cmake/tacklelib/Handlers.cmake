@@ -65,9 +65,9 @@ function(tkl_enable_handlers scope_type keyword_declarator func_name)
 
       if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
         # running under TestLib, the macro can call under different cmake processe when the inner timestamp is not yet changed (timestamp has seconds resolution)
-        tkl_make_temp_dir("CMake.EnableHandlers.${gen_func_name}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 _3528D0E3_handlers_temp_dir_path)
+        tkl_make_temp_dir(_3528D0E3_handlers_temp_dir_path "CMake.EnableHandlers.${gen_func_name}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8)
       else()
-        tkl_make_temp_dir("CMake.EnableHandlers.${gen_func_name}." "%Y'%m'%d''%H'%M'%SZ" "" 8 _3528D0E3_handlers_temp_dir_path)
+        tkl_make_temp_dir(_3528D0E3_handlers_temp_dir_path "CMake.EnableHandlers.${gen_func_name}." "%Y'%m'%d''%H'%M'%SZ" "" 8)
       endif()
 
       unset(TACKLELIB_TESTLIB_TESTPROC_INDEX)
@@ -236,6 +236,20 @@ endmacro()
 ${keyword_declarator}(${gen_func_name} ${ARGN})
 ")
         # CAUTION:
+        #   Builtin command recursion aware.
+        #
+        if ("${gen_func_name}" STREQUAL return)
+          set(_3528D0E3_handlers_include_str
+            "${_3528D0E3_handlers_include_str}\
+  tkl_get_global_prop(_3528D0E3_is_calling_of_${gen_func_name} \"tkl::reimpl[${gen_func_name}]::calling\" 1)
+  if (NOT _3528D0E3_is_calling_of_${gen_func_name})
+    unset(_3528D0E3_is_calling_of_${gen_func_name})
+    set_property(GLOBAL PROPERTY \"tkl::reimpl[${gen_func_name}]::calling\" 1)
+
+")
+        endif()
+
+        # CAUTION:
         #   This conversion is required ONLY if `${keyword_declarator}(...)` is reimplemented as a macro!
         #   For details: https://gitlab.kitware.com/cmake/cmake/issues/19281
         #
@@ -253,6 +267,9 @@ ${keyword_declarator}(${gen_func_name} ${ARGN})
 
         set(_3528D0E3_handlers_include_str
           "${_3528D0E3_handlers_include_str}\
+  else()
+    unset(_3528D0E3_is_calling_of_${gen_func_name})
+  endif()
 end${keyword_declarator}()
 
 tkl_register_implementation(\"${keyword_declarator}\" \"${gen_func_name}\")
@@ -279,17 +296,7 @@ tkl_register_implementation(\"${keyword_declarator}\" \"${gen_func_name}\")
       include("${_3528D0E3_handlers_temp_dir_path}/include.cmake")
     endmacro()
 
-    # first time the call handler generation from a function
-    tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
-
-    if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-      # running under TestLib, the macro can call under different cmake processe when the inner timestamp is not yet changed (timestamp has seconds resolution)
-      tkl_make_temp_dir("CMake.EnableHandlers.${func_name}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 _EBC697D4_handlers_temp_dir_path)
-    else()
-      tkl_make_temp_dir("CMake.EnableHandlers.${func_name}." "%Y'%m'%d''%H'%M'%SZ" "" 8 _EBC697D4_handlers_temp_dir_path)
-    endif()
-
-    unset(TACKLELIB_TESTLIB_TESTPROC_INDEX)
+    tkl_make_basic_timestamp_temp_dir(_EBC697D4_handlers_temp_dir_path "CMake.EnableHandlers.${func_name}." 8)
 
     # builtin variables for the `${func_name}` function handlers self testing from the `TestLib`
     set(TACKLELIB_HANDLERS_LAST_TEMP_DIR_PATH "${_EBC697D4_handlers_temp_dir_path}")

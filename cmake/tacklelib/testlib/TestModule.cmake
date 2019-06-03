@@ -4,6 +4,7 @@ set(TACKELIB_TESTMODULE_INCLUDE_DEFINED 1)
 
 include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)
+include(tacklelib/ForwardArgs)
 include(tacklelib/Eval)
 
 if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}")
@@ -211,8 +212,13 @@ function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
     message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
+  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::exp" "${ARGV0}")
+  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg" "${ARGV1}")
+
   #message("if_exp=${ARGV0}")
   tkl_eval("\
+tkl_restore_vars_ARGVn_from_stack(0) # to restore builtin ARGVn variables from the stack of special builtin properties stack
+
 if (${ARGV0})
   set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 0)
 else()
@@ -234,10 +240,13 @@ endif()
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT "tkl::testlib::testmodule::file_rel_path_shortcut" 1)
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC "tkl::testlib::testcase::func" 1)
 
+    tkl_get_global_prop(arg_exp "tkl::testlib::testmodule::last_test_assert_true::args::exp" 1)
+    tkl_get_global_prop(arg_msg "tkl::testlib::testmodule::last_test_assert_true::args::msg" 1)
+
     if (NOT TACKLELIB_TESTLIB_TESTCASE_FUNC STREQUAL "")
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${ARGV0}` msg=`${ARGV1}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}: if_exp=`${arg_exp}` msg=`${arg_msg}`")
     else()
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${ARGV0}` msg=`${ARGV1}`")
+      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${arg_exp}` msg=`${arg_msg}`")
     endif()
     tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
     return() # always return from a test case function on first fail

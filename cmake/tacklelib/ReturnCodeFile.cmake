@@ -6,14 +6,7 @@ include(tacklelib/File)
 include(tacklelib/MakeTemp)
 
 function(tkl_make_ret_code_file_dir dir_path_abs_var)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
-
-  if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-    # running under TestLib, the function can call under different cmake process when the inner timestamp is not yet changed (timestamp has seconds resolution)
-    tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8 dir_path_abs)
-  else()
-    tkl_make_temp_dir("CMake.RetCode." "%Y'%m'%d''%H'%M'%SZ" "" 8 dir_path_abs)
-  endif()
+  tkl_make_basic_timestamp_temp_dir(dir_path_abs "CMake.RetCode." 8)
   set(file_path_abs "${dir_path_abs}/ret_code.var")
   tkl_file_write("${file_path_abs}" "") # not set yet
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)
