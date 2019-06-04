@@ -8,7 +8,7 @@ include(tacklelib/ForwardVariables)
 #   Must be a function to:
 #   1. Avoid double expansion of the arguments.
 #
-function(tkl_set_macro_args_ARGVn) # WITH OUT ARGUMENTS
+function(tkl_set_ARGVn) # WITH OUT ARGUMENTS
   set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${ARGV}")
   set(ARGV "${ARGV}" PARENT_SCOPE)
 
@@ -24,10 +24,33 @@ function(tkl_set_macro_args_ARGVn) # WITH OUT ARGUMENTS
 endfunction()
 
 # CAUTION:
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
+#
+function(tkl_unset_ARGVn num_args)
+  if (NOT ${ARGC} EQUAL 1)
+    message(FATAL_ERROR "function must have 1 argument")
+  endif()
+
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGV") # unset property
+  unset(ARGV PARENT_SCOPE)
+
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGC") # unset property
+  unset(ARGC PARENT_SCOPE)
+
+  set(argv_index 0)
+  while(argv_index LESS num_args)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+    unset(ARGV${argv_index} PARENT_SCOPE)
+    math(EXPR argv_index ${argv_index}+1)
+  endwhile()
+endfunction()
+
+# CAUTION:
 #   Must be a macro to:
 #   1. Access upper caller function ARGVn arguments.
 #
-macro(tkl_set_func_args_ARGVn) # WITH OUT ARGUMENTS
+macro(tkl_set_ARGVn_props_from_vars) # WITH OUT ARGUMENTS
   if (${ARGC} GREATER 0)
     message(FATAL_ERROR "function must have no arguments")
   endif()
@@ -53,10 +76,35 @@ macro(tkl_set_func_args_ARGVn) # WITH OUT ARGUMENTS
 endmacro()
 
 # CAUTION:
+#   Must be a macro to:
+#   1. Access upper caller function ARGVn arguments.
+#
+macro(tkl_pushset_ARGVn_props_from_vars) # WITH OUT ARGUMENTS
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must have no arguments")
+  endif()
+
+  unset(_775085E8_empty)
+
+  # special syntaxes to bypass macro arguments expansion
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGV" "${ARGV${_775085E8_empty}}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGC" "${ARGC${_775085E8_empty}}")
+
+  # set ARGVn variables
+  set(_775085E8_argv_index 0)
+  while(_775085E8_argv_index LESS ARGC) # ARGC as a variable
+    tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGV${_775085E8_argv_index}" "${ARGV${_775085E8_argv_index}}")
+    math(EXPR _775085E8_argv_index ${_775085E8_argv_index}+1)
+  endwhile()
+
+  unset(_775085E8_argv_index)
+endmacro()
+
+# CAUTION:
 #   Must be a function to:
 #   1. Avoid double expansion of the arguments.
 #
-function(tkl_pushset_macro_args_ARGVn_to_stack) # WITH OUT ARGUMENTS!
+function(tkl_pushset_ARGVn_to_stack) # WITH OUT ARGUMENTS!
   # WORKAROUND:
   #  Because we can not change values of ARGC and ARGV0..N arguments, then we have to
   #  replace them by local variables to obscure arguments from the upper caller context!
@@ -208,19 +256,43 @@ function(tkl_pushset_macro_args_ARGVn_to_stack) # WITH OUT ARGUMENTS!
   endif()
 endfunction()
 
-function(tkl_pop_vars_ARGVn_from_stack)
+# CAUTION:
+#   Must be a function to:
+#   1. Avoid double expansion of the arguments.
+#
+function(tkl_pushunset_ARGVn_to_stack num_args)
+  if (NOT ${ARGC} EQUAL 1)
+    message(FATAL_ERROR "function must have 1 argument")
+  endif()
+
+  # CAUTION"
+  #   We should not actually unset anything here, so we replaces unset by set empty.
+  #
+
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGV" "")
+  set(ARGV "" PARENT_SCOPE)
+
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGC" 0)
+  set(ARGC 0 PARENT_SCOPE)
+
+  # unset ARGVn variables
+  set(argv_index 0)
+  while(argv_index LESS num_args) # ARGC as a variable
+    tkl_pushset_prop_to_stack(. GLOBAL "tkl::builtin::ARGV${argv_index}" "")
+    set(ARGV${argv_index} "" PARENT_SCOPE)
+    math(EXPR argv_index ${argv_index}+1)
+  endwhile()
+endfunction()
+
+function(tkl_pop_ARGVn_from_stack)
   if (${ARGC} GREATER 0)
     message(FATAL_ERROR "function must have no arguments")
   endif()
 
-  tkl_get_global_prop(ARGV "tkl::builtin::ARGV" 0)
-  tkl_get_global_prop(ARGC "tkl::builtin::ARGC" 0)
-
-  if ((NOT DEFINED ARGV) OR (NOT DEFINED ARGC))
-    message(FATAL_ERROR "variables stack either undefined or empty")
+  tkl_get_global_prop(prev_ARGC "tkl::builtin::ARGC" 0)
+  if (NOT DEFINED prev_ARGC)
+    set(prev_ARGC 0)
   endif()
-
-  set(prev_ARGC ${ARGC})
 
   # pop ARGVn variables
   tkl_pop_prop_from_stack(ARGV GLOBAL "tkl::builtin::ARGV")
@@ -228,6 +300,10 @@ function(tkl_pop_vars_ARGVn_from_stack)
 
   tkl_pop_prop_from_stack(ARGC GLOBAL "tkl::builtin::ARGC")
   set(ARGC "${ARGC}" PARENT_SCOPE)
+
+  if ("${ARGC}" STREQUAL "")
+    set(ARGC 0)
+  endif()
 
   # pop ARGVn variables
   set(argv_index 0)
@@ -243,25 +319,72 @@ function(tkl_pop_vars_ARGVn_from_stack)
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 
-  if ("${ARGC}" STREQUAL "")
-    set(ARGC 0)
-  endif()
-
   if (ARGC LESS prev_ARGC)
     # unset rest of variables
     set(argv_index ${ARGC})
     while(argv_index LESS prev_ARGC)
       unset(ARGV${argv_index} PARENT_SCOPE)
+      tkl_unset_global_prop(. "tkl::builtin::ARGV${argv_index}")
 
       math(EXPR argv_index ${argv_index}+1)
     endwhile()
+
+    set(from_argv_index ${prev_ARGC})
+  else()
+    set(from_argv_index ${ARGC})
   endif()
 
   # cascade restore from stack top to bottom
-  tkl_restore_vars_ARGVn_from_stack(0)
+  tkl_get_prop_stack_size(stack_size GLOBAL "tkl::builtin::ARGC")
+
+  set(stack_index 0)
+  while(stack_index LESS stack_size)
+    tkl_get_prop_stack_value(ARGC GLOBAL "tkl::builtin::ARGC" ${stack_index})
+
+    if (from_argv_index LESS ARGC)
+      # get ARGVn variables from stack top to bottom
+      set(argv_index ${from_argv_index})
+
+      while(argv_index LESS ARGC) # ARGC as a variable
+        tkl_get_prop_stack_value(arg GLOBAL "tkl::builtin::ARGV${argv_index}" ${stack_index})
+        if (DEFINED arg)
+          set(ARGV${argv_index} "${arg}" PARENT_SCOPE)
+        else()
+          unset(ARGV${argv_index} PARENT_SCOPE)
+        endif()
+
+        math(EXPR argv_index ${argv_index}+1)
+      endwhile()
+
+      set(from_argv_index ${ARGC})
+    endif()
+
+    math(EXPR stack_index ${stack_index}+1)
+  endwhile()
 endfunction()
 
-function(tkl_restore_vars_ARGVn_from_stack error_if_no_stack)
+function(tkl_pop_ARGVn_props_from_stack)
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must have no arguments")
+  endif()
+
+  # pop ARGVn properties
+  tkl_pop_prop_from_stack(ARGV GLOBAL "tkl::builtin::ARGV")
+  tkl_pop_prop_from_stack(ARGC GLOBAL "tkl::builtin::ARGC")
+
+  if ("${ARGC}" STREQUAL "")
+    set(ARGC 0)
+  endif()
+
+  # pop ARGVn variables
+  set(argv_index 0)
+  while(argv_index LESS ARGC) # ARGC as a variable
+    tkl_pop_prop_from_stack(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}")
+    math(EXPR argv_index ${argv_index}+1)
+  endwhile()
+endfunction()
+
+function(tkl_restore_ARGVn_vars_from_stack error_if_no_stack)
   if (NOT ${ARGC} EQUAL 1)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
@@ -294,7 +417,7 @@ function(tkl_restore_vars_ARGVn_from_stack error_if_no_stack)
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 
-  set(max_ARGC ${ARGC})
+  set(from_argv_index ${ARGC})
 
   tkl_get_prop_stack_size(stack_size GLOBAL "tkl::builtin::ARGC")
 
@@ -302,9 +425,9 @@ function(tkl_restore_vars_ARGVn_from_stack error_if_no_stack)
   while(stack_index LESS stack_size)
     tkl_get_prop_stack_value(ARGC GLOBAL "tkl::builtin::ARGC" ${stack_index})
 
-    if (max_ARGC LESS ARGC)
+    if (from_argv_index LESS ARGC)
       # get ARGVn variables from stack top to bottom
-      set(argv_index ${max_ARGC})
+      set(argv_index ${from_argv_index})
 
       while(argv_index LESS ARGC) # ARGC as a variable
         tkl_get_prop_stack_value(arg GLOBAL "tkl::builtin::ARGV${argv_index}" ${stack_index})
@@ -317,26 +440,36 @@ function(tkl_restore_vars_ARGVn_from_stack error_if_no_stack)
         math(EXPR argv_index ${argv_index}+1)
       endwhile()
 
-      set(max_ARGC ${ARGC})
+      set(from_argv_index ${ARGC})
     endif()
 
     math(EXPR stack_index ${stack_index}+1)
   endwhile()
 endfunction()
 
-function(tkl_print_ARGVn)
-  tkl_get_global_prop(ARGV "tkl::builtin::ARGV" 0)
-  tkl_get_global_prop(ARGC "tkl::builtin::ARGC" 0)
+macro(tkl_print_ARGVn)
+  tkl_get_global_prop(_22D2CE04_prop_ARGV "tkl::builtin::ARGV" 0)
+  tkl_get_global_prop(_22D2CE04_prop_ARGC "tkl::builtin::ARGC" 0)
 
-  if ((NOT DEFINED ARGV) OR (NOT DEFINED ARGC))
-    message(FATAL_ERROR "variables stack either undefined or empty")
-  endif()
+  unset(_22D2CE04_empty)
 
-  set(argn_index 0)
-  while(argn_index LESS ARGC)
-    message("ARGV${argn_index}=`${ARGV${argn_index}}`")
-    math(EXPR argn_index ${argn_index}+1)
+  message("---")
+  message("tkl::builtin::ARGV=`${_22D2CE04_prop_ARGV}`")
+  message("tkl::builtin::ARGC=${_22D2CE04_prop_ARGC}")
+
+  message("ARGV=`${ARGV${_22D2CE04_empty}}`")
+  message("ARGC=${ARGC${_22D2CE04_empty}}")
+
+  set(_22D2CE04_argn_index 0)
+  while(_22D2CE04_argn_index LESS ARGC)
+    message("ARGV${_22D2CE04_argn_index}=`${ARGV${_22D2CE04_argn_index}}`")
+    math(EXPR _22D2CE04_argn_index ${_22D2CE04_argn_index}+1)
   endwhile()
-endfunction()
+  message("---")
+
+  unset(_22D2CE04_prop_ARGV)
+  unset(_22D2CE04_prop_ARGC)
+  unset(_22D2CE04_argn_index)
+endmacro()
 
 endif()

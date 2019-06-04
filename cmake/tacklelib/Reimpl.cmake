@@ -51,7 +51,7 @@ function(tkl_register_implementation keyword_declarator func_name)
   set_property(GLOBAL PROPERTY "tkl::reimpl[${func_name}]" 1)
   set_property(GLOBAL PROPERTY "tkl::reimpl[${func_name}]::keyword_declarator" "${keyword_declarator}")
 
-  tkl_append_global_prop("tkl::reimpl_list" "${func_name}")
+  tkl_append_global_prop(. "tkl::reimpl_list" "${func_name}")
 endfunction()
 
 endif()

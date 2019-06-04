@@ -169,14 +169,14 @@ macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
   tkl_load_vars_from_files_impl_init()
   tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_var_from_ARGV_end("${ARGN}" _50FABB52_argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
   tkl_load_vars_from_files_impl()
   unset(_50FABB52_argn)
 endmacro()
@@ -341,14 +341,14 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   tkl_set_vars_from_files_impl_init()
   tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_var_from_ARGV_end(_50FABB52_argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_func()
   unset(_50FABB52_argn)
 endmacro()
@@ -362,7 +362,7 @@ macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
   #message("[${parent_var_values_list_len}] parent_var_values_list=${parent_var_values_list}")
 
   # Parent variable are saved, now can create local variables!
-  tkl_get_cmake_role(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
 
   if (NOT is_in_script_mode)
     # CMAKE_CONFIGURATION_TYPES consistency check, in case if not script mode
@@ -374,14 +374,14 @@ macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
   # we must recollect arguments here, because this implementation can be used separately with standalone arguments
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end("" _50FABB52_argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_macro()
   unset(_50FABB52_argn)
 endmacro()
@@ -561,7 +561,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   string(TOUPPER "${config_name}" config_name_upper)
   string(TOUPPER "${arch_name}" arch_name_upper)
 
-  tkl_get_cmake_role(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
 
   set(compare_var_path_values_as_case_sensitive 1)
 

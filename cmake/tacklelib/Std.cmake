@@ -280,7 +280,7 @@ function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
     message(FATAL_ERROR "function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
   endif()
 
-  tkl_get_cmake_role(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
   if (NOT is_in_script_mode)
     message(FATAL_ERROR "call must be made from the script mode only")
   endif()

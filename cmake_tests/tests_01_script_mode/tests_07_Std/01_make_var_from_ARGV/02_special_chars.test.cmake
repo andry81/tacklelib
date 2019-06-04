@@ -2,18 +2,18 @@ include(tacklelib/ForwardArgs)
 
 set(a 123)
 
-### tkl_make_var_from_ARGV_begin + tkl_pushset_macro_args_ARGVn_to_stack + tkl_make_var_from_ARGV_end + tkl_pop_vars_ARGVn_from_stack (in a macro call)
+### tkl_make_var_from_ARGV_begin + tkl_pushset_ARGVn_to_stack + tkl_make_var_from_ARGV_end + tkl_pop_ARGVn_from_stack (in a macro call)
 
 macro(test_macro_no_args_01)
   tkl_make_var_from_ARGV_begin("${ARGV}" argv)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_var_from_ARGV_end(argv)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   list(GET argv 0 argv0)
   list(GET argv 1 argv1)
@@ -32,14 +32,14 @@ endmacro()
 
 macro(test_macro_with_args_01 arg0 arg1 arg2)
   tkl_make_var_from_ARGV_begin("${ARGV}" argv)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_var_from_ARGV_end(argv)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   list(GET argv 0 argv0)
   list(GET argv 1 argv1)
