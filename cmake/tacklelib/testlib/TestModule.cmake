@@ -66,7 +66,7 @@ function(tkl_testmodule_update_status)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
-    message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
+    message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
@@ -78,7 +78,7 @@ function(tkl_testmodule_print_msg msg)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
-    message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
+    message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
   message("${msg}")
@@ -103,7 +103,7 @@ function(tkl_testmodule_run_test_cases)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
-    message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
+    message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
@@ -118,8 +118,8 @@ if (NOT \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\" STREQUAL \"\")
   tkl_testmodule_print_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@...\")
 endif()
 
-tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
-tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTCASE_FUNC \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
+tkl_set_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
+tkl_set_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
 
 @TACKLELIB_TESTLIB_TESTCASE_FUNC@()
 
@@ -202,22 +202,35 @@ endfunction()
 #   `${ARGV1}` - assertion message
 #
 function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
-  if (${ARGC} LESS 1})
+  if (${ARGC} LESS 1)
     message(FATAL_ERROR "function must have at least 1 argument")
   endif()
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
-    message(FATAL_ERROR "Test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
+    message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
-  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::exp" "${ARGV0}")
-  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg" "${ARGV1}")
+  if (${ARGC} LESS 2)
+    unset(ARGV1)
+  endif()
 
   #message("if_exp=${ARGV0}")
-  tkl_eval("\
-tkl_restore_vars_ARGVn_from_stack(0) # to restore builtin ARGVn variables from the stack of special builtin properties stack
+  set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::exp" "${ARGV0}")
+
+  if (DEFINED ARGV1)
+    set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg" "${ARGV1}")
+  else()
+    set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg") # unset property
+  endif()
+
+  tkl_eval_begin("test_assert_true_exp.cmake" "")
+
+  tkl_eval_append("test_assert_true_exp.cmake" "\
+tkl_restore_ARGVn_vars_from_stack(0)
+
+#tkl_print_ARGVn()
 
 if (${ARGV0})
   set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 0)
@@ -225,6 +238,19 @@ else()
   set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 1)
 endif()
 ")
+
+  #tkl_print_ARGVn()
+
+  # function arguments can interfere with the assert expression
+  tkl_pushset_ARGVn_props_from_vars()
+  tkl_pushunset_ARGVn_to_stack(2)
+
+  tkl_eval_end("test_assert_true_exp.cmake" .)
+
+  tkl_pop_ARGVn_from_stack()
+  tkl_pop_ARGVn_props_from_stack()
+
+  #tkl_print_ARGVn()
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testcase::retcode" "${TACKLELIB_TESTLIB_TESTCASE_RETCODE}")
 
@@ -234,7 +260,9 @@ endif()
     # set module success on at least one and first assert call (a module must fail if no one test assert have has used)
     if (TACKLELIB_TESTLIB_TESTMODULE_RETCODE EQUAL -1)
       # first time success return code
-      tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 0)
+      tkl_set_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 0)
+
+      tkl_testmodule_update_status()
     endif()
   else()
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT "tkl::testlib::testmodule::file_rel_path_shortcut" 1)
@@ -248,9 +276,37 @@ endif()
     else()
       tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: if_exp=`${arg_exp}` msg=`${arg_msg}`")
     endif()
-    tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
-    return() # always return from a test case function on first fail
+    tkl_set_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
+
+    tkl_testmodule_update_status()
   endif()
 endfunction()
+
+# CAUTION:
+#   Because the `tkl_test_assert*` only marks a test succeeded or failed, then you have to branch or exit
+#   the test on your own to interrupt the testing.
+#
+macro(return_if_test_failed)
+  if (${ARGC} GREATER 0)
+    message(FATAL_ERROR "function must have no arguments")
+  endif()
+
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
+
+  if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
+    message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
+  endif()
+
+  unset(TACKLELIB_TESTLIB_TESTMODULE_INITED)
+
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
+
+  if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
+    unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
+    return()
+  else()
+    unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
+  endif()
+endmacro()
 
 endif()

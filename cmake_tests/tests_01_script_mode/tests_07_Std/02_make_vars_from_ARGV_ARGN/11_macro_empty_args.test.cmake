@@ -2,14 +2,14 @@ include(tacklelib/ForwardArgs)
 
 macro(test_empty_in_begin_01)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"\"" "1 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"2\"" "1 ARGV1=${ARGV1}")
@@ -20,14 +20,14 @@ endmacro()
 
 macro(test_empty_in_begin_02)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"2\"" "2 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"\"" "2 ARGV1=${ARGV1}")
@@ -38,14 +38,14 @@ endmacro()
 
 macro(test_empty_in_mid_01)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"1\"" "3 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"\"" "3 ARGV1=${ARGV1}")
@@ -57,14 +57,14 @@ endmacro()
 
 macro(test_empty_in_mid_02)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"1\"" "4 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"3\"" "4 ARGV1=${ARGV1}")
@@ -75,14 +75,14 @@ endmacro()
 
 macro(test_empty_in_end_01)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"1\"" "5 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"\"" "5 ARGV1=${ARGV1}")
@@ -93,14 +93,14 @@ endmacro()
 
 macro(test_empty_in_end_02)
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
-  tkl_pushset_macro_args_ARGVn_to_stack(
+  tkl_pushset_ARGVn_to_stack(
     "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("\"${ARGV0}\" STREQUAL \"1\"" "6 ARGV0=${ARGV0}")
   tkl_test_assert_true("\"${ARGV1}\" STREQUAL \"\"" "6 ARGV1=${ARGV1}")

@@ -51,14 +51,14 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #  We have to replace them reentrantly by a local context variables to
     #  avoid use ARGVn variables from an upper caller context.
     #
-    tkl_pushset_macro_args_ARGVn_to_stack(${ARGV})
+    tkl_pushset_ARGVn_to_stack(${ARGV})
 
     tkl_add_subdirectory_begin(${ARGV})
 
     _add_subdirectory(${ARGV}) # DOES NOT CHANGE ARGVn arguments!
 
     tkl_add_subdirectory_end(${ARGV})
-    tkl_pop_vars_ARGVn_from_stack()
+    tkl_pop_ARGVn_from_stack()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()
@@ -72,11 +72,11 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #  We have to replace them reentrantly by a local context variables to
     #  avoid use ARGVn variables from an upper caller context.
     #
-    tkl_pushset_macro_args_ARGVn_to_stack(${ARGV})
+    tkl_pushset_ARGVn_to_stack(${ARGV})
 
     _find_package(${ARGV})
 
-    tkl_pop_vars_ARGVn_from_stack()
+    tkl_pop_ARGVn_from_stack()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()

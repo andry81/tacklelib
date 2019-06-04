@@ -40,6 +40,12 @@ function(tkl_enable_handlers scope_type keyword_declarator func_name)
     message(FATAL_ERROR "keyword_declarator is not supported: scope_type=`${scope_type}` keyword_declarator=`${keyword_declarator}` func_name=`${func_name}`")
   endif()
 
+  if ("${func_name}" STREQUAL "return")
+    if (NOT "${keyword_declarator}" STREQUAL "macro")
+      message(FATAL_ERROR "the `return` reimplementation available ONLY through the `macro` keyword declarator: scope_type=`${scope_type}` keyword_declarator=`${keyword_declarator}` func_name=`${func_name}`")
+    endif()
+  endif()
+
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
@@ -84,7 +90,7 @@ unset(_3528D0E3_handlers_temp_dir_path)
 # early cleanup
 tkl_file_remove_recurse(\"${_3528D0E3_handlers_temp_dir_path}\")
 
-macro(tkl_add_handler handler_type func_name handler_func_name)
+macro(tkl_add_first_handler handler_type func_name handler_func_name)
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
@@ -100,11 +106,52 @@ macro(tkl_add_handler handler_type func_name handler_func_name)
 
   if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
-      message(FATAL_ERROR \"`\${handler_func_name}` function can be used only together with the `PRE` handler type: handler_type=`\${handler_type}`\")
+      message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()
   else()
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\" AND NOT \"\${handler_type}\" STREQUAL \"POST\")
-      message(FATAL_ERROR \"`\${handler_func_name}` function can be used only together with the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
+      message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
+    endif()
+  endif()
+
+  unset(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name})
+
+  if (\"\${handler_type}\" STREQUAL \"PRE\")
+    tkl_get_global_prop(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} \"tkl::handlers::pre_funcs[\${func_name}]\" 0)
+    list(INSERT TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} 0 \"\${handler_func_name}\")
+    set_property(GLOBAL PROPERTY \"tkl::handlers::pre_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name}}\")
+    unset(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name})
+  elseif (\"\${handler_type}\" STREQUAL \"POST\")
+    tkl_get_global_prop(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} \"tkl::handlers::post_funcs[\${func_name}]\" 0)
+    list(INSERT TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} 0 \"\${handler_func_name}\")
+    set_property(GLOBAL PROPERTY \"tkl::handlers::post_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name}}\")
+    unset(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name})
+  endif()
+
+  tkl_generate_call_handler(\"\${func_name}\" ${_3528D0E3_handlers_escaped_expansion_cmdline_args})
+endmacro()
+
+macro(tkl_add_last_handler handler_type func_name handler_func_name)
+  # CAUTION:
+  #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
+  #
+  tkl_get_global_prop(TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name} \"tkl::handlers::enabled[\${func_name}]\" 0)
+
+  if (NOT TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name})
+    message(FATAL_ERROR \"`\${func_name}` function handling must be enabled explicitly by call to the `tkl_enable_handlers` function\")
+  endif()
+
+  unset(TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name})
+
+  tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
+
+  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+    if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
+      message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
+    endif()
+  else()
+    if (NOT \"\${handler_type}\" STREQUAL \"PRE\" AND NOT \"\${handler_type}\" STREQUAL \"POST\")
+      message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
     endif()
   endif()
 
@@ -125,7 +172,7 @@ macro(tkl_add_handler handler_type func_name handler_func_name)
   tkl_generate_call_handler(\"\${func_name}\" ${_3528D0E3_handlers_escaped_expansion_cmdline_args})
 endmacro()
 
-macro(tkl_remove_handler handler_type func_name handler_func_name)
+macro(tkl_remove_first_handler handler_type func_name)
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
@@ -141,11 +188,11 @@ macro(tkl_remove_handler handler_type func_name handler_func_name)
 
   if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
-      message(FATAL_ERROR \"`\${handler_func_name}` function can be used only together with the `PRE` handler type: handler_type=`\${handler_type}`\")
+      message(FATAL_ERROR \"function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()
   else()
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\" AND NOT \"\${handler_type}\" STREQUAL \"POST\")
-      message(FATAL_ERROR \"`\${handler_func_name}` function can be used only together with the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
+      message(FATAL_ERROR \"function enabled only for the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
     endif()
   endif()
 
@@ -153,12 +200,53 @@ macro(tkl_remove_handler handler_type func_name handler_func_name)
 
   if (\"\${handler_type}\" STREQUAL \"PRE\")
     tkl_get_global_prop(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} \"tkl::handlers::pre_funcs[\${func_name}]\" 0)
-    list(REMOVE_AT TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} \"\${handler_func_name}\" -1)
+    list(REMOVE_AT TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} 0)
     set_property(GLOBAL PROPERTY \"tkl::handlers::pre_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name}}\")
     unset(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name})
   elseif (\"\${handler_type}\" STREQUAL \"POST\")
     tkl_get_global_prop(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} \"tkl::handlers::post_funcs[\${func_name}]\" 0)
-    list(REMOVE_AT TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} \"\${handler_func_name}\" -1)
+    list(REMOVE_AT TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} 0)
+    set_property(GLOBAL PROPERTY \"tkl::handlers::post_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name}}\")
+    unset(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name})
+  endif()
+
+  tkl_generate_call_handler(\"\${func_name}\" ${_3528D0E3_handlers_escaped_expansion_cmdline_args})
+endmacro()
+
+macro(tkl_remove_last_handler handler_type func_name)
+  # CAUTION:
+  #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
+  #
+  tkl_get_global_prop(TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name} \"tkl::handlers::enabled[\${func_name}]\" 0)
+
+  if (NOT TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name})
+    message(FATAL_ERROR \"`\${func_name}` function handling must be enabled explicitly by call to the `tkl_enable_handlers` function\")
+  endif()
+
+  unset(TACKLELIB_HANDLERS_ENABLED_FOR_\${func_name})
+
+  tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
+
+  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+    if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
+      message(FATAL_ERROR \"function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
+    endif()
+  else()
+    if (NOT \"\${handler_type}\" STREQUAL \"PRE\" AND NOT \"\${handler_type}\" STREQUAL \"POST\")
+      message(FATAL_ERROR \"function enabled only for the `PRE` or `POST` handler type: handler_type=`\${handler_type}`\")
+    endif()
+  endif()
+
+  unset(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name})
+
+  if (\"\${handler_type}\" STREQUAL \"PRE\")
+    tkl_get_global_prop(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} \"tkl::handlers::pre_funcs[\${func_name}]\" 0)
+    list(REMOVE_AT TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name} -1)
+    set_property(GLOBAL PROPERTY \"tkl::handlers::pre_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name}}\")
+    unset(TACKLELIB_HANDLERS_PRE_FUNCS_FOR_\${func_name})
+  elseif (\"\${handler_type}\" STREQUAL \"POST\")
+    tkl_get_global_prop(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} \"tkl::handlers::post_funcs[\${func_name}]\" 0)
+    list(REMOVE_AT TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name} -1)
     set_property(GLOBAL PROPERTY \"tkl::handlers::post_funcs[\${func_name}]\" \"\${TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name}}\")
     unset(TACKLELIB_HANDLERS_POST_FUNCS_FOR_\${func_name})
   endif()
@@ -195,7 +283,7 @@ macro(tkl_handle_call_for_${gen_func_name} ${ARGN})
     _${gen_func_name}(${_3528D0E3_handlers_unescaped_expansion_cmdline_args})\n
 ")
 
-      tkl_get_global_prop(TACKLELIB_HANDLERS_POST_FUNCS_FOR_${gen_func_name} GLOBAL PROPERTY "tkl::handlers::post_funcs[${gen_func_name}]" 0)
+      tkl_get_global_prop(TACKLELIB_HANDLERS_POST_FUNCS_FOR_${gen_func_name} "tkl::handlers::post_funcs[${gen_func_name}]" 0)
 
       # invoke post handlers
       foreach(_3528D0E3_handler_func IN LISTS TACKLELIB_HANDLERS_POST_FUNCS_FOR_${gen_func_name})
@@ -238,7 +326,7 @@ ${keyword_declarator}(${gen_func_name} ${ARGN})
         # CAUTION:
         #   Builtin command recursion aware.
         #
-        if ("${gen_func_name}" STREQUAL return)
+        if ("${gen_func_name}" STREQUAL "return")
           set(_3528D0E3_handlers_include_str
             "${_3528D0E3_handlers_include_str}\
   tkl_get_global_prop(_3528D0E3_is_calling_of_${gen_func_name} \"tkl::reimpl[${gen_func_name}]::calling\" 1)
@@ -265,15 +353,27 @@ ${keyword_declarator}(${gen_func_name} ${ARGN})
 ")
         endif()
 
-        set(_3528D0E3_handlers_include_str
-          "${_3528D0E3_handlers_include_str}\
+        # CAUTION:
+        #   Builtin command recursion aware.
+        #
+        if ("${gen_func_name}" STREQUAL "return")
+          set(_3528D0E3_handlers_include_str
+            "${_3528D0E3_handlers_include_str}\
   else()
     unset(_3528D0E3_is_calling_of_${gen_func_name})
+    # recursed `return` is detected, call to the generic implementation
+    _return()
   endif()
+")
+        endif()
+
+        set(_3528D0E3_handlers_include_str
+          "${_3528D0E3_handlers_include_str}\
 end${keyword_declarator}()
 
 tkl_register_implementation(\"${keyword_declarator}\" \"${gen_func_name}\")
 ")
+
       else()
         unset(TACKLELIB_REIMPL_FOR_${gen_func_name})
       endif()
@@ -330,7 +430,7 @@ macro(tkl_append_enable_handler_prop func_name)
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
   set_property(GLOBAL PROPERTY "tkl::handlers::enabled[${func_name}]" 1)
-  tkl_append_global_prop("tkl::handlers::enabled_list" "${func_name}")
+  tkl_append_global_prop(. "tkl::handlers::enabled_list" "${func_name}")
 endmacro()
 
 endif()

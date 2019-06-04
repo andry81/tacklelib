@@ -1,3 +1,21 @@
+2019.06.04:
+* fixed: cmake: `tkl_pop_ARGVn_from_stack` implementation (`ForwardArgs.cmake`)
+* new: cmake: `tkl_unset_ARGVn`, `tkl_pushset_ARGVn_props_from_vars`, `tkl_pushunset_ARGVn_to_stack`, `tkl_pop_ARGVn_props_from_stack` implementation (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake: `tkl_pushset_macro_args_ARGVn_to_stack` renamed into `tkl_pushset_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_set_func_args_ARGVn` renamed into `tkl_set_ARGVn_props_from_vars` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_restore_vars_ARGVn_from_stack` renamed into `tkl_restore_ARGVn_vars_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.03:
+* fixed: cmake: missed `_return` call from recursion (`Handlers.cmake`)
+* fixed: cmake: invalid call to post handlers from the `tkl_handle_call_for_*` macro (`Handlers.cmake`)
+* new: cmake_tests: more `tests_01_script_mode/tests_09_Handlers` tests
+* changed: cmake: `tkl_add_handler` splitted into `tkl_add_last_handler` and `tkl_add_first_handler` (`Handlers.cmake`)
+* changed: cmake: `tkl_remove_handler` splitted into `tkl_remove_first_handler` and `tkl_remove_last_handler` (`Handlers.cmake`)
+* changed: cmake_tests: tests correction changes
+* changed: cmake_tests: minor cleanup
+* refactor: cmake_tests: test files order shift rename
+
 2019.06.03:
 * fixed: return recursion around `return` in the `Handlers.cmake`
 * fixed: cmake_tests: overall tests fixup

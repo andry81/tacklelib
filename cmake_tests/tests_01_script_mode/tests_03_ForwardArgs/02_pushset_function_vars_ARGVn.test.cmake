@@ -1,8 +1,8 @@
 include(tacklelib/ForwardArgs)
 
 function(test_func)
-  tkl_set_func_args_ARGVn()
-  tkl_pushset_macro_args_ARGVn_to_stack(a b "" "")
+  tkl_set_ARGVn_props_from_vars()
+  tkl_pushset_ARGVn_to_stack(a b "" "")
 
   tkl_test_assert_true("ARGV STREQUAL \"a;b;;\"" "ARGV=${ARGV}")
   tkl_test_assert_true("ARGV0 STREQUAL \"a\"" "ARGV0=${ARGV0}")
@@ -11,7 +11,7 @@ function(test_func)
   tkl_test_assert_true("ARGV3 STREQUAL \"\"" "ARGV3=${ARGV3}")
   tkl_test_assert_true("ARGC EQUAL 4" "ARGC=${ARGC}")
 
-  tkl_pop_vars_ARGVn_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
   tkl_test_assert_true("ARGV STREQUAL \"1;2;3\"" "ARGV=${ARGV}")
   tkl_test_assert_true("ARGV0 STREQUAL \"1\"" "ARGV0=${ARGV0}")

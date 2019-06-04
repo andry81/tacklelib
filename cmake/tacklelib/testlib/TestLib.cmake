@@ -237,7 +237,7 @@ function(tkl_testlib_enter_dir test_dir)
   #message("tkl_testlib_enter_dir: ${test_dir_path}")
 
   # always set to special not zero value to provoke test to fail by default
-  tkl_set_global_prop_and_var(TACKLELIB_TESTLIB_LAST_ERROR "tkl::testlib::last_error" -1)
+  tkl_set_global_prop(TACKLELIB_TESTLIB_LAST_ERROR "tkl::testlib::last_error" -1)
 
   tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_LAST_ENTER_DIR GLOBAL "tkl::testlib::last_enter_dir" "${test_dir_path}")
 

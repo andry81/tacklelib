@@ -109,7 +109,7 @@ function(tkl_file_remove_recurse)
 
     # call to previous implementation
     #message("tkl_file_remove_recurse: ${file_path}")
-    #_file(REMOVE_RECURSE "${file_path}")
+    _file(REMOVE_RECURSE "${file_path}")
   endforeach()
 endfunction()
 
@@ -204,7 +204,7 @@ endfunction()
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/19007
 #
 function(tkl_file_lock file_path scope_type)
-  tkl_get_cmake_role(SCRIPT is_in_script_mode)
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
   if (NOT is_in_script_mode)
     file(LOCK "${file_path}" GUARD ${scope_type})
   else()

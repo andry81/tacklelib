@@ -1,3 +1,12 @@
+2019.06.04:
+* changed: tests correction changes
+
+2019.06.03:
+* new: more `tests_01_script_mode/tests_09_Handlers` tests
+* changed: tests correction changes
+* changed: minor cleanup
+* refactor: test files order shift rename
+
 2019.06.02:
 * fixed: `tests_01_script_mode/tests_07_Eval` tests pass
 * fixed: overall tests fixup
