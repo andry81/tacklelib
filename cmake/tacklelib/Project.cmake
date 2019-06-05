@@ -964,7 +964,7 @@ function(tkl_add_subdirectory_begin target_src_dir)
 
   tkl_add_subdirectory_begin_message("${target_src_dir}" ${ARGN})
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" ${target_src_dir_abs})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${target_src_dir_abs})
 endfunction()
 
 function(tkl_add_subdirectory_end target_src_dir)
@@ -972,7 +972,7 @@ function(tkl_add_subdirectory_end target_src_dir)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   tkl_unregister_directory_scope_targets()
   tkl_add_subdirectory_end_message(${target_src_dir} ${ARGN})
 
@@ -1032,11 +1032,11 @@ function(tkl_find_package_begin package_src_dir_var package)
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
   tkl_find_package_begin_message(${package_src_dir_var} ${package} ${ARGN})
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" ${package})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" ${package})
   if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" ${${package_src_dir_var}})
+    tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${${package_src_dir_var}})
   else()
-    tkl_pushunset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+    tkl_pushunset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   endif()
 endfunction()
 
@@ -1045,8 +1045,8 @@ function(tkl_find_package_end package_src_dir_var package)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME")
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   tkl_unregister_directory_scope_targets()
   tkl_find_package_end_message(${package_src_dir_var} ${package} ${ARGN})
 

@@ -52,9 +52,9 @@ function(tkl_eval_begin include_file_name str)
 
   tkl_make_basic_timestamp_temp_dir(eval_temp_dir_path "CMake.Eval." 8)
 
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_dir_path" "${eval_temp_dir_path}")
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_name" "${include_file_name}")
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_path" "${eval_temp_dir_path}/${include_file_name}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval" "${eval_temp_dir_path}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval" "${include_file_name}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval" "${eval_temp_dir_path}/${include_file_name}")
 
   set(eval_include_str "\
 unset(_67AB359F_eval_include_file_path)
@@ -154,9 +154,9 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
   tkl_get_last_eval_include_file_path(_67AB359F_eval_include_file_path)
 
   if ("${end_include_file_path}" STREQUAL "" OR "${end_include_file_path}" STREQUAL ".")
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path")
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
 
     # unset the function parameters too
     unset(end_include_file_path)
@@ -166,18 +166,19 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
     # evaluating...
     include("${_67AB359F_eval_include_file_path}")
 
-    tkl_forward_changed_vars_to_parent_scope()
+    tkl_forward_changed_vars_to_parent_scope(_67AB359F_eval_include_file_path)
     tkl_track_vars_end()
   else()
-    tkl_is_equal_paths(REALPATH "${_67AB359F_eval_include_file_path}" "${end_include_file_path}" eval_is_equal_include_file_paths)
-    if (NOT eval_is_equal_include_file_paths)
-      unset(eval_is_equal_include_file_paths)
+    tkl_is_equal_paths(REALPATH "${_67AB359F_eval_include_file_path}" "${end_include_file_path}" _67AB359F_eval_is_equal_include_file_paths)
+    if (NOT _67AB359F_eval_is_equal_include_file_paths)
+      unset(_67AB359F_eval_include_file_path)
+      unset(_67AB359F_eval_is_equal_include_file_paths)
 
       tkl_get_last_eval_include_dir_path(eval_include_dir_path)
 
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path")
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
 
       # CAUTION:
       #   We have to call to a nested evaluation to make an inclusion from a file.
@@ -199,11 +200,11 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       tkl_forward_changed_vars_to_parent_scope()
       tkl_track_vars_end()
     else()
-      unset(eval_is_equal_include_file_paths)
+      unset(_67AB359F_eval_is_equal_include_file_paths)
 
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path")
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name")
-      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
 
       # unset the function parameters too
       unset(end_include_file_path)
@@ -213,7 +214,7 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       # evaluating...
       include("${_67AB359F_eval_include_file_path}")
 
-      tkl_forward_changed_vars_to_parent_scope()
+      tkl_forward_changed_vars_to_parent_scope(_67AB359F_eval_include_file_path)
       tkl_track_vars_end()
     endif()
   endif()

@@ -79,6 +79,9 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testproc::index" "0")
 
+  string(TIMESTAMP TACKLELIB_TESTLIB_START_TIME_SEC "%s" UTC)
+  set_property(GLOBAL PROPERTY "tkl::testlib::start_time_sec" "${TACKLELIB_TESTLIB_START_TIME_SEC}")
+
   if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
     message(FATAL_ERROR "TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
   endif()
@@ -100,11 +103,16 @@ function(tkl_testlib_exit)
     message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
   endif()
 
+  string(TIMESTAMP TACKLELIB_TESTLIB_END_TIME_SEC "%s" UTC)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_START_TIME_SEC "tkl::testlib::start_time_sec" 0)
+
+  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_START_TIME_SEC})
+
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-  tkl_testlib_print_msg("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}\n===\n")
+  tkl_testlib_print_msg("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)\n===\n")
 endfunction()
 
 function(tkl_testlib_set_working_dir dir)
@@ -152,20 +160,20 @@ function(tkl_testlib_print_enter_dir_msg msg)
     message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
   endif()
 
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg" "${msg}")
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg" "tkl::testlib" "${msg}")
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 1)
   if (num_print_msgs_in_dir STREQUAL "")
     set(num_print_msgs_in_dir 0)
   endif()
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack" ${num_print_msgs_in_dir})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack" "tkl::testlib" ${num_print_msgs_in_dir})
   set_property(GLOBAL PROPERTY "tkl::testlib::stdout::num_print_msgs_in_dir" 0)
 
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 1)
   if (num_tests_run STREQUAL "")
     set(num_tests_run 0)
   endif()
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::num_tests_run_stack" ${num_tests_run})
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::testlib::num_tests_run_stack" "tkl::testlib" ${num_tests_run})
   set_property(GLOBAL PROPERTY "tkl::testlib::num_tests_run" 0)
 endfunction()
 
@@ -176,7 +184,7 @@ function(tkl_testlib_print_leave_dir_msg msg)
     message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::stdout::enter_dir_msg" "tkl::testlib")
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 0)
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 0)
@@ -185,10 +193,10 @@ function(tkl_testlib_print_leave_dir_msg msg)
     message("${msg}")
   endif()
 
-  tkl_pop_prop_from_stack(num_print_msgs_in_dir GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack")
+  tkl_pop_prop_from_stack(num_print_msgs_in_dir GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack" "tkl::testlib")
   set_property(GLOBAL PROPERTY "tkl::testlib::stdout::num_print_msgs_in_dir" ${num_print_msgs_in_dir})
 
-  tkl_pop_prop_from_stack(num_tests_run GLOBAL "tkl::testlib::num_tests_run_stack")
+  tkl_pop_prop_from_stack(num_tests_run GLOBAL "tkl::testlib::num_tests_run_stack" "tkl::testlib")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_tests_run" ${num_tests_run})
 endfunction()
 
@@ -239,11 +247,11 @@ function(tkl_testlib_enter_dir test_dir)
   # always set to special not zero value to provoke test to fail by default
   tkl_set_global_prop(TACKLELIB_TESTLIB_LAST_ERROR "tkl::testlib::last_error" -1)
 
-  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_LAST_ENTER_DIR GLOBAL "tkl::testlib::last_enter_dir" "${test_dir_path}")
+  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_LAST_ENTER_DIR GLOBAL "tkl::testlib::last_enter_dir" "tkl::testlib" "${test_dir_path}")
 
-  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests" 0)
-  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests" 0)
-  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests" 0)
+  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests" "tkl::testlib" 0)
+  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests" "tkl::testlib" 0)
+  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests" "tkl::testlib" 0)
 
   tkl_testlib_print_enter_dir_msg("---\nEntering directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`...")
 
@@ -362,9 +370,9 @@ function(tkl_testlib_enter_dir test_dir)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN "tkl::testlib::num_succeeded_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN "tkl::testlib::num_failed_tests" 1)
 
-  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests")
-  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests")
-  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests")
+  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests" "tkl::testlib")
+  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests" "tkl::testlib")
+  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests" "tkl::testlib")
 
   # increment states
   math(EXPR TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}+${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}")
@@ -383,7 +391,7 @@ function(tkl_testlib_enter_dir test_dir)
     tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`\n---\n")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::last_enter_dir")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::testlib::last_enter_dir" "tkl::testlib")
 endfunction()
 
 macro(tkl_testlib_include test_dir test_file_name)
@@ -487,7 +495,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
 
-  string(TIMESTAMP TACKLELIB_TESLIB_START_TIME_SEC "%s" UTC)
+  string(TIMESTAMP TACKLELIB_TESTLIB_START_TIME_SEC "%s" UTC)
 
   if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
     execute_process(
@@ -525,9 +533,9 @@ function(tkl_testlib_test test_dir test_file_name)
     )
   endif()
 
-  string(TIMESTAMP TACKLELIB_TESLIB_END_TIME_SEC "%s" UTC)
+  string(TIMESTAMP TACKLELIB_TESTLIB_END_TIME_SEC "%s" UTC)
 
-  math(EXPR TACKLELIB_TESLIB_RUN_TIME_SEC ${TACKLELIB_TESLIB_END_TIME_SEC}-${TACKLELIB_TESLIB_START_TIME_SEC})
+  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_START_TIME_SEC})
 
   set_property(GLOBAL PROPERTY "tkl::testlib::last_error" "${TACKLELIB_TESTLIB_LAST_ERROR}")
 
@@ -541,10 +549,10 @@ function(tkl_testlib_test test_dir test_file_name)
 
   if (TACKLELIB_TESTLIB_LAST_ERROR EQUAL 0)
     math(EXPR TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}+1")
-    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESLIB_RUN_TIME_SEC}sec)")
+    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)")
   else()
     math(EXPR TACKLELIB_TESTLIB_NUM_FAILED_TESTS "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}+1")
-    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESLIB_RUN_TIME_SEC}sec)")
+    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)")
   endif()
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")
