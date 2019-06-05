@@ -225,10 +225,12 @@ function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
     set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg") # unset property
   endif()
 
+  tkl_get_ARGVn_stack_size(ARGVn_stack_size_before)
+
   tkl_eval_begin("test_assert_true_exp.cmake" "")
 
   tkl_eval_append("test_assert_true_exp.cmake" "\
-tkl_restore_ARGVn_vars_from_stack(0)
+tkl_restore_ARGVn_from_stack(2)
 
 #tkl_print_ARGVn()
 
@@ -239,18 +241,32 @@ else()
 endif()
 ")
 
-  #tkl_print_ARGVn()
+#  message("=")
+#  tkl_print_ARGVn()
 
   # function arguments can interfere with the assert expression
-  tkl_pushset_ARGVn_props_from_vars()
-  tkl_pushunset_ARGVn_to_stack(2)
+  tkl_push_ARGVn_to_stack_from_vars()
+  tkl_push_empty_ARGVn_to_stack(32)
+
+  tkl_get_ARGVn_stack_size(ARGVn_stack_size_after)
+
+  math(EXPR ARGVn_stack_offset ${ARGVn_stack_size_after}-${ARGVn_stack_size_before})
+
+  if (NOT ARGVn_stack_offset EQUAL 2)
+    message(FATAL_ERROR "invalid ARGVn stack offset: ARGVn_stack_offset=${ARGVn_stack_offset}")
+  endif()
+
+  unset(ARGVn_stack_offset)
+  unset(ARGVn_stack_size_after)
+  unset(ARGVn_stack_size_before)
 
   tkl_eval_end("test_assert_true_exp.cmake" .)
 
   tkl_pop_ARGVn_from_stack()
-  tkl_pop_ARGVn_props_from_stack()
+  tkl_pop_ARGVn_from_stack()
 
-  #tkl_print_ARGVn()
+#  tkl_print_ARGVn()
+#  message("=")
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testcase::retcode" "${TACKLELIB_TESTLIB_TESTCASE_RETCODE}")
 

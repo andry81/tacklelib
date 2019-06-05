@@ -3,6 +3,7 @@ if (NOT DEFINED TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED)
 set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 
 # CAUTION:
+#
 # 1. Be careful with the `set(... CACHE ...)` because it unsets the original
 #    variable!
 #    From documentation:
@@ -235,10 +236,7 @@ endfunction()
 
 # custom user variables stack over properties
 
-# CAUTION:
-#   All local variables after a macro call must be unset outside explicitly.
-#
-macro(tkl_push_var_to_stack_impl stack_entry var_name)
+function(tkl_push_var_to_stack stack_entry var_name)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
@@ -251,36 +249,32 @@ macro(tkl_push_var_to_stack_impl stack_entry var_name)
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  get_property(_2BA2974B_is_vars_stack_set GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" SET)
+  get_property(_2BA2974B_is_vars_stack_set GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" SET)
   if (_2BA2974B_is_vars_stack_set)
-    get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
+    get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
   else()
     set(_2BA2974B_vars_stack_size 0)
   endif()
 
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}" "${${var_name}}")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}" "${${var_name}}")
   if (DEFINED ${var_name})
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}::defined" 1)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}::defined" 1)
   else()
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_size}::defined" 0)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}::defined" 0)
   endif()
 
   math(EXPR _2BA2974B_vars_stack_size ${_2BA2974B_vars_stack_size}+1)
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" ${_2BA2974B_vars_stack_size})
-
-  # CAUTION:
-  #   All local variables here must be unset outside explicitly.
-  #
-endmacro()
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" ${_2BA2974B_vars_stack_size})
+endfunction()
 
 function(tkl_pushset_var_to_stack stack_entry var_name var_value)
-  tkl_push_var_to_stack_impl("${stack_entry}" "${var_name}")
+  tkl_push_var_to_stack("${stack_entry}" "${var_name}")
 
   set(${var_name} "${var_value}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_pushunset_var_to_stack stack_entry var_name)
-  tkl_push_var_to_stack_impl("${stack_entry}" "${var_name}")
+  tkl_push_var_to_stack("${stack_entry}" "${var_name}")
 
   unset(${var_name} PARENT_SCOPE)
 endfunction()
@@ -297,30 +291,30 @@ function(tkl_pop_var_from_stack stack_entry var_name)
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
+  get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
   if (NOT _2BA2974B_vars_stack_size)
     message(FATAL_ERROR "variables stack either undefined or empty")
   endif()
 
   math(EXPR _2BA2974B_vars_stack_next_size ${_2BA2974B_vars_stack_size}-1)
 
-  get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
+  get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
   if (_2BA2974B_is_var_defined)
-    get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}")
+    get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
     set(${var_name} "${_2BA2974B_var_value}" PARENT_SCOPE)
   else()
     unset(${var_name} PARENT_SCOPE)
   endif()
 
   if (_2BA2974B_vars_stack_next_size)
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size" ${_2BA2974B_vars_stack_next_size})
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" ${_2BA2974B_vars_stack_next_size})
   else()
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size") # unset property
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}")
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
 endfunction()
 
 function(tkl_get_var_stack_size out_var stack_entry var_name)
@@ -331,8 +325,8 @@ function(tkl_get_var_stack_size out_var stack_entry var_name)
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
-  if (vars_stack_size STREQUAL "")
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
+  if ("${vars_stack_size}" STREQUAL "")
     set(vars_stack_size 0)
   endif()
 
@@ -347,8 +341,8 @@ function(tkl_get_var_stack_value out_var stack_entry prop_name index)
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::size")
-  if (vars_stack_size STREQUAL "")
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
+  if ("${vars_stack_size}" STREQUAL "")
     set(vars_stack_size 0)
   endif()
 
@@ -362,10 +356,38 @@ function(tkl_get_var_stack_value out_var stack_entry prop_name index)
 
   math(EXPR vars_stack_index ${vars_stack_size}-1-${index})
 
-  get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${vars_stack_index}::defined")
+  get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}::defined")
   if (is_var_defined)
-    get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}::${var_name}]::${vars_stack_index}")
+    get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}")
     set(${var_name} "${var_value}" PARENT_SCOPE)
+  else()
+    unset(${var_name} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(tkl_get_var_stack_value_no_error out_var stack_entry prop_name index)
+  if ("${stack_entry}" STREQUAL "")
+    message(FATAL_ERROR "stack_entry must be not empty")
+  endif()
+  if ("${var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
+  endif()
+
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
+  if ("${vars_stack_size}" STREQUAL "")
+    set(vars_stack_size 0)
+  endif()
+
+  if (vars_stack_size AND index LESS vars_stack_size)
+    math(EXPR vars_stack_index ${vars_stack_size}-1-${index})
+
+    get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}::defined")
+    if (is_var_defined)
+      get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}")
+      set(${var_name} "${var_value}" PARENT_SCOPE)
+    else()
+      unset(${var_name} PARENT_SCOPE)
+    endif()
   else()
     unset(${var_name} PARENT_SCOPE)
   endif()
@@ -373,14 +395,7 @@ endfunction()
 
 # custom user properties stack over properties
 
-# CAUTION:
-#   All local variables after a macro call must be unset outside explicitly.
-#
-macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
-  # INFO:
-  #   All local variables here are unique, just in case.
-  #
-
+function(tkl_push_prop_to_stack prop_entry prop_name)
   if ("${prop_entry}" STREQUAL "")
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
@@ -388,9 +403,9 @@ macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
-  get_property(_2BA2974B_is_props_stack_set GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" SET)
+  get_property(_2BA2974B_is_props_stack_set GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size" SET)
   if (_2BA2974B_is_props_stack_set)
-    get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
+    get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size")
   else()
     set(_2BA2974B_props_stack_size 0)
   endif()
@@ -398,20 +413,16 @@ macro(tkl_push_prop_to_stack_impl prop_entry prop_name)
   get_property(_2BA2974B_prop_value_set "${prop_entry}" PROPERTY "${prop_name}" SET)
   if (_2BA2974B_prop_value_set)
     get_property(_2BA2974B_prop_value "${prop_entry}" PROPERTY "${prop_name}")
-    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}" "${_2BA2974B_prop_value}")
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_size}" "${_2BA2974B_prop_value}")
   endif()
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_size}::defined" ${_2BA2974B_prop_value_set})
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_size}::defined" ${_2BA2974B_prop_value_set})
 
   math(EXPR _2BA2974B_props_stack_size ${_2BA2974B_props_stack_size}+1)
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" ${_2BA2974B_props_stack_size})
-
-  # CAUTION:
-  #   All local variables here must be unset outside explicitly.
-  #
-endmacro()
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size" ${_2BA2974B_props_stack_size})
+endfunction()
 
 function(tkl_pushset_prop_to_stack out_var prop_entry prop_name var_value)
-  tkl_push_prop_to_stack_impl("${prop_entry}" "${prop_name}")
+  tkl_push_prop_to_stack("${prop_entry}" "${prop_name}")
 
   set_property("${prop_entry}" PROPERTY "${prop_name}" "${var_value}")
 
@@ -421,7 +432,7 @@ function(tkl_pushset_prop_to_stack out_var prop_entry prop_name var_value)
 endfunction()
 
 function(tkl_pushunset_prop_to_stack prop_entry prop_name)
-  tkl_push_prop_to_stack_impl("${prop_entry}" "${prop_name}")
+  tkl_push_prop_to_stack("${prop_entry}" "${prop_name}")
 
   set_property("${prop_entry}" PROPERTY "${prop_name}") # unset property
 endfunction()
@@ -438,16 +449,16 @@ function(tkl_pop_prop_from_stack out_var prop_entry prop_name)
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
-  get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
+  get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size")
   if (NOT _2BA2974B_props_stack_size)
     message(FATAL_ERROR "properties stack either undefined or empty")
   endif()
 
   math(EXPR _2BA2974B_props_stack_next_size ${_2BA2974B_props_stack_size}-1)
 
-  get_property(_2BA2974B_is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
+  get_property(_2BA2974B_is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
   if (_2BA2974B_is_prop_defined)
-    get_property(_2BA2974B_prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}")
+    get_property(_2BA2974B_prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}")
     set_property("${prop_entry}" PROPERTY "${prop_name}" "${_2BA2974B_prop_value}")
   else()
     set(_2BA2974B_prop_value "")
@@ -455,14 +466,14 @@ function(tkl_pop_prop_from_stack out_var prop_entry prop_name)
   endif()
 
   if (_2BA2974B_props_stack_next_size)
-    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size" ${_2BA2974B_props_stack_next_size})
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size" ${_2BA2974B_props_stack_next_size})
   else()
-    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size") # unset property
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}")
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
 
   if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
     if (_2BA2974B_is_prop_defined)
@@ -481,8 +492,8 @@ function(tkl_get_prop_stack_size out_var prop_entry prop_name)
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
-  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
-  if (props_stack_size STREQUAL "")
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size")
+  if ("${props_stack_size}" STREQUAL "")
     set(props_stack_size 0)
   endif()
 
@@ -497,8 +508,8 @@ function(tkl_get_prop_stack_value out_var prop_entry prop_name index)
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
-  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::size")
-  if (props_stack_size STREQUAL "")
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size")
+  if ("${props_stack_size}" STREQUAL "")
     set(props_stack_size 0)
   endif()
 
@@ -512,10 +523,38 @@ function(tkl_get_prop_stack_value out_var prop_entry prop_name index)
 
   math(EXPR props_stack_index ${props_stack_size}-1-${index})
 
-  get_property(is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${props_stack_index}::defined")
+  get_property(is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${props_stack_index}::defined")
   if (is_prop_defined)
-    get_property(prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}::${prop_name}]::${props_stack_index}")
+    get_property(prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${props_stack_index}")
     set(${out_var} "${prop_value}" PARENT_SCOPE)
+  else()
+    unset(${out_var} PARENT_SCOPE) # unset property
+  endif()
+endfunction()
+
+function(tkl_get_prop_stack_value_no_error out_var prop_entry prop_name index)
+  if (prop_entry STREQUAL "")
+    message(FATAL_ERROR "prop_entry must be not empty")
+  endif()
+  if (prop_name STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty")
+  endif()
+
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::size")
+  if ("${props_stack_size}" STREQUAL "")
+    set(props_stack_size 0)
+  endif()
+
+  if (props_stack_size AND index LESS props_stack_size)
+    math(EXPR props_stack_index ${props_stack_size}-1-${index})
+
+    get_property(is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${props_stack_index}::defined")
+    if (is_prop_defined)
+      get_property(prop_value GLOBAL PROPERTY "tkl::props_stack[${prop_entry}][${prop_name}]::${props_stack_index}")
+      set(${out_var} "${prop_value}" PARENT_SCOPE)
+    else()
+      unset(${out_var} PARENT_SCOPE) # unset property
+    endif()
   else()
     unset(${out_var} PARENT_SCOPE) # unset property
   endif()
