@@ -7,13 +7,14 @@ function(test_inner_track_vars)
   unset(b)
 
   tkl_forward_changed_vars_to_parent_scope()
-  tkl_track_vars_begin()
+  tkl_track_vars_end()
 endfunction()
 
 function(test_outter_track_vars)
   tkl_track_vars_begin()
 
   test_inner_track_vars()
+
   set(c 333)
   unset(d)
 

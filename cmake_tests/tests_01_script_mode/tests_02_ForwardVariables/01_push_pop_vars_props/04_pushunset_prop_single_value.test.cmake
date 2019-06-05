@@ -5,8 +5,8 @@ tkl_copy_vars(. filtered_vars_list1)
 set_property(GLOBAL PROPERTY "x" 111)
 set_property(GLOBAL PROPERTY "y") # unset property
 
-tkl_pushunset_prop_to_stack(GLOBAL "x")
-tkl_pushunset_prop_to_stack(GLOBAL "y")
+tkl_pushunset_prop_to_stack(GLOBAL "x" test)
+tkl_pushunset_prop_to_stack(GLOBAL "y" test)
 
 get_property(a GLOBAL PROPERTY "x")
 get_property(b GLOBAL PROPERTY "y")
@@ -25,8 +25,8 @@ else()
   tkl_test_assert_true(0 "2 b=${b}")
 endif()
 
-tkl_pop_prop_from_stack(a GLOBAL "x")
-tkl_pop_prop_from_stack(b GLOBAL "y")
+tkl_pop_prop_from_stack(a GLOBAL "x" test)
+tkl_pop_prop_from_stack(b GLOBAL "y" test)
 
 tkl_test_assert_true("a STREQUAL \"111\"" "3 a=${a}")
 

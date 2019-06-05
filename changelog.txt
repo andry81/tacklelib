@@ -1,4 +1,14 @@
 2019.06.05:
+* fixed: cmake: `tkl_restore_ARGVn_from_stack`implementation for different stack entries (`ForwardArgs.cmake`)
+* fixed: cmake: time span in tests runner for all tests (`TestLib.cmake`)
+* fixed: cmake: variables cleanup (`TestModule.cmake`, `ForwardVariables.cmake`)
+* fixed: cmake: `tkl_track_vars_begin`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_track_vars_end` implementation (`ForwardVariables.cmake`)
+* fixed: cmake_tests: `tests_01_script_mode/tests_02_ForwardVariables/02_tracks_vars/11_nested.test.cmake` test
+* new: cmake: additional `stack_entry` parameter in `tkl_push*_prop*`, `tkl_pop_prop_*` and `tkl_*_prop_*` functions to select stack entry to push/pop to/from (`ForwardVariables.cmake`)
+* new: cmake: `tkl_use_ARGVn_stack_begin`, `tkl_use_ARGVn_stack_end` functionts select stack entry to push/pop to/from (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+
+2019.06.05:
 * new: cmake: `tkl_push_ARGVn_to_stack`, `tkl_push_empty_ARGVn_to_stack` to push without set (`ForwardArgs.cmake`)
 * new: cmake: `tkl_get_ARGVn_stack_size` to request the ARGVn stack size (`ForwardArgs.cmake`)
 * new: cmake: time span in tests runner (`TestLib.cmake`)

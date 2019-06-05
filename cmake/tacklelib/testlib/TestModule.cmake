@@ -72,6 +72,8 @@ function(tkl_testmodule_update_status)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
 
   tkl_set_ret_code_to_file_dir("${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}" "${TACKLELIB_TESTLIB_TESTMODULE_RETCODE}") # save the module last return code
+
+  unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
 endfunction()
 
 function(tkl_testmodule_print_msg msg)
@@ -118,8 +120,8 @@ if (NOT \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\" STREQUAL \"\")
   tkl_testmodule_print_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@...\")
 endif()
 
-tkl_set_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
-tkl_set_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
+tkl_set_global_prop(. \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
+tkl_set_global_prop(. \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
 
 @TACKLELIB_TESTLIB_TESTCASE_FUNC@()
 
@@ -130,6 +132,8 @@ if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
 else()
   tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
 endif()
+
+unset(TACKLELIB_TESTLIB_TESTCASE_RETCODE)
 
 tkl_testmodule_update_status()
 ")
@@ -144,6 +148,7 @@ tkl_testmodule_update_status()
       set(TACKLELIB_TESTLIB_TESTCASE_FUNC "${test_case_func}")
       tkl_get_last_eval_include_dir_path(last_eval_temp_dir_path)
       configure_file("${last_eval_temp_dir_path}/include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake" @ONLY)
+      unset(TACKLELIB_TESTLIB_TESTCASE_FUNC)
       tkl_eval_end("include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake")
     endforeach()
   else()
@@ -184,6 +189,7 @@ tkl_testmodule_update_status()
         set(TACKLELIB_TESTLIB_TESTCASE_FUNC "${test_case_func}")
         tkl_get_last_eval_include_dir_path(last_eval_temp_dir_path)
         configure_file("${last_eval_temp_dir_path}/include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake" @ONLY)
+        unset(TACKLELIB_TESTLIB_TESTCASE_FUNC)
         tkl_eval_end("include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake")
       endif()
     endforeach()
@@ -225,51 +231,44 @@ function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
     set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::msg") # unset property
   endif()
 
-  tkl_get_ARGVn_stack_size(ARGVn_stack_size_before)
-
   tkl_eval_begin("test_assert_true_exp.cmake" "")
 
   tkl_eval_append("test_assert_true_exp.cmake" "\
-tkl_restore_ARGVn_from_stack(2)
+tkl_use_ARGVn_stack_begin(.)
+
+tkl_restore_ARGVn_from_stack(0)
 
 #tkl_print_ARGVn()
 
 if (${ARGV0})
-  set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 0)
+  set_property(GLOBAL PROPERTY \"tkl::testlib::testcase::retcode\" 0)
 else()
-  set(TACKLELIB_TESTLIB_TESTCASE_RETCODE 1)
+  set_property(GLOBAL PROPERTY \"tkl::testlib::testcase::retcode\" 1)
 endif()
+
+tkl_use_ARGVn_stack_end()
 ")
 
 #  message("=")
 #  tkl_print_ARGVn()
 
   # function arguments can interfere with the assert expression
+  tkl_use_ARGVn_stack_begin("tkl::testlib::testmodule")
+
   tkl_push_ARGVn_to_stack_from_vars()
   tkl_push_empty_ARGVn_to_stack(32)
-
-  tkl_get_ARGVn_stack_size(ARGVn_stack_size_after)
-
-  math(EXPR ARGVn_stack_offset ${ARGVn_stack_size_after}-${ARGVn_stack_size_before})
-
-  if (NOT ARGVn_stack_offset EQUAL 2)
-    message(FATAL_ERROR "invalid ARGVn stack offset: ARGVn_stack_offset=${ARGVn_stack_offset}")
-  endif()
-
-  unset(ARGVn_stack_offset)
-  unset(ARGVn_stack_size_after)
-  unset(ARGVn_stack_size_before)
 
   tkl_eval_end("test_assert_true_exp.cmake" .)
 
   tkl_pop_ARGVn_from_stack()
   tkl_pop_ARGVn_from_stack()
 
+  tkl_use_ARGVn_stack_end()
+
 #  tkl_print_ARGVn()
 #  message("=")
 
-  set_property(GLOBAL PROPERTY "tkl::testlib::testcase::retcode" "${TACKLELIB_TESTLIB_TESTCASE_RETCODE}")
-
+  tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE "tkl::testlib::testcase::retcode" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
@@ -296,6 +295,9 @@ endif()
 
     tkl_testmodule_update_status()
   endif()
+
+  unset(TACKLELIB_TESTLIB_TESTCASE_RETCODE)
+  unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
 endfunction()
 
 # CAUTION:
@@ -317,7 +319,7 @@ macro(return_if_test_failed)
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
 
-  if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
+  if (NOT TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
     unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
     return()
   else()
