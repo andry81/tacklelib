@@ -1,4 +1,8 @@
 2019.06.05:
+* new: more `tests_03_ForwardArgs` tests
+* changed: `tests_03_ForwardArgs` tests correction changes
+
+2019.06.05:
 * fixed: `tests_01_script_mode/tests_02_ForwardVariables/02_tracks_vars/11_nested.test.cmake` test
 * changed: tests correction changes
 
