@@ -1,3 +1,20 @@
+2019.06.05:
+* new: cmake: `tkl_push_ARGVn_to_stack`, `tkl_push_empty_ARGVn_to_stack` to push without set (`ForwardArgs.cmake`)
+* new: cmake: `tkl_get_ARGVn_stack_size` to request the ARGVn stack size (`ForwardArgs.cmake`)
+* new: cmake: time span in tests runner (`TestLib.cmake`)
+* changed: cmake: `tkl_restore_ARGVn_from_stack` rewrited to restore from any stack index (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake: `tkl_pushunset_ARGVn_to_stack` renamed to `tkl_pushset_empty_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_pushset_ARGVn_from_vars_to_stack` renamed to `tkl_push_ARGVn_to_stack_from_vars` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_restore_ARGVn_vars_from_stack` renamed to `tkl_restore_ARGVn_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.04:
+* new: cmake: `tkl_push_var_to_stack`, `tkl_push_prop_to_stack` to push with out side operations (`ForwardArgs.cmake`)
+* new: cmake: `tkl_get_var_stack_value_no_error`, `tkl_get_prop_stack_value_no_error` to avoid an error on empty stack (`ForwardArgs.cmake`)
+* removed: cmake: `tkl_set_ARGVn`, `tkl_unset_ARGVn`, `tkl_set_ARGVn_props_from_vars`, `tkl_pop_ARGVn_props_from_stack` as not required anymore (`ForwardArgs.cmake`)
+* changed: cmake: `tkl_pushset_ARGVn_to_stack` and `tkl_pop_ARGVn_to_stack` rewrited to make push/pop symmetric (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_pushset_ARGVn_props_from_vars` renamed to `tkl_pushset_ARGVn_from_vars_to_stack` (`ForwardArgs.cmake`)
+
 2019.06.04:
 * fixed: cmake: `tkl_pop_ARGVn_from_stack` implementation (`ForwardArgs.cmake`)
 * new: cmake: `tkl_unset_ARGVn`, `tkl_pushset_ARGVn_props_from_vars`, `tkl_pushunset_ARGVn_to_stack`, `tkl_pop_ARGVn_props_from_stack` implementation (`ForwardArgs.cmake`)

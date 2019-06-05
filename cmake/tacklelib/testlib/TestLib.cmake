@@ -487,6 +487,8 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
 
+  string(TIMESTAMP TACKLELIB_TESLIB_START_TIME_SEC "%s" UTC)
+
   if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
     execute_process(
       COMMAND
@@ -523,6 +525,10 @@ function(tkl_testlib_test test_dir test_file_name)
     )
   endif()
 
+  string(TIMESTAMP TACKLELIB_TESLIB_END_TIME_SEC "%s" UTC)
+
+  math(EXPR TACKLELIB_TESLIB_RUN_TIME_SEC ${TACKLELIB_TESLIB_END_TIME_SEC}-${TACKLELIB_TESLIB_START_TIME_SEC})
+
   set_property(GLOBAL PROPERTY "tkl::testlib::last_error" "${TACKLELIB_TESTLIB_LAST_ERROR}")
 
   if (NOT TACKLELIB_TESTLIB_LAST_ERROR)
@@ -535,10 +541,10 @@ function(tkl_testlib_test test_dir test_file_name)
 
   if (TACKLELIB_TESTLIB_LAST_ERROR EQUAL 0)
     math(EXPR TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}+1")
-    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`")
+    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESLIB_RUN_TIME_SEC}sec)")
   else()
     math(EXPR TACKLELIB_TESTLIB_NUM_FAILED_TESTS "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}+1")
-    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`")
+    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESLIB_RUN_TIME_SEC}sec)")
   endif()
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")
