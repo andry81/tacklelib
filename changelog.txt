@@ -1,3 +1,13 @@
+2019.06.06:
+* fixed: cmake: ARGVn variables proper unset support (`ForwardArgs.cmake`)
+* fixed: cmake: `tkl_pop_ARGVn_from_stack` was not fully symmetric to the `tkl_puth*_ARGVn_*` (`ForwardArgs.cmake`)
+* fixed: cmake_tests: `tests_03_ForwardArgs` tests pass (`ForwardArgs.cmake`)
+* new: cmake: `tkl_eval*` ARGV, ARGC, ARGV0..N variables can restore from the top record of the special ARGVn stack (as a result the variables can be forwarded from the outter scope)
+* new: cmake_tests: `tests_03_ForwardArgs` tests
+* new: cmake_tests: `tests_08_Eval` tests
+* changed: cmake: overall code cleanup
+* changed: cmake_tests: tests correction changes
+
 2019.06.05:
 * new: cmake_tests: more `tests_03_ForwardArgs` tests
 * changed: cmake_tests: `tests_03_ForwardArgs` tests correction changes

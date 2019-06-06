@@ -196,6 +196,22 @@ tkl_testmodule_update_status()
   endif()
 endfunction()
 
+# Usage:
+#   Special characters:
+#     `\`   - escape sequence character
+#     `\n`  - multiline separator
+#   Escape examples:
+#     `$\{...}` or `\${...}` - to insert a variable expression without expansion.
+#     But the first method is better, as it can additionally bypass a macro
+#     arguments expansion stage, when the second is can not.
+#     Works for:
+#       `tkl_eval*`
+#       `tkl_test_assert_true`
+#
+#   NOTE:
+#     In case of nested expressions you have to double escape it:
+#     `$\\{...}` or `\\\${...}`
+#
 # CAUTION:
 #   Must be a function to:
 #   1. Simplify and reduce the entire code (for example, in a function the
@@ -234,35 +250,31 @@ function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
   tkl_eval_begin("test_assert_true_exp.cmake" "")
 
   tkl_eval_append("test_assert_true_exp.cmake" "\
-tkl_use_ARGVn_stack_begin(.)
-
-tkl_restore_ARGVn_from_stack(0)
-
-#tkl_print_ARGVn()
-
 if (${ARGV0})
   set_property(GLOBAL PROPERTY \"tkl::testlib::testcase::retcode\" 0)
 else()
   set_property(GLOBAL PROPERTY \"tkl::testlib::testcase::retcode\" 1)
 endif()
-
-tkl_use_ARGVn_stack_end()
 ")
 
 #  message("=")
 #  tkl_print_ARGVn()
 
-  # function arguments can interfere with the assert expression
+  # builtin arguments can interfere with the assert expression...
+
+  # switch to special ARGVn stack
   tkl_use_ARGVn_stack_begin("tkl::testlib::testmodule")
 
+  # save ARGV, ARGC, ARGV0..N variables from this scope
   tkl_push_ARGVn_to_stack_from_vars()
-  tkl_push_empty_ARGVn_to_stack(32)
 
+  # evaluating...
   tkl_eval_end("test_assert_true_exp.cmake" .)
 
-  tkl_pop_ARGVn_from_stack()
+  # restore ARGV, ARGC, ARGV0..N variables from this scope
   tkl_pop_ARGVn_from_stack()
 
+  # switch to previous ARGVn stack
   tkl_use_ARGVn_stack_end()
 
 #  tkl_print_ARGVn()

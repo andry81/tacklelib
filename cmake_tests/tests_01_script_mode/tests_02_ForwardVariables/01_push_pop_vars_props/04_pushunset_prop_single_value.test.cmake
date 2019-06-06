@@ -5,8 +5,8 @@ tkl_copy_vars(. filtered_vars_list1)
 set_property(GLOBAL PROPERTY "x" 111)
 set_property(GLOBAL PROPERTY "y") # unset property
 
-tkl_pushunset_prop_to_stack(GLOBAL "x" test)
-tkl_pushunset_prop_to_stack(GLOBAL "y" test)
+tkl_pushunset_prop_to_stack(. GLOBAL "x" test)
+tkl_pushunset_prop_to_stack(. GLOBAL "y" test)
 
 get_property(a GLOBAL PROPERTY "x")
 get_property(b GLOBAL PROPERTY "y")
