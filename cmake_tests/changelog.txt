@@ -1,4 +1,7 @@
 2019.06.06:
+* changed: some `tests_08_Eval` tests improvement
+
+2019.06.06:
 * fixed: `tests_03_ForwardArgs` tests pass (`ForwardArgs.cmake`)
 * new: `tests_03_ForwardArgs` tests
 * new: `tests_08_Eval` tests

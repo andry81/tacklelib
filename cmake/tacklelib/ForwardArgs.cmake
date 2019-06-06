@@ -564,12 +564,13 @@ function(tkl_pop_ARGVn_from_stack)
   # pop ARGV, ARGC variables
   tkl_pop_prop_from_stack(. GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}")
   tkl_get_prop_stack_value_no_error(ARGV GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}" 0)
-  if (ARGV)
+  if (DEFINED ARGV)
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${ARGV}")
     set(ARGV "${ARGV}" PARENT_SCOPE)
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGV") # unset property
-    unset(ARGV PARENT_SCOPE)
+    # must always exist
+    set(ARGV "" PARENT_SCOPE)
   endif()
 
   tkl_pop_prop_from_stack(. GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}")
@@ -579,7 +580,8 @@ function(tkl_pop_ARGVn_from_stack)
     set(ARGC "${ARGC}" PARENT_SCOPE)
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGC") # unset property
-    unset(ARGC PARENT_SCOPE)
+    # must always exist
+    set(ARGC 0 PARENT_SCOPE)
   endif()
 
   # real number of pushed ARGVn variables
@@ -588,11 +590,11 @@ function(tkl_pop_ARGVn_from_stack)
   if (DEFINED ARGVn)
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" "${ARGVn}")
     # remember previous popped ARGVn to unset ARGV0..N it in the restore function upon a call to (the last pop cleanup)
-    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" "${ARGVn}")
+#    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" "${ARGVn}")
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn") # unset property
     # stack is empty, nothing to compare anymore
-    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]") # unset property
+#    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]") # unset property
     set(ARGVn 0)
   endif()
 
@@ -616,14 +618,14 @@ function(tkl_pop_ARGVn_from_stack)
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 
-  # unset rest of variables, it would be last pop cleanup (last_ARGVn) to be available rerun it in the restore function
-  set(argv_index ${ARGVn})
-  while(argv_index LESS prev_ARGVn)
-    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
-    unset(ARGV${argv_index} PARENT_SCOPE)
-
-    math(EXPR argv_index ${argv_index}+1)
-  endwhile()
+#  # unset rest of variables, it would be last pop cleanup (last_ARGVn) to be available rerun it in the restore function
+#  set(argv_index ${ARGVn})
+#  while(argv_index LESS prev_ARGVn)
+#    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+#    unset(ARGV${argv_index} PARENT_SCOPE)
+#  
+#    math(EXPR argv_index ${argv_index}+1)
+#  endwhile()
 
   # cascade restore from stack top to bottom
   tkl_get_prop_stack_size(ARGVn_stack_size GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
@@ -739,26 +741,24 @@ ARGVn_stack_index=${ARGVn_stack_index}")
     math(EXPR ARGVn_index ${ARGVn_index}+1)
   endwhile()
 
-  # unset previously used ARGV0..N
-  if (${stack_index} LESS ARGVn_stack_size)
-    tkl_get_global_prop(last_ARGVn "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" ${stack_index})
-    if (last_ARGVn STREQUAL "")
-      set(last_ARGVn 0)
-    endif()
-  else()
-    #set(last_ARGVn 32) # clear maximum number
-  endif()
-
-  if (ARGVn LESS last_ARGVn)
-    # unset rest of variables
-    set(ARGVn_index ${ARGVn})
-    while(ARGVn_index LESS last_ARGVn)
-      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}") # unset property
-      unset(ARGV${ARGVn_index} PARENT_SCOPE)
-
-      math(EXPR ARGVn_index ${ARGVn_index}+1)
-    endwhile()
-  endif()
+#  # unset previously used ARGV0..N
+#  if (${stack_index} LESS ARGVn_stack_size)
+#    tkl_get_global_prop(last_ARGVn "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" ${stack_index})
+#    if (last_ARGVn STREQUAL "")
+#      set(last_ARGVn 0)
+#    endif()
+#  endif()
+#
+#  if (ARGVn LESS last_ARGVn)
+#    # unset rest of variables
+#    set(ARGVn_index ${ARGVn})
+#    while(ARGVn_index LESS last_ARGVn)
+#      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}") # unset property
+#      unset(ARGV${ARGVn_index} PARENT_SCOPE)
+#
+#      math(EXPR ARGVn_index ${ARGVn_index}+1)
+#    endwhile()
+#  endif()
 
   # cascade restore from stack top to bottom
   set(from_ARGVn_index ${ARGVn})
