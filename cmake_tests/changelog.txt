@@ -1,4 +1,9 @@
 2019.06.06:
+* fixed: cmake_tests: 100% tests pass
+* fixed: `02_make_vars_from_ARGV_ARGN` tests pass (`ForwardArgs.cmake`)
+* changed: tests correction changes
+
+2019.06.06:
 * changed: some `tests_08_Eval` tests improvement
 
 2019.06.06:

@@ -1,4 +1,8 @@
 2019.06.06:
+* fixed: `tkl_make_var_from_ARGV_begin`/`tkl_make_var_from_ARGV_end` implementation (`Std.cmake`)
+* fixed: `tkl_make_vars_from_ARGV_ARGN_begin`/`tkl_make_vars_from_ARGV_ARGN_end` implementation (`Std.cmake`)
+
+2019.06.06:
 * fixed: cmake: left behind not properly cleanuped ARGV, ARGC in a particular case (`ForwardArgs.cmake`)
 * changed: cmake: temporary disabled seems not necessary cleanup code (`ForwardArgs.cmake`)
 * changed: cmake_tests: some `tests_08_Eval` tests improvement
