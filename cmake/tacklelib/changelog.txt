@@ -1,4 +1,9 @@
 2019.06.06:
+* fixed: left behind not properly cleanuped ARGV, ARGC in a particular case (`ForwardArgs.cmake`)
+* changed: temporary disabled seems not necessary cleanup code (`ForwardArgs.cmake`)
+* changed: some `tests_08_Eval` tests improvement
+
+2019.06.06:
 * fixed: ARGVn variables proper unset support (`ForwardArgs.cmake`)
 * fixed: `tkl_pop_ARGVn_from_stack` was not fully symmetric to the `tkl_puth*_ARGVn_*` (`ForwardArgs.cmake`)
 * new: `tkl_eval*` ARGV, ARGC, ARGV0..N variables can restore from the top record of the special ARGVn stack (as a result the variables can be forwarded from the outter scope)
