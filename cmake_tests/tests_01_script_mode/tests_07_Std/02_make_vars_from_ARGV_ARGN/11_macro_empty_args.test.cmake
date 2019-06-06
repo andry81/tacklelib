@@ -112,8 +112,8 @@ endmacro()
 test_empty_in_begin_01("" 2)
 test_empty_in_begin_02(;2)
 
-#test_empty_in_mid_01(1 "" 3)
-#test_empty_in_mid_02(1;;3)
-#
-#test_empty_in_end_01(1 "")
-#test_empty_in_end_02(1;)
+test_empty_in_mid_01(1 "" 3)
+test_empty_in_mid_02(1;;3)
+
+test_empty_in_end_01(1 "")
+test_empty_in_end_02(1;)

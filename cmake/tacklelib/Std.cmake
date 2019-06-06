@@ -53,7 +53,7 @@ function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
   tkl_escape_string_from_ARGx(_BBD57550_argv_joined_list_encoded "${argv_joined_list}")
 
-  set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
+  set(_BBD57550_argv_joined_list "${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
   unset(${out_argv_var} PARENT_SCOPE)
 endfunction()
@@ -65,6 +65,13 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(${out_argv_var} ";")
+
+  # to be able to append empty values at begginning
+  if (NOT _BBD57550_argv_joined_list STREQUAL "")
+    set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list}")
+  else()
+    set(_BBD57550_argv_joined_list ";${_BBD57550_argv_joined_list}")
+  endif()
   set(_BBD57550_argv_joined_list_accum ";")
 
   set(_BBD57550_var_index 0)
@@ -119,17 +126,11 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   tkl_escape_string_from_ARGx(_9E220B1D_argn_joined_list_encoded "${argn_joined_list}")
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};;")   # 1t phase list
-  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list_encoded};;")
-  # 2d phase list
-  if (NOT _9E220B1D_argv_joined_list_encoded STREQUAL "")
-    set(_9E220B1D_argv_joined_list2 ";;${_9E220B1D_argv_joined_list_encoded}")
-  else()
-    set(_9E220B1D_argv_joined_list2 ";")
-  endif()
+  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};")   # 1t phase list
+  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list_encoded};")
 
   set(_9E220B1D_argn_offset -1)
-  if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";;")
+  if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";")
     # offset could be with last empty element here
     string(FIND "${_9E220B1D_argv_joined_list}" "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_offset REVERSE)
     # found substring must be the same size to the ARGN string length
@@ -137,7 +138,7 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
     string(LENGTH "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_joined_list_len)
     math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
     if (NOT _9E220B1D_args_joined_list_len EQUAL _9E220B1D_argn_offset)
-      set(_9E220B1D_argn_offset -1) # reset the offset
+      message(FATAL_ERROR "invalid offset")
     endif()
   endif()
 
@@ -148,7 +149,6 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
   #set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
-  set(_9E220B1D_argv_joined_list2 "${_9E220B1D_argv_joined_list2}" PARENT_SCOPE)
 endfunction()
 
 # Params:
@@ -159,89 +159,98 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
     message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
-  if (_9E220B1D_argn_offset GREATER_EQUAL 0)
-    # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
-      set(${out_argv_var} ";")
-    endif()
-    set(${out_argn_var} ";")
-    set(_9E220B1D_argv_joined_list_accum ";")
-
-    math(EXPR _9E220B1D_argn_offset "${_9E220B1D_argn_offset}")
-
-    string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
-    if (NOT _9E220B1D_args_joined_list STREQUAL "")
-      # remove last `;` character
-      string(REGEX REPLACE "(.*)\;$" ";;\\1" _9E220B1D_args_joined_list "${_9E220B1D_args_joined_list}")
-    else()
-      set(_9E220B1D_args_joined_list ";")
-    endif()
-
-    set(_9E220B1D_var_index 0)
-
-    while (NOT _9E220B1D_args_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
-      # with finite loop insurance
-      if (_9E220B1D_var_index GREATER_EQUAL 64)
-        message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
-      endif()
-
-      if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
-        set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
-        list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
-      endif()
-
-      # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
-
-      list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
-
-      math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
-    endwhile()
-
-    while (NOT _9E220B1D_argv_joined_list2 STREQUAL _9E220B1D_argv_joined_list_accum)
-      # with finite loop insurance
-      if (_9E220B1D_var_index GREATER_EQUAL 64)
-        message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
-      endif()
-
-      set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
-
-      #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
-      ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
-      #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
-      if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
-        list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
-      endif()
-      list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
-
-      # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-      tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
-
-      list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
-
-      math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
-    endwhile()
-
-    # remove 2 first dummy empty strings
-    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
-      tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
-    endif()
-    tkl_list_remove_sublist(${out_argn_var} 0 2 ${out_argn_var})
-
-    unset(_9E220B1D_argv_joined_list_accum)
-    unset(_9E220B1D_var_index)
-    unset(_9E220B1D_argv_value)
-    unset(_9E220B1D_argv_value_encoded)
-  else()
-    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
-      set(${out_argv_var} "")
-    endif()
-    set(${out_argn_var} "")
+  # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    set(${out_argv_var} ";")
   endif()
+  set(${out_argn_var} ";")
+  set(_9E220B1D_argv_joined_list_accum "")
+
+  string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
+
+  # remove last separator
+  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+    # remove last `;` character
+    string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_args_joined_list "${_9E220B1D_args_joined_list}")
+  endif()
+  if (NOT _9E220B1D_argv_joined_list STREQUAL ";")
+    # remove last `;` character
+    string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}")
+  endif()
+
+  set(_9E220B1D_var_index 0)
+
+  # to be able to append empty values at begginning
+  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+    set(_9E220B1D_args_joined_list ";;${_9E220B1D_args_joined_list}")
+  else()
+    set(_9E220B1D_args_joined_list ";${_9E220B1D_args_joined_list}")
+  endif()
+  set(_9E220B1D_argv_joined_list_accum ";${_9E220B1D_argv_joined_list_accum}")
+
+  while (NOT _9E220B1D_args_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_9E220B1D_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "(1) ARGV arguments are too many or infinite loop is detected")
+    endif()
+
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+      list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
+    endif()
+
+    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
+    tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+
+    list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
+
+    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+  endwhile()
+
+  # to be able to append empty values at begginning
+  if (NOT _9E220B1D_argv_joined_list STREQUAL "")
+    set(_9E220B1D_argv_joined_list ";;${_9E220B1D_argv_joined_list}")
+  else()
+    set(_9E220B1D_argv_joined_list ";${_9E220B1D_argv_joined_list}")
+  endif()
+
+  while (NOT _9E220B1D_argv_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_9E220B1D_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "(2) ARGV arguments are too many or infinite loop is detected")
+    endif()
+
+    set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+
+    #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
+    ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
+    endif()
+    list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
+
+    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
+    tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+
+    list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
+
+    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+  endwhile()
+
+  # remove 2 first dummy empty strings
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
+  endif()
+  tkl_list_remove_sublist(${out_argn_var} 0 2 ${out_argn_var})
+
+  unset(_9E220B1D_argv_joined_list_accum)
+  unset(_9E220B1D_var_index)
+  unset(_9E220B1D_argv_value)
+  unset(_9E220B1D_argv_value_encoded)
 
   unset(_9E220B1D_argv_joined_list)
   #unset(_9E220B1D_argn_joined_list)
-  unset(_9E220B1D_argv_joined_list2)
   unset(_9E220B1D_argn_offset)
 endmacro()
 
