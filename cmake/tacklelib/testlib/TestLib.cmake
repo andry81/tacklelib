@@ -22,6 +22,7 @@ function(tkl_testlib_init)
   endif()
 
   tkl_make_var_from_CMAKE_ARGV_ARGC(-P argv)
+  #message("argv=${argv}")
 
   tkl_list_sublist(argv 1 -1 argv)
   #message("argv=${argv}")
@@ -53,6 +54,7 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   foreach(arg IN LISTS argv)
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
     string(REPLACE ";" "\;" arg "${arg}")
 
     list(APPEND TACKLELIB_TESTLIB_CMAKE_ARGV "${arg}")

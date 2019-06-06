@@ -2,7 +2,7 @@
 if (NOT DEFINED TACKLELIB_UTILITY_INCLUDE_DEFINED)
 set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 
-function(tkl_escape_string_from_ARGx out_var in_str)
+function(tkl_escape_string_for_ARGx out_var in_str)
   string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
   #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
   #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")

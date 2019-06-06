@@ -51,7 +51,7 @@ function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_from_ARGx(_BBD57550_argv_joined_list_encoded "${argv_joined_list}")
+  tkl_escape_string_for_ARGx(_BBD57550_argv_joined_list_encoded "${argv_joined_list}")
 
   set(_BBD57550_argv_joined_list "${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
 
@@ -84,12 +84,13 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
 
     set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
 
-    ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    #string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
+
     list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_from_ARGx(_BBD57550_argv_value_encoded "${ARGV${_BBD57550_var_index}}")
+    tkl_escape_string_for_ARGx(_BBD57550_argv_value_encoded "${ARGV${_BBD57550_var_index}}")
 
     list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
 
@@ -122,8 +123,8 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
   endif()
 
   # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_from_ARGx(_9E220B1D_argv_joined_list_encoded "${argv_joined_list}")
-  tkl_escape_string_from_ARGx(_9E220B1D_argn_joined_list_encoded "${argn_joined_list}")
+  tkl_escape_string_for_ARGx(_9E220B1D_argv_joined_list_encoded "${argv_joined_list}")
+  tkl_escape_string_for_ARGx(_9E220B1D_argn_joined_list_encoded "${argn_joined_list}")
 
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
   set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};")   # 1t phase list
@@ -200,7 +201,10 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
     endif()
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+    tkl_escape_string_for_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    string(REPLACE ";" "\;" _9E220B1D_argv_value_encoded "${_9E220B1D_argv_value_encoded}")
 
     list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -231,7 +235,10 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
     list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
 
     # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_from_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+    tkl_escape_string_for_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
+
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    string(REPLACE ";" "\;" _9E220B1D_argv_value_encoded "${_9E220B1D_argv_value_encoded}")
 
     list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
 
@@ -266,27 +273,34 @@ endmacro()
 #     (for the script mode only, where the cmake has called with the `-P` flag).
 #
 function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
-  tkl_make_var_from_ARGV_begin("${ARGN}" argn)
+  tkl_make_var_from_ARGV_begin("${ARGV}" argv)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  tkl_make_var_from_ARGV_end(argn)
+  tkl_make_var_from_ARGV_end(argv)
   #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
-  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argn=${argn}")
 
-  list(LENGTH argn argn_len)
-  set(argn_index 0)
+  list(LENGTH argv argv_len)
+  set(argv_index 0)
+
   set(set_script_args 0)
+  set(strict_checks 0)
+  set(dont_convert_module_path 1) # do not convert module path to the absolute path
 
   # parse flags until no flags
   tkl_parse_function_optional_flags_into_vars(
-    argn_index
-    argn
-    "P"
-    ""
-    "P\;set_script_args"
+    argv_index
+    argv
+    "P;s;a"
+    "\
+a\;dont_convert_module_path\
+"
+    "\
+P\;set_script_args;\
+s\;strict_checks\
+"
     "")
 
-  if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
+  if (NOT argv_index LESS argv_len)
+    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argv_len=${argv_len} argv_index=${argv_index}")
   endif()
 
   tkl_get_cmake_role(is_in_script_mode SCRIPT)
@@ -294,19 +308,25 @@ function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
     message(FATAL_ERROR "call must be made from the script mode only")
   endif()
 
-  list(GET argn ${argn_index} out_var)
-  math(EXPR argn_index "${argn_index}+1")
+  list(GET argv ${argv_index} out_var)
+  math(EXPR argv_index ${argv_index}+1)
 
   set(${out_var} "")
   set(cmake_arg_index 0)
 
   if (NOT set_script_args)
     while(cmake_arg_index LESS CMAKE_ARGC)
-      list(APPEND ${out_var} "${CMAKE_ARGV${cmake_arg_index}}")
-      math(EXPR cmake_arg_index "${cmake_arg_index}+1")
+      # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+      string(REPLACE ";" "\;" arg_value "${CMAKE_ARGV${cmake_arg_index}}")
+
+      list(APPEND ${out_var} "${arg_value}")
+
+      math(EXPR cmake_arg_index ${cmake_arg_index}+1)
     endwhile()
   else()
-    get_filename_component(this_script_file_path_abs "${CMAKE_SCRIPT_MODE_FILE}" ABSOLUTE)
+    if (strict_checks)
+      get_filename_component(this_script_file_path_abs "${CMAKE_SCRIPT_MODE_FILE}" ABSOLUTE)
+    endif()
 
     set(script_file_path_offset -1)
     while(cmake_arg_index LESS CMAKE_ARGC)
@@ -316,19 +336,29 @@ function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
         if (script_file_path_offset LESS cmake_arg_index)
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
           string(REPLACE ";" "\;" arg_value "${arg_value}")
+
           list(APPEND ${out_var} "${arg_value}")
         else()
-          # Parse the value as a path to the script file, convert to the absolute path and
-          # then compare on equality with the absolute path in the CMAKE_SCRIPT_MODE_FILE variable.
-          get_filename_component(script_file_path_abs "${arg_value}" ABSOLUTE)
-          if (NOT this_script_file_path_abs STREQUAL script_file_path_abs)
-            message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same")
+          if (NOT dont_convert_module_path)
+            # Parse the value as a path to the script file, convert to the absolute path and
+            # then compare on equality with the absolute path in the CMAKE_SCRIPT_MODE_FILE variable.
+            get_filename_component(script_file_path_abs "${arg_value}" ABSOLUTE)
+            if (strict_checks)
+              if (NOT this_script_file_path_abs STREQUAL script_file_path_abs)
+                message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same: `this_script_file_path_abs=${this_script_file_path_abs}` script_file_path_abs=1${script_file_path_abs}1")
+              endif()
+            endif()
+            set(arg_value "${script_file_path_abs}")
           endif()
-          list(APPEND ${out_var} "${script_file_path_abs}") # converted into the absolute path
+
+          # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+          string(REPLACE ";" "\;" arg_value "${arg_value}")
+
+          list(APPEND ${out_var} "${arg_value}") # converted into the absolute path
         endif()
       else()
         if (arg_value STREQUAL "-P")
-          math(EXPR script_file_path_offset "${cmake_arg_index}+1")
+          math(EXPR script_file_path_offset ${cmake_arg_index}+1)
         endif()
       endif()
 
