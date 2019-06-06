@@ -434,10 +434,14 @@ function(tkl_pushset_prop_to_stack out_var prop_entry prop_name stack_entry var_
   endif()
 endfunction()
 
-function(tkl_pushunset_prop_to_stack prop_entry prop_name stack_entry)
+function(tkl_pushunset_prop_to_stack out_var prop_entry prop_name stack_entry)
   tkl_push_prop_to_stack("${prop_entry}" "${prop_name}" "${stack_entry}")
 
   set_property("${prop_entry}" PROPERTY "${prop_name}") # unset property
+
+  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
+    unset(${out_var} PARENT_SCOPE)
+  endif()
 endfunction()
 
 function(tkl_pop_prop_from_stack out_var prop_entry prop_name stack_entry)

@@ -407,6 +407,7 @@ macro(tkl_testlib_include test_dir test_file_name)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
 
   if (NOT test_dir STREQUAL "" AND NOT test_dir STREQUAL ".")
+    # make an extension suggestion
     if (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}" AND
         NOT IS_DIRECTORY "${TESTS_ROOT}/${test_dir}/${test_file_name}")
       include("${TESTS_ROOT}/${test_dir}/${test_file_name}")
@@ -417,6 +418,7 @@ macro(tkl_testlib_include test_dir test_file_name)
       message(FATAL_ERROR "failed to include file: `${TESTS_ROOT}/${test_dir}/${test_file_name}`")
     endif()
   else()
+    # make an extension suggestion
     if (EXISTS "${TESTS_ROOT}/${test_file_name}" AND
         NOT IS_DIRECTORY "${TESTS_ROOT}/${test_file_name}")
       include("${TESTS_ROOT}/${test_file_name}")
@@ -461,6 +463,7 @@ function(tkl_testlib_test test_dir test_file_name)
     set(test_file_dir_prefix "")
   endif()
 
+  # make an extension suggestion
   set(test_file_name_ext "${test_file_name}")
   if (NOT test_file_name_ext MATCHES ".*\.cmake" AND
       NOT EXISTS "${test_file_dir}/${test_file_name_ext}" AND

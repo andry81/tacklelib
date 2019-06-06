@@ -7,7 +7,7 @@ include(tacklelib/Props)
 
 function(tkl_use_ARGVn_stack_begin stack_entry)
   if (stack_entry STREQUAL "" OR stack_entry STREQUAL ".")
-    tkl_pushunset_prop_to_stack(GLOBAL "tkl::ARGVn_stack::stack_entry" "tkl::ARGVn_stack")
+    tkl_pushunset_prop_to_stack(. GLOBAL "tkl::ARGVn_stack::stack_entry" "tkl::ARGVn_stack")
   else()
     tkl_pushset_prop_to_stack(. GLOBAL "tkl::ARGVn_stack::stack_entry" "tkl::ARGVn_stack" "${stack_entry}")
   endif()
@@ -40,21 +40,34 @@ macro(tkl_push_ARGVn_to_stack_from_vars) # WITH OUT ARGUMENTS
   # push ARGV, ARGC variables
 
   # special syntaxes to bypass macro arguments expansion
-  tkl_set_global_prop(. "tkl::builtin::ARGV" "${ARGV${_775085E8_empty}}")
+  if (DEFINED ARGV)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${ARGV${_775085E8_empty}}")
+  else()
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV") # unset property
+  endif()
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV${_775085E8_empty}" "${_775085E8_ARGVn_stack_entry}")
 
-  tkl_set_global_prop(. "tkl::builtin::ARGC" "${ARGC${_775085E8_empty}}")
+  if (DEFINED ARGC)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGC" "${ARGC${_775085E8_empty}}")
+  else()
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGC") # unset property
+  endif()
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGC${_775085E8_empty}" "${_775085E8_ARGVn_stack_entry}")
 
   # real number of pushed ARGVn variables
-  tkl_set_global_prop(. "tkl::builtin::ARGVn" "${ARGC${_775085E8_empty}}")
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" "${ARGC${_775085E8_empty}}")
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGVn${_775085E8_empty}" "${_775085E8_ARGVn_stack_entry}")
 
   # set ARGVn variables
   set(_775085E8_argv_index 0)
   while(_775085E8_argv_index LESS ARGC) # ARGC as a variable
-    tkl_set_global_prop(. "tkl::builtin::ARGV${_775085E8_argv_index}" "${ARGV${_775085E8_argv_index}}")
+    if (DEFINED ARGV${_775085E8_argv_index})
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${_775085E8_argv_index}" "${ARGV${_775085E8_argv_index}}")
+    else()
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${_775085E8_argv_index}") # unset property
+    endif()
     tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV${_775085E8_argv_index}" "${_775085E8_ARGVn_stack_entry}")
+
     math(EXPR _775085E8_argv_index ${_775085E8_argv_index}+1)
   endwhile()
 
@@ -291,14 +304,14 @@ function(tkl_push_ARGVn_to_stack) # WITH OUT ARGUMENTS!
   tkl_get_ARGVn_stack_entry(ARGVn_stack_entry)
 
   # push ARGV, ARGC variables
-  tkl_set_global_prop(. "tkl::builtin::ARGV" "${ARGV}")
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${ARGV}")
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}")
 
-  tkl_set_global_prop(. "tkl::builtin::ARGC" "${ARGC}")
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGC" "${ARGC}")
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}")
 
   # real number of pushed ARGVn variables
-  tkl_set_global_prop(. "tkl::builtin::ARGVn" ${ARGC})
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" ${ARGC})
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
 
   if (${ARGC} GREATER 0)
@@ -307,133 +320,132 @@ function(tkl_push_ARGVn_to_stack) # WITH OUT ARGUMENTS!
     # CAUTION: macro argument must be used WITH OUT index expansion: ${ARGV0}...${ARGVN}
 
     if (0 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV0" "${ARGV0}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV0" "${ARGV0}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV0" "${ARGVn_stack_entry}")
     endif()
     if (1 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV1" "${ARGV1}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV1" "${ARGV1}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV1" "${ARGVn_stack_entry}")
       set(ARGV1 "${ARGV1}" PARENT_SCOPE)
     endif()
     if (2 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV2" "${ARGV2}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV2" "${ARGV2}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV2" "${ARGVn_stack_entry}")
     endif()
     if (3 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV3" "${ARGV3}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV3" "${ARGV3}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV3" "${ARGVn_stack_entry}")
     endif()
     if (4 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV4" "${ARGV4}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV4" "${ARGV4}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV4" "${ARGVn_stack_entry}")
     endif()
     if (5 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV5" "${ARGV5}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV5" "${ARGV5}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV5" "${ARGVn_stack_entry}")
     endif()
     if (6 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV6" "${ARGV6}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV6" "${ARGV6}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV6" "${ARGVn_stack_entry}")
     endif()
     if (7 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV7" "${ARGV7}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV7" "${ARGV7}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV7" "${ARGVn_stack_entry}")
     endif()
     if (8 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV8" "${ARGV8}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV8" "${ARGV8}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV8" "${ARGVn_stack_entry}")
     endif()
     if (9 LESS ${ARGC})
       tkl_set_global_prop(ARGV9 "tkl::builtin::ARGV9" "${ARGV9}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV9" "${ARGVn_stack_entry}")
-      set(ARGV9 "${ARGV9}" PARENT_SCOPE)
     endif()
     if (10 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV10" "${ARGV10}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV10" "${ARGV10}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV10" "${ARGVn_stack_entry}")
     endif()
     if (11 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV11" "${ARGV11}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV11" "${ARGV11}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV11" "${ARGVn_stack_entry}")
     endif()
     if (12 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV12" "${ARGV12}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV12" "${ARGV12}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV12" "${ARGVn_stack_entry}")
     endif()
     if (13 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV13" "${ARGV13}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV13" "${ARGV13}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV13" "${ARGVn_stack_entry}")
     endif()
     if (14 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV14" "${ARGV14}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV14" "${ARGV14}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV14" "${ARGVn_stack_entry}")
     endif()
     if (15 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV15" "${ARGV15}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV15" "${ARGV15}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV15" "${ARGVn_stack_entry}")
     endif()
     if (16 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV16" "${ARGV16}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV16" "${ARGV16}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV16" "${ARGVn_stack_entry}")
     endif()
     if (17 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV17" "${ARGV17}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV17" "${ARGV17}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV17" "${ARGVn_stack_entry}")
     endif()
     if (18 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV18" "${ARGV18}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV18" "${ARGV18}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV18" "${ARGVn_stack_entry}")
     endif()
     if (19 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV19" "${ARGV19}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV19" "${ARGV19}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV19" "${ARGVn_stack_entry}")
     endif()
     if (20 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV20" "${ARGV20}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV20" "${ARGV20}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV20" "${ARGVn_stack_entry}")
     endif()
     if (21 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV21" "${ARGV21}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV21" "${ARGV21}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV21" "${ARGVn_stack_entry}")
     endif()
     if (22 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV22" "${ARGV22}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV22" "${ARGV22}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV22" "${ARGVn_stack_entry}")
     endif()
     if (23 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV23" "${ARGV23}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV23" "${ARGV23}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV23" "${ARGVn_stack_entry}")
     endif()
     if (24 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV24" "${ARGV24}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV24" "${ARGV24}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV24" "${ARGVn_stack_entry}")
     endif()
     if (25 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV25" "${ARGV25}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV25" "${ARGV25}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV25" "${ARGVn_stack_entry}")
     endif()
     if (26 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV26" "${ARGV26}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV26" "${ARGV26}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV26" "${ARGVn_stack_entry}")
     endif()
     if (27 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV27" "${ARGV27}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV27" "${ARGV27}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV27" "${ARGVn_stack_entry}")
     endif()
     if (28 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV28" "${ARGV28}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV28" "${ARGV28}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV28" "${ARGVn_stack_entry}")
     endif()
     if (29 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV29" "${ARGV29}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV29" "${ARGV29}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV29" "${ARGVn_stack_entry}")
     endif()
     if (30 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV30" "${ARGV30}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV30" "${ARGV30}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV30" "${ARGVn_stack_entry}")
     endif()
     if (31 LESS ${ARGC})
-      tkl_set_global_prop(. "tkl::builtin::ARGV31" "${ARGV31}")
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV31" "${ARGV31}")
       tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV31" "${ARGVn_stack_entry}")
     endif()
     if (32 LESS ${ARGC})
@@ -485,6 +497,7 @@ function(tkl_pushset_empty_ARGVn_to_stack num_args)
     tkl_set_global_prop(ARGV${argv_index} "tkl::builtin::ARGV${argv_index}" "")
     tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}")
     set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
+
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 endfunction()
@@ -498,35 +511,39 @@ endfunction()
 #                                   |
 # INPUT [ ARGV, ARGC, ARGV0..N] --->+-assign-> [ tkl::builtin::ARG* ]
 #
-function(tkl_push_empty_ARGVn_to_stack num_args)
+function(tkl_pushunset_ARGVn_to_stack num_args)
   if (NOT ${ARGC} EQUAL 1)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
 
-  # CAUTION"
-  #   We should not actually unset anything here, otherwise the builtin
-  #   arguments ARGx would be in an inconsistent state,
-  #   so instead we replace the unset by set to an empty string.
-  #
-
   tkl_get_ARGVn_stack_entry(ARGVn_stack_entry)
 
   # set empty ARGV, ARGC variables
-  tkl_set_global_prop(. "tkl::builtin::ARGV" "")
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "")
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}")
+  # must always exist
+  set(ARGV "" PARENT_SCOPE)
 
-  tkl_set_global_prop(. "tkl::builtin::ARGC" 0)
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGC" 0)
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}")
+  # must always exist
+  set(ARGC 0 PARENT_SCOPE)
 
   # real number of pushed ARGVn variables
-  tkl_set_global_prop(. "tkl::builtin::ARGVn" ${num_args})
+  set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" ${num_args})
   tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
 
   # set empty ARGVn variables
   set(argv_index 0)
   while(argv_index LESS ${num_args})
-    tkl_set_global_prop(. "tkl::builtin::ARGV${argv_index}" "")
+    if (DEFINED ARGV${argv_index})
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${ARGV${argv_index}}")
+    else()
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+    endif()
     tkl_push_prop_to_stack(GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}")
+    unset(ARGV${argv_index} PARENT_SCOPE)
+
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 endfunction()
@@ -545,84 +562,68 @@ function(tkl_pop_ARGVn_from_stack)
   tkl_get_ARGVn_stack_entry(ARGVn_stack_entry)
 
   # pop ARGV, ARGC variables
-  tkl_pop_prop_from_stack(ARGV GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}")
-  set(ARGV "${ARGV}" PARENT_SCOPE)
-  tkl_get_prop_stack_value_no_error(prop_ARGV GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}" 0)
-  if (prop_ARGV)
-    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${prop_ARGV}")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}")
+  tkl_get_prop_stack_value_no_error(ARGV GLOBAL "tkl::builtin::ARGV" "${ARGVn_stack_entry}" 0)
+  if (ARGV)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV" "${ARGV}")
+    set(ARGV "${ARGV}" PARENT_SCOPE)
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGV") # unset property
+    unset(ARGV PARENT_SCOPE)
   endif()
 
-  if (NOT DEFINED ARGV)
-    message(FATAL_ERROR "ARGV must be defined after the pop")
-  endif()
-
-  tkl_pop_prop_from_stack(ARGC GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}")
-  set(ARGC "${ARGC}" PARENT_SCOPE)
-  tkl_get_prop_stack_value_no_error(prop_ARGC GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}" 0)
-  if (DEFINED prop_ARGC)
-    set_property(GLOBAL PROPERTY "tkl::builtin::ARGC" "${prop_ARGC}")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}")
+  tkl_get_prop_stack_value_no_error(ARGC GLOBAL "tkl::builtin::ARGC" "${ARGVn_stack_entry}" 0)
+  if (DEFINED ARGC)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGC" "${ARGC}")
+    set(ARGC "${ARGC}" PARENT_SCOPE)
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGC") # unset property
-  endif()
-
-  if ("${ARGC}" STREQUAL "")
-    message(FATAL_ERROR "ARGC must be not empty after the pop")
+    unset(ARGC PARENT_SCOPE)
   endif()
 
   # real number of pushed ARGVn variables
-  tkl_pop_prop_from_stack(ARGVn GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
-  tkl_get_prop_stack_value_no_error(prop_ARGVn GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}" 0)
-  if (DEFINED prop_ARGVn)
-    set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" "${prop_ARGVn}")
+  tkl_pop_prop_from_stack(prev_ARGVn GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
+  tkl_get_prop_stack_value_no_error(ARGVn GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}" 0)
+  if (DEFINED ARGVn)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn" "${ARGVn}")
+    # remember previous popped ARGVn to unset ARGV0..N it in the restore function upon a call to (the last pop cleanup)
+    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" "${ARGVn}")
   else()
     set_property(GLOBAL PROPERTY "tkl::builtin::ARGVn") # unset property
+    # stack is empty, nothing to compare anymore
+    set_property(GLOBAL PROPERTY "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]") # unset property
+    set(ARGVn 0)
   endif()
 
-  if ("${ARGVn}" STREQUAL "")
-    message(FATAL_ERROR "ARGVn must be not empty after the pop")
+  if ("${prev_ARGVn}" STREQUAL "")
+    message(FATAL_ERROR "previous ARGVn must be not empty after the pop")
   endif()
 
   # pop ARGVn variables
   set(argv_index 0)
-  while(argv_index LESS ARGVn)
-    tkl_pop_prop_from_stack(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}")
-    set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
-    tkl_get_prop_stack_value_no_error(prop_ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}" 0)
-    if (DEFINED prop_ARGV${argv_index})
-      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${prop_ARGV${argv_index}}")
+  while(argv_index LESS prev_ARGVn)
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}")
+    tkl_get_prop_stack_value_no_error(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}" 0)
+    if (DEFINED ARGV${argv_index})
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${ARGV${argv_index}}")
+      set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
     else()
       set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+      unset(ARGV${argv_index} PARENT_SCOPE)
     endif()
 
     math(EXPR argv_index ${argv_index}+1)
   endwhile()
 
-  # unset previously used ARGV0..N
-  tkl_get_global_prop(prev_ARGVn "tkl::builtin::prev_ARGVn[${ARGVn_stack_entry}]" 0)
-  if (prev_ARGVn STREQUAL "")
-    set(prev_ARGVn 0)
-  endif()
+  # unset rest of variables, it would be last pop cleanup (last_ARGVn) to be available rerun it in the restore function
+  set(argv_index ${ARGVn})
+  while(argv_index LESS prev_ARGVn)
+    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+    unset(ARGV${argv_index} PARENT_SCOPE)
 
-  if (ARGVn LESS prev_ARGVn)
-    # unset rest of variables
-    set(argv_index ${ARGVn})
-    while(argv_index LESS prev_ARGVn)
-      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
-      unset(ARGV${argv_index} PARENT_SCOPE)
-
-      math(EXPR argv_index ${argv_index}+1)
-    endwhile()
-  endif()
-
-  # remember last popped ARGVn to unset ARGV0..N
-  if (DEFINED prop_ARGVn)
-    set_property(GLOBAL PROPERTY "tkl::builtin::prev_ARGVn[${ARGVn_stack_entry}]" "${ARGVn}")
-  else()
-    # stack is empty, nothing to compare anymore
-    set_property(GLOBAL PROPERTY "tkl::builtin::prev_ARGVn[${ARGVn_stack_entry}]") # unset property
-  endif()
+    math(EXPR argv_index ${argv_index}+1)
+  endwhile()
 
   # cascade restore from stack top to bottom
   tkl_get_prop_stack_size(ARGVn_stack_size GLOBAL "tkl::builtin::ARGVn" "${ARGVn_stack_entry}")
@@ -638,6 +639,7 @@ function(tkl_pop_ARGVn_from_stack)
       set(argv_index ${from_argv_index})
 
       while(argv_index LESS ARGVn)
+        # no need to recalculate stack index because 0 is always the existing stack top here
         tkl_get_prop_stack_value(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}" 0)
         if (DEFINED ARGV${argv_index})
           set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${ARGV${argv_index}}")
@@ -726,26 +728,31 @@ ARGVn_stack_index=${ARGVn_stack_index}")
     endif()
 
     tkl_get_prop_stack_value(ARGV${ARGVn_index} GLOBAL "tkl::builtin::ARGV${ARGVn_index}" "${ARGVn_stack_entry}" ${ARGVn_stack_index})
-    set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}" "${ARGV${ARGVn_index}}")
-    set(ARGV${ARGVn_index} "${ARGV${ARGVn_index}}" PARENT_SCOPE)
+    if (DEFINED ARGV${ARGVn_index})
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}" "${ARGV${ARGVn_index}}")
+      set(ARGV${ARGVn_index} "${ARGV${ARGVn_index}}" PARENT_SCOPE)
+    else()
+      set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}") # unset property
+      set(ARGV${ARGVn_index} "${ARGV${ARGVn_index}}" PARENT_SCOPE)
+    endif()
 
     math(EXPR ARGVn_index ${ARGVn_index}+1)
   endwhile()
 
   # unset previously used ARGV0..N
   if (${stack_index} LESS ARGVn_stack_size)
-    tkl_get_global_prop(prev_ARGVn "tkl::builtin::prev_ARGVn[${ARGVn_stack_entry}]" ${stack_index})
-    if (prev_ARGVn STREQUAL "")
-      set(prev_ARGVn 0)
+    tkl_get_global_prop(last_ARGVn "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" ${stack_index})
+    if (last_ARGVn STREQUAL "")
+      set(last_ARGVn 0)
     endif()
   else()
-    set(prev_ARGVn 32) # clear maximum number
+    #set(last_ARGVn 32) # clear maximum number
   endif()
 
-  if (ARGVn LESS prev_ARGVn)
+  if (ARGVn LESS last_ARGVn)
     # unset rest of variables
     set(ARGVn_index ${ARGVn})
-    while(ARGVn_index LESS prev_ARGVn)
+    while(ARGVn_index LESS last_ARGVn)
       set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${ARGVn_index}") # unset property
       unset(ARGV${ARGVn_index} PARENT_SCOPE)
 
@@ -789,8 +796,13 @@ ARGVn_stack_index=${ARGVn_stack_index}")
         endif()
 
         tkl_get_prop_stack_value(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}" ${ARGVn_stack_index})
-        set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${ARGV${argv_index}}")
-        set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
+        if (DEFINED ARGV${argv_index})
+          set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}" "${ARGV${argv_index}}")
+          set(ARGV${argv_index} "${ARGV${argv_index}}" PARENT_SCOPE)
+        else()
+          set_property(GLOBAL PROPERTY "tkl::builtin::ARGV${argv_index}") # unset property
+          unset(ARGV${argv_index} PARENT_SCOPE)
+        endif()
 
         math(EXPR argv_index ${argv_index}+1)
       endwhile()

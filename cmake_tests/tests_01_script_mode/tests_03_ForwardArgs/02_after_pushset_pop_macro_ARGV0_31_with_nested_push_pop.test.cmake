@@ -7,7 +7,6 @@ endfunction()
 # CAUTION
 #   Use intermediate expansion stage to avoid substitution of the macro arguments!
 #
-set(empty "")
 
 macro(test_macro)
   tkl_pushset_ARGVn_to_stack(
@@ -17,24 +16,17 @@ macro(test_macro)
     "${ARGV30}" "${ARGV31}")
   tkl_pop_ARGVn_from_stack()
 
-  tkl_test_assert_true("NOT DEFINED ARGV0" "ARGV0=${ARGV0${empty}}")
-  if (NOT DEFINED ARGV0)
-    tkl_test_assert_true(1)
-  else()
-    tkl_test_assert_true(0 "ARGV0=${ARGV0${empty}}")
-  endif()
-  tkl_test_assert_true("NOT DEFINED ARGV1" "ARGV1=${ARGV1${empty}}")
-  if (NOT DEFINED ARGV1)
-    tkl_test_assert_true(1)
-  else()
-    tkl_test_assert_true(0 "ARGV1=${ARGV1${empty}}")
-  endif()
-  tkl_test_assert_true("NOT DEFINED ARGV2" "ARGV2=${ARGV2${empty}}")
-  if (NOT DEFINED ARGV2)
-    tkl_test_assert_true(1)
-  else()
-    tkl_test_assert_true(0 "ARGV2=${ARGV2${empty}}")
-  endif()
+  set(index 0)
+  while(index LESS 33)
+    tkl_test_assert_true("NOT DEFINED ARGV${index}" "1 ARGV${index}=${ARGV${index}}")
+    if (NOT DEFINED ARGV${index})
+      tkl_test_assert_true(1)
+    else()
+      tkl_test_assert_true(0 "2 ARGV${index}=${ARGV${index}}")
+    endif()
+
+    math(EXPR index ${index}+1)
+  endwhile()
 endmacro()
 
 test_macro("" 2)

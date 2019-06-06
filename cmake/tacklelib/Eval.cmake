@@ -13,7 +13,17 @@ include(tacklelib/ForwardVariables)
 #     `\`   - escape sequence character
 #     `\n`  - multiline separator
 #   Escape examples:
-#     `$\\{...}` or `\${...}` - to insert a variable expression without expansion
+#     `$\{...}` or `\${...}` - to insert a variable expression without expansion.
+#     But the first method is better, as it can additionally bypass a macro
+#     arguments expansion stage, when the second is can not.
+#     Works for:
+#       `tkl_eval*`
+#       `tkl_test_assert_true`
+#
+#   NOTE:
+#     In case of nested expressions you have to double escape it:
+#     `$\\{...}` or `\\\${...}`
+#
 #
 # CAUTION:
 #   You have to be careful with expressions passed into a macro, because a macro
@@ -163,8 +173,37 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
     tkl_track_vars_begin()
 
+    # builtin arguments can interfere with the eval expression...
+
+    # switch to special ARGVn stack
+    tkl_use_ARGVn_stack_begin("tkl::eval")
+
+    # save ARGV, ARGC, ARGV0..N variables from this scope
+    tkl_push_ARGVn_to_stack_from_vars()
+
+    # cleanup all, in case if the ARGVn stack is empty
+    tkl_pushunset_ARGVn_to_stack(32)
+
+    # switch to default ARGVn stack
+    tkl_use_ARGVn_stack_begin(.)
+
+    # restore ARGVn builtin variables state from the current ARGVn stack top record
+    tkl_restore_ARGVn_from_stack(0)
+
+    #tkl_print_ARGVn()
+
     # evaluating...
     include("${_67AB359F_eval_include_file_path}")
+
+    # switch to previous ARGVn stack
+    tkl_use_ARGVn_stack_end()
+
+    # restore ARGV, ARGC, ARGV0..N variables from this scope
+    tkl_pop_ARGVn_from_stack()
+    tkl_pop_ARGVn_from_stack()
+
+    # switch to previous ARGVn stack
+    tkl_use_ARGVn_stack_end()
 
     tkl_forward_changed_vars_to_parent_scope(_67AB359F_eval_include_file_path)
     tkl_track_vars_end()
