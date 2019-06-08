@@ -1,3 +1,10 @@
+2019.06.08:
+* new: `tests_01_expansion` tests
+* new: `tests_02_Utility` tests
+* new: more `tests_04_ForwardVariables` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
 2019.06.06:
 * new: more `01_make_var_from_ARGV` tests
 * new: `03_make_vars_from_CMAKE_ARGV_ARGC` tests

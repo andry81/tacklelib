@@ -55,7 +55,7 @@ test_case_match_filter\;.\;test_case_match_filter_list\
   foreach(arg IN LISTS argv)
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REPLACE ";" "\;" arg "${arg}")
+    tkl_escape_string_after_list_get(arg "${arg}")
 
     list(APPEND TACKLELIB_TESTLIB_CMAKE_ARGV "${arg}")
 

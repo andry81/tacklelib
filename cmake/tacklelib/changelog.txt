@@ -1,3 +1,12 @@
+2019.06.08:
+* fixed: completely reverese engineered a cmake expansion rules in different contexts (macro/function/list/foreach/and so on), removed not actually needed functions
+* fixed: `tkl_track_vars_begin`/`tkl_track_vars_end` inside `tkl_eval_end` usage (`Eval.cmake`)
+* fixed: forgot to unset actually unsued ARGV0..N variables in the sensitive to it function - `tkl_copy_vars`
+* new: `tkl_escape_string_after_list_get` function to explicitly state the escape request after the `list(GET ...)` or the `foreach(... IN LISTS ...)` application
+* removed: `tkl_escape_string_for_ARGx`
+* removed: `tkl_escape_string_for_macro_args`
+* changed: `tkl_escape_string_for_eval` converted into `tkl_escape_test_assert_string`
+
 2019.06.06:
 * fixed: `tkl_make_vars_from_ARGV_ARGN_begin`, `tkl_make_var_from_CMAKE_ARGV_ARGC` fixup (`Std.cmake`)
 * refactor: `tkl_escape_string_from_ARGx` renamed to `tkl_escape_string_for_ARGx` (`Utility.cmake`)

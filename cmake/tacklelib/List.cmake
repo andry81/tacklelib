@@ -2,6 +2,8 @@
 if (NOT DEFINED TACKLELIB_LIST_INCLUDE_DEFINED)
 set(TACKLELIB_LIST_INCLUDE_DEFINED 1)
 
+include(tacklelib/Utility)
+
 cmake_minimum_required(VERSION 3.7)
 
 # at least cmake 3.7 is required for:
@@ -42,7 +44,8 @@ function(tkl_list_join out_var in_list_var separator)
   foreach(value IN LISTS in_list)
     math(EXPR index "${index}+1")
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
+    tkl_escape_string_after_list_get(value "${value}")
+
     #list(LENGTH value len)
     #message("tkl_list_join: [${len}] value=${value}")
     if (index)
@@ -89,7 +92,8 @@ function(tkl_list_get out_var in_list_var)
     if (index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
+      tkl_escape_string_after_list_get(value "${value}")
+
       #list(LENGTH value value_len)
       #message("tkl_list_get: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -161,7 +165,8 @@ function(tkl_list_remove_at out_var in_list_var)
     if (NOT index IN_LIST index_list)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
+      tkl_escape_string_after_list_get(value "${value}")
+
       #list(LENGTH value value_len)
       #message("tkl_list_remove_at: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list
@@ -234,7 +239,8 @@ function(tkl_list_sublist out_var begin_index length in_list_var)
   while(index LESS index_upper)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
+    tkl_escape_string_after_list_get(value "${value}")
+
     #list(LENGTH value value_len)
     #message("tkl_list_sublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -301,7 +307,8 @@ function(tkl_list_remove_sublist out_var begin_index length in_list_var)
   while(index LESS begin_index)
     list(GET in_list ${index} value)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" value "${value}")
+    tkl_escape_string_after_list_get(value "${value}")
+
     #list(LENGTH value value_len)
     #message("tkl_list_remove_sublist: index=${index} [${value_len}] value=${value}")
     # WORKAROUND: empty list with one empty string treats as an empty list
@@ -322,7 +329,8 @@ function(tkl_list_remove_sublist out_var begin_index length in_list_var)
     while(index LESS in_list_len)
       list(GET in_list ${index} value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" value "${value}")
+      tkl_escape_string_after_list_get(value "${value}")
+
       #list(LENGTH value value_len)
       #message("tkl_list_remove_sublist: index=${index} [${value_len}] value=${value}")
       # WORKAROUND: empty list with one empty string treats as an empty list

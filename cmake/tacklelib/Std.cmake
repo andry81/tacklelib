@@ -49,11 +49,7 @@ function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
     message(FATAL_ERROR "function must have only 2 arguments")
   endif()
 
-  # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_for_ARGx(_BBD57550_argv_joined_list_encoded "${argv_joined_list}")
-
-  set(_BBD57550_argv_joined_list "${_BBD57550_argv_joined_list_encoded}" PARENT_SCOPE)
+  set(_BBD57550_argv_joined_list "${argv_joined_list}" PARENT_SCOPE)
 
   unset(${out_argv_var} PARENT_SCOPE)
 endfunction()
@@ -85,14 +81,11 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
     set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
 
     # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REPLACE ";" "\;" _BBD57550_argv_value "${_BBD57550_argv_value}")
+    tkl_escape_string_before_list_append(_BBD57550_argv_value "${_BBD57550_argv_value}")
 
     list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
 
-    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_for_ARGx(_BBD57550_argv_value_encoded "${ARGV${_BBD57550_var_index}}")
-
-    list(APPEND _BBD57550_argv_joined_list_accum "${_BBD57550_argv_value_encoded}")
+    list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
 
     math(EXPR _BBD57550_var_index "${_BBD57550_var_index}+1")
   endwhile()
@@ -122,13 +115,9 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
     message(FATAL_ERROR "function must have only 4 arguments")
   endif()
 
-  # WORKAROUND: we have to recode all control characters because `${ARGV}` and `${ARGN}` will be evaluated on expansion
-  tkl_escape_string_for_ARGx(_9E220B1D_argv_joined_list_encoded "${argv_joined_list}")
-  tkl_escape_string_for_ARGx(_9E220B1D_argn_joined_list_encoded "${argn_joined_list}")
-
   # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list_encoded};")   # 1t phase list
-  set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list_encoded};")
+  set(_9E220B1D_argv_joined_list "${argv_joined_list};")   # 1t phase list
+  set(_9E220B1D_argn_joined_list "${argn_joined_list};")
 
   set(_9E220B1D_argn_offset -1)
   if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";")
@@ -197,16 +186,14 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
 
     if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
       set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+
+      # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+      tkl_escape_string_before_list_append(_9E220B1D_argv_value "${_9E220B1D_argv_value}")
+
       list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
     endif()
 
-    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_for_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
-
-    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REPLACE ";" "\;" _9E220B1D_argv_value_encoded "${_9E220B1D_argv_value_encoded}")
-
-    list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
+    list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
 
     math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
   endwhile()
@@ -226,21 +213,15 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
 
     set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
 
-    #message("[${_9E220B1D_var_index}] _9E220B1D_argv_value=${_9E220B1D_argv_value}")
-    ## WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    #string(REPLACE ";" "\;" _9E220B1D_argv_value "${_9E220B1D_argv_value}")
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    tkl_escape_string_before_list_append(_9E220B1D_argv_value "${_9E220B1D_argv_value}")
+
     if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
       list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
     endif()
     list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
 
-    # WORKAROUND: we have to recode all control characters because `${ARGV0..N}` will be evaluated on expansion
-    tkl_escape_string_for_ARGx(_9E220B1D_argv_value_encoded "${ARGV${_9E220B1D_var_index}}")
-
-    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-    string(REPLACE ";" "\;" _9E220B1D_argv_value_encoded "${_9E220B1D_argv_value_encoded}")
-
-    list(APPEND _9E220B1D_argv_joined_list_accum "${_9E220B1D_argv_value_encoded}")
+    list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
 
     math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
   endwhile()
@@ -317,7 +298,7 @@ s\;strict_checks\
   if (NOT set_script_args)
     while(cmake_arg_index LESS CMAKE_ARGC)
       # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-      string(REPLACE ";" "\;" arg_value "${CMAKE_ARGV${cmake_arg_index}}")
+      tkl_escape_string_before_list_append(arg_value "${CMAKE_ARGV${cmake_arg_index}}")
 
       list(APPEND ${out_var} "${arg_value}")
 
@@ -335,7 +316,7 @@ s\;strict_checks\
       if (script_file_path_offset GREATER_EQUAL 0 )
         if (script_file_path_offset LESS cmake_arg_index)
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-          string(REPLACE ";" "\;" arg_value "${arg_value}")
+          tkl_escape_string_before_list_append(arg_value "${arg_value}")
 
           list(APPEND ${out_var} "${arg_value}")
         else()
@@ -352,7 +333,7 @@ s\;strict_checks\
           endif()
 
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-          string(REPLACE ";" "\;" arg_value "${arg_value}")
+          tkl_escape_string_before_list_append(arg_value "${arg_value}")
 
           list(APPEND ${out_var} "${arg_value}") # converted into the absolute path
         endif()
@@ -416,7 +397,7 @@ function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var fu
   if (func_argv_len GREATER 0)
     list(GET func_argv 0 func_flags)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" func_flags "${func_flags}")
+    tkl_escape_string_after_list_get(func_flags "${func_flags}")
 
     string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
   else()
@@ -529,7 +510,7 @@ function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var fu
 
               list(GET func_argv ${func_argv_index} multichar_flag_var_value)
               # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-              string(REPLACE ";" "\;" multichar_flag_var_value_escaped "${multichar_flag_var_value}")
+              tkl_escape_string_after_list_get(multichar_flag_var_value_escaped "${multichar_flag_var_value}")
 
               if ((multichar_flag_var STREQUAL ".") OR (multichar_flag_var STREQUAL "*"))
                 set(multichar_flag_var "")
@@ -562,7 +543,7 @@ function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var fu
     # read next flags
     list(GET func_argv ${func_argv_index} func_flags)
     # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-    string(REPLACE ";" "\;" func_flags "${func_flags}")
+    tkl_escape_string_after_list_get(func_flags "${func_flags}")
 
     string(SUBSTRING "${func_flags}" 0 1 func_flags_prefix_char0)
   endwhile()

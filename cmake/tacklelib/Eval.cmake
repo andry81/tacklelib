@@ -171,8 +171,6 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
     # unset the function parameters too
     unset(end_include_file_path)
 
-    tkl_track_vars_begin()
-
     # builtin arguments can interfere with the eval expression...
 
     # switch to special ARGVn stack
@@ -192,8 +190,13 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
     #tkl_print_ARGVn()
 
+    tkl_track_vars_begin()
+
     # evaluating...
     include("${_67AB359F_eval_include_file_path}")
+
+    tkl_forward_changed_vars_to_parent_scope(_67AB359F_eval_include_file_path)
+    tkl_track_vars_end()
 
     # switch to previous ARGVn stack
     tkl_use_ARGVn_stack_end()
@@ -204,9 +207,6 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
     # switch to previous ARGVn stack
     tkl_use_ARGVn_stack_end()
-
-    tkl_forward_changed_vars_to_parent_scope(_67AB359F_eval_include_file_path)
-    tkl_track_vars_end()
   else()
     tkl_is_equal_paths(REALPATH "${_67AB359F_eval_include_file_path}" "${end_include_file_path}" _67AB359F_eval_is_equal_include_file_paths)
     if (NOT _67AB359F_eval_is_equal_include_file_paths)

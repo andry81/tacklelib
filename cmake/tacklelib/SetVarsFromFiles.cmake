@@ -487,19 +487,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(os_name _50FABB52_argn ${argn_index})
+  list(GET _50FABB52_argn ${argn_index} os_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(compiler_name _50FABB52_argn ${argn_index})
+  list(GET _50FABB52_argn ${argn_index} compiler_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(config_name _50FABB52_argn ${argn_index})
+  list(GET _50FABB52_argn ${argn_index} config_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(arch_name _50FABB52_argn ${argn_index})
+  list(GET _50FABB52_argn ${argn_index} arch_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  tkl_list_get(list_separator_char _50FABB52_argn ${argn_index})
+  list(GET list_separator_char _50FABB52_argn ${argn_index}) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
   set(use_vars_late_expansion 0)
@@ -755,7 +755,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     if (make_var_name_index LESS make_vars_values_len)
       list(GET make_vars_values ${make_var_name_index} make_var_value)
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
-      string(REPLACE ";" "\;" make_var_value "${make_var_value}")
+      tkl_escape_string_after_list_get(make_var_value "${make_var_value}")
 
       set(config_${make_var_name} "${make_var_value}")
     else()
@@ -881,7 +881,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       math(EXPR var_file_content_line ${var_file_content_line}+1)
 
       # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-      string(REPLACE ";" "\;" var_line "${var_line}")
+      tkl_escape_string_after_list_get(var_line "${var_line}")
 
       tkl_file_decode_string(var_line "${var_line}")
 
@@ -1372,8 +1372,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                     # a list item end, record a value
                     math(EXPR value_len "${index}-${value_from_index}")
                     string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
                     # WORKAROUND: fix ;-escape implicit unescaping
-                    string(REPLACE ";" "\;" value "${value}")
+                    tkl_escape_string_after_string_substring(value "${value}")
+
                     set(var_last_substed_value "${var_last_substed_value}${value}")
                     list(APPEND var_values_list "${var_last_substed_value}")
                     set(last_record_char_index ${index})
@@ -1397,8 +1399,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(is_str_quote_open 0)
                 math(EXPR value_len "${index}-${value_from_index}")
                 string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
                 # WORKAROUND: fix ;-escape implicit unescaping
-                string(REPLACE ";" "\;" value "${value}")
+                tkl_escape_string_after_string_substring(value "${value}")
+
                 set(var_last_substed_value "${var_last_substed_value}${value}")
                 list(APPEND var_values_list "${var_last_substed_value}")
                 set(last_record_char_index ${index})
@@ -1481,8 +1485,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                       set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                       math(EXPR value_len "${index}-${value_from_index}")
                       string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
                       # WORKAROUND: fix ;-escape implicit unescaping
-                      string(REPLACE ";" "\;" value "${value}")
+                      tkl_escape_string_after_string_substring(value "${value}")
+
                       set(var_last_substed_value "${var_last_substed_value}${value}")
                       list(APPEND var_values_list "${var_last_substed_value}")
                       set(last_record_char_index ${index})
@@ -1526,8 +1532,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             math(EXPR value_len "${index}-${value_from_index}-2")
             if (value_len GREATER_EQUAL 0)
               string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
               # WORKAROUND: fix ;-escape implicit unescaping
-              string(REPLACE ";" "\;" value "${value}")
+              tkl_escape_string_after_string_substring(value "${value}")
+
               set(var_last_substed_value "${var_last_substed_value}${value}")
             endif()
 
