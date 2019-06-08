@@ -1,4 +1,5 @@
 include(tacklelib/Eval)
+include(tacklelib/Utility)
 
 function(dbg_message msg)
   #message("${msg}")
@@ -11,7 +12,7 @@ function(make_CMAKE_ARGV_from_ARGV)
   set(arg_index 0)
   foreach(arg IN LISTS argv)
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REPLACE ";" "\;" arg "${arg}")
+    tkl_escape_string_after_list_get(arg "${arg}")
 
     set(CMAKE_ARGV${arg_index} "${arg}" PARENT_SCOPE)
 

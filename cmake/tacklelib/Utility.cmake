@@ -2,92 +2,35 @@
 if (NOT DEFINED TACKLELIB_UTILITY_INCLUDE_DEFINED)
 set(TACKLELIB_UTILITY_INCLUDE_DEFINED 1)
 
-function(tkl_escape_string_for_ARGx out_var in_str)
-  string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
-  #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
-  #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
-  #string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
-  string(REPLACE "\$" "\\\$" encoded_value "${encoded_value}")
-  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+#function(tkl_escape_string out_var in_str)
+#  string(REGEX REPLACE "\\\\([^;])" "\\\\\\\\\\1" out_str "${in_str}")
+#  string(REGEX REPLACE "\\\\\$" "\\\\\\\\" out_str "${out_str}")
+#  #string(REPLACE ";" "\;" out_str "${out_str}")
+#  string(REPLACE "\$" "\\\$" out_str "${out_str}")
+#  string(REPLACE "\"" "\\\"" out_str "${out_str}")
+#  set(${out_var} "${out_str}" PARENT_SCOPE)
+#endfunction()
+
+# Used to be called after:
+#   `list(GET ...)`
+#   `foreach(... IN LISTS ...)`
+function(tkl_escape_string_after_list_get out_var in_str)
+  string(REPLACE ";" "\;" out_str "${in_str}")
+  set(${out_var} "${out_str}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_escape_string_for_macro_args out_var in_str)
-  string(REPLACE "\\" "\\\\" encoded_value "${in_str}")
-  #string(REPLACE "\n" "\\n" encoded_value "${encoded_value}")
-  #string(REPLACE "\r" "\\r" encoded_value "${encoded_value}")
-  #string(REPLACE "\t" "\\t" encoded_value "${encoded_value}")
-  string(REPLACE "\$" "\\\$" encoded_value "${encoded_value}")
-  string(REPLACE ";" "\;" encoded_value "${encoded_value}")
-  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+# Used to be called before:
+#   `list(APPEND ...)`
+function(tkl_escape_string_before_list_append out_var in_str)
+  string(REPLACE ";" "\;" out_str "${in_str}")
+  set(${out_var} "${out_str}" PARENT_SCOPE)
 endfunction()
 
-# DESCRIPTION:
-#   We can not translate the string `\;\\;` into the `\;\\;` and
-#   `\\\;\\\\;` into `\\\;\\\\;` as is (the cmake internally does expand the
-#   strings into the `\;\;` and `\\;\\;` respectively BEFORE the function
-#   call), so the `\;` to `\\;` and the `\\\;` to `\\\\;` is not
-#   distinguishable from each other.
-#   But to somehow workaround this, we have to at least convert
-#   the `\;\\;` into the `\;\\\;` and
-#   the `\\\;\\\\;` into the `\\\;\\\\\;` avoid a back slash character
-#   disappear before the character `;` in process of expanding in a cmake
-#   string and put it in an eval string (in a file) as is.
-#
-# This is table of raw string for particular set of cases and results after
-# the function is applied:
-#
-# Legend:
-#   `...` - raw string, no special escaping
-#
-# input          | output        || input         | output
-# ---------------+---------------||---------------+---------------
-# `\`            | `\\`          || `\\`          | `\\\\`
-# `\\\`          | `\\\\\\`      || `\\\\`        | `\\\\\\\\`
-# `\a`           | `\\a`         || `\\a`         | `\\\\a`
-# `\\\a`         | `\\\\\\a`     || `\\\\a`       | `\\\\\\\\a`
-# `\;`           | `\;`          || `\\;`         | `\\\;`
-# `\\\;`         | `\\\\\;`      || `\\\\;`       | `\\\\\\\;`
-# `\$`           | `\$`          || `\\$`         | `\\\$`
-# `\\\$`         | `\\\\\$`      || `\\\\$`       | `\\\\\\\$`
-#
-function(tkl_escape_string_for_eval out_var in_str)
-  set(encoded_value "")
-  set(index 0)
-  set(is_escaping 0)
-  string(LENGTH "${in_str}" value_len)
-
-  while (index LESS value_len)
-    string(SUBSTRING "${in_str}" ${index} 1 char)
-    if (NOT is_escaping)
-      if (NOT char STREQUAL "\\")
-        set(encoded_value "${encoded_value}${char}")
-      else()
-        set(is_escaping 1)
-      endif()
-    else()
-      if (char STREQUAL ";")
-        set(encoded_value "${encoded_value}\;")   # retain special control character escaping
-        set(is_escaping 0)
-      elseif (char STREQUAL "\$")
-        set(encoded_value "${encoded_value}\\\$") # retain special control character escaping
-        set(is_escaping 0)
-      else()
-        set(encoded_value "${encoded_value}\\\\")
-        if (NOT char STREQUAL "\\")
-          set(encoded_value "${encoded_value}${char}")
-          set(is_escaping 0)
-        endif()
-      endif()
-    endif()
-
-    math(EXPR index "${index}+1")
-  endwhile()
-
-  if (is_escaping)
-    set(encoded_value "${encoded_value}\\\\")
-  endif()
-
-  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+# Used to be called before:
+#   `string(SUBSTRING ...)`
+function(tkl_escape_string_after_string_substring out_var in_str)
+  string(REPLACE ";" "\;" out_str "${in_str}")
+  set(${out_var} "${out_str}" PARENT_SCOPE)
 endfunction()
 
 # CAUTION:
@@ -143,7 +86,7 @@ function(tkl_make_exec_cmdline_from_list out_var)
 
   foreach(arg IN LISTS ARGN)
     # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REPLACE ";" "\;" arg "${arg}")
+    tkl_escape_string_after_list_get(arg "${arg}")
 
     if (NOT arg STREQUAL "")
       string(REGEX REPLACE "([\\\\\\\"\\\\\\\$])" "\\\\\\1" escaped_arg "${arg}")
@@ -233,11 +176,12 @@ function(tkl_escape_list_expansion out_var in_list)
 
   foreach(arg IN LISTS in_list)
     # 1. WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-    string(REPLACE ";" "\;" escaped_arg "${arg}")
+    tkl_escape_string_after_list_get(escaped_arg "${arg}")
+
     # 2. another escape sequence to retain exact values in the list after pass into a function without quotes: `foo(${mylist})`
-    string(REPLACE "\\" "\\\\" escaped_arg "${escaped_arg}")
-    # 3. escape variables expansion
-    string(REPLACE "\$" "\\\$" escaped_arg "${escaped_arg}")
+    string(REPLACE ";" "\;" escaped_arg "${escaped_arg}")
+    string(REPLACE "\"" "\\\"" escaped_arg "${escaped_arg}")
+
     #message("arg: `${arg}` -> `${escaped_arg}`")
     list(APPEND escaped_list "${escaped_arg}")
   endforeach()

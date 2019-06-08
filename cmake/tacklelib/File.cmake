@@ -142,32 +142,6 @@ function(tkl_file_decode_string out_var str)
   set(${out_var} "${str}" PARENT_SCOPE)
 endfunction()
 
-## Workaround for `file(STRINGS ...)` to bypass the command issues.
-## For details: https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
-##
-#function(tkl_file_to_string out_var file_path)
-#  tkl_file_encode_strings(file_content "${file_path}")
-#
-#  set(file_content_out "")
-#  set(file_line_index 0)
-#
-#  foreach (var_line IN LISTS file_content)
-#    # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-#    string(REPLACE ";" "\;" file_line "${file_line}")
-#
-#    tkl_file_decode_string(file_line "${file_line}")
-#
-#    if (file_line_index)
-#      set(file_content_out "${file_content_out}\n")
-#    endif()
-#    set(file_content_out "${file_content_out}${file_line}")
-#
-#    math(EXPR file_line_index ${file_line_index}+1)
-#  endforeach()
-#
-#  set(${out_var} "${file_content_out}" PARENT_SCOPE)
-#endfunction()
-
 # To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
 #
 function(tkl_file_append file_path str)

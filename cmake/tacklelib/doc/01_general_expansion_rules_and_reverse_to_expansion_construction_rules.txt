@@ -1,0 +1,147 @@
+* 01_general_expansion_rules_and_reverse_to_expansion_construction_rules.txt
+* 2019.06.08
+* tacklelib--cmake/doc
+
+1. DESCRIPTION
+2. CMAKE STRING EXPANSION RULES
+3. CMAKE `list(GET ...)` 
+4. CMAKE `foreach(... IN LISTS ...)` COMMAND
+5. THE `tkl_test_assert_true` FIRST ARGUMENT EXPANSION RULES (`tacklelib/testlib`)
+6. KNOWN CMAKE EXPANSION ISSUES
+6.1. `string escape sequence depends on macro call nesting level : "\\\${a}" -> "\\\\\\\${a}" -> "\\\\\\\\\\\\\\\${a}"`
+6.2. `;-escape list implicit unescaping`
+6.3. CMAKE `list(APPEND ...)` can merge lists
+6.4. `Not paired `]` or `[` characters breaks "file(STRINGS`
+6.5. `CMAKE_CONFIGURATION_TYPES is not empty when empty`
+7. AUTHOR EMAIL
+
+-------------------------------------------------------------------------------
+1. DESCRIPTION
+-------------------------------------------------------------------------------
+Here will be described reverse engineered general expansion rules and
+reverse-to-expansion construction rules to preserve a character sequences as is
+before call to several builtin commands and tacklelib functions.
+
+-------------------------------------------------------------------------------
+2. CMAKE STRING EXPANSION RULES
+-------------------------------------------------------------------------------
+A cmake string internally have has these passes to expand character
+sequences:
+
+1. Replace all `\<char>` by <char>, except `\;`
+2. Recursively expand all $-variables
+
+EXAMPLE:
+
+"1;2\;3\\;4\\\;5\\\\;6\\\\\;7\\\\\\;\${a}\\" -> r"1;2\;3\;4\\;5\\;6\\\;7\\\;${a}\"
+
+-------------------------------------------------------------------------------
+3. CMAKE `list(GET ...)` 
+-------------------------------------------------------------------------------
+
+EXAMPLE:
+
+```
+set(in_str "1;2\;3\\;4\\\;5\\\\;6\\\\\;7\\\\\\;\${a}\\")
+list(GET in_str 1 arg1)
+```
+
+arg1 = "2;3;4\;5\;6\\\;7\\\;\${a}\\" = r"2;3;4\;5\;6\\;7\\;${a}\"
+
+-------------------------------------------------------------------------------
+4. CMAKE `foreach(... IN LISTS ...)` COMMAND
+-------------------------------------------------------------------------------
+
+EXAMPLE:
+
+```
+set(in_str "1;2\;3\\;4\\\;5\\\\;6\\\\\;7\\\\\\;\${a}\\")
+set(index 0)
+foreach(arg IN LISTS in_str)
+  if (index EQUAL 0)
+    set(arg0 "${arg}")
+  elseif(index EQUAL 1)
+    set(arg1 "${arg}")
+  endif()
+  math(EXPR index ${index}+1)
+endforeach()
+list(GET in_str 1 arg1)
+```
+
+arg0 = "1" = r"1"
+arg1 = "2;3;4\;5\;6\\\;7\\\;\${a}\\" = r"2;3;4\;5\;6\\;7\\;${a}\"
+
+NOTE:
+  The expansion loses differences between the "\;" (r"\;") and the "\\;"
+  (r"\;") character sequences because translates into the same character
+  sequence - ";" (r";").
+
+-------------------------------------------------------------------------------
+5. THE `tkl_test_assert_true` FIRST ARGUMENT EXPANSION RULES (`tacklelib/testlib`)
+-------------------------------------------------------------------------------
+The function internally have has these passes to expand the first argument
+string:
+
+1. Replace all `\<char>` by <char>, except `\;`
+   (the same as in the first pass for a cmake string)
+
+NOTE:
+  As a side effect the string "\;" CAN be constructed for the first argument
+  of the `tkl_test_assert_true` both as "\;" AND "\\\;", because for the
+  second case a string expansion rules plus the function inner expansion logic
+  would remove 2 first back slashes in 2 passes:
+  1. First pass:  `\\\;` --[a-string-expansion-logic]--> `\\;`
+  2. Second pass: `\\;` --[tkl_test_assert_true-inner-expansion-logic]--> `\;`
+
+To reverse-to-expansion contruct a string to preserve the respective characters
+in a variable being used in the function from inside like
+`tkl_test_assert_true("\"${outter_str}\" ..." ...)` you can use function from
+the library:
+
+```
+tkl_escape_test_assert_string(out_var "${inner_str}")
+tkl_test_assert_true("\"${${out_var}}\" ..." ...)
+```
+
+-------------------------------------------------------------------------------
+6. KNOWN CMAKE PARSE ISSUES
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.1. `string escape sequence depends on macro call nesting level : "\\\${a}" -> "\\\\\\\${a}" -> "\\\\\\\\\\\\\\\${a}"`
+-------------------------------------------------------------------------------
+https://gitlab.kitware.com/cmake/cmake/issues/19281
+
+-------------------------------------------------------------------------------
+6.2. `;-escape list implicit unescaping`
+-------------------------------------------------------------------------------
+https://gitlab.kitware.com/cmake/cmake/issues/18946
+
+Affects a set of cmake commands:
+
+`list(GET ...)`
+`list(SUBLIST ...)
+`list(REMOVE_AT ...)
+`list(JOIN ...)
+`foreach(... IN LISTS ...)`
+
+-------------------------------------------------------------------------------
+6.3. CMAKE `list(APPEND ...)` can merge lists
+-------------------------------------------------------------------------------
+The command can merge lists in case of usage unescaped `;` characters, which
+you must escape to preserve them as is after the command.
+
+-------------------------------------------------------------------------------
+6.4. `Not paired `]` or `[` characters breaks "file(STRINGS`
+-------------------------------------------------------------------------------
+https://gitlab.kitware.com/cmake/cmake/issues/19156
+
+-------------------------------------------------------------------------------
+6.5. `CMAKE_CONFIGURATION_TYPES is not empty when empty`
+-------------------------------------------------------------------------------
+https://gitlab.kitware.com/cmake/cmake/issues/19057
+
+-------------------------------------------------------------------------------
+7. AUTHOR EMAIL
+-------------------------------------------------------------------------------
+andry at inbox dot ru

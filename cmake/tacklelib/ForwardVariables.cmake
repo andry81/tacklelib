@@ -104,7 +104,7 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
   endif()
 
   # check for specific builtin variables
-  tkl_is_ARGx_var(is_ARGx_var ${var_name})
+  tkl_is_ARGx_var(is_ARGx_var "${var_name}")
   if (is_ARGx_var)
     message(FATAL_ERROR "specific builtin variables are forbidden to use: `${var_name}`")
   endif()
@@ -160,6 +160,17 @@ function(tkl_copy_vars)
     message(FATAL_ERROR "function must have at least 1 argument")
   endif()
 
+  # unset because ARGVn can inherit from upper caller scope
+  if (${ARGC} LESS 4)
+    unset(ARGV3)
+    if (${ARGC} LESS 3)
+      unset(ARGV2)
+      if (${ARGC} LESS 2)
+        unset(ARGV1)
+      endif()
+    endif()
+  endif()
+
   # reduce intersection probability with the parent scope variables through the unique local variable name prefix
   get_cmake_property(_24C487FA_vars_all_list VARIABLES)
 
@@ -182,7 +193,7 @@ function(tkl_copy_vars)
       set(${ARGV2} ";") # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
     endif()
 
-    foreach (_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
+    foreach(_24C487FA_var_name IN LISTS _24C487FA_vars_all_list)
       if (_24C487FA_var_prefix_filter_len)
         string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
         # copy values only from "parent scope" variables
@@ -192,18 +203,19 @@ function(tkl_copy_vars)
       endif()
 
       # check for specific builtin variables
-      tkl_is_ARGx_var(_24C487FA_is_ARGx_var ${_24C487FA_var_name})
+      tkl_is_ARGx_var(_24C487FA_is_ARGx_var "${_24C487FA_var_name}")
       if (_24C487FA_is_ARGx_var)
         continue()
       endif()
 
       if (NOT "${ARGV1}" STREQUAL "" AND NOT "${ARGV1}" STREQUAL ".")
+        # does not need `;` escape
         list(APPEND ${ARGV1} "${_24C487FA_var_name}")
       endif()
 
       if (NOT "${ARGV2}" STREQUAL "" AND NOT "${ARGV2}" STREQUAL ".")
         # WORKAROUND: we have to replace because `list(APPEND` will join lists together
-        string(REPLACE ";" "\;" _24C487FA_var_value "${${_24C487FA_var_name}}")
+        tkl_escape_string_before_list_append(_24C487FA_var_value "${${_24C487FA_var_name}}")
 
         list(APPEND ${ARGV2} "${_24C487FA_var_value}")
 

@@ -196,6 +196,63 @@ tkl_testmodule_update_status()
   endif()
 endfunction()
 
+# This is table of raw string conversion:
+#
+# input          | output        || input         | output
+# ---------------+---------------||---------------+---------------
+# `\`            | `\\`          || `\\`          | `\\\\`
+# `\\\`          | `\\\\\\`      || `\\\\`        | `\\\\\\\\`
+# `\a`           | `\\a`         || `\\a`         | `\\\\a`
+# `\\\a`         | `\\\\\\a`     || `\\\\a`       | `\\\\\\\\a`
+# `\;`           | `\;`          || `\\;`         | `\\\;`
+# `\\\;`         | `\\\\\;`      || `\\\\;`       | `\\\\\\\;`
+# `$`            | `\$`          || `\\$`         | `\\\\$`
+# `\\\$`         | `\\\\\\$`     || `\\\\$`       | `\\\\\\\\$`
+#
+function(tkl_escape_test_assert_string out_var in_str)
+  set(encoded_value "")
+  set(index 0)
+  set(is_escaping 0)
+  string(LENGTH "${in_str}" value_len)
+
+  while (index LESS value_len)
+    string(SUBSTRING "${in_str}" ${index} 1 char)
+    if (NOT is_escaping)
+      if (NOT char STREQUAL "\\")
+        if (NOT char STREQUAL "\$")
+          set(encoded_value "${encoded_value}${char}")
+        else()
+          set(encoded_value "${encoded_value}\\\$") # retain special control character escaping
+        endif()
+      else()
+        set(is_escaping 1)
+      endif()
+    else()
+      if (char STREQUAL ";")
+        set(encoded_value "${encoded_value}\;")   # retain special control character escaping
+        set(is_escaping 0)
+      elseif (char STREQUAL "\$")
+        set(encoded_value "${encoded_value}\\\$") # retain special control character escaping
+        set(is_escaping 0)
+      else()
+        set(encoded_value "${encoded_value}\\\\")
+        if (NOT char STREQUAL "\\")
+          set(encoded_value "${encoded_value}${char}")
+          set(is_escaping 0)
+        endif()
+      endif()
+    endif()
+
+    math(EXPR index "${index}+1")
+  endwhile()
+
+  if (is_escaping)
+    set(encoded_value "${encoded_value}\\\\")
+  endif()
+
+  set(${out_var} "${encoded_value}" PARENT_SCOPE)
+endfunction()
+
 # Usage:
 #   Special characters:
 #     `\`   - escape sequence character
