@@ -1,3 +1,7 @@
+2019.06.09:
+* fixed: scripts: `tkl_include` early variables stack pop from a random `source` command instead in the function `tkl_include_local_impl` after the `trap "..." RETURN` command (trap have to be avoided here).
+* changed: scripts:  [finished] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
+
 2019.06.08:
 * fixed: cmake: completely reverese engineered a cmake expansion rules in different contexts (macro/function/list/foreach/and so on), removed not actually needed functions
 * fixed: cmake: `tkl_track_vars_begin`/`tkl_track_vars_end` inside `tkl_eval_end` usage (`Eval.cmake`)
@@ -166,7 +170,7 @@
 
 2019.05.27:
 * new: cmake: support different stack entries for pushing and popping variables to/from a stack (`ForwardVariables.cmake`)
-* new: scripts: [initiated] usage of new `include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative a script module directory path
+* new: scripts: [initiated] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
 * changed: cmake: minor improvements
 * changed: scripts: minor improvements
 * changed: cmake_tests: code cleanup
