@@ -12,14 +12,14 @@
 # function - `tkl_include`.
 #
 # The `tkl_include` function does use an alternative search logic and instead
-# of a current directory path a shell module being searched through the shell
-# inclusion path variable - `BASH_SOURCE_PATH` or a current script
-# directory in case if relative inclusion path is not applicable to
+# of a current directory path a being included shell script is searched through
+# the inclusion path variable - `BASH_SOURCE_PATH` or a current script
+# directory in case if a relative inclusion path is not applicable to
 # paths from the `BASH_SOURCE_PATH` variable.
 #
-# Additionally, script can find a version of a bash shell executable and call
-# the interpreter from the "/usr/local/bin" directory if it exists,
-# otherwise call from the "/bin" directory bypassing any user mount point
+# Additionally, the script can find a version of a bash shell executable and
+# call the interpreter from the "/usr/local/bin" directory if it exists,
+# otherwise would call from the "/bin" directory bypassing any user mount point
 # redirection that may exist on the way (useful in cygwin/msys/mingw contexts).
 #
 
@@ -318,13 +318,8 @@ function tkl_include()
       fi
 
       if (( ! _84CB4B34_included )); then
-        echo tkl_get_abs_path_from_dir "$BASH_SOURCE_DIR" "$_84CB4B34_include_file_path"
         if tkl_get_abs_path_from_dir "$BASH_SOURCE_DIR" "$_84CB4B34_include_file_path"; then
-          echo " including: $RETURN_VALUE"
           tkl_include_local_impl "$RETURN_VALUE"
-          echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
-          echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
-          echo " <- BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
         fi
       fi
     fi
@@ -333,24 +328,30 @@ function tkl_include()
 
 function tkl_include_local_impl()
 {
+  # CAUTION:
+  #   DO NOT USE `trap` command here and anythere else to pop the variables, because the `source` command would trigger it TOO!
+  #
+
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
 
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE "${1}"
   tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${1%[/]*}"
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${1##*[/]}"
 
-  echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
-  echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
-  echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
-
-  # CAUTION:
-  #   `trap - RETURN` is required here, otherwise the return trap would be called again in a parent scope function,
-  #   in case if there was no trap command!
-  #
-  #tkl_push_trap "tkl_pop_var_from_stack global BASH_SOURCE_FILE; tkl_pop_var_from_stack global BASH_SOURCE_DIR; tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME; trap - RETURN" RETURN
-  trap "tkl_pop_var_from_stack global BASH_SOURCE_FILE; tkl_pop_var_from_stack global BASH_SOURCE_DIR; tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME; trap - RETURN" RETURN
+  #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
+  #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
+  #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
 
   source "${BASH_SOURCE_FILE}"
+
+  # manually restore the stack, avoid usage of the `trap` command, because of side effect around the `source` command!
+  tkl_pop_var_from_stack global BASH_SOURCE_FILE
+  tkl_pop_var_from_stack global BASH_SOURCE_DIR
+  tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME
+
+  #echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
+  #echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
+  #echo " <- BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
 }
 
 function tkl_get_native_parent_dir()

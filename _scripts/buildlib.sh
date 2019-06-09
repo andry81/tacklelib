@@ -5,9 +5,7 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${
 
 SOURCE_BUILDLIB_SH=1 # including guard
 
-echo "--BASH_SOURCE_DIR=${BASH_SOURCE_DIR}--"
 source "/bin/bash_entry" || exit $?
-echo "--BASH_SOURCE_DIR=${BASH_SOURCE_DIR}--"
 tkl_include "traplib.sh" || exit $?
 
 # Special exit code value variable has used by the specific set of functions
