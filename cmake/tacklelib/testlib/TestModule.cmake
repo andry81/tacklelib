@@ -7,13 +7,6 @@ include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardArgs)
 include(tacklelib/Eval)
 
-if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}")
-  message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR variable must be defined externally before include this module: TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=`${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}`")
-endif()
-if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_INDEX OR TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
-  message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTPROC_INDEX variable must be defined externally before include this module")
-endif()
-
 function(tkl_testmodule_init)
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
@@ -25,6 +18,27 @@ function(tkl_testmodule_init)
     return()
   endif()
 
+  if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
+    message(FATAL_ERROR "TESTS_ROOT variable must be defained externally to an existed directory path before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
+  endif()
+
+  if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR variable must be defined externally to an existed directory path before include this module: TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=`${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}`")
+  endif()
+  if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_INDEX OR TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTPROC_INDEX variable must be defined externally before include this module")
+  endif()
+  if (NOT DEFINED TACKLELIB_TESTLIB_TESTMODULE_DIR OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTMODULE_DIR}")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTMODULE_DIR variable must be defined externally to an existed directory path before include this module: TACKLELIB_TESTLIB_TESTMODULE_DIR=`${TACKLELIB_TESTLIB_TESTMODULE_DIR}`")
+  endif()
+  if (NOT DEFINED TACKLELIB_TESTLIB_TESTMODULE_FILE OR NOT EXISTS "${TACKLELIB_TESTLIB_TESTMODULE_FILE}" OR IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTMODULE_FILE variable must be defined externally to an existed file path before include this module: TACKLELIB_TESTLIB_TESTMODULE_FILE=`${TACKLELIB_TESTLIB_TESTMODULE_FILE}`")
+  endif()
+
+  if (NOT DEFINED TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST)
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST match filter must be defined before include this module")
+  endif()
+
   # initialize properties from global variables
   set_property(GLOBAL PROPERTY "tkl::testlib::testproc::retcode_dir" "${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}")
   set_property(GLOBAL PROPERTY "tkl::testlib::testproc::index" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}")
@@ -34,18 +48,6 @@ function(tkl_testmodule_init)
   set_property(GLOBAL PROPERTY "tkl::testlib::testcase::retcode" -1)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testcase::func" "")
-
-  if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
-    message(FATAL_ERROR "TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
-  endif()
-
-  if (NOT DEFINED TACKLELIB_TESTLIB_TESTMODULE_FILE OR NOT EXISTS "${TACKLELIB_TESTLIB_TESTMODULE_FILE}" OR IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
-    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTMODULE_FILE file path must exist before include this module: TACKLELIB_TESTLIB_TESTMODULE_FILE=`${TACKLELIB_TESTLIB_TESTMODULE_FILE}`")
-  endif()
-
-  if (NOT DEFINED TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST)
-    message(FATAL_ERROR "TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST match filter must be defined before include this module")
-  endif()
 
   file(RELATIVE_PATH TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH "${TESTS_ROOT}" "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
   tkl_testmodule_test_file_shortcut("${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH}" TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT)

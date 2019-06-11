@@ -46,6 +46,7 @@ _scripts/tools/set_vars_from_locked_file_pair.sh -text
 _scripts/tools/update_build_type.bat -text
 _scripts/traplib.sh -text
 /changelog.txt -text
+cmake/tacklelib/Checks.cmake -text
 cmake/tacklelib/EnableTargetsExtension.cmake -text
 cmake/tacklelib/Eval.cmake -text
 cmake/tacklelib/ExternalProjectEx.cmake -text
@@ -92,6 +93,7 @@ cmake_tests/_scripts/tests_01_script_mode.sh -text
 cmake_tests/_scripts/tests_02_build_mode.bat -text
 cmake_tests/_scripts/tests_02_build_mode.sh -text
 cmake_tests/changelog.txt -text
+cmake_tests/config/environment_user.vars.in -text
 cmake_tests/test_all.cmake -text
 cmake_tests/tests_01_script_mode.cmake -text
 cmake_tests/tests_01_script_mode/tests_01_builtins/tests_01_expansion/01_string.test.cmake -text
@@ -178,6 +180,7 @@ cmake_tests/tests_01_script_mode/tests_09_Handlers/81_custom_macro_in_function_w
 cmake_tests/tests_01_script_mode/tests_09_Handlers/82_custom_macro_in_function_with_mixed_add_remove_function_pre_handlers.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_09_Handlers/83_custom_macro_in_function_with_mixed_add_remove_macro_post_handlers.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_11_SetVarsFromFiles/01_variables_specialization/01_simple_set.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_11_SetVarsFromFiles/01_variables_specialization/refs/TestCase_set_01.vars -text
 cmake_tests/tests_01_script_mode/tests_11_SetVarsFromFiles/11_attributes_collision/01_basic.test.cmake -text
 cmake_tests/tests_02_build_mode.cmake -text
 config/.svnignore -text

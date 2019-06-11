@@ -34,6 +34,7 @@ cmake_minimum_required(VERSION 3.13)
 #
 
 include(tacklelib/Std)
+include(tacklelib/Checks)
 include(tacklelib/ForwardVariables)
 include(tacklelib/Version)
 
@@ -166,6 +167,10 @@ include(tacklelib/Version)
 #   The same as in `tkl_set_vars_from_files` function.
 #
 macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
+  if (${ARGC} GREATER 32)
+    message(FATAL_ERROR "maximum 32 arguments is supported")
+  endif()
+
   tkl_load_vars_from_files_impl_init()
   tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
@@ -175,7 +180,7 @@ macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_var_from_ARGV_end("${ARGN}" _50FABB52_argn)
+  tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_load_vars_from_files_impl()
   unset(_50FABB52_argn)
@@ -225,11 +230,20 @@ make_vars\;.\;.\;."
     message(FATAL_ERROR "function function must be called at least with 1 variadic argument: argn_len=${argn_len} argn_index=${argn_index}")
   endif()
 
-  # CMAKE_BUILD_TYPE consistency check
-  tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
+  # Parent variable are saved, now can create local variables!
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+
+  if (NOT is_in_script_mode)
+    # CMAKE_BUILD_TYPE consistency check, in case if not script mode
+    tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
+  endif()
 
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
+
+  if (file_paths STREQUAL "")
+    message(FATAL_ERROR "file_paths argument is not defined")
+  endif()
 
   if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
     message("* Loading variables from `${file_paths}`...")
@@ -333,6 +347,10 @@ endfunction()
 # CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:          Top package source directory.
 #
 macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
+  if (${ARGC} GREATER 32)
+    message(FATAL_ERROR "maximum 32 arguments is supported")
+  endif()
+
   if (NOT ${ARGC} GREATER_EQUAL 6)
     message(FATAL_ERROR "function must be called at least with 6 not optional arguments: ${ARGC}")
   endif()
@@ -371,6 +389,10 @@ macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
+  if (${ARGC} GREATER 32)
+    message(FATAL_ERROR "maximum 32 arguments is supported")
+  endif()
+
   # we must recollect arguments here, because this implementation can be used separately with standalone arguments
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
@@ -380,7 +402,7 @@ macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
   #tkl_print_ARGV()
-  tkl_make_vars_from_ARGV_ARGN_end("" _50FABB52_argn)
+  tkl_make_vars_from_ARGV_ARGN_end(. _50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_macro()
   unset(_50FABB52_argn)
@@ -487,6 +509,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
+  if (file_paths STREQUAL "")
+    message(FATAL_ERROR "file_paths argument is not defined")
+  endif()
+
   list(GET _50FABB52_argn ${argn_index} os_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
@@ -499,7 +525,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(GET _50FABB52_argn ${argn_index} arch_name) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
-  list(GET list_separator_char _50FABB52_argn ${argn_index}) # discardes ;-escaping
+  list(GET _50FABB52_argn ${argn_index} list_separator_char) # discardes ;-escaping
   math(EXPR argn_index "${argn_index}+1")
 
   set(use_vars_late_expansion 0)
@@ -821,6 +847,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   foreach (file_path IN LISTS file_paths)
     math(EXPR file_path_index "${file_path_index}+1")
 
+    if (file_path STREQUAL "")
+      message(FATAL_ERROR "file_paths contains an empty path: file_paths=`${file_paths}`")
+    endif()
+
     # reset special injected variables
     get_filename_component(file_path_abs "${file_path}" ABSOLUTE)
     get_filename_component(file_dir_path "${file_path_abs}" DIRECTORY)
@@ -914,7 +944,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       list(GET var_name_token_list ${var_name_token_list_last_index} var_name)
 
-      if (NOT var_name)
+      if (var_name STREQUAL "")
         message(FATAL_ERROR "invalid variable token: [${var_file_content_line}] `${var_token}`")
       endif()
 
@@ -2002,12 +2032,17 @@ function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
     message(FATAL_ERROR "function must be called at least with 4 not optional arguments: ${ARGC}")
   endif()
 
-  # CMAKE_CONFIGURATION_TYPES consistency check
-  tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
+  # Parent variable are saved, now can create local variables!
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+
+  if (NOT is_in_script_mode)
+    # CMAKE_CONFIGURATION_TYPES consistency check, in case if not script mode
+    tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
+  endif()
 
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  tkl_make_vars_from_ARGV_ARGN_end("" argn)
+  tkl_make_vars_from_ARGV_ARGN_end(. argn)
 
   set(argn_index 0)
 
