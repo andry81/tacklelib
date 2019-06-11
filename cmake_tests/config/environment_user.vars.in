@@ -1,0 +1,11 @@
+#%% version: 1
+
+EXTERNAL_TOOLS_BASE_DIR="c:/build/tacklelib"
+
+CMAKE_PLATFORM_ARCH_LIST:WIN:::X86="win32"
+CMAKE_PLATFORM_ARCH_LIST:WIN:::X64="win64"
+
+CMAKE_EXE_LIST=(
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_14_x/kitware/$/{CMAKE_PLATFORM_ARCH}/3.14.0/bin/cmake.exe"
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_14_x/kitware/$/{CMAKE_PLATFORM_ARCH}/3.14.5/bin/cmake.exe"
+)

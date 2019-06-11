@@ -1,3 +1,9 @@
+2019.06.11:
+* fixed: multiple fixes for simple usage of `SetVarsFromFiles.cmake` module
+* fixed: `invalid variable name token` message (`SetVarsFromFiles.cmake`)
+* new: commonly used check functions from the `Project.cmake` and the `SetVarsFromFile.cmake` modules extracted into the `Checks.cmake` module
+* changed: minor `testlib` changes (`TestLib.cmake`, `TestModule.cmake`)
+
 2019.06.08:
 * fixed: completely reverese engineered a cmake expansion rules in different contexts (macro/function/list/foreach/and so on), removed not actually needed functions
 * fixed: `tkl_track_vars_begin`/`tkl_track_vars_end` inside `tkl_eval_end` usage (`Eval.cmake`)

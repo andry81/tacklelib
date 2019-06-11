@@ -1,3 +1,10 @@
+2019.06.11:
+* fixed: cmake: multiple fixes for simple usage of `SetVarsFromFiles.cmake` module
+* fixed: cmake: `invalid variable name token` message (`SetVarsFromFiles.cmake`)
+* new: cmake: commonly used check functions from the `Project.cmake` and the `SetVarsFromFile.cmake` modules extracted into the `Checks.cmake` module
+* new: cmake_tests: `tests_11_SetVarsFromFiles` tests
+* changed: cmake: minor `testlib` changes (`TestLib.cmake`, `TestModule.cmake`)
+
 2019.06.09:
 * fixed: scripts: `tkl_include` early variables stack pop from a random `source` command instead in the function `tkl_include_local_impl` after the `trap "..." RETURN` command (trap have to be avoided here).
 * changed: scripts:  [finished] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
