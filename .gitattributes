@@ -126,6 +126,11 @@ cmake_tests/tests_01_script_mode/tests_04_ForwardVariables/03_track_vars/01_plai
 cmake_tests/tests_01_script_mode/tests_04_ForwardVariables/03_track_vars/11_nested.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_05_TestLib/01_escape_test_assert_string.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_05_TestLib/02_assert_expressions.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_List/01_list_join.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_List/11_list_get.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_List/21_list_remove.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_List/31_list_sublist.test.cmake -text
+cmake_tests/tests_01_script_mode/tests_06_List/41_list_remove_sublist.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_07_File/tests_01_file_encode_strings/01_basic_test_win_eols.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_07_File/tests_01_file_encode_strings/02_basic_test_unix_eols.test.cmake -text
 cmake_tests/tests_01_script_mode/tests_07_File/tests_01_file_encode_strings/03_basic_test_mac_eols.test.cmake -text
