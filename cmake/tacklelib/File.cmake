@@ -118,50 +118,64 @@ endfunction()
 #
 # CAUTION:
 #   The `file(STRINGS` and some other functions has deep sitting issues which prevents to write reliable and consistent parsers:
-#   https://gitlab.kitware.com/cmake/cmake/issues/19156: `Not paired `]` or `[` characters breaks "file(STRINGS"`
-#   https://gitlab.kitware.com/cmake/cmake/issues/18946: `;-escape list implicit unescaping`
-#   To bypass the first issue we have to replace all `[` and `]` characters by a special sequence to enclose single standing characters
-#   by respective opposite character in a pair.
+#   https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
+#   https://gitlab.kitware.com/cmake/cmake/issues/18946 : `;-escape list implicit unescaping`
+#
+#   1. To bypass the first issue we have to replace all `[` and `]` characters by a special sequence to enclose single standing characters
+#      by respective opposite character in a pair.
+#   2. To bypass the issue with line trailing `\` character, we have to replace all `\` characters to a placeholder.
+#   3. Each placeholder should contain different characters on both endings to avoid accidental wrong replacement in the decode function.
 #
 function(tkl_file_encode_strings out_var file_path)
-  _file(STRINGS "${file_path}" file_content)
+  # CAUTION:
+  #   The `file(READ ...)` is instead of `file(STRINGS ...)`, because the first one is broken and
+  #   CAN NOT properly handle a trailing `\` character before the line return!
+  #
+  _file(READ "${file_path}" file_content)
 
   # WORKAROUND: we have to replace because `file(STRINGS` does a break on not closed `]` or `[` characters
-  string(REPLACE "\\?" "?0?" file_content "${file_content}")
-  string(REPLACE "\\[" "?1?" file_content "${file_content}")
-  string(REPLACE "\\]" "?2?" file_content "${file_content}")
+  string(REPLACE "?" "?0" file_content "${file_content}")
+  string(REPLACE "[" "?1" file_content "${file_content}") # CAUTION: required for both `file(STRINGS ...)` and `file(READ ...)`
+  string(REPLACE "]" "?2" file_content "${file_content}") # CAUTION: required for both `file(STRINGS ...)` and `file(READ ...)`
+  string(REPLACE "\\" "?3" file_content "${file_content}")
+  string(REPLACE ";" "\;" file_content "${file_content}")
+  # to support EOL of all 3 systems: WIN, UNIX and MAC
+  string(REPLACE "\n\r" ";" file_content "${file_content}") # WIN
+  string(REPLACE "\n" ";" file_content "${file_content}")   # UNIX
+  string(REPLACE "\r" ";" file_content "${file_content}")   # MAC
 
   set(${out_var} "${file_content}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_file_decode_string out_var str)
-  string(REPLACE "\\?0\\?" "?" str "${str}")
-  string(REPLACE "\\?1\\?" "[" str "${str}")
-  string(REPLACE "\\?2\\?" "]" str "${str}")
+  string(REPLACE "?0" "?" str "${str}")
+  string(REPLACE "?1" "[" str "${str}")
+  string(REPLACE "?2" "]" str "${str}")
+  string(REPLACE "?3" "\\" str "${str}")
 
   set(${out_var} "${str}" PARENT_SCOPE)
 endfunction()
 
-# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+# To avoid escaping for a `file` macro arguments is reimplemented at the end of this file.
 #
 function(tkl_file_append file_path str)
   _file(APPEND "${file_path}" "${str}" ${ARGN})
 endfunction()
 
-# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+# To avoid escaping for a `file` macro arguments is reimplemented at the end of this file.
 #
 function(tkl_file_write file_path str)
   _file(WRITE "${file_path}" "${str}" ${ARGN})
 endfunction()
 
-# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+# To avoid escaping for a `file` macro arguments is reimplemented at the end of this file.
 #
 function(tkl_file_read out_var file_path)
   _file(READ "${file_path}" file_content ${ARGN})
   set(${out_var} "${file_content}" PARENT_SCOPE)
 endfunction()
 
-# To avoid escaping for a `file` macro arguments reimplemented at the end of this file.
+# To avoid escaping for a `file` macro arguments is reimplemented at the end of this file.
 #
 function(tkl_file_append_from_file to_file_path from_file_path prefix_str suffix_str)
   tkl_file_read(file_content "${from_file_path}" OFFSET 0)

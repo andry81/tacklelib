@@ -6,7 +6,7 @@ include(tacklelib/File)
 include(tacklelib/MakeTemp)
 
 function(tkl_make_ret_code_file_dir dir_path_abs_var)
-  tkl_make_basic_timestamp_temp_dir(dir_path_abs "CMake.RetCode." 8)
+  tkl_make_basic_timestamp_temp_dir(dir_path_abs "CMake.RetCode" 8)
   set(file_path_abs "${dir_path_abs}/ret_code.var")
   tkl_file_write("${file_path_abs}" "") # not set yet
   #file(LOCK "${dir_path_abs}" DIRECTORY RELEASE)

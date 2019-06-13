@@ -1,9 +1,7 @@
-function(dbg_message msg)
-  message("${msg}")
-endfunction()
+#tkl_enable_test_dbg_message()
 
 function(HellowTestWorld)
-  dbg_message("TODO!")
+  tkl_test_dbg_message("TODO!")
   tkl_test_assert_true(1)
 endfunction()
 

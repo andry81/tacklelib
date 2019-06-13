@@ -473,6 +473,11 @@ function(tkl_testlib_test test_dir test_file_name)
     set(test_file_name_ext "${test_file_name}.cmake")
   endif()
 
+  set(test_file_name_prefix "${test_file_name}")
+  if ("${test_file_name_prefix}" MATCHES "^[^\\.]+")
+    set(test_file_name_prefix "${CMAKE_MATCH_0}")
+  endif()
+
   set(test_file_path "${test_file_dir}/${test_file_name_ext}")
 
   #message("tkl_testlib_test: ${test_file_path}")
@@ -513,6 +518,8 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX=${test_file_name_prefix}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_EXT=${test_file_name_ext}"
         "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
         -P
         "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
@@ -532,6 +539,8 @@ function(tkl_testlib_test test_dir test_file_name)
         "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"
         "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX=${test_file_name_prefix}"
+        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_EXT=${test_file_name_ext}"
         "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
         -P
         "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"

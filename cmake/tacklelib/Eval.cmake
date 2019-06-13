@@ -60,7 +60,7 @@ function(tkl_eval_begin include_file_name str)
     message(FATAL_ERROR "function must have 2 arguments")
   endif()
 
-  tkl_make_basic_timestamp_temp_dir(eval_temp_dir_path "CMake.Eval." 8)
+  tkl_make_basic_timestamp_temp_dir(eval_temp_dir_path "CMake.Eval" 8)
 
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval" "${eval_temp_dir_path}")
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval" "${include_file_name}")

@@ -1,9 +1,7 @@
-function(dbg_message msg)
-  #message("${msg}")
-endfunction()
+#tkl_enable_test_dbg_message()
 
 function(test_inner_func)
-  dbg_message("ARGV=${ARGV} ARGC=${ARGC} ARGV0=${ARGV0} ARGV1=${ARGV1}")
+  tkl_test_dbg_message("ARGV=${ARGV} ARGC=${ARGC} ARGV0=${ARGV0} ARGV1=${ARGV1}")
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" argv argn)
   tkl_make_vars_from_ARGV_ARGN_end(argv argn)
 

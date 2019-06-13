@@ -26,13 +26,6 @@ function(tkl_escape_string_before_list_append out_var in_str)
   set(${out_var} "${out_str}" PARENT_SCOPE)
 endfunction()
 
-# Used to be called before:
-#   `string(SUBSTRING ...)`
-function(tkl_escape_string_after_string_substring out_var in_str)
-  string(REPLACE ";" "\;" out_str "${in_str}")
-  set(${out_var} "${out_str}" PARENT_SCOPE)
-endfunction()
-
 # CAUTION:
 #   Must be a function to avoid expansion of variable arguments like:
 #   * `${...}` into a value

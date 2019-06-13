@@ -396,7 +396,7 @@ tkl_register_implementation(\"${keyword_declarator}\" \"${gen_func_name}\")
       include("${_3528D0E3_handlers_temp_dir_path}/include.cmake")
     endmacro()
 
-    tkl_make_basic_timestamp_temp_dir(_EBC697D4_handlers_temp_dir_path "CMake.EnableHandlers.${func_name}." 8)
+    tkl_make_basic_timestamp_temp_dir(_EBC697D4_handlers_temp_dir_path "CMake.EnableHandlers.${func_name}" 8)
 
     # builtin variables for the `${func_name}` function handlers self testing from the `TestLib`
     set(TACKLELIB_HANDLERS_LAST_TEMP_DIR_PATH "${_EBC697D4_handlers_temp_dir_path}")

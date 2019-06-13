@@ -1,15 +1,13 @@
 include(tacklelib/ForwardArgs)
 
-function(dbg_message msg)
-  #message("${msg}")
-endfunction()
+#tkl_enable_test_dbg_message()
 
 function(test_func)
-  dbg_message("ARGV=${ARGV}")
+  tkl_test_dbg_message("ARGV=${ARGV}")
   tkl_push_ARGVn_to_stack_from_vars()
-  dbg_message("ARGV=${ARGV}")
+  tkl_test_dbg_message("ARGV=${ARGV}")
   tkl_pushset_ARGVn_to_stack(a b "" "")
-  dbg_message("ARGV=${ARGV}")
+  tkl_test_dbg_message("ARGV=${ARGV}")
 
   tkl_test_assert_true("ARGV STREQUAL \"a;b;;\"" "ARGV=${ARGV}")
   if (ARGV STREQUAL "a;b;;")
@@ -54,7 +52,7 @@ function(test_func)
   endif()
 
   tkl_pop_ARGVn_from_stack()
-  dbg_message("ARGV=${ARGV} ARGV=${ARGV}")
+  tkl_test_dbg_message("ARGV=${ARGV} ARGV=${ARGV}")
 
   tkl_test_assert_true("ARGV STREQUAL \"1;2;3\"" "ARGV=${ARGV}")
   if (ARGV STREQUAL "1;2;3")
