@@ -183,11 +183,18 @@ macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
   tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_load_vars_from_files_impl()
+
   unset(_50FABB52_argn)
+
+  tkl_load_vars_from_files_impl_uninit()
 endmacro()
 
 macro(tkl_load_vars_from_files_impl_init)
   tkl_set_vars_from_files_impl_init()
+endmacro()
+
+macro(tkl_load_vars_from_files_impl_uninit)
+  tkl_set_vars_from_files_impl_uninit()
 endmacro()
 
 function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
@@ -239,7 +246,7 @@ make_vars\;.\;.\;."
   endif()
 
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   if (file_paths STREQUAL "")
     message(FATAL_ERROR "file_paths argument is not defined")
@@ -368,24 +375,35 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_func()
+
   unset(_50FABB52_argn)
+
+  tkl_set_vars_from_files_impl_uninit()
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
-  tkl_copy_vars(parent_all_vars_list parent_vars_list parent_var_values_list _5A06EEFA_)
+  tkl_copy_vars(_5A06EEFA_parent_all_vars_list _5A06EEFA_parent_vars_list _5A06EEFA_parent_var_values_list _5A06EEFA_)
 
-  #list(LENGTH parent_vars_list parent_vars_list_len)
-  #list(LENGTH parent_var_values_list parent_var_values_list_len)
-  #message("[${parent_vars_list_len}] parent_vars_list=${parent_vars_list}")
-  #message("[${parent_var_values_list_len}] parent_var_values_list=${parent_var_values_list}")
+  #list(LENGTH _5A06EEFA_parent_vars_list _5A06EEFA_parent_vars_list_len)
+  #list(LENGTH _5A06EEFA_parent_var_values_list _5A06EEFA_parent_var_values_list_len)
+  #message("[${_5A06EEFA_parent_vars_list_len}] _5A06EEFA_parent_vars_list=${_5A06EEFA_parent_vars_list}")
+  #message("[${_5A06EEFA_parent_var_values_list_len}] _5A06EEFA_parent_var_values_list=${_5A06EEFA_parent_var_values_list}")
 
   # Parent variable are saved, now can create local variables!
-  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  tkl_get_cmake_role(_5A06EEFA_is_in_script_mode SCRIPT)
 
-  if (NOT is_in_script_mode)
+  if (NOT _5A06EEFA_is_in_script_mode)
     # CMAKE_CONFIGURATION_TYPES consistency check, in case if not script mode
     tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
   endif()
+
+  unset(_5A06EEFA_is_in_script_mode)
+endmacro()
+
+macro(tkl_set_vars_from_files_impl_uninit) # WITH OUT ARGUMENTS!
+  unset(_5A06EEFA_parent_all_vars_list)
+  unset(_5A06EEFA_parent_vars_list)
+  unset(_5A06EEFA_parent_var_values_list)
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
@@ -501,38 +519,38 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   endif()
 
   # always used set of arguments
-  math(EXPR args_max_size "${argn_index}+6")
+  math(EXPR args_max_size ${argn_index}+6)
   if (argn_len LESS args_max_size)
     message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
   endif()
 
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   if (file_paths STREQUAL "")
     message(FATAL_ERROR "file_paths argument is not defined")
   endif()
 
   list(GET _50FABB52_argn ${argn_index} os_name) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   list(GET _50FABB52_argn ${argn_index} compiler_name) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   list(GET _50FABB52_argn ${argn_index} config_name) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   list(GET _50FABB52_argn ${argn_index} arch_name) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   list(GET _50FABB52_argn ${argn_index} list_separator_char) # discardes ;-escaping
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   set(use_vars_late_expansion 0)
 
   if (NOT argn_len EQUAL argn_index)
     # set of trailing optional arguments either not used or used all together
-    math(EXPR args_max_size "${argn_index}+4")
+    math(EXPR args_max_size ${argn_index}+4)
 
     if (argn_len LESS args_max_size)
       message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
@@ -541,16 +559,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(use_vars_late_expansion 1)
 
     tkl_list_get(out_var_config_gen_var_lines_list _50FABB52_argn ${argn_index})
-    math(EXPR argn_index "${argn_index}+1")
+    math(EXPR argn_index ${argn_index}+1)
 
     tkl_list_get(out_var_config_gen_vars_list _50FABB52_argn ${argn_index})
-    math(EXPR argn_index "${argn_index}+1")
+    math(EXPR argn_index ${argn_index}+1)
 
     tkl_list_get(out_var_config_gen_names_list _50FABB52_argn ${argn_index})      # single ;-escaped configuration names list per variable, the `*` name means `all others`
-    math(EXPR argn_index "${argn_index}+1")
+    math(EXPR argn_index ${argn_index}+1)
 
     tkl_list_get(out_var_config_gen_values_list _50FABB52_argn ${argn_index})     # double ;-escaped values list per configuration name per variable
-    math(EXPR argn_index "${argn_index}+1")
+    math(EXPR argn_index ${argn_index}+1)
   endif()
 
   if (NOT config_name STREQUAL "")
@@ -728,7 +746,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_var_names "")
   endif()
 
-  math(EXPR config_load_index "${config_load_index}+1")
+  math(EXPR config_load_index ${config_load_index}+1)
 
   # special injected variables
   set(injected_vars_list
@@ -772,7 +790,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(LENGTH make_vars_values make_vars_values_len)
 
   foreach (make_var_name IN LISTS make_vars_names)
-    math(EXPR make_var_name_index "${make_var_name_index}+1")
+    math(EXPR make_var_name_index ${make_var_name_index}+1)
 
     if (make_var_name STREQUAL "")
       message(FATAL_ERROR "--make_vars must not use empty variable names")
@@ -845,7 +863,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   set(file_path_index -1)
 
   foreach (file_path IN LISTS file_paths)
-    math(EXPR file_path_index "${file_path_index}+1")
+    math(EXPR file_path_index ${file_path_index}+1)
 
     if (file_path STREQUAL "")
       message(FATAL_ERROR "file_paths contains an empty path: file_paths=`${file_paths}`")
@@ -907,483 +925,556 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     set(var_file_content_line 0)
 
+    # to track not closed character sequences
+    set(open_sequence_var_file_content_line 0)
+    set(open_sequence_var_token_suffix_to_process "")
+    set(open_sequence_var_line "")
+    set(open_sequence_this_file_line "")
+
+    # state machine parser flags and intermediate values for multiline variables
+    set(is_continue_parse_var_value 0)
+
     foreach (var_line IN LISTS file_content)
       math(EXPR var_file_content_line ${var_file_content_line}+1)
 
-      # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-      tkl_escape_string_after_list_get(var_line "${var_line}")
-
       tkl_file_decode_string(var_line "${var_line}")
 
-      if((NOT var_line MATCHES "^[^#\"]+=") OR (NOT var_line MATCHES "([^=]+)=(.*)"))
-        continue()
-      endif()
+      #message("[${var_file_content_line}] {${is_continue_parse_var_value}}  => `${var_line}`")
 
-      string(STRIP "${CMAKE_MATCH_1}" var_token)
-      string(STRIP "${CMAKE_MATCH_2}" var_value)
-      string(LENGTH "${var_token}" var_token_len)
-      string(LENGTH "${var_value}" var_value_len)
+      # NOTE:
+      #   We have to skip all variable name and related specialization checks here,
+      #   if we already checked that and just continue to parse a variable's value.
+      #
 
-      # parse variable name at first
-      if (NOT var_token MATCHES "([^:]+):?([^:]*)?:?([^:]*)?:?([^:]*)?:?([^:]*)?")
-        message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
+      if (NOT is_continue_parse_var_value)
+        if((NOT var_line MATCHES "^[^#\"]+=") OR (NOT var_line MATCHES "([^=]+)=(.*)"))
+          # not empty and con commented line is an error
+          set(var_line_valid_chars_filtered "${var_line}")
+          if (var_line_valid_chars_filtered MATCHES "([^#]*)")
+            set(var_line_valid_chars_filtered "${CMAKE_MATCH_1}")
+          endif()
+          string(STRIP "${var_line_valid_chars_filtered}" var_line_valid_chars_filtered)
+          if (NOT var_line_valid_chars_filtered STREQUAL "")
+            message(WARNING "invalid variable token: [${var_file_content_line}] `${CMAKE_MATCH_1}`")
+          endif()
 
-      string(STRIP "${CMAKE_MATCH_1}" var_name_token)
-      string(STRIP "${CMAKE_MATCH_2}" var_os_name)
-      string(STRIP "${CMAKE_MATCH_3}" var_compiler_name)
-      string(STRIP "${CMAKE_MATCH_4}" var_config_name)
-      string(STRIP "${CMAKE_MATCH_5}" var_arch_name)
-
-      # extract name attributes (leading name tokens) from name token
-      string(REGEX REPLACE "[ \t]+" ";" var_name_token_list "${var_name_token}")
-
-      list(LENGTH var_name_token_list var_name_token_list_len)
-      math(EXPR var_name_token_list_last_index "${var_name_token_list_len}-1")
-
-      list(GET var_name_token_list ${var_name_token_list_last_index} var_name)
-
-      if (var_name STREQUAL "")
-        message(FATAL_ERROR "invalid variable token: [${var_file_content_line}] `${var_token}`")
-      endif()
-
-      if (NOT DEFINED config_${var_name}_defined)
-        set(config_${var_name}_defined 0)
-      endif()
-
-      set(var_type "")
-
-      # non exclusive cmake cache set, not cache value does set too
-      set(use_cache_var 0)
-
-      # exclusive cmake cache set, a not cache value does remove, all other variable types must not be declared
-      set(use_only_cache_var 0)
-
-      # cache with force, has meaning only together with the cache attribute
-      set(use_force_cache_var 0)
-
-      # force to set a value without a check on collision or assign validation
-      set(use_force_var 0)
-
-      # non exclusive cmake environment variable set, all other variable types does set too
-      set(use_env_var 0)
-
-      # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
-      set(use_only_env_var 0)
-
-      # use top level variable to throw an error or ignore the assignment if a variable assignment is out of top level package
-      set(use_top_package_var 0)
-
-      # use final variable assignment to throw an error on next variable assignment
-      set(use_final_var 0)
-
-      # use variable overriding to the previous level variable
-      set(use_override_var 0)
-
-      if (use_all_top_package_var)
-        set(use_top_package_var 1)
-      endif()
-
-      if (use_all_final_var)
-        set(use_final_var 1)
-      endif()
-
-      if (use_all_override_var)
-        set(use_override_var 1)
-      endif()
-
-      if (var_name_token_list_len GREATER 1)
-        list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
-        string(TOUPPER "${var_name_attr_list}" var_name_attr_list_upper)
-
-        if (var_name_attr_list)
-          list(JOIN var_name_attr_list " " var_set_msg_name_attr_prefix_str)
-          set(var_set_msg_name_attr_prefix_str "${var_set_msg_name_attr_prefix_str} ")
-        else()
-          set(var_set_msg_name_attr_prefix_str "")
+          continue()
         endif()
 
-        # extract variable attributes
-        if ("BOOL" IN_LIST var_name_attr_list_upper)
-          set(var_type "bool")
-        elseif ("PATH" IN_LIST var_name_attr_list_upper)
-          set(var_type "path")
+        string(STRIP "${CMAKE_MATCH_1}" var_token)
+
+        # should strip ONLY from left side
+        set(var_value "${CMAKE_MATCH_2}")
+        string(REGEX REPLACE "^[ \t]+(.*)" "\\1" var_value "${var_value}")
+
+        string(LENGTH "${var_token}" var_token_len)
+        string(LENGTH "${var_value}" var_value_len)
+
+        # parse variable name at first
+        if (NOT var_token MATCHES "([^:]+):?([^:]*)?:?([^:]*)?:?([^:]*)?:?([^:]*)?")
+          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
+          continue()
         endif()
 
-        if ("CACHE_ONLY" IN_LIST var_name_attr_list_upper)
-          set(use_only_cache_var 1)
-        elseif ("CACHE" IN_LIST var_name_attr_list_upper)
-          set(use_cache_var 1)
+        string(STRIP "${CMAKE_MATCH_1}" var_name_token)
+        string(STRIP "${CMAKE_MATCH_2}" var_os_name)
+        string(STRIP "${CMAKE_MATCH_3}" var_compiler_name)
+        string(STRIP "${CMAKE_MATCH_4}" var_config_name)
+        string(STRIP "${CMAKE_MATCH_5}" var_arch_name)
+
+        # extract name attributes (leading name tokens) from name token
+        string(REGEX REPLACE "[ \t]+" ";" var_name_token_list "${var_name_token}")
+
+        list(LENGTH var_name_token_list var_name_token_list_len)
+        math(EXPR var_name_token_list_last_index ${var_name_token_list_len}-1)
+
+        list(GET var_name_token_list ${var_name_token_list_last_index} var_name)
+
+        string(REGEX REPLACE "[_a-zA-Z0-9]" "" var_name_valid_chars_filtered "${var_name}")
+
+        if (var_name STREQUAL "" OR (NOT var_name_valid_chars_filtered STREQUAL ""))
+          message(FATAL_ERROR "invalid variable token: [${var_file_content_line}] `${var_token}`")
         endif()
 
-        if ("FORCE_CACHE" IN_LIST var_name_attr_list_upper)
-          set(use_force_cache_var 1)
+        if (NOT DEFINED config_${var_name}_defined)
+          set(config_${var_name}_defined 0)
         endif()
 
-        if ("FORCE" IN_LIST var_name_attr_list_upper)
-          set(use_force_var 1)
-        endif()
+        set(var_type "")
 
-        if ("ENV_ONLY" IN_LIST var_name_attr_list_upper)
-          set(use_only_env_var 1)
-        elseif ("ENV" IN_LIST var_name_attr_list_upper)
-          set(use_env_var 1)
-        endif()
+        # non exclusive cmake cache set, not cache value does set too
+        set(use_cache_var 0)
 
-        if (NOT use_top_package_var AND "TOP" IN_LIST var_name_attr_list_upper)
+        # exclusive cmake cache set, a not cache value does remove, all other variable types must not be declared
+        set(use_only_cache_var 0)
+
+        # cache with force, has meaning only together with the cache attribute
+        set(use_force_cache_var 0)
+
+        # force to set a value without a check on collision or assign validation
+        set(use_force_var 0)
+
+        # non exclusive cmake environment variable set, all other variable types does set too
+        set(use_env_var 0)
+
+        # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
+        set(use_only_env_var 0)
+
+        # use top level variable to throw an error or ignore the assignment if a variable assignment is out of top level package
+        set(use_top_package_var 0)
+
+        # use final variable assignment to throw an error on next variable assignment
+        set(use_final_var 0)
+
+        # use variable overriding to the previous level variable
+        set(use_override_var 0)
+
+        if (use_all_top_package_var)
           set(use_top_package_var 1)
         endif()
 
-        if (NOT use_final_var AND "FINAL" IN_LIST var_name_attr_list_upper)
+        if (use_all_final_var)
           set(use_final_var 1)
         endif()
 
-        if (NOT use_override_var AND "OVERRIDE" IN_LIST var_name_attr_list_upper)
+        if (use_all_override_var)
           set(use_override_var 1)
         endif()
-      else()
-        set(var_name_attr_list "")
-        set(var_set_msg_name_attr_prefix_str "")
-      endif()
 
-      # unconditionally applicable checks before any filter...
+        if (var_name_token_list_len GREATER 1)
+          list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
+          string(TOUPPER "${var_name_attr_list}" var_name_attr_list_upper)
 
-      # cache_only + env_only
-      if (use_only_cache_var AND use_only_env_var)
-        message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: [${var_file_content_line}] `${var_token}`")
-      endif()
+          if (var_name_attr_list)
+            list(JOIN var_name_attr_list " " var_set_msg_name_attr_prefix_str)
+            set(var_set_msg_name_attr_prefix_str "${var_set_msg_name_attr_prefix_str} ")
+          else()
+            set(var_set_msg_name_attr_prefix_str "")
+          endif()
 
-      # force_cache without cache and cache_only
-      if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
-        message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
-      endif()
+          # extract variable attributes
+          if ("BOOL" IN_LIST var_name_attr_list_upper)
+            set(var_type "bool")
+          elseif ("PATH" IN_LIST var_name_attr_list_upper)
+            set(var_type "path")
+          endif()
 
-      # top + final
-      if (use_top_package_var AND use_final_var)
-        message(FATAL_ERROR "The variable TOP and FINAL attributes must not be used together: [${var_file_content_line}] `${var_token}`")
-      endif()
+          if ("CACHE_ONLY" IN_LIST var_name_attr_list_upper)
+            set(use_only_cache_var 1)
+          elseif ("CACHE" IN_LIST var_name_attr_list_upper)
+            set(use_cache_var 1)
+          endif()
 
-      # top with final reassign
-      if (config_${var_name}_defined AND config_${var_name}_top_package_var AND use_final_var)
-        message(FATAL_ERROR "The top variable can not be reassigned as a final variable: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
-      endif()
+          if ("FORCE_CACHE" IN_LIST var_name_attr_list_upper)
+            set(use_force_cache_var 1)
+          endif()
 
-      string(TOUPPER "${var_os_name}" var_os_name_upper)
-      string(TOUPPER "${var_compiler_name}" var_compiler_name_upper)
-      string(TOUPPER "${var_config_name}" var_config_name_upper)
-      string(TOUPPER "${var_arch_name}" var_arch_name_upper)
+          if ("FORCE" IN_LIST var_name_attr_list_upper)
+            set(use_force_var 1)
+          endif()
 
-      # not silent variable name ignore checks...
+          if ("ENV_ONLY" IN_LIST var_name_attr_list_upper)
+            set(use_only_env_var 1)
+          elseif ("ENV" IN_LIST var_name_attr_list_upper)
+            set(use_env_var 1)
+          endif()
 
-      # check variable token consistency
-      if (var_name STREQUAL "")
-        message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
+          if (NOT use_top_package_var AND "TOP" IN_LIST var_name_attr_list_upper)
+            set(use_top_package_var 1)
+          endif()
 
-      string(SUBSTRING "${var_name}" 0 1 char)
-      if (NOT char MATCHES "[_A-Za-z]")
-        message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
+          if (NOT use_final_var AND "FINAL" IN_LIST var_name_attr_list_upper)
+            set(use_final_var 1)
+          endif()
 
-      if (var_name MATCHES "[^_A-Za-z0-9]")
-        message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
+          if (NOT use_override_var AND "OVERRIDE" IN_LIST var_name_attr_list_upper)
+            set(use_override_var 1)
+          endif()
+        else()
+          set(var_name_attr_list "")
+          set(var_set_msg_name_attr_prefix_str "")
+        endif()
 
-      # silent variable name filter checks...
+        # unconditionally applicable checks before any filter...
 
-      # variable names include filter
-      if (include_vars_filter_list)
-        if (NOT var_name IN_LIST include_vars_filter_list)
-          # silent ignore not included variables
+        # cache_only + env_only
+        if (use_only_cache_var AND use_only_env_var)
+          message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: [${var_file_content_line}] `${var_token}`")
+        endif()
+
+        # force_cache without cache and cache_only
+        if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
+          message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): [${var_file_content_line}] `${var_token}`")
+        endif()
+
+        # top + final
+        if (use_top_package_var AND use_final_var)
+          message(FATAL_ERROR "The variable TOP and FINAL attributes must not be used together: [${var_file_content_line}] `${var_token}`")
+        endif()
+
+        # top with final reassign
+        if (config_${var_name}_defined AND config_${var_name}_top_package_var AND use_final_var)
+          message(FATAL_ERROR "The top variable can not be reassigned as a final variable: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+        endif()
+
+        string(TOUPPER "${var_os_name}" var_os_name_upper)
+        string(TOUPPER "${var_compiler_name}" var_compiler_name_upper)
+        string(TOUPPER "${var_config_name}" var_config_name_upper)
+        string(TOUPPER "${var_arch_name}" var_arch_name_upper)
+
+        # not silent variable name ignore checks...
+
+        # check variable token consistency
+        if (var_name STREQUAL "")
+          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
           continue()
         endif()
-      endif()
 
-      # variable names exclude filter
-      if (exclude_vars_filter_list)
-        if (var_name IN_LIST exclude_vars_filter_list)
-          # silent ignore excluded variables
+        string(SUBSTRING "${var_name}" 0 1 char)
+        if (NOT char MATCHES "[_A-Za-z]")
+          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
           continue()
         endif()
-      endif()
 
-      # check variable on a collision with builtin variable
-      foreach (injected_var_name IN LISTS injected_vars_list)
-        if (var_name STREQUAL injected_var_name)
-          message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+        if (var_name MATCHES "[^_A-Za-z0-9]")
+          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
+          continue()
         endif()
-      endforeach()
 
-      # other not silent ignore checks...
+        # silent variable name filter checks...
 
-      if (var_os_name STREQUAL "")
-        set(var_os_name_to_process "${os_name_to_filter}")
-      elseif ((var_os_name_upper STREQUAL "WIN") OR
-              (var_os_name_upper STREQUAL "UNIX") OR
-              (var_os_name_upper STREQUAL "APPLE"))
-        set(var_os_name_to_process "${var_os_name_upper}")
-      else()
-        message("warning: unsupported variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
+        # variable names include filter
+        if (include_vars_filter_list)
+          if (NOT var_name IN_LIST include_vars_filter_list)
+            # silent ignore not included variables
+            continue()
+          endif()
+        endif()
 
-      if (var_compiler_name_upper STREQUAL "")
-        set(var_compiler_name_to_process "${compiler_name_to_filter}")
-      elseif (var_compiler_name_upper MATCHES "([_A-Z]+)([0-9]+)?\\.?([0-9]+)?")
-        if ((CMAKE_MATCH_1 STREQUAL "MSVC") OR
-            (CMAKE_MATCH_1 STREQUAL "GCC") OR
-            (CMAKE_MATCH_1 STREQUAL "CLANG"))
-          set(var_compiler_name_to_process "${var_compiler_name_upper}")
+        # variable names exclude filter
+        if (exclude_vars_filter_list)
+          if (var_name IN_LIST exclude_vars_filter_list)
+            # silent ignore excluded variables
+            continue()
+          endif()
+        endif()
+
+        # check variable on a collision with builtin variable
+        foreach (injected_var_name IN LISTS injected_vars_list)
+          if (var_name STREQUAL injected_var_name)
+            message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+          endif()
+        endforeach()
+
+        # other not silent ignore checks...
+
+        if (var_os_name STREQUAL "")
+          set(var_os_name_to_process "${os_name_to_filter}")
+        elseif ((var_os_name_upper STREQUAL "WIN") OR
+                (var_os_name_upper STREQUAL "UNIX") OR
+                (var_os_name_upper STREQUAL "APPLE"))
+          set(var_os_name_to_process "${var_os_name_upper}")
+        else()
+          message("warning: unsupported variable token: [${var_file_content_line}] `${var_token}`")
+          continue()
+        endif()
+
+        if (var_compiler_name_upper STREQUAL "")
+          set(var_compiler_name_to_process "${compiler_name_to_filter}")
+        elseif (var_compiler_name_upper MATCHES "([_A-Z]+)([0-9]+)?\\.?([0-9]+)?")
+          if ((CMAKE_MATCH_1 STREQUAL "MSVC") OR
+              (CMAKE_MATCH_1 STREQUAL "GCC") OR
+              (CMAKE_MATCH_1 STREQUAL "CLANG"))
+            set(var_compiler_name_to_process "${var_compiler_name_upper}")
+          else()
+            message(WARNING "unsupported variable token: [${var_file_content_line}] `${var_token}`")
+            continue()
+          endif()
         else()
           message(WARNING "unsupported variable token: [${var_file_content_line}] `${var_token}`")
           continue()
         endif()
-      else()
-        message(WARNING "unsupported variable token: [${var_file_content_line}] `${var_token}`")
-        continue()
-      endif()
 
-      if (var_config_name STREQUAL "")
-        set(var_config_name_to_process "${config_name_to_filter}")
-      else()
-        string(SUBSTRING "${var_config_name_upper}" 0 1 char)
-        if (NOT char MATCHES "[_A-Z]")
-          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-          continue()
-        endif()
-
-        if (var_name MATCHES "[^_A-Z0-9]")
-          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
-          continue()
-        endif()
-
-        set(var_config_name_to_process "${var_config_name_upper}")
-      endif()
-
-      if (var_arch_name STREQUAL "")
-        set(var_arch_name_to_process "${arch_name_to_filter}")
-      elseif ((var_arch_name_upper STREQUAL "X86") OR
-              (var_arch_name_upper STREQUAL "X64"))
-        set(var_arch_name_to_process "${var_arch_name_upper}")
-      else()
-        message("warning: unsupported variable token: [${var_file_content_line}] `${arch_token}`")
-        continue()
-      endif()
-
-      # other silent ignore checks...
-
-      # os name filter is always defined even if was empty
-      if (NOT var_os_name_to_process STREQUAL "")
-        if (NOT os_name_to_filter STREQUAL "")
-          if(NOT var_os_name_to_process STREQUAL os_name_to_filter)
-            # silently ignore valid tokens that didn't pass the filter
+        if (var_config_name STREQUAL "")
+          set(var_config_name_to_process "${config_name_to_filter}")
+        else()
+          string(SUBSTRING "${var_config_name_upper}" 0 1 char)
+          if (NOT char MATCHES "[_A-Z]")
+            message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
             continue()
           endif()
-        elseif (ignore_statement_if_no_filter)
-          # silently ignore specialized tokens that does not have a filter specification
-          continue()
-        endif()
-      endif()
 
-      if (NOT var_compiler_name_to_process STREQUAL "")
-        if (NOT compiler_name_to_filter STREQUAL "")
-          tkl_compare_compiler_tokens("${var_compiler_name_to_process}" "${compiler_name_to_filter}" is_equal_config_compilers)
-          if (NOT is_equal_config_compilers)
-            # silently ignore valid tokens that didn't pass the filter
+          if (var_name MATCHES "[^_A-Z0-9]")
+            message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
             continue()
           endif()
-        elseif (ignore_statement_if_no_filter)
-          # silently ignore specialized tokens that does not have a filter specification
+
+          set(var_config_name_to_process "${var_config_name_upper}")
+        endif()
+
+        if (var_arch_name STREQUAL "")
+          set(var_arch_name_to_process "${arch_name_to_filter}")
+        elseif ((var_arch_name_upper STREQUAL "X86") OR
+                (var_arch_name_upper STREQUAL "X64"))
+          set(var_arch_name_to_process "${var_arch_name_upper}")
+        else()
+          message("warning: unsupported variable token: [${var_file_content_line}] `${arch_token}`")
           continue()
         endif()
-      endif()
 
-      if (NOT is_config_name_value_can_late_expand)
-        if (NOT var_config_name_to_process STREQUAL "")
-          if (NOT config_name_to_filter STREQUAL "")
-            if (NOT var_config_name_to_process STREQUAL config_name_to_filter)
+        # other silent ignore checks...
+
+        # os name filter is always defined even if was empty
+        if (NOT var_os_name_to_process STREQUAL "")
+          if (NOT os_name_to_filter STREQUAL "")
+            if(NOT var_os_name_to_process STREQUAL os_name_to_filter)
               # silently ignore valid tokens that didn't pass the filter
               continue()
             endif()
-          elseif (ignore_statement_if_no_filter OR ignore_statement_if_no_filter_config_name)
+          elseif (ignore_statement_if_no_filter)
             # silently ignore specialized tokens that does not have a filter specification
             continue()
           endif()
         endif()
-      elseif (NOT var_config_name_to_process STREQUAL "" AND ignore_late_expansion_statements)
-        # ignore tokens with late expansion
-        continue()
-      endif()
 
-      if (NOT var_arch_name_to_process STREQUAL "")
-        if (NOT arch_name_to_filter STREQUAL "")
-          if (NOT var_arch_name_to_process STREQUAL arch_name_to_filter)
-            # silently ignore valid tokens that didn't pass the filter
-            continue()
-          endif()
-        elseif (ignore_statement_if_no_filter)
-          # silently ignore specialized tokens that does not have a filter specification
-          continue()
-        endif()
-      endif()
-
-      if (config_${var_name}_defined AND NOT use_override_var)
-        # is another package variable?
-        if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-          # variable is not from top level package, ignore it
-
-          if (config_${var_name}_top_package_var AND NOT use_top_package_var)
-            # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
-            message(FATAL_ERROR "The top level variable is assigned w/o `override` attribute in a not top level configuration: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-          elseif (NOT config_${var_name}_top_package_var AND use_top_package_var)
-            # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
-            message(FATAL_ERROR "The not top level variable is assigned w/ `top` attribute (and w/o `override` attribute) but has been declared w/o `top` attribute: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-          endif()
-
-          if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
-            # a top only variable is not from a top level package, ignore it
-            continue()
-          endif()
-
-          # assignment implicit ignore
-          if (use_all_ignore_var)
+        if (NOT var_compiler_name_to_process STREQUAL "")
+          if (NOT compiler_name_to_filter STREQUAL "")
+            tkl_compare_compiler_tokens("${var_compiler_name_to_process}" "${compiler_name_to_filter}" is_equal_config_compilers)
+            if (NOT is_equal_config_compilers)
+              # silently ignore valid tokens that didn't pass the filter
+              continue()
+            endif()
+          elseif (ignore_statement_if_no_filter)
+            # silently ignore specialized tokens that does not have a filter specification
             continue()
           endif()
         endif()
-      endif()
 
-      set(is_var_in_ODR_check_list 0)
-
-      # check variable on a collision to prevent the assignment
-      set(do_collision_check 1)
-
-      if (grant_assign_for_vars_list)
-        foreach(grant_var_name IN LISTS grant_assign_for_vars_list)
-          if (grant_var_name STREQUAL var_name)
-            set(do_collision_check 0)
-            break()
-          endif()
-        endforeach()
-      endif()
-
-      if (do_collision_check AND config_${var_name}_has_values_onchange_list AND
-          grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
-        set(onchange_var_name_index -1)
-        list(LENGTH config_${var_name}_var_values_onchange_list onchange_var_values_len)
-
-        foreach(onchange_var_name IN LISTS grant_assign_on_vars_change_list)
-          math(EXPR onchange_var_name_index "${onchange_var_name_index}+1")
-
-          if (onchange_var_name_index LESS onchange_var_values_len)
-            tkl_list_get(onchange_var_prev_value config_${var_name}_var_values_onchange_list ${onchange_var_name_index})
-          else()
-            set(onchange_var_prev_value "")
-          endif()
-
-          if (DEFINED config_${onchange_var_name})
-            set(onchange_var_value "${config_${onchange_var_name}}")
-          else()
-            set(onchange_var_value "*\$/{${onchange_var_name}}")
-          endif()
-
-          #message("${onchange_var_name} => `${onchange_var_prev_value}` -> `${onchange_var_value}`")
-
-          if (NOT onchange_var_value STREQUAL onchange_var_prev_value)
-            set(do_collision_check 0) # has changed
-            break()
-          endif()
-        endforeach()
-      endif()
-
-      if (do_collision_check)
-        if (config_${var_name}_defined)
-          #message("[${var_name}:${var_os_name}:${var_compiler_name}:${var_config_name}:${arch_name}] config_${var_name}_config_name=${config_${var_name}_config_name}")
-
-          # A variable is already assigned, but we have to check whether we can allow to specialize a variable, in case if the assignment is not explicitly granted.
-
-          if (grant_no_collision_check_assign_vars_assigned_in_files_list_c AND config_${var_name}_file_path_c IN_LIST grant_no_collision_check_assign_vars_assigned_in_files_list_c)
-            set(do_collision_check 0)
-          endif()
-
-          if (do_collision_check)
-            if (((config_${var_name}_os_name STREQUAL "") OR (NOT var_os_name STREQUAL "" AND config_${var_name}_os_name STREQUAL var_os_name)) AND
-                ((config_${var_name}_compiler_name STREQUAL "") OR (NOT var_compiler_name STREQUAL "" AND config_${var_name}_compiler_name STREQUAL var_compiler_name)) AND
-                ((config_${var_name}_config_name STREQUAL "") OR (NOT var_config_name STREQUAL "" AND config_${var_name}_config_name STREQUAL var_config_name)) AND
-                ((config_${var_name}_arch_name STREQUAL "") OR (NOT var_arch_name STREQUAL "" AND config_${var_name}_arch_name STREQUAL var_arch_name)) AND
-                # but in case of specialization something must be set to not empty and not equal with the previous
-                ((NOT var_os_name STREQUAL "" AND NOT config_${var_name}_os_name STREQUAL var_os_name) OR
-                 (NOT var_compiler_name STREQUAL "" AND NOT config_${var_name}_compiler_name STREQUAL var_compiler_name) OR
-                 (NOT var_config_name STREQUAL "" AND NOT config_${var_name}_config_name STREQUAL var_config_name) OR
-                 (NOT var_arch_name STREQUAL "" AND NOT config_${var_name}_arch_name STREQUAL var_arch_name)))
-              # is specialization, allow to change
-            else()
-              # is not specialization, deny change
-              message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+        if (NOT is_config_name_value_can_late_expand)
+          if (NOT var_config_name_to_process STREQUAL "")
+            if (NOT config_name_to_filter STREQUAL "")
+              if (NOT var_config_name_to_process STREQUAL config_name_to_filter)
+                # silently ignore valid tokens that didn't pass the filter
+                continue()
+              endif()
+            elseif (ignore_statement_if_no_filter OR ignore_statement_if_no_filter_config_name)
+              # silently ignore specialized tokens that does not have a filter specification
               continue()
             endif()
           endif()
-        elseif (var_name IN_LIST parent_vars_list)
-          if (grant_external_vars_assign_in_files_list_c AND file_path_c IN_LIST grant_external_vars_assign_in_files_list_c)
-            set (do_collision_check 0)
-          elseif (grant_external_vars_for_assign_list AND var_name IN_LIST grant_external_vars_for_assign_list)
-            set (do_collision_check 0)
-          endif()
+        elseif (NOT var_config_name_to_process STREQUAL "" AND ignore_late_expansion_statements)
+          # ignore tokens with late expansion
+          continue()
+        endif()
 
-          if (do_collision_check)
-            # we must check the variable's value on equality with outside value in case if no `force` attribute declared
-            if (NOT use_force_var)
-              set(is_var_in_ODR_check_list 1)
+        if (NOT var_arch_name_to_process STREQUAL "")
+          if (NOT arch_name_to_filter STREQUAL "")
+            if (NOT var_arch_name_to_process STREQUAL arch_name_to_filter)
+              # silently ignore valid tokens that didn't pass the filter
+              continue()
+            endif()
+          elseif (ignore_statement_if_no_filter)
+            # silently ignore specialized tokens that does not have a filter specification
+            continue()
+          endif()
+        endif()
+
+        # save current processing variable token
+        set(var_token_suffix_to_process "${var_os_name_to_process}:${var_compiler_name_to_process}:${var_config_name_to_process}:${var_arch_name_to_process}")
+        set(var_token_suffix "${var_os_name}:${var_compiler_name}:${var_config_name}:${var_arch_name}")
+
+        if (config_${var_name}_defined AND NOT use_override_var)
+          # is another package variable?
+          if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
+            # variable is not from top level package, ignore it
+
+            if (config_${var_name}_top_package_var AND NOT use_top_package_var)
+              # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
+              message(FATAL_ERROR "The top level variable is assigned w/o `override` attribute in a not top level configuration: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            elseif (NOT config_${var_name}_top_package_var AND use_top_package_var)
+              # error if a variable is assigned w/o `override` attribute in a not top level configuration but has been declared as a top level variable
+              message(FATAL_ERROR "The not top level variable is assigned w/ `top` attribute (and w/o `override` attribute) but has been declared w/o `top` attribute: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+
+            if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
+              # a top only variable is not from a top level package, ignore it
+              continue()
+            endif()
+
+            # assignment implicit ignore
+            if (use_all_ignore_var)
+              continue()
             endif()
           endif()
         endif()
+
+        set(is_var_in_ODR_check_list 0)
+
+        # check variable on a collision to prevent the assignment
+        set(do_collision_check 1)
+
+        if (grant_assign_for_vars_list)
+          foreach(grant_var_name IN LISTS grant_assign_for_vars_list)
+            if (grant_var_name STREQUAL var_name)
+              set(do_collision_check 0)
+              break()
+            endif()
+          endforeach()
+        endif()
+
+        if (do_collision_check AND config_${var_name}_has_values_onchange_list AND
+            grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
+          set(onchange_var_name_index -1)
+          list(LENGTH config_${var_name}_var_values_onchange_list onchange_var_values_len)
+
+          foreach(onchange_var_name IN LISTS grant_assign_on_vars_change_list)
+            math(EXPR onchange_var_name_index ${onchange_var_name_index}+1)
+
+            if (onchange_var_name_index LESS onchange_var_values_len)
+              tkl_list_get(onchange_var_prev_value config_${var_name}_var_values_onchange_list ${onchange_var_name_index})
+            else()
+              set(onchange_var_prev_value "")
+            endif()
+
+            if (DEFINED config_${onchange_var_name})
+              set(onchange_var_value "${config_${onchange_var_name}}")
+            else()
+              set(onchange_var_value "*\$/{${onchange_var_name}}")
+            endif()
+
+            #message("${onchange_var_name} => `${onchange_var_prev_value}` -> `${onchange_var_value}`")
+
+            if (NOT onchange_var_value STREQUAL onchange_var_prev_value)
+              set(do_collision_check 0) # has changed
+              break()
+            endif()
+          endforeach()
+        endif()
+
+        if (do_collision_check)
+          if (config_${var_name}_defined)
+            #message("[${var_name}:${var_os_name}:${var_compiler_name}:${var_config_name}:${arch_name}] config_${var_name}_config_name=${config_${var_name}_config_name}")
+
+            # A variable is already assigned, but we have to check whether we can allow to specialize a variable, in case if the assignment is not explicitly granted.
+
+            if (grant_no_collision_check_assign_vars_assigned_in_files_list_c AND config_${var_name}_file_path_c IN_LIST grant_no_collision_check_assign_vars_assigned_in_files_list_c)
+              set(do_collision_check 0)
+            endif()
+
+            if (do_collision_check)
+              if (((config_${var_name}_os_name STREQUAL "") OR (NOT var_os_name STREQUAL "" AND config_${var_name}_os_name STREQUAL var_os_name)) AND
+                  ((config_${var_name}_compiler_name STREQUAL "") OR (NOT var_compiler_name STREQUAL "" AND config_${var_name}_compiler_name STREQUAL var_compiler_name)) AND
+                  ((config_${var_name}_config_name STREQUAL "") OR (NOT var_config_name STREQUAL "" AND config_${var_name}_config_name STREQUAL var_config_name)) AND
+                  ((config_${var_name}_arch_name STREQUAL "") OR (NOT var_arch_name STREQUAL "" AND config_${var_name}_arch_name STREQUAL var_arch_name)) AND
+                  # but in case of specialization something must be set to not empty and not equal with the previous
+                  ((NOT var_os_name STREQUAL "" AND NOT config_${var_name}_os_name STREQUAL var_os_name) OR
+                   (NOT var_compiler_name STREQUAL "" AND NOT config_${var_name}_compiler_name STREQUAL var_compiler_name) OR
+                   (NOT var_config_name STREQUAL "" AND NOT config_${var_name}_config_name STREQUAL var_config_name) OR
+                   (NOT var_arch_name STREQUAL "" AND NOT config_${var_name}_arch_name STREQUAL var_arch_name)))
+                # is specialization, allow to change
+              else()
+                # is not specialization, deny change
+                message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                continue()
+              endif()
+            endif()
+          elseif (var_name IN_LIST _5A06EEFA_parent_vars_list)
+            if (grant_external_vars_assign_in_files_list_c AND file_path_c IN_LIST grant_external_vars_assign_in_files_list_c)
+              set (do_collision_check 0)
+            elseif (grant_external_vars_for_assign_list AND var_name IN_LIST grant_external_vars_for_assign_list)
+              set (do_collision_check 0)
+            endif()
+
+            if (do_collision_check)
+              # we must check the variable's value on equality with outside value in case if no `force` attribute declared
+              if (NOT use_force_var)
+                set(is_var_in_ODR_check_list 1)
+              endif()
+            endif()
+          endif()
+        endif()
+
+        # final (re)assign
+        if (config_${var_name}_defined AND config_${var_name}_final_var)
+          message(FATAL_ERROR "The variable is a final specialization variable which can not be reassigned or specialized anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+        endif()
+
+        # state machine parser flags and intermediate values
+        set(is_str_quote_open 0)      # "..."
+        set(is_list_bracket_open 0)   # bash shell style list: (...)
+        set(is_list_bracket_closed 0)
+        set(is_list_value 0)
+        set(is_next_list_value 0)     # to append `;` before a not empty value
+        set(is_subst_open 0)          # after `$/{`
+        set(prev_char "")
+        set(prev_char_escaped 0)
+
+        # CAUTION:
+        #   We DO NOT use `list(APPEND ...)` for this variable, so we don't need to make an not empty initial value for it,
+        #   because `list(APPEND ...)` can not append an empty value to an empty list (needs not empty list at first place).
+        #   Instead we use `set` to make an append, so may leave it empty here.
+        #
+        set(var_values_list "")       # collect all values as a list by default
+
+        set(this_file_line "")
+      else()
+        if (is_subst_open)
+          message(FATAL_ERROR "internal parser error")
+        endif()
+
+        # append line return in a particular case
+        if (NOT is_next_char_to_escape AND is_str_quote_open)
+          set(var_values_list "${var_values_list}\n")
+        endif()
+
+        if (NOT is_next_char_to_escape)
+          set(prev_char "\n")
+          set(prev_char_escaped 1)
+
+          if (NOT is_str_quote_open)
+            if (NOT var_values_list STREQUAL "")
+              set(is_next_list_value 1)
+            endif()
+          endif()
+        endif()
+
+        set(var_value "${var_line}")
+        string(LENGTH "${var_value}" var_value_len)
       endif()
 
-      # final (re)assign
-      if (config_${var_name}_defined AND config_${var_name}_final_var)
-        message(FATAL_ERROR "The variable is a final specialization variable which can not be reassigned or specialized anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+      if (is_next_char_to_escape)
+        # pop open sequence context
+        tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+        tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+        tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+        tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
       endif()
 
-      # state machine value parser
+      # state machine parser flags and intermediate values, always resets irrespectively to multiline parser
       set(is_invalid_var_line 0)
-      set(is_str_quote_open 0)      # "..."
-      set(is_list_bracket_open 0)   # bash shell style: (...)
-      set(is_list_value 0)
-      set(is_next_char_to_escape 0) # `$/<char>`
-      set(is_subst_open 0)          # after `$/{`
+      set(is_invalid_open_sequence 0)
+      set(is_next_char_to_escape 0) # `$/<char>`, escape sequence does exist on a single line only
       set(value_from_index 0)
-      set(prev_char "")
-      set(prev_char_escaped 0)
-      set(last_record_char_index -1) # last record character index after which a record was added to the values's list
 
-      # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
-      set(var_values_list ";")        # collect all values as a list by default
-
-      set(var_last_substed_value "")  # last substitued variable's value
-
-      unset(this_file_line)
-
+      # a variable's values parse stage
       if (var_value_len)
-        math(EXPR var_value_len_range_max "${var_value_len}-1")
+        math(EXPR var_value_len_range_max ${var_value_len}-1)
 
         foreach (index RANGE ${var_value_len_range_max})
           string(SUBSTRING "${var_value}" ${index} 1 char)
 
-          #message(" - [${index}] `${prev_char}`->`${char}`: fi=${value_from_index} lri=${last_record_char_index} `\"`->${is_str_quote_open} `(`->${is_list_bracket_open} `\$/`->${is_next_char_to_escape} `\$/{`->${is_subst_open}")
+          #message(" - [${index}] `${prev_char}`->`${char}`: fi=${value_from_index} `\"`->${is_str_quote_open} `(`->${is_list_bracket_open} `\$/`->${is_next_char_to_escape} `\$/{`->${is_subst_open}")
 
           if (NOT is_next_char_to_escape)
             # special cases, must be processed separately
             if (NOT is_str_quote_open)
-              if (index AND (NOT char STREQUAL " " AND NOT char STREQUAL "\t"))
-                math(EXPR last_record_char_offset "${index}-${last_record_char_index}")
-                if (NOT prev_char_escaped AND ((last_record_char_offset EQUAL 1) OR (prev_char STREQUAL " " OR prev_char STREQUAL "\t")))
-                  # a list item start
-                  set(var_last_substed_value "")
-                  set(value_from_index ${index})
+              # register not white space character sequence begin
+              if ((NOT char STREQUAL " " AND NOT char STREQUAL "\t") AND
+                  (prev_char STREQUAL "" OR prev_char STREQUAL " " OR prev_char STREQUAL "\t" OR prev_char STREQUAL "\n"))
+                if (NOT var_values_list STREQUAL "")
+                  set(is_next_list_value 1)
                 endif()
+                set(value_from_index ${index})
               endif()
             endif()
 
@@ -1391,59 +1482,161 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
                 break()
               endif()
 
               if (NOT is_str_quote_open)
-                if (last_record_char_index LESS index AND
-                    NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t")
-                  math(EXPR last_record_char_offset "${index}-${last_record_char_index}")
-                  if (last_record_char_offset GREATER 1)
-                    # a list item end, record a value
-                    math(EXPR value_len "${index}-${value_from_index}")
-                    string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-
-                    # WORKAROUND: fix ;-escape implicit unescaping
-                    tkl_escape_string_after_string_substring(value "${value}")
-
-                    set(var_last_substed_value "${var_last_substed_value}${value}")
-                    list(APPEND var_values_list "${var_last_substed_value}")
-                    set(last_record_char_index ${index})
-                    set(var_last_substed_value "")
-                    math(EXPR value_from_index "${index}+1") # next value start index
+                # make a record after first a white space character after a not white character
+                if ((char STREQUAL " " OR char STREQUAL "\t") AND
+                    (NOT prev_char STREQUAL "" AND NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t" AND NOT prev_char STREQUAL "\n"))
+                  if (is_next_list_value)
+                    set(var_values_list "${var_values_list};")
+                    set(is_next_list_value 0)
                   endif()
+
+                  # a list item end, record a value
+                  math(EXPR value_len ${index}-${value_from_index})
+                  string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
+                  # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                  tkl_escape_string_before_list_append(value "${value}")
+
+                  set(var_values_list "${var_values_list}${value}")
+                  math(EXPR value_from_index ${index}+1) # next value start index
                 endif()
+              endif()
+            elseif (char STREQUAL "\$")
+              if (is_subst_open)
+                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
+                break()
+              endif()
+            elseif (char STREQUAL "/")
+              if (is_subst_open)
+                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
+                break()
+              endif()
+
+              if (NOT prev_char_escaped AND prev_char STREQUAL "\$")
+                set(is_next_char_to_escape 1)
+
+                # push open sequence context
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line ${var_file_content_line})
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process "${var_token_suffix_to_process}")
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_line "${var_line}")
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+              endif()
+            elseif (char STREQUAL "}")
+              if (is_subst_open)
+                # pop open sequence context
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+
+                set(is_subst_open 0)
+
+                if (is_next_list_value)
+                  set(var_values_list "${var_values_list};")
+                  set(is_next_list_value 0)
+                endif()
+
+                # make a substitution
+                math(EXPR value_len ${index}-${value_from_index})
+                string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+                if (DEFINED "config_${value}")
+                  # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                  tkl_escape_string_before_list_append(value "${config_${value}}")
+
+                  set(var_values_list "${var_values_list}${value}")
+                else()
+                  # not found, replace by a placeholder
+
+                  # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                  tkl_escape_string_before_list_append(value "${value}")
+
+                  set(var_values_list "${var_values_list}*\$/{${value}}")
+                endif()
+
+                math(EXPR value_from_index ${index}+1)
               endif()
             elseif (char STREQUAL "\"")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
                 break()
               endif()
 
               if (NOT is_str_quote_open)
                 set(is_str_quote_open 1)
-                set(var_last_substed_value "")
+
+                # push open sequence context
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line ${var_file_content_line})
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process "${var_token_suffix_to_process}")
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_line "${var_line}")
+                tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_this_file_line "${CMAKE_CURRENT_LIST_LINE}")
               else()
-                # record a value
+                # pop open sequence context
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+                tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+
+                if (NOT is_list_bracket_open)
+                  # reset multiline parser
+                  set(is_continue_parse_var_value 0)
+                endif()
+
                 set(is_str_quote_open 0)
-                math(EXPR value_len "${index}-${value_from_index}")
+
+                if (is_next_list_value)
+                  set(var_values_list "${var_values_list};")
+                  set(is_next_list_value 0)
+                endif()
+
+                # make a record
+                math(EXPR value_len ${index}-${value_from_index})
                 string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
 
-                # WORKAROUND: fix ;-escape implicit unescaping
-                tkl_escape_string_after_string_substring(value "${value}")
+                # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                tkl_escape_string_before_list_append(value "${value}")
 
-                set(var_last_substed_value "${var_last_substed_value}${value}")
-                list(APPEND var_values_list "${var_last_substed_value}")
-                set(last_record_char_index ${index})
-                set(var_last_substed_value "")
+                set(var_values_list "${var_values_list}${value}")
               endif()
 
-              math(EXPR value_from_index "${index}+1") # next value start index
+              math(EXPR value_from_index ${index}+1) # next value start index
+            elseif (char STREQUAL "#")  # comment
+              if (is_subst_open)
+                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
+                break()
+              endif()
+
+              if (NOT is_str_quote_open)
+                # end of processing
+                if (NOT is_list_bracket_open)
+                  # truncate a variable's value length
+                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                  set(var_value_len ${index})
+                else()
+                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                  set(is_invalid_var_line 1)
+                  set(is_invalid_open_sequence 1)
+                endif()
+
+                break()
+              endif()
             elseif (char STREQUAL "(")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
                 break()
               endif()
 
@@ -1458,99 +1651,65 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                   set(is_list_bracket_open 1)
                   set(is_list_value 1)
-                  set(var_last_substed_value "")
-                  math(EXPR value_from_index "${index}+1") # next value start index
+                  math(EXPR value_from_index ${index}+1) # next value start index
+
+                  # push open sequence context
+                  tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line ${var_file_content_line})
+                  tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process "${var_token_suffix_to_process}")
+                  tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_line "${var_line}")
+                  tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 else()
                   set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                   set(is_invalid_var_line 1)
+                  set(is_invalid_open_sequence 1)
                   break()
                 endif()
-              endif()
-            elseif (char STREQUAL "\$")
-              if (is_subst_open)
-                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                set(is_invalid_var_line 1)
-                break()
-              endif()
-            elseif (char STREQUAL "/")
-              if (is_subst_open)
-                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                set(is_invalid_var_line 1)
-                break()
-              endif()
-
-              if (NOT prev_char_escaped AND prev_char STREQUAL "\$")
-                set(is_next_char_to_escape 1)
-              endif()
-            elseif (char STREQUAL "}")
-              if (is_subst_open)
-                set(is_subst_open 0)
-                # make a substitution
-                math(EXPR value_len "${index}-${value_from_index}")
-                string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                if (DEFINED "config_${value}")
-                  set(var_last_substed_value "${var_last_substed_value}${config_${value}}")
-                else()
-                  # not found, replace by a placeholder
-                  set(var_last_substed_value "${var_last_substed_value}*\$/{${value}}")
-                endif()
-
-                math(EXPR value_from_index "${index}+1")
               endif()
             elseif (char STREQUAL ")")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
+                set(is_invalid_open_sequence 1)
                 break()
               endif()
 
               if (NOT is_str_quote_open)
                 if (is_list_bracket_open)
+                  # pop open sequence context
+                  tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+                  tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+                  tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+                  tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+
+                  # reset multiline parser
+                  set(is_continue_parse_var_value 0)
+
                   set(is_list_bracket_open 0)
-                  if (prev_char_escaped OR (NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t"))
-                    math(EXPR last_record_char_offset "${index}-${last_record_char_index}")
-                    if (last_record_char_offset GREATER 1)
-                      set(var_value_len ${index})
-                      # record a value
-                      set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                      math(EXPR value_len "${index}-${value_from_index}")
-                      string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+                  set(is_list_bracket_closed 1)
 
-                      # WORKAROUND: fix ;-escape implicit unescaping
-                      tkl_escape_string_after_string_substring(value "${value}")
-
-                      set(var_last_substed_value "${var_last_substed_value}${value}")
-                      list(APPEND var_values_list "${var_last_substed_value}")
-                      set(last_record_char_index ${index})
-                      set(var_last_substed_value "")
+                  # make a record after a close bracket after a not white character
+                  if (NOT prev_char STREQUAL "" AND NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t" AND NOT prev_char STREQUAL "\n")
+                    if (is_next_list_value)
+                      set(var_values_list "${var_values_list};")
+                      set(is_next_list_value 0)
                     endif()
+
+                    # a list item end, record a value
+                    math(EXPR value_len ${index}-${value_from_index})
+                    string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
+                    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                    tkl_escape_string_before_list_append(value "${value}")
+
+                    set(var_values_list "${var_values_list}${value}")
                   endif()
+
                   break()
                 else()
                   set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                   set(is_invalid_var_line 1)
                   break()
                 endif()
-              endif()
-            elseif (char STREQUAL "#")  # comment
-              if (is_subst_open)
-                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                set(is_invalid_var_line 1)
-                break()
-              endif()
-
-              if (NOT is_str_quote_open)
-                # end of processing
-                if (NOT is_list_bracket_open)
-                  # truncate a variable's value length
-                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                  set(var_value_len ${index})
-                else()
-                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                  set(is_invalid_var_line 1)
-                endif()
-
-                break()
               endif()
             endif()
 
@@ -1558,66 +1717,139 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           else()
             set(is_next_char_to_escape 0)
 
-            # insert a value before an escape sequence or a substitution start sequence
-            math(EXPR value_len "${index}-${value_from_index}-2")
-            if (value_len GREATER_EQUAL 0)
+            # make a record before an escape sequence or a substitution start sequence
+            math(EXPR value_len ${index}-${value_from_index}-2)
+            if (value_len GREATER 0)
+              if (is_next_list_value)
+                set(var_values_list "${var_values_list};")
+                set(is_next_list_value 0)
+              endif()
+
               string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
 
-              # WORKAROUND: fix ;-escape implicit unescaping
-              tkl_escape_string_after_string_substring(value "${value}")
+              # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+              tkl_escape_string_before_list_append(value "${value}")
 
-              set(var_last_substed_value "${var_last_substed_value}${value}")
+              set(var_values_list "${var_values_list}${value}")
             endif()
 
             if (NOT char STREQUAL "{")
+              # pop open sequence context
+              tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+              tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+              tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+              tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+
               # insert escaped character
               if (NOT char STREQUAL ";")
-                set(var_last_substed_value "${var_last_substed_value}${char}")
+                if (char STREQUAL "n")
+                  set(var_values_list "${var_values_list}\n")
+                elseif (char STREQUAL "r")
+                  set(var_values_list "${var_values_list}\r")
+                elseif (char STREQUAL "t")
+                  set(var_values_list "${var_values_list}\t")
+                elseif (char STREQUAL "b")
+                  set(var_values_list "${var_values_list}\b")
+                else()
+                  set(var_values_list "${var_values_list}${char}")
+                endif()
               else()
-                set(var_last_substed_value "${var_last_substed_value}\;")
+                set(var_values_list "${var_values_list}\;")
               endif()
             else()
-              # start record a substitution sequence
+              # register a substitution begin sequence
               set(is_subst_open 1)
             endif()
 
-            math(EXPR value_from_index "${index}+1")
+            math(EXPR value_from_index ${index}+1)
 
             set(prev_char_escaped 1)
           endif()
 
           set(prev_char "${char}")
         endforeach()
+
+        if (NOT is_list_bracket_closed)
+          if (NOT is_next_char_to_escape)
+            if (NOT is_subst_open)
+              # make a record from last line
+              math(EXPR value_len ${var_value_len}-${value_from_index})
+              if (value_len GREATER 0)
+                if (is_next_list_value)
+                  set(var_values_list "${var_values_list};")
+                  set(is_next_list_value 0)
+                endif()
+
+                string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
+                # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                tkl_escape_string_before_list_append(value "${value}")
+
+                set(var_values_list "${var_values_list}${value}")
+              endif()
+            else()
+              # make a record from last line incomplete substitution
+              set(var_values_list "${var_values_list}*\$/{")
+
+              math(EXPR value_len ${var_value_len}-${value_from_index})
+              if (value_len GREATER 0)
+                if (is_next_list_value)
+                  set(var_values_list "${var_values_list};")
+                  set(is_next_list_value 0)
+                endif()
+
+                string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
+                # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+                tkl_escape_string_before_list_append(value "${value}")
+
+                set(var_values_list "${var_values_list}${value}")
+              endif()
+            endif()
+          else()
+            # make a record before an escape sequence
+            math(EXPR value_len ${var_value_len}-${value_from_index}-2)
+            if (value_len GREATER 0)
+              if (is_next_list_value)
+                set(var_values_list "${var_values_list};")
+                set(is_next_list_value 0)
+              endif()
+
+              string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
+
+              # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+              tkl_escape_string_before_list_append(value "${value}")
+
+              set(var_values_list "${var_values_list}${value}")
+            else()
+              set(is_next_list_value 0) # reset
+            endif()
+          endif()
+        endif()
+
+        if (is_subst_open)
+          set(is_continue_parse_var_value 0) # disable multiline parser
+          set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+          set(is_invalid_var_line 1)
+          set(is_invalid_open_sequence 1)
+        elseif (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
+          set(is_continue_parse_var_value 1) # enable multiline parser
+        else()
+          set(is_continue_parse_var_value 0) # disable multiline parser
+        endif()
+      elseif (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
+        if (NOT is_continue_parse_var_value)
+          message(FATAL_ERROR "internal parser error")
+        endif()
       else()
+        set(is_continue_parse_var_value 0) # disable multiline parser
         set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
         set(is_invalid_var_line 1)
       endif()
 
-      # finalization
+      # finalization, all explicit state flags and values must be already unflagged, closed or processed
       if (NOT is_invalid_var_line)
-        # all explicit state flags and values must be already unflagged, closed or processed
-        #message("== ${var_value_len} AND NOT ${is_str_quote_open} AND NOT ${is_list_bracket_open} AND NOT ${is_subst_open}")
-        if (var_value_len AND NOT is_next_char_to_escape AND NOT is_str_quote_open AND NOT is_list_bracket_open AND NOT is_subst_open)
-          # all implicit state flags and values must finalize the processing in here
-
-          if (NOT is_list_value AND NOT var_last_substed_value STREQUAL "")
-            # save single value here if not empty
-            list(APPEND var_values_list "${var_last_substed_value}")
-          endif()
-
-          math(EXPR value_len "${var_value_len}-${value_from_index}")
-          if (value_len GREATER 0) # GREATER - just in case
-            math(EXPR last_record_char_offset "${value_len}-${last_record_char_index}")
-            if (last_record_char_offset GREATER 1)
-              string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-              set(var_last_substed_value "${var_last_substed_value}${value}")
-              list(APPEND var_values_list "${var_last_substed_value}")
-            endif()
-          endif()
-
-          # remove 2 first dummy empty strings
-          tkl_list_remove_sublist(var_values_list 0 2 var_values_list)
-
+        if (NOT is_continue_parse_var_value)
           tkl_list_join(var_values_joined_list var_values_list "${list_separator_char}")
 
           set(set_vars_to_files -1) # unknown or not need to know
@@ -1643,94 +1875,50 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
           endif()
 
-          # set validated variable
-          if (is_list_value)
-            # set as list
-            set(var_parsed_value "${var_values_joined_list}")
+          # validate if variable has already existed and is an ODR variable
 
-            # validate if variable has already existed and is an ODR variable
-            if (is_var_in_ODR_check_list)
-              list(FIND parent_vars_list "${var_name}" parent_var_index)
-              if (parent_var_index GREATER_EQUAL 0) # still can be less
-                list(GET parent_var_values_list ${parent_var_index} parent_var_value) # discardes ;-escaping
-              else()
-                set(parent_var_value "")
-              endif()
+          # use as list
+          set(var_parsed_value "${var_values_joined_list}")
 
-              if (is_bool_var_value)
-                # make values boolean
-                if (parent_var_value)
-                  set(parent_var_value_boolean 1)
-                else()
-                  set(parent_var_value_boolean 0)
-                endif()
-                if (var_parsed_value)
-                  set(var_parsed_value_boolean 1)
-                else()
-                  set(var_parsed_value_boolean 0)
-                endif()
-              elseif (is_path_var_value GREATER 0)
-                # make values upper case
-                string(TOUPPER "${parent_var_value}" parent_var_value_upper)
-                string(TOUPPER "${var_parsed_value}" var_parsed_value_upper)
-              endif()
-
-              if ((is_bool_var_value AND parent_var_value_boolean EQUAL var_parsed_value_boolean) OR
-                  (NOT is_bool_var_value AND
-                    ((is_path_var_value GREATER 0 AND NOT parent_var_value_upper STREQUAL var_parsed_value_upper) OR
-                    (NOT is_path_var_value GREATER 0 AND (NOT parent_var_value STREQUAL var_parsed_value)))))
-                message(FATAL_ERROR "ODR violation, variable must define the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `(${var_values_joined_list})` != `${parent_var_value}` (is_path=`${is_path_var_value}`)")
-                continue()
-              endif()
+          # validate if variable has already existed and is an ODR variable
+          if (is_var_in_ODR_check_list)
+            list(FIND _5A06EEFA_parent_vars_list "${var_name}" parent_var_index)
+            if (parent_var_index GREATER_EQUAL 0) # still can be less
+              list(GET _5A06EEFA_parent_var_values_list ${parent_var_index} parent_var_value) # discardes ;-escaping
+            else()
+              set(parent_var_value "")
             endif()
-          else()
-            # validate if variable has already existed and is an ODR variable
-            tkl_list_get(var_first_value var_values_list 0)
 
-            set(var_parsed_value "${var_first_value}")
-
-            if (is_var_in_ODR_check_list)
-              list(FIND parent_vars_list "${var_name}" parent_var_index)
-              if (parent_var_index GREATER_EQUAL 0) # still can be less
-                list(GET parent_var_values_list ${parent_var_index} parent_var_value) # discardes ;-escaping
+            if (is_bool_var_value)
+              # make values boolean
+              if (parent_var_value)
+                set(parent_var_value_boolean 1)
               else()
-                set(parent_var_value "")
+                set(parent_var_value_boolean 0)
               endif()
+              if (var_parsed_value)
+                set(var_parsed_value_boolean 1)
+              else()
+                set(var_parsed_value_boolean 0)
+              endif()
+            elseif (is_path_var_value GREATER 0)
+              # make values upper case
+              string(TOUPPER "${parent_var_value}" parent_var_value_upper)
+              string(TOUPPER "${var_parsed_value}" var_parsed_value_upper)
+            endif()
 
-              if (is_bool_var_value)
-                # make values boolean
-                if (parent_var_value)
-                  set(parent_var_value_boolean 1)
-                else()
-                  set(parent_var_value_boolean 0)
-                endif()
-                if (var_parsed_value)
-                  set(var_parsed_value_boolean 1)
-                else()
-                  set(var_parsed_value_boolean 0)
-                endif()
-              elseif (is_path_var_value GREATER 0)
-                # make values upper case
-                string(TOUPPER "${parent_var_value}" parent_var_value_upper)
-                string(TOUPPER "${var_parsed_value}" var_parsed_value_upper)
-              endif()
-
-              if ((is_bool_var_value AND NOT parent_var_value_boolean EQUAL var_parsed_value_boolean) OR
-                  (NOT is_bool_var_value AND
-                    ((is_path_var_value GREATER 0 AND NOT parent_var_value_upper STREQUAL var_parsed_value_upper) OR
-                    (NOT is_path_var_value GREATER 0 AND (NOT parent_var_value STREQUAL var_parsed_value)))))
-                if (var_first_value STREQUAL var_parsed_value)
-                  message(FATAL_ERROR "ODR violation, variable must define the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${var_first_value}` != `${parent_var_value}` (is_path=`${is_path_var_value}`)")
-                else()
-                  message(FATAL_ERROR "ODR violation, variable must define the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${var_first_value}` (`${var_values_joined_list}`) != `${parent_var_value}` (is_path=`${is_path_var_value}`)")
-                endif()
-                continue()
-              endif()
+            if ((is_bool_var_value AND parent_var_value_boolean EQUAL var_parsed_value_boolean) OR
+                (NOT is_bool_var_value AND
+                  ((is_path_var_value GREATER 0 AND NOT parent_var_value_upper STREQUAL var_parsed_value_upper) OR
+                  (NOT is_path_var_value GREATER 0 AND (NOT parent_var_value STREQUAL var_parsed_value)))))
+              message(FATAL_ERROR "ODR violation, variable must define the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `(${var_values_joined_list})` != `${parent_var_value}` (is_path=`${is_path_var_value}`)")
+              continue()
             endif()
           endif()
 
-          # Variable with not late expansion expression or
-          # variable with configuration specialized late expansion (generator) expression (`var_config_name` is empty)
+          # A variable with not late expansion expression or a variable with
+          # configuration specialized late expansion (generator) expression
+          # (`var_config_name` is empty)
           if ((NOT is_config_name_value_can_late_expand) OR (var_config_name STREQUAL ""))
             if (set_vars_to_files LESS 1)
               if (set_vars)
@@ -1904,19 +2092,58 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
             endif()
           endif()
-        else()
-          #message("== ${var_value_len} OR ${is_str_quote_open} OR ${is_list_bracket_open} OR ${is_subst_open}")
-          set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-          set(is_invalid_var_line 1)
         endif()
-      endif()
+      else()
+        if (is_invalid_open_sequence)
+          message(WARNING "invalid open sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
 
-      if (is_invalid_var_line)
-        message(WARNING "invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: [${var_file_content_line}] `${var_line}`")
+          if (is_subst_open)
+            # pop open sequence context
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+
+            set(is_subst_open 0)
+          endif()
+
+          if (is_str_quote_open)
+            # pop open sequence context
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+          endif()
+
+          if (is_str_quote_open)
+            # pop open sequence context
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+            tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+          endif()
+        else()
+          message(WARNING "invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+        endif()
+
         continue()
       endif()
     endforeach()
+
+    if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
+      message(WARNING "invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+
+      # pop open sequence context
+      tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
+      tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
+      tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_line)
+      tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
+    endif()
   endforeach()
+
+  if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
+    message(WARNING "not closed character sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
+  endif()
 
   if (DEFINED flock_file_path)
     file(LOCK "${flock_file_path}" RELEASE)
@@ -2112,16 +2339,16 @@ make_vars\;.\;.\;."
   endif()
 
   tkl_list_get(config_gen_var_lines_list_var argn ${argn_index})
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   tkl_list_get(config_gen_vars_list_var argn ${argn_index})
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   tkl_list_get(config_gen_names_list_var argn ${argn_index})
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   tkl_list_get(config_gen_values_list_var argn ${argn_index})
-  math(EXPR argn_index "${argn_index}+1")
+  math(EXPR argn_index ${argn_index}+1)
 
   set(config_gen_var_lines_list "${${config_gen_var_lines_list_var}}")
   set(config_gen_vars_list "${${config_gen_vars_list_var}}")
@@ -2158,7 +2385,7 @@ make_vars\;.\;.\;."
   set(var_index -1)
 
   foreach(var_name IN LISTS config_gen_vars_list)
-    math(EXPR var_index "${var_index}+1")
+    math(EXPR var_index ${var_index}+1)
 
     list(GET config_gen_var_lines_list ${var_index} var_line)
     list(GET config_gen_names_list ${var_index} var_config_names)
@@ -2176,7 +2403,7 @@ make_vars\;.\;.\;."
     set(var_config_name_index -1)
 
     foreach(var_config_name IN LISTS var_config_names)
-      math(EXPR var_config_name_index "${var_config_name_index}+1")
+      math(EXPR var_config_name_index ${var_config_name_index}+1)
 
       list(GET var_values ${var_config_name_index} var_value) # discardes ;-escaping
 
@@ -2213,7 +2440,7 @@ make_vars\;.\;.\;."
       set(var_config_name_index -1)
 
       foreach(var_config_name IN LISTS var_complement_config_names)
-        math(EXPR var_config_name_index "${var_config_name_index}+1")
+        math(EXPR var_config_name_index ${var_config_name_index}+1)
 
         string(REGEX REPLACE "([;\\$\"])" "\\\\\\1" var_escaped_value "${var_complement_value}")
 

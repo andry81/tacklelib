@@ -1,8 +1,6 @@
 include(tacklelib/ForwardArgs)
 
-function(dbg_message msg)
-  #message("${msg}")
-endfunction()
+#tkl_enable_test_dbg_message()
 
 # CAUTION
 #   Use intermediate expansion stage to avoid substitution of the macro arguments!

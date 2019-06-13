@@ -1,3 +1,22 @@
+2019.06.13:
+* fixed: cmake: internal variables left out after calls to `tkl_load_vars_from_files` and `tkl_set_vars_from_files` (`SetVarsFromFile.cmake`)
+* changed: cmake: rewrited the parser core code in the `set_vars_from_file` function to a bit simplify branch conditions (`SetVarsFromFile.cmake`)
+* changed: cmake: overall code cleanup (`SetVarsFromFile.cmake`)
+
+2019.06.12:
+* fixed: cmake: accidental remove of `var_token_suffix` and `var_token_suffix_to_process` variables (`SetVarsFromFiles.cmake`)
+* fixed: cmake: not needed extra `.` character in the first argument to the `tkl_make_basic_timestamp_temp_dir` function (`MakeTemp.cmake`)
+* fixed: cmake: `tkl_file_encode_strings` implementation switched from `file(STRINGS ...)` to `file(READ ...)` with standalone character replacement to workaround the issue with trailing `\` line character (`File.cmake`)
+* new: cmake: standlone `tkl_test_dbg_message` message function is disabled by default to enable it separately by `tkl_enable_test_dbg_message` per test basis to debug a test (`TestModule.cmake`)
+* new: cmake: support parse of multiline variable values to move long variable values on next line (`SetVarsFromFiles.cmake`)
+* new: cmake: support `$/n`, `$/r`, `$/t`, `$/b` as replacement for respective character escape sequences (`SetVarsFromFiles.cmake`)
+* new: cmake: `TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX` variable to get test file name without all extensions (`TestLib.cmake`)
+* new: cmake_tests: more `tests_11_SetVarsFromFiles` tests
+* new: cmake_tests: `tests_07_File` tests
+* changed: cmake: moved `tkl_test_assert_true` expression/message string to the separate lines with `[   EXP  ]`/`[   MSG  ]` prefixes (`TestModule.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
 2019.06.11:
 * fixed: cmake: multiple fixes for simple usage of `SetVarsFromFiles.cmake` module
 * fixed: cmake: `invalid variable name token` message (`SetVarsFromFiles.cmake`)

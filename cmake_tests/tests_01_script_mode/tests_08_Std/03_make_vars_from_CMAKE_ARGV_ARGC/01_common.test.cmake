@@ -1,9 +1,7 @@
 include(tacklelib/Eval)
 include(tacklelib/Utility)
 
-function(dbg_message msg)
-  #message("${msg}")
-endfunction()
+#tkl_enable_test_dbg_message()
 
 function(make_CMAKE_ARGV_from_ARGV)
   tkl_make_var_from_ARGV_begin("${ARGV}" argv)
@@ -26,7 +24,7 @@ set(a 123)
 
 macro(TestCase_test_01)
   make_CMAKE_ARGV_from_ARGV(app.ext -P module.cmake "a\\b" "c;d" "e\;f" "\${a}")
-  dbg_message("CMAKE_ARGC=${CMAKE_ARGC} CMAKE_ARGV0=${CMAKE_ARGV0} CMAKE_ARGV1=${CMAKE_ARGV1} CMAKE_ARGV2=${CMAKE_ARGV2} CMAKE_ARGV3=${CMAKE_ARGV3} CMAKE_ARGV4=${CMAKE_ARGV4}")
+  tkl_test_dbg_message("CMAKE_ARGC=${CMAKE_ARGC} CMAKE_ARGV0=${CMAKE_ARGV0} CMAKE_ARGV1=${CMAKE_ARGV1} CMAKE_ARGV2=${CMAKE_ARGV2} CMAKE_ARGV3=${CMAKE_ARGV3} CMAKE_ARGV4=${CMAKE_ARGV4}")
 
   tkl_make_var_from_CMAKE_ARGV_ARGC(argv)
 
@@ -97,7 +95,7 @@ endmacro()
 
 macro(TestCase_test_02)
   make_CMAKE_ARGV_from_ARGV(app.ext -P module.cmake "a\\b" "c;d" "e\;f" "\${a}")
-  dbg_message("CMAKE_ARGC=${CMAKE_ARGC} CMAKE_ARGV0=${CMAKE_ARGV0} CMAKE_ARGV1=${CMAKE_ARGV1} CMAKE_ARGV2=${CMAKE_ARGV2} CMAKE_ARGV3=${CMAKE_ARGV3} CMAKE_ARGV4=${CMAKE_ARGV4}")
+  tkl_test_dbg_message("CMAKE_ARGC=${CMAKE_ARGC} CMAKE_ARGV0=${CMAKE_ARGV0} CMAKE_ARGV1=${CMAKE_ARGV1} CMAKE_ARGV2=${CMAKE_ARGV2} CMAKE_ARGV3=${CMAKE_ARGV3} CMAKE_ARGV4=${CMAKE_ARGV4}")
 
   tkl_make_var_from_CMAKE_ARGV_ARGC(-P argv)
 

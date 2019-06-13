@@ -44,3 +44,5 @@ foreach(arg IN LISTS in_str)
 
   math(EXPR index ${index}+1)
 endforeach()
+
+tkl_test_assert_true("index EQUAL 2" "index=`${index}`")
