@@ -190,10 +190,10 @@ cmake_tests/_scripts/__init__.bat -text
 cmake_tests/_scripts/__init__.sh -text
 cmake_tests/_scripts/test_all.bat -text
 cmake_tests/_scripts/test_all.sh -text
-cmake_tests/_scripts/tests_01_script_mode.bat -text
-cmake_tests/_scripts/tests_01_script_mode.sh -text
-cmake_tests/_scripts/tests_02_build_mode.bat -text
-cmake_tests/_scripts/tests_02_build_mode.sh -text
+cmake_tests/_scripts/tests_01_unit.bat -text
+cmake_tests/_scripts/tests_01_unit.sh -text
+cmake_tests/_scripts/tests_02_bench.bat -text
+cmake_tests/_scripts/tests_02_bench.sh -text
 cmake_tests/changelog.txt -text
 cmake_tests/test_all.cmake -text
 cmake_tests/tests_01_unit.cmake -text
