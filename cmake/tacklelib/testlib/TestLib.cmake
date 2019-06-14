@@ -114,7 +114,7 @@ function(tkl_testlib_exit)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-  tkl_testlib_print_msg("RESULTS: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)\n===\n")
+  tkl_testlib_print_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)\n===\n")
 endfunction()
 
 function(tkl_testlib_set_working_dir dir)
@@ -387,7 +387,7 @@ function(tkl_testlib_enter_dir test_dir)
   set_property(GLOBAL PROPERTY "tkl::testlib::num_failed_tests" "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}")
 
   if (TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN)
-    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: failed/succeeded of overall: ${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}\n---\n")
+    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}\n---\n")
   else()
     # tests are not found or filtered out
     tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`\n---\n")
