@@ -1,3 +1,6 @@
+2019.06.14:
+* changed: cmake: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+
 2019.06.13:
 * new: cmake_tests: `tests_06_List` tests
 

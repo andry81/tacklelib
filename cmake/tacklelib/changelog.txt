@@ -1,3 +1,6 @@
+2019.06.14:
+* changed: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+
 2019.06.13:
 * fixed: internal variables left out after calls to `tkl_load_vars_from_files` and `tkl_set_vars_from_files` (`SetVarsFromFile.cmake`)
 * changed: rewrited the parser core code in the `set_vars_from_file` function to a bit simplify branch conditions (`SetVarsFromFile.cmake`)
