@@ -1,4 +1,7 @@
-2019.06.13:
+2019.06.14:
+* new: initial `02_bench` tests
+
+2019.06.14:
 * refactor: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
 
 2019.06.13:

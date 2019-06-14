@@ -1,5 +1,9 @@
 2019.06.14:
+* new: `*.test.vars` check and load in test environment (`TestLib.cmake`)
+* new: testlib: `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` and `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` variables to tweak a test process before call to `RunTestLib.cmake` (`TestLib.cmake`)
+* changed: changed test messages output in `TRACE` mode in version 3.15.x and greater and `STATUS` before the 3.15.x
 * changed: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+* refactor: testlib refactor (`TestLib.cmake`)
 
 2019.06.13:
 * fixed: internal variables left out after calls to `tkl_load_vars_from_files` and `tkl_set_vars_from_files` (`SetVarsFromFile.cmake`)
