@@ -5,6 +5,7 @@ set(TACKLELIB_TESTLIB_INCLUDE_DEFINED 1)
 include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardVariables)
+include(tacklelib/SetVarsFromFiles)
 
 if (NOT DEFINED TACKLELIB_TESTLIB_ROOT OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_ROOT}")
   message(FATAL_ERROR "TACKLELIB_TESTLIB_ROOT variable must be defined externally before include this module: TACKLELIB_TESTLIB_ROOT=`${TACKLELIB_TESTLIB_ROOT}`")
@@ -141,11 +142,19 @@ function(tkl_testlib_print_msg msg)
 
   tkl_get_global_prop(enter_dir_msg "tkl::testlib::stdout::enter_dir_msg" 0)
   if (DEFINED enter_dir_msg)
-    message("${enter_dir_msg}")
+    if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
+      message(TRACE "${enter_dir_msg}")
+    else()
+      message(STATUS "${enter_dir_msg}")  # to print to stdout
+    endif()
     set_property(GLOBAL PROPERTY "tkl::testlib::stdout::enter_dir_msg") # unset property
   endif()
 
-  message("${msg}")
+  if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
+    message(TRACE "${msg}")
+  else()
+    message(STATUS "${msg}") # to print to stdout
+  endif()
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 1)
   if (num_print_msgs_in_dir STREQUAL "")
@@ -192,7 +201,11 @@ function(tkl_testlib_print_leave_dir_msg msg)
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 0)
 
   if (num_print_msgs_in_dir OR num_tests_run)
-    message("${msg}")
+    if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
+      message(TRACE "${msg}")
+    else()
+      message(STATUS "${msg}")  # to print to stdout
+    endif()
   endif()
 
   tkl_pop_prop_from_stack(num_print_msgs_in_dir GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack" "tkl::testlib")
@@ -478,7 +491,17 @@ function(tkl_testlib_test test_dir test_file_name)
     set(test_file_name_prefix "${CMAKE_MATCH_0}")
   endif()
 
+  set(test_file_name_no_ext "${test_file_name_ext}")
+  if ("${test_file_name_no_ext}" MATCHES "^(.+)\\.[^\\.]+")
+    set(test_file_name_no_ext "${CMAKE_MATCH_1}")
+  endif()
+
   set(test_file_path "${test_file_dir}/${test_file_name_ext}")
+
+  # load test configuration variables from predefined places
+  if (EXISTS "${test_file_dir}/${test_file_name_no_ext}.vars" AND NOT IS_DIRECTORY "${test_file_dir}/${test_file_name_no_ext}.vars")
+    tkl_load_vars_from_files("${test_file_dir}/${test_file_name_no_ext}.vars")
+  endif()
 
   #message("tkl_testlib_test: ${test_file_path}")
 
@@ -508,46 +531,43 @@ function(tkl_testlib_test test_dir test_file_name)
   string(TIMESTAMP TACKLELIB_TESTLIB_START_TIME_SEC "%s" UTC)
 
   if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
-    execute_process(
-      COMMAND
-        "${CMAKE_COMMAND}"
-        "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
-        "-DPROJECT_ROOT=${PROJECT_ROOT}"
-        "-DTESTS_ROOT=${TESTS_ROOT}"
-        "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
-        "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX=${test_file_name_prefix}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_EXT=${test_file_name_ext}"
-        "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
-        -P
-        "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
-      WORKING_DIRECTORY
-        "${TACKLELIB_TESTLIB_WORKING_DIR}"
-      RESULT_VARIABLE
-        TACKLELIB_TESTLIB_LAST_ERROR
-    )
+    set(exec_proc_wd "WORKING_DIRECTORY;${TACKLELIB_TESTLIB_WORKING_DIR}")
   else()
-    execute_process(
-      COMMAND
-        "${CMAKE_COMMAND}"
-        "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
-        "-DPROJECT_ROOT=${PROJECT_ROOT}"
-        "-DTESTS_ROOT=${TESTS_ROOT}"
-        "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
-        "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX=${test_file_name_prefix}"
-        "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_EXT=${test_file_name_ext}"
-        "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
-        -P
-        "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
-      RESULT_VARIABLE
-        TACKLELIB_TESTLIB_LAST_ERROR
-    )
+    set(exec_proc_wd "")
   endif()
+
+  if (DEFINED TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET AND TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET)
+    set(exec_proc_stdout_quiet "OUTPUT_QUIET")
+  else()
+    set(exec_proc_stdout_quiet "")
+  endif()
+  if (DEFINED TACKLELIB_TESTLIB_TESTPROC_STDERR_QUIET AND TACKLELIB_TESTLIB_TESTPROC_STDERR_QUIET)
+    set(exec_proc_stderr_quiet "ERROR_QUIET")
+  else()
+    set(exec_proc_stderr_quiet "")
+  endif()
+
+  execute_process(
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
+      "-DPROJECT_ROOT=${PROJECT_ROOT}"
+      "-DTESTS_ROOT=${TESTS_ROOT}"
+      "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
+      "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
+      "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"
+      "-DTACKLELIB_TESTLIB_TESTMODULE_FILE=${test_file_path}"
+      "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX=${test_file_name_prefix}"
+      "-DTACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_EXT=${test_file_name_ext}"
+      "-DTACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST=${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}"
+      -P
+      "${TACKLELIB_TESTLIB_ROOT}/tools/RunTestModule.cmake"
+    ${exec_proc_wd}
+    ${exec_proc_stdout_quiet}
+    ${exec_proc_stderr_quiet}
+    RESULT_VARIABLE
+      TACKLELIB_TESTLIB_LAST_ERROR
+  )
 
   string(TIMESTAMP TACKLELIB_TESTLIB_END_TIME_SEC "%s" UTC)
 

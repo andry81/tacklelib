@@ -1,4 +1,12 @@
-2019.06.13:
+2019.06.14:
+* new: cmake: `*.test.vars` check and load in test environment (`TestLib.cmake`)
+* new: cmake: testlib: `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` and `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` variables to tweak a test process before call to `RunTestLib.cmake` (`TestLib.cmake`)
+* new: cmake_tests: initial `02_bench` tests
+* changed: cmake: changed test messages output in `TRACE` mode in version 3.15.x and greater and `STATUS` before the 3.15.x
+* changed: cmake: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+* refactor: cmake: testlib refactor (`TestLib.cmake`)
+
+2019.06.14:
 * refactor: cmake_tests: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
 
 2019.06.14:

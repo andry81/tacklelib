@@ -91,7 +91,11 @@ function(tkl_testmodule_print_msg msg)
     message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
-  message("${msg}")
+  if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
+    message(TRACE "${msg}")
+  else()
+    message(STATUS "${msg}")  # to print to stdout
+  endif()
 endfunction()
 
 function(tkl_testmodule_test_file_shortcut test_file_path out_var)
@@ -131,17 +135,28 @@ endif()
 tkl_set_global_prop(. \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
 tkl_set_global_prop(. \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
 
+string(TIMESTAMP TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC \"%s\" UTC)
+set_property(GLOBAL PROPERTY \"tkl::testlib::testmodule::start_time_sec\" \"\${TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC}\")
+unset(TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC)
+
 @TACKLELIB_TESTLIB_TESTCASE_FUNC@()
+
+string(TIMESTAMP TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC \"%s\" UTC)
+tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC \"tkl::testlib::testmodule::start_time_sec\" 0)
 
 tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" 1)
 
+math(EXPR TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC \${TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC}-\${TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC})
+
 if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
-  tkl_testmodule_print_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
+  tkl_testmodule_print_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC}sec)\")
 else()
-  tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
+  tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC}sec)\")
 endif()
 
 unset(TACKLELIB_TESTLIB_TESTCASE_RETCODE)
+unset(TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC)
+unset(TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC)
 
 tkl_testmodule_update_status()
 ")
@@ -411,7 +426,11 @@ endmacro()
 function(tkl_test_dbg_message msg)
   tkl_get_global_prop(dbg_msg_enabled "tkl::testlib::testmodule::dbg_msg_enable" 1)
   if (dbg_msg_enabled)
-    message("${msg}")
+    if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
+      message(TRACE "${msg}")
+    else()
+      message(STATUS "${msg}")  # to print to stdout
+    endif()
   endif()
 endfunction()
 

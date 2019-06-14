@@ -184,6 +184,8 @@ cmake_tests/01_unit/01_script_mode/11_SetVarsFromFiles/01_variables_specializati
 cmake_tests/01_unit/01_script_mode/11_SetVarsFromFiles/01_variables_specialization/refs/01_singleline_set.vars -text
 cmake_tests/01_unit/01_script_mode/11_SetVarsFromFiles/01_variables_specialization/refs/11_multiline_set.vars -text
 cmake_tests/01_unit/01_script_mode/11_SetVarsFromFiles/11_attributes_collision/01_basic.test.cmake -text
+cmake_tests/02_bench/01_script_mode/09_Eval/01_simple_eval.test.cmake -text
+cmake_tests/02_bench/01_script_mode/09_Eval/01_simple_eval.test.vars -text
 cmake_tests/README_EN.txt -text
 cmake_tests/_config/environment_user.vars.in -text
 cmake_tests/_scripts/__init__.bat -text
