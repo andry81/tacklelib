@@ -1,4 +1,7 @@
 2019.06.13:
+* refactor: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
+
+2019.06.13:
 * new: `tests_06_List` tests
 
 2019.06.12:

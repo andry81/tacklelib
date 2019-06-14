@@ -1,3 +1,6 @@
+2019.06.13:
+* refactor: cmake_tests: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
+
 2019.06.14:
 * changed: cmake: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
 
