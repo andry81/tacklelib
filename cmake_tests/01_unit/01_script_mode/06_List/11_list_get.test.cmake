@@ -1,6 +1,6 @@
 include(tacklelib/List)
 
-#tkl_enable_test_dbg_message()
+#tkl_enable_test_dbg_msg()
 
 set(l1 "")
 set(l2 ";")

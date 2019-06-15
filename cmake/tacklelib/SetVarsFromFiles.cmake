@@ -1504,7 +1504,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   tkl_escape_string_before_list_append(value "${value}")
 
                   set(var_values_list "${var_values_list}${value}")
-                  math(EXPR value_from_index ${index}+1) # next value start index
+                  math(EXPR value_from_index ${index}+1) # next value begin index
                 endif()
               endif()
             elseif (char STREQUAL "\$")
@@ -1610,7 +1610,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_values_list "${var_values_list}${value}")
               endif()
 
-              math(EXPR value_from_index ${index}+1) # next value start index
+              math(EXPR value_from_index ${index}+1) # next value begin index
             elseif (char STREQUAL "#")  # comment
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
@@ -1652,7 +1652,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                   set(is_list_bracket_open 1)
                   set(is_list_value 1)
-                  math(EXPR value_from_index ${index}+1) # next value start index
+                  math(EXPR value_from_index ${index}+1) # next value begin index
 
                   # push open sequence context
                   tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line ${var_file_content_line})
@@ -1718,7 +1718,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           else()
             set(is_next_char_to_escape 0)
 
-            # make a record before an escape sequence or a substitution start sequence
+            # make a record before an escape sequence or a substitution begin sequence
             math(EXPR value_len ${index}-${value_from_index}-2)
             if (value_len GREATER 0)
               if (is_next_list_value)

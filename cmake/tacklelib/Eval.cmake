@@ -213,8 +213,6 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       unset(_67AB359F_eval_include_file_path)
       unset(_67AB359F_eval_is_equal_include_file_paths)
 
-      tkl_get_last_eval_include_dir_path(eval_include_dir_path)
-
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
       tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
@@ -223,8 +221,6 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
       #   We have to call to a nested evaluation to make an inclusion from a file.
       #
       tkl_eval_begin("include_recursive.cmake" "")
- 
-      unset(eval_include_dir_path)
 
       tkl_eval_append_from_file("include_recursive.cmake" "${end_include_file_path}")
 
@@ -262,6 +258,94 @@ endfunction()
 tkl_register_implementation(function tkl_eval_end)
 
 # CAUTION:
+#   Beware of arguments double expansion here.
+#
+macro(tkl_macro_eval_end begin_include_file_name end_include_file_path)
+  if (NOT ${ARGC} EQUAL 2)
+    message(FATAL_ERROR "function must have 2 arguments")
+  endif()
+
+  if ((NOT "${end_include_file_path}" STREQUAL "" AND NOT "${end_include_file_path}" STREQUAL ".") AND
+      (NOT EXISTS "${end_include_file_path}" OR IS_DIRECTORY "${end_include_file_path}"))
+    message(FATAL_ERROR "end_include_file_path if is not empty then must be an existing file path to include: end_include_file_path=`${end_include_file_path}`")
+  endif()
+
+  tkl_get_last_eval_include_file_name(_34E75220_eval_include_file_name)
+
+  if (NOT _34E75220_eval_include_file_name STREQUAL "${begin_include_file_name}")
+    message(FATAL_ERROR "begin_include_file_name for the `tkl_macro_eval_end` must be the same as for the `tkl_eval_begin*`: tkl_eval_begin*->`${_34E75220_eval_include_file_name}` tkl_macro_eval_end->`${begin_include_file_name}`")
+  endif()
+
+  unset(_34E75220_eval_include_file_name)
+
+  tkl_get_last_eval_include_file_path(_67AB359F_eval_include_file_path)
+
+  if ("${end_include_file_path}" STREQUAL "" OR "${end_include_file_path}" STREQUAL ".")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
+
+    # builtin arguments can interfere with the eval expression...
+
+    # switch to special ARGVn stack
+    tkl_use_ARGVn_stack_begin("tkl::eval")
+
+    # cleanup all, in case if the ARGVn stack is empty
+    tkl_pushunset_ARGVn_to_stack(32)
+
+    # switch to default ARGVn stack
+    tkl_use_ARGVn_stack_begin(.)
+
+    # restore ARGVn builtin variables state from the current ARGVn stack top record
+    tkl_restore_ARGVn_from_stack(0)
+
+    #tkl_print_ARGVn()
+
+    # evaluating...
+    include("${_67AB359F_eval_include_file_path}")
+
+    # switch to previous ARGVn stack
+    tkl_use_ARGVn_stack_end()
+
+    tkl_pop_ARGVn_from_stack()
+
+    # switch to previous ARGVn stack
+    tkl_use_ARGVn_stack_end()
+  else()
+    tkl_is_equal_paths(REALPATH "${_67AB359F_eval_include_file_path}" "${end_include_file_path}" _34E75220_eval_is_equal_include_file_paths)
+    if (NOT _34E75220_eval_is_equal_include_file_paths)
+      unset(_67AB359F_eval_include_file_path)
+      unset(_34E75220_eval_is_equal_include_file_paths)
+
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
+
+      # CAUTION:
+      #   We have to call to a nested evaluation to make an inclusion from a file.
+      #
+      tkl_eval_begin("include_recursive.cmake" "")
+ 
+      tkl_eval_append_from_file("include_recursive.cmake" "${end_include_file_path}")
+
+      # evaluating...
+      tkl_macro_eval_end("include_recursive.cmake" .)
+    else()
+      unset(_34E75220_eval_is_equal_include_file_paths)
+
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_dir_path" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_name" "tkl::eval")
+      tkl_pop_prop_from_stack(. GLOBAL "tkl::eval::last_include_file_path" "tkl::eval")
+
+      # evaluating...
+      include("${_67AB359F_eval_include_file_path}")
+    endif()
+  endif()
+endmacro()
+
+tkl_register_implementation(macro tkl_macro_eval_end)
+
+# CAUTION:
 #   Must be a function to:
 #   1. Avoid double expansion of the arguments.
 #
@@ -284,6 +368,24 @@ function(tkl_eval str)
 endfunction()
 
 tkl_register_implementation(function tkl_eval)
+
+# CAUTION:
+#   Beware of arguments double expansion here.
+#
+macro(tkl_macro_eval str)
+  if (NOT ${ARGC} EQUAL 1)
+    message(FATAL_ERROR "function must have 1 argument")
+  endif()
+
+  tkl_eval_begin("include.cmake" "${str}")
+
+  # unset the function parameters too
+  unset(str)
+
+  tkl_macro_eval_end("include.cmake" .)
+endmacro()
+
+tkl_register_implementation(macro tkl_macro_eval)
 
 # CAUTION:
 #   Must be a function to:

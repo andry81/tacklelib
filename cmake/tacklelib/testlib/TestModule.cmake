@@ -6,6 +6,7 @@ include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardArgs)
 include(tacklelib/Eval)
+include(tacklelib/SetVarsFromFiles)
 
 function(tkl_testmodule_init)
   # CAUTION:
@@ -63,6 +64,17 @@ function(tkl_testmodule_init)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::test_case_match_filter" "${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}")
 
+  # load TestModule configuration variables from predefined places
+  if (EXISTS "${TACKLELIB_TESTLIB_TESTMODULE_DIR}/${TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX}.test.vars" AND
+      NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTMODULE_DIR}/${TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX}.test.vars")
+    tkl_track_vars_begin()
+
+    tkl_load_vars_from_files("${TACKLELIB_TESTLIB_TESTMODULE_DIR}/${TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX}.test.vars")
+
+    tkl_forward_changed_vars_to_parent_scope()
+    tkl_track_vars_end()
+  endif()
+
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
   #
@@ -84,7 +96,8 @@ function(tkl_testmodule_update_status)
   unset(TACKLELIB_TESTLIB_TESTMODULE_RETCODE)
 endfunction()
 
-function(tkl_testmodule_print_msg msg)
+# raw test message
+function(tkl_test_msg msg)
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_INITED "tkl::testlib::testmodule::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_TESTMODULE_INITED)
@@ -96,6 +109,10 @@ function(tkl_testmodule_print_msg msg)
   else()
     message(STATUS "${msg}")  # to print to stdout
   endif()
+endfunction()
+
+function(tkl_test_info_msg msg)
+  tkl_test_msg("[  INFO  ] ${msg}")
 endfunction()
 
 function(tkl_testmodule_test_file_shortcut test_file_path out_var)
@@ -111,6 +128,17 @@ function(tkl_testmodule_test_file_shortcut test_file_path out_var)
   endif()
 
   set(${out_var} "${test_file_path_shortcut}" PARENT_SCOPE)
+endfunction()
+
+macro(tkl_testmodule_begin_time_sec out_var)
+  get_property(${out_var} GLOBAL PROPERTY "tkl::testlib::testmodule::begin_time_sec")
+endmacro()
+
+function(tkl_testmodule_time_check_point_sec out_var)
+  tkl_time_sec(time_check_point_sec)
+  tkl_testmodule_begin_time_sec(time_begin_sec)
+  math(EXPR time_spent_sec ${time_check_point_sec}-${time_begin_sec})
+  set(${out_var} ${time_spent_sec} PARENT_SCOPE)
 endfunction()
 
 function(tkl_testmodule_run_test_cases)
@@ -129,29 +157,29 @@ unset(last_eval_temp_dir_path)
 unset(TACKLELIB_TESTLIB_TESTCASE_FUNC)
 
 if (NOT \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\" STREQUAL \"\")
-  tkl_testmodule_print_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@...\")
+  tkl_test_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@...\")
 endif()
 
 tkl_set_global_prop(. \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
 tkl_set_global_prop(. \"tkl::testlib::testcase::func\" \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\")
 
-string(TIMESTAMP TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC \"%s\" UTC)
-set_property(GLOBAL PROPERTY \"tkl::testlib::testmodule::start_time_sec\" \"\${TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC}\")
-unset(TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC)
+tkl_time_sec(TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC)
+set_property(GLOBAL PROPERTY \"tkl::testlib::testmodule::begin_time_sec\" \"\${TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC}\")
+unset(TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC)
 
 @TACKLELIB_TESTLIB_TESTCASE_FUNC@()
 
-string(TIMESTAMP TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC \"%s\" UTC)
-tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC \"tkl::testlib::testmodule::start_time_sec\" 0)
+tkl_time_sec(TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC)
+tkl_get_global_prop(TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC \"tkl::testlib::testmodule::begin_time_sec\" 0)
 
 tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase::retcode\" 1)
 
-math(EXPR TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC \${TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC}-\${TACKLELIB_TESTLIB_TESTMODULE_START_TIME_SEC})
+math(EXPR TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC \${TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC}-\${TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC})
 
 if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
-  tkl_testmodule_print_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC}sec)\")
+  tkl_test_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
 else()
-  tkl_testmodule_print_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC}sec)\")
+  tkl_test_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
 endif()
 
 unset(TACKLELIB_TESTLIB_TESTCASE_RETCODE)
@@ -376,15 +404,17 @@ endif()
     tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_FUNC "tkl::testlib::testcase::func" 1)
 
     tkl_get_global_prop(arg_exp "tkl::testlib::testmodule::last_test_assert_true::args::exp" 1)
-    tkl_get_global_prop(arg_msg "tkl::testlib::testmodule::last_test_assert_true::args::msg" 1)
+    tkl_get_global_prop(arg_msg "tkl::testlib::testmodule::last_test_assert_true::args::msg" 0)
 
     if (NOT TACKLELIB_TESTLIB_TESTCASE_FUNC STREQUAL "")
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}:")
+      tkl_test_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}:")
     else()
-      tkl_testmodule_print_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`:")
+      tkl_test_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`:")
     endif()
-    tkl_testmodule_print_msg("[   EXP  ] ${arg_exp}")
-    tkl_testmodule_print_msg("[   MSG  ] ${arg_msg}")
+    tkl_test_msg("[   EXP  ] ${arg_exp}")
+    if (DEFINED arg_msg)
+      tkl_test_msg("[   MSG  ] ${arg_msg}")
+    endif()
     tkl_set_global_prop(TACKLELIB_TESTLIB_TESTMODULE_RETCODE "tkl::testlib::testmodule::retcode" 1)
 
     tkl_testmodule_update_status()
@@ -423,22 +453,22 @@ endmacro()
 
 # Debug message with explicit enable/disable function.
 # By default is disabled and must be enable in each test.
-function(tkl_test_dbg_message msg)
+function(tkl_test_dbg_msg msg)
   tkl_get_global_prop(dbg_msg_enabled "tkl::testlib::testmodule::dbg_msg_enable" 1)
   if (dbg_msg_enabled)
     if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
-      message(TRACE "${msg}")
+      message(DEBUG "[ DEBUG  ] ${msg}")
     else()
-      message(STATUS "${msg}")  # to print to stdout
+      message(STATUS "[ DEBUG  ] ${msg}")  # to print to stdout
     endif()
   endif()
 endfunction()
 
-function(tkl_enable_test_dbg_message)
+function(tkl_enable_test_dbg_msg)
   set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::dbg_msg_enable" 1)
 endfunction()
 
-function(tkl_disable_test_dbg_message)
+function(tkl_disable_test_dbg_msg)
   set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::dbg_msg_enable" 0)
 endfunction()
 
