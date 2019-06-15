@@ -2,24 +2,9 @@
 if (NOT DEFINED TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED)
 set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 
-# CAUTION:
-#
-# 1. Be careful with the `set(... CACHE ...)` because it unsets the original
-#    variable!
-#    From documentation:
-#     "Finally, whenever a cache variable is added or modified by a command,
-#     CMake also removes the normal variable of the same name from the current
-#     scope so that an immediately following evaluation of it will expose the
-#     newly cached value."
-# 2. Be careful with the `set(... CACHE ... FORCE)` because it not just resets
-#    the cache and unsets the original variable. Additionally to previously
-#    mentioned behaviour it overrides a value passed by the `-D` cmake command
-#    line parameter!
-# 3. Be careful with the usual `set(<var> <value>)` when the cache value has
-#    been already exist, because it actually does not change the cache value but
-#    changes state of the ${<var>} value. In another words if you try later to
-#    unset the original variable by the `unset(<var>)` then the cached value
-#    will be revealed and might be different than after a very first set!
+# NOTE:
+#   Read the doc/02_general_variables_set_rules.txt`
+#   for variables set rules represented here.
 #
 
 include(tacklelib/List)
@@ -591,7 +576,7 @@ function(tkl_get_prop_stack_value_no_error out_var prop_entry prop_name stack_en
   endif()
 endfunction()
 
-# Start to track variables for change or adding.
+# Begin to track variables for change or adding.
 # Note that variables starting with underscore are NOT ignored.
 #
 # CAUTION:
@@ -639,13 +624,13 @@ macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
     list(REMOVE_ITEM _39067B90_vars_to_set ${ARGN})
   endif()
 
-  # propogate unset
+  # propagate unset
   foreach(_39067B90_var IN LISTS _39067B90_vars_to_unset)
     unset(${_39067B90_var} PARENT_SCOPE)
     #message("unset: ${_39067B90_var}")
   endforeach()
 
-  # propogate set
+  # propagate set
   foreach(_39067B90_var IN LISTS _39067B90_vars_to_set)
     set(${_39067B90_var} "${${_39067B90_var}}" PARENT_SCOPE)
     #message("set: ${_39067B90_var}=`${${_39067B90_var}}`")

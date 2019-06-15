@@ -5,9 +5,11 @@ set(TACKLELIB_STD_INCLUDE_DEFINED 1)
 cmake_minimum_required(VERSION 3.14)
 
 include(tacklelib/List)
+include(tacklelib/Math)
 include(tacklelib/File)
 include(tacklelib/Props)
 include(tacklelib/Reimpl)
+include(tacklelib/Time)
 include(tacklelib/Utility)
 
 # at least cmake 3.14 is required for:

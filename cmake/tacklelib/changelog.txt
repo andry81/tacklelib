@@ -1,3 +1,11 @@
+2019.06.15:
+* new: specific time functions in a standalone module (`Time.cmake`)
+* new: specific math functions in a standalone module (`Math.cmake`)
+* new: ~2.6 times faster `tkl_macro_eval` macro additionally to the `tkl_eval` function (`Eval.cmake`)
+* changed: testlib: split variables load from `*.test.vars` into 2 files - `*.test.vars` and `*.test.lib.vars`, because variables for the `TestLib.cmake` shall not be visible in the `TestModule.cmake` and vice versa (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: testlib: time variables minor refactor (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: testlib: print functions refactor (`TestLib.cmake`, `TestModule.cmake`)
+
 2019.06.14:
 * new: `*.test.vars` check and load in test environment (`TestLib.cmake`)
 * new: testlib: `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` and `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` variables to tweak a test process before call to `RunTestLib.cmake` (`TestLib.cmake`)

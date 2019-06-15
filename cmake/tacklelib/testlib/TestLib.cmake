@@ -82,8 +82,8 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testproc::index" "0")
 
-  string(TIMESTAMP TACKLELIB_TESTLIB_START_TIME_SEC "%s" UTC)
-  set_property(GLOBAL PROPERTY "tkl::testlib::start_time_sec" "${TACKLELIB_TESTLIB_START_TIME_SEC}")
+  tkl_time_sec(TACKLELIB_TESTLIB_BEGIN_TIME_SEC)
+  set_property(GLOBAL PROPERTY "tkl::testlib::begin_time_sec" "${TACKLELIB_TESTLIB_BEGIN_TIME_SEC}")
 
   if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
     message(FATAL_ERROR "TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
@@ -106,16 +106,16 @@ function(tkl_testlib_exit)
     message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
   endif()
 
-  string(TIMESTAMP TACKLELIB_TESTLIB_END_TIME_SEC "%s" UTC)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_START_TIME_SEC "tkl::testlib::start_time_sec" 0)
+  tkl_time_sec(TACKLELIB_TESTLIB_END_TIME_SEC)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_BEGIN_TIME_SEC "tkl::testlib::begin_time_sec" 0)
 
-  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_START_TIME_SEC})
+  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_BEGIN_TIME_SEC})
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-  tkl_testlib_print_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)\n===\n")
+  tkl_testlib_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
 endfunction()
 
 function(tkl_testlib_set_working_dir dir)
@@ -133,7 +133,7 @@ function(tkl_testlib_get_test_args out_var)
   set(${out_var} "${TACKLELIB_TESTLIB_TEST_ARGS}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_testlib_print_msg msg)
+function(tkl_testlib_msg msg)
   tkl_get_global_prop(TACKLELIB_TESTLIB_INITED "tkl::testlib::inited" 1)
 
   if (NOT TACKLELIB_TESTLIB_INITED)
@@ -498,9 +498,9 @@ function(tkl_testlib_test test_dir test_file_name)
 
   set(test_file_path "${test_file_dir}/${test_file_name_ext}")
 
-  # load test configuration variables from predefined places
-  if (EXISTS "${test_file_dir}/${test_file_name_no_ext}.vars" AND NOT IS_DIRECTORY "${test_file_dir}/${test_file_name_no_ext}.vars")
-    tkl_load_vars_from_files("${test_file_dir}/${test_file_name_no_ext}.vars")
+  # load TestLib configuration variables from predefined places
+  if (EXISTS "${test_file_dir}/${test_file_name_no_ext}.lib.vars" AND NOT IS_DIRECTORY "${test_file_dir}/${test_file_name_no_ext}.lib.vars")
+    tkl_load_vars_from_files("${test_file_dir}/${test_file_name_no_ext}.lib.vars")
   endif()
 
   #message("tkl_testlib_test: ${test_file_path}")
@@ -514,7 +514,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_testlib_test_file_shortcut("${test_file_dir_prefix}${test_file_name_ext}" TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT)
 
-  tkl_testlib_print_msg("[RUNNING ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`...")
+  tkl_testlib_msg("[RUNNING ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}`...")
 
   tkl_make_ret_code_file_dir(ret_code_dir)
 
@@ -528,7 +528,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST "tkl::testlib::test_case_match_filter" 1)
 
-  string(TIMESTAMP TACKLELIB_TESTLIB_START_TIME_SEC "%s" UTC)
+  tkl_time_sec(TACKLELIB_TESTLIB_BEGIN_TIME_SEC)
 
   if (DEFINED TACKLELIB_TESTLIB_WORKING_DIR AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL "" AND NOT TACKLELIB_TESTLIB_WORKING_DIR STREQUAL ".")
     set(exec_proc_wd "WORKING_DIRECTORY;${TACKLELIB_TESTLIB_WORKING_DIR}")
@@ -569,9 +569,9 @@ function(tkl_testlib_test test_dir test_file_name)
       TACKLELIB_TESTLIB_LAST_ERROR
   )
 
-  string(TIMESTAMP TACKLELIB_TESTLIB_END_TIME_SEC "%s" UTC)
+  tkl_time_sec(TACKLELIB_TESTLIB_END_TIME_SEC)
 
-  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_START_TIME_SEC})
+  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_BEGIN_TIME_SEC})
 
   set_property(GLOBAL PROPERTY "tkl::testlib::last_error" "${TACKLELIB_TESTLIB_LAST_ERROR}")
 
@@ -585,10 +585,10 @@ function(tkl_testlib_test test_dir test_file_name)
 
   if (TACKLELIB_TESTLIB_LAST_ERROR EQUAL 0)
     math(EXPR TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}+1")
-    tkl_testlib_print_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)")
+    tkl_testlib_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)")
   else()
     math(EXPR TACKLELIB_TESTLIB_NUM_FAILED_TESTS "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}+1")
-    tkl_testlib_print_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC}sec)")
+    tkl_testlib_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)")
   endif()
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")

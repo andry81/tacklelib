@@ -1,6 +1,6 @@
 include(tacklelib/ForwardArgs)
 
-#tkl_enable_test_dbg_message()
+#tkl_enable_test_dbg_msg()
 
 # CAUTION
 #   Use intermediate expansion stage to avoid substitution of the macro arguments!
@@ -8,11 +8,11 @@ include(tacklelib/ForwardArgs)
 set(empty "")
 
 macro(test_macro)
-  tkl_test_dbg_message("ARGV=${ARGV} ARGV=${ARGV${empty}}")
+  tkl_test_dbg_msg("ARGV=${ARGV} ARGV=${ARGV${empty}}")
   tkl_pushset_ARGVn_to_stack("${ARGV0}" "${ARGV1}" "${ARGV2}")
-  tkl_test_dbg_message("ARGV=${ARGV} ARGV=${ARGV${empty}}")
+  tkl_test_dbg_msg("ARGV=${ARGV} ARGV=${ARGV${empty}}")
   tkl_pushset_ARGVn_to_stack(a b "" "")
-  tkl_test_dbg_message("ARGV=${ARGV} ARGV=${ARGV${empty}}")
+  tkl_test_dbg_msg("ARGV=${ARGV} ARGV=${ARGV${empty}}")
 
   tkl_test_assert_true("ARGV STREQUAL \"a;b;;\"" "ARGV=$\\{ARGV}")
   if (ARGV STREQUAL "a;b;;")
@@ -57,7 +57,7 @@ macro(test_macro)
   endif()
 
   tkl_pop_ARGVn_from_stack()
-  tkl_test_dbg_message("ARGV=${ARGV} ARGV=$\\{ARGV}")
+  tkl_test_dbg_msg("ARGV=${ARGV} ARGV=$\\{ARGV}")
 
   tkl_test_assert_true("ARGV STREQUAL \"1;2;3\"" "ARGV=$\\{ARGV}")
   if (ARGV STREQUAL "1;2;3")

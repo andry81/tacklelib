@@ -1,0 +1,49 @@
+* 02_general_variables_set_rules.txt
+* 2019.06.15
+* tacklelib--cmake/doc
+
+1. DESCRIPTION
+2. CMAKE `set(... CACHE ...)`
+2. CMAKE `set(... CACHE ... FORCE)`
+4. CMAKE `set(<var> <value>)`
+5. AUTHOR EMAIL
+
+-------------------------------------------------------------------------------
+1. DESCRIPTION
+-------------------------------------------------------------------------------
+Here will be described the `set` command cases not specifically accented in
+the documentation but is still having a mislead.
+
+-------------------------------------------------------------------------------
+2. CMAKE `set(... CACHE ...)`
+-------------------------------------------------------------------------------
+Be careful with the `set(... CACHE ...)` because it unsets the original
+variable!
+
+From documentation:
+ "Finally, whenever a cache variable is added or modified by a command,
+ CMake also removes the normal variable of the same name from the current
+ scope so that an immediately following evaluation of it will expose the
+ newly cached value."
+
+-------------------------------------------------------------------------------
+3. CMAKE `set(... CACHE ... FORCE)`
+-------------------------------------------------------------------------------
+Be careful with the `set(... CACHE ... FORCE)` because it not just resets
+the cache and unsets the original variable. Additionally to previously
+mentioned behaviour it overrides a value passed by the `-D` cmake command
+line parameter!
+
+-------------------------------------------------------------------------------
+4. CMAKE `set(<var> <value>)`
+-------------------------------------------------------------------------------
+Be careful with the usual `set(<var> <value>)` when the cache value has
+been already exist, because it actually does not change the cache value but
+changes the state of the ${<var>} value. In another words if you try later to
+unset the original variable by the `unset(<var>)` then the cached value
+will be revealed and might be different than after a very first set!
+
+-------------------------------------------------------------------------------
+5. AUTHOR EMAIL
+-------------------------------------------------------------------------------
+andry at inbox dot ru

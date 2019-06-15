@@ -2,6 +2,11 @@
 if (NOT DEFINED TACKLELIB_FORWARD_ARGS_INCLUDE_DEFINED)
 set(TACKLELIB_FORWARD_ARGS_INCLUDE_DEFINED 1)
 
+# NOTE:
+#   Read the doc/02_general_variables_set_rules.txt`
+#   for variables set rules represented here.
+#
+
 include(tacklelib/ForwardVariables)
 include(tacklelib/Props)
 
