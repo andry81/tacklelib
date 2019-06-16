@@ -64,7 +64,7 @@ function(tkl_testmodule_init)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::test_case_match_filter" "${TACKLELIB_TESTLIB_TEST_CASE_MATCH_FILTER_LIST}")
 
-  # load TestModule configuration variables from predefined places
+  # load local TestModule configuration variables
   if (EXISTS "${TACKLELIB_TESTLIB_TESTMODULE_DIR}/${TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX}.test.vars" AND
       NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTMODULE_DIR}/${TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX}.test.vars")
     tkl_track_vars_begin()

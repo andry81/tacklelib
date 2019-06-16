@@ -7,10 +7,6 @@ include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardVariables)
 include(tacklelib/SetVarsFromFiles)
 
-if (NOT DEFINED TACKLELIB_TESTLIB_ROOT OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_ROOT}")
-  message(FATAL_ERROR "TACKLELIB_TESTLIB_ROOT variable must be defined externally before include this module: TACKLELIB_TESTLIB_ROOT=`${TACKLELIB_TESTLIB_ROOT}`")
-endif()
-
 function(tkl_testlib_init)
   # CAUTION:
   #   Must use global property here to avoid accidental misuse, because a variable existence would depend on a function context.
@@ -85,12 +81,30 @@ test_case_match_filter\;.\;test_case_match_filter_list\
   tkl_time_sec(TACKLELIB_TESTLIB_BEGIN_TIME_SEC)
   set_property(GLOBAL PROPERTY "tkl::testlib::begin_time_sec" "${TACKLELIB_TESTLIB_BEGIN_TIME_SEC}")
 
+  if (NOT DEFINED PROJECT_ROOT OR NOT IS_DIRECTORY "${PROJECT_ROOT}")
+    message(FATAL_ERROR "PROJECT_ROOT variable must be defained externally before include this module: PROJECT_ROOT=`${PROJECT_ROOT}`")
+  endif()
+
   if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
     message(FATAL_ERROR "TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
   endif()
 
   if (NOT DEFINED TACKLELIB_TESTLIB_TESTSCRIPT_FILE OR NOT EXISTS "${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}" OR IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}")
-    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTSCRIPT_FILE file path must exist before include this module: TACKLELIB_TESTLIB_TESTSCRIPT_FILE=`${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}`")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_TESTSCRIPT_FILE variable must be defined externally before include this module: TACKLELIB_TESTLIB_TESTSCRIPT_FILE=`${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}`")
+  endif()
+
+  if (NOT DEFINED TACKLELIB_TESTLIB_ROOT OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_ROOT}")
+    message(FATAL_ERROR "TACKLELIB_TESTLIB_ROOT variable must be defined externally before include this module: TACKLELIB_TESTLIB_ROOT=`${TACKLELIB_TESTLIB_ROOT}`")
+  endif()
+
+  # load global TestLib configuration variables
+  if (EXISTS "${TESTS_ROOT}/_config/environment_user.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/environment_user.vars")
+    tkl_track_vars_begin()
+
+    tkl_load_vars_from_files("${TESTS_ROOT}/_config/environment_user.vars")
+
+    tkl_forward_changed_vars_to_parent_scope()
+    tkl_track_vars_end()
   endif()
 
   # CAUTION:
@@ -162,6 +176,14 @@ function(tkl_testlib_msg msg)
   endif()
   math(EXPR num_print_msgs_in_dir ${num_print_msgs_in_dir}+1)
   set_property(GLOBAL PROPERTY "tkl::testlib::num_print_msgs_in_dir" ${num_print_msgs_in_dir})
+endfunction()
+
+function(tkl_testlib_info_msg msg)
+  tkl_testlib_msg("[  INFO  ] ${msg}")
+endfunction()
+
+function(tkl_testlib_setup_msg msg)
+  tkl_testlib_msg("[ SETUP  ] ${msg}")
 endfunction()
 
 function(tkl_testlib_print_enter_dir_msg msg)
@@ -498,7 +520,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   set(test_file_path "${test_file_dir}/${test_file_name_ext}")
 
-  # load TestLib configuration variables from predefined places
+  # load local TestLib configuration variables
   if (EXISTS "${test_file_dir}/${test_file_name_no_ext}.lib.vars" AND NOT IS_DIRECTORY "${test_file_dir}/${test_file_name_no_ext}.lib.vars")
     tkl_load_vars_from_files("${test_file_dir}/${test_file_name_no_ext}.lib.vars")
   endif()
