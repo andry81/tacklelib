@@ -35,11 +35,14 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://svn.code.sf.net/p/tacklelib/scripts/trunk
+  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_scripts/
+  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/_scripts
 First mirror:
-  * https://github.com/andry81/tacklelib--scripts.git
+  * https://github.com/andry81/tacklelib/tree/trunk/_scripts
+  * https://github.com/andry81/tacklelib.git
 Second mirror:
-  * https://bitbucket.org/andry81/tacklelib-scripts.git
+  * https://bitbucket.org/andry81/tacklelib/src/trunk/_scripts
+  * https://bitbucket.org/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------
 4. PREREQUISITES

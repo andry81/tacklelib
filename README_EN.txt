@@ -39,11 +39,8 @@ read additionally another readme files:
 
 `README_EN.linux_x86_64.txt`
 
-The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk
-
 WARNING:
-  Use the SVN access to find out new functionality and bug fixes.
+  Use the SVN access to find out latest functionality and bug fixes.
   See the REPOSITORIES section.
 
 -------------------------------------------------------------------------------
@@ -56,10 +53,13 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
+  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk
   * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk
 First mirror:
+  * https://github.com/andry81/tacklelib/tree/trunk
   * https://github.com/andry81/tacklelib.git
 Second mirror:
+  * https://bitbucket.org/andry81/tacklelib/src/trunk
   * https://bitbucket.org/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------

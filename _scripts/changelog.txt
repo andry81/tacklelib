@@ -1,3 +1,6 @@
+2019.06.16:
+* changed: repository links in readme update
+
 2019.06.09:
 * fixed: `tkl_include` early variables stack pop from a random `source` command instead in the function `tkl_include_local_impl` after the `trap "..." RETURN` command (trap have to be avoided here).
 * changed: [finished] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
