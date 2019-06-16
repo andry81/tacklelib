@@ -15,11 +15,8 @@
 -------------------------------------------------------------------------------
 Cmake tests designed to test cmake modules from the tacklelib library.
 
-The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake_tests/
-
 WARNING:
-  Use the SVN access to find out new functionality and bug fixes.
+  Use the SVN access to find out latest functionality and bug fixes.
   See the REPOSITORIES section.
 
 -------------------------------------------------------------------------------
@@ -32,11 +29,14 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
+  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake_tests
   * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/cmake_tests
 First mirror:
-  * https://github.com/andry81/tacklelib--cmake_tests.git
+  * https://github.com/andry81/tacklelib/tree/trunk/cmake_tests
+  * https://github.com/andry81/tacklelib.git
 Second mirror:
-  * https://bitbucket.org/andry81/tacklelib-cmake_tests.git
+  * https://bitbucket.org/andry81/tacklelib/src/trunk/cmake_tests
+  * https://bitbucket.org/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------
 4. PREREQUISITES

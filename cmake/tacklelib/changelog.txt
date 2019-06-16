@@ -1,4 +1,7 @@
 2019.06.16:
+* changed: repository links in readme update
+
+2019.06.16:
 * new: testlib: enable `CMAKE_COMMAND` initialize from external list - `CMAKE_COMMAND_LIST` to run tests on specific cmake executable versions (`TestLib.cmake`, `TestModule.cmake`, `RunTestLib.cmake`)
 
 2019.06.15:
