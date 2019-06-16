@@ -1,3 +1,10 @@
+2019.06.16:
+* new: cmake_tests: scripts: config generator scripts `*_generate_config.*`
+* new: cmake_tests: scripts: preparations to be able to load configuration files from the `_config` subdirectory
+* changed: readme update
+* changed: cmake_tests: readme update
+* refactor: `config` directory renamed into `_config`
+
 2019.06.15:
 * new: cmake: specific time functions in a standalone module (`Time.cmake`)
 * new: cmake: specific math functions in a standalone module (`Math.cmake`)

@@ -9,10 +9,10 @@ if not defined NEST_LVL set NEST_LVL=0
 
 call :PROJECT_ROOT "%%~dp0.."
 
-set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/config/environment_system.vars.in"
-set "CONFIG_VARS_SYSTEM_FILE=%PROJECT_ROOT%/config/environment_system.vars"
-set "CONFIG_VARS_USER_FILE_IN=%PROJECT_ROOT%/config/environment_user.vars.in"
-set "CONFIG_VARS_USER_FILE=%PROJECT_ROOT%/config/environment_user.vars"
+set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/_config/environment_system.vars.in"
+set "CONFIG_VARS_SYSTEM_FILE=%PROJECT_ROOT%/_config/environment_system.vars"
+set "CONFIG_VARS_USER_FILE_IN=%PROJECT_ROOT%/_config/environment_user.vars.in"
+set "CONFIG_VARS_USER_FILE=%PROJECT_ROOT%/_config/environment_user.vars"
 
 if not defined INIT_VERBOSE set INIT_VERBOSE=0
 if not defined TOOLS_VERBOSE set TOOLS_VERBOSE=0

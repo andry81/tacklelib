@@ -10,7 +10,7 @@ tkl_include "buildlib.sh" || exit $?
 
 function GenerateSrc()
 {
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.in"
 
   local IFS
   while IFS=$'|\t\r\n' read -r FromFilePath ToFilePath; do
@@ -24,7 +24,7 @@ function GenerateSrc()
     } > "$PROJECT_ROOT/$ToFilePath"
   done < "$CONFIG_FILE_IN"
 
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   local IFS
   while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do
@@ -40,8 +40,8 @@ function GenerateSrc()
 
 function GenerateConfig()
 {
-  local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
-  local CMDLINE_USER_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.user.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMDLINE_USER_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.user.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
@@ -52,7 +52,7 @@ function GenerateConfig()
   Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
   Call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $LastError
 
-  local CONFIG_FILE_IN="$PROJECT_ROOT/config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
   local IFS
 
   local IFS
@@ -132,7 +132,7 @@ function Configure()
 
   source "${ScriptDirPath:-.}/__init2__.sh" || Exit
 
-  local CMDLINE_FILE_IN="$PROJECT_ROOT/config/_scripts/03/$ScriptFileName.in"
+  local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/$ScriptFileName.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
 
@@ -176,7 +176,7 @@ function Build()
 
   source "${ScriptDirPath:-.}/__init2__.sh" || Exit
 
-  local CMDLINE_FILE_IN="$PROJECT_ROOT/config/_scripts/04/$ScriptFileName.in"
+  local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/04/$ScriptFileName.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
 
@@ -216,7 +216,7 @@ function Install()
 
   source "${ScriptDirPath:-.}/__init2__.sh" || Exit
 
-  local CMDLINE_FILE_IN="$PROJECT_ROOT/config/_scripts/05/$ScriptFileName.in"
+  local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
 
@@ -254,7 +254,7 @@ function PostInstall()
 
   source "${ScriptDirPath:-.}/__init2__.sh" || Exit
 
-  #local CMDLINE_FILE_IN="$PROJECT_ROOT/config/_scripts/05/$ScriptFileName.in"
+  #local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
   Pushd "$CMAKE_INSTALL_ROOT" && {
     PostInstallImpl "$@" || { Popd; return $LastError; }
@@ -387,7 +387,7 @@ function Pack()
 
   export PATH="$PATH%:$NSIS_INSTALL_ROOT"
 
-  local CMDLINE_FILE_IN="$PROJECT_ROOT/config/_scripts/07/$ScriptFileName.in"
+  local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/07/$ScriptFileName.in"
 
   MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
 

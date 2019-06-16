@@ -148,7 +148,7 @@ include(tacklelib/Version)
 #   error   - not applicable, throws an error
 #   ignore  - silent ignore
 #
-# '.  LEVEL N+1|             |             |             |             |             |
+# '.  LEVEL N+K|             |             |             |             |             |
 #   '-------,  |             |             |             |             |             |
 #  LEVEL N   '.|  <not set>  |  override   |  top        | top override|  final      |final package
 # -------------+-------------+-------------+-------------+-------------+-------------+-------------

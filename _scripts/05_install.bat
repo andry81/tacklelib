@@ -65,7 +65,7 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
 
 call "%%~dp0__init2__.bat" || exit /b
 
-set "CMDLINE_FILE_IN=%PROJECT_ROOT%\config\_scripts\05\%~nx0.in"
+set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\05\%~nx0.in"
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION

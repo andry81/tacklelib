@@ -1,3 +1,8 @@
+2019.06.16:
+* new: scripts: config generator scripts `*_generate_config.*`
+* new: scripts: preparations to be able to load configuration files from the `_config` subdirectory
+* changed: readme update
+
 2019.06.15:
 * new: `02_bench` tests now prints floating point time spent in seconds per call
 * new: more `02_bench` tests

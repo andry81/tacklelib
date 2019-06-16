@@ -2,7 +2,7 @@
 
 setlocal
 
-call "%%~dp0__init__.bat" || exit /b
+call "%%~dp0__init1__.bat" || exit /b
 
 call :CMD cmake ^
   "-DCMAKE_MODULE_PATH=%%TESTS_ROOT%%;%%PROJECT_ROOT%%/cmake" ^

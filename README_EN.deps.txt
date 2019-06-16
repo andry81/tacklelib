@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.05.15
+* 2019.06.16
 * tacklelib
 
 1. DESCRIPTION
@@ -95,7 +95,7 @@ Legend:
   02 version:   N/A
   03 desc:      tacklelib library configuration
   04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/config
+  05 original:  [01] https://sf.net/p/tacklelib/_config
                 [02] https://github.com/andry81/tacklelib--config.git
   06 build:     N/A
   07 linkage:   N/A
@@ -103,7 +103,7 @@ Legend:
   09 patched:   NO
   10 extended:  NO
   11 included:  YES:
-                [01] as sources, locally in the `config` subdirectory
+                [01] as sources, locally in the `_config` subdirectory
   12 macroses:
   13 used as:   configuration files
   14 depend on: NO

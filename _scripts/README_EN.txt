@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.29
+* 2019.06.16
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -48,7 +48,7 @@ Second mirror:
 * cmake 3.14+ :
   https://cmake.org/download/
 * configuration template files :
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/config/
+  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_config/
 * cmake modules :
   https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
 
@@ -56,7 +56,7 @@ Second mirror:
 5. DEPLOY
 -------------------------------------------------------------------------------
 You must use scripts inside the `_scripts` directory and prepared
-configuration files in the `config` subdirectory to build a project.
+configuration files in the `_config` subdirectory to build a project.
 Otherwise you have to set at least all dependent variables on yourself before
 call to the cmake.
 
