@@ -16,11 +16,6 @@ The C++11 library support scripts to build a project from Windows (.bat) and
 Linux (.sh) platforms separately but with the same configuration files and
 variables.
 
-The latest version is here:
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_scripts/
-  or
-  https://sf.net/p/tacklelib/scripts/HEAD/tree/trunk/
-
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
   See the REPOSITORIES section.
