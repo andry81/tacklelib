@@ -1,12 +1,14 @@
 * README_EN.txt
-* 2019.05.29
+* 2019.06.16
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
 2. LICENSE
 3. REPOSITORIES
 4. PREREQUISITES
-5. AUTHOR EMAIL
+5. DEPLOY
+6. CATALOG CONTENT DESCRIPTION
+7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -46,6 +48,73 @@ Second mirror:
   https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
 
 -------------------------------------------------------------------------------
-5. AUTHOR EMAIL
+5. DEPLOY
+-------------------------------------------------------------------------------
+You must use scripts inside the `/cmake_tests/_scripts` directory and prepared
+configuration files in the `/cmake_tests/_config` subdirectory to run the
+tests.
+
+Otherwise you have to set at least all dependent variables on yourself before
+call to tests scripts.
+
+To run bash shell scripts (`.sh` file extension) you should copy the
+`/_scripts/bash_entry` into the `/bin` directory of your platform.
+
+In pure Linux you have additional step to make scripts executable:
+
+>
+sudo chmod ug+x /bin/bash_entry
+sudo chmod o+r /bin/bash_entry
+
+-------------------------------------------------------------------------------
+6. CATALOG CONTENT DESCRIPTION
+-------------------------------------------------------------------------------
+
+<root>/cmake_tests
+ |
+ +- /`_config`
+ |  | #
+ |  | # Directory with tests configuration files.
+ |  |
+ |  +- /`_scripts`
+ |  |    #
+ |  |    # Directory with text files conaining command lines for scripts from
+ |  |    # `/cmake_tests/_scripts` directory
+ |  |
+ |  +- `environment_user.vars.in`
+ |  |   #
+ |  |   # Template file with user set of environment variables
+ |  |   # designed to be stored in a version control system.
+ |  |
+ |  +- `environment_user.vars`
+ |      #
+ |      # Generated temporary file with set of user customized environment
+ |      # variables to set them locally.
+ |
+ +- /`_scripts`
+ |  | #
+ |  | # Scripts to generate configuration and run tests.
+ |  | # Contains special `__init*__` script to allocate basic environment
+ |  | # variables and make common preparations.
+ |  |
+ |  +-/`01_generate_config.*`
+ |  |   #
+ |  |   # Script to generate configuration files in the `_config` subdirectory
+ |  |   # which are should not be included in a version control system.
+ |  |
+ |  +-/`test_all.*`
+ |  |   #
+ |  |   # Script to run all tests together.
+ |  |
+ |  +-/`tests_*.*`
+ |      #
+ |      # Script to run a predefined tests group.
+ |
+ +- `test_all.cmake`, `tests_*.cmake`
+     #
+     # The cmake entry point into respective tests group.
+
+-------------------------------------------------------------------------------
+7. AUTHOR EMAIL
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

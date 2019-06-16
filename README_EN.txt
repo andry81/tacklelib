@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.05.29
+* 2019.06.16
 * tacklelib
 
 1. DESCRIPTION
@@ -127,60 +127,7 @@ and the Linux platforms.
  |  #
  |  # Temporary directory with build output.
  |
- +- /`_scripts`
- |  | #
- |  | # Scripts to generate, configure, build, install and pack the entire
- |  | # solution.
- |  | # Contains special `__init*__` script to allocate basic environment
- |  | # variables and make common preparations.
- |  |
- |  +-/`bash_entry`
- |  |   #
- |  |   # Script for inclusion into all unix bash shell scripts a basic
- |  |   # functionality directly from the root `/bin` directory. Must be
- |  |   # appropriately copied into the `/bin` directory before the usage any
- |  |   # of below unix bash shell scripts.
- |  |
- |  +-/`01_generate_src.*`
- |  |   #
- |  |   # Script to generate source files in the root project and local 3dparty
- |  |   # subprojects and libraries which are should not be included in a
- |  |   # version control system.
- |  |
- |  +-/`02_generate_config.*`
- |  |   #
- |  |   # Script to generate configuration files in the `config` subdirectory
- |  |   # which are should not be included in a version control system.
- |  |
- |  +-/`03_configure.*`
- |  |   #
- |  |   # Script to call cmake configure step.
- |  |
- |  +-/`04_build.*`
- |  |   #
- |  |   # Script to call cmake build step on an arbitrary target.
- |  |
- |  +-/`05_install.*`
- |  |   #
- |  |   # Script to call cmake install step on the install target.
- |  |
- |  +-/`06_post_install.*`
- |  |   #
- |  |   # Script to call not cmake post install step.
- |  |
- |  +-/`06_pack.*`
- |      #
- |      # Script to call cmake pack step on the bundle target.
- |
- +- /`cmake`
- |    #
- |    # Directory with external cmake modules.
- |
- +- /`cmake_tests`
- |    #
- |    # Directory with tests for cmake modules from the `cmake` subdirectory.
- |
- +- /`config`
+ +- /`_config`
  |  | #
  |  | # Directory with build configuration files.
  |  |
@@ -212,6 +159,59 @@ and the Linux platforms.
  |      # variables to set them locally.
  |      # Loads after the system customized environment variables file.
  |
+ +- /`_scripts`
+ |  | #
+ |  | # Scripts to generate, configure, build, install and pack the entire
+ |  | # solution.
+ |  | # Contains special `__init*__` script to allocate basic environment
+ |  | # variables and make common preparations.
+ |  |
+ |  +-/`bash_entry`
+ |  |   #
+ |  |   # Script for inclusion into all unix bash shell scripts a basic
+ |  |   # functionality directly from the root `/bin` directory. Must be
+ |  |   # appropriately copied into the `/bin` directory before the usage any
+ |  |   # of below unix bash shell scripts.
+ |  |
+ |  +-/`01_generate_src.*`
+ |  |   #
+ |  |   # Script to generate source files in the root project and local 3dparty
+ |  |   # subprojects and libraries which are should not be included in a
+ |  |   # version control system.
+ |  |
+ |  +-/`02_generate_config.*`
+ |  |   #
+ |  |   # Script to generate configuration files in the `_config` subdirectory
+ |  |   # which are should not be included in a version control system.
+ |  |
+ |  +-/`03_configure.*`
+ |  |   #
+ |  |   # Script to call cmake configure step.
+ |  |
+ |  +-/`04_build.*`
+ |  |   #
+ |  |   # Script to call cmake build step on an arbitrary target.
+ |  |
+ |  +-/`05_install.*`
+ |  |   #
+ |  |   # Script to call cmake install step on the install target.
+ |  |
+ |  +-/`06_post_install.*`
+ |  |   #
+ |  |   # Script to call not cmake post install step.
+ |  |
+ |  +-/`06_pack.*`
+ |      #
+ |      # Script to call cmake pack step on the bundle target.
+ |
+ +- /`cmake`
+ |    #
+ |    # Directory with external cmake modules.
+ |
+ +- /`cmake_tests`
+ |    #
+ |    # Directory with tests for cmake modules from the `cmake` subdirectory.
+ |
  +- /`deploy`
  |    #
  |    # Directory to deploy files in postinstall phase.
@@ -237,8 +237,8 @@ and the Linux platforms.
 7. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-* `config/environment_system.vars`
-* `config/environment_user.vars`
+* `_config/environment_system.vars`
+* `_config/environment_user.vars`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.
@@ -281,8 +281,8 @@ product and has used from the `find_global_3dparty_environments` function
 (`/cmake/tacklelib/_3dparty/Global3dparty.cmake`).
 Is required in case of a global or an external 3dparty project or library
 which is not a local part of the project.
-Loads at first before the `/config/environment_system.vars` and
-the `/config/environment_user.vars` configuration files.
+Loads at first before the `/_config/environment_system.vars` and
+the `/_config/environment_user.vars` configuration files.
 
 * _3DPARTY_LOCAL_ROOT
 
@@ -331,7 +331,7 @@ Example:
 -------------------------------------------------------------------------------
 
 NOTE:
-  Some steps from this section and after will be applicable both for the
+  Some of steps from this section and after will be applicable both for the
   Windows platform (`.bat` file extension) and for the Linux like platform
   (`.sh` file extension).
 
@@ -353,46 +353,47 @@ CAUTION:
 10.2. Generation step(s)
 -------------------------------------------------------------------------------
 
-To generate sources which are not included in a version control system call to:
+To generate the source files which are not included in a version control system
+do call to:
 
 `/_scripts/01_generate_src.*` script.
 
 If some from template instantiated source files has been changed before the
-call, then they will be overwritten upon a call unconditionally.
+call, then they will be overwritten upon a call to the script unconditionally.
 
 To generate configuration files which are not included in a version control
-system call to:
+system do call to:
 
 `/_scripts/02_generate_config.*` script.
 
-If a version of a template file (at the first line) respactive to the
-instantiated one file has a different version versus instantiated one, then
-an error would be thrown (template version change protection).
+If a version of a template file in the first line is different to the version
+in the first line of the instantiated file, then an error would be thrown
+(template version change protection).
 
 If some from template instantiated configuration files has been changed before
-the call and has the same version with the instantiated one files, then
-they will be overwritten upon a call (template file body hashing and caching is
-not yet implemented).
+the script call and has the same version with the instantiated one files, then
+they will be overwritten upon a call to the script
+(the template file body hashing and caching is not yet implemented).
 
-If build is stopping on errors described above, then you must merge respective
-instantiated configuration files manually from template files before continue
-or run the script again.
+If a build is stopping on errors described above, then you have to merge all
+respective instantiated configuration files manually from template files before
+continue or run the script again.
 
 CAUTION:
   If a template file has been changed without a version change, then the script
   will overwrite a previously instantiated file without a warning, because the
   script has no functionality to separately check a template file body change
   and so there is no prevension from an accidental overwrite of a previously
-  instantiated file with user changes!
+  instantiated configuration file with the user changes!
 
 After that you should put or edit existed respective variables inside these
 generated files:
 
-* `/config/environment_system.vars`
-* `/config/environment_user.vars`
+* `/_config/environment_system.vars`
+* `/_config/environment_user.vars`
 
-The global or third party dependencies which are excluded from the source
-distribution does load through the separate configuration files pointed by
+The global or third party dependencies which are excluded from the source files
+distribution does load through the separate configuration files is pointed by
 the _3DPARTY_GLOBAL_ROOTS_LIST and _3DPARTY_GLOBAL_ROOTS_FILE_LIST list
 variables.
 
@@ -415,8 +416,8 @@ them:
 `d:/3dparty1/environment2.vars`
 `d:/3dparty2/environment1.vars`
 `d:/3dparty2/environment2.vars`
-`/config/environment_system.vars`
-`/config/environment_user.vars`
+`/_config/environment_system.vars`
+`/_config/environment_user.vars`
 
 To start use external 3dparty project directories you can take as a basic
 example the 3dparty project structure from these links:

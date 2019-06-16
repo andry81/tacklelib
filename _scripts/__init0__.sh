@@ -17,10 +17,10 @@ tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/.." s || Exit
 PROJECT_ROOT="${RETURN_VALUE:-*\$}" # safety: replace by not applicable or unexisted directory if empty
 #PROJECT_ROOT="`/bin/readlink -f "$BASH_SOURCE_DIR/.."`"
 
-CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/config/environment_system.vars.in"
-CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/config/environment_system.vars"
-CONFIG_VARS_USER_FILE_IN="$PROJECT_ROOT/config/environment_user.vars.in"
-CONFIG_VARS_USER_FILE="$PROJECT_ROOT/config/environment_user.vars"
+CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/_config/environment_system.vars.in"
+CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/_config/environment_system.vars"
+CONFIG_VARS_USER_FILE_IN="$PROJECT_ROOT/_config/environment_user.vars.in"
+CONFIG_VARS_USER_FILE="$PROJECT_ROOT/_config/environment_user.vars"
 
 [[ -z "$INIT_VERBOSE" ]] && INIT_VERBOSE=0
 [[ -z "$TOOLS_VERBOSE" ]] && TOOLS_VERBOSE=0

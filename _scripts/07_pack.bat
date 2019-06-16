@@ -73,7 +73,7 @@ if not exist "%NSIS_INSTALL_ROOT%" (
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
 
-set "CMDLINE_FILE_IN=%PROJECT_ROOT%\config\_scripts\07\%~nx0.in"
+set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\07\%~nx0.in"
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION

@@ -9,7 +9,7 @@ call "%%~dp0__init0__.bat" || goto INIT_EXIT
 set /A NEST_LVL+=1
 
 
-set "CONFIG_FILE_IN=%PROJECT_ROOT%\config\_scripts\01\%~n0.in"
+set "CONFIG_FILE_IN=%PROJECT_ROOT%\_config\_scripts\01\%~n0.in"
 
 rem load command line from file
 for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CONFIG_FILE_IN%") do (
@@ -18,7 +18,7 @@ for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CONFIG_FILE_IN%") do (
   call :PROCESS_FILE_TMPLS
 )
 
-set "CONFIG_FILE_IN=%PROJECT_ROOT%\config\_scripts\01\%~n0.deps%~x0.in"
+set "CONFIG_FILE_IN=%PROJECT_ROOT%\_config\_scripts\01\%~n0.deps%~x0.in"
 
 rem load command line from file
 for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CONFIG_FILE_IN%") do (
