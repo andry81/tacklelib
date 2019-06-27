@@ -1,9 +1,7 @@
-/CMakeLists.txt.user
+/_3dparty
 _config/*.vars
 /_out
 cmake_tests/_config/*.vars
-/environment_local.cmake
-/environment_local.vars
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
 include/tacklelib/setup.hpp
