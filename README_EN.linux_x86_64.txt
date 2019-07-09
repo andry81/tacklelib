@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2019.04.12
+* 2019.07.09
 * tacklelib
 
 1. DESCRIPTION
@@ -22,18 +22,21 @@
 5. RUN
 5.1. Prepare environment variables
 6. KNOWN ISSUES
-6.1. Boost build
-6.1.1. Boost build reports boost is not found, when the boost is completely
+6.1. Software issues
+6.1.1. Boost build
+6.1.1.1. Boost build reports boost is not found, when the boost is completely
        built and `BOOST_ROOT` has correct path.
-6.2. Any project build
-6.2.1. Make complains with error
+6.1.2. Any project build
+6.1.2.1. Make complains with error
       `make: getcwd: No such file or directory`,
       `make: *** No rule to make target '...'.  Stop.`
-6.2.2. Compilation complains with error
+6.1.2.2. Compilation complains with error
        `<library>.so: error adding symbols: File in wrong format`.
-6.2.3. Compilation complains with error
+6.1.2.3. Compilation complains with error
        `/usr/bin/ld: <object>.o: undefined reference to symbol 'pthread_create@@GLIBC_2.1'`,
        `//lib/i386-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line`.
+6.2. Hardware issues
+6.2.1. CDROM/DVDROM is empty or not unmountable
 7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -372,11 +375,15 @@ export LD_LIBRARY_PATH=.:./lib
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1. Boost build
+6.1. Software issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1.1. Boost build reports boost is not found, when the boost is completely
+6.1.1. Boost build
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.1.1.1. Boost build reports boost is not found, when the boost is completely
        built and `BOOST_ROOT` has correct path.
 -------------------------------------------------------------------------------
 
@@ -399,11 +406,11 @@ This may happend because:
    variable (for the boost 1.66+ only).
 
 -------------------------------------------------------------------------------
-6.2. Any project build
+6.1.2. Any project build
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.2.1. Make complains with error
+6.1.2.1. Make complains with error
       `make: getcwd: No such file or directory`,
       `make: *** No rule to make target '...'.  Stop.`
 -------------------------------------------------------------------------------
@@ -425,7 +432,7 @@ Solution #2:
 Restart terminal application.
 
 -------------------------------------------------------------------------------
-6.2.2. Compilation complains with error
+6.1.2.2. Compilation complains with error
        `<library>.so: error adding symbols: File in wrong format`.
 -------------------------------------------------------------------------------
 
@@ -453,7 +460,7 @@ objdump -f <library>.so
 Get or rebuild the correct version of the library.
 
 -------------------------------------------------------------------------------
-6.2.3. Compilation complains with error
+6.1.2.3. Compilation complains with error
        `/usr/bin/ld: <object>.o: undefined reference to symbol 'pthread_create@@GLIBC_2.1'`,
        `//lib/i386-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line`.
 -------------------------------------------------------------------------------
@@ -483,6 +490,47 @@ OR
 
 Use flag `-pthread` both for the compiler and linker instead the `-lpthread`
 flag.
+
+-------------------------------------------------------------------------------
+6.2. Hardware issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.2.1. CDROM/DVDROM is empty or not unmountable
+-------------------------------------------------------------------------------
+
+Can happens because:
+
+1. The guest is running under VirtualBox 5.x and the previous cdrom image was
+  not properly unmounted before install a new version of the VirtualBox.
+
+Solution #1:
+
+Try to eject the disk by using one of these commands:
+
+  * `sudo eject -T`
+  * `sudo eject -r`
+  * `sudo eject -s`
+
+  From the command manual (http://man7.org/linux/man-pages/man1/eject.1.html ):
+
+       -r, --cdrom
+              This option specifies that the drive should be ejected using a
+              CDROM eject command.
+
+       -s, --scsi
+              This option specifies that the drive should be ejected using
+              SCSI commands.
+
+       -T, --traytoggle
+              With this option the drive is given a CD-ROM tray close
+              command if it's opened, and a CD-ROM tray eject command if
+              it's closed.  Not all devices support this command, because it
+              uses the above CD-ROM tray close command.
+
+       -t, --trayclose
+              With this option the drive is given a CD-ROM tray close
+              command.  Not all devices support this command.
 
 -------------------------------------------------------------------------------
 7. AUTHOR EMAIL
