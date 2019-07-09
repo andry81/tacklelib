@@ -6,16 +6,17 @@
 2. DEPENDENCIES
 3. PREREQUISITES
 3.1. Linux Mint 18.3 x64
-3.1.1. Locale
-3.1.2. apt-get
-3.1.3. GCC
-3.1.4. 3dparty libraries
-3.1.5. 3dparty utilities
-3.1.6. VirtualBox shared folder mount
-3.1.7. Postprocess files has copied into Linux directories
-3.1.8. Boost library download and build
-3.1.9. GoogleTest library build (optional)
-3.1.10. xz library download, build and install
+3.1.1. Preconfiguration
+3.1.2. Locale
+3.1.3. apt-get
+3.1.4. GCC
+3.1.5. 3dparty libraries
+3.1.6. 3dparty utilities
+3.1.7. VirtualBox shared folder mount
+3.1.8. Postprocess files has copied into Linux directories
+3.1.9. Boost library download and build
+3.1.10. GoogleTest library build (optional)
+3.1.11. xz library download, build and install
 4. CONFIGURE
 4.1. Manual copy step
 4.2. Manual preparation step
@@ -23,16 +24,18 @@
 5.1. Prepare environment variables
 6. KNOWN ISSUES
 6.1. Software issues
-6.1.1. Boost build
-6.1.1.1. Boost build reports boost is not found, when the boost is completely
+6.1.1. apt-get install issues
+6.1.1.1. Message `Failed to fetch ... 404 Not Found`
+6.1.2. Boost build
+6.1.2.1. Boost build reports boost is not found, when the boost is completely
        built and `BOOST_ROOT` has correct path.
-6.1.2. Any project build
-6.1.2.1. Make complains with error
+6.1.3. Any project build
+6.1.3.1. Make complains with error
       `make: getcwd: No such file or directory`,
       `make: *** No rule to make target '...'.  Stop.`
-6.1.2.2. Compilation complains with error
+6.1.3.2. Compilation complains with error
        `<library>.so: error adding symbols: File in wrong format`.
-6.1.2.3. Compilation complains with error
+6.1.3.3. Compilation complains with error
        `/usr/bin/ld: <object>.o: undefined reference to symbol 'pthread_create@@GLIBC_2.1'`,
        `//lib/i386-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line`.
 6.2. Hardware issues
@@ -76,7 +79,15 @@ Additional dependencies specific to the Linux:
 cd /home/tester
 
 -------------------------------------------------------------------------------
-3.1.1. Locale
+3.1.1. Preconfiguration
+-------------------------------------------------------------------------------
+
+# to read the system and repository configuration
+>
+inxi -Sr
+
+-------------------------------------------------------------------------------
+3.1.2. Locale
 -------------------------------------------------------------------------------
 
 # update locale
@@ -89,7 +100,7 @@ echo "export LC_ALL=ru_RU.UTF-8" >> ~/.bash_profile
 sudo update-locale
 
 -------------------------------------------------------------------------------
-3.1.2. apt-get
+3.1.3. apt-get
 -------------------------------------------------------------------------------
 
 # prepare apt-get
@@ -97,7 +108,7 @@ sudo update-locale
 sudo apt-get update
 
 -------------------------------------------------------------------------------
-3.1.3. GCC
+3.1.4. GCC
 -------------------------------------------------------------------------------
 
 # prepare gcc
@@ -110,7 +121,7 @@ sudo apt-get install libx32gcc-4.8-dev
 sudo apt-get install libc6-dev:i386 libc6-dev-i386
 
 -------------------------------------------------------------------------------
-3.1.4. 3dparty libraries
+3.1.5. 3dparty libraries
 -------------------------------------------------------------------------------
 
 # prepare 3dparty required libs
@@ -123,7 +134,7 @@ sudo apt-get install libexpat-dev:i386  # required for libarchive 32-bit depende
 sudo apt-get install libicu-dev
 
 -------------------------------------------------------------------------------
-3.1.5. 3dparty utilities
+3.1.6. 3dparty utilities
 -------------------------------------------------------------------------------
 
 # prepare utilities (required)
@@ -159,7 +170,7 @@ sudo apt-get install mono-complete
 sudo apt-get install patchelf:i386
 
 -------------------------------------------------------------------------------
-3.1.6. VirtualBox shared folder mount
+3.1.7. VirtualBox shared folder mount
 -------------------------------------------------------------------------------
 
 # To auto mount shared folder at boot:
@@ -180,7 +191,7 @@ mkdir ~/common_rw
 sudo mount -t vboxsf common_rw ~/common_rw
 
 -------------------------------------------------------------------------------
-3.1.7. Postprocess files has copied into Linux directories
+3.1.8. Postprocess files has copied into Linux directories
 -------------------------------------------------------------------------------
 
 After files has copied into `/media/sf_common_rw` or whatever else, you have to
@@ -203,7 +214,7 @@ cd .../_script/admin
 sudo bash ./chown_mod.sh [<user> [<group>]]
 
 -------------------------------------------------------------------------------
-3.1.8. Boost library download and build
+3.1.9. Boost library download and build
 -------------------------------------------------------------------------------
 
 >
@@ -266,7 +277,7 @@ sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/b
 install
 
 -------------------------------------------------------------------------------
-3.1.9. GoogleTest library build (optional)
+3.1.10. GoogleTest library build (optional)
 -------------------------------------------------------------------------------
 
 # CHANGE DIRECTORY INTO UNPACKED `googletest` DIRECTORY BEFORE TYPE ANY COMMANDS
@@ -295,7 +306,7 @@ cp libgtest_main.a ../lib
 cp libgtest.a ../lib
 
 -------------------------------------------------------------------------------
-3.1.10. xz library download, build and install
+3.1.11. xz library download, build and install
 -------------------------------------------------------------------------------
 
 >
@@ -379,11 +390,42 @@ export LD_LIBRARY_PATH=.:./lib
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1.1. Boost build
+6.1.1. apt-get install issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1.1.1. Boost build reports boost is not found, when the boost is completely
+6.1.1.1. Message `Failed to fetch ... 404 Not Found`
+-------------------------------------------------------------------------------
+
+Cause:
+
+  1. Repository paths is invalid or has changed.
+
+Solution #1:
+
+  https://superuser.com/questions/1004008/linux-mint-sudo-apt-get-update-404-errors/1009807#1009807
+
+  Update repository sources:
+
+  1. Backup directory `/etc/apt/sources.list.d`
+  2. Delete content of the directory `/etc/apt/sources.list.d`
+  3. `sudo software-sources`
+  4. Press button `Restore the default settings`
+  5. Press button `Update cache`
+
+Solution #2:
+
+  Run the apt update:
+
+  >
+  sudo apt-get update
+
+-------------------------------------------------------------------------------
+6.1.2. Boost build
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.1.2.1. Boost build reports boost is not found, when the boost is completely
        built and `BOOST_ROOT` has correct path.
 -------------------------------------------------------------------------------
 
@@ -406,11 +448,11 @@ This may happend because:
    variable (for the boost 1.66+ only).
 
 -------------------------------------------------------------------------------
-6.1.2. Any project build
+6.1.3. Any project build
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1.2.1. Make complains with error
+6.1.3.1. Make complains with error
       `make: getcwd: No such file or directory`,
       `make: *** No rule to make target '...'.  Stop.`
 -------------------------------------------------------------------------------
@@ -432,7 +474,7 @@ Solution #2:
 Restart terminal application.
 
 -------------------------------------------------------------------------------
-6.1.2.2. Compilation complains with error
+6.1.3.2. Compilation complains with error
        `<library>.so: error adding symbols: File in wrong format`.
 -------------------------------------------------------------------------------
 
@@ -460,7 +502,7 @@ objdump -f <library>.so
 Get or rebuild the correct version of the library.
 
 -------------------------------------------------------------------------------
-6.1.2.3. Compilation complains with error
+6.1.3.3. Compilation complains with error
        `/usr/bin/ld: <object>.o: undefined reference to symbol 'pthread_create@@GLIBC_2.1'`,
        `//lib/i386-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line`.
 -------------------------------------------------------------------------------

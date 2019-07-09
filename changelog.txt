@@ -1,6 +1,9 @@
 2019.07.09:
 * changed: linux readme update
 
+2019.07.09:
+* changed: linux readme update
+
 2019.06.16:
 * changed: scripts: repository links in readme update
 * changed: cmake: repository links in readme update
