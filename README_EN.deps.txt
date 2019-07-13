@@ -300,7 +300,7 @@ Legend:
 
 * 7zip
   00 demand:    OPTIONAL
-  01 platform:  WINDOWS, LINUX
+  01 platform:  WINDOWS ONLY
   02 version:   18.06 (2018.12.30) from
                 https://www.7-zip.org/download.html
                 (https://www.7-zip.org/a/lzma1806.7z )
