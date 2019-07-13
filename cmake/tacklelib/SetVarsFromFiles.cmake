@@ -351,7 +351,7 @@ endfunction()
 # CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:      Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
 # CMAKE_CURRENT_PACKAGE_NAME:                 Current package name this file being loaded from.
 # CMAKE_CURRENT_PACKAGE_SOURCE_DIR:           Current package source directory this file being loaded from.
-# CMAKE_TOP_PACKAGE_NAME_NAME:                Top package name.
+# CMAKE_TOP_PACKAGE_NAME:                     Top package name.
 # CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:          Top package source directory.
 #
 macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
@@ -754,7 +754,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     CMAKE_CURRENT_LOAD_VARS_FILE_INDEX;CMAKE_CURRENT_LOAD_VARS_FILE_DIR
     CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX
     CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR
-    CMAKE_TOP_PACKAGE_NAME_NAME;CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR)
+    CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR)
 
   foreach (injected_var_name IN LISTS injected_vars_list)
     if (injected_var_name STREQUAL "")
@@ -1411,7 +1411,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(prev_char_escaped 0)
 
         # CAUTION:
-        #   We DO NOT use `list(APPEND ...)` for this variable, so we don't need to make an not empty initial value for it,
+        #   We DO NOT use `list(APPEND ...)` for this variable, so we don't need to make a not empty initial value for it,
         #   because `list(APPEND ...)` can not append an empty value to an empty list (needs not empty list at first place).
         #   Instead we use `set` to make an append, so may leave it empty here.
         #
