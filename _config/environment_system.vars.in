@@ -54,7 +54,7 @@
 # CMAKE_CURRENT_PACKAGE_NAME:                   Current package name this file being loaded from.
 # CMAKE_CURRENT_PACKAGE_SOURCE_DIR:             Current package source directory this file being loaded from.
 # CMAKE_TOP_PACKAGE_NAME:                       Top package name.
-# CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:            Top package source directory.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
 top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
@@ -63,7 +63,7 @@ top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATO
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
 top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
-top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR}/_out"
+top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
 final package CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_GENERATOR_DIR}/$/{CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX}--$/{CMAKE_CURRENT_PACKAGE_NAME}"
 final package CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
@@ -79,7 +79,7 @@ top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
 
 final package PROJECT_NAME=tacklelib
 final package PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
-top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR}"      # top parent project root in context of parent build
+top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}"           # top parent project root in context of parent build
 
 # CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
 final package _3DPARTY_GLOBAL_ROOTS_LIST=("d:/_3dparty")

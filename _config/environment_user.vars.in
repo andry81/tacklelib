@@ -54,7 +54,7 @@
 # CMAKE_CURRENT_PACKAGE_NAME:                   Current package name this file being loaded from.
 # CMAKE_CURRENT_PACKAGE_SOURCE_DIR:             Current package source directory this file being loaded from.
 # CMAKE_TOP_PACKAGE_NAME:                       Top package name.
-# CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:            Top package source directory.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
 override CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32

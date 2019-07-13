@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.06.16
+* 2019.07.13
 * tacklelib
 
 1. DESCRIPTION
@@ -270,7 +270,7 @@ command in the `CMakeLists.txt` file, otherwise the error will be thrown.
 Optional variables to pinpoint the most top parent project root and the current
 project root. Has used as base variables to point project local 3dparty
 directories. Must be initialized from respective builtin
-CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
+CMAKE_TOP_PACKAGE_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
 variables which does initialize after the `tkl_configure_environment`
 (`/cmake/tackelib/Project.cmake`) macro call.
 
