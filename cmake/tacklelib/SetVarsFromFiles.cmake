@@ -352,7 +352,7 @@ endfunction()
 # CMAKE_CURRENT_PACKAGE_NAME:                 Current package name this file being loaded from.
 # CMAKE_CURRENT_PACKAGE_SOURCE_DIR:           Current package source directory this file being loaded from.
 # CMAKE_TOP_PACKAGE_NAME:                     Top package name.
-# CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:          Top package source directory.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:               Top package source directory.
 #
 macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   if (${ARGC} GREATER 32)
@@ -754,7 +754,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     CMAKE_CURRENT_LOAD_VARS_FILE_INDEX;CMAKE_CURRENT_LOAD_VARS_FILE_DIR
     CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX
     CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR
-    CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR)
+    CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR)
 
   foreach (injected_var_name IN LISTS injected_vars_list)
     if (injected_var_name STREQUAL "")
