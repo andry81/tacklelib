@@ -1,3 +1,6 @@
+2019.07.13:
+* fixed: multiple typos after refactor misuse
+
 2019.07.09:
 * changed: linux readme update
 

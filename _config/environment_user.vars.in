@@ -53,7 +53,7 @@
 # CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:        Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
 # CMAKE_CURRENT_PACKAGE_NAME:                   Current package name this file being loaded from.
 # CMAKE_CURRENT_PACKAGE_SOURCE_DIR:             Current package source directory this file being loaded from.
-# CMAKE_TOP_PACKAGE_NAME_NAME:                  Top package name.
+# CMAKE_TOP_PACKAGE_NAME:                       Top package name.
 # CMAKE_TOP_PACKAGE_NAME_SOURCE_DIR:            Top package source directory.
 #
 
