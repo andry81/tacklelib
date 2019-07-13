@@ -1,3 +1,6 @@
+2019.07.13:
+* new: tools: `cmdoplib.py`, `list_urls_in_files.py` python scripts  to extract urls from files
+
 2019.06.16:
 * changed: repository links in readme update
 

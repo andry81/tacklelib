@@ -73,8 +73,10 @@ Legend:
   02 version:   N/A
   03 desc:      tacklelib library scripts
   04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/scripts
-                [02] https://github.com/andry81/tacklelib--scripts.git
+  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
+                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_scripts
+                [02] https://github.com/andry81/tacklelib.git
+                [03] https://github.com/andry81/tacklelib/tree/master/_scripts
   06 build:     N/A
   07 linkage:   N/A
   08 variables:
@@ -95,8 +97,10 @@ Legend:
   02 version:   N/A
   03 desc:      tacklelib library configuration
   04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/_config
-                [02] https://github.com/andry81/tacklelib--config.git
+  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
+                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_config
+                [03] https://github.com/andry81/tacklelib.git
+                [04] https://github.com/andry81/tacklelib/tree/master/_config
   06 build:     N/A
   07 linkage:   N/A
   08 variables:
@@ -116,8 +120,10 @@ Legend:
   02 version:   N/A
   03 desc:      tacklelib library cmake modules
   04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/cmake/tacklelib
-                [02] https://github.com/andry81/tacklelib--cmake.git
+  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
+                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib
+                [03] https://github.com/andry81/tacklelib.git
+                [04] https://github.com/andry81/tacklelib/tree/master/cmake/tacklelib
   06 build:     N/A
   07 linkage:   N/A
   08 variables:
