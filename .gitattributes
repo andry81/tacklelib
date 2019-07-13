@@ -61,10 +61,13 @@ _scripts/deploy/gen_links.sh -text
 _scripts/deploy/user_links.lst -text
 _scripts/license.txt -text
 _scripts/projectlib.sh -text
+_scripts/tools/.svnignore -text
 _scripts/tools/check_build_type.bat -text
 _scripts/tools/check_config_version.bat -text
+_scripts/tools/cmdoplib.py -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.sh -text
+_scripts/tools/list_urls_in_files.py -text
 _scripts/tools/make_output_directories.bat -text
 _scripts/tools/set_vars_from_files.bat -text
 _scripts/tools/set_vars_from_files.sh -text

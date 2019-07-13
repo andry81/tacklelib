@@ -1,6 +1,7 @@
 /_3dparty
 _config/*.vars
 /_out
+_scripts/tools/__pycache*__
 cmake_tests/_config/*.vars
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
