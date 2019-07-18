@@ -309,7 +309,7 @@
 * new: `copy_variables` (ForwardVariables.cmake) function to copy parent scope variables into 2 arbitrary lists with names and values
 
 2019.02.09:
-* refactor: restored back all moved to the tackelib cmake subdirectory cmake module files as a better method to reference all cmake modules at once
+* refactor: restored back all moved to the tacklelib cmake subdirectory cmake module files as a better method to reference all cmake modules at once
 * refactor: new cmake modules hierarchy
 
 2019.01.17:

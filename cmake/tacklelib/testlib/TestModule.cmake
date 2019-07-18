@@ -1,6 +1,6 @@
 # inclusion guard for protection and speedup
 if (NOT DEFINED TACKLELIB_TESTMODULE_INCLUDE_DEFINED)
-set(TACKELIB_TESTMODULE_INCLUDE_DEFINED 1)
+set(TACKLELIB_TESTMODULE_INCLUDE_DEFINED 1)
 
 include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)

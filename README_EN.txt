@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.07.13
+* 2019.07.18
 * tacklelib
 
 1. DESCRIPTION
@@ -272,7 +272,7 @@ project root. Has used as base variables to point project local 3dparty
 directories. Must be initialized from respective builtin
 CMAKE_TOP_PACKAGE_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
 variables which does initialize after the `tkl_configure_environment`
-(`/cmake/tackelib/Project.cmake`) macro call.
+(`/cmake/tacklelib/Project.cmake`) macro call.
 
 * _3DPARTY_GLOBAL_ROOTS_LIST, _3DPARTY_GLOBAL_ROOTS_FILE_LIST
 
