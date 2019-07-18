@@ -1,6 +1,6 @@
 # inclusion guard for protection and speedup
 if (NOT DEFINED TACKLELIB_VERSION_INCLUDE_DEFINED)
-set(TACKELIB_VERSION_INCLUDE_DEFINED 1)
+set(TACKLELIB_VERSION_INCLUDE_DEFINED 1)
 
 # https://en.wikipedia.org/wiki/Microsoft_Visual_C
 #
