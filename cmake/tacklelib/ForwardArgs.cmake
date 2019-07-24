@@ -2,6 +2,13 @@
 if (NOT DEFINED TACKLELIB_FORWARD_ARGS_INCLUDE_DEFINED)
 set(TACKLELIB_FORWARD_ARGS_INCLUDE_DEFINED 1)
 
+cmake_minimum_required(VERSION 3.7)
+
+# at least cmake 3.7 is required for:
+# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+#   `if(<variable|string> GREATER_EQUAL <variable|string>)`
+#
+
 # NOTE:
 #   Read the doc/02_general_variables_set_rules.txt`
 #   for variables set rules represented here.
@@ -9,6 +16,320 @@ set(TACKLELIB_FORWARD_ARGS_INCLUDE_DEFINED 1)
 
 include(tacklelib/ForwardVariables)
 include(tacklelib/Props)
+include(tacklelib/List)
+include(tacklelib/Utility)
+
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+function(tkl_make_var_from_ARGV_begin argv_joined_list out_argv_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 2 arguments")
+  endif()
+
+  set(_BBD57550_argv_joined_list "${argv_joined_list}" PARENT_SCOPE)
+
+  unset(${out_argv_var} PARENT_SCOPE)
+endfunction()
+
+macro(tkl_make_var_from_ARGV_end out_argv_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 1 argument")
+  endif()
+
+  # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+  set(${out_argv_var} ";")
+
+  # to be able to append empty values at begginning
+  if (NOT _BBD57550_argv_joined_list STREQUAL "")
+    set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list}")
+  else()
+    set(_BBD57550_argv_joined_list ";${_BBD57550_argv_joined_list}")
+  endif()
+  set(_BBD57550_argv_joined_list_accum ";")
+
+  set(_BBD57550_var_index 0)
+
+  while (NOT _BBD57550_argv_joined_list STREQUAL _BBD57550_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_BBD57550_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
+    endif()
+
+    set(_BBD57550_argv_value "${ARGV${_BBD57550_var_index}}")
+
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    tkl_escape_string_before_list_append(_BBD57550_argv_value "${_BBD57550_argv_value}")
+
+    list(APPEND ${out_argv_var} "${_BBD57550_argv_value}")
+
+    list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
+
+    math(EXPR _BBD57550_var_index "${_BBD57550_var_index}+1")
+  endwhile()
+
+  # remove 2 first dummy empty strings
+  tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
+
+  unset(_BBD57550_argv_joined_list)
+  unset(_BBD57550_argv_joined_list_accum)
+  unset(_BBD57550_var_index)
+  unset(_BBD57550_argv_value)
+  unset(_BBD57550_argv_value_encoded)
+endmacro()
+
+# CAUTION:
+#   Must be a function to avoid expansion of variable arguments like:
+#   * `${...}` into a value
+#   * `$\{...}` into `${...}`
+#   * `\n` into the line return
+#   etc
+#
+# Params:
+#   out_argv_var - optional
+#   out_argn_var - required
+function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list out_argv_var out_argn_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 4 arguments")
+  endif()
+
+  # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+  set(_9E220B1D_argv_joined_list "${argv_joined_list};")   # 1t phase list
+  set(_9E220B1D_argn_joined_list "${argn_joined_list};")
+
+  set(_9E220B1D_argn_offset -1)
+  if (NOT "${_9E220B1D_argn_joined_list}" STREQUAL ";")
+    # offset could be with last empty element here
+    string(FIND "${_9E220B1D_argv_joined_list}" "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_offset REVERSE)
+    # found substring must be the same size to the ARGN string length
+    string(LENGTH "${_9E220B1D_argv_joined_list}" _9E220B1D_argv_joined_list_len)
+    string(LENGTH "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_joined_list_len)
+    math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
+    if (NOT _9E220B1D_args_joined_list_len EQUAL _9E220B1D_argn_offset)
+      message(FATAL_ERROR "invalid offset")
+    endif()
+  endif()
+
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    unset(${out_argv_var} PARENT_SCOPE)
+  endif()
+  unset(${out_argn_var} PARENT_SCOPE)
+  set(_9E220B1D_argn_offset "${_9E220B1D_argn_offset}" PARENT_SCOPE)
+  set(_9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}" PARENT_SCOPE)
+  #set(_9E220B1D_argn_joined_list "${_9E220B1D_argn_joined_list}" PARENT_SCOPE)
+endfunction()
+
+# Params:
+#   out_argv_var - optional
+#   out_argn_var - required
+macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
+  if (NOT "${ARGN}" STREQUAL "")
+    message(FATAL_ERROR "function must have only 2 arguments")
+  endif()
+
+  # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    set(${out_argv_var} ";")
+  endif()
+  set(${out_argn_var} ";")
+  set(_9E220B1D_argv_joined_list_accum "")
+
+  string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
+
+  # remove last separator
+  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+    # remove last `;` character
+    string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_args_joined_list "${_9E220B1D_args_joined_list}")
+  endif()
+  if (NOT _9E220B1D_argv_joined_list STREQUAL ";")
+    # remove last `;` character
+    string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}")
+  endif()
+
+  set(_9E220B1D_var_index 0)
+
+  # to be able to append empty values at begginning
+  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+    set(_9E220B1D_args_joined_list ";;${_9E220B1D_args_joined_list}")
+  else()
+    set(_9E220B1D_args_joined_list ";${_9E220B1D_args_joined_list}")
+  endif()
+  set(_9E220B1D_argv_joined_list_accum ";${_9E220B1D_argv_joined_list_accum}")
+
+  while (NOT _9E220B1D_args_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_9E220B1D_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "(1) ARGV arguments are too many or infinite loop is detected")
+    endif()
+
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+
+      # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+      tkl_escape_string_before_list_append(_9E220B1D_argv_value "${_9E220B1D_argv_value}")
+
+      list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
+    endif()
+
+    list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
+
+    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+  endwhile()
+
+  # to be able to append empty values at begginning
+  if (NOT _9E220B1D_argv_joined_list STREQUAL "")
+    set(_9E220B1D_argv_joined_list ";;${_9E220B1D_argv_joined_list}")
+  else()
+    set(_9E220B1D_argv_joined_list ";${_9E220B1D_argv_joined_list}")
+  endif()
+
+  while (NOT _9E220B1D_argv_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+    # with finite loop insurance
+    if (_9E220B1D_var_index GREATER_EQUAL 64)
+      message(FATAL_ERROR "(2) ARGV arguments are too many or infinite loop is detected")
+    endif()
+
+    set(_9E220B1D_argv_value "${ARGV${_9E220B1D_var_index}}")
+
+    # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+    tkl_escape_string_before_list_append(_9E220B1D_argv_value "${_9E220B1D_argv_value}")
+
+    if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+      list(APPEND ${out_argv_var} "${_9E220B1D_argv_value}")
+    endif()
+    list(APPEND ${out_argn_var} "${_9E220B1D_argv_value}")
+
+    list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
+
+    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+  endwhile()
+
+  # remove 2 first dummy empty strings
+  if (NOT "${out_argv_var}" STREQUAL "" AND NOT "${out_argv_var}" STREQUAL ".")
+    tkl_list_remove_sublist(${out_argv_var} 0 2 ${out_argv_var})
+  endif()
+  tkl_list_remove_sublist(${out_argn_var} 0 2 ${out_argn_var})
+
+  unset(_9E220B1D_argv_joined_list_accum)
+  unset(_9E220B1D_var_index)
+  unset(_9E220B1D_argv_value)
+  unset(_9E220B1D_argv_value_encoded)
+
+  unset(_9E220B1D_argv_joined_list)
+  #unset(_9E220B1D_argn_joined_list)
+  unset(_9E220B1D_argn_offset)
+endmacro()
+
+# CAUTION:
+#   Function must be without arguments to:
+#   1. support optional leading arguments like flags beginning by the `-` character
+#
+# Usage:
+#   [<flags>] <out_var>
+#
+# flags:
+#   -P - Enumerate script arguments (including a script absolute file path) instead of a cmake process arguments
+#     (for the script mode only, where the cmake has called with the `-P` flag).
+#
+function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
+  tkl_make_var_from_ARGV_begin("${ARGV}" argv)
+  # in case of in a function call we don't have to pass all ARGV arguments explicitly
+  tkl_make_var_from_ARGV_end(argv)
+  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
+
+  list(LENGTH argv argv_len)
+  set(argv_index 0)
+
+  set(set_script_args 0)
+  set(strict_checks 0)
+  set(dont_convert_module_path 1) # do not convert module path to the absolute path
+
+  # parse flags until no flags
+  tkl_parse_function_optional_flags_into_vars(
+    argv_index
+    argv
+    "P;s;a"
+    "\
+a\;dont_convert_module_path\
+"
+    "\
+P\;set_script_args;\
+s\;strict_checks\
+"
+    "")
+
+  if (NOT argv_index LESS argv_len)
+    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argv_len=${argv_len} argv_index=${argv_index}")
+  endif()
+
+  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  if (NOT is_in_script_mode)
+    message(FATAL_ERROR "call must be made from the script mode only")
+  endif()
+
+  list(GET argv ${argv_index} out_var)
+  math(EXPR argv_index ${argv_index}+1)
+
+  set(${out_var} "")
+  set(cmake_arg_index 0)
+
+  if (NOT set_script_args)
+    while(cmake_arg_index LESS CMAKE_ARGC)
+      # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+      tkl_escape_string_before_list_append(arg_value "${CMAKE_ARGV${cmake_arg_index}}")
+
+      list(APPEND ${out_var} "${arg_value}")
+
+      math(EXPR cmake_arg_index ${cmake_arg_index}+1)
+    endwhile()
+  else()
+    if (strict_checks)
+      get_filename_component(this_script_file_path_abs "${CMAKE_SCRIPT_MODE_FILE}" ABSOLUTE)
+    endif()
+
+    set(script_file_path_offset -1)
+    while(cmake_arg_index LESS CMAKE_ARGC)
+      set(arg_value "${CMAKE_ARGV${cmake_arg_index}}")
+      #message("arg_value=${arg_value}")
+      if (script_file_path_offset GREATER_EQUAL 0 )
+        if (script_file_path_offset LESS cmake_arg_index)
+          # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+          tkl_escape_string_before_list_append(arg_value "${arg_value}")
+
+          list(APPEND ${out_var} "${arg_value}")
+        else()
+          if (NOT dont_convert_module_path)
+            # Parse the value as a path to the script file, convert to the absolute path and
+            # then compare on equality with the absolute path in the CMAKE_SCRIPT_MODE_FILE variable.
+            get_filename_component(script_file_path_abs "${arg_value}" ABSOLUTE)
+            if (strict_checks)
+              if (NOT this_script_file_path_abs STREQUAL script_file_path_abs)
+                message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same: `this_script_file_path_abs=${this_script_file_path_abs}` script_file_path_abs=1${script_file_path_abs}1")
+              endif()
+            endif()
+            set(arg_value "${script_file_path_abs}")
+          endif()
+
+          # WORKAROUND: we have to replace because `list(APPEND` will join lists together
+          tkl_escape_string_before_list_append(arg_value "${arg_value}")
+
+          list(APPEND ${out_var} "${arg_value}") # converted into the absolute path
+        endif()
+      else()
+        if (arg_value STREQUAL "-P")
+          math(EXPR script_file_path_offset ${cmake_arg_index}+1)
+        endif()
+      endif()
+
+      math(EXPR cmake_arg_index "${cmake_arg_index}+1")
+    endwhile()
+  endif()
+
+  set(${out_var} "${${out_var}}" PARENT_SCOPE)
+endfunction()
 
 function(tkl_use_ARGVn_stack_begin stack_entry)
   if (stack_entry STREQUAL "" OR stack_entry STREQUAL ".")

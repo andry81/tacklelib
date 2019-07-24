@@ -2,6 +2,13 @@
 if (NOT DEFINED TACKLELIB_PROPS_INCLUDE_DEFINED)
 set(TACKLELIB_PROPS_INCLUDE_DEFINED 1)
 
+cmake_minimum_required(VERSION 3.7)
+
+# at least cmake 3.7 is required for:
+# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+#   `if(<variable|string> GREATER_EQUAL <variable|string>)`
+#
+
 # property getter to explicitly state details (set empty or unset if undefined)
 function(tkl_get_global_prop out_var prop_name set_empty_if_undefined)
   get_property(prop_is_set GLOBAL PROPERTY "${prop_name}" SET)

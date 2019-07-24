@@ -2,8 +2,6 @@
 if (NOT DEFINED TACKLELIB_LIST_INCLUDE_DEFINED)
 set(TACKLELIB_LIST_INCLUDE_DEFINED 1)
 
-include(tacklelib/Utility)
-
 cmake_minimum_required(VERSION 3.7)
 
 # at least cmake 3.7 is required for:
@@ -15,6 +13,8 @@ cmake_minimum_required(VERSION 3.7)
 # * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
 #   `if(<variable|string> IN_LIST <variable>)`
 #
+
+include(tacklelib/Utility)
 
 # CMake Warning (dev) at ... (list):
 #  Policy CMP0007 is not set: list command no longer ignores empty elements.

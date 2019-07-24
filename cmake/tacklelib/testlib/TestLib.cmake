@@ -5,7 +5,9 @@ set(TACKLELIB_TESTLIB_INCLUDE_DEFINED 1)
 include(tacklelib/Std)
 include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardVariables)
+include(tacklelib/ForwardArgs)
 include(tacklelib/SetVarsFromFiles)
+include(tacklelib/Utility)
 
 function(tkl_testlib_init)
   # CAUTION:

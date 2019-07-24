@@ -26,6 +26,10 @@ include(tacklelib/Reimpl)
 #
 
 if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
+  macro(tkl_add_library_invoker)
+    _add_library(${ARGV})
+  endmacro()
+
   macro(tkl_add_executable_invoker)
     _add_executable(${ARGV})
   endmacro()

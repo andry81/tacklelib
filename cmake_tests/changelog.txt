@@ -1,3 +1,6 @@
+2019.06.22:
+* fixed: `tests_02_Utility` corrected
+
 2019.06.16:
 * changed: repository links in readme update
 

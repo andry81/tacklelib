@@ -1,3 +1,15 @@
+2019.07.22:
+* fixed: cmake: [continue] other build errors
+
+2019.07.22:
+* fixed: cmake: error message `Invalid character escape '\0'.` around `file(WRITE ... "${ID_CONTENT_OUT}")` expression in the `share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake`, line:159 implementation
+* fixed: cmake: error message `file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead` around `file(REMOVE_RECURSE ...)` calls from the internals of the cmake modules
+* fixed: cmake: error messages `No CMAKE_C_COMPILER could be found.` or `No CMAKE_CXX_COMPILER could be found.` around `CMAKE_DETERMINE_COMPILER_ID(... src)` calls from the internals of the cmake modules (the `src` variable have has contained incorrectly escaped characters before a call to the `file(WRITE ...)` before a call to the `tkl_escape_list_expansion`)
+* fixed: cmake: missed set variables from the `tkl_copy_vars` function which are already been set to different value in a parent scope (technically very rare bug, but WTF?)
+* fixed: cmake: [initiated] other build errors
+* changed: _scripts: minor changes
+* refactor: cmake: moved most of the content from the `Std.cmake` to the `ForwardArgs.cmake`, `Utility.cmake` and other standalone modules to be able use it in the `File.cmake` and other modules included from the `Std.cmake`
+
 2019.07.18:
 * fixed: typo
 

@@ -2,6 +2,13 @@
 if (NOT DEFINED TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED)
 set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 
+cmake_minimum_required(VERSION 3.7)
+
+# at least cmake 3.7 is required for:
+# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+#   `if(<variable|string> GREATER_EQUAL <variable|string>)`
+#
+
 # NOTE:
 #   Read the doc/02_general_variables_set_rules.txt`
 #   for variables set rules represented here.
@@ -616,7 +623,6 @@ macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
 
   # to set
   set(_39067B90_vars_to_set "${_39067B90_filtered_vars}")
-  list(REMOVE_ITEM _39067B90_vars_to_set ${_39067B90_prev_vars})
 
   # to ignore
   if (NOT "${ARGN}" STREQUAL "")
