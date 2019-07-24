@@ -2,6 +2,13 @@
 if (NOT DEFINED TACKLELIB_VERSION_INCLUDE_DEFINED)
 set(TACKLELIB_VERSION_INCLUDE_DEFINED 1)
 
+cmake_minimum_required(VERSION 3.7)
+
+# at least cmake 3.7 is required for:
+# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+#   `if(<variable|string> GREATER_EQUAL <variable|string>)`
+#
+
 # https://en.wikipedia.org/wiki/Microsoft_Visual_C
 #
 # MSC    1.0   _MSC_VER == 100

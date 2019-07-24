@@ -9,6 +9,11 @@ cmake_minimum_required(VERSION 3.9)
 #     (https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html )
 #
 
+# at least cmake 3.7 is required for:
+# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+#   `if(<variable|string> GREATER_EQUAL <variable|string>)`
+#
+
 # CAUTION:
 # 1. Be careful with the `set(... CACHE ...)` because it unsets the original
 #    variable!
@@ -107,7 +112,7 @@ function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
 endfunction()
 
 function(tkl_discover_var var_name cache_type desc)
-  discover_var_to(is_discovered ${var_name} ${var_name} ${cache_type} ${desc})
+  tkl_discover_var_to(is_discovered ${var_name} ${var_name} ${cache_type} ${desc})
   if(is_discovered)
     message(STATUS "(*) discovered environment variable: ${var_name}=`${${var_name}}`")
   endif()
@@ -128,7 +133,7 @@ function(tkl_discover_builtin_vars prefix_list cache_type desc)
         endif()
 
         # unique variable because in the cache scope
-        discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+        tkl_discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
         # update cache with FORCE
         set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
         set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
@@ -150,7 +155,7 @@ function(tkl_discover_builtin_vars prefix_list cache_type desc)
       endif()
 
       # unique variable because in the cache scope
-      discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+      tkl_discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
       # update cache with FORCE
       set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
       set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
@@ -192,6 +197,9 @@ macro(tkl_declare_primary_builtin_vars)
 
   # top level project root
   if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    if ((DEFINED TACKLELIB_CMAKE_TOP_PACKAGE_NAME) OR (DEFINED TACKLELIB_CMAKE_TOP_PACKAGE_SOURCE_DIR))
+      message(FATAL_ERROR "TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL may have has an incorrect value, the top package variables has been already defined")
+    endif()
     set(TACKLELIB_CMAKE_TOP_PACKAGE_NAME "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
     set(TACKLELIB_CMAKE_TOP_PACKAGE_SOURCE_DIR "${TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
   endif()
@@ -266,9 +274,9 @@ macro(tkl_declare_primary_builtin_vars)
 endmacro()
 
 macro(tkl_declare_secondary_builtin_vars)
-  discover_var(MSYS                             STRING "msys environment flag")
-  discover_var(MINGW                            STRING "mingw environment flag")
-  discover_var(CYGWIN                           STRING "cygwin environment flag")
+  tkl_discover_var(MSYS         STRING "msys environment flag")
+  tkl_discover_var(MINGW        STRING "mingw environment flag")
+  tkl_discover_var(CYGWIN       STRING "cygwin environment flag")
 
   if (NOT DEFINED CMAKE_FILE_SYSTEM_CASE_SENSITIVE)
     if (WIN32 OR MSYS OR MINGW OR CYGWIN)
@@ -419,10 +427,10 @@ To continue do remove manually the external cache file:\n CMAKE_BUILD_ROOT=`${CM
   # Load all configuration files to ordered set of all variables except variables from the preload section.
   tkl_load_vars_from_files(-p
     #--grant_no_collision_check_assign_vars_assigned_in_files "${global_vars_file_path_list}"
-    --grant_assign_external_vars_assigning_in_files "${global_vars_file_path_list}"
+    --grant_external_vars_assign_in_files "${global_vars_file_path_list}"
     #--grant_assign_vars_as_top_in_files "${global_vars_file_path_list}"
     #--grant_assign_vars_as_final_in_files "${global_vars_file_path_list}"
-    --grant_assign_vars_as_package_in_files "${global_vars_file_path_list}"
+    #--grant_assign_vars_as_top_package_in_files "${global_vars_file_path_list}"
     --grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
     # user configuration always loads as a top level, not top level variables are ignored
     --grant_subpackage_assign_ignore_in_files "${user_env_var_file_path_load_list}"
@@ -727,7 +735,7 @@ function(tkl_declare_target_builtin_properties target)
   if(NOT target_type STREQUAL "INTERFACE_LIBRARY")
     set_property(GLOBAL APPEND PROPERTY "tkl::GLOBAL_TARGET_LIST" ${target})
 
-    get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME SET)
+    get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME" SET)
     get_property(is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" SET)
     get_property(is_target_PACKAGE_SOURCE_DIR_set TARGET ${target} PROPERTY PACKAGE_SOURCE_DIR SET)
 
@@ -852,7 +860,7 @@ function(tkl_register_target target)
 endfunction()
 
 function(tkl_unregister_directory_scope_targets)
-  get_global_targets_list(targets_list)
+  tkl_get_global_targets_list(targets_list)
 
   if (NOT targets_list)
     return()
@@ -872,7 +880,7 @@ function(tkl_unregister_directory_scope_targets)
     list(REMOVE_ITEM targets_list ${targets_to_remove})
   endif()
 
-  set_global_targets_list(${targets_list})
+  tkl_set_global_targets_list(${targets_list})
 endfunction()
 
 function(tkl_add_subdirectory_begin target_src_dir)
@@ -1738,7 +1746,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
 
   string(TOLOWER "${target_root_dir_abs}" target_root_dir_path_abs_lower)
 
-  get_global_targets_list(targets_list)
+  tkl_get_global_targets_list(targets_list)
 
   foreach(target IN LISTS targets_list)
     # ignore all aliases because of read only

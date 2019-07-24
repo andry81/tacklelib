@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.7)
 
 include(tacklelib/Std)
 include(tacklelib/Reimpl)
+include(tacklelib/ForwardArgs)
 
 # at least cmake 3.7 is required for:
 # * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
@@ -213,10 +214,10 @@ endfunction()
 # out_file_path:
 #   File path to write in.
 #
-function(write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
+function(tkl_write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
   tkl_make_var_from_ARGV_begin("${ARGN}" argn)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
-  tkl_make_var_from_ARGV_end("" argn)
+  tkl_make_var_from_ARGV_end(argn)
 
   list(LENGTH argn argn_len)
   set(argn_index 0)
@@ -267,22 +268,41 @@ endfunction()
 #   Exists to bypass issues has introduced here:
 #     https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
 #     https://gitlab.kitware.com/cmake/cmake/issues/19156 : `Not paired `]` or `[` characters breaks "file(STRINGS"`
-#   Has to be a macro to avoid interception of a variable creation to pass it to a parent scope.
+#   Has to be a function to avoid errors around strings with non standard escape sequences: `Invalid character escape '\0'.`.
+#   For the details see the implementation throwed that error:
+#     `share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake`, line:159; around the expression `file(WRITE ... "${ID_CONTENT_OUT}")`.
 #
-macro(file cmd)
-  #message("file: ${cmd} ${ARGN}")
-  if ("${cmd}" STREQUAL "REMOVE")
-    message(FATAL_ERROR "`file(REMOVE ...)` having issues with the removing, do use `tkl_file_remove` instead")
-  elseif ("${cmd}" STREQUAL "REMOVE_RECURSE")
-    message(FATAL_ERROR "`file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead")
-  elseif ("${cmd}" STREQUAL "STRINGS")
-    message(FATAL_ERROR "`file(STRINGS ...)` having issues with file strings reading, do use `tkl_file_encode_strings`/`tkl_file_decode_string` instead")
-  endif()
+function(file cmd)
+  # CAUTION:
+  #   Disabled because has used from internals of the cmake:
+  #   * REMOVE:         `.../share/cmake-3.14/Modules/Internal/FeatureTesting.cmake:6 (file)` (`file(REMOVE "${CMAKE_BINARY_DIR}/CMakeFiles/feature_tests.bin")`)
+  #   * REMOVE_RECURSE: `.../share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake:167 (file)` (`file(REMOVE_RECURSE ${CMAKE_${lang}_COMPILER_ID_DIR})`)
+  #   * STRINGS:        `.../share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake:575 (file)` (`file(STRINGS ${file}`)
+  #
+
+  #if ("${cmd}" STREQUAL "REMOVE")
+  #  message(FATAL_ERROR "`file(REMOVE ...)` having issues with the removing, do use `tkl_file_remove` instead")
+  #elseif ("${cmd}" STREQUAL "REMOVE_RECURSE")
+  #  message(FATAL_ERROR "`file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead")
+  #elseif ("${cmd}" STREQUAL "STRINGS")
+  #  message(FATAL_ERROR "`file(STRINGS ...)` having issues with file strings reading, do use `tkl_file_encode_strings`/`tkl_file_decode_string` instead")
+  #endif()
+
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _FC336C71_argn)
+  # in case of in a function call we don't have to pass all ARGV arguments explicitly
+  tkl_make_vars_from_ARGV_ARGN_end(. _FC336C71_argn)
+
+  tkl_escape_list_expansion(_FC336C71_cmdline "${_FC336C71_argn}")
+
+  tkl_track_vars_begin()
 
   # call to previous implementation
-  _file(${cmd} ${ARGN})
-endmacro()
+  _file(${cmd} ${_FC336C71_cmdline})
 
-tkl_register_implementation(macro file)
+  tkl_forward_changed_vars_to_parent_scope()
+  tkl_track_vars_end()
+endfunction()
+
+tkl_register_implementation(function file)
 
 endif()

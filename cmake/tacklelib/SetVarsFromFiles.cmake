@@ -38,6 +38,7 @@ include(tacklelib/Checks)
 include(tacklelib/ForwardVariables)
 include(tacklelib/ForwardArgs)
 include(tacklelib/Version)
+include(tacklelib/Utility)
 
 # TODO:
 #   * The same setter but from a command line file
@@ -180,7 +181,7 @@ macro(tkl_load_vars_from_files) # WITH OUT ARGUMENTS!
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #tkl_print_ARGV()
+  #tkl_print_ARGVn()
   tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_load_vars_from_files_impl()
@@ -372,7 +373,7 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #tkl_print_ARGV()
+  #tkl_print_ARGVn()
   tkl_make_var_from_ARGV_end(_50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_func()
@@ -420,7 +421,7 @@ macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
     "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
     "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
     "${ARGV30}" "${ARGV31}")
-  #tkl_print_ARGV()
+  #tkl_print_ARGVn()
   tkl_make_vars_from_ARGV_ARGN_end(. _50FABB52_argn)
   tkl_pop_ARGVn_from_stack()
   tkl_set_vars_from_files_impl_no_args_macro()
@@ -761,11 +762,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       message(FATAL_ERROR "must be a builtin variable name")
     endif()
 
-    if (NOT DEFINED ${injected_var_name})
+    if (NOT DEFINED TACKLELIB_${injected_var_name})
       continue()
     endif()
 
-    set(config_${injected_var_name} "${${injected_var_name}}")
+    set(config_${injected_var_name} "${TACKLELIB_${injected_var_name}}")
     set(config_${injected_var_name}_defined 1)
 
     set(config_${injected_var_name}_load_index ${config_load_index})
@@ -799,6 +800,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     if (make_var_name_index LESS make_vars_values_len)
       list(GET make_vars_values ${make_var_name_index} make_var_value)
+
+      # unescape values
+      string(REGEX REPLACE "\\\\(.)?" "\\1" make_var_value "${make_var_value}")
+
       # WORKAROUND: we have to replace because `list(GET` discardes ;-escaping
       tkl_escape_string_after_list_get(make_var_value "${make_var_value}")
 

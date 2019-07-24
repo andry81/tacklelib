@@ -57,11 +57,14 @@ setlocal
 rem load configuration files again unconditionally
 set "CMAKE_BUILD_TYPE_ARG=%CMAKE_BUILD_TYPE%"
 if not defined CMAKE_BUILD_TYPE_ARG set "CMAKE_BUILD_TYPE_ARG=."
+rem escape all values for `--make_vars`
+set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT:\=\\%"
+set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT_ESCAPED:;=\;%"
 call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
   --make_vars ^
   "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" ^
-  "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT:;=\;%%;%%PROJECT_NAME%%;%%PROJECT_ROOT:;=\;%%" ^
+  "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
   --ignore_statement_if_no_filter --ignore_late_expansion_statements || exit /b
 
 call "%%~dp0__init2__.bat" || exit /b
