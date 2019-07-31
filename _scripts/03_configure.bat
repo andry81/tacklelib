@@ -109,7 +109,7 @@ for /F "eol=# tokens=* delims=" %%i in ("!CMAKE_CMD_LINE!") do (
   set "CMAKE_CMD_LINE=%%i"
 )
 
-pushd "%CMAKE_BUILD_DIR%" && (
+pushd "%CMAKE_BUILD_ROOT%" && (
   (
     call :CMD cmake %CMAKE_CMD_LINE%
   ) || ( popd & goto CONFIGURE_END )

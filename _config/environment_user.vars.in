@@ -29,9 +29,10 @@
 #  won't be visible in a windows batch script too.
 
 # FORMAT:
-#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
-#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
 #
+# <attributes>:           Variable space separated attributes: global | top | bool | path | cache_only | cache | env_only | env | force_cache | force | override | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
@@ -57,22 +58,25 @@
 # CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
-override CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
-override CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
+CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
+CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 # to enable Mingw GCC compiler
 #MINGW:WIN=ON
 
 CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
-override BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
-override Boost_ARCHITECTURE:UNIX="-x32" # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
+# required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+#Boost_ARCHITECTURE::::X86="-x32"
+#Boost_ARCHITECTURE::::X64="-x64"
+global BOOST_COMPONENTS=(chrono filesystem iostreams system program_options)
 
 # log
-LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client"
+#LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client"
 
 # arc
-ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive"
+#ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive"
 # cache is required here to override cache variables
 bool cache ENABLE_LZMA=1
 bool cache ENABLE_TAR=0
@@ -82,36 +86,42 @@ bool cache ENABLE_TEST=0
 bool cache ENABLE_COVERAGE=0
 bool cache ENABLE_INSTALL=0
 
-ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xz"
-cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
+#ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xz"
+#cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
 
-cache force LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
-cache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
+#cache force LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
+#cache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
 
-bool LIBLZMA_HAS_AUTO_DECODER=1
-bool LIBLZMA_HAS_EASY_ENCODER=1
-bool LIBLZMA_HAS_LZMA_PRESET=1
+#bool LIBLZMA_HAS_AUTO_DECODER=1
+#bool LIBLZMA_HAS_EASY_ENCODER=1
+#bool LIBLZMA_HAS_LZMA_PRESET=1
 
 #ARC_7ZIP_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/7zip"
 
 # test
 
-GOOGLETEST_VERSION="1.8.1"
-override GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
+#GOOGLETEST_VERSION="1.8.1"
+#force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 
 # math
 
-QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd"
+#QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd"
 
-bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
-bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
+#bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
+#bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
 
 # utility
 
-TACKLELIB_LINK_TYPE="dynamic"
-TACKLELIB_ADDRESS_MODEL="32"
+top TACKLELIB_LINK_TYPE="dynamic"
+top TACKLELIB_ADDRESS_MODEL="32"
 
-UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt"
-UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring"
+top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt"
+top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring"
+
+#top TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
+top TACKLELIB_DEP_LIBS=(fmt pystring)
+
+top TACKLELIB_SKIP_TESTLIB=1
+top TACKLELIB_SKIP_TESTS=1

@@ -74,6 +74,7 @@ tkl_configure_environment("${TACKLELIB_LINK_TYPE}" "MSVC;GCC")
 
 tkl_check_var(REQUIRED . TACKLELIB_ADDRESS_MODEL)
 tkl_check_var(REQUIRED . TACKLELIB_LINK_TYPE)
+tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
 
 tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
@@ -84,6 +85,7 @@ tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
 
 tkl_check_var(REQUIRED PATH BOOST_ROOT)
 tkl_check_var(REQUIRED . Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+tkl_check_var(REQUIRED STRING BOOST_COMPONENTS)
 
 # utility
 
@@ -103,21 +105,21 @@ tkl_check_var(OPTIONAL PATH LOG_P7_CLIENT_ROOT)
 
 # arc
 
-tkl_check_var(REQUIRED PATH ARC_LIBARCHIVE_ROOT)
-tkl_check_var(REQUIRED . ENABLE_LZMA)
-tkl_check_var(REQUIRED . ENABLE_TAR)
-tkl_check_var(REQUIRED . ENABLE_CPIO)
-tkl_check_var(REQUIRED . ENABLE_CAT)
-tkl_check_var(REQUIRED . ENABLE_TEST)
-tkl_check_var(REQUIRED . ENABLE_COVERAGE)
-tkl_check_var(REQUIRED . ENABLE_INSTALL)
+tkl_check_var(OPTIONAL PATH ARC_LIBARCHIVE_ROOT)
+tkl_check_var(OPTIONAL . ENABLE_LZMA)
+tkl_check_var(OPTIONAL . ENABLE_TAR)
+tkl_check_var(OPTIONAL . ENABLE_CPIO)
+tkl_check_var(OPTIONAL . ENABLE_CAT)
+tkl_check_var(OPTIONAL . ENABLE_TEST)
+tkl_check_var(OPTIONAL . ENABLE_COVERAGE)
+tkl_check_var(OPTIONAL . ENABLE_INSTALL)
 
-tkl_check_var(REQUIRED PATH ARC_XZ_UTILS_ROOT)
-tkl_check_var(REQUIRED PATH LIBLZMA_INCLUDE_DIR)
-tkl_check_var(REQUIRED PATH LIBLZMA_LIBRARY)
-tkl_check_var(REQUIRED . LIBLZMA_HAS_AUTO_DECODER)
-tkl_check_var(REQUIRED . LIBLZMA_HAS_EASY_ENCODER)
-tkl_check_var(REQUIRED . LIBLZMA_HAS_LZMA_PRESET)
+tkl_check_var(OPTIONAL PATH ARC_XZ_UTILS_ROOT)
+tkl_check_var(OPTIONAL PATH LIBLZMA_INCLUDE_DIR)
+tkl_check_var(OPTIONAL PATH LIBLZMA_LIBRARY)
+tkl_check_var(OPTIONAL . LIBLZMA_HAS_AUTO_DECODER)
+tkl_check_var(OPTIONAL . LIBLZMA_HAS_EASY_ENCODER)
+tkl_check_var(OPTIONAL . LIBLZMA_HAS_LZMA_PRESET)
 
 #tkl_check_var(REQUIRED PATH ARC_7ZIP_ROOT)
 
@@ -148,8 +150,7 @@ set(TESTS_TARGET_NAMES
 
 # common optimization targets
 set(COMMON_OPT_APP_TARGET_NAMES
-  ${LIB_TARGET_NAME};${TESTLIB_TARGET_NAME};
-  fmt;pystring;p7client;archive_static;archive)
+  ${LIB_TARGET_NAME};${TESTLIB_TARGET_NAME};${TACKLELIB_DEP_LIBS})
 
 set(TESTS_TARGETS_SRC_DIR
   unit;
@@ -258,7 +259,7 @@ elseif (TACKLELIB_LINK_TYPE STREQUAL "static")
   set(Boost_USE_MULTITHREADED ON)
 endif()
 
-find_package(BOOST_ROOT Boost REQUIRED COMPONENTS chrono filesystem iostreams system program_options)
+find_package(BOOST_ROOT Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 if (Boost_FOUND)
   message(STATUS "(*) Found `Boost`: `${Boost_VERSION}` Location: \"${BOOST_ROOT}\" Libs: [${Boost_LIBRARIES}]")
@@ -268,12 +269,14 @@ endif()
 
 # liblzma
 
-find_package(LIBLZMA_LIBRARY LibLZMA)
+if (LIBLZMA_LIBRARY)
+  find_package(LIBLZMA_LIBRARY LibLZMA)
 
-if (LIBLZMA_FOUND)
-  message(STATUS "(*) Found `LibLZMA`: `${LIBLZMA_VERSION_STRING}` IncludeDirs: [${LIBLZMA_INCLUDE_DIRS}] Libs: [${LIBLZMA_LIBRARIES}]")
-else()
-  message(WARNING "(*) LibLZMA is not found")
+  if (LIBLZMA_FOUND)
+    message(STATUS "(*) Found `LibLZMA`: `${LIBLZMA_VERSION_STRING}` IncludeDirs: [${LIBLZMA_INCLUDE_DIRS}] Libs: [${LIBLZMA_LIBRARIES}]")
+  else()
+    message(WARNING "(*) LibLZMA is not found")
+  endif()
 endif()
 
 ###############################################################################
@@ -495,7 +498,7 @@ if (WIN32)
 endif()
 
 if (Boost_LIBRARY_DIRS)
-    add_target_link_directories(${LIB_TARGET_NAME} *
+    tkl_add_target_link_directories(${LIB_TARGET_NAME} *
       PRIVATE
         ${Boost_LIBRARY_DIRS}
     )
@@ -640,14 +643,14 @@ if (TESTLIB_ENABLED)
   endif()
 
   if (Boost_LIBRARY_DIRS)
-    add_target_link_directories(${TESTLIB_TARGET_NAME} *
+    tkl_add_target_link_directories(${TESTLIB_TARGET_NAME} *
       PRIVATE
         ${Boost_LIBRARY_DIRS}
     )
   endif()
 
 #  if (GTEST_ROOT)
-#    add_target_link_directories(${TESTLIB_TARGET_NAME} *
+#    tkl_add_target_link_directories(${TESTLIB_TARGET_NAME} *
 #      PRIVATE
 #        ${GTEST_ROOT}/${_gtest_libpath_suffixes}
 #    )
@@ -863,10 +866,12 @@ if (TESTS_ENABLED)
         )
       endif()
 
-      tkl_add_target_compile_definitions(${target} *
-        PRIVATE
-          ${INTERFACE_COMPILE_DEFINITIONS_${LIB_TARGET_NAME}}
-      )
+      if (INTERFACE_COMPILE_DEFINITIONS_${LIB_TARGET_NAME})
+        tkl_add_target_compile_definitions(${target} *
+          PRIVATE
+            ${INTERFACE_COMPILE_DEFINITIONS_${LIB_TARGET_NAME}}
+        )
+      endif()
     endif()
 
     # we need the same Boost definitions here to maintain the link with the same libraries
@@ -966,14 +971,14 @@ if (TESTS_ENABLED)
     )
 
     if (Boost_LIBRARY_DIRS)
-      add_target_link_directories(${target} *
+      tkl_add_target_link_directories(${target} *
         PRIVATE
           ${Boost_LIBRARY_DIRS}
       )
     endif()
 
 #    if (GTEST_ROOT)
-#      add_target_link_directories(${target} *
+#      tkl_add_target_link_directories(${target} *
 #        PRIVATE
 #          ${GTEST_ROOT}/${_gtest_libpath_suffixes}
 #      )
@@ -1034,7 +1039,9 @@ endif()
 # All install commands get the same destination. this allows us to use paths
 # relative to the executable.
 install(TARGETS ${LIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
-install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
+if (TARGET TESTLIB_TARGET_NAME)
+  install(TARGETS ${TESTLIB_TARGET_NAME} DESTINATION $<CONFIGURATION>)
+endif()
 
 ## must be after all `install` commands!
 ##
