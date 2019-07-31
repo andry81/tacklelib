@@ -1,3 +1,11 @@
+2019.07.31:
+* fixed: [continue] multiple build fixes
+* fixed: `file` function multiple fixes (`File.cmake`)
+* new: `SetVarsFromFiles.cmake` new variable attribute support
+* changed: reduced `tkl_load_vars_from_files`/`tkl_set_vars_from_files` flags
+* changed: `SetVarsFromFiles.cmake` detailed description update
+* refactor: reorganization over `Std.cmake`, `File.cmake` modules
+
 2019.07.22:
 * fixed: [continue] other build errors
 

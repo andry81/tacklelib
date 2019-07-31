@@ -144,7 +144,7 @@ function Configure()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
+  Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
     Popd
   }
@@ -184,7 +184,7 @@ function Build()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
+  Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
     Popd
   }
@@ -222,7 +222,7 @@ function Install()
 
   eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
+  Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; return $LastError; }
     Popd
   }
@@ -395,7 +395,7 @@ function Pack()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
+  Pushd "$CMAKE_BUILD_ROOT" && {
     Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
     Popd
   }

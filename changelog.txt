@@ -1,5 +1,21 @@
+2019.07.31:
+* fixed: scripts: `set_vars_from_locked_file_pair.bat` script returns not zero error level on success
+* fixed: scripts: cmake `no cache found` message on build script run
+
+2019.07.31:
+* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: `file` function multiple fixes (`File.cmake`)
+* fixed: cmake_tests: 02_Utility tests pass
+* new: cmake: `SetVarsFromFiles.cmake` new variable attribute support
+* changed: cmake: reduced `tkl_load_vars_from_files`/`tkl_set_vars_from_files` flags
+* changed: cmake: `SetVarsFromFiles.cmake` detailed description update
+* changed: multiple build fixes
+* refactor: cmake: reorganization over `Std.cmake`, `File.cmake` modules
+
 2019.07.22:
 * fixed: cmake: [continue] other build errors
+* fixed: cmake_tests: `tests_02_Utility` corrected
+
 
 2019.07.22:
 * fixed: cmake: error message `Invalid character escape '\0'.` around `file(WRITE ... "${ID_CONTENT_OUT}")` expression in the `share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake`, line:159 implementation
@@ -7,7 +23,7 @@
 * fixed: cmake: error messages `No CMAKE_C_COMPILER could be found.` or `No CMAKE_CXX_COMPILER could be found.` around `CMAKE_DETERMINE_COMPILER_ID(... src)` calls from the internals of the cmake modules (the `src` variable have has contained incorrectly escaped characters before a call to the `file(WRITE ...)` before a call to the `tkl_escape_list_expansion`)
 * fixed: cmake: missed set variables from the `tkl_copy_vars` function which are already been set to different value in a parent scope (technically very rare bug, but WTF?)
 * fixed: cmake: [initiated] other build errors
-* changed: _scripts: minor changes
+* changed: scripts: minor changes
 * refactor: cmake: moved most of the content from the `Std.cmake` to the `ForwardArgs.cmake`, `Utility.cmake` and other standalone modules to be able use it in the `File.cmake` and other modules included from the `Std.cmake`
 
 2019.07.18:
@@ -15,7 +31,7 @@
 
 2019.07.13:
 * fixed: incorrect urls in the readme
-* new: _scripts/tools: `cmdoplib.py`, `list_urls_in_files.py` python scripts  to extract urls from files
+* new: _scripts/tools: `cmdoplib.py`, `list_urls_in_files.py` python scripts to extract urls from files
 
 2019.07.13:
 * fixed: another multiple typos after refactor misuse

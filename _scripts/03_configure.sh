@@ -44,7 +44,6 @@ else
 fi
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
-  CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT"
   IFS=$'; \t\r\n'; for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
     Configure || Exit
   done

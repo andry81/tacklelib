@@ -386,7 +386,7 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
   # Preload local configuration files to set only predefined set of variables.
   tkl_load_vars_from_files(-p
     --grant_external_vars_for_assign "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM"
-    --grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
+    #--grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
     #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
     "${sys_env_var_file_path_load_list}")
@@ -426,15 +426,8 @@ To continue do remove manually the external cache file:\n CMAKE_BUILD_ROOT=`${CM
 
   # Load all configuration files to ordered set of all variables except variables from the preload section.
   tkl_load_vars_from_files(-p
-    #--grant_no_collision_check_assign_vars_assigned_in_files "${global_vars_file_path_list}"
     --grant_external_vars_assign_in_files "${global_vars_file_path_list}"
-    #--grant_assign_vars_as_top_in_files "${global_vars_file_path_list}"
-    #--grant_assign_vars_as_final_in_files "${global_vars_file_path_list}"
-    #--grant_assign_vars_as_top_package_in_files "${global_vars_file_path_list}"
-    --grant_assign_vars_by_override_in_files "${global_vars_file_path_list}"
-    # user configuration always loads as a top level, not top level variables are ignored
-    --grant_subpackage_assign_ignore_in_files "${user_env_var_file_path_load_list}"
-    --grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
+    #--grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
     --load_state_from_cmake_global_properties "_4BA54FD8_"
     --save_state_into_cmake_global_properties "_4BA54FD8_"
     "${env_var_file_path_load_list}")
