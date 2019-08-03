@@ -121,8 +121,8 @@ function(tkl_get_gcc_version var_major_out var_minor_out)
     set(minor_version 0)
   endif()
 
-  set(var_major_out "${major_version}" PARENT_SCOPE)
-  set(var_minor_out "${minor_version}" PARENT_SCOPE)
+  set(${var_major_out} "${major_version}" PARENT_SCOPE)
+  set(${var_minor_out} "${minor_version}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_get_clang_version var_major_out var_minor_out)
@@ -143,8 +143,8 @@ function(tkl_get_clang_version var_major_out var_minor_out)
     set(minor_version 0)
   endif()
 
-  set(var_major_out "${major_version}" PARENT_SCOPE)
-  set(var_minor_out "${minor_version}" PARENT_SCOPE)
+  set(${var_major_out} "${major_version}" PARENT_SCOPE)
+  set(${var_minor_out} "${minor_version}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_get_msvc_version_token var_token_out)

@@ -18,22 +18,100 @@ include(tacklelib/ForwardArgs)
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
-function(tkl_is_equal_paths mode path0 path1 out_var)
-  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE "tkl::file_system::case_sensitive" 0)
-
-  get_filename_component(abs_path0 "${path0}" ${mode})
-  get_filename_component(abs_path1 "${path1}" ${mode})
-  if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE AND NOT TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE))
-    # case insensitive compare
-    string(TOLOWER "${abs_path0}" abs_path0)
-    string(TOLOWER "${abs_path1}" abs_path1)
+function(tkl_detect_file_system_paths_sensitivity out_is_name_case_sensitive_var out_is_back_and_forward_slash_separator_var)
+  tkl_get_global_prop(is_name_case_sensitive "tkl::file_system::name_case_sensitive" 0)
+  if (NOT DEFINED is_name_case_sensitive)
+    if (NOT DEFINED CMAKE_FILE_SYSTEM_CASE_SENSITIVE AND
+        (WIN32 OR MSYS OR MINGW OR CYGWIN))
+      tkl_set_global_prop(is_name_case_sensitive "tkl::file_system::name_case_sensitive" 0)
+    else()
+      tkl_set_global_prop(is_name_case_sensitive "tkl::file_system::name_case_sensitive" 1)
+    endif()
   endif()
 
-  if (abs_path0 STREQUAL abs_path1)
+  # file system a back slash character separator treatment
+  tkl_get_global_prop(is_back_and_forward_slash_separator "tkl::file_system::back_and_forward_slash_separator" 0)
+  if (NOT DEFINED is_back_and_forward_slash_separator AND
+      (WIN32 OR MSYS OR MINGW OR CYGWIN))
+    tkl_set_global_prop(is_back_and_forward_slash_separator "tkl::file_system::back_and_forward_slash_separator" 1)
+  else()
+    tkl_set_global_prop(is_back_and_forward_slash_separator "tkl::file_system::back_and_forward_slash_separator" 0)
+  endif()
+
+  set(num_out_vars 0)
+
+  if (NOT out_is_name_case_sensitive_var STREQUAL "" AND NOT out_is_name_case_sensitive_var STREQUAL ".")
+    set(${out_is_name_case_sensitive_var} ${is_name_case_sensitive})
+    math(EXPR num_out_vars ${num_out_vars}+1)
+  endif()
+  if (NOT out_is_back_and_forward_slash_separator_var STREQUAL "" AND NOT out_is_back_and_forward_slash_separator_var STREQUAL ".")
+    set(${out_is_back_and_forward_slash_separator_var} ${is_back_and_forward_slash_separator})
+    math(EXPR num_out_vars ${num_out_vars}+1)
+  endif()
+
+  if (NOT num_out_vars GREATER 0)
+    message(FATAL_ERROR "at least one variable must be returned")
+  endif()
+endfunction()
+
+function(tkl_is_equal_paths out_var mode path0 path1 is_name_case_sensitive is_back_and_forward_slash_separator)
+  if (is_name_case_sensitive STREQUAL "" OR is_name_case_sensitive STREQUAL ".")
+    tkl_detect_file_system_paths_sensitivity(is_name_case_sensitive .)
+  endif()
+
+  if (is_back_and_forward_slash_separator STREQUAL "" OR is_back_and_forward_slash_separator STREQUAL ".")
+    tkl_detect_file_system_paths_sensitivity(. is_back_and_forward_slash_separator)
+  endif()
+
+  if (mode STREQUAL "" OR mode STREQUAL ".")
+    set(comp_path0 "${path0}")
+    set(comp_path1 "${path1}")
+  else()
+    get_filename_component(comp_path0 "${path0}" ${mode})
+    get_filename_component(comp_path1 "${path1}" ${mode})
+  endif()
+
+  if (NOT is_name_case_sensitive)
+    string(TOLOWER "${comp_path0}" comp_path0)
+    string(TOLOWER "${comp_path1}" comp_path1)
+  endif()
+
+  if (is_back_and_forward_slash_separator)
+    string(REPLACE "\\" "/" comp_path0 "${comp_path0}")
+    string(REPLACE "\\" "/" comp_path1 "${comp_path1}")
+  endif()
+
+  if (comp_path0 STREQUAL comp_path1)
     set(${out_var} 1 PARENT_SCOPE)
   else()
     set(${out_var} 0 PARENT_SCOPE)
   endif()
+endfunction()
+
+function(tkl_make_comparable_path out_var path mode is_name_case_sensitive is_back_and_forward_slash_separator)
+  if (is_name_case_sensitive STREQUAL "" OR is_name_case_sensitive STREQUAL ".")
+    tkl_detect_file_system_paths_sensitivity(is_name_case_sensitive .)
+  endif()
+
+  if (is_back_and_forward_slash_separator STREQUAL "" OR is_back_and_forward_slash_separator STREQUAL ".")
+    tkl_detect_file_system_paths_sensitivity(. is_back_and_forward_slash_separator)
+  endif()
+
+  if (mode STREQUAL "" OR mode STREQUAL ".")
+    set(comp_path "${path}")
+  else()
+    get_filename_component(comp_path "${path}" ${mode})
+  endif()
+
+  if (NOT is_name_case_sensitive)
+    string(TOLOWER "${comp_path}" comp_path)
+  endif()
+
+  if (is_back_and_forward_slash_separator)
+    string(REPLACE "\\" "/" comp_path "${comp_path}")
+  endif()
+
+  set(${out_var} "${comp_path}" PARENT_SCOPE)
 endfunction()
 
 # returns "." if paths are equal
@@ -64,14 +142,14 @@ endfunction()
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
 #
 function(tkl_file_remove)
-  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
+  tkl_detect_file_system_paths_sensitivity(. is_back_and_forward_slash_separator)
 
   foreach(file_path IN LISTS ARGV)
     # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
     if (file_path STREQUAL "")
       message(FATAL_ERROR "attemp to implicitly erase the current working directory")
     endif()
-    if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR AND NOT TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR))
+    if (is_back_and_forward_slash_separator)
       if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
         message(FATAL_ERROR "attemp to erase the root of the current drive")
       endif()
@@ -91,14 +169,14 @@ endfunction()
 # For details: https://gitlab.kitware.com/cmake/cmake/issues/19274 : `file(REMOVE_RECURSE "")` removes everything from current working directory`
 #
 function(tkl_file_remove_recurse)
-  tkl_get_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
+  tkl_detect_file_system_paths_sensitivity(. is_back_and_forward_slash_separator)
 
   foreach(file_path IN LISTS ARGV)
     # protection from removing the current working directory or the root of the current drive (Windows) or the file system (Linux)
     if (file_path STREQUAL "")
       message(FATAL_ERROR "attemp to implicitly erase the current working directory")
     endif()
-    if (WIN32 OR (DEFINED TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR AND NOT TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR))
+    if (is_back_and_forward_slash_separator)
       if (file_path STREQUAL "/" OR file_path STREQUAL "\\")
         message(FATAL_ERROR "attemp to erase the root of the current drive")
       endif()

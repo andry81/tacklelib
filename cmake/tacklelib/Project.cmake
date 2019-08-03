@@ -51,9 +51,6 @@ function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
     message(FATAL_ERROR "out_var and var_name variables must be not empty: out_var=`${out_var}` var_name=`${var_name}`")
   endif()
 
-  unset(uncached_var)
-  unset(cached_var)
-
   tkl_get_var(uncached_var cached_var ${var_name})
 
   if (desc STREQUAL ".")
@@ -80,29 +77,22 @@ function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
   endif()
 
   # always set both cache and not cache values into the same value unconditionally, environment variable has priority over others
-  if(DEFINED ENV{${var_name}})
-    if ((NOT env_var_defined EQUAL cached_var_defined) OR (NOT cached_var_defined EQUAL uncached_var_defined) OR
-        (NOT "$ENV{${var_name}}" STREQUAL "${cached_var}") OR ("$ENV{${var_name}}" STREQUAL "${uncached_var}"))
+  if(env_var_defined)
+    if (cached_var_defined)
       set(${out_var} $ENV{${var_name}} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
-      set(${out_var} $ENV{${var_name}} PARENT_SCOPE)
-      set(${flag_var} 1 PARENT_SCOPE)
-      return()
     endif()
-  elseif (DEFINED cached_var)
-    if ((NOT cached_var_defined EQUAL uncached_var_defined) OR (NOT "${uncached_var}" STREQUAL "${uncached_var}"))
-      if ("${cached_var}" STREQUAL "" AND NOT "${uncached_var}" STREQUAL "")
-        message(WARNING "not empty not cache variable was rewrited by empty cache variable: ${var_name}=`${uncached_var}` -> ``")
-      endif()
-      set(${out_var} ${cached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
-      set(${out_var} ${cached_var} PARENT_SCOPE)
-      set(${flag_var} 2 PARENT_SCOPE)
-      return()
+    set(${out_var} $ENV{${var_name}} PARENT_SCOPE)
+    set(${flag_var} 1 PARENT_SCOPE)
+    return()
+  elseif (cached_var_defined)
+    if ("${cached_var}" STREQUAL "" AND NOT "${uncached_var}" STREQUAL "")
+      message(WARNING "not empty not cache variable was rewrited by empty cache variable: ${var_name}=`${uncached_var}` -> ``")
     endif()
-  elseif (DEFINED uncached_var)
-    if (NOT "${cached_var}" STREQUAL "" AND "${uncached_var}" STREQUAL "")
-      message(WARNING "not empty cache variable was rewrited by empty not cache variable: ${var_name}=`${cached_var}` -> ``")
-    endif()
-    set(${out_var} ${uncached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
+    set(${out_var} ${cached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
+    set(${out_var} ${cached_var} PARENT_SCOPE)
+    set(${flag_var} 2 PARENT_SCOPE)
+    return()
+  elseif (uncached_var_defined)
     set(${out_var} ${uncached_var} PARENT_SCOPE)
     set(${flag_var} 3 PARENT_SCOPE)
     return()
@@ -278,22 +268,7 @@ macro(tkl_declare_secondary_builtin_vars)
   tkl_discover_var(MINGW        STRING "mingw environment flag")
   tkl_discover_var(CYGWIN       STRING "cygwin environment flag")
 
-  if (NOT DEFINED CMAKE_FILE_SYSTEM_CASE_SENSITIVE)
-    if (WIN32 OR MSYS OR MINGW OR CYGWIN)
-      tkl_set_global_prop(TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE "tkl::file_system::case_sensitive" 0)
-    else()
-      tkl_set_global_prop(TACKLELIB_FILE_SYSTEM_CASE_SENSITIVE "tkl::file_system::case_sensitive" 1)
-    endif()
-  endif()
-
-  # file system a back slash character separator treatment
-  if (NOT DEFINED CMAKE_FILE_SYSTEM_BACK_SLASH_CHARACTER_SEPARATOR)
-    if (WIN32 OR MSYS OR MINGW OR CYGWIN)
-      tkl_set_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 1)
-    else()
-      tkl_set_global_prop(TACKLELIB_FILE_SYSTEM_BACK_SLASH_SEPARATOR "tkl::file_system::back_slash_separator" 0)
-    endif()
-  endif()
+  tkl_detect_file_system_paths_sensitivity(TACKLELIB_FILE_SYSTEM_NAME_CASE_SENSITIVE TACKLELIB_FILE_SYSTEM_BACK_AND_FORWARD_SLASH_SEPARATOR)
 endmacro()
 
 macro(tkl_declare_ternary_builtin_vars)
@@ -341,7 +316,132 @@ macro(tkl_detect_environment)
   endif()
 endmacro()
 
-macro(tkl_configure_environment global_linkage_type supported_compilers)
+# CAUTION:
+#   Function must be without arguments to:
+#   1. support optional leading arguments like flags beginning by the `-` character
+#
+# Usage:
+#   [<flags>] <env_var_files_list> <external_vars_list> <preload_only_vars_list>
+#
+# flags:
+#   -S                          - script mode
+#   -s                          - silent mode
+#
+macro(tkl_preload_variables) # WITH OUT ARGUMENTS!
+  if (NOT ${ARGC} GREATER_EQUAL 3)
+    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: ${ARGC}")
+  endif()
+
+  tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _DDDE2B35_argn)
+  # in case of in a macro call we must pass all ARGV arguments explicitly
+  tkl_pushset_ARGVn_to_stack(
+    "${ARGV0}" "${ARGV1}" "${ARGV2}" "${ARGV3}" "${ARGV4}" "${ARGV5}" "${ARGV6}" "${ARGV7}" "${ARGV8}" "${ARGV9}"
+    "${ARGV10}" "${ARGV11}" "${ARGV12}" "${ARGV13}" "${ARGV14}" "${ARGV15}" "${ARGV16}" "${ARGV17}" "${ARGV18}" "${ARGV19}"
+    "${ARGV20}" "${ARGV21}" "${ARGV22}" "${ARGV23}" "${ARGV24}" "${ARGV25}" "${ARGV26}" "${ARGV27}" "${ARGV28}" "${ARGV29}"
+    "${ARGV30}" "${ARGV31}")
+  #tkl_print_ARGVn()
+  tkl_make_vars_from_ARGV_ARGN_end(. _DDDE2B35_argn)
+  tkl_pop_ARGVn_from_stack()
+
+  set(_DDDE2B35_argn_index 0)
+
+  set(_DDDE2B35_script_mode 0)
+  set(_DDDE2B35_silent_mode 0)
+
+  # parse flags until no flags
+  tkl_parse_function_optional_flags_into_vars(
+    _DDDE2B35_argn_index
+    _DDDE2B35_argn
+    "S;s"
+    ""
+    "S\;_DDDE2B35_script_mode;s\;_DDDE2B35_silent_mode"
+    ""
+  )
+
+  list(LENGTH _DDDE2B35_argn _DDDE2B35_argn_len)
+  math(EXPR _DDDE2B35_argn_len ${_DDDE2B35_argn_len}-${_DDDE2B35_argn_index})
+
+  if (NOT ${_DDDE2B35_argn_len} GREATER_EQUAL 3)
+    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: ${_DDDE2B35_argn_len}")
+  endif()
+
+  list(GET _DDDE2B35_argn ${_DDDE2B35_argn_index} _DDDE2B35_env_var_files_list) # discardes ;-escaping
+  math(EXPR _DDDE2B35_argn_index ${_DDDE2B35_argn_index}+1)
+
+  list(GET _DDDE2B35_argn ${_DDDE2B35_argn_index} _DDDE2B35_external_vars_list) # discardes ;-escaping
+  math(EXPR _DDDE2B35_argn_index ${_DDDE2B35_argn_index}+1)
+
+  list(GET _DDDE2B35_argn ${_DDDE2B35_argn_index} _DDDE2B35_preload_only_vars_list) # discardes ;-escaping
+  math(EXPR _DDDE2B35_argn_index ${_DDDE2B35_argn_index}+1)
+
+  if (_DDDE2B35_script_mode)
+    set(_DDDE2B35_script_flag "-S")
+  else()
+    set(_DDDE2B35_script_flag "")
+  endif()
+  if (_DDDE2B35_silent_mode)
+    set(_DDDE2B35_silent_flag "-s")
+    set(_DDDE2B35_print_vars_flag "")
+  else()
+    set(_DDDE2B35_silent_flag "")
+    set(_DDDE2B35_print_vars_flag "-p")
+  endif()
+
+  set(_DDDE2B35_default_external_vars "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM")
+  set(_DDDE2B35_external_vars "${_DDDE2B35_default_external_vars}")
+  if (NOT _DDDE2B35_external_vars_list STREQUAL "" AND NOT _DDDE2B35_external_vars_list STREQUAL ".")
+    tkl_set_append(_DDDE2B35_external_vars "${_DDDE2B35_external_vars_list}" ";")
+  endif()
+
+  if (NOT _DDDE2B35_preload_only_vars_list STREQUAL "" AND NOT _DDDE2B35_preload_only_vars_list STREQUAL ".")
+    function(tkl_load_vars_from_files_lambda_C71CE541)
+      tkl_load_vars_from_files(${_DDDE2B35_print_vars_flag} ${_DDDE2B35_script_flag} ${_DDDE2B35_silent_flag}
+        --grant_external_vars_for_assign "${_DDDE2B35_external_vars}"
+        #--grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
+        --load_state_from_cmake_global_properties "_4BA54FD8_"
+        #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
+        "${_DDDE2B35_env_var_files_list}")
+
+      # drop all variables except these
+      foreach(var_name IN LISTS _DDDE2B35_preload_only_vars_list)
+        if (DEFINED ${var_name})
+          set(${var_name} "${${var_name}}" PARENT_SCOPE)
+        endif()
+      endforeach()
+    endfunction()
+
+    tkl_load_vars_from_files_lambda_C71CE541()
+  else()
+    tkl_load_vars_from_files(${_DDDE2B35_print_vars_flag} ${_DDDE2B35_script_flag} ${_DDDE2B35_silent_flag}
+      --grant_external_vars_for_assign "${_DDDE2B35_external_vars}"
+      #--grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
+      --load_state_from_cmake_global_properties "_4BA54FD8_"
+      #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
+      "${_DDDE2B35_env_var_files_list}")
+  endif()
+
+  unset(_DDDE2B35_argn)
+  unset(_DDDE2B35_argn_len)
+  unset(_DDDE2B35_argn_index)
+  unset(_DDDE2B35_script_mode)
+  unset(_DDDE2B35_silent_mode)
+  unset(_DDDE2B35_env_var_files_list)
+  unset(_DDDE2B35_external_vars_list)
+  unset(_DDDE2B35_default_external_vars)
+  unset(_DDDE2B35_external_vars)
+  unset(_DDDE2B35_script_flag)
+  unset(_DDDE2B35_silent_flag)
+  unset(_DDDE2B35_print_vars_flag)
+endmacro()
+
+macro(tkl_configure_environment env_var_files_root global_linkage_type supported_compilers)
+  if (NOT DEFINED PROJECT_NAME)
+    message(FATAL_ERROR "The PROJECT_NAME variable is not defined. The `tkl_configure_environment` function must be called after the `project(...)` cmake function.")
+  endif()
+  if (NOT IS_DIRECTORY "${env_var_files_root}")
+    message(FATAL_ERROR "env_var_files_root must be existing directory: `${env_var_files_root}`")
+  endif()
+
   tkl_declare_primary_builtin_vars()
 
   set(has_supported_compiler 0)
@@ -362,10 +462,10 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
   # CAUTION:
   #   From now and on a predefined set of configuration files must always exist before a cmake run!
   #
-  if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/_config/environment_system.vars")
+  if (NOT EXISTS "${env_var_files_root}/environment_system.vars")
     message(FATAL_ERROR "(*) The `environment_system.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
   endif()
-  if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/_config/environment_user.vars")
+  if (NOT EXISTS "${env_var_files_root}/environment_user.vars")
     message(FATAL_ERROR "(*) The `environment_user.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
   endif()
 
@@ -380,16 +480,11 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
   #   To make it changed you have to CLOSE IDE AND DELETE FILE WITH THE CACHED VARIABLES - `CMakeLists.txt.user`!
 
   # The predefined set of builtin local configuration files for load.
-  set(sys_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/_config/environment_system.vars")
-  set(user_env_var_file_path_load_list "${CMAKE_CURRENT_LIST_DIR}/_config/environment_user.vars")
+  set(sys_env_var_file_path_load_list "${env_var_files_root}/environment_system.vars")
+  set(user_env_var_file_path_load_list "${env_var_files_root}/environment_user.vars")
 
   # Preload local configuration files to set only predefined set of variables.
-  tkl_load_vars_from_files(-p
-    --grant_external_vars_for_assign "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM"
-    #--grant_assign_on_vars_change "TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME"
-    --load_state_from_cmake_global_properties "_4BA54FD8_"
-    #--save_state_into_cmake_global_properties "_4BA54FD8_" # preload does not save the state
-    "${sys_env_var_file_path_load_list}")
+  tkl_preload_variables("${sys_env_var_file_path_load_list}" . .)
 
   # build output directory variables
   tkl_make_build_output_dir_vars("${CMAKE_BUILD_TYPE}")
@@ -400,7 +495,7 @@ macro(tkl_configure_environment global_linkage_type supported_compilers)
     tkl_check_existence_of_system_vars()
 
     if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
-      tkl_is_equal_paths(REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" _BA96124E_cmake_cachefile_dir_is_build_dir)
+      tkl_is_equal_paths(_BA96124E_cmake_cachefile_dir_is_build_dir REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" . .)
       if (NOT _BA96124E_cmake_cachefile_dir_is_build_dir)
         message(FATAL_ERROR "Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory. \
 To continue do remove manually the external cache file:\n CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")

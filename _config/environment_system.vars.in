@@ -58,11 +58,22 @@
 # CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
+## required program variables and paths
+#final path exist WINDIR:WIN="C:\Windows"
+#final path exist CMAKE_COMMAND_DIR:WIN="C:\Program Files\CMake\bin"
+#final path exist MINGW_BIN_DIR:WIN="c:\mingw-w64\8.x\i686-8.1.0-win32-sjlj-rt_v6-rev0\mingw32\bin"
+##final path exist canonical CMAKE_MAKE_PROGRAM:WIN="$/{MINGW_BIN_DIR}\mingw32-make.exe"
+#
+## WORKAROUND: `For MinGW make to work correctly sh.exe must NOT be in your path.`
+#final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MINGW_BIN_DIR}")
+
 top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
+#top CMAKE_GENERATOR:WIN="MinGW Makefiles"
 top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
+#top CMAKE_GENERATOR_PLATFORM="" # must be at least empty
 
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
-top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
+CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
 top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
