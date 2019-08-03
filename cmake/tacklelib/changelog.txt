@@ -1,7 +1,21 @@
+2019.08.03:
+* fixed: [continue] multiple build fixes
+* fixed: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
+* changed: `tkl_discover_var_to` function is simplified
+* changed: `tkl_get_var` function is simplified
+
+2019.08.02:
+* fixed: [continue] multiple build fixes
+* fixed: case insensitive path variables compare including back/forward slash insensitive compare in the Windows
+* fixed: path list variables compare (`SetVarsFromFiles.cmake`)
+* fixeed: incorrect output variables return in `tkl_get_gcc_version` and `tkl_get_clang_version` functions (`Version.cmake`)
+* new: `tkl_detect_file_system_paths_sensitivity` function to detect file system paths sensitivity parameters (`File.cmake`)
+* refactor: minor refactor
+
 2019.07.31:
 * fixed: [continue] multiple build fixes
 * fixed: `file` function multiple fixes (`File.cmake`)
-* new: `SetVarsFromFiles.cmake` new variable attribute support
+* new: variable `exist` attribute support (`SetVarsFromFiles.cmake`)
 * changed: reduced `tkl_load_vars_from_files`/`tkl_set_vars_from_files` flags
 * changed: `SetVarsFromFiles.cmake` detailed description update
 * refactor: reorganization over `Std.cmake`, `File.cmake` modules

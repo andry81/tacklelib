@@ -68,7 +68,7 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
 
     list(APPEND _BBD57550_argv_joined_list_accum "${ARGV${_BBD57550_var_index}}")
 
-    math(EXPR _BBD57550_var_index "${_BBD57550_var_index}+1")
+    math(EXPR _BBD57550_var_index ${_BBD57550_var_index}+1)
   endwhile()
 
   # remove 2 first dummy empty strings
@@ -107,7 +107,7 @@ function(tkl_make_vars_from_ARGV_ARGN_begin argv_joined_list argn_joined_list ou
     # found substring must be the same size to the ARGN string length
     string(LENGTH "${_9E220B1D_argv_joined_list}" _9E220B1D_argv_joined_list_len)
     string(LENGTH "${_9E220B1D_argn_joined_list}" _9E220B1D_argn_joined_list_len)
-    math(EXPR _9E220B1D_args_joined_list_len "${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len}")
+    math(EXPR _9E220B1D_args_joined_list_len ${_9E220B1D_argv_joined_list_len}-${_9E220B1D_argn_joined_list_len})
     if (NOT _9E220B1D_args_joined_list_len EQUAL _9E220B1D_argn_offset)
       message(FATAL_ERROR "invalid offset")
     endif()
@@ -176,7 +176,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
 
     list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
 
-    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+    math(EXPR _9E220B1D_var_index ${_9E220B1D_var_index}+1)
   endwhile()
 
   # to be able to append empty values at begginning
@@ -204,7 +204,7 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
 
     list(APPEND _9E220B1D_argv_joined_list_accum "${ARGV${_9E220B1D_var_index}}")
 
-    math(EXPR _9E220B1D_var_index "${_9E220B1D_var_index}+1")
+    math(EXPR _9E220B1D_var_index ${_9E220B1D_var_index}+1)
   endwhile()
 
   # remove 2 first dummy empty strings
@@ -324,7 +324,7 @@ s\;strict_checks\
         endif()
       endif()
 
-      math(EXPR cmake_arg_index "${cmake_arg_index}+1")
+      math(EXPR cmake_arg_index ${cmake_arg_index}+1)
     endwhile()
   endif()
 

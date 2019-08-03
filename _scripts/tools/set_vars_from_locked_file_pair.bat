@@ -76,7 +76,7 @@ rem trick with simultaneous iteration over 2 lists in the same time
   for /f "usebackq eol=# tokens=* delims=" %%i in ("%~1") do (
     set /p "%%i="
     rem to filter out wrong matches of a variable from the `set "%%i"`
-    for /f "usebackq eol=# tokens=1,* delims==" %%j in (`set "%%i"`) do if "%%j" == "%%i" echo.%%i=%%k
+    for /f "usebackq eol=# tokens=1,* delims==" %%j in (`set "%%i"`) do if /i "%%j" == "%%i" echo.%%i=%%k
   )
 ) < "%~2"
 

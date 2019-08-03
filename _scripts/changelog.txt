@@ -1,3 +1,6 @@
+2019.08.02:
+* fixed: `set_vars_from_locked_file_pair.bat` script missed to print all setted variables
+
 2019.07.31:
 * fixed: `set_vars_from_locked_file_pair.bat` script returns not zero error level on success
 * fixed: cmake `no cache found` message on build script run

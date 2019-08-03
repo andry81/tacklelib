@@ -1,3 +1,18 @@
+2019.08.03:
+* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
+* changed: cmake: `tkl_discover_var_to` function is simplified
+* changed: cmake: `tkl_get_var` function is simplified
+
+2019.08.02:
+* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: case insensitive path variables compare including back/forward slash insensitive compare in the Windows
+* fixed: cmake: path list variables compare (`SetVarsFromFiles.cmake`)
+* fixed: cmake: incorrect output variables return in `tkl_get_gcc_version` and `tkl_get_clang_version` functions (`Version.cmake`)
+* fixed: scripts: `set_vars_from_locked_file_pair.bat` script missed to print all setted variables
+* new: cmake: `tkl_detect_file_system_paths_sensitivity` function to detect file system paths sensitivity parameters (`File.cmake`)
+* refactor: cmake: minor refactor
+
 2019.07.31:
 * fixed: scripts: `set_vars_from_locked_file_pair.bat` script returns not zero error level on success
 * fixed: scripts: cmake `no cache found` message on build script run

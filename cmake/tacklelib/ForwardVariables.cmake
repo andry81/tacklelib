@@ -67,13 +67,13 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
     message(FATAL_ERROR "var_name must be not empty and valid")
   endif()
 
-  if (out_uncached_var AND NOT out_uncached_var STREQUAL ".")
+  if (NOT out_uncached_var STREQUAL "" AND NOT out_uncached_var STREQUAL ".")
     set(out_uncached_var_defined 1)
   else()
     set(out_uncached_var_defined 0)
   endif()
 
-  if (out_cached_var AND NOT out_cached_var STREQUAL ".")
+  if (NOT out_cached_var STREQUAL "" AND NOT out_cached_var STREQUAL ".")
     set(out_cached_var_defined 1)
   else()
     set(out_cached_var_defined 0)
@@ -104,42 +104,39 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
   get_property(var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
 
   if (NOT var_cache_value_is_set)
-    if (out_cached_var_defined)
-      unset(${out_cached_var} PARENT_SCOPE)
-    endif()
+    # propagate uncached variant of a variable
     if (out_uncached_var_defined)
-      set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
-    endif()
-  else()
-    if (out_cached_var_defined)
-      # propagate cached variant of a variable
-      if (DEFINED ${var_name})
-        set(${out_cached_var} "${${var_name}}" PARENT_SCOPE)
-      else()
-        unset(${out_cached_var} PARENT_SCOPE)
-      endif()
-    endif()
-
-    if (out_uncached_var_defined)
-      # save cache properties of a variable
-      get_property(var_cache_value CACHE "${var_name}" PROPERTY VALUE)
-      get_property(var_cache_type CACHE "${var_name}" PROPERTY TYPE)
-      get_property(var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
-
-      # remove cached variant of a variable
-      unset(${var_name} CACHE)
-
-      # propagate uncached variant of a variable
       if (DEFINED ${var_name})
         set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
       else()
         unset(${out_uncached_var} PARENT_SCOPE)
       endif()
-
-      # restore cache properties of a variable
-      #message("set(${var_name} `${var_cache_value}` CACHE `${var_cache_type}` `${var_cache_docstring}`)")
-      set(${var_name} "${var_cache_value}" CACHE ${var_cache_type} "${var_cache_docstring}")
     endif()
+
+    if (out_cached_var_defined)
+      unset(${out_cached_var} PARENT_SCOPE)
+    endif()
+  else()
+    # save cache properties of a variable
+    get_property(var_cache_value CACHE "${var_name}" PROPERTY VALUE)
+    get_property(var_cache_type CACHE "${var_name}" PROPERTY TYPE)
+    get_property(var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
+
+    # remove cached variant of a variable to avoid interference with the cache
+    unset(${var_name} CACHE)
+
+    # propagate uncached variant of a variable
+    if (DEFINED ${var_name})
+      set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
+    else()
+      unset(${out_uncached_var} PARENT_SCOPE)
+    endif()
+
+    # restore cache properties of a variable
+    #message("set(${var_name} `${var_cache_value}` CACHE `${var_cache_type}` `${var_cache_docstring}`)")
+    set(${var_name} "${var_cache_value}" CACHE ${var_cache_type} "${var_cache_docstring}")
+
+    # no need to restore not cache value here, because we are in a function scope
   endif()
 endfunction()
 
@@ -602,7 +599,7 @@ function(tkl_track_vars_begin) # WITH OUT ARGUMENTS!
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::track_vars::vars_stack::vars" "tkl::track_vars" "${_39067B90_filtered_vars}")
 endfunction()
 
-# Forwards variables that was added/changed/removed since last call to `bagin_track_vars` to the parent scope.
+# Forwards variables that were added/changed/removed since the last call to the `begin_track_vars` to the parent scope.
 # Note that variables starting with underscore are NOT ignored.
 #
 # Parameters:

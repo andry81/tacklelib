@@ -59,6 +59,13 @@ include(tacklelib/_3dparty/Qt)
 ## builtin detection ##########################################################
 ###############################################################################
 
+## CAUTION:
+##   Must be called before the `project(...)` to workaround the error:
+##   `CMake Error: CMake was unable to find a build program corresponding to "MinGW Makefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.`
+##   by declare respective variable BEFORE the project main initialization.
+##
+#tkl_preload_variables(-S -s "${CMAKE_CURRENT_LIST_DIR}/_config/environment_system.vars" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
+
 project("tacklelib")
 
 set(PROJECT_LIB_NAME tacklelib)
@@ -66,7 +73,7 @@ set(PROJECT_LIB_NAME tacklelib)
 set(LIB_TARGET_NAME ${PROJECT_LIB_NAME})
 set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 
-tkl_configure_environment("${TACKLELIB_LINK_TYPE}" "MSVC;GCC")
+tkl_configure_environment("${CMAKE_CURRENT_LIST_DIR}/_config" "${TACKLELIB_LINK_TYPE}" "MSVC;GCC")
 
 ###############################################################################
 ## check environment variables ################################################

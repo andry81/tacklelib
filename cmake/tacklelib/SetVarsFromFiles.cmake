@@ -198,6 +198,10 @@ include(tacklelib/Utility)
 #   Without the `package` attribute applies to a last assignment irrespective to a package.
 #   With the `package` attribute applies only to the current package, in next level package can be reassigned or sealed again.
 #
+# `exist`:
+#   An existed path variable.
+#   Must be declared together with the `path` attribute.
+#
 
 # CURRENT STATE: BETA, not all attributes are implemented properly, TODO: TESTS!
 
@@ -318,6 +322,7 @@ function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
 
   set(flag_args "")
 
+  set(silent_mode 0)
   set(load_state_from_cmake_global_properties 0)
   set(save_state_into_cmake_global_properties 0)
 
@@ -325,10 +330,15 @@ function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
   tkl_parse_function_optional_flags_into_vars_impl(
     argn_index
     _50FABB52_argn
-    "p;e;E;a"
+    "p;e;E;a;S;s"
     ""
-    ""
-    "varlines\;.\;.;vars\;.\;.;values\;.\;.;flock\;.\;.;ignore_statement_if_no_filter;\
+    "s\;silent_mode"
+    "\
+varlines\;.\;.;\
+vars\;.\;.;\
+values\;.\;.;\
+flock\;.\;.;\
+ignore_statement_if_no_filter;\
 ignore_statement_if_no_filter_config_name;\
 ignore_late_expansion_statements;\
 grant_external_vars_for_assign\;.\;.;\
@@ -348,7 +358,11 @@ make_vars\;.\;.\;."
   endif()
 
   # Parent variable are saved, now can create local variables!
-  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  if (script_mode)
+    set(is_in_script_mode 1)
+  else()
+    tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  endif()
 
   if (NOT is_in_script_mode)
     # CMAKE_BUILD_TYPE consistency check, in case if not script mode
@@ -362,10 +376,12 @@ make_vars\;.\;.\;."
     message(FATAL_ERROR "file_paths argument is not defined")
   endif()
 
-  if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
-    message("* Loading variables from `${file_paths}`...")
-  else()
-    message("* Preloading variables from `${file_paths}`...")
+  if (NOT silent_mode)
+    if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
+      message("* Loading variables from `${file_paths}`...")
+    else()
+      message("* Preloading variables from `${file_paths}`...")
+    endif()
   endif()
 
   if (NOT CMAKE_BUILD_TYPE)
@@ -394,6 +410,8 @@ endfunction()
 #   --values <values_file>      - instead of does set variables does save variable values into a file each per line (multiline variables leaves truncated)
 #   --flock <flock_file>        - file lock to lock write into `--varlines`, `--vars` and `--values` file arguments
 #   -a                          - append values into `varlines_file`, `vars_file` and `values_file`
+#   -S                          - script mode
+#   -s                          - silent mode
 #
 #   --grant_external_vars_for_assign <grant_external_vars_for_assign_list>
 #                               - list of variables granted for unconditional assignment if has been assigned before the first load call
@@ -475,12 +493,12 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
-  tkl_copy_vars(_5A06EEFA_parent_all_vars_list _5A06EEFA_parent_vars_list _5A06EEFA_parent_var_values_list _5A06EEFA_)
+  tkl_copy_vars(_5A06EEFA_previous_all_vars_list _5A06EEFA_previous_vars_list _5A06EEFA_previous_var_values_list _5A06EEFA_)
 
-  #list(LENGTH _5A06EEFA_parent_vars_list _5A06EEFA_parent_vars_list_len)
-  #list(LENGTH _5A06EEFA_parent_var_values_list _5A06EEFA_parent_var_values_list_len)
-  #message("[${_5A06EEFA_parent_vars_list_len}] _5A06EEFA_parent_vars_list=${_5A06EEFA_parent_vars_list}")
-  #message("[${_5A06EEFA_parent_var_values_list_len}] _5A06EEFA_parent_var_values_list=${_5A06EEFA_parent_var_values_list}")
+  #list(LENGTH _5A06EEFA_previous_vars_list _5A06EEFA_previous_vars_list_len)
+  #list(LENGTH _5A06EEFA_previous_var_values_list _5A06EEFA_previous_var_values_list_len)
+  #message("[${_5A06EEFA_previous_vars_list_len}] _5A06EEFA_previous_vars_list=${_5A06EEFA_previous_vars_list}")
+  #message("[${_5A06EEFA_previous_var_values_list_len}] _5A06EEFA_previous_var_values_list=${_5A06EEFA_previous_var_values_list}")
 
   # Parent variable are saved, now can create local variables!
   tkl_get_cmake_role(_5A06EEFA_is_in_script_mode SCRIPT)
@@ -494,9 +512,9 @@ macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_uninit) # WITH OUT ARGUMENTS!
-  unset(_5A06EEFA_parent_all_vars_list)
-  unset(_5A06EEFA_parent_vars_list)
-  unset(_5A06EEFA_parent_var_values_list)
+  unset(_5A06EEFA_previous_all_vars_list)
+  unset(_5A06EEFA_previous_vars_list)
+  unset(_5A06EEFA_previous_var_values_list)
 endmacro()
 
 macro(tkl_set_vars_from_files_impl_with_args) # WITH OUT ARGUMENTS!
@@ -534,6 +552,8 @@ macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   set(ignore_statement_if_no_filter 0)              # ignore specialized statements if it does not have a configuration name filter
   set(ignore_statement_if_no_filter_config_name 0)  # ignore specialized statements if it does not have a filter specification
   set(ignore_late_expansion_statements 0)           # ignore statements with late expansion feature
+  set(script_mode 0)
+  set(silent_mode 0)
 
   # parameterized flag argument values
   unset(var_lines_file_path)
@@ -555,9 +575,9 @@ macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   tkl_parse_function_optional_flags_into_vars(
     argn_index
     _50FABB52_argn
-    "p;e;E;a"
+    "p;e;E;a;S;s"
     "E\;set_vars"
-    "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;a\;append_to_files"
+    "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;a\;append_to_files;S\;script_mode;s\;silent_mode"
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;\
 flock\;.\;flock_file_path;ignore_statement_if_no_filter\;ignore_statement_if_no_filter;\
 ignore_statement_if_no_filter_config_name\;ignore_statement_if_no_filter_config_name;\
@@ -571,6 +591,10 @@ load_state_from_cmake_global_properties\;.\;load_state_from_cmake_global_propert
 save_state_into_cmake_global_properties\;.\;save_state_into_cmake_global_properties_prefix;\
 make_vars\;.\;make_vars_names\;make_vars_values"
   )
+
+  if (silent_mode AND print_vars_set)
+    message(FATAL_ERROR "print_vars_set flag (-p) can not be used together with the silent_mode flag (-s)")
+  endif()
 
   if (DEFINED var_lines_file_path)
     get_filename_component(var_lines_file_path_abs "${var_lines_file_path}" ABSOLUTE)
@@ -688,9 +712,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   string(TOUPPER "${config_name}" config_name_upper)
   string(TOUPPER "${arch_name}" arch_name_upper)
 
-  tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  if (script_mode)
+    set(is_in_script_mode 1)
+  else()
+    tkl_get_cmake_role(is_in_script_mode SCRIPT)
+  endif()
 
-  set(compare_var_path_values_as_case_sensitive 1)
+  set(compare_var_paths_as_case_sensitive 1)
 
   if (os_name STREQUAL "" AND NOT is_in_script_mode)
     if (WIN32 OR WIN64)
@@ -716,7 +744,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       os_name_to_filter STREQUAL "MSYS" OR
       os_name_to_filter STREQUAL "MINGW" OR
       os_name_to_filter STREQUAL "CYGWIN")
-    set(compare_var_path_values_as_case_sensitive 0) # treats all Windows file systems as case insensitive
+    set(compare_var_paths_as_case_sensitive 0) # treats all Windows file systems as case insensitive
   endif()
 
   if (list_separator_char STREQUAL "")
@@ -931,12 +959,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(${file_path_list_name}_c "")
 
     foreach (file_path IN LISTS ${file_path_list_name})
-      get_filename_component(file_path_c "${file_path}" ABSOLUTE)
-
-      if (NOT compare_var_path_values_as_case_sensitive)
-        string(TOLOWER "${file_path_c}" file_path_c)
-      endif()
-
+      tkl_make_comparable_path(file_path_c "${file_path}" ABSOLUTE compare_var_paths_as_case_sensitive 1)
       list(APPEND ${file_path_list_name}_c "${file_path_c}")
     endforeach()
   endforeach()
@@ -973,11 +996,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_CMAKE_CURRENT_LOAD_VARS_FILE_DIR "${file_dir_path}")
     set(config_CMAKE_CURRENT_LOAD_VARS_FILE_INDEX "${file_path_index}")
 
-    if (compare_var_path_values_as_case_sensitive)
-      set (file_path_c "${file_path_abs}")
-    else()
-      string(TOLOWER "${file_path_abs}" file_path_c)
-    endif()
+    tkl_make_comparable_path(file_path_c "${file_path_abs}" . compare_var_paths_as_case_sensitive 1)
 
     # update attributes per file basis
     if ((NOT make_vars_names) OR (NOT "CMAKE_CURRENT_PACKAGE_NAME" IN_LIST make_vars_names))
@@ -1112,6 +1131,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use package scope variable
         set(use_package_scope_var 0)
 
+        # use existed variable's value, applicaible to the path ONLY
+        set(use_existed_value 0)
+
+        # use canonical variable's value, applicaible to the path ONLY
+        set(use_canonical_value 0)
+
         if (var_name_token_list_len GREATER 1)
           list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
           string(TOUPPER "${var_name_attr_list}" var_name_attr_list_upper)
@@ -1138,7 +1163,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           if ("BOOL" IN_LIST var_name_attr_list_upper)
             set(var_type "bool")
-          elseif ("PATH" IN_LIST var_name_attr_list_upper)
+          endif()
+          if ("PATH" IN_LIST var_name_attr_list_upper)
+            if (var_type)
+              message(FATAL_ERROR "A variable should have maximum one type attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
             set(var_type "path")
           endif()
 
@@ -1168,6 +1197,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           if (NOT use_package_scope_var AND "PACKAGE" IN_LIST var_name_attr_list_upper)
             set(use_package_scope_var 1)
+          endif()
+
+          if ("EXIST" IN_LIST var_name_attr_list_upper)
+            set(use_existed_value 1)
+          endif()
+
+          if ("CANONICAL" IN_LIST var_name_attr_list_upper)
+            set(use_canonical_value 1)
           endif()
         else()
           set(var_name_attr_list "")
@@ -1215,6 +1252,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # package w/o final
         if (use_package_scope_var AND NOT use_final_var)
           message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
+        if (NOT var_type STREQUAL "path" AND use_existed_value)
+          message(FATAL_ERROR "Only the PATH variable supports the EXIST attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
+        if (NOT var_type STREQUAL "path" AND use_canonical_value)
+          message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         string(TOUPPER "${var_os_name}" var_os_name_upper)
@@ -1432,6 +1477,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
             # A variable is already assigned, but we have to check whether we can allow to specialize a variable.
             if (NOT use_force_var)
+              # ignore a variable in case of not equal and not empty specializations
+              if ((NOT config_${var_name}_os_name STREQUAL "" AND NOT var_os_name STREQUAL "" AND NOT config_${var_name}_os_name STREQUAL var_os_name) OR
+                  (NOT config_${var_name}_compiler_name STREQUAL "" AND NOT var_compiler_name STREQUAL "" AND NOT config_${var_name}_compiler_name STREQUAL var_compiler_name) OR
+                  (NOT config_${var_name}_config_name STREQUAL "" AND NOT var_config_name STREQUAL "" AND NOT config_${var_name}_config_name STREQUAL var_config_name) OR
+                  (NOT config_${var_name}_arch_name STREQUAL "" AND NOT var_arch_name STREQUAL "" AND NOT config_${var_name}_arch_name STREQUAL var_arch_name))
+                continue()
+              endif()
+
               if (((config_${var_name}_os_name STREQUAL "") OR (NOT var_os_name STREQUAL "" AND config_${var_name}_os_name STREQUAL var_os_name)) AND
                   ((config_${var_name}_compiler_name STREQUAL "") OR (NOT var_compiler_name STREQUAL "" AND config_${var_name}_compiler_name STREQUAL var_compiler_name)) AND
                   ((config_${var_name}_config_name STREQUAL "") OR (NOT var_config_name STREQUAL "" AND config_${var_name}_config_name STREQUAL var_config_name)) AND
@@ -1460,7 +1513,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 endif()
               endif()
             endif()
-          elseif (var_name IN_LIST _5A06EEFA_parent_vars_list)
+          elseif (var_name IN_LIST _5A06EEFA_previous_vars_list)
             if (grant_external_vars_assign_in_files_list_c AND file_path_c IN_LIST grant_external_vars_assign_in_files_list_c)
               set (do_spec_collision_check 0)
             elseif (grant_external_vars_for_assign_list AND var_name IN_LIST grant_external_vars_for_assign_list)
@@ -2008,7 +2061,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(is_bool_var_value 1)
             elseif (var_type STREQUAL "path")
               set(is_path_var_value 1)
-            elseif (NOT compare_var_path_values_as_case_sensitive)
+            elseif (NOT compare_var_paths_as_case_sensitive)
               # detect variable type by variable name variants
               tkl_is_path_var_by_name(is_path_var_value "${var_name}")
             endif()
@@ -2016,43 +2069,103 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           # validate if variable has already existed and is an ODR variable
 
-          # use as list
           set(var_parsed_value "${var_values_joined_list}")
+          # escape all `\;` sequences to iterate it as a path list through the `foreach`
+          if (var_type STREQUAL "path")
+            string(REGEX REPLACE "([^\\\\])\\\\;" "\\1/;" var_parsed_value "${var_parsed_value}")
+          endif()
 
           # validate if variable has already existed and is an ODR variable
           if (is_var_in_ODR_check_list)
-            list(FIND _5A06EEFA_parent_vars_list "${var_name}" parent_var_index)
-            if (parent_var_index GREATER_EQUAL 0) # still can be less
-              list(GET _5A06EEFA_parent_var_values_list ${parent_var_index} parent_var_value) # discardes ;-escaping
+            list(FIND _5A06EEFA_previous_vars_list "${var_name}" previous_var_index)
+            if (previous_var_index GREATER_EQUAL 0) # still can be less
+              list(GET _5A06EEFA_previous_var_values_list ${previous_var_index} previous_var_value) # discardes ;-escaping
             else()
-              set(parent_var_value "")
+              set(previous_var_value "")
             endif()
 
             if (is_bool_var_value)
               # make values boolean
-              if (parent_var_value)
-                set(parent_var_value_boolean 1)
+              if (previous_var_value)
+                set(previous_var_value_boolean 1)
               else()
-                set(parent_var_value_boolean 0)
+                set(previous_var_value_boolean 0)
               endif()
               if (var_parsed_value)
                 set(var_parsed_value_boolean 1)
               else()
                 set(var_parsed_value_boolean 0)
               endif()
-            elseif (is_path_var_value GREATER 0)
-              # make values upper case
-              string(TOUPPER "${parent_var_value}" parent_var_value_upper)
-              string(TOUPPER "${var_parsed_value}" var_parsed_value_upper)
             endif()
 
-            if ((is_bool_var_value AND NOT parent_var_value_boolean EQUAL var_parsed_value_boolean) OR
-                (NOT is_bool_var_value AND
-                  ((is_path_var_value GREATER 0 AND NOT parent_var_value_upper STREQUAL var_parsed_value_upper) OR
-                  (NOT is_path_var_value GREATER 0 AND (NOT parent_var_value STREQUAL var_parsed_value)))))
-              message(FATAL_ERROR "ODR violation, variable must define the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${var_values_joined_list}` -> `${parent_var_value}` (is_path=`${is_path_var_value}`)")
-              continue()
+            set(is_vars_equal 0)
+            if (NOT is_path_var_value GREATER 0)
+              if ((is_bool_var_value AND (previous_var_value_boolean EQUAL var_parsed_value_boolean)) OR
+                  (NOT is_bool_var_value AND (previous_var_value STREQUAL var_parsed_value)))
+                set(is_vars_equal 1)
+              endif()
+            else()
+              set(previous_var_value_list "")
+              set(var_parsed_value_list "")
+              
+              foreach(previous_var_value_item IN LISTS previous_var_value)
+                # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+                tkl_escape_string_after_list_get(previous_var_value_item "${previous_var_value_item}")
+
+                tkl_make_comparable_path(previous_var_value_item "${previous_var_value_item}" . compare_var_paths_as_case_sensitive 1)
+
+                if (NOT previous_var_value_list STREQUAL "")
+                  set(previous_var_value_list "${previous_var_value_list};${previous_var_value_item}")
+                else()
+                  set(previous_var_value_list "${previous_var_value_item}")
+                endif()
+              endforeach()
+
+              foreach(var_parsed_value_item IN LISTS var_parsed_value)
+                # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+                tkl_escape_string_after_list_get(var_parsed_value_item "${var_parsed_value_item}")
+
+                tkl_make_comparable_path(var_parsed_value_item "${var_parsed_value_item}" . compare_var_paths_as_case_sensitive 1)
+
+                if (NOT var_parsed_value_list STREQUAL "")
+                  set(var_parsed_value_list "${var_parsed_value_list};${var_parsed_value_item}")
+                else()
+                  set(var_parsed_value_list "${var_parsed_value_item}")
+                endif()
+              endforeach()
+
+              tkl_is_equal_paths(is_vars_equal . "${previous_var_value_list}" "${var_parsed_value_list}" ${compare_var_paths_as_case_sensitive} 1)
             endif()
+
+            if (NOT is_vars_equal)
+              message(FATAL_ERROR "ODR violation, variables must declare the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${var_parsed_value}` -> `${previous_var_value}` (is_path=`${is_path_var_value}`)")
+            endif()
+
+            # use previous value to avoid a value change, but apply all related attributes
+            set(var_parsed_value "${${var_name}}")
+          endif()
+
+          # convert to the canonical
+          if (use_canonical_value)
+            if (var_type STREQUAL "path")
+              string(REPLACE "\\" "/" var_parsed_value "${var_parsed_value}")
+            endif()
+          endif()
+
+          # check variable's value on existence
+          if (var_type STREQUAL "path" AND use_existed_value)
+            foreach(path_var_value IN LISTS var_parsed_value)
+              # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+              tkl_escape_string_after_list_get(path_var_value "${path_var_value}")
+
+              if (NOT EXISTS "${path_var_value}")
+                if (var_parsed_value STREQUAL path_var_value)
+                  message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${path_var_value}`")
+                else()
+                  message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${var_parsed_value}` => `${path_var_value}`")
+                endif()
+              endif()
+            endforeach()
           endif()
 
           # A variable with not late expansion expression or a variable with configuration specialized late expansion (generator) expression (`var_config_name` is empty)
@@ -2125,10 +2238,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_token_suffix_note "")
               endif()
 
-              if (config_${var_name} STREQUAL var_values_joined_list)
+              if (config_${var_name} STREQUAL var_parsed_value)
                 set(var_set_msg_suffix_str "")
               else()
-                set(var_set_msg_suffix_str " (`${var_values_joined_list}`)")
+                set(var_set_msg_suffix_str " (`${var_parsed_value}`)")
               endif()
 
               if (use_override_var)
@@ -2437,9 +2550,9 @@ function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   tkl_parse_function_optional_flags_into_vars(
     argn_index
     argn
-    "p;e;E;F;a"
+    "p;e;E;F;a;S;s"
     "E\;set_vars"
-    "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;F\;set_on_full_complement_config;a\;append_to_files"
+    "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;F\;set_on_full_complement_config;a\;append_to_files;S\;script_mode;s\;silent_mode"
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;flock\;.\;flock_file_path;\
 ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;\
 grant_external_vars_for_assign\;.\;.;\

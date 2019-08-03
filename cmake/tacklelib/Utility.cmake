@@ -408,7 +408,7 @@ endfunction()
 #
 macro(tkl_parse_function_optional_flags_into_vars func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list)
   tkl_parse_function_optional_flags_into_vars_impl("${func_argv_index_var}" "${func_argv_var}" "${func_char_flags_list}"
-    "${set0_params_list}" "${set1_params_list}" "${multichar_flag_params_list}" "")
+    "${set0_params_list}" "${set1_params_list}" "${multichar_flag_params_list}" .)
 endmacro()
 
 function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var func_argv_var func_char_flags_list set0_params_list set1_params_list multichar_flag_params_list flags_out_var)
@@ -488,7 +488,7 @@ function(tkl_parse_function_optional_flags_into_vars_impl func_argv_index_var fu
         message(FATAL_ERROR "flags is not recognized: `${func_flags}`")
       endif()
 
-      if (NOT flags_out_var STREQUAL "")
+      if (NOT flags_out_var STREQUAL "" AND NOT flags_out_var STREQUAL ".")
         list(APPEND flags "${func_flags}")
       endif()
 
