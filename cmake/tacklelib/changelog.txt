@@ -1,3 +1,9 @@
+2019.08.04:
+* fixed: [continue] multiple build fixes
+* fixed: incorrect variables return in `tkl_detect_file_system_paths_sensitivity` function
+* fixed: accidental error message `Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory.`
+* changed: minor changes
+
 2019.08.03:
 * fixed: [continue] multiple build fixes
 * fixed: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
