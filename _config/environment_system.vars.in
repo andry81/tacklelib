@@ -32,7 +32,7 @@
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
 #
-# <attributes>:           Variable space separated attributes: global | top | bool | path | cache_only | cache | env_only | env | force_cache | force | override | package | final
+# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]

@@ -199,7 +199,11 @@ include(tacklelib/Utility)
 #   With the `package` attribute applies only to the current package, in next level package can be reassigned or sealed again.
 #
 # `exist`:
-#   An existed path variable.
+#   An existed path value.
+#   Must be declared together with the `path` attribute.
+#
+# `canonical`:
+#   A canonical path value.
 #   Must be declared together with the `path` attribute.
 #
 
@@ -438,9 +442,10 @@ endfunction()
 # <file_paths>:           Sublist of file paths to load from.
 #
 # CONFIGURATION FILE FORMAT:
-#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
-#   <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
 #
+# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]

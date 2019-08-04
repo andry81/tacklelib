@@ -41,11 +41,11 @@ function(tkl_detect_file_system_paths_sensitivity out_is_name_case_sensitive_var
   set(num_out_vars 0)
 
   if (NOT out_is_name_case_sensitive_var STREQUAL "" AND NOT out_is_name_case_sensitive_var STREQUAL ".")
-    set(${out_is_name_case_sensitive_var} ${is_name_case_sensitive})
+    set(${out_is_name_case_sensitive_var} ${is_name_case_sensitive} PARENT_SCOPE)
     math(EXPR num_out_vars ${num_out_vars}+1)
   endif()
   if (NOT out_is_back_and_forward_slash_separator_var STREQUAL "" AND NOT out_is_back_and_forward_slash_separator_var STREQUAL ".")
-    set(${out_is_back_and_forward_slash_separator_var} ${is_back_and_forward_slash_separator})
+    set(${out_is_back_and_forward_slash_separator_var} ${is_back_and_forward_slash_separator} PARENT_SCOPE)
     math(EXPR num_out_vars ${num_out_vars}+1)
   endif()
 
