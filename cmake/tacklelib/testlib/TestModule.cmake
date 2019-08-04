@@ -104,11 +104,11 @@ function(tkl_test_msg msg)
     message(FATAL_ERROR "test module process is not initialized properly, call to `RunTestModule.cmake` to initialize and execute the test module process")
   endif()
 
-  if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
-    message(TRACE "${msg}")
-  else()
+#  if (CMAKE_MAJOR_VERSION GREATER 3 OR (CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER 14))
+#    message(TRACE "${msg}")
+#  else()
     message(STATUS "${msg}")  # to print to stdout
-  endif()
+#  endif()
 endfunction()
 
 function(tkl_test_info_msg msg)

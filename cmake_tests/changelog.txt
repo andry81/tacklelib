@@ -1,3 +1,11 @@
+2019.08.04:
+* new: cmake 3.15.1 binaries target
+* changed: cmake 3.14.5 binaries is retargeted to cmake 3.14.6
+* changed: cmake 3.15.0-rc1 binaries is retargeted to cmake 3.15.0
+
+2019.08.04:
+* fixed: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+
 2019.06.22:
 * fixed: `tests_02_Utility` corrected
 

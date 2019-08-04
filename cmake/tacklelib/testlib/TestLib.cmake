@@ -100,13 +100,15 @@ test_case_match_filter\;.\;test_case_match_filter_list\
   endif()
 
   # load global TestLib configuration variables
-  if (EXISTS "${TESTS_ROOT}/_config/environment_user.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/environment_user.vars")
-    tkl_track_vars_begin()
+  if (NOT TACKLELIB_TESTLIB_SKIP_LOAD_VARS)
+    if (EXISTS "${TESTS_ROOT}/_config/environment_user.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/environment_user.vars")
+      tkl_track_vars_begin()
 
-    tkl_load_vars_from_files("${TESTS_ROOT}/_config/environment_user.vars")
+      tkl_load_vars_from_files("${TESTS_ROOT}/_config/environment_user.vars")
 
-    tkl_forward_changed_vars_to_parent_scope()
-    tkl_track_vars_end()
+      tkl_forward_changed_vars_to_parent_scope()
+      tkl_track_vars_end()
+    endif()
   endif()
 
   # CAUTION:
@@ -122,16 +124,18 @@ function(tkl_testlib_exit)
     message(FATAL_ERROR "Test library process is not initialized properly, call to `RunTestLib.cmake` to initialize and execute the test library process")
   endif()
 
-  tkl_time_sec(TACKLELIB_TESTLIB_END_TIME_SEC)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_BEGIN_TIME_SEC "tkl::testlib::begin_time_sec" 0)
+  if (NOT ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST)
+    tkl_time_sec(TACKLELIB_TESTLIB_END_TIME_SEC)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_BEGIN_TIME_SEC "tkl::testlib::begin_time_sec" 0)
 
-  math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_BEGIN_TIME_SEC})
+    math(EXPR TACKLELIB_TESTLIB_RUN_TIME_SEC ${TACKLELIB_TESTLIB_END_TIME_SEC}-${TACKLELIB_TESTLIB_BEGIN_TIME_SEC})
 
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
-  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-  tkl_testlib_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
+    tkl_testlib_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
+  endif()
 endfunction()
 
 function(tkl_testlib_set_working_dir dir)
@@ -158,19 +162,19 @@ function(tkl_testlib_msg msg)
 
   tkl_get_global_prop(enter_dir_msg "tkl::testlib::stdout::enter_dir_msg" 0)
   if (DEFINED enter_dir_msg)
-    if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
-      message(TRACE "${enter_dir_msg}")
-    else()
+#    if (CMAKE_MAJOR_VERSION GREATER 3 OR (CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER 14))
+#      message(TRACE "${enter_dir_msg}")
+#    else()
       message(STATUS "${enter_dir_msg}")  # to print to stdout
-    endif()
+#    endif()
     set_property(GLOBAL PROPERTY "tkl::testlib::stdout::enter_dir_msg") # unset property
   endif()
 
-  if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
-    message(TRACE "${msg}")
-  else()
+#    if (CMAKE_MAJOR_VERSION GREATER 3 OR (CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER 14))
+#    message(TRACE "${msg}")
+#  else()
     message(STATUS "${msg}") # to print to stdout
-  endif()
+#  endif()
 
   tkl_get_global_prop(num_print_msgs_in_dir "tkl::testlib::stdout::num_print_msgs_in_dir" 1)
   if (num_print_msgs_in_dir STREQUAL "")
@@ -225,11 +229,11 @@ function(tkl_testlib_print_leave_dir_msg msg)
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 0)
 
   if (num_print_msgs_in_dir OR num_tests_run)
-    if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MINOR_VERSION GREATER 14)
-      message(TRACE "${msg}")
-    else()
+#    if (CMAKE_MAJOR_VERSION GREATER 3 OR (CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER 14))
+#      message(TRACE "${msg}")
+#    else()
       message(STATUS "${msg}")  # to print to stdout
-    endif()
+#    endif()
   endif()
 
   tkl_pop_prop_from_stack(num_print_msgs_in_dir GLOBAL "tkl::testlib::stdout::num_print_msgs_in_dir_stack" "tkl::testlib")
