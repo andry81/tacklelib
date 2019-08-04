@@ -1,18 +1,28 @@
 2019.08.04:
-* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: testlib: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+* fixed: cmake: testlib: removed trace messages instead status messages for the cmake 3.15.x and higher binaries targets
+* fixed: cmake: incomplete comments filter (`SetVarsFromFiles.cmake`)
+* fixed: cmake: other build errors
+* fixed: cmake_tests: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+* new: cmake_tests: cmake 3.15.1 binaries target
+* changed: cmake_tests: cmake 3.14.5 binaries is retargeted to cmake 3.14.6
+* changed: cmake_tests: cmake 3.15.0-rc1 binaries is retargeted to cmake 3.15.0
+
+2019.08.04:
+* fixed: cmake: [continue] other build errors
 * fixed: cmake: incorrect variables return in `tkl_detect_file_system_paths_sensitivity` function
 * fixed: cmake: accidental error message `Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory.`
 * changed: cmake: minor changes
 * changed: minor changes
 
 2019.08.03:
-* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: [continue] other build errors
 * fixed: cmake: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
 * changed: cmake: `tkl_discover_var_to` function is simplified
 * changed: cmake: `tkl_get_var` function is simplified
 
 2019.08.02:
-* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: [continue] other build errors
 * fixed: cmake: case insensitive path variables compare including back/forward slash insensitive compare in the Windows
 * fixed: cmake: path list variables compare (`SetVarsFromFiles.cmake`)
 * fixed: cmake: incorrect output variables return in `tkl_get_gcc_version` and `tkl_get_clang_version` functions (`Version.cmake`)
@@ -25,7 +35,7 @@
 * fixed: scripts: cmake `no cache found` message on build script run
 
 2019.07.31:
-* fixed: cmake: [continue] multiple build fixes
+* fixed: cmake: [continue] other build errors
 * fixed: cmake: `file` function multiple fixes (`File.cmake`)
 * fixed: cmake_tests: 02_Utility tests pass
 * new: cmake: `SetVarsFromFiles.cmake` new variable attribute support

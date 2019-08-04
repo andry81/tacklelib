@@ -1042,31 +1042,30 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       #message("[${var_file_content_line}] {${is_continue_parse_var_value}}  => `${var_line}`")
 
+      # skip empty lines
+      if (var_line STREQUAL "" OR var_line MATCHES "^[ \t]*\$")
+        continue()
+      endif()
+
+      # skip full comment lines
+      if (var_line MATCHES "^[ \t]*#")
+        continue()
+      endif()
+
       # NOTE:
       #   We have to skip all variable name and related specialization checks here,
       #   if we already checked that and just continue to parse a variable's value.
       #
 
       if (NOT is_continue_parse_var_value)
-        if((NOT var_line MATCHES "^[^#\"]+=") OR (NOT var_line MATCHES "([^=]+)=(.*)"))
-          # not empty and con commented line is an error
-          set(var_line_valid_chars_filtered "${var_line}")
-          if (var_line_valid_chars_filtered MATCHES "([^#]*)")
-            set(var_line_valid_chars_filtered "${CMAKE_MATCH_1}")
-          endif()
-          string(STRIP "${var_line_valid_chars_filtered}" var_line_valid_chars_filtered)
-          if (NOT var_line_valid_chars_filtered STREQUAL "")
-            message(WARNING "invalid variable token: [${var_file_content_line}] `${CMAKE_MATCH_1}`")
-          endif()
-
+        if(NOT var_line MATCHES "^[ \t]*([^\"=]+)[ \t]*=[ \t]*(.*)[ \t]*\$")
+          # empty or incomplete variable assignment is an error
+          message(WARNING "invalid variable assignment expression: [${var_file_content_line}] `${CMAKE_MATCH_1}`")
           continue()
         endif()
 
-        string(STRIP "${CMAKE_MATCH_1}" var_token)
-
-        # should strip ONLY from left side
+        set(var_token "${CMAKE_MATCH_1}")
         set(var_value "${CMAKE_MATCH_2}")
-        string(REGEX REPLACE "^[ \t]+(.*)" "\\1" var_value "${var_value}")
 
         string(LENGTH "${var_token}" var_token_len)
         string(LENGTH "${var_value}" var_value_len)
@@ -1816,17 +1815,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
 
               if (NOT is_str_quote_open)
-                # end of processing
-                if (NOT is_list_bracket_open)
-                  # truncate a variable's value length
-                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                  set(var_value_len ${index})
-                else()
-                  set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
-                  set(is_invalid_var_line 1)
-                  set(is_invalid_open_sequence 1)
-                endif()
-
+                # end of processing, truncate a variable's value length
+                set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
+                set(var_value_len ${index})
                 break()
               endif()
             elseif (char STREQUAL "(")
@@ -2392,7 +2383,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endforeach()
 
     if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
-      message(WARNING "invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+      message(WARNING "invalid variable line: (${is_next_char_to_escape},${is_str_quote_open},${is_list_bracket_open}) `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
 
       # pop open sequence context
       tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
