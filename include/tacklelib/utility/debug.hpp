@@ -10,7 +10,7 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/optimization.hpp>
 
-#ifdef UTILITY_COMPILER_CXX_MSC
+#if defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_MINGW)
 #include <intrin.h>
 #else
 #include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc

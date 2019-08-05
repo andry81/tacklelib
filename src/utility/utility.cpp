@@ -35,14 +35,14 @@
 #include <limits.h>
 
 #ifndef HOST_NAME_MAX
-#include <netdb.h>      // for the workaround: https://stackoverflow.com/questions/30084116/host-name-max-undefined-after-include-limits-h
-#ifndef HOST_NAME_MAX   // only in case if not yet defined!
-#ifndef MAXHOSTNAMELEN
-// workaround is not applicable
-#error MAXHOSTNAMELEN is not implemented
-#endif
-#define HOST_NAME_MAX   MAXHOSTNAMELEN  // not including null-terminated character!
-#endif
+# include <netdb.h>      // for the workaround: https://stackoverflow.com/questions/30084116/host-name-max-undefined-after-include-limits-h
+# ifndef HOST_NAME_MAX   // only in case if not yet defined!
+#   ifndef MAXHOSTNAMELEN
+      // workaround is not applicable
+#     error MAXHOSTNAMELEN is not implemented
+#   endif
+#   define HOST_NAME_MAX   MAXHOSTNAMELEN  // not including null-terminated character!
+# endif
 #endif
 
 #endif
@@ -811,7 +811,7 @@ namespace {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         unc_path_basic_string_t unc_path;
 
-        if (!_convert_local_to_local_unc_path(path_rref, std::forward<unc_path_basic_string_t>(unc_path), throw_on_error)) {
+        if (!_convert_local_to_local_unc_path(path_rref, unc_path, throw_on_error)) {
             if (throw_on_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): local path to local UNC path convertion error",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
