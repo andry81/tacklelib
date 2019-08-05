@@ -27,14 +27,14 @@ if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
   if defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
     call :EXIT_B 127
-    exit /b
+    goto EXIT
   ) >&2
 ) else (
   rem CMAKE_CONFIG_TYPES must be defined
   if not defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
     call :EXIT_B 128
-    exit /b
+    goto EXIT
   ) >&2
 )
 
@@ -131,9 +131,11 @@ exit /b
 exit /b %~1
 
 :EXIT
+set LASTERROR=%ERRORLEVEL%
+
 set /A NEST_LVL-=1
 
 :INIT_EXIT
 if %NEST_LVL%0 EQU 0 pause
 
-exit /b
+exit /b %LASTERROR%
