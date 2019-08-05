@@ -1,3 +1,6 @@
+2019.08.05:
+* fixed: pause after an error in the scripts
+
 2019.08.02:
 * fixed: `set_vars_from_locked_file_pair.bat` script missed to print all setted variables
 

@@ -77,9 +77,11 @@ echo.
 exit /b
 
 :EXIT
+set LASTERROR=%ERRORLEVEL%
+
 set /A NEST_LVL-=1
 
 :INIT_EXIT
 if %NEST_LVL%0 EQU 0 pause
 
-exit /b
+exit /b %LASTERROR%
