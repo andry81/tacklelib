@@ -11,13 +11,15 @@ rem CAUTION: an empty value and `*` value has different meanings!
 rem
 set "CMAKE_BUILD_TYPE=%~1"
 rem cmake install does not support particular target installation
-set "CMAKE_BUILD_TARGET=INSTALL"
+set "CMAKE_BUILD_TARGET=%~2"
 
 if not defined CMAKE_BUILD_TYPE (
   echo.%~nx0: error: CMAKE_BUILD_TYPE must be defined.
   call :EXIT_B 255
   goto EXIT
 ) >&2
+
+if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=INSTALL"
 
 rem preload configuration files only to make some checks
 call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
