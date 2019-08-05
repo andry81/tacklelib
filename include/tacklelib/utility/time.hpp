@@ -29,13 +29,17 @@
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!
-#include <windef.h>
-#include <winbase.h>
-#include <winnt.h>
+# include <windef.h>
+# include <winbase.h>
+# include <winnt.h>
+# ifdef UTILITY_PLATFORM_MINGW
+#   include <sysinfoapi.h>
+#   include <pthread_time.h>
+# endif
 #elif defined(UTILITY_PLATFORM_POSIX)
-//#include <time.h>
+//# include <time.h>
 #else
-#error platform is not implemented
+# error platform is not implemented
 #endif
 
 
@@ -46,12 +50,14 @@ namespace time {
     static CONSTEXPR const uint64_t from_1_jan1601_to_1_jan1970_100nsecs    = 116444736000000000ULL;   //1.jan1601 to 1.jan1970
 
 #ifdef UTILITY_PLATFORM_WINDOWS
+#ifndef UTILITY_PLATFORM_MINGW
     using clockid_t = int;
 
     const clockid_t CLOCK_REALTIME              = 0;    // Identifier for system-wide realtime clock.
     const clockid_t CLOCK_MONOTONIC             = 1;    // Monotonic system-wide clock.
     const clockid_t CLOCK_PROCESS_CPUTIME_ID    = 2;    // High-resolution timer from the CPU.
     const clockid_t CLOCK_THREAD_CPUTIME_ID     = 3;    // Thread-specific CPU-time clock.
+#endif
     const clockid_t CLOCK_MONOTONIC_RAW         = 4;    // Monotonic system-wide clock, not adjusted for frequency scaling.
     const clockid_t CLOCK_REALTIME_COARSE       = 5;    // Identifier for system-wide realtime clock, updated only on ticks.
     const clockid_t CLOCK_MONOTONIC_COARSE      = 6;    // Monotonic system-wide clock, updated only on ticks.
@@ -67,8 +73,8 @@ namespace time {
         int64_t wintime;
         GetSystemTimeAsFileTime((FILETIME *)&wintime);
         wintime -= from_1_jan1601_to_1_jan1970_100nsecs;
-        spec->tv_sec = wintime / 10000000i64;
-        spec->tv_nsec = wintime % 10000000i64 * 100;
+        spec->tv_sec = wintime / 10000000;
+        spec->tv_nsec = wintime % 10000000 * 100;
 #else
         ::timespec_get(spec, TIME_UTC);
 #endif
@@ -80,7 +86,7 @@ namespace time {
         UTILITY_UNUSED_STATEMENT(clk_id);
 
         // context call saved per thread basis instead of per entire application
-        thread_local std::atomic<bool> s_has_queried_frequency = false;
+        thread_local std::atomic<bool> s_has_queried_frequency{ false };
         thread_local LARGE_INTEGER s_counts_per_sec;
         timespec unix_startspec;
         LARGE_INTEGER count;
@@ -99,7 +105,7 @@ namespace time {
         }
 
         ct->tv_sec = unix_startspec.tv_sec + count.QuadPart / s_counts_per_sec.QuadPart;
-        int64_t tv_nsec = unix_startspec.tv_nsec + ((count.QuadPart % s_counts_per_sec.QuadPart) * 1000000000i64) / s_counts_per_sec.QuadPart;
+        int64_t tv_nsec = unix_startspec.tv_nsec + ((count.QuadPart % s_counts_per_sec.QuadPart) * 1000000000) / s_counts_per_sec.QuadPart;
 
         if (!(tv_nsec < 1000000000)) {
             ct->tv_sec++;
@@ -209,10 +215,12 @@ namespace time {
     {
         tm c_tm = time; // must be not constant
 
-#if defined(UTILITY_COMPILER_CXX_GCC)
-        return timegm(&c_tm);
-#elif defined(UTILITY_COMPILER_CXX_MSC)
+#if defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_MINGW)
         return _mkgmtime(&c_tm);
+#elif defined(UTILITY_COMPILER_CXX_GCC)
+        return timegm(&c_tm);
+#else
+# error platform is not implemented
 #endif
     }
 

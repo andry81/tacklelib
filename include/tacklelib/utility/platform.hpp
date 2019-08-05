@@ -17,7 +17,7 @@
 #   if defined(__mcbc__)
 #       define UTILITY_PLATFORM_MCBC
 #       define UTILITY_PLATFORM_SHORT_NAME "MCBC"
-#   elif defined( __astra_linux__ )
+#   elif defined(__astra_linux__)
 #       define UTILITY_PLATFORM_ASTRA_LINUX
 #       define UTILITY_PLATFORM_SHORT_NAME "Astra Linux"
 #   else
@@ -35,15 +35,16 @@
 #   define UTILITY_PLATFORM_CYGWIN
 #   define UTILITY_PLATFORM_POSIX
 #   define UTILITY_PLATFORM_SHORT_NAME "Cygwin"
-#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) // win32:
+#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || \
+#     defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #   define UTILITY_PLATFORM_WINDOWS
-#   define UTILITY_PLATFORM_SHORT_NAME "Windows"
-#   if defined(__MINGW32__)  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
-#       include <_mingw.h>
+#   if defined(__MINGW32__) || defined(__MINGW64__)
+#     include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
+#     define UTILITY_PLATFORM_MINGW
+#     define UTILITY_PLATFORM_SHORT_NAME "Mingw"
+#   else
+#     define UTILITY_PLATFORM_SHORT_NAME "Windows"
 #   endif
-#elif defined(_WIN64) || defined(__WIN64__) || defined(WIN64) // win64:
-#   define UTILITY_PLATFORM_WINDOWS
-#   define UTILITY_PLATFORM_SHORT_NAME "Windows"
 #elif defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__) // MacOS
 #   define UTILITY_PLATFORM_APPLE
 #   define UTILITY_PLATFORM_POSIX

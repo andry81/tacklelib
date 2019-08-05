@@ -48,6 +48,9 @@
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #include <conio.h>
+# if defined(UTILITY_PLATFORM_MINGW)
+#   include <share.h>
+# endif
 #elif defined(UTILITY_PLATFORM_POSIX)
 #else
 #error platform is not implemented
