@@ -1,4 +1,7 @@
 2019.08.05:
+* changed: readme update
+
+2019.08.05:
 * fixed: scripts: target parameter support for install scripts
 
 2019.08.05:

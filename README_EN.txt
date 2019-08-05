@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.07.18
+* 2019.08.05
 * tacklelib
 
 1. DESCRIPTION
@@ -186,15 +186,15 @@ and the Linux platforms.
  |  |
  |  +-/`03_configure.*`
  |  |   #
- |  |   # Script to call cmake configure step.
+ |  |   # Script to call cmake configure step versus default or custom target.
  |  |
  |  +-/`04_build.*`
  |  |   #
- |  |   # Script to call cmake build step on an arbitrary target.
+ |  |   # Script to call cmake build step versus default or custom target.
  |  |
  |  +-/`05_install.*`
  |  |   #
- |  |   # Script to call cmake install step on the install target.
+ |  |   # Script to call cmake install step versus default or custom target.
  |  |
  |  +-/`06_post_install.*`
  |  |   #
@@ -359,7 +359,7 @@ do call to:
 `/_scripts/01_generate_src.*` script.
 
 If some from template instantiated source files has been changed before the
-call, then they will be overwritten upon a call to the script unconditionally.
+call, then they will be overwritten upon a call by the script unconditionally.
 
 To generate configuration files which are not included in a version control
 system do call to:
@@ -372,7 +372,7 @@ in the first line of the instantiated file, then an error would be thrown
 
 If some from template instantiated configuration files has been changed before
 the script call and has the same version with the instantiated one files, then
-they will be overwritten upon a call to the script
+they will be overwritten upon a call by the script
 (the template file body hashing and caching is not yet implemented).
 
 If a build is stopping on errors described above, then you have to merge all
@@ -433,7 +433,15 @@ First mirror:
 
 To make a final configuration call to:
 
-`/_scripts/03_configure.*` script.
+`/_scripts/03_configure.* [<ConfigName>]`, where:
+
+  <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
+  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
+  file or `*` to build all configurations.
+
+NOTE:
+  <ConfigName> must be used ONLY if the `CMAKE_GENERATOR` variable value is set
+  to a not multiconfig generator, otherwise it must not be used.
 
 -------------------------------------------------------------------------------
 9. BUILD
@@ -452,7 +460,7 @@ be in a directory pointed by the `CMAKE_BIN_DIR` configuration variable.
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
   file or `*` to build all configurations.
 
-  <TargetName> has any valid target value to build.
+  <TargetName> has any valid target name to build.
 
 NOTE:
   To enumerate all callable target names from the cmake you can type a special
@@ -484,17 +492,19 @@ NOTE:
 10. INSTALL
 -------------------------------------------------------------------------------
 
-1. Run `/_scripts/05_install_x86.* [<ConfigName>]`, where:
+1. Run `/_scripts/05_install_x86.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
   file or `*` to install all configurations.
 
+  <TargetName> has any valid target name to install.
+
 The output would be in a directory pointed by the `CMAKE_INSTALL_DIR`
 configuration variable.
 
 NOTE:
-  The cmake does not support a target selection from the install phase.
+  The cmake may not support a target selection for a particular generator.
 
 -------------------------------------------------------------------------------
 11. POSTINSTALL
@@ -511,7 +521,7 @@ NOTE:
 
 CAUTION:
   The containment of a directory pointed by the `CMAKE_INSTALL_DIR`
-  configuration variable might be changed or rearranged, so another run can
+  configuration variable may be changed or rearranged, so another run can
   gain different results!
 
 -------------------------------------------------------------------------------
