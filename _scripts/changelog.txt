@@ -1,4 +1,7 @@
 2019.08.05:
+* fixed: target parameter support for install scripts
+
+2019.08.05:
 * fixed: pause after an error in the scripts
 
 2019.08.02:

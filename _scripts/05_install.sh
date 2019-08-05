@@ -15,12 +15,14 @@ source "$PROJECT_ROOT/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || Exit
 # CAUTION: an empty value and `*` value has different meanings!
 #
 CMAKE_BUILD_TYPE="$1"
-CMAKE_BUILD_TARGET="install" #CMAKE_BUILD_TARGET="$2"  # cmake install does not support particular target installation
+CMAKE_BUILD_TARGET="$2"
 
 if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
   echo "$0: error: CMAKE_BUILD_TYPE must be defined." >&2
   Exit 255
 fi
+
+[[ -z "$CMAKE_BUILD_TARGET" ]] && CMAKE_BUILD_TARGET="all"
 
 UpdateOsName
 
