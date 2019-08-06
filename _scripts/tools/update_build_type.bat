@@ -17,7 +17,7 @@ goto CMAKE_CONFIG_ABBR_TYPES_END
 :GET_CMAKE_BUILD_TYPE_BY_INDEX
 set CONFIG_TYPE_INDEX=0
 for %%j in (%CMAKE_CONFIG_TYPES:;= %) do (
-  if "%CONFIG_ABBR_TYPE_INDEX%" EQU "%CONFIG_TYPE_INDEX%" (
+  call "%%~dp0if_.bat" "%%CONFIG_ABBR_TYPE_INDEX%%" EQU "%%CONFIG_TYPE_INDEX%%" && (
     set "CMAKE_BUILD_TYPE=%%j"
     exit /b 0
   )

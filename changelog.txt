@@ -1,4 +1,7 @@
 2019.08.06:
+* fixed: scripts: `update_build_type.bat` script for CMAKE_BUILD_TYPE=d
+
+2019.08.06:
 * changed: minor changes
 
 2019.08.05:
