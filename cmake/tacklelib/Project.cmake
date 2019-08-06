@@ -495,10 +495,10 @@ macro(tkl_configure_environment env_var_files_root global_linkage_type supported
     tkl_check_existence_of_system_vars()
 
     if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
-      tkl_is_equal_paths(_BA96124E_cmake_cachefile_dir_is_build_dir REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_ROOT}" . .)
+      tkl_is_equal_paths(_BA96124E_cmake_cachefile_dir_is_build_dir REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" . .)
       if (NOT _BA96124E_cmake_cachefile_dir_is_build_dir)
         message(FATAL_ERROR "Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory. \
-To continue do remove manually the external cache file:\n CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
+To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMAKE_BUILD_DIR}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
       endif()
       unset(_BA96124E_cmake_cachefile_dir_is_build_dir)
     endif()
