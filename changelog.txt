@@ -1,4 +1,8 @@
 2019.08.06:
+* fixed: scripts: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+* fixed: cmake: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+
+2019.08.06:
 * fixed: scripts: `update_build_type.bat` script for CMAKE_BUILD_TYPE=d
 
 2019.08.06:
