@@ -67,6 +67,7 @@ _scripts/tools/check_config_version.bat -text
 _scripts/tools/cmdoplib.py -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.sh -text
+_scripts/tools/if_.bat -text
 _scripts/tools/list_urls_in_files.py -text
 _scripts/tools/make_output_directories.bat -text
 _scripts/tools/set_vars_from_files.bat -text
