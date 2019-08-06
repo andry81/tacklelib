@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.06.16
+* 2019.08.06
 * tacklelib
 
 1. DESCRIPTION
@@ -64,77 +64,6 @@ Legend:
 14 depend on:
     the dependency immediate dependent of variants from
 
-
-# scripts
-
-* tacklelib--scripts
-  00 demand:    REQUIRED
-  01 platform:  WINDOWS, LINUX
-  02 version:   N/A
-  03 desc:      tacklelib library scripts
-  04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
-                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_scripts
-                [02] https://github.com/andry81/tacklelib.git
-                [03] https://github.com/andry81/tacklelib/tree/master/_scripts
-  06 build:     N/A
-  07 linkage:   N/A
-  08 variables:
-  09 patched:   NO
-  10 extended:  NO
-  11 included:  YES:
-                [01] as sources, locally in the `_scripts` subdirectory
-  12 macroses:
-  13 used as:   build scripts
-  14 depend on: YES:
-                [01] (required) tacklelib--config
-
-# configuration
-
-* tacklelib--config
-  00 demand:    REQUIRED
-  01 platform:  WINDOWS, LINUX
-  02 version:   N/A
-  03 desc:      tacklelib library configuration
-  04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
-                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_config
-                [03] https://github.com/andry81/tacklelib.git
-                [04] https://github.com/andry81/tacklelib/tree/master/_config
-  06 build:     N/A
-  07 linkage:   N/A
-  08 variables:
-  09 patched:   NO
-  10 extended:  NO
-  11 included:  YES:
-                [01] as sources, locally in the `_config` subdirectory
-  12 macroses:
-  13 used as:   configuration files
-  14 depend on: NO
-
-# cmake modules
-
-* tacklelib--cmake
-  00 demand:    REQUIRED
-  01 platform:  WINDOWS, LINUX
-  02 version:   N/A
-  03 desc:      tacklelib library cmake modules
-  04 forked:    NO
-  05 original:  [01] https://sf.net/p/tacklelib/tacklelib
-                [02] https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib
-                [03] https://github.com/andry81/tacklelib.git
-                [04] https://github.com/andry81/tacklelib/tree/master/cmake/tacklelib
-  06 build:     N/A
-  07 linkage:   N/A
-  08 variables:
-  09 patched:   NO
-  10 extended:  NO
-  11 included:  YES:
-                [01] as sources, locally in the `cmake` subdirectory
-  12 macroses:  CMAKE_MODULE_PATH
-  13 used as:   cmake modules
-  14 depend on: YES:
-                [01] (required) cmake 3.11+
 
 # multipurpose
 

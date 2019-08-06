@@ -95,7 +95,7 @@ function tkl_convert_native_path_to_backend()
   # Convert path drive prefix too.
   if [[ "${PathPrefixes[0]}" != '/' && "${PathPrefixes[0]}" != '.' && "${PathPrefixes[1]}" == ':' ]]; then
     case "$OSTYPE" in
-      "cygwin") PathToConvert="/cygdrive/${PathPrefixes[0]}$PathSuffix" ;;
+      cygwin*) PathToConvert="/cygdrive/${PathPrefixes[0]}$PathSuffix" ;;
       *)
         PathToConvert="/${PathPrefixes[0]}$PathSuffix"
         # add slash to the end of path in case of drive only path
