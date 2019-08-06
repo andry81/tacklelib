@@ -70,7 +70,7 @@ function GenerateConfig()
 function UpdateOsName()
 {
   case "$OSTYPE" in
-    "msys" | "mingw" | "cygwin")
+    msys* | mingw* | cygwin*)
       OS_NAME="WIN"
     ;;
     *)

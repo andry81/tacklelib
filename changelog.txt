@@ -1,3 +1,6 @@
+2019.08.06:
+* changed: minor changes
+
 2019.08.05:
 * changed: readme update
 
