@@ -1,3 +1,5 @@
+# pure python module for commands w/o extension modules usage (xonsh, cmdix and others)
+
 import os, sys, re
 
 # error print
