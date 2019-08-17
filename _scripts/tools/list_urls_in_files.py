@@ -45,10 +45,10 @@ def parse_dir(dir_path):
           print('  * {0}'.format(url))
 
 if __name__ == '__main__':
-  DIR_PATH = sys.argv[1].replace('\\', '/')
+  DIR_PATH = sys.argv[1].replace('\\', '/') if len(sys.argv) >= 2 else ''
 
   if not os.path.isdir(DIR_PATH):
-    print_err("{0}: error: DIR_PATH directory does not exist: `{1}`.".format(SOURCE_FILE_NAME, DIR_PATH))
+    cmdoplib.print_err("{0}: error: argv[1] directory does not exist: `{1}`.".format(SOURCE_FILE_NAME, DIR_PATH))
     sys.exit(1)
 
   parse_dir(DIR_PATH)

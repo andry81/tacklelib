@@ -1,3 +1,6 @@
+2019.08.17:
+* fixed: scripts: traceback message in the `list_urls_in_files.py` script
+
 2019.08.06:
 * fixed: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
 
