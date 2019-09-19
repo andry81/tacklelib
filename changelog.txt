@@ -1,3 +1,8 @@
+2019.09.19:
+* new: python: initial scripts
+* removed: python: removed python scripts from `_scripts/tools`
+* minor changes
+
 2019.08.17:
 * fixed: scripts: tools: decode errors in the `list_urls_in_files.py` script
 * fixed: scripts: tools: warning message `cmdoplib.py:10: DeprecationWarning: invalid escape sequence \(` in case of import the `cmdoplib.py` module through the `importlib` module

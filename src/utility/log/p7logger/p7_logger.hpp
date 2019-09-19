@@ -288,39 +288,45 @@ namespace p7logger {
     {
         LogFlag_None                                = 0,
 
-        // Will truncate source file argument at compile time to a file name (address shifts statically on a compile time calculated offset).
+        // Shall truncate source file argument at compile time to a file name (address shifts statically on a compile time calculated offset).
         // Overrides the LogFlag_TruncateSrcFileToRelativePath flag (fastest truncation).
         // Example: "c:/src/mydir/myfile.cpp" -> "myfile.cpp"
         //
         LogFlag_TruncateSrcFileToFileName           = 0x00000001,
 
-        // Will truncate source function argument at compile time to a function name (address shifts statically on a compile time calculated offset).
+        // Shall truncate source function argument at compile time to a function name (address shifts statically on a compile time calculated offset).
         // Example: "myns::`anonymous-namespace'::myfoo" -> "myfoo"
         //
         LogFlag_TruncateSrcFuncToName               = 0x00000002,
 
-        // Will truncate source file argument at runtime to a relative path that relative either to the LOG_SRC_ROOT if defined, or
+        // Shall truncate source file argument at runtime to a relative path that relative either to the LOG_SRC_ROOT if defined, or
         // to the module directory path if on the same storage drive letter (in Windows), otherwise will left it as is (slowest truncation).
         //
         LogFlag_TruncateSrcFileToRelativePath       = 0x00000010,
 
-        // Allow to make a client side runtime conversion if required to make all necessary transformations to the platform representation (p7 format).
+        // Allows to make a client side runtime conversion if required to make all necessary transformations before a call to the library interface (p7 format).
+        // Can slow down a client call because of an inplace argument strings transformation or reformat.
+        // For example, has take a place in case of not compatible arguments:
+        //   ANSI <-> UNICODE, char <-> wchar_t or not compatible format strings (`fmt` function argument).
         //
         LogFlag_AllowRuntimeClientSideConversion    = 0x80000000,
 
-        // Allow to use not static storage `fmt` argument to evaluate it on a client side to replace it by a static storage string as required by the p7 format.
+        // Allows to use not static storage `fmt` argument to evaluate it on a client side to replace it by a static storage string as required by the p7 format.
+        // Can slow down a client call because of an inplace argument strings transformation or reformat.
         //
         LogFlag_AllowToUseNotStaticFmt              = 0x40000000, // must be used together with LogFlag_UseStdPrintfCompatibleFmt and with LogFlag_AllowRuntimeClientSideConversion
 
-        // Will treat the `fmt` argument as compatible with the `fmt::format`/`fmt::print` function format string.
-        // This will require to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
+        // Shall treat the `fmt` argument as compatible with the `fmt::format`/`fmt::print` function format string.
+        // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
+        // Slow downs a client call because of an inplace argument strings transformation or reformat.
         //
         LogFlag_UseStdFmtCompatibleFmt              = 0x01000000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
 
-        // Will treat the `fmt` argument as compatible with the `std::printf`/`std::wprintf` function format string.
-        // This will require to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
+        // Shall treat the `fmt` argument as compatible with the `std::printf`/`std::wprintf` function format string.
+        // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
+        // Slow downs a client call because of an inplace argument strings transformation or reformat.
         //
         LogFlag_UseStdPrintfCompatibleFmt           = 0x00100000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
 
