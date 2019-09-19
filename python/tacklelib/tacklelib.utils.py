@@ -1,10 +1,6 @@
-# pure python module for commands w/o extension modules usage (xonsh, cmdix and others)
+# pure python module for commands w/o extension modules usage
 
-import os, sys, re
-
-# error print
-def print_err(*args, **kwargs):
-  print(*args, file=sys.stderr, **kwargs)
+import re
 
 def extract_urls(str):
   urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str.lower())

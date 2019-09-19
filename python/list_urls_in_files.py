@@ -1,12 +1,15 @@
 import os, sys, re, inspect, io
+import importlib.util, importlib.machinery
 
 SOURCE_FILE = os.path.abspath(inspect.getsourcefile(lambda:0)).replace('\\','/')
 SOURCE_DIR = os.path.dirname(SOURCE_FILE)
 SOURCE_FILE_NAME = os.path.split(SOURCE_FILE)[1]
 
-sys.path.insert(0, SOURCE_DIR)
+import_spec = importlib.util.spec_from_loader('tkl', importlib.machinery.SourceFileLoader('tkl', SOURCE_DIR + '/tacklelib/tacklelib.std.py'))
+tkl = importlib.util.module_from_spec(import_spec)
+import_spec.loader.exec_module(tkl)
 
-import cmdoplib
+tkl.tkl_import_module(SOURCE_DIR + '/tacklelib', 'tacklelib.utils.py', '.')
 
 CHECKED_URLS = []
 
@@ -39,7 +42,7 @@ def parse_dir(dir_path):
         file_strings = io.StringIO(file_content_decoded)
 
         for line in file_strings:
-          urls = cmdoplib.extract_urls(line)
+          urls = tkl.extract_urls(line)
           for url in urls:
             if not is_file_path_printed:
               print('{0}:'.format(file_path))
@@ -61,7 +64,7 @@ if __name__ == '__main__':
   DIR_PATH = sys.argv[1].replace('\\', '/') if len(sys.argv) >= 2 else ''
 
   if not os.path.isdir(DIR_PATH):
-    cmdoplib.print_err("{0}: error: argv[1] directory does not exist: `{1}`.".format(SOURCE_FILE_NAME, DIR_PATH))
+    tkl.print_err("{0}: error: argv[1] directory does not exist: `{1}`.".format(SOURCE_FILE_NAME, DIR_PATH))
     sys.exit(1)
 
   parse_dir(DIR_PATH)

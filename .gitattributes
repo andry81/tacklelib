@@ -64,11 +64,9 @@ _scripts/projectlib.sh -text
 _scripts/tools/.svnignore -text
 _scripts/tools/check_build_type.bat -text
 _scripts/tools/check_config_version.bat -text
-_scripts/tools/cmdoplib.py -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.sh -text
 _scripts/tools/if_.bat -text
-_scripts/tools/list_urls_in_files.py -text
 _scripts/tools/make_output_directories.bat -text
 _scripts/tools/set_vars_from_files.bat -text
 _scripts/tools/set_vars_from_files.sh -text
@@ -301,6 +299,14 @@ include/tacklelib/utility/type_identity.hpp -text
 include/tacklelib/utility/type_traits.hpp -text
 include/tacklelib/utility/utility.hpp -text
 /license.txt -text
+python/list_urls_in_files.py -text
+python/tacklelib/tacklelib.std.py -text
+python/tacklelib/tacklelib.std.xsh -text
+python/tacklelib/tacklelib.svn.xsh -text
+python/tacklelib/tacklelib.utils.py -text
+python/tacklelib/tacklelib.xsh -text
+python/tacklelib/tacklelib.yaml.py -text
+python/tacklelib/tacklelib.yaml.xsh -text
 src/.svnignore -text
 src/common.hpp -text
 src/debug.hpp.in -text
