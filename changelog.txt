@@ -1,3 +1,8 @@
+2019.09.21:
+* new: python: tacklelib: `tkl_declare_global` function to export globals into all children modules automatically
+* new: python: cmdoplib: `cmdoplib` extracted as a standalone library from `tacklelib`
+* changed: python: tacklelib: improvements for `tacklelib`
+
 2019.09.19:
 * new: python: initial scripts
 * removed: python: removed python scripts from `_scripts/tools`
