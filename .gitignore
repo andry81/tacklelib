@@ -6,6 +6,9 @@ cmake_tests/_config/*.vars
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
 include/tacklelib/setup.hpp
+python/__pycache__
+python/cmdoplib/__pycache__
+python/tacklelib/__pycache__
 src/debug.hpp
 src/optimization.hpp
 src/setup.hpp

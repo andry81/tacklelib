@@ -1,9 +1,9 @@
-# pure python module for commands with extension modules usage: tacklelib, yaml
+# python module for commands with extension modules usage: tacklelib, yaml
 
 import os, shutil, yaml
 
-tkl_import_module(SOURCE_DIR, 'tacklelib.yaml.py', 'tkl')
-tkl_source_module(SOURCE_DIR, 'tacklelib.std.xsh')
+tkl_import_module(TACKLELIB_ROOT, 'tacklelib.yaml.py', 'tkl')
+tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
 
 ### global variables ###
 

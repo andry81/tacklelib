@@ -1,11 +1,11 @@
-# pure python module for commands with extension modules usage: tacklelib
+# python module for commands with extension modules usage: tacklelib
 
 import os
 
 ### local import ###
 
-tkl_source_module(SOURCE_DIR, 'tacklelib.std.xsh')
-tkl_source_module(SOURCE_DIR, 'tacklelib.yaml.xsh')
+tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
+tkl_source_module(SOURCE_DIR, 'cmdoplib.yaml.xsh')
 
 ### functions ###
 
