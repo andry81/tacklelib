@@ -66,3 +66,6 @@ def yaml_load_config(config_dir, config_file):
     raise Exception('config file is not found: `{0}`'.format(config_file_out))
 
   yaml_update_global_vars(config_yaml)
+
+def yaml_expand_value(value):
+  return globals()['g_yaml_env'].expand_value(value)

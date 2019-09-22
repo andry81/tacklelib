@@ -1,7 +1,5 @@
 # pure python module for commands w/o extension modules usage
 
-import os, sys, inspect, copy
-
 if 'TackleGlobalImportModuleState' not in globals():
   class TackleGlobalImportModuleState:
     parent_modules = []
@@ -9,6 +7,8 @@ if 'TackleGlobalImportModuleState' not in globals():
 
 # to readdress `globals()` in all functions
 def tkl_membercopy(x, globals_):
+  import inspect
+
   if inspect.isfunction(x):
     return type(x)(x.__code__, globals_, x.__name__, x.__defaults__, x.__closure__)
   elif inspect.isclass(x):
@@ -22,6 +22,8 @@ def tkl_membercopy(x, globals_):
   return x # return by reference
 
 def tkl_merge_module(from_, to):
+  import inspect
+
   if inspect.ismodule(to):
     to_dict = vars(to)
     to_globals = False
@@ -69,6 +71,8 @@ def tkl_get_parent_imported_module_state(ignore_not_scoped_modules):
 
 # to auto export globals from a parent module to a child module on it's import
 def tkl_declare_global(var, value, auto_export = True):
+  import inspect, copy
+
   current_globals = globals()
 
   # get parent module state
@@ -100,6 +104,8 @@ def tkl_declare_global(var, value, auto_export = True):
 #   `.module.`  - has meaning of the both above.
 #
 def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject_attrs = {}, prefix_exec_module_pred = None):
+  import os, sys, inspect, copy
+
   if not ref_module_name is None and ref_module_name == '':
     raise Exception('ref_module_name should either be None or not empty string')
 
@@ -319,6 +325,8 @@ if 'TackleSourceModuleState' not in globals():
     exec_guards = []
 
 def tkl_source_module(dir_path, module_file_name, use_exec_guard = True):
+  import os, sys, inspect, copy
+
   source_module_path = os.path.abspath(os.path.join(dir_path, module_file_name)).replace('\\', '/')
 
   print('source : ' + source_module_path)
@@ -362,7 +370,3 @@ def tkl_source_module(dir_path, module_file_name, use_exec_guard = True):
     exec_guards.append((source_module_path, imported_module))
 
   return imported_module
-
-# error print
-def print_err(*args, **kwargs):
-  print(*args, file=sys.stderr, **kwargs)

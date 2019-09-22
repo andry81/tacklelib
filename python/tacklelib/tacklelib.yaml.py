@@ -172,15 +172,16 @@ class YamlEnv(object):
       if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
         self.expanded_vars[key] = self.expand_value(val)
       elif isinstance(val, list):
-        if not key.endswith('_CMDLINE'):
-          expanded_val = self.expanded_vars[key] = []
+        """if not key.endswith('_CMDLINE'):"""
+        expanded_val = self.expanded_vars[key] = []
 
-          for i in val:
-            if not isinstance(i, str):
-              # TODO
-              raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
+        for i in val:
+          if not isinstance(i, str):
+            # TODO
+            raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
 
-            expanded_val.append(self.expand_value(i))
+          expanded_val.append(self.expand_value(i))
+        """
         else:
           cmdline = ''
 
@@ -204,6 +205,7 @@ class YamlEnv(object):
               cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + j + '"'
 
           self.expanded_vars[key] = cmdline
+        """
       else:
         # TODO
         raise Exception('YamlEnv does not support yaml object type: ' + str(type(val)))

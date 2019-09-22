@@ -299,6 +299,7 @@ include/tacklelib/utility/type_identity.hpp -text
 include/tacklelib/utility/type_traits.hpp -text
 include/tacklelib/utility/utility.hpp -text
 /license.txt -text
+python/cmdoplib/cmdoplib.git.xsh -text
 python/cmdoplib/cmdoplib.std.xsh -text
 python/cmdoplib/cmdoplib.svn.xsh -text
 python/cmdoplib/cmdoplib.xsh -text

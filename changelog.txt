@@ -1,3 +1,9 @@
+2019.09.22:
+* new: python: tacklelib: `devnull` class
+* new: python: cmdoplib: cmdoplib.git.xsh` script (git_init)
+* changed: python: minor changes
+* refactor: `repos.lst.in` renamed to `git_repos.lst.in`
+
 2019.09.21:
 * new: python: tacklelib: `tkl_declare_global` function to export globals into all children modules automatically
 * new: python: cmdoplib: `cmdoplib` extracted as a standalone library from `tacklelib`
