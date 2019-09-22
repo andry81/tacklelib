@@ -19,9 +19,6 @@ def svn_update(configure_dir, scm_name):
     print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
     return 2
 
-  # create associations
-  svn = local['svn']
-
   wcroot_dir = getvar(scm_name + '.WCROOT_DIR')
   if wcroot_dir == '': return -254
   if WCROOT_OFFSET == '': return -253
@@ -31,7 +28,7 @@ def svn_update(configure_dir, scm_name):
   print(' -> {0}...'.format(wcroot_path))
 
   with local.cwd(wcroot_path):
-    call('svn', 'up')
+    call('svn', ['up'])
 
 def svn_checkout(configure_dir, scm_name):
   print(">svn checkout: {0}".format(configure_dir))
@@ -46,9 +43,6 @@ def svn_checkout(configure_dir, scm_name):
   if not os.path.isdir(configure_dir):
     print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
     return 2
-
-  # create associations
-  svn = local['svn']
 
   wcroot_dir = getvar(scm_name + '.WCROOT_DIR')
   if wcroot_dir == '': return -254
@@ -66,4 +60,4 @@ def svn_checkout(configure_dir, scm_name):
   if os.path.isdir(wcroot_path + '/.svn'):
     return 0
 
-  call('svn', 'co', svn_checkout_url, wcroot_path)
+  call('svn', ['co', svn_checkout_url, wcroot_path])

@@ -1,6 +1,6 @@
 # python module for commands with extension modules usage: tacklelib
 
-import os, plumbum
+import os, sys, plumbum
 
 ### local import ###
 
@@ -22,6 +22,9 @@ def pnull(args, stdin=None):
   for line in stdin:
     pass
 
+def devnull():
+  return tkl.devnull()
+
 # workaround for the issue:
 # `lambda with an environment variable `${...}` gives NameError`:
 # https://github.com/xonsh/xonsh/issues/3296
@@ -38,14 +41,14 @@ def getvar(x):
   #return ${x}
   return globals()[x]
 
-def call(cmd, *args):
+def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False):
   if cmd == '':
     raise Exception('cmd must be a not empty command string')
 
   #cmdline = [cmd]
   cmdline_args = ''
 
-  for arg in args:
+  for arg in args_list:
     #cmdline.append(arg)
 
     if arg != '':
@@ -63,18 +66,25 @@ def call(cmd, *args):
     else:
       cmdline_args += ' "' + arg + '"'
 
-  print('>{0}{1}'.format(cmd, cmdline_args))
+  if stdout.name != '<null>':
+    print('>{0}{1}'.format(cmd, cmdline_args))
 
   # xonsh expression
   #@(cmdline)
 
   # plumbum expression
   cmd = plumbum.local[cmd]
-  if args:
-    cmd = cmd[args]
+  if args_list:
+    cmd = cmd[args_list]
 
   # must be to avoid mixin
   sys.stdout.flush()
   sys.stderr.flush()
 
-  cmd.run(stdout = sys.stdout, stderr = sys.stderr)
+  if not no_except:
+   return cmd.run(stdout = stdout, stderr = stderr)
+  else:
+   return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+
+def call_no_except(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr):
+  return call(cmd, args_list, stdout, stderr, no_except = True)

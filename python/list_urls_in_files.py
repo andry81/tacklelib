@@ -1,15 +1,19 @@
-import os, sys, re, inspect, io
-import importlib.util, importlib.machinery
+import os, sys, inspect, io
 
 SOURCE_FILE = os.path.abspath(inspect.getsourcefile(lambda:0)).replace('\\','/')
 SOURCE_DIR = os.path.dirname(SOURCE_FILE)
 SOURCE_FILE_NAME = os.path.split(SOURCE_FILE)[1]
 
-import_spec = importlib.util.spec_from_loader('tkl', importlib.machinery.SourceFileLoader('tkl', SOURCE_DIR + '/tacklelib/tacklelib.std.py'))
-tkl = importlib.util.module_from_spec(import_spec)
-import_spec.loader.exec_module(tkl)
+# portable import to the global space
+sys.path.append(SOURCE_DIR + '/tacklelib')
+import tacklelib as tkl
+# all functions in the module have has a 'tkl_' prefix, all classes begins by `Tackle`, so we don't need a scope here
+tkl.tkl_merge_module(tkl, globals())
+# cleanup
+tkl = None
+sys.path.pop()
 
-tkl.tkl_import_module(SOURCE_DIR + '/tacklelib', 'tacklelib.utils.py', '.')
+tkl_import_module(SOURCE_DIR + '/tacklelib', 'tacklelib.utils.py', 'tkl')
 
 CHECKED_URLS = []
 
