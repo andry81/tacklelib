@@ -1,0 +1,8 @@
+#%% version: 1
+
+# must points the executable directly
+PYTEST_EXE_PATH=c:/Python/x86/37/Scripts/pytest.exe
+PYTHONDONTWRITEBYTECODE=1
+
+# console codepage before start the python
+CHCP=1251

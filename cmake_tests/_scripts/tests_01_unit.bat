@@ -4,6 +4,9 @@ setlocal
 
 call "%%~dp0__init1__.bat" || exit /b
 
+set /A NEST_LVL+=1
+
+
 call :CMD cmake ^
   "-DCMAKE_MODULE_PATH=%%TESTS_ROOT%%;%%PROJECT_ROOT%%/cmake" ^
   "-DPROJECT_ROOT=%%PROJECT_ROOT%%" ^
@@ -12,9 +15,16 @@ call :CMD cmake ^
   "-DTACKLELIB_TESTLIB_ROOT=%%PROJECT_ROOT%%/cmake/tacklelib/testlib" ^
   -P ^
   "%%PROJECT_ROOT%%/cmake/tacklelib/testlib/tools/RunTestLib.cmake" ^
-  %%*
-pause
-exit /b
+  %%* || goto EXIT
+
+:EXIT
+set LASTERROR=%ERRORLEVEL%
+
+set /A NEST_LVL-=1
+
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
 
 :CMD
 echo.^>%*

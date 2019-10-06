@@ -12,8 +12,8 @@ tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../.." s || Exit
 PROJECT_ROOT="${RETURN_VALUE:-*\$}" # safety: replace by not applicable or unexisted directory if empty
 TESTS_ROOT="$PROJECT_ROOT/cmake_tests"
 
-CONFIG_VARS_USER_FILE_IN="$PROJECT_ROOT/cmake_tests/_config/environment_user.vars.in"
-CONFIG_VARS_USER_FILE="$PROJECT_ROOT/cmake_tests/_config/environment_user.vars"
+CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/cmake_tests/_config/environment_system.vars.in"
+CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/cmake_tests/_config/environment_system.vars"
 
 [[ -z "$INIT_VERBOSE" ]] && INIT_VERBOSE=0
 [[ -z "$TOOLS_VERBOSE" ]] && TOOLS_VERBOSE=0

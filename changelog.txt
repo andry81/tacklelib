@@ -1,3 +1,14 @@
+2019.10.06:
+* new: python: tackelib: `tacklelib.url.py` and `tacklelib.csv.py` scripts
+* new: python: cmdoplib: `cmdoplib.url.xsh`, `cmdoplib.csv.xsh`, `cmdoplib.csvgit.xsh` and `cmdoplib.gitsvn.xsh` scripts (currently only `git_init` and `git_fetch` is implemented)
+* new: python_tests: python scripts initial tests
+* fixed: python: tackelib: fixed class copy up on the `tkl_import_module` call
+* fixed: python: tackelib: `SOURCE_DIR` and `SOURCE_FILE` builtin variables complete restore between calls
+* changed: python: `exec_guards` function argument moved from the `tkl_source_module` into the `tkl_import_module` function to guard the execution on lowest level
+* changed: python: improved `list_urls_in_files.py` script to be able to output a file lines and sort the output by lines/urls in a file
+* changed: readmes update
+* refactor: moderate refactor
+
 2019.09.22:
 * new: python: tacklelib: `devnull` class
 * new: python: cmdoplib: cmdoplib.git.xsh` script (git_init)

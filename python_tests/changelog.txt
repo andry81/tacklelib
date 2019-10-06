@@ -1,0 +1,4 @@
+2019.10.06:
+* new: changelog file
+* new: python scripts initial tests
+* new: readme file
