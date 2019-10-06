@@ -301,7 +301,6 @@ include/tacklelib/utility/utility.hpp -text
 /license.txt -text
 python/cmdoplib/cmdoplib.csv.xsh -text
 python/cmdoplib/cmdoplib.csvgit.xsh -text
-python/cmdoplib/cmdoplib.git.xsh -text
 python/cmdoplib/cmdoplib.gitsvn.xsh -text
 python/cmdoplib/cmdoplib.std.xsh -text
 python/cmdoplib/cmdoplib.svn.xsh -text
