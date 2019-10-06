@@ -11,9 +11,9 @@ call "%%~dp0__init1__.bat" || goto INIT_EXIT
 set /A NEST_LVL+=1
 
 
-set "CMDLINE_USER_FILE_IN=%PROJECT_ROOT%\cmake_tests\_config\_scripts\01\%~n0.user%~x0.in"
+set "CMDLINE_SYSTEM_FILE_IN=%PROJECT_ROOT%\cmake_tests\_config\_scripts\01\%~n0.system%~x0.in"
 
-for %%i in ("%CMDLINE_USER_FILE_IN%") do (
+for %%i in ("%CMDLINE_SYSTEM_FILE_IN%") do (
   set "CMDLINE_FILE_IN=%%i"
   call :GENERATE || goto EXIT
 )

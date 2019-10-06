@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.06.16
+* 2019.10.06
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -41,11 +41,28 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-* bash shell 3.2.48+ (to run unix shell scripts)
-* cmake 3.14+ :
+
+Currently tested these set of OS platforms, interpreters and modules to run
+from:
+
+1. OS platforms.
+
+* Windows 7 (`.bat` only)
+
+2. Interpreters:
+
+* bash shell 3.2.48+
+  - to run unix shell scripts
+* cmake 3.15.1 (3.14+):
   https://cmake.org/download/
-* tacklelib--cmake :
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
+  - to run `cmake_tests` scripts
+
+3. Modules
+
+* Cmake testing modules:
+
+**  tacklelib--cmake:
+    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
 
 -------------------------------------------------------------------------------
 5. DEPLOY
@@ -81,14 +98,14 @@ sudo chmod o+r /bin/bash_entry
  |  |    # Directory with text files conaining command lines for scripts from
  |  |    # `/cmake_tests/_scripts` directory
  |  |
- |  +- `environment_user.vars.in`
+ |  +- `environment_system.vars.in`
  |  |   #
- |  |   # Template file with user set of environment variables
+ |  |   # Template file with system set of environment variables
  |  |   # designed to be stored in a version control system.
  |  |
- |  +- `environment_user.vars`
+ |  +- `environment_system.vars`
  |      #
- |      # Generated temporary file with set of user customized environment
+ |      # Generated temporary file with set of system customized environment
  |      # variables to set them locally.
  |
  +- /`_scripts`

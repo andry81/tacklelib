@@ -1,4 +1,4 @@
-import os, sys, inspect, io
+import os, sys, inspect, io, argparse
 
 SOURCE_FILE = os.path.abspath(inspect.getsourcefile(lambda:0)).replace('\\','/')
 SOURCE_DIR = os.path.dirname(SOURCE_FILE)
@@ -13,17 +13,21 @@ tkl.tkl_merge_module(tkl, globals())
 tkl = None
 sys.path.pop()
 
-tkl_import_module(SOURCE_DIR + '/tacklelib', 'tacklelib.utils.py', 'tkl')
+tkl_import_module(SOURCE_DIR + '/tacklelib', 'tacklelib.url.py', 'tkl')
 
 CHECKED_URLS = []
 
-def parse_dir(dir_path):
+# sort_by:
+#   `line`  -  sort by lines in a file
+#   `url`   -  sort by url in a file
+#
+def parse_dir(dir_path, sort_by = 'line'):
   for dirpath, dirs, files in os.walk(dir_path):
     for dir in dirs:
       # ignore directories beginning by '.'
       if str(dir)[0:1] == '.':
         continue
-      parse_dir(os.path.join(dirpath, dir))
+      parse_dir(os.path.join(dirpath, dir), sort_by = sort_by)
     dirs.clear() # not recursively
 
     for file_name in files:
@@ -32,6 +36,8 @@ def parse_dir(dir_path):
         file_content = file.read()
 
         is_file_path_printed = False
+
+        # item: (<url>, <line_number>)
         unique_file_urls = []
 
         # CAUTION:
@@ -45,6 +51,7 @@ def parse_dir(dir_path):
         # (see details: https://stackoverflow.com/questions/3054604/iterate-over-the-lines-of-a-string/3054898#3054898 )
         file_strings = io.StringIO(file_content_decoded)
 
+        line_number = 1
         for line in file_strings:
           urls = tkl.extract_urls(line)
           for url in urls:
@@ -57,20 +64,34 @@ def parse_dir(dir_path):
               CHECKED_URLS.append(url)
 
             if not url in unique_file_urls:
-              unique_file_urls.append(url)
+              unique_file_urls.append((url, line_number))
 
-        unique_file_urls.sort()
+          line_number += 1
 
-        for url in unique_file_urls:
-          print('  * {0}'.format(url))
+        if sort_by == 'line':
+          unique_file_urls.sort(key=lambda tup: tup[1])
+        elif sort_by == 'url':
+          unique_file_urls.sort(key=lambda tup: tup[0])
+        else:
+          # sort by lines by default
+          unique_file_urls.sort(key=lambda tup: tup[1])
+
+        for url, line_number in unique_file_urls:
+          print('  * {0} -> {1}'.format(line_number, url))
 
 if __name__ == '__main__':
-  DIR_PATH = sys.argv[1].replace('\\', '/') if len(sys.argv) >= 2 else ''
+  # parse arguments
+  arg_parser = argparse.ArgumentParser()
+  arg_parser.add_argument('dir_path', type = str)
+  arg_parser.add_argument('--sort_by', type = str)
+  args = arg_parser.parse_args(sys.argv[1:])
+
+  DIR_PATH = args.dir_path.replace('\\', '/')
 
   if not os.path.isdir(DIR_PATH):
     tkl.print_err("{0}: error: argv[1] directory does not exist: `{1}`.".format(SOURCE_FILE_NAME, DIR_PATH))
     sys.exit(1)
 
-  parse_dir(DIR_PATH)
+  parse_dir(DIR_PATH, sort_by = args.sort_by)
 
   sys.exit(0)

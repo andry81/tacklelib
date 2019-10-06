@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.06.16
+* 2019.10.06
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -42,13 +42,34 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-* bash shell 3.2.48+ (to run unix shell scripts)
-* cmake 3.14+ :
+
+Currently tested these set of OS platforms, interpreters and modules to run
+from:
+
+1. OS platforms.
+
+* Windows 7 (`.bat` only)
+
+2. Interpreters:
+
+* bash shell 3.2.48+
+  - to run unix shell scripts
+
+* cmake 3.15.1 (3.14+):
   https://cmake.org/download/
-* configuration template files :
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_config/
-* cmake modules :
-  https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
+  - to run `cmake_tests` scripts
+
+3. Modules
+
+* Cmake additional modules:
+
+  **  tacklelib--cmake:
+      https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
+
+4. Configuration template files:
+
+  **  _config:
+      https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/_config/
 
 -------------------------------------------------------------------------------
 5. DEPLOY

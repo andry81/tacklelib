@@ -66,7 +66,7 @@ def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = F
     else:
       cmdline_args += ' "' + arg + '"'
 
-  if stdout.name != '<null>':
+  if stdout is None or stdout.name != '<null>':
     print('>{0}{1}'.format(cmd, cmdline_args))
 
   # xonsh expression
@@ -81,10 +81,29 @@ def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = F
   sys.stdout.flush()
   sys.stderr.flush()
 
-  if not no_except:
-   return cmd.run(stdout = stdout, stderr = stderr)
+  # Passing the `None` does not help to intercept a command output to a variable, instead does need to not pass the parameter!
+  if not stdout is None:
+    if not stderr is None:
+      if not no_except:
+       return cmd.run(stdout = stdout, stderr = stderr)
+      else:
+       return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+    else:
+      if not no_except:
+        return cmd.run(stdout = stdout)
+      else:
+        return cmd.run(stdout = stdout, retcode = None)
   else:
-   return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+    if not stderr is None:
+      if not no_except:
+        return cmd.run(stderr = stderr)
+      else:
+        return cmd.run(stderr = stderr, retcode = None)
+    else:
+      if not no_except:
+        return cmd.run()
+      else:
+        return cmd.run(retcode = None)
 
 def call_no_except(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr):
   return call(cmd, args_list, stdout, stderr, no_except = True)
