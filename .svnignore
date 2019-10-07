@@ -1,2 +1,4 @@
 _3dparty
 _out
+
+python_tests/.pytest_cache
