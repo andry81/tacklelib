@@ -1,3 +1,5 @@
+include(tacklelib/Project)
+
 function(detect_qt_creator)
   string(REGEX MATCH "[^a-zA-Z]?(QtCreator|qtc)[^a-zA-Z]?" QT_CREATOR_MATCH_STR "${CMAKE_CURRENT_BINARY_DIR}")
   if (QT_CREATOR_MATCH_STR)
@@ -39,7 +41,7 @@ function(link_qt_components target include_inherit_type link_inherit_type target
 
       if(component)
         if(${component}_DEFINITIONS)
-          add_target_compile_definitions(${target} *
+          tkl_add_target_compile_definitions(${target} *
             ${include_inherit_type}
               ${${component}_DEFINITIONS}
           )
