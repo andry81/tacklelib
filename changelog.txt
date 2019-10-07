@@ -1,6 +1,9 @@
 2019.10.07:
 * fixed: cmake: build fix
 
+2019.10.07:
+* fixed: cmake: configure fix
+
 2019.10.06:
 * new: python: tackelib: `tacklelib.url.py` and `tacklelib.csv.py` scripts
 * new: python: cmdoplib: `cmdoplib.url.xsh`, `cmdoplib.csv.xsh`, `cmdoplib.csvgit.xsh` and `cmdoplib.gitsvn.xsh` scripts (currently only `git_init` and `git_fetch` is implemented)

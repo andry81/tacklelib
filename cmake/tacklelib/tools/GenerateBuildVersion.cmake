@@ -1,11 +1,8 @@
-include(tacklelib/Std)
-
 if (NOT INCLUDE_FILE)
   message(FATAL_ERROR "* INCLUDE_FILE variable must be defined!")
 endif()
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-
+include(tacklelib/Std)
 include(tacklelib/GenerateVersion)
 
 generate_build_version_vars()

@@ -36,7 +36,7 @@
 #   define UTILITY_PLATFORM_POSIX
 #   define UTILITY_PLATFORM_SHORT_NAME "Cygwin"
 #elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || \
-#     defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
+      defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #   define UTILITY_PLATFORM_WINDOWS
 #   if defined(__MINGW32__) || defined(__MINGW64__)
 #     include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.

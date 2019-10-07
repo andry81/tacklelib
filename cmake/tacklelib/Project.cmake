@@ -487,7 +487,7 @@ macro(tkl_configure_environment env_var_files_root global_linkage_type supported
   tkl_preload_variables("${sys_env_var_file_path_load_list}" . .)
 
   # build output directory variables
-  tkl_make_build_output_dir_vars("${CMAKE_BUILD_TYPE}")
+  tkl_make_build_output_dir_vars("${CMAKE_BUILD_TYPE}" ${GENERATOR_IS_MULTI_CONFIG})
 
   # can check only in the root project
   if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
@@ -1940,9 +1940,13 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
   endforeach()
 endfunction()
 
-function(tkl_make_build_output_dir_vars build_type)
-  if (build_type)
-    set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}/${build_type}" PARENT_SCOPE)
+function(tkl_make_build_output_dir_vars build_type is_multi_config)
+  if (NOT build_type STREQUAL "")
+    if (is_multi_config)
+      set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}" PARENT_SCOPE)
+    else()
+      set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}/${build_type}" PARENT_SCOPE)
+    endif()
     set(CMAKE_BIN_DIR "${CMAKE_BIN_ROOT}/${build_type}" PARENT_SCOPE)
     set(CMAKE_LIB_DIR "${CMAKE_LIB_ROOT}/${build_type}" PARENT_SCOPE)
     set(CMAKE_CPACK_DIR "${CMAKE_CPACK_ROOT}/${build_type}" PARENT_SCOPE)
