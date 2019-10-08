@@ -1,4 +1,8 @@
 2019.10.08:
+* fixed: configure/build fixes
+* fixed: tests: configure/build fixes
+
+2019.10.08:
 * fixed: cmake_tests: tests run
 * changed: svn ignores
 * refactor: cmake_tests: support scripts moved in to subdirectories

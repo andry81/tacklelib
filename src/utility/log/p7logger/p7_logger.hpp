@@ -88,8 +88,8 @@
 #define LOG_P7_(func_name, constexpr_flags, trace_handle, trace_module, id, lvl, fmt, ...) \
     (trace_handle.func_name<constexpr_flags>(trace_module, id, lvl, \
         DEBUG_FILE_LINE_FUNC_MAKE_A_( \
-            UTILITY_CONSTEXPR(constexpr_flags & LOG_P7_FLAG_TRUNCATE_FILE_TO_NAME), \
-            UTILITY_CONSTEXPR(constexpr_flags & LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME)) \
+            UTILITY_CONSTEXPR((constexpr_flags) & LOG_P7_FLAG_TRUNCATE_FILE_TO_NAME), \
+            UTILITY_CONSTEXPR((constexpr_flags) & LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME)) \
         fmt, ## __VA_ARGS__))
 
 // full set of arguments

@@ -22,7 +22,7 @@ namespace utility
         template <typename T>
         FORCE_INLINE CONSTEXPR_FUNC size_t _get_file_name_constexpr_offset(T && str, size_t i)
         {
-            using unqual_type_t = typename utility::remove_cvrefcvptr<T>::type;
+            using unqual_type_t = typename utility::remove_cvref_cvptr<T>::type;
             return (
                 str[i] == utility::literal_separators<unqual_type_t>::forward_slash_char ||
                 str[i] == utility::literal_separators<unqual_type_t>::backward_slash_char) ?
@@ -71,7 +71,7 @@ namespace utility
         template <typename T>
         FORCE_INLINE CONSTEXPR_FUNC size_t _get_unmangled_src_func_constexpr_offset(T && str, size_t i)
         {
-            using unqual_type_t = typename utility::remove_cvrefcvptr<T>::type;
+            using unqual_type_t = typename utility::remove_cvref_cvptr_extent<T>::type;
             return (str[i] == utility::literal_separators<unqual_type_t>::colon_char) ?
                 i + 1 : (i > 0 ? _get_unmangled_src_func_constexpr_offset(str, i - 1) : 0);
         }

@@ -297,9 +297,11 @@ set(TESTS_ENABLED 0)
 if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
   if (MSVC)
     if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-      set(GTEST_MSVC_SEARCH "MD")
+      set(GTEST_MSVC_SEARCH "MD") # if by `find_package`
+      set(BUILD_SHARED_LIBS ON)   # if by `add_subdirectory`
     elseif (TACKLELIB_LINK_TYPE STREQUAL "static")
-      set(GTEST_MSVC_SEARCH "MT")
+      set(GTEST_MSVC_SEARCH "MT") # if by `find_package`
+      set(BUILD_SHARED_LIBS OFF)  # if by `add_subdirectory`
     endif()
   elseif (GCC)
     # nothing is required

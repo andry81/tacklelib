@@ -102,8 +102,8 @@ bool cache ENABLE_INSTALL=0
 
 # test
 
-#GOOGLETEST_VERSION="1.8.1"
-#force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
+force GOOGLETEST_VERSION="1.8.1"
+force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 
 # math
 
