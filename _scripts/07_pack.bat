@@ -2,7 +2,7 @@
 
 setlocal
 
-call "%%~dp0__init1__.bat" || goto INIT_EXIT
+call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 
@@ -66,7 +66,7 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
   --ignore_statement_if_no_filter --ignore_late_expansion_statements || exit /b
 
-call "%%~dp0__init2__.bat" || exit /b
+call "%%~dp0__init__/__init2__.bat" || exit /b
 
 if not exist "%NSIS_INSTALL_ROOT%" (
   echo.%~nx0: error: NSIS_INSTALL_ROOT directory does not exist: `%NSIS_INSTALL_ROOT%`.

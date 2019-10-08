@@ -4,7 +4,7 @@ rem Source files generator script.
 
 setlocal
 
-call "%%~dp0__init0__.bat" || goto INIT_EXIT
+call "%%~dp0__init__/__init0__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 
