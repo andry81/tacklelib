@@ -1,3 +1,6 @@
+2019.10.08:
+* refactor: support scripts moved in to subdirectories
+
 2019.10.06:
 * new: changelog file
 * new: python scripts initial tests

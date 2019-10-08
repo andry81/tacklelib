@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.08.05
+* 2019.10.08
 * tacklelib
 
 1. DESCRIPTION
@@ -166,7 +166,7 @@ and the Linux platforms.
  |  | # Contains special `__init*__` script to allocate basic environment
  |  | # variables and make common preparations.
  |  |
- |  +-/`bash_entry`
+ |  +-/tools/`bash_entry`
  |  |   #
  |  |   # Script for inclusion into all unix bash shell scripts a basic
  |  |   # functionality directly from the root `/bin` directory. Must be
@@ -343,7 +343,7 @@ NOTE:
 -------------------------------------------------------------------------------
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/bash_entry` into the `/bin` directory of your platform.
+`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
 
 CAUTION:
   For the Linux like platform do read the `README_EN.linux_x86_64.txt` file

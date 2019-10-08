@@ -10,9 +10,9 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then
 
 [[ -z "$NEST_LVL" ]] && NEST_LVL=0
 
-tkl_include "projectlib.sh" || exit $?
+tkl_include "../tools/projectlib.sh" || exit $?
 
-tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/.." s || Exit
+tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../.." s || Exit
 
 PROJECT_ROOT="${RETURN_VALUE:-*\$}" # safety: replace by not applicable or unexisted directory if empty
 #PROJECT_ROOT="`/bin/readlink -f "$BASH_SOURCE_DIR/.."`"

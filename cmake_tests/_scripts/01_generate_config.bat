@@ -6,7 +6,7 @@ setlocal
 
 set IN_GENERATOR_SCRIPT=1
 
-call "%%~dp0__init1__.bat" || goto INIT_EXIT
+call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 

@@ -1,6 +1,6 @@
 @echo off
 
-call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\.."
+call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\..\.."
 call :CANONICAL_PATH TESTS_ROOT "%%PROJECT_ROOT%%/cmake_tests"
 
 set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/cmake_tests/_config/environment_system.vars.in"
