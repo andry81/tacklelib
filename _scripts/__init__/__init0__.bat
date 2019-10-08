@@ -7,7 +7,7 @@ rem  2. Non english locale in paths.
 
 if not defined NEST_LVL set NEST_LVL=0
 
-call :PROJECT_ROOT "%%~dp0.."
+call :PROJECT_ROOT "%%~dp0..\.."
 
 set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/_config/environment_system.vars.in"
 set "CONFIG_VARS_SYSTEM_FILE=%PROJECT_ROOT%/_config/environment_system.vars"

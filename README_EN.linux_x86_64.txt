@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2019.07.09
+* 2019.10.08
 * tacklelib
 
 1. DESCRIPTION
@@ -347,10 +347,10 @@ make install
 -------------------------------------------------------------------------------
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/bash_entry` into the `/bin` directory of your platform:
+`/_scripts/tools/bash_entry` into the `/bin` directory of your platform:
 
 >
-sudo cp .../_script/bash_entry /bin
+sudo cp .../_script/tools/bash_entry /bin
 
 -------------------------------------------------------------------------------
 4.2. Manual preparation step

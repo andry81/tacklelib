@@ -1,6 +1,6 @@
 @echo off
 
-call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\.."
+call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\..\.."
 call :CANONICAL_PATH TESTS_ROOT "%%PROJECT_ROOT%%/python_tests"
 call :CANONICAL_PATH TACKLELIB_ROOT "%%PROJECT_ROOT%%/python/tacklelib"
 call :CANONICAL_PATH CMDOPLIB_ROOT "%%PROJECT_ROOT%%/python/cmdoplib"

@@ -10,6 +10,7 @@ python/__pycache__
 python/cmdoplib/__pycache__
 python/tacklelib/__pycache__
 python_tests/.pytest_cache
+python_tests/_config/*.vars
 src/debug.hpp
 src/optimization.hpp
 src/setup.hpp

@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.06
+* 2019.10.08
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -75,7 +75,7 @@ Otherwise you have to set at least all dependent variables on yourself before
 call to tests scripts.
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/bash_entry` into the `/bin` directory of your platform.
+`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
 
 In pure Linux you have additional step to make scripts executable:
 
