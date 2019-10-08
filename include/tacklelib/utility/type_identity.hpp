@@ -586,9 +586,16 @@ namespace utility
 
     // remove_reference + remove_cv + remove_pointer + remove_cv
     template <typename T>
-    struct remove_cvrefcvptr
+    struct remove_cvref_cvptr
     {
         using type = typename remove_cvptr<typename remove_cvref<T>::type>::type;
+    };
+
+    // remove_reference + remove_cv + remove_pointer + remove_cv + remove_extent
+    template <typename T>
+    struct remove_cvref_cvptr_extent
+    {
+        using type = typename std::remove_extent<typename remove_cvref_cvptr<T>::type>::type;
     };
 
     template <typename T>

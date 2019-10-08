@@ -515,7 +515,7 @@ namespace utility {
         template <typename CharT>
         FORCE_INLINE CONSTEXPR_FUNC size_t _string_length(const CharT * const & str, size_t i)
         {
-            using unqual_type_t = typename utility::remove_cvrefcvptr<CharT>::type;
+            using unqual_type_t = typename utility::remove_cvref_cvptr_extent<CharT>::type;
             return (str[i] == utility::literal_separators<unqual_type_t>::null_char) ?
                 i : _string_length(str, i + 1);
         }
