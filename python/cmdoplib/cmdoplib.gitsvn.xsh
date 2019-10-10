@@ -76,7 +76,7 @@ def register_git_remotes(git_repos_reader, scm_name, remote_name, with_root):
           git_remote_add_cmdline = root_row['git_remote_add_cmdline']
           if git_remote_add_cmdline == '.':
             git_remote_add_cmdline = ''
-          call('git', ['remote', 'add', root_remote_name, root_git_reporoot] + shlex.split(git_remote_add_cmdline))
+          call('git', ['remote', 'add', root_remote_name, root_git_reporoot] + shlex.split(yaml_expand_value(git_remote_add_cmdline)))
         break
 
     git_repos_reader.reset()
@@ -93,7 +93,7 @@ def register_git_remotes(git_repos_reader, scm_name, remote_name, with_root):
         git_remote_add_cmdline = subtree_row['git_remote_add_cmdline']
         if git_remote_add_cmdline == '.':
           git_remote_add_cmdline = ''
-        call('git', ['remote', 'add', subtree_remote_name, subtree_git_reporoot] + shlex.split(git_remote_add_cmdline))
+        call('git', ['remote', 'add', subtree_remote_name, subtree_git_reporoot] + shlex.split(yaml_expand_value(git_remote_add_cmdline)))
 
 # ex: `git checkout -b <local_branch> refs/remotes/origin/<remote_branch>`
 #
@@ -428,8 +428,6 @@ def git_init(configure_dir, scm_name, fetch_subtrees_root = None, fetch_subtrees
       call('git', ['init', wcroot_path])
 
     with GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader:
-      git_svn_init_cmdline = getvar(scm_name + '.GIT_SVN_INIT_CMDLINE')
-
       # generate `--ignore_paths` for subtrees
 
       root_remote_name = None
@@ -439,20 +437,33 @@ def git_init(configure_dir, scm_name, fetch_subtrees_root = None, fetch_subtrees
           root_remote_name = yaml_expand_value(row['remote_name'])
           root_svn_reporoot = yaml_expand_value(row['svn_reporoot'])
           root_svn_path_prefix = yaml_expand_value(row['svn_path_prefix'])
+          root_git_svn_init_cmdline = row['git_svn_init_cmdline']
+          if root_git_svn_init_cmdline == '.':
+            root_git_svn_init_cmdline = ''
+          else:
+            root_git_svn_init_cmdline = yaml_expand_value(root_git_svn_init_cmdline)
           break
 
       if root_remote_name is None:
         raise Exception('the root record is not found in the git repositories list')
 
+      if len(root_git_svn_init_cmdline) > 0:
+        root_git_svn_init_cmdline_list = shlex.split(root_git_svn_init_cmdline)
+      else:
+        root_git_svn_init_cmdline_list = []
+
       git_svn_init_ignore_paths_regex = get_git_svn_subtree_ignore_paths_regex(git_repos_reader, scm_name, root_remote_name, root_svn_reporoot)
       if len(git_svn_init_ignore_paths_regex) > 0:
-        git_svn_init_cmdline.append('--ignore-paths=' + git_svn_init_ignore_paths_regex)
+        root_git_svn_init_cmdline_list.insert(0, '--ignore-paths=' + git_svn_init_ignore_paths_regex)
 
       if not os.path.exists(wcroot_path + '/.git/svn'):
         # (re)init git svn
-        root_svn_url = root_svn_reporoot + '/' + root_svn_path_prefix
+        if '--stdlayout' not in root_git_svn_init_cmdline_list:
+          root_svn_url = root_svn_reporoot + '/' + root_svn_path_prefix
+        else:
+          root_svn_url = root_svn_reporoot
 
-        call('git', ['svn', 'init', root_svn_url] + git_svn_init_cmdline)
+        call('git', ['svn', 'init', root_svn_url] + root_git_svn_init_cmdline_list)
 
       call('git', ['config', 'user.name', git_user])
       call('git', ['config', 'user.email', git_email])
@@ -483,6 +494,12 @@ def git_init(configure_dir, scm_name, fetch_subtrees_root = None, fetch_subtrees
             subtree_parent_git_path_prefix = yaml_expand_value(subtree_parent_git_path_prefix)
             subtree_svn_path_prefix = yaml_expand_value(subtree_row['svn_path_prefix'])
 
+            subtree_git_svn_init_cmdline = row['git_svn_init_cmdline']
+            if subtree_git_svn_init_cmdline == '.':
+              subtree_git_svn_init_cmdline = ''
+            else:
+              subtree_git_svn_init_cmdline = yaml_expand_value(subtree_git_svn_init_cmdline)
+
             subtree_git_wcroot = os.path.abspath(os.path.join(fetch_subtrees_root, subtree_remote_name + '--' + subtree_parent_git_path_prefix.replace('/', '--'))).replace('\\', '/')
 
             if fetch_subtrees_builtin_root:
@@ -506,20 +523,26 @@ def git_init(configure_dir, scm_name, fetch_subtrees_root = None, fetch_subtrees
               if not os.path.exists(subtree_git_wcroot + '/.git'):
                 call('git', ['init', subtree_git_wcroot])
 
-              subtree_git_svn_init_cmdline = []
+              if len(subtree_git_svn_init_cmdline) > 0:
+                subtree_git_svn_init_cmdline_list = shlex.split(subtree_git_svn_init_cmdline)
+              else:
+                subtree_git_svn_init_cmdline_list = []
 
               with GitReposListReader(configure_dir + '/git_repos.lst') as subtree_git_repos_reader:
                 # generate `--ignore_paths` for subtrees
 
                 subtree_git_svn_init_ignore_paths_regex = get_git_svn_subtree_ignore_paths_regex(subtree_git_repos_reader, scm_name, subtree_remote_name, subtree_svn_reporoot)
                 if len(subtree_git_svn_init_ignore_paths_regex) > 0:
-                  subtree_git_svn_init_cmdline.append('--ignore-paths=' + subtree_git_svn_init_ignore_paths_regex)
+                  subtree_git_svn_init_cmdline_list.insert(0, '--ignore-paths=' + subtree_git_svn_init_ignore_paths_regex)
 
                 # (re)init subtree git svn
-                svn_url = subtree_svn_reporoot + '/' + subtree_svn_path_prefix
-
                 if not os.path.exists(subtree_git_wcroot + '/.git/svn'):
-                  call('git', ['svn', 'init', subtree_svn_reporoot] + subtree_git_svn_init_cmdline)
+                  if '--stdlayout' not in subtree_git_svn_init_cmdline_list:
+                    subtree_svn_url = subtree_svn_reporoot + '/' + subtree_svn_path_prefix
+                  else:
+                    subtree_svn_url = subtree_svn_reporoot
+
+                  call('git', ['svn', 'init', subtree_svn_url] + subtree_git_svn_init_cmdline_list)
 
                 call('git', ['config', 'user.name', git_user])
                 call('git', ['config', 'user.email', git_email])
@@ -565,7 +588,6 @@ def git_fetch(configure_dir, scm_name, fetch_subtrees_root = None, fetch_subtree
 
   wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  git_svn_init_cmdline = getvar(scm_name + '.GIT_SVN_INIT_CMDLINE')
   git_user = getvar(scm_name + '.USER')
   git_email = getvar(scm_name + '.EMAIL')
 
