@@ -41,6 +41,10 @@ def getvar(x):
   #return ${x}
   return globals()[x]
 
+def hasvar(x):
+  #return True if x in ${...} else False
+  return True if x in globals() else False
+
 def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False):
   if cmd == '':
     raise Exception('cmd must be a not empty command string')
