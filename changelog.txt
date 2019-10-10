@@ -1,4 +1,9 @@
 2019.10.10:
+* fixed: python: cmdoplib: `--stdlayout` usage in the `git svn init ...` command
+* changed: python: cmdoplib: `git_svn_init_cmdline` parameter moved into `git_repos.lst.in` file
+* changed: python: cmdoplib: `git_subtree_cmdline` in the `git_repos.lst.in` splitted into `git_subtree_cmdline` and `parent_git_subtree_cmdline`
+
+2019.10.10:
 * new: python: cmdoplib: `hasvar` function
 
 2019.10.08:
