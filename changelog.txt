@@ -1,3 +1,16 @@
+2019.10.12:
+* changed: python: cmdoplib: always use SVN repository root as a fetch base path, move a subdirectory reference into a particular fetch value in the `svn-remote.svn` config section, this would let the git to generate a commit hash based on a complete path from the SVN root
+* refactor: python: cmdoplib: minor refactor
+
+2019.10.11:
+* fixed: python: cmdoplib: git config `svn-remove.svn` section records duplication on `git svn init ...` rerun
+* fixed: python: cmdoplib: minor fixup
+
+2019.10.11:
+* fixed: python: cmdoplib: `git svn init ...` rerun in case of lack of network
+* fixed: python: cmdoplib: `git svn init ...` invalid command line
+* changed: python: cmdoplib: trailing not printable characters trim from the stdout/stderr
+
 2019.10.10:
 * fixed: python: cmdoplib: `--stdlayout` usage in the `git svn init ...` command
 * changed: python: cmdoplib: `git_svn_init_cmdline` parameter moved into `git_repos.lst.in` file
