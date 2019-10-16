@@ -1,3 +1,6 @@
+2019.10.16:
+* fixed: python: cmdoplib: added second revert after bad `git svn fetch ...` with the HEAD checkout 
+
 2019.10.15:
 * fixed: python: cmdoplib: HEAD revert, including HEAD reassign to the FETCH_HEAD and the reference list cleanup after a bad `git svn fetch ...` call
 * fixed: python: cmdoplib: invalid remote-local reference search after the `git ls-remote ...` call

@@ -230,7 +230,8 @@ def get_git_head_commit_hash(git_local_ref_token, verify_ref = True):
 
   return git_head_commit_hash
 
-def revert_if_git_head_refs_is_not_last_pushed(git_reporoot, git_local_ref_token, git_remote_ref_token, git_remote_local_ref_token, verify_head_ref = True, reset_hard = False):
+def revert_if_git_head_refs_is_not_last_pushed(git_reporoot, git_local_ref_token, git_remote_ref_token, git_remote_local_ref_token,
+  verify_head_ref = True, reset_hard = False, revert_after_fetch = False):
   # get last pushed commit hash
 
   git_last_pushed_commit_hash = get_last_git_pushed_commit_hash(git_reporoot, git_remote_local_ref_token)
@@ -253,8 +254,12 @@ def revert_if_git_head_refs_is_not_last_pushed(git_reporoot, git_local_ref_token
 
   git_head_commit_hash = get_git_head_commit_hash(git_local_ref_token, verify_ref = verify_head_ref)
 
-  is_head_commit_not_last_pushed = \
-    True if not git_last_pushed_commit_hash is None and not git_head_commit_hash is None and git_last_pushed_commit_hash != git_head_commit_hash else False
+  if not git_last_pushed_commit_hash is None and not git_head_commit_hash is None:
+    is_head_commit_not_last_pushed = True if git_last_pushed_commit_hash != git_head_commit_hash else False
+    is_head_commit_last_pushed = not is_head_commit_not_last_pushed
+  else:
+    is_head_commit_not_last_pushed = False
+    is_head_commit_last_pushed = False
 
   if is_head_commit_not_last_pushed or (git_last_pushed_commit_hash is None and not git_head_commit_hash is None):
     # clean the stage using `git reset ...`  from the not yet updated HEAD reference
@@ -263,6 +268,10 @@ def revert_if_git_head_refs_is_not_last_pushed(git_reporoot, git_local_ref_token
     if is_head_commit_not_last_pushed:
       # force reassign the HEAD to the FETCH_HEAD
       call('git', ['update-ref', git_local_ref_token, git_last_pushed_commit_hash])
+
+  if (is_head_commit_last_pushed or git_head_commit_hash is None) and revert_after_fetch:
+    # don't execute the whole revert if a last fetch didn't change the head or head does not exist
+    return
 
   # Drop all other references which might be created by a previous bad `git svn fetch ...` call except of the main local and the main remote references.
   # Description:
@@ -733,6 +742,10 @@ def git_fetch(configure_dir, scm_name, fetch_subtrees_root = None, root_only = F
 
     git_last_svn_rev = git_svn_fetch_to_last_git_pushed_svn_rev(root_remote_name, local_branch, remote_branch, root_svn_reporoot, root_svn_path_prefix, git_svn_fetch_cmdline_list)
 
+    # revert again if last fetch has broke the HEAD
+    revert_if_git_head_refs_is_not_last_pushed(root_git_reporoot, git_local_ref_token, git_remote_ref_token,
+      git_remote_local_ref_token, reset_hard = reset_hard, revert_after_fetch = True)
+
     print('---')
 
     if root_only:
@@ -806,6 +819,10 @@ def git_fetch(configure_dir, scm_name, fetch_subtrees_root = None, root_only = F
 
             subtree_git_last_svn_rev = \
               git_svn_fetch_to_last_git_pushed_svn_rev(subtree_remote_name, subtree_local_branch, subtree_remote_branch, subtree_svn_reporoot, subtree_svn_path_prefix, subtree_git_svn_fetch_cmdline_list)
+
+            # revert again if last fetch has broke the HEAD
+            revert_if_git_head_refs_is_not_last_pushed(subtree_git_reporoot, subtree_git_local_ref_token, subtree_git_remote_ref_token,
+            subtree_git_remote_local_ref_token, reset_hard = reset_hard, revert_after_fetch = True)
 
         print('---')
 
