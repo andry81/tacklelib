@@ -81,7 +81,7 @@ def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = F
   if args_list:
     cmd = cmd[args_list]
 
-  # must be to avoid mixin
+  # must be to avoid a mix
   sys.stdout.flush()
   sys.stderr.flush()
 

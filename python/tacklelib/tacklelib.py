@@ -419,6 +419,9 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
       # back compatibility: can not be before the imp module exec
       exec_guards.append((module_file_path, imported_module))
 
+  # must be to avoid a mix
+  sys.stdout.flush()
+  sys.stderr.flush()
 
   return imported_module
 
