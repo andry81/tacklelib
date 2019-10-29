@@ -30,7 +30,7 @@ class YamlEnv(object):
     # `(<previous dictionary>, [<newly added keys>])`
     self.unexpanded_stack.append((self.unexpanded_vars, []))
 
-  def pop_unexpanded_vars(self, reexpand_vars, remove_pred = None):
+  def pop_unexpanded_vars(self, reexpand_vars, remove_pred = None, list_as_cmdline = False):
     if len(self.unexpanded_stack) == 0:
       raise Exception('unexpanded_stack is empty to pop')
     last_stack_record = self.unexpanded_stack[-1]
@@ -42,7 +42,7 @@ class YamlEnv(object):
         remove_pred(key)
     del self.unexpanded_stack[-1]
     if reexpand_vars:
-      self.expand()
+      self.expand(list_as_cmdline = list_as_cmdline)
 
   def push_expanded_vars(self):
     # `(<previous dictionary>, [<newly added keys>])`
@@ -105,7 +105,7 @@ class YamlEnv(object):
     return self.expanded_vars.items()
 
   # expands `${...}` expressions recursively from not nested YAML dictionary for a single external value
-  def expand_value(self, value, user_config = None):
+  def expand_value(self, value, expand_dict = None, user_config = None):
     config = self.config
     if not user_config is None:
       config.update(user_config)
@@ -129,14 +129,37 @@ class YamlEnv(object):
         var_name = m.group(1)
         if not var_name[:4] == 'env:':
           if not var_name[-5:] == ':path':
-            var_value = self.get_unexpanded_value(var_name)
+            if self.has_unexpanded_var(var_name):
+              var_value = self.get_unexpanded_value(var_name)
+            elif not expand_dict is None:
+              var_value = expand_dict.get(var_name)
+            else:
+              var_value = None
           else:
-            var_value = self.get_unexpanded_value(var_name[:-6]).replace('\\', '/')
+            var_name = var_name[:-6]
+            if self.has_unexpanded_var(var_name):
+              var_value = self.get_unexpanded_value(var_name).replace('\\', '/')
+            elif not expand_dict is None:
+              var_value = expand_dict.get(var_name)
+            else:
+              var_value = None
         else:
           if not var_name[-5:] == ':path':
-            var_value = os.environ[var_name[4:]]
+            var_name = var_name[4:]
+            if var_name in os.environ:
+              var_value = os.environ[var_name]
+            elif not expand_dict is None:
+              var_value = expand_dict.get(var_name)
+            else:
+              var_value = None
           else:
-            var_value = os.environ[var_name[4:-5]].replace('\\', '/')
+            var_name = var_name[4:-5]
+            if var_name in os.environ:
+              var_value = os.environ[var_name].replace('\\', '/')
+            elif not expand_dict is None:
+              var_value = expand_dict.get(var_name)
+            else:
+              var_value = None
         if not var_value is None:
           expanded_value += out_value[prev_match_index:m.start()] + str(var_value)
         else:
@@ -159,7 +182,7 @@ class YamlEnv(object):
     return out_value
 
   # expands `${...}` expressions and lists recursively from not nested YAML dictionary for all variables in the storage
-  def expand(self):
+  def expand(self, expand_dict = None, list_as_cmdline = False):
     for key, val in self.unexpanded_vars.items():
       if len(self.expanded_stack) != 0:
         # record variables changes
@@ -170,18 +193,18 @@ class YamlEnv(object):
           last_added_expanded_var_names.append(key)
 
       if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
-        self.expanded_vars[key] = self.expand_value(val)
+        self.expanded_vars[key] = self.expand_value(val, expand_dict = expand_dict)
       elif isinstance(val, list):
-        """if not key.endswith('_CMDLINE'):"""
-        expanded_val = self.expanded_vars[key] = []
+        #if not key.endswith('_CMDLINE'):
+        if not list_as_cmdline:
+          expanded_val = self.expanded_vars[key] = []
 
-        for i in val:
-          if not isinstance(i, str):
-            # TODO
-            raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
+          for i in val:
+            if not isinstance(i, str):
+              # TODO
+              raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
 
-          expanded_val.append(self.expand_value(i))
-        """
+            expanded_val.append(self.expand_value(i, expand_dict = expand_dict))
         else:
           cmdline = ''
 
@@ -190,7 +213,7 @@ class YamlEnv(object):
               # TODO
               raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
 
-            j = self.expand_value(i)
+            j = self.expand_value(i, expand_dict = expand_dict)
 
             has_spaces = False
 
@@ -205,7 +228,6 @@ class YamlEnv(object):
               cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + j + '"'
 
           self.expanded_vars[key] = cmdline
-        """
       else:
         # TODO
         raise Exception('YamlEnv does not support yaml object type: ' + str(type(val)))

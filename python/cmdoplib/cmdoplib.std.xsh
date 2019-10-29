@@ -28,18 +28,27 @@ def delvar(x):
   #del ${x}
   del globals()[x]
 
-def setvar(x, value):
+def setglobalvar(x, value):
   #${x} = value
   #globals()[x] = value
   tkl_declare_global(x, value) # additionally would (re)inject the variable to all children modules
 
-def getvar(x):
+def getglobalvar(x):
   #return ${x}
   return globals()[x]
 
-def hasvar(x):
+def hasglobalvar(x):
   #return True if x in ${...} else False
   return True if x in globals() else False
+
+def setenvvar(x, value):
+  plumbum.local.env[x] = value
+
+def getenvvar(x):
+  return plumbum.local.env[x]
+
+def hasenvvar(x):
+  return True if x in plumbum.local.env else False
 
 def discover_executable(env_var_name, exec_file_name_wo_ext, global_var_name):
   if env_var_name in os.environ:
@@ -97,8 +106,8 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
   # check on a global variable at first
   if cmd_expr.startswith('${') and cmd_expr.endswith('}'):
     global_var_name = cmd_expr[2:-1]
-    if hasvar(global_var_name):
-      cmd_exec = getvar(global_var_name)
+    if hasglobalvar(global_var_name):
+      cmd_exec = getglobalvar(global_var_name)
     else:
       raise Exception('no such global variable: `' + global_var_name + '`')
   else:
