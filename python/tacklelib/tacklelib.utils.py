@@ -72,3 +72,12 @@ class devnull():
     if not self.file:
       self.file = open(os.devnull, 'wb')
     return self.file.fileno()
+
+class OnExit:
+  def __init__(self, on_exit_pred = None):
+    self.on_exit_pred = on_exit_pred
+  def __enter__(self):
+    return self
+  def __exit__(self, type, value, tb):
+    if self.on_exit_pred:
+      self.on_exit_pred()

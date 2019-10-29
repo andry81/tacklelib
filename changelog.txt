@@ -1,4 +1,16 @@
 2019.10.29:
+* fixed: python: cmdoplib: exception from `svn_relocate` function on non critical error `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')`
+* fixed: python: cmdoplib: SVN_SSH usage as an environment variable from the yaml configuration file
+* fixed: python: cmdoplib: search svn url without scheme in the git-svn-id field from the git commit
+* new: python: taklelib,cmdoplib: standalone yaml load into environment variables dictionary additionally to the global variables dictionary
+* new: python: `config.env.yaml` to store environment variables, loads after global variables in the `config.yaml` but can reference the global variables for the expansion phase
+
+2019.10.29:
+* new: python: tacklelib: `OnExit` class to use as a RAII alternative in the python with the `with` statement
+* new: python: cmdoplib: bare argument support for svn scripts
+* new: python: cmdoplib: `svn_relocate` function
+
+2019.10.29:
 * new: python: readme file
 
 2019.10.28:
