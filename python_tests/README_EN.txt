@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.08
+* 2019.10.29
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -74,6 +74,8 @@ from:
     - to enable unicode symbols support in the Windows console
 **  pyyaml 5.1.1
     - to read yaml format files (.yaml, .yml)
+**  conditional 1.3
+    - to support conditional `with` statements
 **  pytest 5.2.0
     - to run python tests (test*.py)
 

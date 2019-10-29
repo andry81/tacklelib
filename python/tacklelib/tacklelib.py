@@ -57,8 +57,16 @@ def tkl_classcopy(x, from_globals, to_globals):
   cls_copy = type(x.__name__, x.__bases__, dict(x.__dict__))
 
   if id(from_globals) != id(to_globals):
-    # `dict(...)` to convert from iteratable, based on: https://stackoverflow.com/questions/6586310/how-to-convert-list-of-key-value-tuples-into-dictionary/6586521#6586521
-    for key, value in dict(inspect.getmembers(cls_copy)).items():
+    # CAUTION:
+    #   Have to use `inspect.getmembers(x)` instead of `inspect.getmembers(cls_copy)` to avoid the errors:
+    #   * File "...\lib\inspect.py", line 341, in getmembers
+    #     value = getattr(object, key)
+    #     TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'
+    #
+    # NOTE:
+    #   `dict(...)` to convert from iterable, based on: https://stackoverflow.com/questions/6586310/how-to-convert-list-of-key-value-tuples-into-dictionary/6586521#6586521
+    #
+    for key, value in dict(inspect.getmembers(x)).items():
       if not key.startswith('__'):
         if inspect.isfunction(value):
           member_cls = tkl_get_method_class(value)
@@ -96,7 +104,12 @@ def tkl_merge_module(from_, to):
       if from_key in to_dict:
         to_value = to_dict[from_key]
         if id(from_value) != id(to_value):
-          if not inspect.ismodule(from_value) and not inspect.ismodule(to_value):
+          # The `to_value` sometimes can be not a module when the `from_value` is a module, for example, if
+          # from_ = <module 'datetime'>, but
+          # to = <class 'datetime.datetime'>, where
+          #   `type(to) == type` and `type` is not iterable
+          # In that case we must replace the destination by a module instance.
+          if not inspect.ismodule(from_value):
             if not to_globals:
               #print(" tkl_merge_module: ", to.__name__, '<-' , from_key)
               var_copy = tkl_membercopy(from_value, from_globals, to_dict)
@@ -105,7 +118,14 @@ def tkl_merge_module(from_, to):
               #print(" tkl_merge_module: globals() <- ", from_key)
               to[from_key] = tkl_membercopy(from_value, from_globals, to_dict)
           else:
-            tkl_merge_module(from_value, to_value)
+            if inspect.ismodule(to_value):
+              tkl_merge_module(from_value, to_value)
+            else:
+              # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
+              to_value = type(from_value)(from_value.__name__, from_value.__doc__)
+              to_value.__dict__.update(from_value.__dict__)
+              to_dict[from_key] = to_value
+              tkl_merge_module(from_value, to_value)
       else:
         if not to_globals:
           #print(" tkl_merge_module: ", to.__name__,'<-' ,from_key)

@@ -1,39 +1,83 @@
 # python module for commands with extension modules usage: tacklelib, plumbum
 
-import os, sys
-from plumbum import local
-
 tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
+tkl_source_module(SOURCE_DIR, 'cmdoplib.csvsvn.xsh')
 
-def get_svn_revision_list(wcpath, depth = 1, from_rev = None, to_rev = None):
+import os, sys, time
+from plumbum import local
+from datetime import datetime # must be the same everythere
+
+discover_executable('SVN_EXEC', 'svn', 'SVN')
+
+call('${SVN}', ['--version'])
+
+def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
   rev_list = []
 
-  if not from_rev is None or not to_rev is None:
-    if from_rev is None:
-      if str(to_rev) == '0':
-        from_rev = 'HEAD'
-      else:
-        from_rev = 0
-    elif to_rev is None:
-      if str(from_rev) == 'HEAD':
-        to_rev = 0
-      else:
-        to_rev = 'HEAD'
+  if from_rev is None:
+    if str(to_rev) == '0':
+      from_rev = 'HEAD'
+    else:
+      from_rev = 0
+  if to_rev is None:
+    if str(from_rev) == 'HEAD':
+      to_rev = 0
+    else:
+      to_rev = 'HEAD'
 
-  ret = call_no_except('svn', ['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None)
+  if depth == '*':
+    ret = call('${SVN}', ['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+  else:
+    ret = call('${SVN}', ['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
 
-  if not ret[0]:
-    # To iterate over lines instead chars.
-    # (see details: https://stackoverflow.com/questions/3054604/iterate-over-the-lines-of-a-string/3054898#3054898 )
-    stdout_lines = io.StringIO(ret[1])
-    print(stdout_lines)
-    for line in stdout_lines:
-      if line[0] == 'r':
-        rev_str_end = line.find(' ')
-        if rev_str_end >= 0:
-          rev_list.append(line[1:rev_str_end])
+  stdout_lines = ret[1]
+  stderr_lines = ret[2]
 
-    return rev_list
+  with SvnLogListReader(stdout_lines) as svn_log_reader:
+    for row in svn_log_reader:
+      svn_rev = row['rev']
+      if svn_rev[:1] == 'r':
+        svn_rev = int(svn_rev[1:].rstrip())
+        svn_user_name = row['user_name'].rstrip()
+        svn_date_time = row['date_time']
+        found_index = svn_date_time.find('(')
+        if found_index >= 0:
+          svn_date_time = svn_date_time[:found_index]
+        svn_date_time = svn_date_time.rstrip()
+
+        svn_timestamp = int(time.mktime(datetime.strptime(svn_date_time, '%Y-%m-%d %H:%M:%S %z').timetuple()))
+        rev_list.append((svn_rev, svn_user_name, svn_timestamp, svn_date_time))
+
+  # cut out the middle of the stdout
+  num_revs = len(rev_list)
+  if num_revs > 7:
+    row_index = 0
+    for row in rev_list:
+      if row_index < 3 or row_index >= num_revs - 3: # excluding the last line return
+        print('r{} | {} | {} {{{}}}'.format(*row))
+      elif row_index == 3:
+        print('...')
+      row_index += 1
+  elif num_revs > 0:
+    for row in rev_list:
+      print('r{} | {} | {} {{{}}}'.format(*row))
+  if len(stderr_lines) > 0:
+    print(stderr_lines)
+
+  """
+  # To iterate over lines instead chars.
+  # (see details: https://stackoverflow.com/questions/3054604/iterate-over-the-lines-of-a-string/3054898#3054898 )
+
+  stdout_lines = io.StringIO(ret[1])
+  print(stdout_lines)
+  for line in stdout_lines:
+    if line[0] == 'r':
+      rev_str_end = line.find(' ')
+      if rev_str_end >= 0:
+        rev_list.append(line[1:rev_str_end])
+  """
+
+  return rev_list if len(rev_list) > 0 else None
 
 def svn_update(configure_dir, scm_name):
   print(">svn update: {0}".format(configure_dir))
@@ -58,7 +102,7 @@ def svn_update(configure_dir, scm_name):
   print(' -> {0}...'.format(wcroot_path))
 
   with local.cwd(wcroot_path):
-    call('svn', ['up'])
+    call('${SVN}', ['up'])
 
 def svn_checkout(configure_dir, scm_name):
   print(">svn checkout: {0}".format(configure_dir))
@@ -90,4 +134,4 @@ def svn_checkout(configure_dir, scm_name):
   if os.path.isdir(wcroot_path + '/.svn'):
     return 0
 
-  call('svn', ['co', svn_checkout_url, wcroot_path])
+  call('${SVN}', ['co', svn_checkout_url, wcroot_path])

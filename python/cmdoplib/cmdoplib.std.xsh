@@ -1,12 +1,8 @@
 # python module for commands with extension modules usage: tacklelib
 
-import os, sys, plumbum
-
-### local import ###
-
 tkl_import_module(TACKLELIB_ROOT, 'tacklelib.py', 'tkl')
 
-### functions ###
+import os, sys, shutil, plumbum
 
 # call from pipe
 def pcall(args):
@@ -45,11 +41,31 @@ def hasvar(x):
   #return True if x in ${...} else False
   return True if x in globals() else False
 
-def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False):
-  if cmd == '':
-    raise Exception('cmd must be a not empty command string')
+def discover_executable(env_var_name, exec_file_name_wo_ext, global_var_name):
+  if env_var_name in os.environ:
+    exec_path = os.environ[env_var_name]
+    print('- discover environment variable: ' + env_var_name + '=`' + exec_path + '`')
 
-  #cmdline = [cmd]
+    if exec_path.find('\\') >= 0 or exec_path.find('/') >= 0:
+      exec_path = os.path.abspath(os.environ[env_var_name]).replace('\\', '/')
+    tkl_declare_global(global_var_name, exec_path)
+    print('- declare global variable: ' + global_var_name + '=`' + exec_path + '`')
+    return
+
+  var = shutil.which(exec_file_name_wo_ext)
+  if not var is None:
+    exec_path = os.path.abspath(var).replace('\\', '/')
+    tkl_declare_global(global_var_name, exec_path)
+    print('- declare global variable: ' + global_var_name + '=`' + exec_path + '`')
+    return
+
+  raise Exception('Executable is not found in the `' + env_var_name + '` environment variable nor in the PATH variable.')
+
+def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False):
+  if cmd_expr == '':
+    raise Exception('cmd_expr must be a not empty command string or global variable name (command expression)')
+
+  #cmdline = [cmd_expr]
   cmdline_args = ''
 
   for arg in args_list:
@@ -71,13 +87,25 @@ def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = F
       cmdline_args += ' "' + arg + '"'
 
   if stdout is None or stdout.name != '<null>':
-    print('>{0}{1}'.format(cmd, cmdline_args))
+    print('>{0}{1}'.format(cmd_expr, cmdline_args))
 
   # xonsh expression
   #@(cmdline)
 
   # plumbum expression
-  cmd = plumbum.local[cmd]
+
+  # check on a global variable at first
+  if cmd_expr.startswith('${') and cmd_expr.endswith('}'):
+    global_var_name = cmd_expr[2:-1]
+    if hasvar(global_var_name):
+      cmd_exec = getvar(global_var_name)
+    else:
+      raise Exception('no such global variable: `' + global_var_name + '`')
+  else:
+    cmd_exec = cmd_expr
+
+  cmd = plumbum.local[cmd_exec]
+
   if args_list:
     cmd = cmd[args_list]
 
@@ -109,5 +137,5 @@ def call(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = F
       else:
         return cmd.run(retcode = None)
 
-def call_no_except(cmd, args_list, stdout = sys.stdout, stderr = sys.stderr):
-  return call(cmd, args_list, stdout, stderr, no_except = True)
+def call_no_except(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr):
+  return call(cmd_expr, args_list, stdout, stderr, no_except = True)
