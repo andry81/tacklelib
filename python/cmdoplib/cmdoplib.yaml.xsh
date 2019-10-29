@@ -1,16 +1,12 @@
 # python module for commands with extension modules usage: tacklelib, yaml
 
-import os, shutil, yaml
-
 tkl_import_module(TACKLELIB_ROOT, 'tacklelib.yaml.py', 'tkl')
 tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
 
-### global variables ###
+import os, shutil, yaml
 
 if 'g_yaml_env' not in globals():
   globals()['g_yaml_env'] = tkl.YamlEnv()
-
-### functions ###
 
 def yaml_push_global_vars():
   globals()['g_yaml_env'].push_unexpanded_vars()

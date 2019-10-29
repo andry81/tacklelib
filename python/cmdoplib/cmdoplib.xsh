@@ -1,13 +1,9 @@
 # python module for commands with extension modules usage: tacklelib
 
-import os
-
-### local import ###
-
 tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
 tkl_source_module(SOURCE_DIR, 'cmdoplib.yaml.xsh')
 
-### functions ###
+import os
 
 def parse_cmd_script_name(cmd_script_file_name):
   cmd_script_file_components = os.path.splitext(os.path.split(cmd_script_file_name)[1])

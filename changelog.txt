@@ -1,3 +1,48 @@
+2019.10.29:
+* new: python: readme file
+
+2019.10.28:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+
+2019.10.27:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+* refactor: python: cmdoplib: code reduction
+
+2019.10.25:
+* fixed: python: tacklelib: `tkl_classcopy` function issue around the error `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+* fixed: python: tacklelib: `tkl_merge_module` function issue around copy of a `datetime.datetime` variable from a module to a `datetime` variable
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+* refactor: python: cmdoplib: moved `import` statements after `tkl_import_module` calls
+* refactor: python: cmdoplib: replaced all `import datetime` by `from datetime import datetime` to avoid errors around `datetime.*()` calls
+
+2019.10.24:
+* fixed: python: cmdoplib: minor fix with SVN repository uuid update
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.23:
+* new: python: cmdoplib: `discover_executable` function to be able to override SVN/GIT executables either by respective environment variables (`SVN_EXEC`/`GIT_EXEC`) or by respective global variables (`SVN`/`GIT`)
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.23:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.22:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.22:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.21:
+* fixed: python: cmdoplib: `git_push_from_svn` function execution
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.18:
+* new: python: cmdoplib: [initiated] `git_push_from_svn` function
+* refactor: python: cmdoplib: `sync_svn_to_git` scripts renamed into `push_svn_to_git` to highlight the 1-way direction process (the `sync` basically associated with 2-way direction)
+
 2019.10.17:
 * fixed: python: tacklelib: stdout/stderr mix after a `tkl_import_module` call
 * new: python: cmdoplib: complete `git_pull` function
