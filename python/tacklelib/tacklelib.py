@@ -159,7 +159,7 @@ def tkl_get_parent_imported_module_state(ignore_not_scoped_modules):
   return (parent_module, parent_members, parent_scope_info)
 
 # to auto export globals from a parent module to a child module on it's import
-def tkl_declare_global(var, value, value_from_globals = None, auto_export = True):
+def tkl_declare_global(var, value, value_from_globals = None, auto_export = True, copy_as_reference_in_parent = False):
   import inspect, copy
 
   current_globals = globals()
@@ -176,7 +176,7 @@ def tkl_declare_global(var, value, value_from_globals = None, auto_export = True
     parent_members[var] = value
 
   export_globals = current_globals['TackleLocalImportModuleState'].export_globals
-  export_globals[var] = (value, value_from_globals)
+  export_globals[var] = (value, value_from_globals, copy_as_reference_in_parent)
 
   if auto_export:
     imported_modules = current_globals['TackleGlobalImportModuleState'].imported_modules
@@ -217,7 +217,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
         # copy globals to the parent module
         parent_module, parent_members, parent_scope_info = tkl_get_parent_imported_module_state(False)
 
-        if parent_module and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
+        if not parent_module is None and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
           raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + parent_module.__name__)
 
         if not parent_module is None:
@@ -272,8 +272,19 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
       # auto export globals at first
       for key, value_tuple in export_globals.items(): 
-        # make a deepcopy with globals retarget to a child module
-        setattr(imported_module, key, copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)))
+        copy_as_reference_in_parent = value_tuple[2]
+        if not copy_as_reference_in_parent:
+          # make a deep copy
+          exported_global_copy = copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals))
+          setattr(imported_module, key, exported_global_copy)
+        else:
+          # make a member/reference copy
+          exported_global_copy = tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)
+          # create reference in the parent
+          if not parent_module is None:
+            setattr(parent_module, key, exported_global_copy)
+          else:
+            parent_members[key] = exported_global_copy
 
       # inject attributes in being imported module
       imported_module.SOURCE_FILE = module_file_path
@@ -298,7 +309,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
       is_module_ref_already_exist = False
 
       # update parent state
-      if parent_module:
+      if not parent_module is None:
         # reference a being imported module from a parent module
         if hasattr(parent_module, import_module_name) and inspect.ismodule(getattr(parent_module, import_module_name)):
           is_module_ref_already_exist = True
@@ -314,7 +325,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
         if not is_module_ref_already_exist:
           raise Exception('The module reference must already exist as a module before the import: ' + import_module_name)
 
-      if parent_module:
+      if not parent_module is None:
         if not is_module_ref_already_exist:
           setattr(parent_module, import_module_name, imported_module)
       else:
@@ -342,7 +353,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
       # copy the module content into already existed module (behaviour by default, do import as `.module` or `module.` or `.module.` to prevent a merge)
       if is_module_ref_already_exist:
-        if parent_module:
+        if not parent_module is None:
           tkl_merge_module(imported_module, getattr(parent_module, import_module_name))
         else:
           tkl_merge_module(imported_module, parent_members[import_module_name])
@@ -357,7 +368,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
       exec_guards.append((module_file_path, imported_module))
 
   else: # import to the global namespace
-    if parent_module and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
+    if not parent_module is None and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
       raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + parent_module.__name__)
 
     if sys.version_info[0] > 3 or sys.version_info[0] == 3 and sys.version_info[1] >= 4:
@@ -373,8 +384,20 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
       # auto export globals at first
       for key, value_tuple in export_globals.items():
-        # make a deepcopy with globals retarget to a child module
-        setattr(imported_module, key, copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)))
+        copy_as_reference_in_parent = value_tuple[2]
+        if not copy_as_reference_in_parent:
+          # make a deep copy
+          exported_global_copy = copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals))
+          setattr(imported_module, key, exported_global_copy)
+        else:
+          # make a member/reference copy
+          exported_global_copy = tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)
+          setattr(imported_module, key, exported_global_copy)
+          # create reference in the parent
+          if not parent_module is None:
+            setattr(parent_module, key, exported_global_copy)
+          else:
+            parent_members[key] = exported_global_copy
 
       # inject attributes in being imported module
       imported_module.SOURCE_FILE = module_file_path

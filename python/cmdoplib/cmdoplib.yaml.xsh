@@ -14,7 +14,7 @@ def yaml_push_global_vars():
   globals()['g_yaml_globals'].push_unexpanded_vars()
 
 def yaml_pop_global_vars(reexpand_vars, delvar_pred = None):
-  globals()['g_yaml_globals'].pop_unexpanded_vars(reexpand_vars, lambda key: delvar(key) if delvar_pred is None else delvar_pred(key))
+  globals()['g_yaml_globals'].pop_unexpanded_vars(reexpand_vars, lambda key: delglobalvar(key) if delvar_pred is None else delvar_pred(key))
 
 def yaml_update_global_vars(to_load_yaml_dict = None, setvar_pred = None):
   current_globals = globals()
@@ -35,7 +35,7 @@ def yaml_push_environ_vars():
   globals()['g_yaml_environ'].push_unexpanded_vars()
 
 def yaml_pop_environ_vars(reexpand_vars, delvar_pred = None):
-  globals()['g_yaml_environ'].pop_unexpanded_vars(reexpand_vars, lambda key: delvar(key) if delvar_pred is None else delvar_pred(key))
+  globals()['g_yaml_environ'].pop_unexpanded_vars(reexpand_vars, lambda key: delenvvar(key) if delvar_pred is None else delvar_pred(key))
 
 def yaml_update_environ_vars(to_load_yaml_dict = None, use_global_vars_to_expand = True, setvar_pred = None):
   current_globals = globals()

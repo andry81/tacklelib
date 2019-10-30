@@ -24,7 +24,7 @@ def devnull():
 # workaround for the issue:
 # `lambda with an environment variable `${...}` gives NameError`:
 # https://github.com/xonsh/xonsh/issues/3296
-def delvar(x):
+def delglobalvar(x):
   #del ${x}
   del globals()[x]
 
@@ -40,6 +40,9 @@ def getglobalvar(x):
 def hasglobalvar(x):
   #return True if x in ${...} else False
   return True if x in globals() else False
+
+def delenvvar(x):
+  del plumbum.local.env[x]
 
 def setenvvar(x, value):
   plumbum.local.env[x] = value
