@@ -1,3 +1,12 @@
+2019.10.30:
+* fixed: python: cmdoplib: environment variable accidental double declare
+* fixed: python: cmdoplib: missed `delvar` function refactor
+
+2019.10.30:
+* new: python: tacklelib: `tkl_declare_global` function can declare global in a child as a reference in the parent module/globals
+* new: python: cmdoplib: print ignored errors at the end of the `git_relocate` function call
+* new: python: `install_python_modules.bat` script to install all required python modules
+
 2019.10.29:
 * fixed: python: cmdoplib: exception from `svn_relocate` function on non critical error `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')`
 * fixed: python: cmdoplib: SVN_SSH usage as an environment variable from the yaml configuration file

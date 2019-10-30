@@ -309,6 +309,7 @@ python/cmdoplib/cmdoplib.svn.xsh -text
 python/cmdoplib/cmdoplib.url.xsh -text
 python/cmdoplib/cmdoplib.xsh -text
 python/cmdoplib/cmdoplib.yaml.xsh -text
+python/install_python_modules.bat -text
 python/list_urls_in_files.py -text
 python/tacklelib/tacklelib.csv.py -text
 python/tacklelib/tacklelib.py -text

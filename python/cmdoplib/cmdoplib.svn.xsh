@@ -140,7 +140,7 @@ def svn_checkout(configure_dir, scm_name, bare_args):
   call('${SVN}', ['co', svn_checkout_url, wcroot_path] + bare_args)
 
 def svn_relocate(configure_dir, scm_name, bare_args):
-  print(">svn update: {0}".format(configure_dir))
+  print(">svn relocate: {0}".format(configure_dir))
   if len(bare_args) > 0:
     print('- args:', bare_args)
 
@@ -167,13 +167,18 @@ def svn_relocate(configure_dir, scm_name, bare_args):
     try:
       call('${SVN}', ['relocate'] + bare_args, stdout = None, stderr = None)
     except plumbum.ProcessExecutionError as proc_err:
-      if len(proc_err.stdout) > 0:
-        print(proc_err.stdout.rstrip())
-      if len(proc_err.stderr) > 0:
-        print(proc_err.stderr.rstrip())
+      proc_stdout = proc_err.stdout.rstrip()
+      proc_stderr = proc_err.stderr.rstrip()
+
+      if len(proc_stdout) > 0:
+        print(proc_stdout)
+      if len(proc_stderr) > 0:
+        print(proc_stderr)
 
       # ignore non critical errors
 
       # `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')
-      if proc_err.stderr.find('E155024: ') < 0:
+      if proc_stderr.find('E155024: ') < 0:
         raise
+
+      g_registered_ignored_errors.append((' -> `' + configure_dir + '`', proc_stderr))
