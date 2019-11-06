@@ -1,5 +1,8 @@
+2019.11.06:
+* changed: comments cleanup
+
 2019.08.06:
-* fixed: cmake: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+* fixed: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
 
 2019.08.04:
 * fixed: testlib: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
