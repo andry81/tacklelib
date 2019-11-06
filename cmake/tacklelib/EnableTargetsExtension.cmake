@@ -7,11 +7,13 @@ include(tacklelib/ForwardVariables)
 include(tacklelib/Reimpl)
 
 # INFO:
-#   Detected inconsistency in multiple 3dparty projects, like fmt and libarchive, after call to add_subdirectory and others:
+#   Detected an inconsistency in multiple 3dparty projects, like fmt and
+#   libarchive, after call to add_subdirectory and others:
 #   fmt: https://github.com/fmtlib/fmt/issues/1081
 #   libarchive: https://github.com/libarchive/libarchive/issues/1163
-#   Has added the check to test several most important shared variables on inconsistent change from child projects to stop this
-#   bullshit at early pass!
+#   Have had to add the check to test several most important shared variables
+#   on inconsistent change from child projects to stop this bullshit at early
+#   pass!
 #
 
 # PERFORMANCE INFO:
@@ -21,8 +23,8 @@ include(tacklelib/Reimpl)
 #       variables with the same name.
 #      TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS=ON:
 #     * Slower.
-#     * Builtin function variables ARGx does ignore, upper context restores
-#       automatically by function return.
+#     * Builtin function variables ARGx are ignored because of a function
+#       scope, the rest upper context would be restored on a function return.
 #
 
 if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
@@ -87,9 +89,10 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
   endmacro()
 else()
   function(tkl_add_library_invoker)
-    # Now ARGx built-in variables would be related to the add_library_invoker function parameters list instead of upper caller
-    # which might has different/shifted parameters list!
-    # But now we have to propagate all changed variables here into upper context by ourselves!
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
     _add_library(${ARGV})
@@ -99,9 +102,10 @@ else()
   endfunction()
 
   function(tkl_add_executable_invoker)
-    # Now ARGx built-in variables would be related to the add_executable_invoker function parameters list instead of upper caller
-    # which might has different/shifted parameters list!
-    # But now we have to propagate all changed variables here into upper context by ourselves!
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
     _add_executable(${ARGV})
@@ -111,9 +115,10 @@ else()
   endfunction()
 
   function(tkl_add_custom_target_invoker)
-    # Now ARGx built-in variables would be related to the add_custom_target_invoker function parameters list instead of upper caller
-    # which might has different/shifted parameters list!
-    # But now we have to propagate all changed variables here into upper context by ourselves!
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
     _add_custom_target(${ARGV})
@@ -126,7 +131,8 @@ else()
   endfunction()
 
   # CAUTION:
-  #   Must be a macro to automatically propagate changes from inner `_add_subdirectory`.
+  #   Must be a macro to automatically propagate changes from the inner
+  #   `_add_subdirectory`.
   #
   macro(tkl_add_target_subdirectory_invoker)
     tkl_add_subdirectory_begin(${ARGV})
@@ -139,9 +145,10 @@ else()
   endmacro()
 
   function(tkl_add_subdirectory_invoker)
-    # Now ARGx built-in variables would be related to the add_subdirectory_invoker function parameters list instead of upper caller
-    # which might has different/shifted parameters list!
-    # But now we have to propagate all changed variables here into upper context by ourselves!
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
     _add_subdirectory(${ARGV})
@@ -154,9 +161,10 @@ else()
   endfunction()
 
   function(tkl_find_package_invoker)
-    # Now ARGx built-in variables would be related to the `tkl_find_package_invoker` function parameters list instead of upper caller
-    # which might has different/shifted parameters list!
-    # But now we have to propagate all changed variables here into upper context by ourselves!
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
     _find_package(${ARGV})
@@ -180,7 +188,8 @@ endmacro()
 tkl_register_implementation(macro add_library)
 
 # CAUTION:
-#   Must not be redefined before or after, otherwise the infinite recursion can take a place!
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
 #
 macro(add_executable)
   tkl_add_executable_begin(${ARGV})
@@ -191,7 +200,8 @@ endmacro()
 tkl_register_implementation(macro add_executable)
 
 # CAUTION:
-#   Must not be redefined before or after, otherwise the infinite recursion can take a place!
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
 #
 macro(add_custom_target)
   tkl_add_custom_target_begin(${ARGV})
@@ -202,7 +212,8 @@ endmacro()
 tkl_register_implementation(macro add_custom_target)
 
 # CAUTION:
-#   Must not be redefined before or after, otherwise the infinite recursion can take a place!
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
 #
 macro(add_subdirectory)
   tkl_add_subdirectory_begin(${ARGV})
@@ -213,7 +224,8 @@ endmacro()
 tkl_register_implementation(macro add_subdirectory)
 
 # CAUTION:
-#   Must not be redefined before or after, otherwise the infinite recursion can take a place!
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
 #
 macro(find_package _arg0)
   if(${ARGC} GREATER 1)

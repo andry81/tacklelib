@@ -1,3 +1,6 @@
+2019.11.06:
+* changed: cmake: comments cleanup
+
 2019.10.30:
 * fixed: python: cmdoplib: environment variable accidental double declare
 * fixed: python: cmdoplib: missed `delvar` function refactor
