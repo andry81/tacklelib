@@ -104,7 +104,7 @@ def svn_update(configure_dir, scm_name, bare_args):
   print(' -> {0}...'.format(wcroot_path))
 
   with plumbum.local.cwd(wcroot_path):
-    call_svn(['up'] + bare_args)
+    call_svn(['up'] + bare_args, max_stdout_lines = -1)
 
 def svn_checkout(configure_dir, scm_name, bare_args):
   print(">svn checkout: {0}".format(configure_dir))
@@ -138,7 +138,7 @@ def svn_checkout(configure_dir, scm_name, bare_args):
   if os.path.isdir(wcroot_path + '/.svn'):
     return 0
 
-  call_svn(['co', svn_checkout_url, wcroot_path] + bare_args)
+  call_svn(['co', svn_checkout_url, wcroot_path] + bare_args, max_stdout_lines = -1)
 
 def svn_relocate(configure_dir, scm_name, bare_args):
   # dependent on declaration order in case of a direct usage (not through the `globals()['...']`), so must always be to avoid a dependence
@@ -169,7 +169,7 @@ def svn_relocate(configure_dir, scm_name, bare_args):
 
   with plumbum.local.cwd(wcroot_path):
     try:
-      call_svn(['relocate'] + bare_args, stdout = None, stderr = None)
+      call_svn(['relocate'] + bare_args, stdout = None, stderr = None, max_stdout_lines = -1)
     except plumbum.ProcessExecutionError as proc_err:
       proc_stdout = proc_err.stdout
       proc_stderr = proc_err.stderr

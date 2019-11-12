@@ -1,4 +1,7 @@
 2019.11.12:
+* fixed: cmdoplib: removed `svn ...` commands stdout cutoff
+
+2019.11.12:
 * fixed: tacklelib: `tkl_merge_module` module-to-not-a-module copy
 * fixed: tacklelib: invalid execution guard in the `tkl_import_module` function for named imports
 * fixed: cmdoplib: `git svn ...` returns message affected by the `SVN_SSH` environment variable: `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': Error in child process: exec of '' failed: No such file or directory at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.` (https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014 )
