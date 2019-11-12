@@ -1,7 +1,7 @@
 # python module for commands with extension modules usage: tacklelib
 
-tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
-tkl_source_module(SOURCE_DIR, 'cmdoplib.yaml.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.yaml.xsh')
 
 import os
 

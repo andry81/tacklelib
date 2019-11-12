@@ -1,77 +1,10 @@
 # pure python module for commands w/o extension modules usage
 
-import os, sys
+import sys, platform, io
 
 # error print
 def print_err(*args, **kwargs):
   print(*args, file = sys.stderr, **kwargs)
-
-# based on: https://stackoverflow.com/questions/2929899/cross-platform-dev-null-in-python/2930038#2930038
-class devnull():
-  def __init__(self, *args):
-    self.closed = False
-    self.mode = "wb"
-    self.name = "<null>"
-    self.encoding = None
-    self.errors = None
-    self.newlines = None
-    self.softspace = 0
-    self.file = None
-
-  def flush(self):
-    if self.file:
-      self.flush()
-
-  def next(self):
-    raise IOError("Invalid operation")
-
-  def read(size = 0):
-    raise IOError("Invalid operation")
-
-  def readline(self):
-    raise IOError("Invalid operation")
-
-  def readlines(self):
-    raise IOError("Invalid operation")
-
-  def xreadlines(self):
-    raise IOError("Invalid operation")
-
-  def seek(self):
-    raise IOError("Invalid operation")
-
-  def tell(self):
-    return 0
-
-  def truncate(self, *args):
-    pass
-
-  def write(self, *args):
-    pass
-
-  def writelines(self, *args):
-    pass
-
-  def __enter__(self):
-    return self
-
-  def __exit__(self, exc_type, exc_value, trackback):
-    self.close()
-
-  def __del__(self):
-    self.close()
-
-  def close(self):
-    if self.file:
-      self.file.close()
-      self.file = None
-    self.closed == True
-
-  def fileno(self):
-    # nothing can do, needs to open the real file here
-    if not self.file:
-      self.file = open(os.devnull, 'wb')
-    return self.file.fileno()
 
 class OnExit:
   def __init__(self, on_exit_pred = None):
@@ -81,3 +14,35 @@ class OnExit:
   def __exit__(self, type, value, tb):
     if self.on_exit_pred:
       self.on_exit_pred()
+
+# based on: https://stackoverflow.com/questions/6797984/how-do-i-lowercase-a-string-in-python/31599276#31599276
+#
+def compare_file_paths(p1, p2, op = '=='):
+  p1_ = p1.replace('\\', '/')
+  p2_ = p2.replace('\\', '/')
+  if platform.system() == 'Windows':
+    p1_ = p1_.casefold()
+    p2_ = p2_.casefold()
+
+  return eval('"' + p1_ + '" ' + op + ' "' + p2_ + '"')
+
+def print_max(str, max_lines = 7):
+  if max_lines >= 0:
+    num_new_lines = str.count('\n')
+    if num_new_lines > max_lines:
+      line_index = 0
+
+      # To iterate over lines instead chars.
+      # (see details: https://stackoverflow.com/questions/3054604/iterate-over-the-lines-of-a-string/3054898#3054898 )
+
+      half_lines = int(max_lines / 2)
+      for line in io.StringIO(str):
+        if line_index < half_lines or line_index >= num_new_lines - half_lines: # excluding the last line return
+          print(line.rstrip())
+        elif line_index == half_lines:
+          print('...')
+        line_index += 1
+    elif len(str) > 0:
+      print(str)
+  elif len(str) > 0:
+    print(str)

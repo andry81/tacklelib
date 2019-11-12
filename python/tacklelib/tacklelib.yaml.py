@@ -7,8 +7,11 @@ class YamlConfig(dict):
     # default config
     self.update({
       'expand_undefined_var': True,
-      'expand_undefined_var_to_prefix': r'*$/{',  # CAUTION: `$` and `{` must be separated from each other, otherwise the infinite recursion would take a place
-      'expand_undefined_var_to_value': None,      # None - use variable name instead, '' - empty
+      # CAUTION:
+      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+      #
+      'expand_undefined_var_to_prefix': r'*:$/{',   # CAUTION: `$` and `{` must be separated from each other, otherwise the infinite recursion would take a place
+      'expand_undefined_var_to_value': None,        # None - use variable name instead, '' - empty
       'expand_undefined_var_to_suffix': r'}'
     })
     if not user_config is None:
@@ -104,8 +107,8 @@ class YamlEnv(object):
   def expanded_items(self):
     return self.expanded_vars.items()
 
-  # expands `${...}` expressions recursively from not nested YAML dictionary for a single external value
-  def expand_value(self, value, expand_dict = None, user_config = None):
+  # expands `${...}` string expressions recursively for a single external value
+  def expand_string(self, str_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, user_config = None):
     config = self.config
     if not user_config is None:
       config.update(user_config)
@@ -115,8 +118,7 @@ class YamlEnv(object):
     expand_undefined_var_to_value = config['expand_undefined_var_to_value'] if expand_undefined_var else ''
     expand_undefined_var_to_suffix = config['expand_undefined_var_to_suffix'] if expand_undefined_var else ''
 
-    out_value = str(value)
-    has_unexpanded_sequences = False
+    out_value = str(str_value)
 
     while True:
       expanded_value = ''
@@ -124,42 +126,58 @@ class YamlEnv(object):
 
       has_unexpanded_sequences = False
 
-      for m in re.finditer(r'\${([^\$]+)}', out_value):
+      for m in re.finditer(r'\${([^\$]+?)}', out_value):
         has_unexpanded_sequences = True
         var_name = m.group(1)
         if not var_name[:4] == 'env:':
           if not var_name[-5:] == ':path':
-            if self.has_unexpanded_var(var_name):
-              var_value = self.get_unexpanded_value(var_name)
-            elif not expand_dict is None:
-              var_value = expand_dict.get(var_name)
-            else:
-              var_value = None
+            var_value = self.get_unexpanded_value(var_name)
+            if var_value is None: 
+              if not search_in_expand_dict_at_second is None:
+                var_value = search_in_expand_dict_at_second.get(var_name)
+                if var_value is None:
+                  if not search_by_pred_at_third is None:
+                    var_value = search_by_pred_at_third(var_name)
+              elif not search_by_pred_at_third is None:
+                var_value = search_by_pred_at_third(var_name)
           else:
             var_name = var_name[:-6]
-            if self.has_unexpanded_var(var_name):
-              var_value = self.get_unexpanded_value(var_name).replace('\\', '/')
-            elif not expand_dict is None:
-              var_value = expand_dict.get(var_name)
-            else:
-              var_value = None
+            var_value = self.get_unexpanded_value(var_name)
+            if not var_value is None:
+              var_value = var_value.replace('\\', '/')
+              if var_value is None:
+                if not search_in_expand_dict_at_second is None:
+                  var_value = search_in_expand_dict_at_second.get(var_name)
+                  if var_value is None:
+                    if not search_by_pred_at_third is None:
+                      var_value = search_by_pred_at_third(var_name)
+                elif not search_by_pred_at_third is None:
+                  var_value = search_by_pred_at_third(var_name)
         else:
           if not var_name[-5:] == ':path':
             var_name = var_name[4:]
-            if var_name in os.environ:
-              var_value = os.environ[var_name]
-            elif not expand_dict is None:
-              var_value = expand_dict.get(var_name)
-            else:
-              var_value = None
+            var_value = os.environ.get(var_name)
+            if var_value is None:
+              if not search_in_expand_dict_at_second is None:
+                var_value = search_in_expand_dict_at_second.get(var_name)
+                if var_value is None:
+                  if not search_by_pred_at_third is None:
+                    var_value = getglobalvar(var_name)
+              elif not search_by_pred_at_third is None:
+                var_value = getglobalvar(var_name)
           else:
             var_name = var_name[4:-5]
-            if var_name in os.environ:
-              var_value = os.environ[var_name].replace('\\', '/')
-            elif not expand_dict is None:
-              var_value = expand_dict.get(var_name)
-            else:
-              var_value = None
+            var_value = os.environ.get(var_name)
+            if not var_value is None:
+              var_value = var_value.replace('\\', '/')
+              if var_value is None:
+                if not search_in_expand_dict_at_second is None:
+                  var_value = search_in_expand_dict_at_second.get(var_name)
+                  if var_value is None:
+                    if not search_by_pred_at_third is None:
+                      var_value = getglobalvar(var_name)
+                elif not search_by_pred_at_third is None:
+                  var_value = getglobalvar(var_name)
         if not var_value is None:
           expanded_value += out_value[prev_match_index:m.start()] + str(var_value)
         else:
@@ -181,9 +199,72 @@ class YamlEnv(object):
 
     return out_value
 
-  # expands `${...}` expressions and lists recursively from not nested YAML dictionary for all variables in the storage
-  def expand(self, expand_dict = None, list_as_cmdline = False):
-    for key, val in self.unexpanded_vars.items():
+  # expands `${...}` string expressions in a list for all variables in the storage
+  def expand_list(self, list_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
+    if not isinstance(list_value, list):
+      raise Exception('list_value is not a list type' + str(type(list_value)))
+
+    if not list_as_cmdline:
+      expanded_val = out_value = []
+
+      for i in list_value:
+        if not isinstance(i, str):
+          # TODO
+          raise Exception('unexpected yaml object type: ' + str(type(i)))
+
+        expanded_val.append(
+          self.expand_string(i,
+            search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+            search_by_pred_at_third = search_by_pred_at_third
+          )
+        )
+    else:
+      cmdline = ''
+
+      for i in list_value:
+        if not isinstance(i, str):
+          # TODO
+          raise Exception('unexpected yaml object type: ' + str(type(i)))
+
+        j = self.expand_string(i,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+          search_by_pred_at_third = search_by_pred_at_third
+        )
+
+        has_spaces = False
+
+        for c in j:
+          if c.isspace():
+            has_spaces = True
+            break
+
+        if not has_spaces:
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + j
+        else:
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + j + '"'
+
+      out_value = cmdline
+
+    return out_value
+
+  # expands `${...}` string expressions, lists and dictionaries recursively for all variables in the storage
+  def expand_dict(self, dict_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, ignore_types = None, list_as_cmdline = False):
+    if not isinstance(dict_value, dict):
+      raise Exception('dict_value is not a dictionary type' + str(type(dict_value)))
+
+    out_value = {}
+
+    for key, val in dict_value.items():
+      if not ignore_types is None:
+        ignore_key = False
+        for ignore_type in ignore_types:
+          if isinstance(val, ignore_type):
+            ignore_key = True
+            break
+
+        if ignore_key:
+          continue
+
       if len(self.expanded_stack) != 0:
         # record variables changes
         last_stack_record = self.expanded_stack[-1]
@@ -193,44 +274,33 @@ class YamlEnv(object):
           last_added_expanded_var_names.append(key)
 
       if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
-        self.expanded_vars[key] = self.expand_value(val, expand_dict = expand_dict)
+        out_value[key] = self.expand_string(val,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
       elif isinstance(val, list):
-        #if not key.endswith('_CMDLINE'):
-        if not list_as_cmdline:
-          expanded_val = self.expanded_vars[key] = []
-
-          for i in val:
-            if not isinstance(i, str):
-              # TODO
-              raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
-
-            expanded_val.append(self.expand_value(i, expand_dict = expand_dict))
-        else:
-          cmdline = ''
-
-          for i in val:
-            if not isinstance(i, str):
-              # TODO
-              raise Exception('YamlEnv does not support yaml list item type: ' + str(type(i)))
-
-            j = self.expand_value(i, expand_dict = expand_dict)
-
-            has_spaces = False
-
-            for c in j:
-              if c.isspace():
-                has_spaces = True
-                break
-
-            if not has_spaces:
-              cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + j
-            else:
-              cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + j + '"'
-
-          self.expanded_vars[key] = cmdline
+        out_value[key] = self.expand_list(val,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
+          list_as_cmdline = list_as_cmdline)
+      elif isinstance(val, dict):
+        out_value[key] = self.expand_dict(val,
+        search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
+        list_as_cmdline = list_as_cmdline)
       else:
         # TODO
-        raise Exception('YamlEnv does not support yaml object type: ' + str(type(val)))
+        raise Exception('unexpected yaml object type: ' + str(type(val)))
 
       if len(self.expanded_stack) != 0:
         last_stack_record[1] = last_added_expanded_var_names
+
+    return out_value
+
+  # expands `${...}` string expressions, lists and dictionaries recursively for all variables in the storage
+  def expand(self, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, ignore_types = None, list_as_cmdline = False):
+    self.expanded_vars.update(
+      self.expand_dict(
+        self.unexpanded_vars,
+        search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+        search_by_pred_at_third = search_by_pred_at_third,
+        ignore_types = ignore_types,
+        list_as_cmdline = list_as_cmdline
+      )
+    )

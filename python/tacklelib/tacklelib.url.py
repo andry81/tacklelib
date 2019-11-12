@@ -34,3 +34,7 @@ def extract_urls(str, scheme_regex = 'http[s]?'):
     else:
       urls_arr.append(url) # else, simply append to new list
   return urls_arr
+
+def make_url(url, username = None):
+  url_parsed = urlparse(url)
+  return url_parsed[0] + '://' + ((username + '@') if not username is None else '') + ''.join(url_parsed[1:])

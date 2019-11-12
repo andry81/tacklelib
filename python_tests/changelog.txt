@@ -1,3 +1,11 @@
+2019.11.12:
+* fixed: test file names must be different, otherwise only the first one would be executed (bug in the pytest plugin in the xonsh module, see details in the `README_EN.txt`)
+* new: `01_unit/01_import_module/05_merge_2_modules_in_1` to test merge of 2 modules into 1 module
+* new: `01_unit/02_declare_global/*` tests to test `tkl_declare_global` implementation (tests valid only in an isolated process environment)
+* new: `02_interactive/*` tests to test only by a user manual interaction
+* changed: readme update
+* refactor: tests global refactor, each test runs in a standalone pytest process to avoid intersection of global variables
+
 2019.10.08:
 * refactor: support scripts moved in to subdirectories
 

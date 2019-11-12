@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.08
+* 2019.11.03
 * tacklelib
 
 1. DESCRIPTION
@@ -90,8 +90,18 @@ to run from:
 4. Interpreters:
 
 * bash shell 3.2.48+ (to run unix shell scripts)
+  - to run unix shell scripts
 * cmake 3.14+ :
   https://cmake.org/download/
+  - to run cmake scripts and modules
+* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+  https://python.org
+  - standard implementation to run python scripts
+  - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
+    section
+  - 3.5+ is required for the direct import by a file path (with any extension)
+    as noted in the documentation:
+    https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
 
 Noticeable cmake changes from the version 3.14:
 

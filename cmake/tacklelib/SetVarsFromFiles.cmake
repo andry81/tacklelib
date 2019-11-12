@@ -933,7 +933,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set(config_${make_var_name} "${make_var_value}")
     else()
       # use special unexisted directory value to differentiate it from the defined empty value
-      set(config_${make_var_name} "*\$/{${make_var_name}}")
+
+      # CAUTION:
+      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+      #
+      set(config_${make_var_name} "*:\$/{${make_var_name}}")
     endif()
     set(config_${make_var_name}_defined 1)
 
@@ -1009,7 +1013,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(config_CMAKE_CURRENT_PACKAGE_NAME "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       else()
         # use special unexisted directory value to differentiate it from the defined empty value
-        set(config_CMAKE_CURRENT_PACKAGE_NAME "*\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
+
+        # CAUTION:
+        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+        #
+        set(config_CMAKE_CURRENT_PACKAGE_NAME "*:\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       endif()
     endif()
     if ((NOT make_vars_names) OR (NOT "CMAKE_CURRENT_PACKAGE_SOURCE_DIR" IN_LIST make_vars_names))
@@ -1017,7 +1025,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "${TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
       else()
         # use special unexisted directory value to differentiate it from the defined empty value
-        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "*\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
+        # CAUTION:
+        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+        #
+        set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "*:\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
       endif()
     endif()
 
@@ -1463,7 +1475,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             if (DEFINED config_${onchange_var_name})
               set(onchange_var_value "${config_${onchange_var_name}}")
             else()
-              set(onchange_var_value "*\$/{${onchange_var_name}}")
+              # CAUTION:
+              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+              #
+              set(onchange_var_value "*:\$/{${onchange_var_name}}")
             endif()
 
             #message("${onchange_var_name} => `${onchange_var_prev_value}` -> `${onchange_var_value}`")
@@ -1755,7 +1770,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   # WORKAROUND: we have to replace because `list(APPEND` will join lists together
                   tkl_escape_string_before_list_append(value "${value}")
 
-                  set(var_values_list "${var_values_list}*\$/{${value}}")
+                  # CAUTION:
+                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+                  #
+                  set(var_values_list "${var_values_list}*:\$/{${value}}")
                 endif()
 
                 math(EXPR value_from_index ${index}+1)
@@ -1977,7 +1995,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
             else()
               # make a record from last line incomplete substitution
-              set(var_values_list "${var_values_list}*\$/{")
+
+              # CAUTION:
+              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+              #
+              set(var_values_list "${var_values_list}*:\$/{")
 
               math(EXPR value_len ${var_value_len}-${value_from_index})
               if (value_len GREATER 0)
@@ -2299,7 +2321,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
                 else()
                   # use special unexisted directory value to differentiate it from the defined empty value
-                  list(APPEND config_${var_name}_var_values_onchange_list "*\$/{${onchange_var_name}}")
+
+                  # CAUTION:
+                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+                  #
+                  list(APPEND config_${var_name}_var_values_onchange_list "*:\$/{${onchange_var_name}}")
                 endif()
               endforeach()
 

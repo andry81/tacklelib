@@ -13,11 +13,12 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   --exclude_vars_filter "PROJECT_ROOT" ^
   --ignore_late_expansion_statements || goto EXIT
 
-
 if defined CHCP chcp %CHCP%
 
 pushd "%TESTS_ROOT%/01_unit" && (
-  call :CMD "%%PYTEST_EXE_PATH%%" %%* || ( popd & goto EXIT )
+  for %%i in (%PYTESTS_LIST%) do (
+    call :CMD "%%PYTEST_EXE_PATH%%" %%* %%i || ( popd & goto EXIT )
+  )
   popd
 )
 
