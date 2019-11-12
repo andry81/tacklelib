@@ -1,22 +1,137 @@
 # pure python module for commands w/o extension modules usage
 
-class TackleGlobalImportModuleState:
-  parent_modules = []
-  imported_modules = set()
-  exec_guards = []
+import os, sys, inspect, copy
+if sys.version_info[0] > 3 or sys.version_info[0] == 3 and sys.version_info[1] >= 4:
+  import importlib.util, importlib.machinery
+else:
+  import imp
 
-class TackleLocalImportModuleState:
-  # key:    variable token
-  # value:  (<value>, <value globals>)
-  export_globals = {}
+class TackleGlobalState:
+  import_nest_index = [0] # in list to store as reference
+  this_module = None
+  # key:    <module>
+  # value:  (<module_import_name>, <module_file_path>, {<module_attribute_name> : <module_attribute_value>})
+  imported_modules = {}
+  # key:    <variable_token>
+  # value:  <value>
+  global_vars = {}
+
+  @classmethod
+  def reset(cls):
+    cls.this_module = None
+    cls.imported_modules = None
+    cls.global_vars = {}
+
+def tkl_init(tkl_module, import_file_exts = ['.xsh'], reset_global_state = True, init_stack_module = 'caller'):
+  #print('tkl_init')
+
+  # enable the `inspect.getmodulename` to return module name with non standard file extensions
+  if sys.version_info[0] > 3 or sys.version_info[0] == 3 and sys.version_info[1] >= 4:
+    for import_file_ext in import_file_exts:
+      if import_file_ext not in importlib.machinery.SOURCE_SUFFIXES:
+        importlib.machinery.SOURCE_SUFFIXES.append(import_file_ext)
+
+  if init_stack_module == 'caller':
+    current_module = tkl_get_stack_frame_module(1)
+  elif init_stack_module == 'current':
+    current_module = tkl_get_current_module()
+  else:
+    raise Exception('unknown module to init: `' + init_stack_module + '`')
+
+  prev_global_state = global_state = getattr(current_module, 'TackleGlobalState', None)
+  if reset_global_state or global_state is None:
+    global_state = TackleGlobalState
+    if reset_global_state and not prev_global_state is None:
+      global_state.reset()
+
+  global_state.this_module = tkl_module
+
+  # all functions in the module have has a 'tkl_' prefix, all classes begins by `Tackle`, so we don't need a scope here
+  tkl_merge_module(tkl_module, current_module)
+
+  # declare the current module as an already imported module to be able to propagate a global variable to it
+  #print(current_module.__name__, current_module.__file__.replace('\\', '/'))
+  global_state.imported_modules[current_module] = (current_module.__name__, current_module.__file__.replace('\\', '/'), {})
+
+# basiclly required in a teardown code in tests
+def tkl_uninit():
+  for global_var, value in TackleGlobalState.global_vars.items():
+    del global_var
+  TackleGlobalState.global_vars = {}
+  for imported_module, imported_module_value in TackleGlobalState.imported_modules.items():
+    del imported_module
+  TackleGlobalState.imported_modules = {}
+  del TackleGlobalState.this_module
+  TackleGlobalState.this_module = None
+
+def tkl_get_stack_frame_module(skip_frames = 0):
+  skip_frame_index = skip_frames + 1;
+
+  # search for the first module in the stack
+  stack_frame = inspect.currentframe()
+  while stack_frame and skip_frame_index > 0:
+    #print('***', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
+    stack_frame = stack_frame.f_back
+    skip_frame_index -= 1
+
+  if stack_frame is None:
+    raise Exception('target module is not found on the stack')
+
+  #print('>>>', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
+
+  target_module = inspect.getmodule(stack_frame)
+  if target_module is None:
+    raise Exception('target module is not found on the stack')
+
+  return target_module
+
+def tkl_get_current_module():
+  current_module = None
+
+  # search for the first module in the stack
+  stack_frame = inspect.currentframe()
+  while stack_frame:
+    #print('***', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
+    if stack_frame.f_code.co_name == '<module>':
+      current_module = inspect.getmodule(stack_frame)
+      #print('MODULEFILE:', stack_frame.f_code.co_filename)
+      #print('MODULE:', inspect.getmodulename(stack_frame.f_code.co_filename), current_module)
+      if current_module is None:
+        raise Exception('invalid stack top module')
+      break
+    stack_frame = stack_frame.f_back
+
+  if stack_frame is None:
+    raise Exception('top module is not found on the stack')
+
+  return current_module
+
+def tkl_get_caller_module():
+  caller_module = None
+
+  # search for the first module in the stack
+  stack_frame = inspect.currentframe()
+  while stack_frame:
+    #print('***', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
+    if stack_frame.f_code.co_name == '<module>':
+      caller_module = inspect.getmodule(stack_frame)
+      #print('MODULEFILE:', stack_frame.f_code.co_filename)
+      #print('MODULE:', inspect.getmodulename(stack_frame.f_code.co_filename), caller_module)
+      if caller_module is None:
+        raise Exception('invalid stack top module')
+      break
+    stack_frame = stack_frame.f_back
+
+  if stack_frame is None:
+    raise Exception('top module is not found on the stack')
+
+  return caller_module
 
 # based on:
 # https://stackoverflow.com/questions/3589311/get-defining-class-of-unbound-method-object-in-python-3/25959545#25959545
 # https://stackoverflow.com/questions/3589311/get-defining-class-of-unbound-method-object-in-python-3/54597033#54597033
 #
 def tkl_get_method_class(x, from_module = None):
-  import inspect
-
   if inspect.ismethod(x):
     for cls in inspect.getmro(x.__self__.__class__):
       if cls.__dict__.get(x.__name__) is x:
@@ -36,21 +151,14 @@ def tkl_get_method_class(x, from_module = None):
 
 # DESCRIPTION:
 #
-#   The function must be expressed separately to correctly resolve base classes
-#   copy function to be able to fix `globals()` only in those methods which are
-#   a part of a class been defined from a source module including a base class.
-#   And if a base class is a part of a different module than the module which
-#   objects being copied from, then what the base class methods would be
-#   skipped to fixup the `globals()`.
-#   In other words a derived and a base class could have be defined in
-#   different modules and their methods has to be fixed for a correct globals
-#   reference if and only if a being copied class has been defined in the
-#   module which members are being copied from. If a class has been defined not
-#   in the being copied module, then it's member functions must be left as is.
+#   A derived and a base class can be defined in different modules and their
+#   methods has to be fixed for a correct globals reference if and only if a
+#   source and a destination global context is not the same. If a base or a
+#   derived class is not belong to the context of the source module, then the
+#   class member functions must be left as is. Otherwise they must be fixed to
+#   reference a destination globals.
 #
 def tkl_classcopy(x, from_globals, to_globals):
-  import inspect
-
   if not inspect.isclass(x):
     raise Exception('x must a class: ' + type(x))
 
@@ -67,21 +175,18 @@ def tkl_classcopy(x, from_globals, to_globals):
     #   `dict(...)` to convert from iterable, based on: https://stackoverflow.com/questions/6586310/how-to-convert-list-of-key-value-tuples-into-dictionary/6586521#6586521
     #
     for key, value in dict(inspect.getmembers(x)).items():
-      if not key.startswith('__'):
-        if inspect.isfunction(value):
-          member_cls = tkl_get_method_class(value)
-          if member_cls in from_globals:
-            #print('  tkl_classcopy:', key)
-            # globals retarget to the destination globals
-            setattr(cls_copy, key, type(value)(value.__code__, to_globals, value.__name__, value.__defaults__, value.__closure__))
+      if inspect.isfunction(value):
+        member_cls = tkl_get_method_class(value)
+        if member_cls in from_globals:
+          #print('  tkl_classcopy:', key)
+          # globals retarget to the destination globals
+          setattr(cls_copy, key, type(value)(value.__code__, to_globals, value.__name__, value.__defaults__, value.__closure__))
 
   return cls_copy
 
 # to readdress `globals()` in all functions
 def tkl_membercopy(x, from_globals, to_globals):
   if id(from_globals) != id(to_globals):
-    import inspect
-
     if inspect.isfunction(x):
       return type(x)(x.__code__, to_globals, x.__name__, x.__defaults__, x.__closure__)
     elif inspect.isclass(x):
@@ -90,104 +195,111 @@ def tkl_membercopy(x, from_globals, to_globals):
   return x # return by reference
 
 def tkl_merge_module(from_, to):
-  import inspect
-
   from_globals = vars(from_)
   if inspect.ismodule(to):
     to_dict = vars(to)
-    to_globals = False
+    is_to_module = True
   else:
     to_dict = to
-    to_globals = True
-  for from_key, from_value in vars(from_).items():
-    if not from_key.startswith('__') and from_key not in ['SOURCE_FILE', 'SOURCE_DIR']:
-      if from_key in to_dict:
-        to_value = to_dict[from_key]
-        if id(from_value) != id(to_value):
-          # The `to_value` sometimes can be not a module when the `from_value` is a module, for example, if
-          # from_ = <module 'datetime'>, but
-          # to = <class 'datetime.datetime'>, where
-          #   `type(to) == type` and `type` is not iterable
-          # In that case we must replace the destination by a module instance.
-          if not inspect.ismodule(from_value):
-            if not to_globals:
-              #print(" tkl_merge_module: ", to.__name__, '<-' , from_key)
-              var_copy = tkl_membercopy(from_value, from_globals, to_dict)
-              setattr(to, from_key, var_copy)
-            else:
-              #print(" tkl_merge_module: globals() <- ", from_key)
-              to[from_key] = tkl_membercopy(from_value, from_globals, to_dict)
-          else:
-            if inspect.ismodule(to_value):
-              tkl_merge_module(from_value, to_value)
-            else:
+    is_to_module = False
+
+  if id(to) != id(from_):
+    for from_key, from_value in vars(from_).items():
+      if not from_key.startswith('__') and from_key not in ['SOURCE_FILE', 'SOURCE_DIR', 'SOURCE_FILE_NAME', 'SOURCE_FILE_NAME_WO_EXT']:
+        if is_to_module:
+          to_value = getattr(to, from_key, None)
+        else:
+          to_value = to_dict.get(from_key)
+        if not from_value is None:
+          if to_value is None or id(from_value) != id(to_value):
+            if not inspect.ismodule(from_value):
+              to_value = tkl_membercopy(from_value, from_globals, to_dict)
+              if is_to_module:
+                #print(" tkl_merge_module: ", to.__name__, '<-' , from_key)
+                setattr(to, from_key, to_value)
+              else:
+                #print(" tkl_merge_module: globals() <- ", from_key)
+                to[from_key] = to_value
+            elif not inspect.ismodule(to_value):
               # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
               to_value = type(from_value)(from_value.__name__, from_value.__doc__)
               to_value.__dict__.update(from_value.__dict__)
-              to_dict[from_key] = to_value
+
+              if is_to_module:
+                setattr(to, from_key, to_value)
+              else:
+                to_dict[from_key] = to_value
+
+              # CAUTION:
+              #   Must do explicit merge, otherwise some classes would not be merged!
+              #
               tkl_merge_module(from_value, to_value)
-      else:
-        if not to_globals:
-          #print(" tkl_merge_module: ", to.__name__,'<-' ,from_key)
-          var_copy = tkl_membercopy(from_value, from_globals, to_dict)
-          setattr(to, from_key, var_copy)
-        else:
-          #print(" tkl_merge_module: globals() <-", from_key)
-          to[from_key] = tkl_membercopy(from_value, from_globals, to_dict)
+
+              # we must register being merged (new) module in the imported modules if the source module is registered too to expose it for the globals export function
+              global_state = getattr(from_, 'TackleGlobalState', None)
+              if not global_state is None:
+                imported_modules = global_state.imported_modules
+                from_module_value_in_imported_modules = imported_modules.get(from_)
+                if not from_module_value_in_imported_modules is None:
+                  imported_modules[to_value] = (from_module_value_in_imported_modules[0], from_module_value_in_imported_modules[1], {})
+            else:
+              tkl_merge_module(from_value, to_value)
+          """
+          elif not inspect.ismodule(from_value):
+            to_value = tkl_membercopy(from_value, from_globals, to_dict)
+            if is_to_module:
+              #print(" tkl_merge_module: ", to.__name__, '<-' , from_key)
+              setattr(to, from_key, to_value)
+            else:
+              #print(" tkl_merge_module: globals() <- ", from_key)
+              to[from_key] = to_value
+          else:
+            # as reference
+            if is_to_module:
+              #print(" tkl_merge_module: ", to.__name__, '<-' , from_key)
+              setattr(to, from_key, from_value)
+            else:
+              #print(" tkl_merge_module: globals() <- ", from_key)
+              to[from_key] = from_value
+          """
 
   return to
 
-def tkl_get_parent_imported_module_state(ignore_not_scoped_modules):
-  current_globals = globals()
-  parent_module = None
-  parent_scope_info = {}
+# to declare globals in a current module from the stack
+def tkl_declare_global(var, value, from_globals = None):
+  current_module = tkl_get_stack_frame_module(1)
 
-  parent_modules = current_globals['TackleGlobalImportModuleState'].parent_modules
+  global_state = getattr(current_module, 'TackleGlobalState', None)
+  if global_state is None:
+    global_state = TackleGlobalState
 
-  if len(parent_modules) > 0:
-    parent_module = None
-    for parent_module_tuple in reversed(parent_modules):
-      if not ignore_not_scoped_modules or parent_module_tuple[0] != '.':
-        parent_module = parent_module_tuple[1]
-        parent_scope_info = parent_module_tuple[2]
-        parent_members = vars(parent_module)
-        break
+  if global_state.this_module is None:
+    raise Exception('tacklelib is not properly initialized, call to tkl_init_current_module in the top module')
 
-  if parent_module is None:
-    parent_members = current_globals
+  imported_modules = global_state.imported_modules
+  global_vars = global_state.global_vars
 
-  return (parent_module, parent_members, parent_scope_info)
+  if from_globals is None:
+    from_globals = globals()
 
-# to auto export globals from a parent module to a child module on it's import
-def tkl_declare_global(var, value, value_from_globals = None, auto_export = True, copy_as_reference_in_parent = False):
-  import inspect, copy
+  current_module_globals = vars(current_module)
+  value_copy = tkl_membercopy(value, from_globals, current_module_globals)
 
-  current_globals = globals()
-  if value_from_globals is None:
-    value_from_globals = current_globals
+  # at first, assign as a global
+  #exec('global ' + var + '\n' + var + ' = value_copy')
 
-  # get parent module state
-  parent_module, parent_members, parent_scope_info = tkl_get_parent_imported_module_state(False)
+  setattr(current_module, var, value_copy)
 
-  # make a global either in a current module or in the globals
-  if not parent_module is None:
-    setattr(parent_module, var, value)
-  else:
-    parent_members[var] = value
+  global_vars[var] = value_copy
+  #globals()[var] = value_copy
 
-  export_globals = current_globals['TackleLocalImportModuleState'].export_globals
-  export_globals[var] = (value, value_from_globals, copy_as_reference_in_parent)
-
-  if auto_export:
-    imported_modules = current_globals['TackleGlobalImportModuleState'].imported_modules
-    for key, global_value in current_globals.items():
-      if not key.startswith('__') and key not in ['SOURCE_FILE', 'SOURCE_DIR'] and \
-        inspect.ismodule(global_value) and global_value in imported_modules: # ignore modules which are not imported by `tkl_import_module`
-        # make a deepcopy with globals retarget to a child module
-        var_copy = copy.deepcopy(tkl_membercopy(value, value_from_globals, vars(global_value)))
-        setattr(global_value, var, var_copy)
-
-  return value
+  # export a global to rest of imported modules
+  for imported_module in imported_modules:
+    if id(imported_module) != id(current_module):
+      imported_module_globals = vars(imported_module)
+      value_copy = tkl_membercopy(value, from_globals, imported_module_globals)
+      setattr(imported_module, var, value_copy)
+      #imported_module_globals[var] = value_copy
 
 # ref_module_name:
 #   `module`    - either import the module file as `module` if the module was not imported before or import locally and membercopy the module content into existed one.
@@ -197,46 +309,95 @@ def tkl_declare_global(var, value, value_from_globals = None, auto_export = True
 #   `module.`   - the same as `module` and the module can not be merged in the next `module` import (some kind of the `.module` behaviour but for the next import).
 #   `.module.`  - has meaning of the both above.
 #
-def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject_attrs = {}, prefix_exec_module_pred = None, use_exec_guard = True):
-  import os, sys, inspect, copy
-
+def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject_attrs = {}, prefix_exec_module_pred = None, skip_stack_frames = 0):
   if not ref_module_name is None and ref_module_name == '':
     raise Exception('ref_module_name should either be None or not empty string')
 
   module_file_path = os.path.normcase(os.path.abspath(os.path.join(dir_path, module_file_name))).replace('\\', '/')
   module_name_wo_ext = os.path.splitext(module_file_name)[0]
 
-  print('import :', module_file_path, 'as', module_name_wo_ext if ref_module_name is None else ref_module_name, '->', list(((parent_imported_module_name + '//' + parent_imported_module.__name__) if parent_imported_module_name != parent_imported_module.__name__ else parent_imported_module.__name__) for parent_imported_module_name, parent_imported_module, parent_imported_module_info in TackleGlobalImportModuleState.parent_modules))
+  current_module = tkl_get_stack_frame_module(skip_stack_frames + 1)
 
-  current_globals = globals()
-  exec_guards = current_globals['TackleGlobalImportModuleState'].exec_guards
+  global_state = getattr(current_module, 'TackleGlobalState', None)
+  if global_state is None:
+    global_state = TackleGlobalState
 
-  if use_exec_guard:
-    for guard_module_file_path, imported_module in exec_guards:
-      if guard_module_file_path == module_file_path.replace('\\', '/'):
-        # copy globals to the parent module
-        parent_module, parent_members, parent_scope_info = tkl_get_parent_imported_module_state(False)
+  import_nest_index = global_state.import_nest_index[0]
 
-        if not parent_module is None and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
-          raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + parent_module.__name__)
+  print(('| ' * import_nest_index) + 'import :', import_nest_index, module_file_path, 'as', module_name_wo_ext if ref_module_name is None else ref_module_name, end='')
 
-        if not parent_module is None:
-          tkl_merge_module(imported_module, parent_module)
-        else:
-          imported_module_globals = vars(imported_module)
-          for key, value in imported_module_globals.items():
-            if not key.startswith('__') and key not in ['SOURCE_FILE', 'SOURCE_DIR']:
-              if not inspect.ismodule(value) or key not in parent_members or not inspect.ismodule(parent_members[key]):
-                #print(' copy: globals()::', key, ' <- ', value)
-                parent_members[key] = tkl_membercopy(value, imported_module_globals, current_globals)
-              else:
-                tkl_merge_module(value, parent_members[key])
+  if global_state.this_module is None:
+    print()
+    raise Exception('tacklelib is not properly initialized, call to tkl_init_current_module in the top module')
 
-        return imported_module
+  current_module_globals = vars(current_module)
+
+  imported_modules = global_state.imported_modules
+  global_vars = global_state.global_vars
+
+  # execution guard, always enabled
+  for imported_module, imported_module_value in imported_modules.items():
+    imported_module_file_path = imported_module_value[1]
+    if imported_module_file_path == module_file_path:
+      print(' (cached)')
+      imported_module_name = imported_module_value[0]
+      imported_module_attrs = imported_module_value[2]
+
+      imported_module_globals = vars(imported_module)
+
+      # copy merge module into current module
+      if ref_module_name != '.':
+        to_value = getattr(current_module, ref_module_name, None)
+        from_value = imported_module
+
+        to_value_is_module = inspect.ismodule(to_value) if not to_value is None else False
+        if to_value_is_module and to_value in imported_modules:
+          current_module_in_imported = imported_modules[to_value]
+          current_module_attrs = current_module_in_imported[2]
+          if 'nomergemodule' in current_module_attrs and current_module_attrs['nomergemodule']:
+            raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + to_value.__name__)
+
+        if to_value is None or id(from_value) != id(to_value):
+          if to_value is None or not to_value_is_module:
+            # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
+            to_value = type(from_value)(from_value.__name__, from_value.__doc__)
+            to_value.__dict__.update(from_value.__dict__)
+
+            setattr(current_module, ref_module_name, to_value)
+
+            # CAUTION:
+            #   Must do explicit merge, otherwise some classes would not be merged!
+            #
+            tkl_merge_module(from_value, to_value)
+
+            # we must register being merged (new) module in the imported modules if the source module is registered too to expose it for the globals export function
+            imported_modules[to_value] = (imported_module_name, imported_module_file_path, imported_module_attrs)
+          else:
+            tkl_merge_module(from_value, to_value)
+
+      else:
+        if id(current_module) == id(imported_module):
+          raise Exception('attempt to merge the module content to itself: ' + current_module.__name__)
+
+        if current_module in imported_modules:
+          current_module_in_imported = imported_modules[current_module]
+          current_module_attrs = current_module_in_imported[2]
+          if 'nomergemodule' in current_module_attrs and current_module_attrs['nomergemodule']:
+            raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + current_module.__name__)
+
+        # export globals to a being imported module
+        for var, value in global_vars.items(): 
+          setattr(current_module, var, tkl_membercopy(value, imported_module_globals, current_module_globals))
+
+        tkl_merge_module(imported_module, current_module)
+
+      return imported_module
+
+  print()
+
+  import_nest_index = global_state.import_nest_index
 
   # get parent module state
-  parent_module, parent_members, parent_scope_info = tkl_get_parent_imported_module_state(False)
-
   module_must_not_exist   = False
   module_must_exist       = False
   nomerge_module          = False
@@ -261,62 +422,32 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
   if ref_module_name != '.': # import to a local namespace?
     if sys.version_info[0] > 3 or sys.version_info[0] == 3 and sys.version_info[1] >= 4:
-      import importlib.util, importlib.machinery
       import_spec = importlib.util.spec_from_loader(import_module_name, importlib.machinery.SourceFileLoader(import_module_name, module_file_path))
       imported_module = importlib.util.module_from_spec(import_spec)
       imported_module_globals = vars(imported_module)
 
-      parent_modules = parent_members['TackleGlobalImportModuleState'].parent_modules
-      imported_modules = parent_members['TackleGlobalImportModuleState'].imported_modules
-      export_globals = current_globals['TackleLocalImportModuleState'].export_globals
+      # inject the members of the tacklelib module
+      tkl_merge_module(global_state.this_module, imported_module)
 
-      # auto export globals at first
-      for key, value_tuple in export_globals.items(): 
-        copy_as_reference_in_parent = value_tuple[2]
-        if not copy_as_reference_in_parent:
-          # make a deep copy
-          exported_global_copy = copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals))
-          setattr(imported_module, key, exported_global_copy)
-        else:
-          # make a member/reference copy
-          exported_global_copy = tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)
-          # create reference in the parent
-          if not parent_module is None:
-            setattr(parent_module, key, exported_global_copy)
-          else:
-            parent_members[key] = exported_global_copy
+      # export globals to a being imported module
+      for var, value in global_vars.items(): 
+        setattr(imported_module, var, tkl_membercopy(value, current_module_globals, imported_module_globals))
 
       # inject attributes in being imported module
       imported_module.SOURCE_FILE = module_file_path
       imported_module.SOURCE_DIR = os.path.dirname(module_file_path)
+      module_file_wo_ext = imported_module.SOURCE_FILE_NAME = os.path.basename(module_file_path)
+      imported_module.SOURCE_FILE_NAME_WO_EXT = os.path.splitext(module_file_wo_ext)[0]
 
-      imported_module.TackleGlobalImportModuleState = parent_members['TackleGlobalImportModuleState']
-      imported_module.TackleLocalImportModuleState = copy.deepcopy(current_globals['TackleLocalImportModuleState'])
-      imported_module.tkl_get_method_class = parent_members['tkl_get_method_class']
-      imported_module.tkl_classcopy = parent_members['tkl_classcopy']
-      imported_module.tkl_membercopy = parent_members['tkl_membercopy']
-      imported_module.tkl_merge_module = parent_members['tkl_merge_module']
-      imported_module.tkl_get_parent_imported_module_state = parent_members['tkl_get_parent_imported_module_state']
-      if 'tkl_declare_global' in parent_members:
-        imported_module.tkl_declare_global = parent_members['tkl_declare_global']
-      imported_module.tkl_import_module = parent_members['tkl_import_module']
-
-      if 'tkl_source_module' in parent_members:
-        imported_module.tkl_source_module = parent_members['tkl_source_module']
       for attr, val in inject_attrs.items():
         setattr(imported_module, attr, val)
 
       is_module_ref_already_exist = False
 
-      # update parent state
-      if not parent_module is None:
-        # reference a being imported module from a parent module
-        if hasattr(parent_module, import_module_name) and inspect.ismodule(getattr(parent_module, import_module_name)):
-          is_module_ref_already_exist = True
-      else:
-        # reference a being imported module from globals
-        if import_module_name in parent_members and inspect.ismodule(parent_members[import_module_name]):
-          is_module_ref_already_exist = True
+      # reference a being imported module from a parent module
+      to_value = getattr(current_module, import_module_name, None)
+      if not to_value is None and inspect.ismodule(to_value):
+        is_module_ref_already_exist = True
 
       if module_must_not_exist:
         if is_module_ref_already_exist:
@@ -325,142 +456,205 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
         if not is_module_ref_already_exist:
           raise Exception('The module reference must already exist as a module before the import: ' + import_module_name)
 
-      if not parent_module is None:
-        if not is_module_ref_already_exist:
-          setattr(parent_module, import_module_name, imported_module)
-      else:
-        if not is_module_ref_already_exist:
-          parent_members[import_module_name] = imported_module
-
       # remember last parent before the module execution because of recursion
-      parent_modules.append((
-        import_module_name, imported_module,
-        {'nomergemodule' : nomerge_module}
-      ))
-      imported_modules.add(imported_module)
+      prev_imported_module_value_imported_modules = imported_modules.get(imported_module)
+      imported_modules[imported_module] = (import_module_name, module_file_path, {'nomergemodule' : nomerge_module})
+
+      # we must register being merged module in the imported modules if the source module is registered too to expose it for the globals export function
+      prev_current_module_value_in_imported_modules = imported_modules.get(current_module)
+      if prev_current_module_value_in_imported_modules is None:
+        imported_modules[current_module] = (import_module_name, module_file_path, {})
+
+      prev_sys_module = sys.modules.get(import_module_name)
 
       try:
-        if prefix_exec_module_pred:
+        if not prefix_exec_module_pred is None:
           prefix_exec_module_pred(import_module_name, module_file_path, imported_module)
 
-        # before the `exec_module`
-        exec_guards.append((module_file_path, imported_module))
+        # based on: https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly :
+        # `To import a Python source file directly, use the following recipe (Python 3.5 and newer only)`
+        #
+        sys.modules[import_module_name] = imported_module
+
+        import_nest_index[0] += 1
 
         import_spec.loader.exec_module(imported_module)
 
-      finally:
-        parent_modules.pop()
+      except:
+        # restore
+        if prev_sys_module is None:
+          del sys.modules[import_module_name]
+        else: 
+          sys.modules[import_module_name] = prev_sys_module
 
-      # copy the module content into already existed module (behaviour by default, do import as `.module` or `module.` or `.module.` to prevent a merge)
-      if is_module_ref_already_exist:
-        if not parent_module is None:
-          tkl_merge_module(imported_module, getattr(parent_module, import_module_name))
+        if prev_current_module_value_in_imported_modules is None:
+          del imported_modules[current_module]
         else:
-          tkl_merge_module(imported_module, parent_members[import_module_name])
+          imported_modules[current_module] = prev_current_module_value_in_imported_modules
+
+        if prev_imported_module_value_imported_modules is None:
+          del imported_modules[imported_module]
+
+        if to_value is None:
+          to_value = getattr(current_module, import_module_name, None)
+          if not to_value is None:
+            del to_value
+
+        raise
+
+      finally:
+        import_nest_index[0] -= 1
 
     else:
       # back compatability
-      import imp
-      imported_module = imp.load_source(import_module_name, module_file_path)
-      parent_members[import_module_name] = imported_module
+      import_nest_index[0] += 1
 
-      # back compatibility: can not be before the imp module exec
-      exec_guards.append((module_file_path, imported_module))
+      try:
+        imported_module = imp.load_source(import_module_name, module_file_path)
+        imported_module_globals = vars(imported_module)
+
+        imported_modules[imported_module] = (import_module_name, module_file_path, {'nomergemodule' : nomerge_module})
+
+        # we must register being merged module in the imported modules if the source module is registered too to expose it for the globals export function
+        prev_current_module_value_in_imported_modules = imported_modules.get(current_module)
+        if prev_current_module_value_in_imported_modules is None:
+          imported_modules[current_module] = (import_module_name, module_file_path, {})
+
+        # based on: https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly :
+        # `To import a Python source file directly, use the following recipe (Python 3.5 and newer only)`
+        #
+        sys.modules[import_module_name] = imported_module
+
+        to_value = getattr(current_module, import_module_name, None)
+        if not to_value is None and inspect.ismodule(to_value):
+          is_module_ref_already_exist = True
+        else:
+          is_module_ref_already_exist = False
+
+      finally:
+        import_nest_index[0] -= 1
+
+    # copy the module content into already existed module (behaviour by default, do import as `.module` or `module.` or `.module.` to prevent a merge)
+    if is_module_ref_already_exist:
+      tkl_merge_module(imported_module, to_value)
+    else:
+      # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
+      to_value = type(imported_module)(imported_module.__name__, imported_module.__doc__)
+      to_value.__dict__.update(imported_module.__dict__)
+
+      ## export globals to new module
+      #for var, value in global_vars.items(): 
+      #  setattr(to_value, var, tkl_membercopy(value, imported_module_globals, vars(to_value)))
+
+      setattr(current_module, import_module_name, to_value)
+
+      # CAUTION:
+      #   Must do explicit merge, otherwise some classes would not be merged!
+      #
+      tkl_merge_module(imported_module, to_value)
+
+      # we must register being merged (new) module in the imported modules if the source module is registered too to expose it for the globals export function
+      imported_modules[to_value] = (import_module_name, module_file_path, {})
 
   else: # import to the global namespace
-    if not parent_module is None and 'nomergemodule' in parent_scope_info and parent_scope_info['nomergemodule']:
-      raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + parent_module.__name__)
+    if current_module in imported_modules:
+      current_module_in_imported = imported_modules[current_module]
+      current_module_attrs = current_module_in_imported[2]
+      if 'nomergemodule' in current_module_attrs and current_module_attrs['nomergemodule']:
+        raise Exception('attempt to merge the module content to the existed module has been declared as not mergable: ' + current_module.__name__)
 
     if sys.version_info[0] > 3 or sys.version_info[0] == 3 and sys.version_info[1] >= 4:
-      import importlib.util, importlib.machinery
-      import_spec = importlib.util.spec_from_loader(module_name_wo_ext, importlib.machinery.SourceFileLoader(module_name_wo_ext, module_file_path))
+      import_spec = importlib.util.spec_from_loader(import_module_name, importlib.machinery.SourceFileLoader(import_module_name, module_file_path))
       imported_module = importlib.util.module_from_spec(import_spec)
       imported_module_globals = vars(imported_module)
 
-      parent_modules = parent_members['TackleGlobalImportModuleState'].parent_modules
-      imported_modules = parent_members['TackleGlobalImportModuleState'].imported_modules
-      export_globals = current_globals['TackleLocalImportModuleState'].export_globals
-      parent_export_globals = parent_members['TackleLocalImportModuleState'].export_globals
+      # inject the members of the tacklelib module
+      tkl_merge_module(global_state.this_module, imported_module)
 
-      # auto export globals at first
-      for key, value_tuple in export_globals.items():
-        copy_as_reference_in_parent = value_tuple[2]
-        if not copy_as_reference_in_parent:
-          # make a deep copy
-          exported_global_copy = copy.deepcopy(tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals))
-          setattr(imported_module, key, exported_global_copy)
-        else:
-          # make a member/reference copy
-          exported_global_copy = tkl_membercopy(value_tuple[0], value_tuple[1], imported_module_globals)
-          setattr(imported_module, key, exported_global_copy)
-          # create reference in the parent
-          if not parent_module is None:
-            setattr(parent_module, key, exported_global_copy)
-          else:
-            parent_members[key] = exported_global_copy
+      # export globals to a being imported module
+      for var, value in global_vars.items(): 
+        setattr(imported_module, var, tkl_membercopy(value, current_module_globals, imported_module_globals))
 
       # inject attributes in being imported module
       imported_module.SOURCE_FILE = module_file_path
       imported_module.SOURCE_DIR = os.path.dirname(module_file_path)
+      module_file_wo_ext = imported_module.SOURCE_FILE_NAME = os.path.basename(module_file_path)
+      imported_module.SOURCE_FILE_NAME_WO_EXT = os.path.splitext(module_file_wo_ext)[0]
 
-      imported_module.TackleGlobalImportModuleState = parent_members['TackleGlobalImportModuleState']
-      imported_module.TackleLocalImportModuleState = copy.deepcopy(current_globals['TackleLocalImportModuleState'])
-      imported_module.tkl_get_method_class = parent_members['tkl_get_method_class']
-      imported_module.tkl_classcopy = parent_members['tkl_classcopy']
-      imported_module.tkl_membercopy = parent_members['tkl_membercopy']
-      imported_module.tkl_merge_module = parent_members['tkl_merge_module']
-      imported_module.tkl_get_parent_imported_module_state = parent_members['tkl_get_parent_imported_module_state']
-      if 'tkl_declare_global' in parent_members:
-        imported_module.tkl_declare_global = parent_members['tkl_declare_global']
-      imported_module.tkl_import_module = parent_members['tkl_import_module']
-
-      if 'tkl_source_module' in parent_members:
-        imported_module.tkl_source_module = parent_members['tkl_source_module']
       for attr, val in inject_attrs.items():
         setattr(imported_module, attr, val)
 
+      is_module_ref_already_exist = False
+
       # remember last parent before the module execution because of recursion
-      parent_modules.append((import_module_name, imported_module, {}))
-      imported_modules.add(imported_module)
+      prev_imported_module_value_imported_modules = imported_modules.get(imported_module)
+      imported_modules[imported_module] = (import_module_name, module_file_path, {})
+
+      # we must register being merged module in the imported modules if the source module is registered too to expose it for the globals export function
+      prev_current_module_value_in_imported_modules = imported_modules.get(current_module)
+      if prev_current_module_value_in_imported_modules is None:
+        imported_modules[current_module] = (import_module_name, module_file_path, {})
+
+      prev_sys_module = sys.modules.get(import_module_name)
 
       try:
-        if prefix_exec_module_pred:
+        if not prefix_exec_module_pred is None:
           prefix_exec_module_pred(import_module_name, module_file_path, imported_module)
 
-        # before the `exec_module`
-        exec_guards.append((module_file_path, imported_module))
+        # based on: https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly :
+        # `To import a Python source file directly, use the following recipe (Python 3.5 and newer only)`
+        #
+        sys.modules[import_module_name] = imported_module
+
+        import_nest_index[0] += 1
 
         import_spec.loader.exec_module(imported_module)
 
+      except:
+        # restore
+        if prev_sys_module is None:
+          del sys.modules[import_module_name]
+        else:
+          sys.modules[import_module_name] = prev_sys_module
+
+        if prev_current_module_value_in_imported_modules is None:
+          del imported_modules[current_module]
+
+        if prev_imported_module_value_imported_modules is None:
+          del imported_modules[imported_module]
+        else:
+          imported_modules[imported_module] = prev_imported_module_value_imported_modules
+
+        raise
+
       finally:
-        last_import_module_state = parent_modules.pop()
-
-      # copy globals to the parent module
-      parent_module, parent_members, parent_scope_info = tkl_get_parent_imported_module_state(False)
-
-      if not parent_module is None:
-        tkl_merge_module(imported_module, parent_module)
-      else:
-        imported_module_globals = vars(imported_module) # reget after execution
-        for key, value in vars(imported_module).items():
-          if not key.startswith('__') and key not in ['SOURCE_FILE', 'SOURCE_DIR']:
-            if not inspect.ismodule(value) or key not in parent_members or not inspect.ismodule(parent_members[key]):
-              #print(' copy: globals()::', key, ' <- ', value)
-              parent_members[key] = tkl_membercopy(value, imported_module_globals, current_globals)
-            else:
-              tkl_merge_module(value, parent_members[key])
+        import_nest_index[0] -= 1
 
     else:
       # back compatability
-      import imp
-      imported_module = imp.load_source(module_name_wo_ext, module_file_path).__dict__
+      import_nest_index[0] += 1
 
-      for key, value in imported_module.items():
-        if not key.startswith('__') and key not in ['SOURCE_FILE', 'SOURCE_DIR']:
-          parent_members[key] = tkl_membercopy(value, current_globals)
+      try:
+        imported_module = imp.load_source(import_module_name, module_file_path).__dict__
+        imported_module_globals = vars(imported_module)
 
-      # back compatibility: can not be before the imp module exec
-      exec_guards.append((module_file_path, imported_module))
+        imported_module_value_in_imported_modules = imported_modules[imported_module] = (import_module_name, module_file_path, {})
+
+        # we must register being merged module in the imported modules if the source module is registered too to expose it for the globals export function
+        prev_current_module_value_in_imported_modules = imported_modules.get(current_module)
+        if prev_current_module_value_in_imported_modules is None:
+          imported_modules[current_module] = imported_module_value_in_imported_modules
+
+        # based on: https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly :
+        # `To import a Python source file directly, use the following recipe (Python 3.5 and newer only)`
+        #
+        sys.modules[import_module_name] = imported_module
+
+      finally:
+        import_nest_index[0] -= 1
+
+    # copy the module content into already existed module
+    tkl_merge_module(imported_module, current_module)
 
   # must be to avoid a mix
   sys.stdout.flush()
@@ -470,4 +664,4 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
 # shortcut function
 def tkl_source_module(dir_path, module_file_name):
-  return tkl_import_module(dir_path, module_file_name, '.')
+  return tkl_import_module(dir_path, module_file_name, '.', skip_stack_frames = 1)

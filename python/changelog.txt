@@ -1,0 +1,23 @@
+2019.11.12:
+* fixed: tacklelib: `tkl_merge_module` module-to-not-a-module copy
+* fixed: tacklelib: invalid execution guard in the `tkl_import_module` function for named imports
+* fixed: cmdoplib: `git svn ...` returns message affected by the `SVN_SSH` environment variable: `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': Error in child process: exec of '' failed: No such file or directory at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.` (https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014 )
+* fixed: cmdoplib: `git svn init ...` can init urls with the svn+ssh scheme (see details in the `README_EN.txt` file)
+* fixed: tests run
+* new: changelog file
+* new: tacklelib: new hierarchical print to introduce the nest level of an `tkl_import_module` call
+* new: tacklelib: new `tkl_init` function implementation to initialize the caller/current module on the stack
+* new: tacklelib: `tkl_import_module` function has been rewritten to use the stack to update globals everythere including a module from where an import being executed
+* new: tacklelib: `tkl_declare_global` function has been rewritten to use the stack to update globals everythere including a module from where a global being exported from
+* new: tacklelib: `YamlEnv` class supports hierarchical yaml configuration files to read variables with a compound nature to postpone an environment variable declaration to a moment of execution of an executable
+* new: tacklelib: `tacklelib.sig.xsh` script to suppress signals to avoid accidental signal interruption in critical code segments
+* new: tacklelib: `tacklelib.cache.xsh` script to wrap the `fcache` module to make workarounds over it (see details in the `README_EN.txt` file)
+* new: cmdoplib: `yaml_load_config` function can load environment variables for a particular context (global/environment variables)
+* new: cmdoplib: `yaml_expand_*` functions can expand for a different containers (str/list/dict/value) or use additional containers to search in for replacement values (at second in dictionary, at third in global variables)
+* new: cmdoplib: support run `ssh-pageant` as a background process to enable access svn repositories through the svn+ssh protocol from the `git svn ...` command
+* removed: tacklelib: `tkl_get_parent_imported_module_state` function is removed as not needed anymore because the search logic is based on the stack frames now
+* changed: tacklelib: always export to all imported modules in the `tkl_declare_global` function
+* changed: cmdoplib: `CONFIGURE_DIR`, `SCM_NAME` and `CMD_NAME` variables made global in all imported modules to be able to use them directly in command calls
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: tacklelib,cmdoplib: yaml functionality
+* refactor: cmdoplib: git/svn functionality

@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.29
+* 2019.11.10
 * tacklelib--python
 
 1. DESCRIPTION
@@ -10,6 +10,7 @@
 6. KNOWN ISSUES
 6.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
   `python_tests`
+6.2. fcache execution issues
 7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -70,8 +71,17 @@ from:
     - to read yaml format files (.yaml, .yml)
 **  conditional 1.3
     - to support conditional `with` statements
+**  fcache 0.4.7
+    - for local cache storage for python scripts
 **  pytest 5.2.0
     - to run python tests (test*.py)
+
+4. Patches:
+
+* Python site modules contains patches in the `python_patches` directory:
+
+** fcache
+   - to fix issues from the `fcache execution issues` section.
 
 -------------------------------------------------------------------------------
 5. CATALOG CONTENT DESCRIPTION
@@ -116,6 +126,16 @@ https://bugs.python.org/issue37549 :
 Solution:
 
 Reinstall the different python version.
+
+-------------------------------------------------------------------------------
+6.2. fcache execution issues
+-------------------------------------------------------------------------------
+* `fcache is not multiprocess aware on Windows` :
+  https://github.com/tsroten/fcache/issues/26
+* ``_read_from_file` returns `None` instead of (re)raise an exception` :
+  https://github.com/tsroten/fcache/issues/27
+* `OSError: [WinError 17] The system cannot move the file to a different disk drive.` :
+  https://github.com/tsroten/fcache/issues/28
 
 -------------------------------------------------------------------------------
 7. AUTHOR EMAIL

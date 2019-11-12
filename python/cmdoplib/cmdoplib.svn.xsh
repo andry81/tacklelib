@@ -1,14 +1,15 @@
 # python module for commands with extension modules usage: tacklelib, plumbum
 
-tkl_source_module(SOURCE_DIR, 'cmdoplib.std.xsh')
-tkl_source_module(SOURCE_DIR, 'cmdoplib.csvsvn.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.csvsvn.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.callsvn.xsh')
 
 import os, sys, time, plumbum
 from datetime import datetime # must be the same everythere
 
 discover_executable('SVN_EXEC', 'svn', 'SVN')
 
-call('${SVN}', ['--version'])
+call_svn(['--version'])
 
 def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
   rev_list = []
@@ -25,9 +26,9 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
       to_rev = 'HEAD'
 
   if depth == '*':
-    ret = call('${SVN}', ['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
   else:
-    ret = call('${SVN}', ['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+    ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
 
   stdout_lines = ret[1]
   stderr_lines = ret[2]
@@ -103,7 +104,7 @@ def svn_update(configure_dir, scm_name, bare_args):
   print(' -> {0}...'.format(wcroot_path))
 
   with plumbum.local.cwd(wcroot_path):
-    call('${SVN}', ['up'] + bare_args)
+    call_svn(['up'] + bare_args)
 
 def svn_checkout(configure_dir, scm_name, bare_args):
   print(">svn checkout: {0}".format(configure_dir))
@@ -137,9 +138,12 @@ def svn_checkout(configure_dir, scm_name, bare_args):
   if os.path.isdir(wcroot_path + '/.svn'):
     return 0
 
-  call('${SVN}', ['co', svn_checkout_url, wcroot_path] + bare_args)
+  call_svn(['co', svn_checkout_url, wcroot_path] + bare_args)
 
 def svn_relocate(configure_dir, scm_name, bare_args):
+  # dependent on declaration order in case of a direct usage (not through the `globals()['...']`), so must always be to avoid a dependence
+  global g_registered_ignored_errors
+
   print(">svn relocate: {0}".format(configure_dir))
   if len(bare_args) > 0:
     print('- args:', bare_args)
@@ -165,15 +169,10 @@ def svn_relocate(configure_dir, scm_name, bare_args):
 
   with plumbum.local.cwd(wcroot_path):
     try:
-      call('${SVN}', ['relocate'] + bare_args, stdout = None, stderr = None)
+      call_svn(['relocate'] + bare_args, stdout = None, stderr = None)
     except plumbum.ProcessExecutionError as proc_err:
-      proc_stdout = proc_err.stdout.rstrip()
-      proc_stderr = proc_err.stderr.rstrip()
-
-      if len(proc_stdout) > 0:
-        print(proc_stdout)
-      if len(proc_stderr) > 0:
-        print(proc_stderr)
+      proc_stdout = proc_err.stdout
+      proc_stderr = proc_err.stderr
 
       # ignore non critical errors
 

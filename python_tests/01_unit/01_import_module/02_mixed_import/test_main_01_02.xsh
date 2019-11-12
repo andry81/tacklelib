@@ -8,11 +8,13 @@ TACKLELIB_ROOT = os.path.normcase(os.path.abspath(os.environ['TACKLELIB_ROOT']))
 # portable import to the global space
 sys.path.append(TACKLELIB_ROOT)
 import tacklelib as tkl
-# all functions in the module have has a 'tkl_' prefix, all classes begins by `Tackle`, so we don't need a scope here
-tkl.tkl_merge_module(tkl, globals())
+
+tkl.tkl_init(tkl)
+
 # cleanup
-tkl = None
+del tkl # must be instead of `tkl = None`, otherwise the variable would be still persist
 sys.path.pop()
+
 
 def test_named_named():
   THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
@@ -39,7 +41,7 @@ def test_local_named():
   assert(SOURCE_DIR == THIS_TEST_ROOT)
   assert(SOURCE_FILE == THIS_TEST_FILE)
 
-  tkl_source_module(SOURCE_DIR, 'testlib_02_local.xsh')
+  tkl_source_module(SOURCE_DIR, 'testlib_01_named.xsh')
 
   THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
   THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
@@ -57,7 +59,7 @@ def test_named_local():
   assert(SOURCE_DIR == THIS_TEST_ROOT)
   assert(SOURCE_FILE == THIS_TEST_FILE)
 
-  tkl_import_module(SOURCE_DIR, 'testlib_01_named.xsh', 'aaa')
+  tkl_import_module(SOURCE_DIR, 'testlib_02_local.xsh', 'aaa')
 
   THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
   THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)

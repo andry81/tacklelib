@@ -1,3 +1,32 @@
+2019.11.12:
+* fixed: python: tacklelib: `tkl_merge_module` module-to-not-a-module copy
+* fixed: python: tacklelib: invalid execution guard in the `tkl_import_module` function for named imports
+* fixed: python: cmdoplib: `git svn ...` returns message affected by the `SVN_SSH` environment variable: `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': Error in child process: exec of '' failed: No such file or directory at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.` (https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014 )
+* fixed: python: cmdoplib: `git svn init ...` can init urls with the svn+ssh scheme (see details in the `README_EN.txt` file)
+* fixed: python: tests run
+* fixed: python_tests: test file names must be different, otherwise only the first one would be executed (bug in the pytest plugin in the xonsh module, see details in the `README_EN.txt`)
+* new: python: changelog file
+* new: python: tacklelib: new hierarchical print to introduce the nest level of an `tkl_import_module` call
+* new: python: tacklelib: new `tkl_init` function implementation to initialize the caller/current module on the stack
+* new: python: tacklelib: `tkl_import_module` function has been rewritten to use the stack to update globals everythere including a module from where an import being executed
+* new: python: tacklelib: `tkl_declare_global` function has been rewritten to use the stack to update globals everythere including a module from where a global being exported from
+* new: python: tacklelib: `YamlEnv` class supports hierarchical yaml configuration files to read variables with a compound nature to postpone an environment variable declaration to a moment of execution of an executable
+* new: python: tacklelib: `tacklelib.sig.xsh` script to suppress signals to avoid accidental signal interruption in critical code segments
+* new: python: tacklelib: `tacklelib.cache.xsh` script to wrap the `fcache` module to make workarounds over it (see details in the `README_EN.txt` file)
+* new: python: cmdoplib: `yaml_load_config` function can load environment variables for a particular context (global/environment variables)
+* new: python: cmdoplib: `yaml_expand_*` functions can expand for a different containers (str/list/dict/value) or use additional containers to search in for replacement values (at second in dictionary, at third in global variables)
+* new: python: cmdoplib: support run `ssh-pageant` as a background process to enable access svn repositories through the svn+ssh protocol from the `git svn ...` command
+* new: python_tests: `05_merge_2_modules_in_1` to test merge of 2 modules into 1 module
+* new: python_tests: `02_declare_global/*` tests to test `tkl_declare_global` implementation (tests valid only in an isolated process environment)
+* removed: python: tacklelib: `tkl_get_parent_imported_module_state` function is removed as not needed anymore because the search logic is based on the stack frames now
+* changed: cmake: SetVarsFromFiles.cmake: `*$/{<undefined_variable>}` substitution sequence is replaced by `*:$/{<undefined_variable>}`
+* changed: python: tacklelib: always export to all imported modules in the `tkl_declare_global` function
+* changed: python: cmdoplib: `CONFIGURE_DIR`, `SCM_NAME` and `CMD_NAME` variables made global in all imported modules to be able to use them directly in command calls
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python_tests: readme update
+* refactor: python: tacklelib,cmdoplib: yaml functionality
+* refactor: python: cmdoplib: git/svn functionality
+
 2019.11.06:
 * changed: cmake: comments cleanup
 

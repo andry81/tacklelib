@@ -1,6 +1,6 @@
 # python module for commands with extension modules usage: tacklelib, csv
 
-tkl_source_module(SOURCE_DIR, 'cmdoplib.csv.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.csv.xsh')
 
 import csv
 

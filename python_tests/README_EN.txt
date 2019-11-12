@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.29
+* 2019.11.10
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -9,8 +9,11 @@
 5. DEPLOY
 6. CATALOG CONTENT DESCRIPTION
 7. KNOWN ISSUES
-7.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
+7.1. Some tests from `python_tests` directory fails
+7.2. `OSError: [WinError 87] The parameter is incorrect` while try to run
   `python_tests`
+7.3. pytest execution issues
+7.4. fcache execution issues
 8. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -56,9 +59,14 @@ from:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
-* python 3.7.3 or 3.7.5 (3.4+, but not the 3.7.4, see `KNOWN ISSUES` section)
-  https://www.python.org
-  - to run python scripts
+* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+  https://python.org
+  - standard implementation to run python scripts
+  - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
+    section
+  - 3.5+ is required for the direct import by a file path (with any extension)
+    as noted in the documentation:
+    https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
 * cmake 3.15.1 (3.14+):
   https://cmake.org/download/
   - to read configuration variables and run `python_tests` scripts
@@ -67,15 +75,21 @@ from:
 
 * Python site modules:
 
+**  xonsh/0.9.12
+    https://github.com/xonsh/xonsh
+    - to run python scripts and import python modules with `.xsh` file
+      extension
 **  plumbum 1.6.7
     https://plumbum.readthedocs.io/en/latest/
-    - to run python scripts in a shell like environment (.xsh)
+    - to run python scripts in a shell like environment
 **  win_unicode_console
     - to enable unicode symbols support in the Windows console
 **  pyyaml 5.1.1
     - to read yaml format files (.yaml, .yml)
 **  conditional 1.3
     - to support conditional `with` statements
+**  fcache 0.4.7
+    - for local cache storage for python scripts
 **  pytest 5.2.0
     - to run python tests (test*.py)
 
@@ -83,6 +97,13 @@ from:
 
 **  tacklelib--python :
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
+
+4. Patches:
+
+* Python site modules contains patches in the `python_patches` directory:
+
+** fcache
+   - to fix issues from the `fcache execution issues` section.
 
 -------------------------------------------------------------------------------
 5. DEPLOY
@@ -156,7 +177,22 @@ sudo chmod o+r /bin/bash_entry
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-7.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
+7.1. Some tests from `python_tests` directory fails
+-------------------------------------------------------------------------------
+
+Issue:
+
+The pytest model collects all tests before run them so global data between
+tests might be changed or merged. You have to each test in the standalone
+process which the pytest does not support portably even with plugins.
+
+Solution:
+
+To fix that case you have to run all tests by a predefined script:
+`test_all.bat`
+
+-------------------------------------------------------------------------------
+7.2. `OSError: [WinError 87] The parameter is incorrect` while try to run
   `python_tests`
 -------------------------------------------------------------------------------
 
@@ -173,6 +209,26 @@ https://bugs.python.org/issue37549 :
 Solution:
 
 Reinstall the different python version.
+
+-------------------------------------------------------------------------------
+7.3. pytest execution issues
+-------------------------------------------------------------------------------
+* `xonsh incorrectly reorders the test for the pytest` :
+  https://github.com/xonsh/xonsh/issues/3380
+* `a test silent ignore` :
+  https://github.com/pytest-dev/pytest/issues/6113
+* `can not order tests by a test directory path` :
+  https://github.com/pytest-dev/pytest/issues/6114
+
+-------------------------------------------------------------------------------
+7.4. fcache execution issues
+-------------------------------------------------------------------------------
+* `fcache is not multiprocess aware on Windows` :
+  https://github.com/tsroten/fcache/issues/26
+* ``_read_from_file` returns `None` instead of (re)raise an exception` :
+  https://github.com/tsroten/fcache/issues/27
+* `OSError: [WinError 17] The system cannot move the file to a different disk drive.` :
+  https://github.com/tsroten/fcache/issues/28
 
 -------------------------------------------------------------------------------
 8. AUTHOR EMAIL

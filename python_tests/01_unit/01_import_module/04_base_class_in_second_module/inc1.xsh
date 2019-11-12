@@ -1,10 +1,4 @@
-THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
-THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
-
-assert(SOURCE_DIR == THIS_TEST_ROOT)
-assert(SOURCE_FILE == THIS_TEST_FILE)
-
-tkl_import_module(SOURCE_DIR, 'inc4.xsh', 'bbb')
+import os, inspect
 
 THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
 THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
@@ -12,10 +6,14 @@ THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
 assert(SOURCE_DIR == THIS_TEST_ROOT)
 assert(SOURCE_FILE == THIS_TEST_FILE)
 
-def inc3():
-  print("inc3")
+tkl_import_module(SOURCE_DIR, 'inc2.py', 'inc2')
 
-print(globals().keys())
+THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
+THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
 
-bbb.inc4()
-print("-")
+assert(SOURCE_DIR == THIS_TEST_ROOT)
+assert(SOURCE_FILE == THIS_TEST_FILE)
+
+class A(inc2.B):
+  pass
+

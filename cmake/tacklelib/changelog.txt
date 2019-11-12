@@ -1,3 +1,6 @@
+2019.11.10:
+* changed: SetVarsFromFiles.cmake: `*$/{<undefined_variable>}` substitution sequence is replaced by `*:$/{<undefined_variable>}`
+
 2019.11.06:
 * changed: comments cleanup
 
