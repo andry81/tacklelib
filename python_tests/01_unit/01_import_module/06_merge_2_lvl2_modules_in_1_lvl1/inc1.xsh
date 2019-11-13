@@ -6,5 +6,8 @@ THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
 assert(SOURCE_DIR == THIS_TEST_ROOT)
 assert(SOURCE_FILE == THIS_TEST_FILE)
 
-def test2():
-  print('test2')
+class Test1:
+  test1 = [1, 2]
+
+def test1():
+  print('test1')

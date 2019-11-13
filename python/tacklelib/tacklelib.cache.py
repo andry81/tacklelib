@@ -37,6 +37,7 @@ class FileCache(FileCache_):
             return FileCache_.sync(self)
           except OSError as e:
             # OSError: [WinError 6800] The function attempted to use a name that is reserved for use by another transaction: ...
+            # EOFError: Ran out of input (pickle.loads(...))
             if isinstance(e, EOFError) or e.args[0] == 6800:
               sys.stderr = prev_stderr
               # retry, has meaning on Windows

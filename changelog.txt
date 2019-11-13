@@ -1,3 +1,17 @@
+2019.11.14:
+* fixed: python: tacklelib: avoid copy builtin and packaged modules
+* fixed: python: tacklelib: avoid copy builtin and non trivial class types
+* fixed: python: tacklelib: `inspect.getmodule` is replaced by `tkl_get_imported_module_by_file_path` to correctly return modules by a stack module path (unique relation) instead by a module name from `sys.modules` (not unique relation)
+* fixed: python_tests: `02_interactive/*` tests
+* new: python_tests: `00_empty` for a test try
+* new: python_tests: `01_unit/01_import_module/04_base_import_class` test to test import module with a basic class
+* new: python_tests: `01_unit/01_import_module/07_merge_2_lvl3_modules_in_1_lvl2` test to test different modules into the same name
+* new: python_tests: `01_unit/01_import_module/08_specific_import_importlib_util` test to test import of a module with compound system library like `importlib.util`
+* changed: python: python modules install script update
+* refactor: python: `tkl_import_module` function reduction
+* refactor: python: code cleanup
+* refactor: python_tests: tests refactor
+
 2019.11.12:
 * fixed: python: cmdoplib: removed `svn ...` commands stdout cutoff
 
