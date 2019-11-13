@@ -195,7 +195,7 @@ def cache_init_service_proc(service_proc_cache):
       #
 
       # open immediately in case of interemediate process
-      call_proc_id = ret.proc.pid # this is not target process is, but intermediate process
+      call_proc_id = ret.proc.pid # this is not a target process, but intermediate process
       try:
         call_proc = psutil.Process(call_proc_id)
       except psutil.NoSuchProcess:

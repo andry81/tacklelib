@@ -79,12 +79,7 @@ class devnull:
       self.file = open(os.devnull, 'wb')
     return self.file.fileno()
 
-# Idea: use StringIO for all operations, except direct file operations where open a temporary file
-#
 class TmpFileIO:
-  # bufsize − This optional argument specifies the file's desired buffer size:
-  #   0 means unbuffered, 1 means line buffered, any other positive value means use a buffer of (approximately) that size.
-  #
   def __init__(self, mode = 'r', buffering = -1, encoding = None, errors = None, newline = None, closefd = True, opener = None):
     self.fd, self.path = tempfile.mkstemp()
     self.file = None

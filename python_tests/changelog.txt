@@ -1,3 +1,11 @@
+2019.11.14:
+* fixed: `02_interactive/*` tests
+* new: `00_empty` for a test try
+* new: `01_unit/01_import_module/04_base_import_class` test to test import module with a basic class
+* new: `01_unit/01_import_module/07_merge_2_lvl3_modules_in_1_lvl2` test to test different modules into the same name
+* new: `01_unit/01_import_module/08_specific_import_importlib_util` test to test import of a module with compound system library like `importlib.util`
+* refactor: tests refactor
+
 2019.11.12:
 * fixed: test file names must be different, otherwise only the first one would be executed (bug in the pytest plugin in the xonsh module, see details in the `README_EN.txt`)
 * new: `01_unit/01_import_module/05_merge_2_modules_in_1` to test merge of 2 modules into 1 module

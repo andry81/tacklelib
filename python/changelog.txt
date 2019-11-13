@@ -1,3 +1,14 @@
+2019.11.14:
+* fixed: tacklelib: avoid copy builtin and packaged modules
+* fixed: tacklelib: avoid copy builtin and non trivial class types
+* fixed: tacklelib: `inspect.getmodule` is replaced by `tkl_get_imported_module_by_file_path` to correctly return modules by a stack module path (unique relation) instead by a module name from `sys.modules` (not unique relation)
+* changed: python modules install script update
+* refactor: `tkl_import_module` function reduction
+* refactor: code cleanup
+
+2019.11.12:
+* changed: python modules install script update
+
 2019.11.12:
 * fixed: cmdoplib: removed `svn ...` commands stdout cutoff
 
