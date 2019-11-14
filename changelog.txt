@@ -1,4 +1,7 @@
 2019.11.14:
+* changed: python: cmdoplib: dropped `globals()[...]` usage to access global variables as not required anymore and is replaced by `tkl_declare_global` function usage
+
+2019.11.14:
 * changed: cmake_tests: readme update
 * changed: python_tests: readme update
 * changed: readme update
