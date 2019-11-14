@@ -1,4 +1,7 @@
 2019.11.14:
+* fixed: tests run under Linux Mint 18.3 KDE x64
+
+2019.11.14:
 * fixed: `02_interactive/*` tests
 * new: `00_empty` for a test try
 * new: `01_unit/01_import_module/04_base_import_class` test to test import module with a basic class

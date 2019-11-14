@@ -14,12 +14,12 @@ UpdateOsName
 
 # preload configuration files only to make some checks
 Call set_vars_from_files \
-  "${CONFIG_VARS_SYSTEM_FILE//;/\\;}" "$OS_NAME" . . . ";" \
+  "${CONFIG_VARS_SYSTEM_FILE//;/\\;}" "$OS_NAME" . . . ":" \
   --exclude_vars_filter "PROJECT_ROOT" \
   --ignore_late_expansion_statements || Exit
 
 Pushd "$TESTS_ROOT/01_unit" && {
-  Call "$PYTEST_EXE_PATH" || { Popd; Exit; }
+  Call "$PYTEST_EXE_PATH" "$@" || { Popd; Exit; }
   Popd
 }
 

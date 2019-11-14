@@ -314,6 +314,7 @@ python/cmdoplib/cmdoplib.url.xsh -text
 python/cmdoplib/cmdoplib.xsh -text
 python/cmdoplib/cmdoplib.yaml.xsh -text
 python/install_python_modules.bat -text
+python/install_python_modules.sh -text
 python/list_urls_in_files.py -text
 python/tacklelib/tacklelib.cache.py -text
 python/tacklelib/tacklelib.csv.py -text
@@ -379,6 +380,7 @@ python_tests/01_unit/02_declare_global/07_import_from_global_change_in_local/inc
 python_tests/01_unit/02_declare_global/07_import_from_global_change_in_local/test_main_02_07.xsh -text
 python_tests/02_interactive/01_fcache_workarounds/.svnignore -text
 python_tests/02_interactive/01_fcache_workarounds/test.bat -text
+python_tests/02_interactive/01_fcache_workarounds/test.sh -text
 python_tests/02_interactive/01_fcache_workarounds/test_fcache.xpy -text
 python_tests/README_EN.txt -text
 python_tests/_config/.svnignore -text

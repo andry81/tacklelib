@@ -1,7 +1,8 @@
 #%% version: 1
 
 # must points the executable directly
-PYTEST_EXE_PATH=c:/Python/x86/38/Scripts/pytest.exe
+PYTEST_EXE_PATH:WIN=c:/Python/x86/38/Scripts/pytest.exe
+PYTEST_EXE_PATH:UNIX=pytest
 PYTHONDONTWRITEBYTECODE=1
 
 # console codepage before start the python
@@ -9,19 +10,19 @@ CHCP=1251
 
 PYTESTS_LIST=(
   "00_empty"
-  "01_import_module\01_basic_import"
-  "01_import_module\02_mixed_import"
-  "01_import_module\03_mixed_import_all"
-  "01_import_module\04_basic_import_class"
-  "01_import_module\05_base_class_in_second_module"
-  "01_import_module\06_merge_2_lvl2_modules_in_1_lvl1"
-  "01_import_module\07_merge_2_lvl3_modules_in_1_lvl2"
-  "01_import_module\08_specific_import_importlib_util"
-  "02_declare_global\01_builtin_global"
-  "02_declare_global\02_basic_declare_before"
-  "02_declare_global\03_basic_declare_after"
-  "02_declare_global\04_basic_declare_in_first_lvl2_module"
-  "02_declare_global\05_basic_declare_in_first_lvl2_module_check_in_second"
-  "02_declare_global\06_import_from_global_check_in_lvl2_modules"
-  "02_declare_global\07_import_from_global_change_in_local"
+  "01_import_module/01_basic_import"
+  "01_import_module/02_mixed_import"
+  "01_import_module/03_mixed_import_all"
+  "01_import_module/04_basic_import_class"
+  "01_import_module/05_base_class_in_second_module"
+  "01_import_module/06_merge_2_lvl2_modules_in_1_lvl1"
+  "01_import_module/07_merge_2_lvl3_modules_in_1_lvl2"
+  "01_import_module/08_specific_import_importlib_util"
+  "02_declare_global/01_builtin_global"
+  "02_declare_global/02_basic_declare_before"
+  "02_declare_global/03_basic_declare_after"
+  "02_declare_global/04_basic_declare_in_first_lvl2_module"
+  "02_declare_global/05_basic_declare_in_first_lvl2_module_check_in_second"
+  "02_declare_global/06_import_from_global_check_in_lvl2_modules"
+  "02_declare_global/07_import_from_global_change_in_local"
 )
