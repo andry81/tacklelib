@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.10
+* 2019.11.14
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -136,7 +136,7 @@ sudo chmod o+r /bin/bash_entry
  |  |
  |  +- /`_scripts`
  |  |    #
- |  |    # Directory with text files conaining command lines for scripts from
+ |  |    # Directory with text files containing command lines for scripts from
  |  |    # `/python_tests/_scripts` directory
  |  |
  |  +- `environment_system.vars.in`
@@ -183,7 +183,7 @@ sudo chmod o+r /bin/bash_entry
 Issue:
 
 The pytest model collects all tests before run them so global data between
-tests might be changed or merged. You have to each test in the standalone
+tests might be changed or merged. You have to run each test in a standalone
 process which the pytest does not support portably even with plugins.
 
 Solution:

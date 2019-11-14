@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.10.08
+* 2019.11.14
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -95,7 +95,7 @@ sudo chmod o+r /bin/bash_entry
  |  |
  |  +- /`_scripts`
  |  |    #
- |  |    # Directory with text files conaining command lines for scripts from
+ |  |    # Directory with text files containing command lines for scripts from
  |  |    # `/cmake_tests/_scripts` directory
  |  |
  |  +- `environment_system.vars.in`

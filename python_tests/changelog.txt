@@ -1,4 +1,7 @@
 2019.11.14:
+* changed: readme update
+
+2019.11.14:
 * fixed: tests run under Linux Mint 18.3 KDE x64
 
 2019.11.14:
