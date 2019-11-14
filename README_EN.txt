@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.03
+* 2019.11.14
 * tacklelib
 
 1. DESCRIPTION
@@ -143,7 +143,7 @@ and the Linux platforms.
  |  |
  |  +- /`_scripts`
  |  |    #
- |  |    # Directory with text files conaining command lines for scripts from
+ |  |    # Directory with text files containing command lines for scripts from
  |  |    # `/_scripts` directory
  |  |
  |  +- `environment_system.vars.in`
