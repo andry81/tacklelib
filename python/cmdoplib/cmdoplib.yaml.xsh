@@ -10,10 +10,10 @@ tkl_declare_global('g_yaml_environ', tkl.YamlEnv()) # must be not empty value to
 import os, shutil, yaml
 
 def yaml_push_global_vars():
-  globals()['g_yaml_globals'].push_unexpanded_vars()
+  g_yaml_globals.push_unexpanded_vars()
 
 def yaml_pop_global_vars(reexpand_vars, delvar_pred = None):
-  globals()['g_yaml_globals'].pop_unexpanded_vars(reexpand_vars, lambda key: delglobalvar(key) if delvar_pred is None else delvar_pred(key))
+  g_yaml_globals.pop_unexpanded_vars(reexpand_vars, lambda key: delglobalvar(key) if delvar_pred is None else delvar_pred(key))
 
 def yaml_update_global_vars(load_second_yaml_dict = None, search_by_pred_at_third = None, setvar_pred = None):
   current_globals = globals()
@@ -31,10 +31,10 @@ def yaml_update_global_vars(load_second_yaml_dict = None, search_by_pred_at_thir
       setvar_pred(key, value)
 
 def yaml_push_environ_vars():
-  globals()['g_yaml_environ'].push_unexpanded_vars()
+  g_yaml_environ.push_unexpanded_vars()
 
 def yaml_pop_environ_vars(reexpand_vars, delvar_pred = None):
-  globals()['g_yaml_environ'].pop_unexpanded_vars(reexpand_vars, lambda key: delenvvar(key) if delvar_pred is None else delvar_pred(key))
+  g_yaml_environ.pop_unexpanded_vars(reexpand_vars, lambda key: delenvvar(key) if delvar_pred is None else delvar_pred(key))
 
 def yaml_update_environ_vars(load_second_yaml_dict = None, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, setvar_pred = None):
   current_globals = globals()
@@ -110,16 +110,16 @@ def yaml_load_config(config_dir, config_file, to_globals = True, to_environ = Fa
     raise Exception('parameters inconsistency: search_by_environ_pred_at_third is not None, when to_environ is None')
 
 def yaml_expand_global_string(str_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
-  return globals()['g_yaml_globals'].expand_string(str_value,
+  return g_yaml_globals.expand_string(str_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
 
 def yaml_expand_global_list(list_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
-  return globals()['g_yaml_globals'].expand_list(list_value,
+  return g_yaml_globals.expand_list(list_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
 def yaml_expand_global_dict(dict_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
-  return globals()['g_yaml_globals'].expand_dict(dict_value,
+  return g_yaml_globals.expand_dict(dict_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
@@ -169,14 +169,13 @@ def yaml_expand_environ_value(value, search_in_yaml_global_vars_at_second = True
   raise Exception('unknown value format: ' + str(type(value)))
 
 def yaml_get_environ_unexpanded_vars():
-  return globals()['g_yaml_environ'].unexpanded_vars
+  return g_yaml_environ.unexpanded_vars
 
 def yaml_remove_environ_unexpanded_var(var_name, reexpand_vars, list_as_cmdline = True):
-  yaml_environ = globals()['g_yaml_environ']
-  yaml_unexpanded_vars = yaml_environ.unexpanded_vars
+  yaml_unexpanded_vars = g_yaml_environ.unexpanded_vars
   if not reexpand_vars:
     yaml_unexpanded_vars.pop(var_name, None) # a bit faster
   else:
     if var_name in yaml_unexpanded_vars:
       del yaml_unexpanded_vars[var_name]
-      yaml_environ.expand(list_as_cmdline = list_as_cmdline)
+      g_yaml_environ.expand(list_as_cmdline = list_as_cmdline)
