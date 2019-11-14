@@ -8,6 +8,18 @@ SOURCE_PROJECTLIB_SH=1 # including guard
 source "/bin/bash_entry" || exit $?
 tkl_include "../../../_scripts/tools/buildlib.sh" || exit $?
 
+function UpdateOsName()
+{
+  case "$OSTYPE" in
+    msys* | mingw* | cygwin*)
+      OS_NAME="WIN"
+    ;;
+    *)
+      OS_NAME="UNIX"
+    ;;
+  esac
+}
+
 function GenerateConfig()
 {
   local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/python_tests/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
@@ -15,7 +27,7 @@ function GenerateConfig()
   MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
 
-  Call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $LastError
+  Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
 
   return $LastError
 }

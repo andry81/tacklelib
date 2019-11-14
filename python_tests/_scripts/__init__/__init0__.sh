@@ -11,6 +11,8 @@ tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../../.." s || Exit
 
 PROJECT_ROOT="${RETURN_VALUE:-*\$}" # safety: replace by not applicable or unexisted directory if empty
 TESTS_ROOT="$PROJECT_ROOT/python_tests"
+export TACKLELIB_ROOT="$PROJECT_ROOT/python/tacklelib"
+export CMDOPLIB_ROOT="$PROJECT_ROOT/python/cmdoplib"
 
 CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/python_tests/_config/environment_system.vars.in"
 CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/python_tests/_config/environment_system.vars"
