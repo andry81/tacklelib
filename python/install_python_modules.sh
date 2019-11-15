@@ -17,4 +17,5 @@ Call "$PYTHON_EXE_PATH" -m pip install xonsh --upgrade
 Call "$PYTHON_EXE_PATH" -m pip install plumbum --upgrade
 Call "$PYTHON_EXE_PATH" -m pip install pyyaml --upgrade
 Call "$PYTHON_EXE_PATH" -m pip install conditional --upgrade
+Call "$PYTHON_EXE_PATH" -m pip install fcache --upgrade
 Call "$PYTHON_EXE_PATH" -m pip install pytest --upgrade
