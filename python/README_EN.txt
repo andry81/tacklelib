@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.10
+* 2019.11.15
 * tacklelib--python
 
 1. DESCRIPTION
@@ -8,9 +8,17 @@
 4. PREREQUISITES
 5. CATALOG CONTENT DESCRIPTION
 6. KNOWN ISSUES
-6.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
-  `python_tests`
-6.2. fcache execution issues
+6.1. Python installation issues prior version 3.4:
+6.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
+6.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
+6.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
+       `No matching distribution found for pip<8`
+6.1.4. Message `ImportError: No module named setuptools` while installing pip
+       version `7.1.2` and lower
+6.2. Python installation issues:
+6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
+       Python 3.x Installer ended prematurely (Windows msi)
+6.3. fcache execution issues
 7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -109,26 +117,144 @@ from:
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
-  `python_tests`
+6.1. Python installation issues:
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
+-------------------------------------------------------------------------------
+https://docs.python.org/3/installing/index.html#install-pip-in-versions-of-python-prior-to-python-3-4
+
+```
+Python only started bundling pip with Python 3.4. For earlier versions, pip
+needs to be “bootstrapped” as described in the Python Packaging User Guide.
+```
+
+https://packaging.python.org/installing/#requirements-for-installing-packages
+
+```
+If pip isn’t already installed, then first try to bootstrap it from the
+standard library:
+
+`python -m ensurepip --default-pip`
+
+If that still doesn’t allow you to run pip:
+
+Securely Download get-pip.py:
+
+https://bootstrap.pypa.io/get-pip.py
+
+Run python get-pip.py. This will install or upgrade pip. Additionally, it will
+install setuptools and wheel if they’re not installed already.
+
+Warning:
+  Be cautious if you’re using a Python install that’s managed by your operating
+  system or another package manager. get-pip.py does not coordinate with those
+  tools, and may leave your system in an inconsistent state. You can use
+  `python get-pip.py --prefix=/usr/local/` to install in `/usr/local` which is
+  designed for locally-installed software.
+```
+
+-------------------------------------------------------------------------------
+6.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
+-------------------------------------------------------------------------------
+
+Issues:
+
+pip no longer supports Python 3.2
+
+Solution:
+
+Download previous version of the `get-pip.py`:
+
+https://bootstrap.pypa.io/3.2/get-pip.py
+
+-------------------------------------------------------------------------------
+6.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
+       `No matching distribution found for pip<8`
 -------------------------------------------------------------------------------
 
 Issue:
 
-The `python_tests` scripts fails with the titled message.
-
-Reason:
-
-Python version 3.7.4 is broken on Windows 7:
-https://bugs.python.org/issue37549 :
-`os.dup() fails for standard streams on Windows 7`
+The `pip` package requested by the `get-pip.py` script is removed from remote
+python repository.
 
 Solution:
 
-Reinstall the different python version.
+Download and install all required packages manually starting from here:
+
+Setuptools of version prior 30.0.0 accepts Python 3.2:
+https://github.com/pypa/setuptools/blob/master/CHANGES.rst#v3000
+
+Pip of version prior to 8.0.0 accepts Python 3.2:
+https://pip.pypa.io/en/stable/news/#id235
+
+So, you have download these:
+
+https://pypi.org/project/setuptools/29.0.1/#files
+https://pypi.org/project/pip/7.1.2/#files
+
+Extract them in a directory near the python installation directory, for
+example, if you install python into:
+
+`c:/python/x86/32`
+
+Then extract archives into:
+
+`c:/python/x86/pkg`
+
+And run these commands in exact order:
+
+>
+cd c:/python/x86/pkg/setuptools-29.0.1
+c:/python/x86/python setup.py install
+cd c:/python/x86/pkg/pip-7.1.2
+c:/python/x86/python setup.py install
 
 -------------------------------------------------------------------------------
-6.2. fcache execution issues
+6.1.4. Message `ImportError: No module named setuptools` while installing pip
+       version `7.1.2` and lower
+-------------------------------------------------------------------------------
+
+Issue:
+
+The `setup.py` script has been run when the current directory was not inside
+the directory of extracted package.
+
+Solution:
+
+Reinstall python and run `setup.py` with the current directory inside an
+extracted package being installed.
+
+-------------------------------------------------------------------------------
+6.2. Python installation issues:
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
+       Python 3.x Installer ended prematurely (Windows msi)
+-------------------------------------------------------------------------------
+
+Issues:
+
+* `Python 3.4 and 2.7 installation no Script folder and no pip installed` :
+  https://bugs.python.org/issue23604
+* `Python 3.4.1 Installer ended prematurely (Windows msi)` :
+  https://bugs.python.org/issue22028
+
+Solution:
+
+Fix the broken Windows registry keys with emdedded null character.
+To do so you can use several solutions described here:
+
+http://www.swarley.me.uk/blog/2014/04/23/python-pip-and-windows-registry-corruption/
+
+Or use a python script from here:
+
+https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_broken_reg_keys.py
+
+-------------------------------------------------------------------------------
+6.3. fcache execution issues
 -------------------------------------------------------------------------------
 * `fcache is not multiprocess aware on Windows` :
   https://github.com/tsroten/fcache/issues/26
