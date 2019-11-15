@@ -19,6 +19,7 @@
 6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
        Python 3.x Installer ended prematurely (Windows msi)
 6.3. fcache execution issues
+6.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
 7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -262,6 +263,19 @@ https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_brok
   https://github.com/tsroten/fcache/issues/27
 * `OSError: [WinError 17] The system cannot move the file to a different disk drive.` :
   https://github.com/tsroten/fcache/issues/28
+
+-------------------------------------------------------------------------------
+6.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
+-------------------------------------------------------------------------------
+
+Issue:
+
+Module hangs on cache read/write/sync.
+
+Solution:
+
+Patch python `fcache` module sources by patches from the
+`python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 7. AUTHOR EMAIL
