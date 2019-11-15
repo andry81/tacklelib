@@ -1,4 +1,7 @@
 2019.11.15:
+* changed: readme update for install instruction of the python version prior version 3.4
+
+2019.11.15:
 * changed: install scripts minor change in case of attempt to install packages under python prior version 3.4
 
 2019.11.14:
