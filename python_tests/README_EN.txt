@@ -12,7 +12,8 @@
 7.1. pytest execution issues
 7.1.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
        `python_tests`
-7.1.2. Some tests from `python_tests` directory fails
+7.1.2. Some tests from `python_tests/01_unit` directory fails
+7.1.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
 7.2. fcache execution issues
 8. AUTHOR EMAIL
 
@@ -206,7 +207,7 @@ Solution:
 Reinstall the different python version.
 
 -------------------------------------------------------------------------------
-7.1.2. Some tests from `python_tests` directory fails
+7.1.2. Some tests from `python_tests/01_unit` directory fails
 -------------------------------------------------------------------------------
 
 Issue:
@@ -219,6 +220,19 @@ Solution:
 
 To fix that case you have to run all tests by a predefined script:
 `test_all.bat`
+
+-------------------------------------------------------------------------------
+7.1.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
+-------------------------------------------------------------------------------
+
+Issue:
+
+Test hangs on cache read/write/sync.
+
+Solution:
+
+Patch python `fcache` module sources by patches from the
+`python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 7.2. fcache execution issues
