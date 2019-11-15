@@ -4,13 +4,13 @@ set "PYTHON_EXE_PATH=c:/python/x86/38/python.exe"
 
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pip --upgrade || goto EXIT
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install setuptools --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install win_unicode_console --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install prompt-toolkit --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install xonsh --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install plumbum --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pyyaml --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install conditional --upgrade || goto EXIT
-call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pytest --upgrade || goto EXIT
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install win_unicode_console --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install prompt-toolkit --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install xonsh --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install plumbum --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pyyaml --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install conditional --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pytest --upgrade
 
 :EXIT
 set LASTERROR=%ERRORLEVEL%

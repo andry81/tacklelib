@@ -1,3 +1,6 @@
+2019.11.15:
+* changed: install scripts minor change in case of attempt to install packages under python prior version 3.4
+
 2019.11.14:
 * changed: cmdoplib: dropped `globals()[...]` usage to access global variables as not required anymore and is replaced by `tkl_declare_global` function usage
 
