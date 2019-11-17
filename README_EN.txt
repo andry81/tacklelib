@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.14
+* 2019.11.16
 * tacklelib
 
 1. DESCRIPTION
@@ -89,7 +89,7 @@ to run from:
 
 4. Interpreters:
 
-* bash shell 3.2.48+ (to run unix shell scripts)
+* bash shell 3.2.48+
   - to run unix shell scripts
 * cmake 3.14+ :
   https://cmake.org/download/
