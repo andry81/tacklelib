@@ -1,3 +1,6 @@
+2019.11.17:
+* fixed: install script missed modules
+
 2019.11.15:
 * fixed: missed module to install in the install scripts
 

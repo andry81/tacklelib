@@ -1,3 +1,7 @@
+2019.11.17:
+* fixed: python: install script missed modules
+* changed: readme update
+
 2019.11.15:
 * changed: python: readme update
 
