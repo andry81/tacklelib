@@ -30,6 +30,9 @@ def call_svn(args_list,
       if stderr_warning_match:
         raise Exception('specific warnings from the `svn ...` command is treated as errors')
 
+    if len(stdout_lines) > 0 or len(stderr_lines) > 0:
+      print('<') # end of a command output
+
   return ret
 
 def call_svn_no_except(args_list, stdout = None, stderr = None,
