@@ -1,4 +1,8 @@
 2019.11.18:
+* fixed: cmdoplib: [continued] `git_push_from_svn` function fixup
+* refactor: minor refactor
+
+2019.11.18:
 * changed: cmdoplib: [continued] `git_push_from_svn` function
 
 2019.11.17:
