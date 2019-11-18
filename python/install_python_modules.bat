@@ -12,6 +12,7 @@ call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pyyaml --upgrade
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install conditional --upgrade
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install fcache --upgrade
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install psutil --upgrade
+call :CMD "%%PYTHON_EXE_PATH%%" -m pip install tzlocal --upgrade
 call :CMD "%%PYTHON_EXE_PATH%%" -m pip install pytest --upgrade
 
 :EXIT

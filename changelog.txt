@@ -1,3 +1,9 @@
+2019.11.19:
+* new: python: `tzlocal` python module added to python modules install script
+* changed: python: use local time in `svn log ...` commands
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: minor refactor
+
 2019.11.18:
 * fixed: python: cmdoplib: [continued] `git_push_from_svn` function fixup
 * refactor: python: minor refactor

@@ -16,6 +16,8 @@ import os, sys, io, csv, shlex, copy, re
 from plumbum import local
 from conditional import conditional
 from datetime import datetime # must be the same everythere
+#from datetime import timezone
+import tzlocal
 
 discover_executable('GIT_EXEC', 'git', 'GIT')
 
@@ -447,7 +449,7 @@ def git_init(configure_dir, scm_name, subtrees_root = None, root_only = False):
   with local.cwd(wcroot_path), ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
-    try:
+    with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       if not os.path.exists(wcroot_path + '/.git'):
         call_git(['init', wcroot_path])
 
@@ -630,12 +632,6 @@ def git_init(configure_dir, scm_name, subtrees_root = None, root_only = False):
                 register_git_remotes(subtree_git_repos_reader, scm_name, subtree_remote_name, True)
 
             print('---')
-
-    except:
-      cache_close_running_procs(executed_procs, svc_proc_cache)
-      raise
-
-    cache_close_running_procs(executed_procs, svc_proc_cache)
 
 def git_print_repos_list_header(column_names, column_widths, fmt_str = '{:<{}} {:<{}} {:<{}} {:<{}} {:<{}} {:<{}}'):
   print('  ' + fmt_str.format(
@@ -911,14 +907,17 @@ def get_max_time_depth_in_multiple_svn_commits_fetch_sec():
   # maximal time depth in a multiple svn commits fetch from an svn repository
   return 2678400 # seconds in 1 month (31 days)
 
-def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = False):
+def first_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = False):
   print('- First time updating GIT-SVN repositories fetch state...')
 
   first_time_pass = True
 
   max_time_depth_in_multiple_svn_commits_fetch_sec = get_max_time_depth_in_multiple_svn_commits_fetch_sec()
+  current_timestamp = datetime.utcnow().timestamp()
 
   while True:
+    # True if has at least one repository with next timestamp less than current time
+    has_unpushed_svn_revisions_to_update = False
     unpushed_svn_commit_all_list_len = 0
 
     for git_svn_repo_tree_tuple_ref in git_svn_repo_tree_tuple_ref_preorder_list:
@@ -963,8 +962,8 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
           git_svn_end_fetch_timestamp = git_svn_next_fetch_timestamp + 1
 
           # request svn commits limited by a maximal time depth for a multiple svn commits fetch
-          to_svn_rev_date_time = datetime.utcfromtimestamp(git_svn_end_fetch_timestamp).strftime('%Y-%m-%d %H:%M:%S')
-          unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, '*', git_last_svn_rev + 1, '{' + to_svn_rev_date_time + ' +0000}') # `+0000` is required here
+          to_svn_rev_date_time = datetime.fromtimestamp(git_svn_end_fetch_timestamp, tz = tzlocal.get_localzone()).strftime('%Y-%m-%d %H:%M:%S %z')
+          unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, '*', git_last_svn_rev + 1, '{' + to_svn_rev_date_time + '}') # `+0000` is required here
         else:
           # we must test an svn repository on emptiness before call to `svn log ...`
           ret = call_svn(['info', '--show-item', 'last-changed-revision', svn_reporoot], stdout = None, stderr = None)
@@ -979,13 +978,16 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
             git_svn_end_fetch_timestamp = git_svn_next_fetch_timestamp + 1
 
             # request svn commits limited by a maximal time depth for a multiple svn commits fetch
-            to_svn_rev_date_time = datetime.utcfromtimestamp(git_svn_end_fetch_timestamp).strftime('%Y-%m-%d %H:%M:%S')
-            unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, '*', 1, '{' + to_svn_rev_date_time + ' +0000}') # `+0000` is required here
+            to_svn_rev_date_time = datetime.fromtimestamp(git_svn_end_fetch_timestamp, tz = tzlocal.get_localzone()).strftime('%Y-%m-%d %H:%M:%S %z')
+            unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, '*', 1, '{' + to_svn_rev_date_time + '}') # `+0000` is required here
           else:
             unpushed_svn_commit_list = None
             git_svn_next_fetch_timestamp = None
 
         fetch_state_ref['git_svn_next_fetch_timestamp'] = git_svn_next_fetch_timestamp
+        if not git_svn_next_fetch_timestamp is None:
+          if current_timestamp < git_svn_next_fetch_timestamp:
+            has_unpushed_svn_revisions_to_update = True
 
         parent_tuple_ref = repo_params_ref['parent_tuple_ref']
         if not parent_tuple_ref is None:
@@ -1051,6 +1053,10 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
     if unpushed_svn_commit_all_list_len > 0:
       break
 
+    if not has_unpushed_svn_revisions_to_update:
+      # out of unpushed svn revisions
+      break
+
     # increase svn log size request
     max_time_depth_in_multiple_svn_commits_fetch_sec *= 2
     first_time_pass = False
@@ -1088,50 +1094,66 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
 
   print('- Updating `git_svn_next_fetch_rev`...')
 
-  for git_svn_repo_tree_tuple_ref in git_svn_repo_tree_tuple_ref_preorder_list:
-    repo_params_ref = git_svn_repo_tree_tuple_ref[0]
-    fetch_state_ref = git_svn_repo_tree_tuple_ref[1]
+  if unpushed_svn_commit_all_list_len > 0:
+    for git_svn_repo_tree_tuple_ref in git_svn_repo_tree_tuple_ref_preorder_list:
+      repo_params_ref = git_svn_repo_tree_tuple_ref[0]
+      fetch_state_ref = git_svn_repo_tree_tuple_ref[1]
 
-    is_next_git_svn_fetch_rev_found = False
+      is_next_git_svn_fetch_rev_found = False
 
-    parent_tuple_ref = repo_params_ref['parent_tuple_ref']
-    if not parent_tuple_ref is None or not root_only:
-      parent_svn_repo_uuid = parent_repo_params_ref['svn_repo_uuid']
-      child_svn_repo_uuid = repo_params_ref['svn_repo_uuid']
-      if len(parent_svn_repo_uuid) > 0 and len(child_svn_repo_uuid) and parent_svn_repo_uuid != child_svn_repo_uuid:
-        parent_fetch_state_ref = parent_tuple_ref[1]
-        parent_last_pushed_git_commit = parent_fetch_state_ref['last_pushed_git_commit']
-        parent_last_pushed_git_commit_timestamp = parent_last_pushed_git_commit[2]
+      parent_tuple_ref = repo_params_ref['parent_tuple_ref']
+      if not parent_tuple_ref is None or not root_only:
+        parent_svn_repo_uuid = parent_repo_params_ref['svn_repo_uuid']
+        child_svn_repo_uuid = repo_params_ref['svn_repo_uuid']
+        if len(parent_svn_repo_uuid) > 0 and len(child_svn_repo_uuid) and parent_svn_repo_uuid != child_svn_repo_uuid:
+          parent_fetch_state_ref = parent_tuple_ref[1]
+          parent_last_pushed_git_commit = parent_fetch_state_ref['last_pushed_git_commit']
+          parent_last_pushed_git_commit_timestamp = parent_last_pushed_git_commit[2]
 
-        svn_reporoot = repo_params_ref['svn_reporoot']
-        svn_path_prefix = repo_params_ref['svn_path_prefix']
-        git_wcroot = repo_params_ref['git_wcroot']
+          svn_reporoot = repo_params_ref['svn_reporoot']
+          svn_path_prefix = repo_params_ref['svn_path_prefix']
+          git_wcroot = repo_params_ref['git_wcroot']
 
-        svn_repopath = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
+          svn_repopath = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
 
-        with conditional(git_wcroot != '.', local.cwd(git_wcroot)):
-          # CAUTION:
-          #   1. To make the same output for range of 2 revisions but using a date/time of 2 revisions the both
-          #      boundaries must be offsetted by +1 second.
-          #   2. If the range parameter in the `svn log ...` command consists only one boundary, then it is
-          #      used the same way and must be offsetted by `+1` second to request the revision existed in not
-          #      offsetted date/time.
-          #
-          git_svn_begin_fetch_timestamp = parent_last_pushed_git_commit_timestamp + 1
+          with conditional(git_wcroot != '.', local.cwd(git_wcroot)):
+            # CAUTION:
+            #   1. To make the same output for range of 2 revisions but using a date/time of 2 revisions the both
+            #      boundaries must be offsetted by +1 second.
+            #   2. If the range parameter in the `svn log ...` command consists only one boundary, then it is
+            #      used the same way and must be offsetted by `+1` second to request the revision existed in not
+            #      offsetted date/time.
+            #
+            git_svn_begin_fetch_timestamp = parent_last_pushed_git_commit_timestamp + 1
 
-          parent_last_pushed_git_commit_date_time = datetime.utcfromtimestamp(git_svn_begin_fetch_timestamp).strftime('%Y-%m-%d %H:%M:%S')
-          child_last_pushed_git_commit_list = get_svn_commit_list(svn_repopath, 1, '{' + parent_last_pushed_git_commit_date_time + ' +0000}', 0) # `+0000` is required here
+            parent_last_pushed_git_commit_date_time = datetime.fromtimestamp(git_svn_begin_fetch_timestamp, tz = tzlocal.get_localzone()).strftime('%Y-%m-%d %H:%M:%S %z')
+            child_last_pushed_git_commit_list = get_svn_commit_list(svn_repopath, 1, '{' + parent_last_pushed_git_commit_date_time + '}', 0) # `+0000` is required here
 
-          if not child_last_pushed_git_commit_list is None:
-            fetch_state_ref['git_svn_next_fetch_rev'] = child_last_pushed_git_commit_list[0][0]
-            is_next_git_svn_fetch_rev_found = True
+            if not child_last_pushed_git_commit_list is None:
+              fetch_state_ref['git_svn_next_fetch_rev'] = child_last_pushed_git_commit_list[0][0]
+              is_next_git_svn_fetch_rev_found = True
 
-    if not is_next_git_svn_fetch_rev_found:
+      if not is_next_git_svn_fetch_rev_found:
+        last_pushed_git_commit = fetch_state_ref['last_pushed_git_commit']
+        fetch_state_ref['git_svn_next_fetch_rev'] = last_pushed_git_commit[0]
+
+      if parent_tuple_ref is None and root_only:
+        break
+  else:
+    for git_svn_repo_tree_tuple_ref in git_svn_repo_tree_tuple_ref_preorder_list:
+      repo_params_ref = git_svn_repo_tree_tuple_ref[0]
+      fetch_state_ref = git_svn_repo_tree_tuple_ref[1]
+
       last_pushed_git_commit = fetch_state_ref['last_pushed_git_commit']
       fetch_state_ref['git_svn_next_fetch_rev'] = last_pushed_git_commit[0]
 
-    if parent_tuple_ref is None and root_only:
-      break
+      parent_tuple_ref = repo_params_ref['parent_tuple_ref']
+      if parent_tuple_ref is None and root_only:
+        break
+
+  if unpushed_svn_commit_all_list_len == 0:
+    print('  No unpushed SVN revisions to update.')
+    return False
 
   print('- Updated GIT-SVN repositories:')
 
@@ -1200,6 +1222,8 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
   if is_first_unpushed_svn_commit_invalid:
     raise Exception('one or more git-svn repositories contains a not pushed svn revision less or equal to the last pushed one')
 
+  return True
+
 # CAUTION:
 #   * By default the function processes the root repository together with the subtree repositories.
 #     If you want to skip the subtree repositories, then do use the `root_only` argument.
@@ -1246,7 +1270,7 @@ def git_fetch(configure_dir, scm_name, subtrees_root = None, root_only = False, 
   with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
-    try:
+    with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if subtrees_root is None:
@@ -1300,7 +1324,7 @@ def git_fetch(configure_dir, scm_name, subtrees_root = None, root_only = False, 
           if parent_tuple_ref is None and root_only:
             break
 
-      fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = root_only)
+      first_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = root_only)
 
       print('- GIT-SVN fetching...')
 
@@ -1360,12 +1384,6 @@ def git_fetch(configure_dir, scm_name, subtrees_root = None, root_only = False, 
           if parent_tuple_ref is None and root_only:
             break
 
-    except:
-      cache_close_running_procs(executed_procs, svc_proc_cache)
-      raise
-
-    cache_close_running_procs(executed_procs, svc_proc_cache)
-
 # CAUTION:
 #   * By default the function processes the root repository together with the subtree repositories.
 #     If you want to skip the subtree repositories, then do use the `root_only` argument.
@@ -1410,7 +1428,7 @@ def git_reset(configure_dir, scm_name, subtrees_root = None, root_only = False, 
   with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
-    try:
+    with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if subtrees_root is None:
@@ -1464,12 +1482,6 @@ def git_reset(configure_dir, scm_name, subtrees_root = None, root_only = False, 
           if parent_tuple_ref is None and root_only:
             return
 
-    except:
-      cache_close_running_procs(executed_procs, svc_proc_cache)
-      raise
-
-    cache_close_running_procs(executed_procs, svc_proc_cache)
-
 # CAUTION:
 #   * By default the function processes the root repository together with the subtree repositories.
 #     If you want to skip the subtree repositories, then do use the `root_only` argument.
@@ -1516,7 +1528,7 @@ def git_pull(configure_dir, scm_name, subtrees_root = None, root_only = False, r
   with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
-    try:
+    with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if subtrees_root is None:
@@ -1570,7 +1582,7 @@ def git_pull(configure_dir, scm_name, subtrees_root = None, root_only = False, r
           if parent_tuple_ref is None and root_only:
             break
 
-      fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = root_only)
+      first_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = root_only)
 
       print('- GIT-SVN fetching...')
 
@@ -1659,12 +1671,6 @@ def git_pull(configure_dir, scm_name, subtrees_root = None, root_only = False, r
           if parent_tuple_ref is None and root_only:
             return
 
-    except:
-      cache_close_running_procs(executed_procs, svc_proc_cache)
-      raise
-
-    cache_close_running_procs(executed_procs, svc_proc_cache)
-
 # CAUTION:
 #   * The function always does process the root repository together along with the subtree repositories, because
 #     it is a part of a whole 1-way synchronization process between the SVN and the GIT.
@@ -1734,7 +1740,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
   with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
-    try:
+    with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       # 1.
@@ -1749,7 +1755,10 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
       # 2.
       #
 
-      fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec)
+      has_unpushed_svn_revisions_to_update = \
+        first_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec)
+      if not has_unpushed_svn_revisions_to_update:
+        return
 
       print('- Checking parent-child GIT/SVN repositories for the last fetch state consistency...')
 
@@ -1902,9 +1911,3 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
         'do fetch/rebase/push in order from child to parent in a group GIT repositories...')
 
       #parent_svn_reporoot_urlpath = tkl.ParseResult('', *tkl.urlparse(svn_reporoot)[1:]).geturl()
-
-    except:
-      cache_close_running_procs(executed_procs, svc_proc_cache)
-      raise
-
-    cache_close_running_procs(executed_procs, svc_proc_cache)
