@@ -25,10 +25,10 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
     else:
       to_rev = 'HEAD'
 
-  if depth == '*':
-    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
-  else:
+  if depth != '*':
     ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+  else:
+    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
 
   stdout_lines = ret[1]
   stderr_lines = ret[2]
