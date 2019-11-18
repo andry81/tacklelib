@@ -985,12 +985,6 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
             unpushed_svn_commit_list = None
             git_svn_next_fetch_timestamp = None
 
-        # If a repository does not have unpushed revisions in a time window, then we must exclude the case
-        # where the first unpushed revision is existing but outside a time window.
-        if git_svn_next_fetch_timestamp is None:
-          # request first single any revision instead of revisions in a time window
-          unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, 1, git_last_svn_rev + 1, 'HEAD')
-
         fetch_state_ref['git_svn_next_fetch_timestamp'] = git_svn_next_fetch_timestamp
 
         parent_tuple_ref = repo_params_ref['parent_tuple_ref']
@@ -1016,6 +1010,12 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
             if git_last_svn_rev < unpushed_svn_commit[0]:
               break
             unpushed_svn_commit_list.pop(0)
+
+        # If a repository does not have unpushed revisions in a time window, then we must exclude the case
+        # where the first unpushed revision is existing but outside a time window.
+        if unpushed_svn_commit_list is None or len(unpushed_svn_commit_list) == 0:
+          # request first single any revision instead of revisions in a time window
+          unpushed_svn_commit_list = get_svn_commit_list(svn_repopath, 1, git_last_svn_rev + 1, 'HEAD')
 
         unpushed_svn_commit_list_len = len(unpushed_svn_commit_list) if not unpushed_svn_commit_list is None else 0
         if unpushed_svn_commit_list_len > 0:
@@ -1077,7 +1077,7 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
           if is_child_read_only_repo:
             is_parent_read_only_repo = parent_fetch_state_ref['is_read_only_repo']
             if not is_parent_read_only_repo:
-              child_min_ro_tree_time_of_first_unpushed_svn_commit = child_repo_params_ref['min_ro_tree_time_of_first_unpushed_svn_commit']
+              child_min_ro_tree_time_of_first_unpushed_svn_commit = child_fetch_state_ref['min_ro_tree_time_of_first_unpushed_svn_commit']
               if not child_min_ro_tree_time_of_first_unpushed_svn_commit is None:
                 parent_min_ro_tree_time_of_last_unpushed_svn_commit = parent_fetch_state_ref['min_ro_tree_time_of_first_unpushed_svn_commit']
                 if not parent_min_ro_tree_time_of_last_unpushed_svn_commit is None:
@@ -1110,7 +1110,16 @@ def fist_update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_li
         svn_repopath = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
 
         with conditional(git_wcroot != '.', local.cwd(git_wcroot)):
-          parent_last_pushed_git_commit_date_time = datetime.utcfromtimestamp(parent_last_pushed_git_commit_timestamp).strftime('%Y-%m-%d %H:%M:%S')
+          # CAUTION:
+          #   1. To make the same output for range of 2 revisions but using a date/time of 2 revisions the both
+          #      boundaries must be offsetted by +1 second.
+          #   2. If the range parameter in the `svn log ...` command consists only one boundary, then it is
+          #      used the same way and must be offsetted by `+1` second to request the revision existed in not
+          #      offsetted date/time.
+          #
+          git_svn_begin_fetch_timestamp = parent_last_pushed_git_commit_timestamp + 1
+
+          parent_last_pushed_git_commit_date_time = datetime.utcfromtimestamp(git_svn_begin_fetch_timestamp).strftime('%Y-%m-%d %H:%M:%S')
           child_last_pushed_git_commit_list = get_svn_commit_list(svn_repopath, 1, '{' + parent_last_pushed_git_commit_date_time + ' +0000}', 0) # `+0000` is required here
 
           if not child_last_pushed_git_commit_list is None:
