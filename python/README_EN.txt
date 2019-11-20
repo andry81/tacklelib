@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.15
+* 2019.11.20
 * tacklelib--python
 
 1. DESCRIPTION
@@ -82,6 +82,10 @@ from:
     - to support conditional `with` statements
 **  fcache 0.4.7
     - for local cache storage for python scripts
+**  psutil 5.6.7
+    - for processes list request
+**  tzlocal 2.0.0
+    - for local timezone request
 **  pytest 5.2.0
     - to run python tests (test*.py)
 
@@ -224,7 +228,7 @@ the directory of extracted package.
 
 Solution:
 
-Reinstall python and run `setup.py` with the current directory inside an
+Reinstall python and run `setup.py` with in the current directory inside an
 extracted package being installed.
 
 -------------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+2019.11.20:
+* changed: readme update
+
 2019.11.15:
 * changed: readme update
 

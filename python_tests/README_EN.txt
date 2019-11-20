@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.15
+* 2019.11.20
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -9,12 +9,15 @@
 5. DEPLOY
 6. CATALOG CONTENT DESCRIPTION
 7. KNOWN ISSUES
-7.1. pytest execution issues
+7.1. Python execution issues
 7.1.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
        `python_tests`
-7.1.2. Some tests from `python_tests/01_unit` directory fails
-7.1.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
-7.2. fcache execution issues
+7.1.2. `OSError: [WinError 6] The handle is invalid`
+7.2. pytest execution issues
+7.2.1. Some tests from `python_tests/01_unit` directory fails
+7.2.2. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
+7.3. fcache execution issues
+7.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
 8. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
@@ -91,6 +94,10 @@ from:
     - to support conditional `with` statements
 **  fcache 0.4.7
     - for local cache storage for python scripts
+**  psutil 5.6.7
+    - for processes list request
+**  tzlocal 2.0.0
+    - for local timezone request
 **  pytest 5.2.0
     - to run python tests (test*.py)
 
@@ -178,14 +185,8 @@ sudo chmod o+r /bin/bash_entry
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-7.1. pytest execution issues
+7.1. Python execution issues
 -------------------------------------------------------------------------------
-* `xonsh incorrectly reorders the test for the pytest` :
-  https://github.com/xonsh/xonsh/issues/3380
-* `a test silent ignore` :
-  https://github.com/pytest-dev/pytest/issues/6113
-* `can not order tests by a test directory path` :
-  https://github.com/pytest-dev/pytest/issues/6114
 
 -------------------------------------------------------------------------------
 7.1.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
@@ -207,7 +208,30 @@ Solution:
 Reinstall the different python version.
 
 -------------------------------------------------------------------------------
-7.1.2. Some tests from `python_tests/01_unit` directory fails
+7.1.2. `OSError: [WinError 6] The handle is invalid`
+-------------------------------------------------------------------------------
+
+Issue:
+
+The python interpreter (3.7, 3.8, 3.9) sometimes throws this message at exit,
+see details here: https://bugs.python.org/issue37380
+
+Solution:
+
+Reinstall the different python version.
+
+-------------------------------------------------------------------------------
+7.2. pytest execution issues
+-------------------------------------------------------------------------------
+* `xonsh incorrectly reorders the test for the pytest` :
+  https://github.com/xonsh/xonsh/issues/3380
+* `a test silent ignore` :
+  https://github.com/pytest-dev/pytest/issues/6113
+* `can not order tests by a test directory path` :
+  https://github.com/pytest-dev/pytest/issues/6114
+
+-------------------------------------------------------------------------------
+7.2.1. Some tests from `python_tests/01_unit` directory fails
 -------------------------------------------------------------------------------
 
 Issue:
@@ -222,7 +246,7 @@ To fix that case you have to run all tests by a predefined script:
 `test_all.bat`
 
 -------------------------------------------------------------------------------
-7.1.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
+7.2.2. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
 -------------------------------------------------------------------------------
 
 Issue:
@@ -235,7 +259,7 @@ Patch python `fcache` module sources by patches from the
 `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
-7.2. fcache execution issues
+7.3. fcache execution issues
 -------------------------------------------------------------------------------
 * `fcache is not multiprocess aware on Windows` :
   https://github.com/tsroten/fcache/issues/26
@@ -243,6 +267,19 @@ Patch python `fcache` module sources by patches from the
   https://github.com/tsroten/fcache/issues/27
 * `OSError: [WinError 17] The system cannot move the file to a different disk drive.` :
   https://github.com/tsroten/fcache/issues/28
+
+-------------------------------------------------------------------------------
+7.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
+-------------------------------------------------------------------------------
+
+Issue:
+
+Module hangs on cache read/write/sync.
+
+Solution:
+
+Patch python `fcache` module sources by patches from the
+`python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 8. AUTHOR EMAIL

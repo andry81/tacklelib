@@ -80,7 +80,7 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
   return rev_list if len(rev_list) > 0 else None
 
 def svn_update(configure_dir, scm_name, bare_args):
-  print(">svn update: {0}".format(configure_dir))
+  print("svn update: {0}".format(configure_dir))
   if len(bare_args) > 0:
     print('- args:', bare_args)
 
@@ -107,7 +107,7 @@ def svn_update(configure_dir, scm_name, bare_args):
     call_svn(['up'] + bare_args, max_stdout_lines = -1)
 
 def svn_checkout(configure_dir, scm_name, bare_args):
-  print(">svn checkout: {0}".format(configure_dir))
+  print("svn checkout: {0}".format(configure_dir))
   if len(bare_args) > 0:
     print('- args:', bare_args)
 
@@ -144,7 +144,7 @@ def svn_relocate(configure_dir, scm_name, bare_args):
   # dependent on declaration order in case of a direct usage (not through the `globals()['...']`), so must always be to avoid a dependence
   global g_registered_ignored_errors
 
-  print(">svn relocate: {0}".format(configure_dir))
+  print("svn relocate: {0}".format(configure_dir))
   if len(bare_args) > 0:
     print('- args:', bare_args)
 
