@@ -16,49 +16,47 @@ def yaml_pop_global_vars(reexpand_vars, delvar_pred = None):
   g_yaml_globals.pop_unexpanded_vars(reexpand_vars, lambda key: delglobalvar(key) if delvar_pred is None else delvar_pred(key))
 
 def yaml_update_global_vars(load_second_yaml_dict = None, search_by_pred_at_third = None, setvar_pred = None):
-  current_globals = globals()
-
-  yaml_globals = current_globals['g_yaml_globals']
   if load_second_yaml_dict:
-    yaml_globals.load(load_second_yaml_dict)
-  yaml_globals.expand(search_by_pred_at_third = search_by_pred_at_third, list_as_cmdline = False)
+    g_yaml_globals.load(load_second_yaml_dict)
+  g_yaml_globals.expand(search_by_pred_at_third = search_by_pred_at_third, list_as_cmdline = False)
 
   if setvar_pred is None:
-    for key, value in yaml_globals.expanded_items():
+    for key, value in g_yaml_globals.expanded_items():
       setglobalvar(key, value)
   else:
-    for key, value in yaml_globals.expanded_items():
+    for key, value in g_yaml_globals.expanded_items():
       setvar_pred(key, value)
+
+def yaml_is_compound_environ_var_value(value):
+  return isinstance(value, dict)
 
 def yaml_push_environ_vars():
   g_yaml_environ.push_unexpanded_vars()
 
 def yaml_pop_environ_vars(reexpand_vars, delvar_pred = None):
-  g_yaml_environ.pop_unexpanded_vars(reexpand_vars, lambda key: delenvvar(key) if delvar_pred is None else delvar_pred(key))
+  g_yaml_environ.pop_unexpanded_vars(reexpand_vars,
+    lambda key: (delenvvar(key) if delvar_pred is None else delvar_pred(key)) \
+    if not yaml_is_compound_environ_var_value(g_yaml_environ.unexpanded_vars[key]) else None)
 
 def yaml_update_environ_vars(load_second_yaml_dict = None, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, setvar_pred = None):
-  current_globals = globals()
-
-  yaml_environ = current_globals['g_yaml_environ']
   if load_second_yaml_dict:
-    yaml_environ.load(load_second_yaml_dict)
+    g_yaml_environ.load(load_second_yaml_dict)
 
   if search_in_yaml_global_vars_at_second:
-    yaml_globals = current_globals['g_yaml_globals']
-    yaml_environ.expand(search_in_expand_dict_at_second = yaml_globals.expanded_vars, search_by_pred_at_third = search_by_pred_at_third, ignore_types = [dict], list_as_cmdline = True)
+    g_yaml_environ.expand(search_in_expand_dict_at_second = g_yaml_globals.expanded_vars, search_by_pred_at_third = search_by_pred_at_third, ignore_types = [dict], list_as_cmdline = True)
   else:
-    yaml_environ.expand(search_by_pred_at_third = search_by_pred_at_third, ignore_types = [dict], list_as_cmdline = True)
+    g_yaml_environ.expand(search_by_pred_at_third = search_by_pred_at_third, ignore_types = [dict], list_as_cmdline = True)
 
   if setvar_pred is None:
-    for key, value in yaml_environ.expanded_items():
+    for key, value in g_yaml_environ.expanded_items():
       # ignore compound values, leave the parse of it to the `call` function
-      if not isinstance(value, dict):
+      if not yaml_is_compound_environ_var_value(value):
         setenvvar(key, value)
         print('- declare environment variable: ' + str(key) + '=`' + str(value) + '`')
   else:
-    for key, value in yaml_environ.expanded_items():
+    for key, value in g_yaml_environ.expanded_items():
       # ignore compound values, leave the parse of it to the `call` function
-      if not isinstance(value, dict):
+      if not yaml_is_compound_environ_var_value(value):
         setvar_pred(key, value)
         print('- declare environment variable: ' + str(key) + '=`' + str(value) + '`')
 
@@ -124,31 +122,28 @@ def yaml_expand_global_dict(dict_value, search_in_expand_dict_at_second = None, 
     list_as_cmdline = list_as_cmdline)
 
 def yaml_expand_environ_string(str_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
-  current_globals = globals()
   if search_in_yaml_global_vars_at_second:
-    search_in_expand_dict_at_second = current_globals['g_yaml_globals'].expanded_vars
+    search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
     search_in_expand_dict_at_second = None
-  return current_globals['g_yaml_environ'].expand_string(str_value,
+  return g_yaml_environ.expand_string(str_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
 
 def yaml_expand_environ_list(list_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
-  current_globals = globals()
   if search_in_yaml_global_vars_at_second:
-    search_in_expand_dict_at_second = current_globals['g_yaml_globals'].expanded_vars
+    search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
     search_in_expand_dict_at_second = None
-  return current_globals['g_yaml_environ'].expand_list(list_value,
+  return g_yaml_environ.expand_list(list_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
 def yaml_expand_environ_dict(dict_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
-  current_globals = globals()
   if search_in_yaml_global_vars_at_second:
-    search_in_expand_dict_at_second = current_globals['g_yaml_globals'].expanded_vars
+    search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
     search_in_expand_dict_at_second = None
-  return current_globals['g_yaml_environ'].expand_dict(dict_value,
+  return g_yaml_environ.expand_dict(dict_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 

@@ -455,7 +455,7 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
   # 1. iterate to increase the `git log` depth (`--max-count`) in case of equal the first and the last commit timestamps
   # 2. iterate to shift the `git log` window using `--until` parameter
   while True:
-    ret = call_git(['log', '--max-count=' + str(git_log_next_depth), '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%n%b', 'FETCH_HEAD',
+    ret = call_git(['log', '--max-count=' + str(git_log_next_depth), '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b', 'FETCH_HEAD',
       get_git_remote_refspec_token(remote_name, git_local_branch, git_remote_branch)] +
       (['--until', str(git_from_commit_timestamp)] if not git_from_commit_timestamp is None else []),
       stdout = None, stderr = None)
@@ -2297,6 +2297,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
         parent_git_path_prefix = repo_params_ref['parent_git_path_prefix']
 
         git_local_branch = repo_params_ref['git_local_branch']
+        git_remote_branch = repo_params_ref['git_remote_branch']
 
         if not parent_tuple_ref is None:
           subtree_git_wcroot = os.path.abspath(os.path.join(subtrees_root, remote_name + "'" + parent_git_path_prefix.replace('/', '--'))).replace('\\', '/')
@@ -2304,7 +2305,11 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
           print(' ->> pushd: {0}...'.format(subtree_git_wcroot))
 
         with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
-          call_git(['switch', git_local_branch])
+          git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
+
+          ret = call_git_no_except(['show-ref', '--verify', git_local_refspec_token])
+          if not ret[0]:
+            call_git(['switch', git_local_branch])
 
           print('---')
 
@@ -2513,7 +2518,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
                 parent_git_wcroot = parent_repo_params_ref['git_wcroot']
 
                 with conditional(parent_git_wcroot != '.', local.cwd(parent_git_wcroot)):
-                  call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%n%b', 'FETCH_HEAD',
+                  call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b', 'FETCH_HEAD',
                     get_git_remote_refspec_token(parent_remote_name, parent_git_local_branch, parent_git_remote_branch),
                     '--since', str(child_first_unpushed_svn_timestamp)], max_stdout_lines = 32)
 
@@ -2569,7 +2574,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
               child_git_wcroot = child_repo_params_ref['git_wcroot']
 
               with conditional(child_git_wcroot != '.', local.cwd(child_git_wcroot)):
-                call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%n%b', 'FETCH_HEAD',
+                call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b', 'FETCH_HEAD',
                   get_git_remote_refspec_token(child_remote_name, child_git_local_branch, child_git_remote_branch),
                   '--since', str(parent_first_unpushed_svn_timestamp)], max_stdout_lines = 32)
 
