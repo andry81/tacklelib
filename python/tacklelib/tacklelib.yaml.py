@@ -204,44 +204,53 @@ class YamlEnv(object):
     if not isinstance(list_value, list):
       raise Exception('list_value is not a list type' + str(type(list_value)))
 
-    if not list_as_cmdline:
-      expanded_val = out_value = []
+    is_list_of_strings = True
+    expanded_val = out_value = []
 
-      for i in list_value:
-        if not isinstance(i, str):
-          # TODO
-          raise Exception('unexpected yaml object type: ' + str(type(i)))
-
+    for val in list_value:
+      if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
         expanded_val.append(
-          self.expand_string(i,
+          self.expand_string(val,
             search_in_expand_dict_at_second = search_in_expand_dict_at_second,
             search_by_pred_at_third = search_by_pred_at_third
           )
         )
-    else:
+      elif isinstance(val, list):
+        is_list_of_strings = False
+        expanded_val.append(
+          self.expand_list(val,
+            search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+            search_by_pred_at_third = search_by_pred_at_third,
+            list_as_cmdline = list_as_cmdline
+          )
+        )
+      elif isinstance(val, dict):
+        is_list_of_strings = False
+        expanded_val.append(
+          self.expand_dict(val,
+            search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+            search_by_pred_at_third = search_by_pred_at_third,
+            list_as_cmdline = list_as_cmdline
+          )
+        )
+      else:
+        raise Exception('unexpected yaml object type: ' + str(type(val)))
+
+    if list_as_cmdline and is_list_of_strings:
       cmdline = ''
 
-      for i in list_value:
-        if not isinstance(i, str):
-          # TODO
-          raise Exception('unexpected yaml object type: ' + str(type(i)))
-
-        j = self.expand_string(i,
-          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
-          search_by_pred_at_third = search_by_pred_at_third
-        )
-
+      for val in expanded_val:
         has_spaces = False
 
-        for c in j:
+        for c in val:
           if c.isspace():
             has_spaces = True
             break
 
         if not has_spaces:
-          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + j
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + val
         else:
-          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + j + '"'
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + val + '"'
 
       out_value = cmdline
 
@@ -275,14 +284,17 @@ class YamlEnv(object):
 
       if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
         out_value[key] = self.expand_string(val,
-          search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+          search_by_pred_at_third = search_by_pred_at_third)
       elif isinstance(val, list):
         out_value[key] = self.expand_list(val,
-          search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+          search_by_pred_at_third = search_by_pred_at_third,
           list_as_cmdline = list_as_cmdline)
       elif isinstance(val, dict):
         out_value[key] = self.expand_dict(val,
-        search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
+        search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+        search_by_pred_at_third = search_by_pred_at_third,
         list_as_cmdline = list_as_cmdline)
       else:
         # TODO

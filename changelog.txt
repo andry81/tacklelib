@@ -1,4 +1,9 @@
 2019.11.20:
+* fixed: python: tacklelib,cmdoplib: missed yaml changes
+* fixed: python: cmdoplib: call to `git_push_from_svn` immediately after clean `git_init`
+* changed: python: added author and author email in `svn log ...` command output
+
+2019.11.20:
 * changed: python: cmdoplib: [continued] `git_push_from_svn` function
 * changed: python: readme update
 * changed: python_tests: readme update
