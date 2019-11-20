@@ -335,7 +335,7 @@ def cache_init_service_proc(service_proc_cache):
       stderr_iostr.seek(0)
       print(str(stderr_iostr.read()).rstrip())
     if stdout_size > 0 or stderr_size > 0:
-      print('---')
+      print('<') # end of a command output
 
     if ssh_auth_sock_value is None:
       raise Exception('SSH_AUTH_SOCK is not found in the stdout of the `GIT_SVN_SSH_AGENT` process')
