@@ -26,9 +26,9 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
       to_rev = 'HEAD'
 
   if depth != '*':
-    ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+    ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath])
   else:
-    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath], stdout = None, stderr = None)
+    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath])
 
   stdout_lines = ret[1]
   stderr_lines = ret[2]
@@ -169,7 +169,7 @@ def svn_relocate(configure_dir, scm_name, bare_args):
 
   with plumbum.local.cwd(wcroot_path):
     try:
-      call_svn(['relocate'] + bare_args, stdout = None, stderr = None, max_stdout_lines = -1)
+      call_svn(['relocate'] + bare_args, max_stdout_lines = -1)
     except plumbum.ProcessExecutionError as proc_err:
       proc_stdout = proc_err.stdout
       proc_stderr = proc_err.stderr
