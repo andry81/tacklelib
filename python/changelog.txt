@@ -1,3 +1,15 @@
+2019.11.22:
+* fixed: cmdoplib: not unique default fetch tip in to `config` file after the `git svn init ...` call
+* fixed: cmdoplib: incomplete `--ignore-paths` parameter in the `git svn init ...` command
+* fixed: cmdoplib: `git svn fetch ...` invalid (default is `master`) branch fetch, the `git swith ...` with explicit branch must be used always before to fix that
+* changed: tacklelib,cmdoplib: increased stdout output maximal lines for a command before cutoff from 7 up to 9
+
+2019.11.21:
+* fixed: cmdoplib: `revert_if_git_head_refs_is_not_last_pushed` function fixup
+* fixed: cmdoplib: `git_fetch`, `git_pull`, `git_push_from_svn` functions fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: removed the stdout/stderr parameters from the `call_svn` and `call_git` functions as must always does intercept the output
+
 2019.11.20:
 * fixed: tacklelib,cmdoplib: missed yaml changes
 * fixed: cmdoplib: call to `git_push_from_svn` immediately after clean `git_init`

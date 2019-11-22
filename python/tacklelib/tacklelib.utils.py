@@ -26,7 +26,7 @@ def compare_file_paths(p1, p2, op = '=='):
 
   return eval('"' + p1_ + '" ' + op + ' "' + p2_ + '"')
 
-def print_max(str, max_lines = 7):
+def print_max(str, max_lines = 9):
   if max_lines >= 0:
     num_new_lines = str.count('\n')
     if num_new_lines > max_lines:

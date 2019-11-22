@@ -89,7 +89,7 @@ def get_default_call_cmd_expr_expander():
   return lambda cmd_expr: yaml_expand_global_string(cmd_expr, search_by_pred_at_third = lambda var_name: getglobalvar(var_name))
 
 def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False, in_bg = False,
-         cmd_expr_expander = get_default_call_cmd_expr_expander()):
+         cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False):
   if cmd_expr == '':
     raise Exception('cmd_expr must be a not empty string and a command expression with or without variables')
 
@@ -223,40 +223,44 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
       sys.stdout.flush()
       sys.stderr.flush()
 
-      # Passing the `None` does not help to intercept a command output to a variable, instead does need to not pass the parameter!
+      if not dry_run:
+        # Passing the `None` does not help to intercept a command output to a variable, instead does need to not pass the parameter!
+        if not stdout is None:
+          if not stderr is None:
+            if not no_except:
+             return cmd.run(stdout = stdout, stderr = stderr)
+            else:
+             return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+          else:
+            if not no_except:
+              return cmd.run(stdout = stdout)
+            else:
+              return cmd.run(stdout = stdout, retcode = None)
+        else:
+          if not stderr is None:
+            if not no_except:
+              return cmd.run(stderr = stderr)
+            else:
+              return cmd.run(stderr = stderr, retcode = None)
+          else:
+            if not no_except:
+              return cmd.run()
+            else:
+              return cmd.run(retcode = None)
+
+    if not dry_run:
       if not stdout is None:
         if not stderr is None:
-          if not no_except:
-           return cmd.run(stdout = stdout, stderr = stderr)
-          else:
-           return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+          return cmd.run_bg(stdout = stdout, stderr = stderr)
         else:
-          if not no_except:
-            return cmd.run(stdout = stdout)
-          else:
-            return cmd.run(stdout = stdout, retcode = None)
+          return cmd.run_bg(stdout = stdout)
       else:
         if not stderr is None:
-          if not no_except:
-            return cmd.run(stderr = stderr)
-          else:
-            return cmd.run(stderr = stderr, retcode = None)
+          return cmd.run_bg(stderr = stderr)
         else:
-          if not no_except:
-            return cmd.run()
-          else:
-            return cmd.run(retcode = None)
+          return cmd.run_bg()
 
-    if not stdout is None:
-      if not stderr is None:
-        return cmd.run_bg(stdout = stdout, stderr = stderr)
-      else:
-        return cmd.run_bg(stdout = stdout)
-    else:
-      if not stderr is None:
-        return cmd.run_bg(stderr = stderr)
-      else:
-        return cmd.run_bg()
+  return (0, '', '') # dry run always succeed
 
-def call_no_except(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, cmd_expr_expander = get_default_call_cmd_expr_expander()):
-  return call(cmd_expr, args_list, stdout = stdout, stderr = stderr, no_except = True, cmd_expr_expander = cmd_expr_expander)
+def call_no_except(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False):
+  return call(cmd_expr, args_list, stdout = stdout, stderr = stderr, no_except = True, cmd_expr_expander = cmd_expr_expander, dry_run = dry_run)
