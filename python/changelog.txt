@@ -1,3 +1,7 @@
+2019.11.23:
+* fixed: cmdoplib: git-svn branch cleanup before fetch
+* changed: cmdoplib: all branches started by `git-svn` is reserved for internal usage
+
 2019.11.22:
 * fixed: cmdoplib: not unique default fetch tip in to `config` file after the `git svn init ...` call
 * fixed: cmdoplib: incomplete `--ignore-paths` parameter in the `git svn init ...` command
