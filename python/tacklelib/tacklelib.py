@@ -19,6 +19,12 @@ class TackleGlobalState:
   # key:    <module_file_path>
   # value:  <module>
   imported_modules_by_file_path = {}
+  # key:    <module_file_path>
+  # value:  <module>
+  being_imported_modules_by_file_path = {}
+  # key:    <module_file_path>
+  # value:  [(<from_module>, <to_module>, <target_module>), ...]
+  reimport_being_imported_modules_by_file_path = {}
   # key:    <variable_token>
   # value:  <value>
   global_vars = {}
@@ -30,6 +36,8 @@ class TackleGlobalState:
     cls.tkl_module[0] = None
     cls.imported_modules.clear()
     cls.imported_modules_by_file_path.clear()
+    cls.being_imported_modules_by_file_path.clear()
+    cls.reimport_being_imported_modules_by_file_path.clear()
     cls.global_vars.clear()
 
 # all members must be as a container to copy by reference
@@ -289,7 +297,7 @@ def tkl_get_packaged_modules(include_builtins = True):
   _, top_level_libs, _ = list(os.walk(distutils.sysconfig.get_python_lib(standard_lib=True)))[0]
   return sorted(top_level_libs + list(modules | builtin_modules))
 
-def tkl_merge_module(from_, to, target_module):
+def tkl_merge_module(from_, to, target_module, ignore_merge_imported_modules = False):
   if target_module.__name__ != 'tacklelib':
     is_target_module_inited = tkl_is_inited(target_module)
     if not is_target_module_inited:
@@ -322,9 +330,12 @@ def tkl_merge_module(from_, to, target_module):
               to[from_key] = to_value
           else:
             # avoid copying builtin modules including all packaged modules
-            global_cache = getattr(target_module, 'TackleGlobalCache', None)
+            global_state = target_module.TackleGlobalState
+            global_cache = target_module.TackleGlobalCache
+            imported_modules_by_file_path = global_state.imported_modules_by_file_path
             packaged_modules = global_cache.packaged_modules
-            if from_value.__name__ not in packaged_modules:
+            if from_value.__name__ not in packaged_modules and \
+               (not ignore_merge_imported_modules or from_value.__file__.replace('\\', '/') not in imported_modules_by_file_path):
               #print('mergemodule: ->', from_.__name__, '->', from_key, id(from_value), id(to_value), type(from_value), type(to_value))
               if not inspect.ismodule(to_value):
                 # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
@@ -406,7 +417,7 @@ def tkl_declare_global(var, value, from_globals = None):
 #   `module.`   - the same as `module` and the module can not be merged in the next `module` import (some kind of the `.module` behaviour but for the next import).
 #   `.module.`  - has meaning of the both above.
 #
-def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject_attrs = {}, prefix_exec_module_pred = None, skip_stack_frames = 0):
+def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject_attrs = {}, prefix_exec_module_pred = None, skip_stack_frames = 0, reimport_if_being_imported = False):
   if not ref_module_name is None and ref_module_name == '':
     raise Exception('ref_module_name should either be None or not empty string')
 
@@ -429,6 +440,8 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
   imported_modules = global_state.imported_modules
   imported_modules_by_file_path = global_state.imported_modules_by_file_path
+  being_imported_modules_by_file_path = global_state.being_imported_modules_by_file_path
+  reimport_being_imported_modules_by_file_path = global_state.reimport_being_imported_modules_by_file_path
 
   global_vars = global_state.global_vars
 
@@ -468,6 +481,9 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
     imported_module_file_path = imported_module_value[1]
     if imported_module_file_path == module_file_path:
       print(' (cached)')
+
+      register_imported_module_for_reimport = reimport_if_being_imported and (True if imported_module_file_path in being_imported_modules_by_file_path else False)
+
       imported_module_name = imported_module_value[0]
       imported_module_attrs = imported_module_value[2]
 
@@ -518,6 +534,9 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
         if id(target_module) == id(imported_module):
           raise Exception('attempt to merge the module content to itself: ' + target_module.__name__)
 
+        from_value = imported_module
+        to_value = target_module
+
         if target_module in imported_modules:
           target_module_in_imported = imported_modules[target_module]
           target_module_attrs = target_module_in_imported[2]
@@ -529,6 +548,14 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
           setattr(target_module, var, tkl_membercopy(value, imported_module_globals, target_module_globals))
 
         tkl_merge_module(imported_module, target_module, target_module)
+
+      if register_imported_module_for_reimport:
+        reimport_being_imported_module_list = reimport_being_imported_modules_by_file_path.get(imported_module_file_path)
+        if reimport_being_imported_module_list is None:
+          reimport_being_imported_modules_by_file_path[imported_module_file_path] = \
+            [(from_value, to_value, target_module)]
+        else:
+          reimport_being_imported_module_list.append((from_value, to_value, target_module))
 
       return imported_module
 
@@ -637,6 +664,11 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
         if prefix_exec_module_pred is not None:
           prefix_exec_module_pred(import_module_name, module_file_path, imported_module)
 
+        being_imported_module = being_imported_modules_by_file_path.get(module_file_path)
+        if not being_imported_module is None:
+          raise Exception('a being imported module must be already guarded from recursive import')
+        being_imported_modules_by_file_path[module_file_path] = imported_module
+
         import_spec.loader.exec_module(imported_module)
       else:
         if prefix_exec_module_pred is not None:
@@ -669,6 +701,8 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
       raise
 
     finally:
+      del being_imported_modules_by_file_path[module_file_path]
+
       import_nest_index[0] -= 1
 
   except:
@@ -704,6 +738,17 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
     #
     imported_modules[to_value] = (import_module_name, module_file_path, {})
 
+  reimport_being_imported_module_list = reimport_being_imported_modules_by_file_path.get(module_file_path)
+  if not reimport_being_imported_module_list is None:
+    import_nest_index = global_state.import_nest_index[0]
+
+    print(('| ' * import_nest_index) + 'reimport :', import_nest_index, module_file_path)
+    for reimport_being_imported_module_tuple in reimport_being_imported_module_list:
+      (from_module, to_module, target_module) = reimport_being_imported_module_tuple
+      print(('| ' * import_nest_index) + '         : ->', to_module.__file__)
+      tkl_merge_module(from_module, to_module, target_module, ignore_merge_imported_modules = True)
+    del reimport_being_imported_module_list
+
   # must be to avoid a mix
   sys.stdout.flush()
   sys.stderr.flush()
@@ -711,5 +756,5 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
   return imported_module
 
 # shortcut function
-def tkl_source_module(dir_path, module_file_name):
-  return tkl_import_module(dir_path, module_file_name, '.', skip_stack_frames = 1)
+def tkl_source_module(dir_path, module_file_name, reimport_if_being_imported = False):
+  return tkl_import_module(dir_path, module_file_name, '.', skip_stack_frames = 1, reimport_if_being_imported = reimport_if_being_imported)

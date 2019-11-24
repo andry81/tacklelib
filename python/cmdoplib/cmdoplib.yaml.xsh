@@ -2,7 +2,7 @@
 
 tkl_import_module(TACKLELIB_ROOT, 'tacklelib.yaml.py', 'tkl')
 
-tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh')
+tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh', reimport_if_being_imported = True)
 
 tkl_declare_global('g_yaml_globals', tkl.YamlEnv()) # must be not empty value to save the reference
 tkl_declare_global('g_yaml_environ', tkl.YamlEnv()) # must be not empty value to save the reference
@@ -107,21 +107,25 @@ def yaml_load_config(config_dir, config_file, to_globals = True, to_environ = Fa
   elif not search_by_environ_pred_at_third is None:
     raise Exception('parameters inconsistency: search_by_environ_pred_at_third is not None, when to_environ is None')
 
-def yaml_expand_global_string(str_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
+def yaml_expand_global_string(str_value, search_in_expand_dict_at_second = None,
+                              search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = False):
   return g_yaml_globals.expand_string(str_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
 
-def yaml_expand_global_list(list_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
+def yaml_expand_global_list(list_value, search_in_expand_dict_at_second = None,
+                            search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = False):
   return g_yaml_globals.expand_list(list_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
-def yaml_expand_global_dict(dict_value, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, list_as_cmdline = False):
+def yaml_expand_global_dict(dict_value, search_in_expand_dict_at_second = None,
+                            search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = False):
   return g_yaml_globals.expand_dict(dict_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
-def yaml_expand_environ_string(str_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
+def yaml_expand_environ_string(str_value, search_in_yaml_global_vars_at_second = True,
+                               search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = True):
   if search_in_yaml_global_vars_at_second:
     search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
@@ -129,7 +133,8 @@ def yaml_expand_environ_string(str_value, search_in_yaml_global_vars_at_second =
   return g_yaml_environ.expand_string(str_value,
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third)
 
-def yaml_expand_environ_list(list_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
+def yaml_expand_environ_list(list_value, search_in_yaml_global_vars_at_second = True,
+                             search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = True):
   if search_in_yaml_global_vars_at_second:
     search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
@@ -138,7 +143,8 @@ def yaml_expand_environ_list(list_value, search_in_yaml_global_vars_at_second = 
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
-def yaml_expand_environ_dict(dict_value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
+def yaml_expand_environ_dict(dict_value, search_in_yaml_global_vars_at_second = True,
+                             search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = True):
   if search_in_yaml_global_vars_at_second:
     search_in_expand_dict_at_second = g_yaml_globals.expanded_vars
   else:
@@ -147,7 +153,8 @@ def yaml_expand_environ_dict(dict_value, search_in_yaml_global_vars_at_second = 
     search_in_expand_dict_at_second = search_in_expand_dict_at_second, search_by_pred_at_third = search_by_pred_at_third,
     list_as_cmdline = list_as_cmdline)
 
-def yaml_expand_environ_value(value, search_in_yaml_global_vars_at_second = True, search_by_pred_at_third = None, list_as_cmdline = True):
+def yaml_expand_environ_value(value, search_in_yaml_global_vars_at_second = True,
+                              search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = True):
   if isinstance(value, str):
     return yaml_expand_environ_string(value,
       search_in_yaml_global_vars_at_second = search_in_yaml_global_vars_at_second, search_by_pred_at_third = search_by_pred_at_third,
