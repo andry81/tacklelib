@@ -1,3 +1,8 @@
+2019.11.24:
+* fixed: python: cmdoplib: now a project checks whether a command file exists (without extension) to run a command
+* fixed: python: cmdoplib: minor fixup
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
 2019.11.23:
 * fixed: python: cmdoplib: git-svn branch cleanup before fetch
 * changed: python: cmdoplib: all branches started by `git-svn` is reserved for internal usage

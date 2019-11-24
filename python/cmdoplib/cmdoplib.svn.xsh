@@ -171,8 +171,8 @@ def svn_relocate(configure_dir, scm_name, bare_args):
     try:
       call_svn(['relocate'] + bare_args, max_stdout_lines = -1)
     except plumbum.ProcessExecutionError as proc_err:
-      proc_stdout = proc_err.stdout
-      proc_stderr = proc_err.stderr
+      proc_stdout = proc_err.stdout.rstrip()
+      proc_stderr = proc_err.stderr.rstrip()
 
       # ignore non critical errors
 
