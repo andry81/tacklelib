@@ -18,6 +18,8 @@ def call_git(args_list,
       print(proc_err.stdout.rstrip())
     if len(proc_err.stderr) > 0:
       print(proc_err.stderr.rstrip())
+    if len(proc_err.stdout) > 0 or len(proc_err.stderr) > 0:
+      print('<') # end of a command output
     raise
 
   else:

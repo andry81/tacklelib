@@ -1,3 +1,8 @@
+2019.11.24:
+* fixed: cmdoplib: now a project checks whether a command file exists (without extension) to run a command
+* fixed: cmdoplib: minor fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
 2019.11.23:
 * fixed: cmdoplib: git-svn branch cleanup before fetch
 * changed: cmdoplib: all branches started by `git-svn` is reserved for internal usage
