@@ -86,7 +86,7 @@ def discover_executable(env_var_name, exec_file_name_wo_ext, global_var_name):
   raise Exception('Executable is not found in the `' + env_var_name + '` environment variable nor in the PATH variable.')
 
 def get_default_call_cmd_expr_expander():
-  return lambda cmd_expr: yaml_expand_global_string(cmd_expr, search_by_pred_at_third = lambda var_name: getglobalvar(var_name))
+  return lambda cmd_expr: yaml_expand_global_string(cmd_expr)
 
 def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False, in_bg = False,
          cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False):
@@ -130,7 +130,7 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
     if isinstance(yaml_environ_var_value, dict):
       yaml_environ_var_value_if = yaml_environ_var_value.get('if')
       if not yaml_environ_var_value_if is None:
-        yaml_environ_var_value_if_result = eval(yaml_expand_global_string(yaml_environ_var_value_if, search_by_pred_at_third = lambda var_name: getglobalvar(var_name)))
+        yaml_environ_var_value_if_result = eval(yaml_expand_global_string(yaml_environ_var_value_if))
         if not yaml_environ_var_value_if_result:
           continue
 
@@ -151,7 +151,7 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
         # save previous environment variable into local stack
         yaml_environ_vars_local_stack[yaml_environ_var_name] = getenvvar(yaml_environ_var_name)
         # set the variable
-        setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value, search_by_pred_at_third = lambda var_name: getglobalvar(var_name)))
+        setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value))
         yaml_environ_expanded_vars.append(yaml_environ_var_name)
       else:
         yaml_environ_var_value_values = yaml_environ_var_value.get('values')
@@ -171,7 +171,7 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
           for yaml_environ_var_value_value_dict in yaml_environ_var_value_values:
             yaml_environ_var_value_if = yaml_environ_var_value_value_dict['if']
             if not yaml_environ_var_value_if is None:
-              yaml_environ_var_value_if_result = eval(yaml_expand_global_string(yaml_environ_var_value_if, search_by_pred_at_third = lambda var_name: getglobalvar(var_name)))
+              yaml_environ_var_value_if_result = eval(yaml_expand_global_string(yaml_environ_var_value_if))
               if yaml_environ_var_value_if_result:
                 yaml_environ_var_value_value = yaml_environ_var_value_value_dict['value']
                 yaml_environ_var_value_applicable = True
@@ -187,7 +187,7 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
           # save previous environment variable into local stack
           yaml_environ_vars_local_stack[yaml_environ_var_name] = getenvvar(yaml_environ_var_name)
           # set the variable
-          setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value, search_by_pred_at_third = lambda var_name: getglobalvar(var_name)))
+          setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value))
           yaml_environ_expanded_vars.append(yaml_environ_var_name)
         else:
           raise Exception('unknown environment variable format: ' + yaml_environ_var_name + ': ' + str(type(yaml_environ_var_value)))

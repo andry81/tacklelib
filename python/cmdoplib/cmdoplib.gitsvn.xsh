@@ -2347,7 +2347,6 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
       # 3.
       #
 
-      """
       max_time_depth_in_multiple_svn_commits_fetch_sec = get_max_time_depth_in_multiple_svn_commits_fetch_sec()
 
       while True:
@@ -2414,11 +2413,11 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
               # direct use of the config section name `svn`
               call_git(['svn', 'fetch', 'svn', '-r' + str(unpushed_svn_commit_rev)] + git_svn_fetch_cmdline_list)
 
-              call_git(['svn', 'rebase', 'refs/remotes/origin/git-svn-trunk'], dry_run = True)
+              call_git(['svn', 'rebase', 'refs/remotes/origin/git-svn-trunk'])
 
               git_push_refspec_token = get_git_push_refspec_token(git_local_branch, git_remote_branch)
 
-              call_git(['svn', 'push', remote_name, git_push_refspec_token], dry_run = True)
+              call_git(['svn', 'push', remote_name, git_push_refspec_token])
 
               # get fetch subtrees
               #git_fetch_subtrees(git_repos_reader, scm_name, remote_name, git_local_branch, git_remote_branch)
@@ -2427,4 +2426,3 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
           update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, first_time_update = False)
         if not has_unpushed_svn_revisions_to_update:
           break
-      """

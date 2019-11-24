@@ -1,5 +1,9 @@
 2019.11.24:
-* fixed: python: cmdoplib: now a project checks whether a command file exists (without extension) to run a command
+* new: python: tacklelib: reimport functionality in the `tkl_import_module` function to partially resolve module cross references
+* changed: python: cmdoplib: `yaml_expand_*` functions always searches in python global variables now
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.24:
 * fixed: python: cmdoplib: minor fixup
 * changed: python: cmdoplib: [continued] `git_push_from_svn` function
 
