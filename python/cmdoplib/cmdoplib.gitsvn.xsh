@@ -2072,10 +2072,11 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
           git_remote_refspec_token = get_git_remote_refspec_token(remote_name, git_local_branch, git_remote_branch)
 
           ret = call_git_no_except(['show-ref', '--verify', git_local_refspec_token])
+
+          # CAUTION:
+          #   1. Is required to avoid a fetch into the `master` branch by default.
+          #
           if not ret[0]:
-            # CAUTION:
-            #   1. Is required to avoid a fetch into the `master` branch by default.
-            #
             call_git(['switch', git_local_branch])
           else:
             call_git(['switch', '-c', git_local_branch])
@@ -2185,6 +2186,12 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
             ignore_warnings = False if last_pushed_git_commit_rev > 0 else True)
 
           # revert again if last fetch has broke the HEAD
+
+          git_remote_refspec_token, git_remote_local_refspec_token = \
+            get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
+
+          # get last pushed commit hash
+          git_last_pushed_commit_hash = get_git_last_pushed_commit_hash(git_reporoot, git_remote_local_refspec_token)
 
           git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
 
@@ -2411,6 +2418,9 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
               unpushed_svn_commit_rev = unpushed_svn_commit_tuple[0]
               unpushed_svn_commit_datetime = unpushed_svn_commit_tuple[1]
 
+              last_pushed_git_commit = fetch_state_ref['last_pushed_git_commit']
+              last_pushed_git_commit_rev = last_pushed_git_commit[0]
+
               # direct use of the config section name `svn`
               call_git(['svn', 'fetch', 'svn', '-r' + str(unpushed_svn_commit_rev)] + git_svn_fetch_cmdline_list,
                 ignore_warnings = False if last_pushed_git_commit_rev > 0 else True)
@@ -2418,6 +2428,13 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
               git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
 
               call_git(['svn', 'rebase', '-l'])
+
+              # change author name and email
+              author_svn_token = yaml_expand_global_string('${${SCM_NAME}.USER} <${${SCM_NAME}.EMAIL}>')
+              if last_pushed_git_commit_rev > 0:
+                call_git(['commit', '--amend','--author=' + author_svn_token + ''])
+              else:
+                call_git(['commit', '--amend','--author=' + author_svn_token + '', '--allow-empty'])
 
               git_push_refspec_token = get_git_push_refspec_token(git_local_branch, git_remote_branch)
 
