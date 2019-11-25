@@ -17,19 +17,7 @@ sys.path.pop()
 
 
 def test_merge_2_modules_in_1():
-  THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
-  THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
-
-  assert(SOURCE_DIR == THIS_TEST_ROOT)
-  assert(SOURCE_FILE == THIS_TEST_FILE)
-
   tkl_import_module(SOURCE_DIR, 'inc1_lvl2.xsh', 'common_module')
-
-  THIS_TEST_FILE = os.path.normcase(os.path.abspath(inspect.getsourcefile(lambda:0))).replace('\\','/')
-  THIS_TEST_ROOT = os.path.dirname(SOURCE_FILE)
-
-  assert(SOURCE_DIR == THIS_TEST_ROOT)
-  assert(SOURCE_FILE == THIS_TEST_FILE)
 
   assert(hasattr(common_module.common_module, 'test1'))
   assert(hasattr(common_module.common_module, 'test2'))

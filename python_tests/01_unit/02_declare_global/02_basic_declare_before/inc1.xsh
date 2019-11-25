@@ -33,8 +33,8 @@ def test_inc1_global_data3():
 def test_inc1_global_data4():
   # no need a global declaration at all, because of a dynamic access through the dictionary
 
-  current_global = globals()
+  current_globals = globals()
 
-  assert(current_global['test_inc1_data4'] == [1, 2])
+  assert(current_globals['test_inc1_data4'] == [1, 2])
 
-  current_global['test_inc1_data4'] += [3, 4]
+  current_globals['test_inc1_data4'] += [3, 4]

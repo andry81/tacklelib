@@ -16,8 +16,22 @@ del tkl # must be instead of `tkl = None`, otherwise the variable would be still
 sys.path.pop()
 
 
-def test_base_class_in_second_module():
-  tkl_source_module(SOURCE_DIR, 'inc1.xsh')
+def test_reimport_being_imported_1():
+  tkl_import_module(SOURCE_DIR, 'inc1_lvl2.xsh', '.')
 
-  # `b` is a method of the `B` which is the base class to the `A` AND in a different imported module versus `A`
-  A().b()
+  inc1_lvl3_test()
+
+def test_reimport_being_imported_2():
+  tkl_import_module(SOURCE_DIR, 'inc2_lvl2.xsh', '.')
+
+  inc2_lvl3_test()
+
+def test_reimport_being_imported_3():
+  tkl_import_module(SOURCE_DIR, 'inc3_lvl2.xsh', 'inc3')
+
+  inc3.inc3_lvl3_test()
+
+def test_reimport_being_imported_4():
+  tkl_import_module(SOURCE_DIR, 'inc4_lvl2.xsh', 'inc4')
+
+  inc4.inc4_lvl3_test()

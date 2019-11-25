@@ -1,3 +1,7 @@
+2019.11.25:
+* new: python_tests: `01_unit/01_import_module/09_reimport_being_imported`, `01_unit/01_import_module/10_reimport_being_imported_from_default_lambda_arg` tests to test reimport functionality in the `tkl_import_module` function
+* changed: python_tests: tests cleanup
+
 2019.11.24:
 * new: python: tacklelib: reimport functionality in the `tkl_import_module` function to partially resolve module cross references
 * changed: python: cmdoplib: `yaml_expand_*` functions always searches in python global variables now
