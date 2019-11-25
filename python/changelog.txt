@@ -1,4 +1,8 @@
 2019.11.25:
+* fixed: minor fixup
+* new: change author name and email before push
+
+2019.11.25:
 * fixed: cmdoplib: fixup to init/fetch/reset/pull/push over empty git repository
 * changed: cmdoplib: [continued] `git_push_from_svn` function
 
