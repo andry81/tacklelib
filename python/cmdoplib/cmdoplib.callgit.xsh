@@ -7,7 +7,7 @@ import sys, plumbum
 def call_git(args_list,
              no_except = False, in_bg = False,
              cmd_expr_expander = get_default_call_cmd_expr_expander(),
-             dry_run = False, max_stdout_lines = 9):
+             dry_run = False, max_stdout_lines = 9, ignore_warnings = False):
   try:
     ret = call('${GIT}', args_list,
       stdout = None, stderr = None, no_except = no_except, in_bg = in_bg,
@@ -30,9 +30,10 @@ def call_git(args_list,
     tkl.print_max(stdout_lines, max_lines = max_stdout_lines)
     if len(stderr_lines) > 0:
       print(stderr_lines)
-      stderr_warning_match = re.match('W: [^+]', stderr_lines)
-      if stderr_warning_match:
-        raise Exception('specific warnings from the `git ...` command is treated as errors')
+      if not ignore_warnings:
+        stderr_warning_match = re.match('W: [^+]', stderr_lines)
+        if stderr_warning_match:
+          raise Exception('specific warnings from the `git ...` command is treated as errors')
 
     if len(stdout_lines) > 0 or len(stderr_lines) > 0:
       print('<') # end of a command output
