@@ -18,6 +18,8 @@ PYTESTS_LIST=(
   "01_import_module/06_merge_2_lvl2_modules_in_1_lvl1"
   "01_import_module/07_merge_2_lvl3_modules_in_1_lvl2"
   "01_import_module/08_specific_import_importlib_util"
+  "01_import_module/09_reimport_being_imported"
+  "01_import_module/10_reimport_being_imported_from_default_lambda_arg"
   "02_declare_global/01_builtin_global"
   "02_declare_global/02_basic_declare_before"
   "02_declare_global/03_basic_declare_after"
