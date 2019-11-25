@@ -7,10 +7,11 @@ import sys, plumbum
 def call_svn(args_list,
              no_except = False, in_bg = False,
              cmd_expr_expander = get_default_call_cmd_expr_expander(),
-             dry_run = False, max_stdout_lines = 9):
+             dry_run = False, max_stdout_lines = 9, ignore_warnings = False):
   try:
     ret = call('${SVN}', args_list,
-      stdout = None, stderr = None, no_except = no_except, in_bg = in_bg, cmd_expr_expander = cmd_expr_expander)
+      stdout = None, stderr = None, no_except = no_except, in_bg = in_bg,
+      cmd_expr_expander = cmd_expr_expander, dry_run = dry_run)
 
   except plumbum.ProcessExecutionError as proc_err:
     if len(proc_err.stdout) > 0:
@@ -29,9 +30,10 @@ def call_svn(args_list,
     tkl.print_max(stdout_lines, max_lines = max_stdout_lines)
     if len(stderr_lines) > 0:
       print(stderr_lines)
-      stderr_warning_match = re.match('warning: [^+]', stderr_lines)
-      if stderr_warning_match:
-        raise Exception('specific warnings from the `svn ...` command is treated as errors')
+      if not ignore_warnings:
+        stderr_warning_match = re.match('warning: [^+]', stderr_lines)
+        if stderr_warning_match:
+          raise Exception('specific warnings from the `svn ...` command is treated as errors')
 
     if len(stdout_lines) > 0 or len(stderr_lines) > 0:
       print('<') # end of a command output
