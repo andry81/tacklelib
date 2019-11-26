@@ -31,9 +31,22 @@ def call_git(args_list,
     if len(stderr_lines) > 0:
       print(stderr_lines)
       if not ignore_warnings:
-        stderr_warning_match = re.match('W: [^+]', stderr_lines)
-        if stderr_warning_match:
+        stderr_warning_match_list = re.findall('W: [^+-]', stderr_lines)
+
+        if len(stderr_warning_match_list) > 0:
           raise Exception('specific warnings from the `git ...` command is treated as errors')
+
+          """
+          has_specific_warnings = False
+          for stderr_warning_match in stderr_warning_match_list:
+            stderr_warning_second_match = re.match('W: ...', stderr_warning_match)
+            if not stderr_warning_second_match:
+              has_specific_warnings = True
+              break
+
+          if has_specific_warnings:
+            raise Exception('specific warnings from the `git ...` command is treated as errors')
+          """
 
     if len(stdout_lines) > 0 or len(stderr_lines) > 0:
       print('<') # end of a command output

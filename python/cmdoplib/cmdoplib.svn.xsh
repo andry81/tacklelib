@@ -19,16 +19,17 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
       from_rev = 'HEAD'
     else:
       from_rev = 0
-  if to_rev is None:
-    if str(from_rev) == 'HEAD':
-      to_rev = 0
-    else:
-      to_rev = 'HEAD'
 
-  if depth != '*':
-    ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath])
+  if not to_rev is None:
+    if depth != '*':
+      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath])
+    else:
+      ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath])
   else:
-    ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath])
+    if depth != '*':
+      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev), wcpath])
+    else:
+      ret = call_svn(['log', '-q', '-r', str(from_rev), wcpath])
 
   stdout_lines = ret[1]
   stderr_lines = ret[2]

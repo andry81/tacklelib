@@ -1,6 +1,16 @@
+2019.11.26:
+* fixed: python: cmdoplib: has used git commit timestamp/datetime in comparison instead of associated svn commit timestamp/datetime
+* fixed: python: cmdoplib: correct skip push of empty svn commits
+* fixed: python: cmdoplib: stop on a not critical warning from `git svn fetch ...` command
+* fixed: python: cmdoplib: missed `--no-edit` in the `git commit --amend ...` command
+* fixed: python: cmdoplib: fetch-rebase-push into git repo in the `git_push_from_svn` function
+* fixed: python: cmdoplib: minor fixup
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: minor refactor
+
 2019.11.25:
-* fixed: python: minor fixup
-* new: python: change author name and email before push
+* fixed: python: cmdoplib: minor fixup
+* new: python: cmdoplib: change author name and email before push
 
 2019.11.25:
 * fixed: python: cmdoplib: fixup to init/fetch/reset/pull/push over empty git repository
