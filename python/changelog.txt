@@ -1,6 +1,16 @@
+2019.11.26:
+* fixed: cmdoplib: has used git commit timestamp/datetime in comparison instead of associated svn commit timestamp/datetime
+* fixed: cmdoplib: correct skip push of empty svn commits
+* fixed: cmdoplib: stop on a not critical warning from `git svn fetch ...` command
+* fixed: cmdoplib: missed `--no-edit` in the `git commit --amend ...` command
+* fixed: cmdoplib: fetch-rebase-push into git repo in the `git_push_from_svn` function
+* fixed: cmdoplib: minor fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: minor refactor
+
 2019.11.25:
-* fixed: minor fixup
-* new: change author name and email before push
+* fixed: cmdoplib: minor fixup
+* new: cmdoplib: change author name and email before push
 
 2019.11.25:
 * fixed: cmdoplib: fixup to init/fetch/reset/pull/push over empty git repository
