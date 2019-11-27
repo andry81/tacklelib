@@ -442,7 +442,7 @@ def git_svn_fetch_to_last_git_pushed_svn_rev(remote_name, git_local_branch, git_
   call_git(['switch', git_local_branch])
 
   # direct use of the config section name `svn`
-  call_git(['svn', 'fetch', 'svn', '-r' + str(git_last_svn_rev)] + git_svn_fetch_cmdline_list)
+  call_git(['svn', 'fetch', 'svn', '--localtime', '-r' + str(git_last_svn_rev)] + git_svn_fetch_cmdline_list)
 
   return git_last_svn_rev
 """
@@ -1015,7 +1015,7 @@ def get_max_time_depth_in_multiple_svn_commits_fetch_sec():
   # maximal time depth in a multiple svn commits fetch from an svn repository
   return 2678400 # seconds in 1 month (31 days)
 
-def get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list):
+def get_root_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list):
   git_svn_repo_tree_tuple_root_ref = git_svn_repo_tree_tuple_ref_preorder_list[0]
   repo_params_root_ref = git_svn_repo_tree_tuple_root_ref[0]
   if not repo_params_root_ref['parent_tuple_ref'] is None:
@@ -1024,15 +1024,34 @@ def get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_pr
   min_tree_time_of_last_unpushed_svn_commit = fetch_state_root_ref['min_tree_time_of_last_unpushed_svn_commit']
   return min_tree_time_of_last_unpushed_svn_commit
 
-def print_min_tree_time_of_last_unpushed_svn_commit(prefix_str, git_svn_repo_tree_tuple_ref_preorder_list):
-  min_tree_time_of_last_unpushed_svn_commit = get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
-  print(prefix_str + 'min_tree_time_of_last_unpushed_svn_commit = ' + str(min_tree_time_of_last_unpushed_svn_commit[0]) +
-    ' {' + min_tree_time_of_last_unpushed_svn_commit[1] + '}')
+def print_root_min_tree_time_of_last_unpushed_svn_commit(prefix_str, git_svn_repo_tree_tuple_ref_preorder_list, suffix_str = ''):
+  min_tree_time_of_last_unpushed_svn_commit = get_root_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
+  column_fmt_str = '{:<{}} {:<{}} {:<{}} {:<{}}'
+  row_values = [prefix_str, 'root_min_tree_time_of_last_unpushed_svn_commit:', str(min_tree_time_of_last_unpushed_svn_commit[0]) +
+    ' {' + min_tree_time_of_last_unpushed_svn_commit[1] + '}', suffix_str]
+  column_widths = [3, 52, 40, 20]
+  git_print_repos_list_row(row_values, column_widths, column_fmt_str)
 
-def get_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref):
+def get_subtree_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref):
   fetch_state_ref = git_svn_repo_tree_tuple_ref[1]
   min_ro_tree_time_of_first_unpushed_svn_commit = fetch_state_ref['min_ro_tree_time_of_first_unpushed_svn_commit']
   return min_ro_tree_time_of_first_unpushed_svn_commit
+
+def get_root_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list):
+  git_svn_repo_tree_tuple_root_ref = git_svn_repo_tree_tuple_ref_preorder_list[0]
+  repo_params_root_ref = git_svn_repo_tree_tuple_root_ref[0]
+  if not repo_params_root_ref['parent_tuple_ref'] is None:
+    raise Exception('first element in git_svn_repo_tree_tuple_ref_preorder_list is not a tree root')
+  return get_subtree_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_root_ref)
+
+def print_root_min_ro_tree_time_of_first_unpushed_svn_commit(prefix_str, git_svn_repo_tree_tuple_ref_preorder_list, suffix_str = ''):
+  min_ro_tree_time_of_first_unpushed_svn_commit = get_root_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
+  if not min_ro_tree_time_of_first_unpushed_svn_commit is None:
+    column_fmt_str = '{:<{}} {:<{}} {:<{}} {:<{}}'
+    row_values = [prefix_str, 'root_min_ro_tree_time_of_first_unpushed_svn_commit:', str(min_ro_tree_time_of_first_unpushed_svn_commit[0]) +
+      ' {' + min_ro_tree_time_of_first_unpushed_svn_commit[1] + '}', suffix_str]
+    column_widths = [3, 52, 40, 20]
+    git_print_repos_list_row(row_values, column_widths, column_fmt_str)
 
 def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, max_time_depth_in_multiple_svn_commits_fetch_sec, root_only = False, first_time_update = True):
   print('- Updating GIT-SVN repositories fetch state...')
@@ -1329,7 +1348,7 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, m
 
   git_print_repos_list_footer(column_widths)
 
-  print_min_tree_time_of_last_unpushed_svn_commit('  * - ', git_svn_repo_tree_tuple_ref_preorder_list)
+  print_root_min_tree_time_of_last_unpushed_svn_commit('  * - ', git_svn_repo_tree_tuple_ref_preorder_list)
 
   if is_first_unpushed_svn_commit_invalid:
     raise Exception('one or more git-svn repositories contains a not pushed svn revision less or equal to the last pushed one')
@@ -1498,7 +1517,7 @@ def git_fetch(configure_dir, scm_name, subtrees_root = None, root_only = False, 
           last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
           last_pushed_git_svn_commit_rev = last_pushed_git_svn_commit[0]
 
-          call_git(['svn', 'fetch', 'svn', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
+          call_git(['svn', 'fetch', 'svn', '--localtime', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
             ignore_warnings = False if last_pushed_git_svn_commit_rev > 0 else True)
 
           # revert again if last fetch has broke the HEAD
@@ -1883,7 +1902,7 @@ def git_pull(configure_dir, scm_name, subtrees_root = None, root_only = False, r
           # direct use of the config section name `svn`
           last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
           last_pushed_git_svn_commit_rev = last_pushed_git_svn_commit[0]
-          call_git(['svn', 'fetch', 'svn', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
+          call_git(['svn', 'fetch', 'svn', '--localtime', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
             ignore_warnings = False if last_pushed_git_svn_commit_rev > 0 else True)
 
           # revert again if last fetch has broke the HEAD
@@ -1944,11 +1963,6 @@ def collect_unpushed_svn_revisions_ordered_by_timestamp(git_svn_repo_tree_tuple_
   for git_svn_repo_tree_tuple_ref in reversed(git_svn_repo_tree_tuple_ref_preorder_list): # in reverse
     fetch_state_ref = git_svn_repo_tree_tuple_ref[1]
 
-    is_read_only_repo = fetch_state_ref['is_read_only_repo']
-    if is_read_only_repo:
-      # can not puth into a read only git repository
-      continue
-
     min_tree_time_of_last_unpushed_svn_commit = fetch_state_ref['min_tree_time_of_last_unpushed_svn_commit']
     min_ro_tree_time_of_first_unpushed_svn_commit = fetch_state_ref['min_ro_tree_time_of_first_unpushed_svn_commit']
 
@@ -1971,7 +1985,7 @@ def collect_unpushed_svn_revisions_ordered_by_timestamp(git_svn_repo_tree_tuple_
          unpushed_svn_commit_timestamp >= min_ro_tree_time_of_first_unpushed_svn_commit[0]:
         break
 
-  min_tree_time_of_last_unpushed_svn_commit = get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
+  min_tree_time_of_last_unpushed_svn_commit = get_root_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
   min_tree_time_of_last_unpushed_svn_commit_timestamp = min_tree_time_of_last_unpushed_svn_commit[0]
 
   column_fmt_str = '{:<{}} {:<{}} {:<{}} {:<{}}'
@@ -1987,6 +2001,7 @@ def collect_unpushed_svn_revisions_ordered_by_timestamp(git_svn_repo_tree_tuple_
       unpushed_svn_commit_git_svn_repo_tree_tuple_ref = unpushed_svn_commit_tuple[2]
 
       repo_params_ref = unpushed_svn_commit_git_svn_repo_tree_tuple_ref[0]
+      fetch_state_ref = unpushed_svn_commit_git_svn_repo_tree_tuple_ref[1]
 
       nest_index = repo_params_ref['nest_index']
       remote_name = repo_params_ref['remote_name']
@@ -1995,14 +2010,22 @@ def collect_unpushed_svn_revisions_ordered_by_timestamp(git_svn_repo_tree_tuple_
 
       svn_repopath = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
 
-      row_values = [('* ' if unpushed_svn_commit_timestamp == min_tree_time_of_last_unpushed_svn_commit_timestamp else '  ') + \
-        str(unpushed_svn_commit_timestamp) + ' {' + unpushed_svn_commit_tuple[1] + '}',
-        'r' + str(unpushed_svn_commit_tuple[0]), ('| ' * nest_index) + remote_name, svn_repopath]
+      is_read_only_repo = fetch_state_ref['is_read_only_repo']
+
+      if not is_read_only_repo:
+        row_values = [('* ' if unpushed_svn_commit_timestamp == min_tree_time_of_last_unpushed_svn_commit_timestamp else '  ') + \
+          str(unpushed_svn_commit_timestamp) + ' {' + unpushed_svn_commit_tuple[1] + '}',
+          'r' + str(unpushed_svn_commit_tuple[0]), ('| ' * nest_index) + remote_name, svn_repopath]
+      else:
+        row_values = ['o ' + \
+          str(unpushed_svn_commit_timestamp) + ' {' + unpushed_svn_commit_tuple[1] + '}',
+          'r' + str(unpushed_svn_commit_tuple[0]), ('| ' * nest_index) + remote_name, svn_repopath]
       git_print_repos_list_row(row_values, column_widths, column_fmt_str)
 
   git_print_repos_list_footer(column_widths)
 
-  print_min_tree_time_of_last_unpushed_svn_commit('  * - ', git_svn_repo_tree_tuple_ref_preorder_list)
+  print_root_min_tree_time_of_last_unpushed_svn_commit('  * -', git_svn_repo_tree_tuple_ref_preorder_list)
+  print_root_min_ro_tree_time_of_first_unpushed_svn_commit('  o -', git_svn_repo_tree_tuple_ref_preorder_list)
 
   return unpushed_svn_commit_by_timestamp_dict
 
@@ -2224,7 +2247,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
           # direct use of the config section name `svn`
           last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
           last_pushed_git_svn_commit_rev = last_pushed_git_svn_commit[0]
-          call_git(['svn', 'fetch', 'svn', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
+          call_git(['svn', 'fetch', 'svn', '--localtime', '-r' + str(last_pushed_git_svn_commit_rev)] + git_svn_fetch_cmdline_list,
             ignore_warnings = False if last_pushed_git_svn_commit_rev > 0 else True)
 
           # revert again if last fetch has broke the HEAD
@@ -2403,7 +2426,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
 
         print('- GIT-SVN pushing is started.')
 
-        min_tree_time_of_last_unpushed_svn_commit = get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
+        min_tree_time_of_last_unpushed_svn_commit = get_root_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
 
         for unpushed_svn_commit_timestamp, unpushed_svn_commit_list in sorted(unpushed_svn_commit_by_timestamp_dict.items()):
           for unpushed_svn_commit_tuple in unpushed_svn_commit_list:
@@ -2415,7 +2438,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
 
             remote_name = repo_params_ref['remote_name']
 
-            min_ro_tree_time_of_first_unpushed_svn_commit = get_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref)
+            min_ro_tree_time_of_first_unpushed_svn_commit = get_subtree_min_ro_tree_time_of_first_unpushed_svn_commit(git_svn_repo_tree_tuple_ref)
 
             if not min_ro_tree_time_of_first_unpushed_svn_commit is None:
               min_ro_tree_time_of_first_unpushed_svn_commit_timestamp = min_ro_tree_time_of_first_unpushed_svn_commit[0]
@@ -2425,9 +2448,9 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
                 min_ro_tree_repo_params_ref = min_ro_tree_svn_commit_repo_tree_tuple_ref[0]
                 min_ro_tree_remote_name = min_ro_tree_repo_params_ref['remote_name']
                 raise Exception('The `' + min_ro_tree_remote_name +
-                  '` read only repository must be pushed in an another project before continue with the `' + remote_name + '` repository from the current project')
+                  '` read only repository must be pushed in another project before continue with the `' + remote_name + '` repository from the current project')
 
-            min_tree_time_of_last_unpushed_svn_commit = get_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
+            min_tree_time_of_last_unpushed_svn_commit = get_root_min_tree_time_of_last_unpushed_svn_commit(git_svn_repo_tree_tuple_ref_preorder_list)
 
             if not min_tree_time_of_last_unpushed_svn_commit is None:
               min_tree_time_of_last_unpushed_svn_commit_timestamp = min_tree_time_of_last_unpushed_svn_commit[0]
@@ -2467,7 +2490,7 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
               last_pushed_git_svn_commit_rev = last_pushed_git_svn_commit[0]
 
               # direct use of the config section name `svn`
-              call_git(['svn', 'fetch', 'svn', '-r' + str(unpushed_svn_commit_rev)] + git_svn_fetch_cmdline_list,
+              call_git(['svn', 'fetch', 'svn', '--localtime', '-r' + str(unpushed_svn_commit_rev)] + git_svn_fetch_cmdline_list,
                 ignore_warnings = False if last_pushed_git_svn_commit_rev > 0 else True)
 
               # CAUTION:
@@ -2497,7 +2520,24 @@ def git_push_from_svn(configure_dir, scm_name, subtrees_root = None, reset_hard 
                 ###git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
                 ###call_git(['rebase', git_local_refspec_token, 'refs/remotes/origin/git-svn-trunk'])
 
-                call_git(['cherry-pick', '--allow-empty', git_first_commit_hash])
+                # CAUTION:
+                #   1. We have to cleanup before the `git cherry-pick ...` command, otherwise the command may fail with the messages:
+                #      `error: your local changes would be overwritten by cherry-pick`
+                #      `hint: commit your changes or stash them to proceed.`
+                #   2. We have to reset with the `--hard`, otherwise another error message:
+                #      `error: The following untracked working tree files would be overwritten by merge:`
+                #
+                call_git(['reset', '--hard'])
+
+                # CAUTION:
+                #   1. Before call `git cherry-pick ...` command we have to check whether the same commit already exist by the HEAD, otherwise
+                #      would an error message: `nothing to commit, working tree clean`
+                #
+                ret = call_git(['rev-parse', 'HEAD'])
+                head_hash = ret[1].rstrip()
+
+                if head_hash != git_first_commit_hash:
+                  call_git(['cherry-pick', '--allow-empty', git_first_commit_hash])
 
                 # Change:
                 #   1. Author name and email.

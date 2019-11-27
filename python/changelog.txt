@@ -1,3 +1,7 @@
+2019.11.27:
+* fixed: cmdoplib: added '--localtime' to all `git svn fetch ...` commands
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
 2019.11.26:
 * fixed: cmdoplib: has used git commit timestamp/datetime in comparison instead of associated svn commit timestamp/datetime
 * fixed: cmdoplib: correct skip push of empty svn commits
