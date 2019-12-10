@@ -36,7 +36,7 @@ csv.register_dialect('git_show_ref', GitShowRefReaderDialect)
 
 class GitReposListReader(tkl.CsvListBaseFileReader):
   def __init__(self, file_path, fieldnames =
-      ['scm_token', 'branch_type', 'remote_name', 'parent_remote_name', 'git_reporoot', 'svn_reporoot', 'git_local_branch', 'git_remote_branch', 'parent_git_path_prefix', 'svn_path_prefix', 'git_svn_init_cmdline', 'git_remote_add_cmdline', 'parent_git_subtree_cmdline', 'git_subtree_cmdline'],
+      ['scm_token', 'branch_type', 'remote_name', 'parent_remote_name', 'git_reporoot', 'svn_reporoot', 'git_local_branch', 'git_remote_branch', 'parent_git_path_prefix', 'svn_path_prefix', 'git_svn_init_cmdline', 'git_remote_add_cmdline'],
       dialect = 'git_repos_list'):
     tkl.CsvListBaseFileReader.__init__(self, file_path, fieldnames, dialect)
 

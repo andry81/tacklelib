@@ -1,3 +1,26 @@
+2019.12.11:
+* changed: python: cmdoplib: [completed] `git_push_from_svn` function
+
+2019.12.09:
+* fixed: python: cmdoplib: `git pull ...` command can not handle multiple merge into the index file, throws error message `error: You have not concluded your merge (MERGE_HEAD exists).`, has replaced by the `git subtree add ...`/`git subtree merge ...` command
+* fixed: python: cmdoplib: `git subtree add ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has moved before a parent repository merge command
+* fixed: python: cmdoplib: `git subtree merge ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has replaced by the `git merge --no-commit -s ours ...` + `git read-tree ...` + `git commit -C ...`
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.08:
+* fixed: python: cmdoplib: `git cherry-pick ...` command can not handle a subtree prefix and merges all commits into the root directory of a commit, has replaced by the `git read-tree ...` command
+* fixed: python: cmdoplib: `git read-tree ...` command can not handle multiple merge into the index file, throws error message `error: Entry '...' overlaps with '...'.  Cannot bind.`, has replaced by the `git pull ...` command
+* fixed: python: cmdoplib: `git_push_from_svn` function error message `fatal: cannot switch branch while merging`, added `git reset --mixed` to cleanup before the switch
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.06:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.04:
+* changed: python: cmdoplib: removed usage of `parent_git_subtree_cmdline` and `git_subtree_cmdline` parameters in `GitReposListReader` class
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: git functions refactor
+
 2019.11.27:
 * fixed: python: cmdoplib: added '--localtime' to all `git svn fetch ...` commands
 * changed: python: cmdoplib: [continued] `git_push_from_svn` function

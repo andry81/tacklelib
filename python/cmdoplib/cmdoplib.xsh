@@ -11,11 +11,11 @@ def parse_cmd_script_name(cmd_script_file_name):
   if cmd_components[0] == '':
     raise Exception('hub_attr must not be empty')
   if cmd_components[1] == '':
-    raise Exception('scm_name must not be empty')
+    raise Exception('scm_token must not be empty')
   if cmd_components[2] == '':
-    raise Exception('cmd_name must not be empty')
+    raise Exception('cmd_tpken must not be empty')
   return {
-    'hub_abbr': cmd_components[0],
-    'scm_name': cmd_components[1],
-    'cmd_name': cmd_components[2],
+    'hub_abbr' : cmd_components[0],
+    'scm_token': cmd_components[1],
+    'cmd_token': cmd_components[2],
   }
