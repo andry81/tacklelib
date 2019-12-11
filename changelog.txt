@@ -1,4 +1,8 @@
 2019.12.11:
+* fixed: python: cmdoplib: commit timestamp has used instead of author timestamp
+* fixed: python: cmdoplib: minor fixes
+
+2019.12.11:
 * changed: python: cmdoplib: [completed] `git_push_from_svn` function
 
 2019.12.09:
