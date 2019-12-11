@@ -255,7 +255,7 @@ def get_git_fetch_first_commit_hash(remote_name, git_local_branch, git_remote_br
 # Returns only the first git commit parameters or nothing.
 #
 def get_git_first_commit_from_git_log(str):
-  svn_rev = None
+  svn_rev = 0
   commit_hash = None
   commit_timestamp = None
 
@@ -272,7 +272,7 @@ def get_git_first_commit_from_git_log(str):
         return (svn_rev, commit_hash, commit_timestamp)
       commit_hash = value_list[1]
     elif key == 'timestamp':
-      commit_timestamp = value_list[1]
+      commit_timestamp = int(value_list[1])
     elif key == 'git-svn-id':
       git_svn_url = value_list[1].split(' ', 1)[0]
       svn_rev_index = git_svn_url.rfind('@')
@@ -289,6 +289,8 @@ def get_git_commit_from_git_log(str, svn_reporoot, svn_path_prefix):
 
   svn_remote_path = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
 
+  commit_timestamp = None
+  commit_date_time = None
   num_commits = 0
 
   # To iterate over lines instead chars.
@@ -296,7 +298,7 @@ def get_git_commit_from_git_log(str, svn_reporoot, svn_path_prefix):
 
   lines = io.StringIO(str)
   for line in lines:
-    print(line.strip())
+    #print(line.strip())
     value_list = [value.strip() for value in line.split(":", 1)]
     key = value_list[0]
     if key == 'commit':
@@ -319,7 +321,8 @@ def get_git_commit_from_git_log(str, svn_reporoot, svn_path_prefix):
         if svn_path_wo_scheme == svn_remote_path_wo_scheme:
           return (svn_rev, commit_hash, commit_timestamp, commit_date_time, num_commits)
 
-  return (0, None, None, None, num_commits)
+  # if not found then timestamp is the last commit timestamp
+  return (0, None, commit_timestamp, commit_date_time, num_commits)
 
 def get_git_last_pushed_commit_hash(git_reporoot, git_remote_local_refspec_token):
   git_last_pushed_commit_hash = None
@@ -508,7 +511,7 @@ def get_git_svn_subtree_ignore_paths_regex_from_parent_ref(parent_tuple_ref, chi
 def git_svn_fetch_to_last_git_pushed_svn_rev(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_svn_fetch_cmdline_list = []):
   # search for the last pushed svn revision
 
-  git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, git_from_commit_timestamp, num_git_commits = \
+  git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, num_overall_git_commits = \
     get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix)
 
   # CAUTION:
@@ -526,10 +529,10 @@ def git_svn_fetch_to_last_git_pushed_svn_rev(remote_name, git_local_branch, git_
 #   git_last_svn_rev          - last pushed svn revision if has any
 #   git_commit_hash           - git commit associated with the last pushed svn revision if has any, otherwise the last git commit
 #   git_commit_timestamp      - git commit timestamp of the `git_commit_hash` commit
-#   git_from_commit_timestamp - from there the last search is occured, if None - from FETCH_HEAD, if not None, then has used as: `git log ... FETCH_HEAD ... --until <git_from_commit_timestamp>`
-#   num_git_commits           - number of looked up commits from the either FETCH_HEAD or from the `git_from_commit_timestamp` argument in the last `git log` command
+#   num_overall_git_commits   - number of overall looked up commits from the first commit by the remote refspec token
 #
-def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_log_start_depth = 16):
+def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_log_start_depth = 16,
+                                    except_on_max_num_git_commits_lookup = 16):
   # get last pushed svn revision from the `git log` using last commit hash from the git remote repo
   git_last_svn_rev = 0
   git_commit_hash = None
@@ -542,15 +545,21 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
   git_log_prev_num_commits = -1
   git_log_next_num_commits = 0
 
+  git_log_next_depth_increase_count = 0
+  git_log_next_depth_increase_max_count = 3
+
   # use `--until` argument to shift commits window
   git_from_commit_timestamp = None
+
+  num_overall_git_commits = 0
 
   # 1. iterate to increase the `git log` depth (`--max-count`) in case of equal the first and the last commit timestamps
   # 2. iterate to shift the `git log` window using `--until` parameter
   while True:
-    ret = call_git(['log', '--max-count=' + str(git_log_next_depth), '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b',
+    ret = call_git(['log', '--max-count=' + str(git_log_next_depth), '--format=commit: %H%ntimestamp: %at%ndate_time: %ai%nauthor: %an <%ae>%n%b',
       get_git_remote_refspec_token(remote_name, git_local_branch, git_remote_branch)] +
-      (['--until', str(git_from_commit_timestamp)] if not git_from_commit_timestamp is None else []))
+      (['--until', str(git_from_commit_timestamp)] if not git_from_commit_timestamp is None else []),
+      max_stdout_lines = 16)
 
     git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, num_git_commits = \
       get_git_commit_from_git_log(ret[1], svn_reporoot, svn_path_prefix)
@@ -568,10 +577,15 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
 
     git_log_prev_depth = git_log_next_depth
 
-    git_first_commit_svn_rev, git_first_commit_hash, git_first_commit_timestamp = get_git_first_commit_from_git_log(ret[1].rstrip())
+    git_first_commit_svn_rev, git_first_commit_hash, git_first_commit_timestamp = \
+      get_git_first_commit_from_git_log(ret[1].rstrip())
 
     # increase the depth of the `git log` if the last commit timestamp is not less than the first commit timestamp
-    if git_commit_timestamp >= git_first_commit_timestamp:
+    if git_commit_timestamp is None or git_commit_timestamp >= git_first_commit_timestamp:
+      git_log_next_depth_increase_count += 1
+      if git_log_next_depth_increase_max_count < git_log_next_depth_increase_count:
+        raise Exception('git log frame size is increased too much: path=`{0}`'.format(svn_reporoot + '/' + svn_path_prefix))
+
       git_log_next_depth *= 2
       if git_from_commit_timestamp is None:
         git_from_commit_timestamp = git_first_commit_timestamp
@@ -580,7 +594,17 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
       git_log_prev_num_commits = -1
       git_from_commit_timestamp = git_commit_timestamp
 
-  return (git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, git_from_commit_timestamp, num_git_commits)
+      num_overall_git_commits += num_git_commits - 1
+
+    if not except_on_max_num_git_commits_lookup is None and except_on_max_num_git_commits_lookup >= num_overall_git_commits + 1:
+      raise Exception('maximal commits lookup limit is reached: path=`{0}`'.format(svn_reporoot + '/' + svn_path_prefix))
+
+  num_overall_git_commits += num_git_commits
+
+  if git_last_svn_rev > 0:
+    return (git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, num_overall_git_commits)
+
+  return (0, None, None, None, num_overall_git_commits)
 
 def get_git_svn_trunk_remote_refspec_token(remote_name, shorted = False):
   return ('refs/remotes/' if not shorted else '') + remote_name + '/git-svn-trunk'
@@ -1226,8 +1250,10 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, m
           # get last git-svn revision w/o fetch because it must be already fetched
 
           if first_time_pass:
-            git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, git_from_commit_timestamp, num_git_commits = \
+            git_last_svn_rev, git_commit_hash, git_commit_timestamp, git_commit_date_time, num_overall_git_commits = \
               get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix)
+            if not git_last_svn_rev > 0 and num_overall_git_commits > 0:
+              raise Exception('last svn revision is not found in the git log output: path={0}'.format(svn_reporoot + '/' +svn_path_prefix))
           else:
             # read the saved fetch state
             last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
@@ -1374,6 +1400,8 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, m
           git_commit_date_time
         )
         fetch_state_ref['unpushed_svn_commit_list'] = unpushed_svn_commit_list
+
+        print('---')
 
         if parent_tuple_ref is None and root_only:
           break
@@ -2607,7 +2635,7 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
                 parent_git_wcroot = parent_repo_params_ref['git_wcroot']
 
                 with conditional(parent_git_wcroot != '.', local.cwd(parent_git_wcroot)):
-                  call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b',
+                  call_git(['log', '--format=commit: %H%ntimestamp: %at%ndate_time: %ai%nauthor: %an <%ae>%n%b',
                     get_git_remote_refspec_token(parent_remote_name, parent_git_local_branch, parent_git_remote_branch),
                     '--since', str(child_first_unpushed_svn_timestamp)], max_stdout_lines = 32)
 
@@ -2663,7 +2691,7 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
               child_git_wcroot = child_repo_params_ref['git_wcroot']
 
               with conditional(child_git_wcroot != '.', local.cwd(child_git_wcroot)):
-                call_git(['log', '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b',
+                call_git(['log', '--format=commit: %H%ntimestamp: %at%ndate_time: %ai%nauthor: %an <%ae>%n%b',
                   get_git_remote_refspec_token(child_remote_name, child_git_local_branch, child_git_remote_branch),
                   '--since', str(parent_first_unpushed_svn_timestamp)], max_stdout_lines = 32)
 
@@ -2917,7 +2945,7 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
                   # ignore errors because may call on not yet existed branch
                   git_svn_trunk_remote_refspec_token = get_git_svn_trunk_remote_refspec_token('origin')
                   ret = call_git_no_except(['log', '--max-count=1',
-                    '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b', git_svn_trunk_remote_refspec_token])
+                    '--format=commit: %H%ntimestamp: %at%ndate_time: %ai%nauthor: %an <%ae>%n%b', git_svn_trunk_remote_refspec_token])
 
                   git_svn_trunk_first_commit_svn_rev, git_svn_trunk_first_commit_hash, git_svn_trunk_first_commit_timestamp = \
                     get_git_first_commit_from_git_log(ret[1].rstrip())
@@ -3142,7 +3170,7 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
               # ignore errors because may call on not yet existed branch
               git_svn_trunk_remote_refspec_token = get_git_svn_trunk_remote_refspec_token('origin')
               ret = call_git_no_except(['log', '--max-count=1',
-                '--format=commit: %H%ntimestamp: %ct%ndate_time: %ci%nauthor: %an <%ae>%n%b', git_svn_trunk_remote_refspec_token])
+                '--format=commit: %H%ntimestamp: %at%ndate_time: %ai%nauthor: %an <%ae>%n%b', git_svn_trunk_remote_refspec_token])
 
               git_svn_trunk_first_commit_svn_rev, git_svn_trunk_first_commit_hash, git_svn_trunk_first_commit_timestamp = \
                 get_git_first_commit_from_git_log(ret[1].rstrip())
