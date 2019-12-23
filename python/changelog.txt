@@ -1,3 +1,36 @@
+2019.12.23:
+* fixed: tacklelib: minor `TmpFileIO` class fixups
+* fixed: tacklelib: minor `devnull` class fixup
+* fixed: cmdoplib: workaround for the `plumbum.local.run` function for `TmpFileIO` object as a stdin
+* fixed: cmdoplib: invalid author date/time in `git_push_from_svn` function
+* fixed: cmdoplib: other multiple fixups
+* refactor: cmdoplib: removed unnecessary default keyword parameters from `call*`/`call_svn*`/`call_git*` functions
+
+2019.12.22:
+* fixed: cmdoplib: case around the `error: Entry '<prefix>/...' overlaps with '<prefix>/...'.  Cannot bind.` message after the `git read-tree --prefix=...` command
+* fixed: cmdoplib: missed commit message `git-svn-id` field change after merge from a child repository commit to a parent repository
+* fixed: cmdoplib: missed to commit changes in a not root repository in case if a not root repository has changes for a revision together with a child repository
+* fixed: cmdoplib: other multiple fixups
+* new: cmdoplib: `stdin` parameter in `call` function
+* new: cmdoplib: `**kwargs` parameter in `call_svn`/`call_git` functions
+
+2019.12.18:
+* fixed: cmdoplib: missed git switch with checkout (not initialized HEAD) after a call to `git_pull`/`git_push_from_svn` functions
+* fixed: cmdoplib: workaround call to the `git filter-branch --prune-empty ...` without initialized HEAD reference (error message `fatal: Needed a single revision`)
+* fixed: cmdoplib: other multiple fixups
+
+2019.12.17:
+* fixed: cmdoplib: multiple fixup
+* new: cmdoplib: `set_verbosity_level` function and respective `cmdop.xpy` script parameter to reduce a verbosity level by default (hide an environment variables output attached to a being runned executable)
+* new: cmdoplib: explicit environment dictionary parameter in the `call`/`call_svn`/`call_git` functions
+* changed: cmdoplib: removed svn cache remove from all functions except in the `git_reset` function if the `--remove_svn_on_reset` flag is set
+
+2019.12.16:
+* refactor: cmdoplib: minor refactor
+
+2019.12.11:
+* fixed: cmdoplib: incorrect git-svn-trunk branch fetch from the previous revision instead of from the first revision, as a result is incorrect commit-to-commit concatenation after a criss-cross repository synchronization in another project
+
 2019.12.11:
 * fixed: cmdoplib: commit timestamp has used instead of author timestamp
 * fixed: cmdoplib: minor fixes

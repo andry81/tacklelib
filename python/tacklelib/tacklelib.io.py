@@ -71,7 +71,7 @@ class devnull:
     if self.file:
       self.file.close()
       self.file = None
-    self.closed == True
+    self.closed = True
 
   def fileno(self):
     # nothing can do, needs to open the real file here
@@ -87,7 +87,8 @@ class TmpFileIO:
       self.file = os.fdopen(self.fd, mode = mode, buffering = buffering, encoding = encoding,
         errors = errors, newline = newline, closefd = closefd, opener = opener)
     except OSError:
-      os.unlink(self.path)
+      self.close()
+      raise
 
   def flush(self):
     if self.file:
@@ -133,7 +134,7 @@ class TmpFileIO:
     return self.file.seekable()
 
   def __enter__(self):
-    return self.file
+    return self
 
   def __exit__(self, exc_type, exc_value, trackback):
     self.close()

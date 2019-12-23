@@ -1,5 +1,7 @@
 # python module for commands with extension modules usage: tacklelib
 
+tkl_declare_global('VERBOSITY_LEVEL', 0)
+
 tkl_import_module(TACKLELIB_ROOT, 'tacklelib.utils.py', 'tkl')
 
 tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.yaml.xsh')
@@ -88,10 +90,25 @@ def discover_executable(env_var_name, exec_file_name_wo_ext, global_var_name):
 def get_default_call_cmd_expr_expander():
   return lambda cmd_expr: yaml_expand_global_string(cmd_expr)
 
-def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_except = False, in_bg = False,
-         cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False):
+def set_verbosity_level(verbosity):
+  global VERBOSITY_LEVEL
+
+  if verbosity < 0:
+    verbosity = 1 # max level
+
+  VERBOSITY_LEVEL = verbosity
+
+def call(cmd_expr, args_list,
+         stdin = sys.stdin, stdout = sys.stdout, stderr = sys.stderr,
+         env = None, no_except = False, in_bg = False,
+         cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False, verbosity = None):
+  global VERBOSITY_LEVEL
+
   if cmd_expr == '':
     raise Exception('cmd_expr must be a not empty string and a command expression with or without variables')
+
+  if verbosity is None:
+    verbosity = VERBOSITY_LEVEL
 
   #cmdline = [cmd_expr]
   cmdline_args = ''
@@ -125,7 +142,9 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
   #
   yaml_environ_vars_local_stack = {}
   yaml_environ_unexpanded_vars = yaml_get_environ_unexpanded_vars()
-  yaml_environ_expanded_vars = []
+
+  environ_expanded_vars = []
+
   for yaml_environ_var_name, yaml_environ_var_value in yaml_environ_unexpanded_vars.items():
     if isinstance(yaml_environ_var_value, dict):
       yaml_environ_var_value_if = yaml_environ_var_value.get('if')
@@ -150,9 +169,10 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
 
         # save previous environment variable into local stack
         yaml_environ_vars_local_stack[yaml_environ_var_name] = getenvvar(yaml_environ_var_name)
+
         # set the variable
         setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value))
-        yaml_environ_expanded_vars.append(yaml_environ_var_name)
+        environ_expanded_vars.append(yaml_environ_var_name)
       else:
         yaml_environ_var_value_values = yaml_environ_var_value.get('values')
         if not yaml_environ_var_value_values is None:
@@ -186,17 +206,31 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
 
           # save previous environment variable into local stack
           yaml_environ_vars_local_stack[yaml_environ_var_name] = getenvvar(yaml_environ_var_name)
+
           # set the variable
           setenvvar(yaml_environ_var_name, yaml_expand_environ_value(yaml_environ_var_value_value))
-          yaml_environ_expanded_vars.append(yaml_environ_var_name)
+          environ_expanded_vars.append(yaml_environ_var_name)
         else:
           raise Exception('unknown environment variable format: ' + yaml_environ_var_name + ': ' + str(type(yaml_environ_var_value)))
 
-  if len(yaml_environ_vars_local_stack) > 0 and (stdout is None or not hasattr(stdout, 'name') or stdout.name != '<null>'):
+  # use the explicit enviroment dictionary
+  if not env is None:
+    for env_var, env_value in env.items():
+      # save previous environment variable into local stack if has not been already saved
+      if env_var not in yaml_environ_vars_local_stack:
+        yaml_environ_vars_local_stack[env_var] = getenvvar(env_var)
+
+      # set the variable
+      setenvvar(env_var, yaml_expand_environ_value(env_value))
+      environ_expanded_vars.append(env_var)
+
+  if verbosity > 0 and len(environ_expanded_vars) > 0:
     # print command environment variable at first
     print('- environment variables:')
-    for yaml_environ_var_name in yaml_environ_expanded_vars:
-      print('  ' + yaml_environ_var_name + '=`' + getenvvar(yaml_environ_var_name) + '`')
+    for env_var in environ_expanded_vars:
+      print('  ' + env_var + '=`' + getenvvar(env_var) + '`')
+
+  if len(yaml_environ_vars_local_stack) > 0 and (stdout is None or not hasattr(stdout, 'name') or stdout.name != '<null>'):
     # build `on exit` handler function
     def on_exit_call():
       for yaml_environ_var_name, yaml_environ_var_value in yaml_environ_vars_local_stack.items():
@@ -225,42 +259,82 @@ def call(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, no_excep
 
       if not dry_run:
         # Passing the `None` does not help to intercept a command output to a variable, instead does need to not pass the parameter!
-        if not stdout is None:
-          if not stderr is None:
-            if not no_except:
-             return cmd.run(stdout = stdout, stderr = stderr)
+        if stdin is None:
+          if not stdout is None:
+            if not stderr is None:
+              if not no_except:
+               return cmd.run(stdout = stdout, stderr = stderr)
+              else:
+               return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
             else:
-             return cmd.run(stdout = stdout, stderr = stderr, retcode = None)
+              if not no_except:
+                return cmd.run(stdout = stdout)
+              else:
+                return cmd.run(stdout = stdout, retcode = None)
           else:
-            if not no_except:
-              return cmd.run(stdout = stdout)
+            if not stderr is None:
+              if not no_except:
+                return cmd.run(stderr = stderr)
+              else:
+                return cmd.run(stderr = stderr, retcode = None)
             else:
-              return cmd.run(stdout = stdout, retcode = None)
+              if not no_except:
+                return cmd.run()
+              else:
+                return cmd.run(retcode = None)
         else:
-          if not stderr is None:
-            if not no_except:
-              return cmd.run(stderr = stderr)
+          if not stdout is None:
+            if not stderr is None:
+              if not no_except:
+               return cmd.run(stdin = stdin, stdout = stdout, stderr = stderr)
+              else:
+               return cmd.run(stdin = stdin, stdout = stdout, stderr = stderr, retcode = None)
             else:
-              return cmd.run(stderr = stderr, retcode = None)
+              if not no_except:
+                return cmd.run(stdin = stdin, stdout = stdout)
+              else:
+                return cmd.run(stdin = stdin, stdout = stdout, retcode = None)
           else:
-            if not no_except:
-              return cmd.run()
+            if not stderr is None:
+              if not no_except:
+                return cmd.run(stdin = stdin, stderr = stderr)
+              else:
+                return cmd.run(stdin = stdin, stderr = stderr, retcode = None)
             else:
-              return cmd.run(retcode = None)
+              if not no_except:
+                return cmd.run(stdin = stdin)
+              else:
+                return cmd.run(stdin = stdin, retcode = None)
 
     if not dry_run:
-      if not stdout is None:
-        if not stderr is None:
-          return cmd.run_bg(stdout = stdout, stderr = stderr)
+      if stdin is None:
+        if not stdout is None:
+          if not stderr is None:
+            return cmd.run_bg(stdout = stdout, stderr = stderr)
+          else:
+            return cmd.run_bg(stdout = stdout)
         else:
-          return cmd.run_bg(stdout = stdout)
+          if not stderr is None:
+            return cmd.run_bg(stderr = stderr)
+          else:
+            return cmd.run_bg()
       else:
-        if not stderr is None:
-          return cmd.run_bg(stderr = stderr)
+        if not stdout is None:
+          if not stderr is None:
+            return cmd.run_bg(stdin = stdin, stdout = stdout, stderr = stderr)
+          else:
+            return cmd.run_bg(stdin = stdin, stdout = stdout)
         else:
-          return cmd.run_bg()
+          if not stderr is None:
+            return cmd.run_bg(stdin = stdin, stderr = stderr)
+          else:
+            return cmd.run_bg(stdin = stdin)
 
   return (0, '', '') # dry run always succeed
 
-def call_no_except(cmd_expr, args_list, stdout = sys.stdout, stderr = sys.stderr, cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False):
-  return call(cmd_expr, args_list, stdout = stdout, stderr = stderr, no_except = True, cmd_expr_expander = cmd_expr_expander, dry_run = dry_run)
+def call_no_except(cmd_expr, args_list, **kwargs):
+  return call(
+    cmd_expr, args_list,
+    no_except = True,
+    **kwargs
+  )
