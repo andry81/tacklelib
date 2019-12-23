@@ -1,4 +1,7 @@
 2019.12.23:
+* fixed: cmdoplib: The `-no-ff` parameter in the `git merge ...` command should not be used in case of merge into empty head, otherwise `fatal: Non-fast-forward commit does not make sense into an empty head`
+
+2019.12.23:
 * fixed: tacklelib: minor `TmpFileIO` class fixups
 * fixed: tacklelib: minor `devnull` class fixup
 * fixed: cmdoplib: workaround for the `plumbum.local.run` function for `TmpFileIO` object as a stdin

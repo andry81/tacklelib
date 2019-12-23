@@ -3377,10 +3377,16 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
 
                 # Start merge collected refspecs w/o commit them.
                 #
-                call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '--no-ff', '-s', 'ours'] + [refspec for prefix, refspec in refspec_merge_tuple_list])
+
+                # CAUTION:
+                #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
+                #   `fatal: Non-fast-forward commit does not make sense into an empty head`
+                #
+                call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] + [refspec for prefix, refspec in refspec_merge_tuple_list])
 
                 # Merge collected refspecs with prefixes into local index.
                 #
+
                 for prefix, refspec in refspec_merge_tuple_list:
                   if not prefix is None:
                     # WORKAROUND:
@@ -3408,6 +3414,10 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
                   with tkl.TmpFileIO('w+t') as stdin_iostr:
                     stdin_iostr.write(reuse_commit_message)
                     stdin_iostr.flush() # otherwise would be an empty commit message
+                    # WORKAROUND:
+                    #   Temporary workwound, based on:
+                    #   ``plumbum.local['...'].run(stdin = myobj)` ignores stdin as a not empty temporary file` : https://github.com/tomerfiliba/plumbum/issues/487
+                    #
                     with open(stdin_iostr.path, 'rt') as stdin_file:
                       call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_datetime, '-F', '-'], stdin = stdin_file)
 
@@ -3574,6 +3584,10 @@ def git_push_from_svn(configure_dir, scm_token, subtrees_root = None, reset_hard
                 # Start merge a commit w/o merge it to retain the merge parent list.
                 #
 
+                # CAUTION:
+                #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
+                #   `fatal: Non-fast-forward commit does not make sense into an empty head`
+                #
                 call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours', git_svn_trunk_first_commit_hash])
 
                 # Merge a commit into local index.
