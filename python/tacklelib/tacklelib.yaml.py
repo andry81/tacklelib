@@ -208,7 +208,9 @@ class YamlEnv(object):
     expanded_val = out_value = []
 
     for val in list_value:
-      if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
+      if isinstance(val, int) or isinstance(val, float):
+        expanded_val.append(str(val))
+      elif isinstance(val, str):
         expanded_val.append(
           self.expand_string(val,
             search_in_expand_dict_at_second = search_in_expand_dict_at_second,

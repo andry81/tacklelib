@@ -5,13 +5,13 @@ tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh')
 import sys, plumbum
 
 def call_svn(args_list,
-             no_except = False, in_bg = False,
-             cmd_expr_expander = get_default_call_cmd_expr_expander(),
-             dry_run = False, max_stdout_lines = 9, ignore_warnings = False):
+             stdin = None, stdout = None, stderr = None,
+             max_stdout_lines = 9, ignore_warnings = False,
+             **kwargs):
   try:
     ret = call('${SVN}', args_list,
-      stdout = None, stderr = None, no_except = no_except, in_bg = in_bg,
-      cmd_expr_expander = cmd_expr_expander, dry_run = dry_run)
+      stdin = stdin, stdout = stdout, stderr = stderr,
+      **kwargs)
 
   except plumbum.ProcessExecutionError as proc_err:
     if len(proc_err.stdout) > 0:
@@ -40,8 +40,8 @@ def call_svn(args_list,
 
   return ret
 
-def call_svn_no_except(args_list,
-                       cmd_expr_expander = get_default_call_cmd_expr_expander(),
-                       dry_run = False, max_stdout_lines = 9):
-  return call_svn(args_list, no_except = True,
-    cmd_expr_expander = cmd_expr_expander, max_stdout_lines = max_stdout_lines)
+def call_svn_no_except(args_list, **kwargs):
+  return call_svn(
+    args_list,
+    no_except = True,
+    **kwargs)

@@ -155,6 +155,8 @@ def yaml_expand_environ_dict(dict_value, search_in_yaml_global_vars_at_second = 
 
 def yaml_expand_environ_value(value, search_in_yaml_global_vars_at_second = True,
                               search_by_pred_at_third = lambda var_name: getglobalvar(var_name), list_as_cmdline = True):
+  if isinstance(value, int) or isinstance(value, float):
+    return str(value)
   if isinstance(value, str):
     return yaml_expand_environ_string(value,
       search_in_yaml_global_vars_at_second = search_in_yaml_global_vars_at_second, search_by_pred_at_third = search_by_pred_at_third,
