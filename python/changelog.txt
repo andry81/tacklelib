@@ -1,3 +1,18 @@
+2019.12.26:
+* fixed: cmdoplib: missed local branch cleanup before `git svn fetch ...` (a local branch can contain empty commits after the last `git filter-branch --prune-empty` command)
+
+2019.12.25:
+* fixed: cmdoplib: declare a preserve empty directories in the `git_init` function, added support for respective `*GIT_SVN_REMOTE.PRESERVE_EMPTY_DIRS*` variables in yaml scripts
+* fixed: cmdoplib: in the git a child repository branch must be always merged into a parent repository even if was merged for a previous svn revision(s), otherwise a parent repository commit won't contain changes made in a child repository in previous svn revisions
+* fixed: cmdoplib: use a commit timestamp in the `--until`/`--since` argument in a  `git log ...` command, but return an author timestamp and datetime
+* fixed: cmdoplib: missed to recreate a main branch after a branch rewrite (`git filter-branch --prune-empty` command) in case when the `refs/original/refs/remotes/...` reference was deleting but the reference of a main branch was pointing to the being deleted reference
+* fixed: cmdoplib: other multiple fixups
+* new: cmdoplib: [initiated] `git_svn_compare_commits` function and respective functionality to compare a particular svn commit versus associated git commit for a particular git repository associated with a remote name
+* new: `*~compare_commits.bat` scripts to call the `git_svn_compare_commits` function
+
+2019.12.24:
+* fixed: cmdoplib: minor fixup
+
 2019.12.23:
 * fixed: cmdoplib: The `-no-ff` parameter in the `git merge ...` command should not be used in case of merge into empty head, otherwise `fatal: Non-fast-forward commit does not make sense into an empty head`
 
