@@ -1,3 +1,6 @@
+2019.12.29:
+* refactor: minor refactor
+
 2019.12.26:
 * fixed: python: cmdoplib: missed local branch cleanup before `git svn fetch ...` (a local branch can contain empty commits after the last `git filter-branch --prune-empty` command)
 

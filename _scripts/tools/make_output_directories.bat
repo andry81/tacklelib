@@ -13,12 +13,12 @@ if defined CMAKE_BUILD_TYPE (
   )
   set "CMAKE_BIN_DIR=%CMAKE_BIN_ROOT%\%CMAKE_BUILD_TYPE%"
   set "CMAKE_LIB_DIR=%CMAKE_LIB_ROOT%\%CMAKE_BUILD_TYPE%"
-  set "CMAKE_CPACK_DIR=%CMAKE_CPACK_ROOT%\%CMAKE_BUILD_TYPE%"
+  set "CMAKE_PACK_DIR=%CMAKE_PACK_ROOT%\%CMAKE_BUILD_TYPE%"
 ) else (
   set "CMAKE_BUILD_DIR=%CMAKE_BUILD_ROOT%"
   set "CMAKE_BIN_DIR=%CMAKE_BIN_ROOT%"
   set "CMAKE_LIB_DIR=%CMAKE_LIB_ROOT%"
-  set "CMAKE_CPACK_DIR=%CMAKE_CPACK_ROOT%"
+  set "CMAKE_PACK_DIR=%CMAKE_PACK_ROOT%"
 )
 
 call :PARENT_DIR "%%CMAKE_OUTPUT_ROOT%%"
@@ -51,7 +51,7 @@ if not exist "%CMAKE_BUILD_ROOT%" ( mkdir "%CMAKE_BUILD_DIR%" || exit /b )
 if not exist "%CMAKE_BIN_ROOT%" ( mkdir "%CMAKE_BIN_DIR%" || exit /b )
 if not exist "%CMAKE_LIB_ROOT%" ( mkdir "%CMAKE_LIB_DIR%" || exit /b )
 if not exist "%CMAKE_INSTALL_ROOT%" ( mkdir "%CMAKE_INSTALL_ROOT%" || exit /b )
-if not exist "%CMAKE_CPACK_ROOT%" ( mkdir "%CMAKE_CPACK_ROOT%" || exit /b )
+if not exist "%CMAKE_PACK_ROOT%" ( mkdir "%CMAKE_PACK_ROOT%" || exit /b )
 
 call :PARENT_DIR "%%CMAKE_BUILD_DIR%%"
 if not defined PARENT_DIR (
@@ -77,9 +77,9 @@ if not defined PARENT_DIR (
   exit /b 13
 )
 
-call :PARENT_DIR "%%CMAKE_CPACK_DIR%%"
+call :PARENT_DIR "%%CMAKE_PACK_DIR%%"
 if not defined PARENT_DIR (
-  echo.%~nx0: error: parent directory of the CMAKE_CPACK_DIR does not exist "%CMAKE_CPACK_DIR%".
+  echo.%~nx0: error: parent directory of the CMAKE_PACK_DIR does not exist "%CMAKE_PACK_DIR%".
   exit /b 14
 )
 
@@ -89,13 +89,13 @@ rem return predefined variables
   set "CMAKE_BUILD_DIR=%CMAKE_BUILD_DIR%"
   set "CMAKE_BIN_DIR=%CMAKE_BIN_DIR%"
   set "CMAKE_LIB_DIR=%CMAKE_LIB_DIR%"
-  set "CMAKE_CPACK_DIR=%CMAKE_CPACK_DIR%"
+  set "CMAKE_PACK_DIR=%CMAKE_PACK_DIR%"
 )
 
 if not exist "%CMAKE_BUILD_DIR%" ( mkdir "%CMAKE_BUILD_DIR%" || exit /b )
 if not exist "%CMAKE_BIN_DIR%" ( mkdir "%CMAKE_BIN_DIR%" || exit /b )
 if not exist "%CMAKE_LIB_DIR%" ( mkdir "%CMAKE_LIB_DIR%" || exit /b )
-if not exist "%CMAKE_CPACK_DIR%" ( mkdir "%CMAKE_CPACK_DIR%" || exit /b )
+if not exist "%CMAKE_PACK_DIR%" ( mkdir "%CMAKE_PACK_DIR%" || exit /b )
 
 exit /b 0
 

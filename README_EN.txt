@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.16
+* 2019.12.29
 * tacklelib
 
 1. DESCRIPTION
@@ -257,13 +257,13 @@ Here is the list of a most required of them (system variables):
 
 * CMAKE_OUTPUT_ROOT, CMAKE_OUTPUT_DIR, CMAKE_OUTPUT_GENERATOR_DIR,
   CMAKE_BUILD_ROOT, CMAKE_BIN_ROOT, CMAKE_LIB_ROOT, CMAKE_INSTALL_ROOT,
-  CMAKE_CPACK_ROOT, CMAKE_INSTALL_PREFIX, CPACK_OUTPUT_FILE_PREFIX
+  CMAKE_PACK_ROOT, CMAKE_INSTALL_PREFIX, CPACK_OUTPUT_FILE_PREFIX
 
 Predefined set of basic roots and directories to point out the base
 construction of a project directories involved in a build.
 
 * CMAKE_BUILD_DIR, CMAKE_BIN_DIR, CMAKE_LIB_DIR, CMAKE_INSTALL_ROOT,
-  CMAKE_CPACK_DIR
+  CMAKE_PACK_DIR
 
 Auto generated directory paths which does exist only after the configure step
 have has to run. Can not be predefined because dependent on the generator
