@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.08.06
+* 2019.12.29
 * tacklelib
 
 1. DESCRIPTION
@@ -118,6 +118,7 @@ Legend:
                 (https://github.com/imageworks/pystring/commit/c2de99deb4f0bd13751f8436400b5e8662301769 )
   03 desc:      C++ python string functions
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--pystring
+                [02] https://github.com/andry81/tacklelib--3dparty--pystring.git
   05 original:  [01] https://github.com/imageworks/pystring
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
@@ -155,7 +156,7 @@ Legend:
 * p7 logger
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   5.1 (2019.03.15) from http://baical.net/downloads.html
+  02 version:   5.2 (2019.06.29) from http://baical.net/downloads.html
   03 desc:      C++ (in C-style) client/server fast logger with support of
                 logging into text/binary file or into network and gui
                 application to open the binary log file or recieve log from
@@ -307,13 +308,14 @@ Legend:
   02 version:   release 1.8.1 (2018.08.31) #2fe3bd994b3189899d93f1d5a881e725e046fdc2
                 from https://github.com/google/googletest/releases
   03 desc:      C++ test library
-  04 forked:    NO, but has patches
+  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--qooqletest
+                [02] https://github.com/andry81/tacklelib--3dparty--googletest.git
   05 original:  [01] https://github.com/google/googletest
-                [01] https://github.com/abseil/googletest
+                [02] https://github.com/abseil/googletest
   06 build:     (default)   build from sources in a dependentee project
   07 linkage:   (default)   as a static library
   08 variables: GTEST_ROOT, GOOGLETEST_VERSION
-  09 patched:   YES, not published
+  09 patched:   YES
   10 extended:  YES:
                 [01] asserts replacement in the tacklelib library:
                 `src/utility/assert.hpp` (but not in the `include/`)
