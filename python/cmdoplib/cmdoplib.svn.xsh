@@ -92,7 +92,7 @@ def svn_update(configure_dir, scm_token, bare_args, verbosity = 0):
 
   wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  print(' -> {0}...'.format(wcroot_path))
+  print(' ->> wcroot: `{0}`'.format(wcroot_path))
 
   with plumbum.local.cwd(wcroot_path):
     call_svn(['up'] + bare_args, max_stdout_lines = -1)
@@ -124,7 +124,7 @@ def svn_checkout(configure_dir, scm_token, bare_args, verbosity = 0):
 
   svn_checkout_url = getglobalvar(scm_token + '.CHECKOUT_URL')
 
-  print(' -> {0}...'.format(wcroot_path))
+  print(' ->> wcroot: `{0}`'.format(wcroot_path))
 
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
@@ -162,7 +162,7 @@ def svn_relocate(configure_dir, scm_token, bare_args, verbosity = 0):
 
   wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  print(' -> {0}...'.format(wcroot_path))
+  print(' ->> wcroot: `{0}`'.format(wcroot_path))
 
   with plumbum.local.cwd(wcroot_path):
     try:
