@@ -22,7 +22,7 @@
 # CAUTION:
 #  DO NOT USE `@` character pairs unescaped as a plain value as long as it is used as a placehoder in a replacement of `@<variable>@` sequence,
 #  where the `<variable>` is a cmake variable. For that case do replace all `@` characters by this escape sequence: `$/@`.
-#  It will block the substitution in case of an accidental match of `@<variable>@`, where the `<variable>` ends by the `$/` string.
+#  It will avoid the substitution in case of an accidental match.
 
 # NOTE:
 #  In a unix shell script a variable name with `:` character is not permitted, so variables with not allowed characters
@@ -67,13 +67,14 @@
 ## WORKAROUND: `For MinGW make to work correctly sh.exe must NOT be in your path.`
 #final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MINGW_BIN_DIR}")
 
+# always required system variables <<
 top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
 #top CMAKE_GENERATOR:WIN="MinGW Makefiles"
 top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
 #top CMAKE_GENERATOR_PLATFORM="" # must be at least empty
 
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
-CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
+top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
 top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
@@ -82,12 +83,12 @@ final package CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
 final package CMAKE_BIN_ROOT="$/{CMAKE_OUTPUT_DIR}/bin"
 final package CMAKE_LIB_ROOT="$/{CMAKE_OUTPUT_DIR}/lib"
 final package CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install"   # cmake creates the build type subdirectory on itself
-final package CMAKE_CPACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
+final package CMAKE_PACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
 #top NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
 
 top CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
-top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_CPACK_ROOT}"
+top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_PACK_ROOT}"
 
 final package PROJECT_NAME=tacklelib
 final package PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current project root
@@ -100,3 +101,4 @@ final package _3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
 
 top CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel)  # list variable
 top CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
+# >> always required system variables

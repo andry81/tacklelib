@@ -499,12 +499,12 @@ function MakeOutputDirectories()
     local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_BIN_DIR="$CMAKE_BIN_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_LIB_DIR="$CMAKE_LIB_ROOT/$CMAKE_BUILD_TYPE"
-    local CMAKE_CPACK_DIR="$CMAKE_CPACK_ROOT/$CMAKE_BUILD_TYPE"
+    local CMAKE_PACK_DIR="$CMAKE_PACK_ROOT/$CMAKE_BUILD_TYPE"
   else
     local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT"
     local CMAKE_BIN_DIR="$CMAKE_BIN_ROOT"
     local CMAKE_LIB_DIR="$CMAKE_LIB_ROOT"
-    local CMAKE_CPACK_DIR="$CMAKE_CPACK_ROOT"
+    local CMAKE_PACK_DIR="$CMAKE_PACK_ROOT"
   fi
 
   tkl_get_native_parent_dir "$CMAKE_OUTPUT_ROOT"
@@ -536,7 +536,7 @@ function MakeOutputDirectories()
   [[ ! -d "$CMAKE_BUILD_ROOT" ]] && { mkdir "$CMAKE_BUILD_ROOT" || return $?; }
   [[ ! -d "$CMAKE_BIN_ROOT" ]] && { mkdir "$CMAKE_BIN_ROOT" || return $?; }
   [[ ! -d "$CMAKE_LIB_ROOT" ]] && { mkdir "$CMAKE_LIB_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_CPACK_ROOT" ]] && { mkdir "$CMAKE_CPACK_ROOT" || return $?; }
+  [[ ! -d "$CMAKE_PACK_ROOT" ]] && { mkdir "$CMAKE_PACK_ROOT" || return $?; }
 
   tkl_get_native_parent_dir "$CMAKE_BUILD_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
@@ -562,22 +562,22 @@ function MakeOutputDirectories()
     return 13
   fi
 
-  tkl_get_native_parent_dir "$CMAKE_CPACK_DIR"
+  tkl_get_native_parent_dir "$CMAKE_PACK_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
-    echo "$0: error: parent directory of the CMAKE_CPACK_DIR does not exist \`$CMAKE_CPACK_DIR\`" >&2
+    echo "$0: error: parent directory of the CMAKE_PACK_DIR does not exist \`$CMAKE_PACK_DIR\`" >&2
     return 14
   fi
 
   tkl_return_local CMAKE_BUILD_DIR "$CMAKE_BUILD_DIR"
   tkl_return_local CMAKE_BIN_DIR "$CMAKE_BIN_DIR"
   tkl_return_local CMAKE_LIB_DIR "$CMAKE_LIB_DIR"
-  tkl_return_local CMAKE_CPACK_DIR "$CMAKE_CPACK_DIR"
+  tkl_return_local CMAKE_PACK_DIR "$CMAKE_PACK_DIR"
 
   [[ ! -d "$CMAKE_BUILD_DIR" ]] && { mkdir "$CMAKE_BUILD_DIR" || return $?; }
   [[ ! -d "$CMAKE_BIN_DIR" ]] && { mkdir "$CMAKE_BIN_DIR" || return $?; }
   [[ ! -d "$CMAKE_LIB_DIR" ]] && { mkdir "$CMAKE_LIB_DIR" || return $?; }
   [[ ! -d "$CMAKE_INSTALL_ROOT" ]] && { mkdir "$CMAKE_INSTALL_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_CPACK_DIR" ]] && { mkdir "$CMAKE_CPACK_DIR" || return $?; }
+  [[ ! -d "$CMAKE_PACK_DIR" ]] && { mkdir "$CMAKE_PACK_DIR" || return $?; }
 
   return 0
 }
