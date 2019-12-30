@@ -1,3 +1,6 @@
+2019.12.30:
+* new: cmdoplib: added `retain_commmit_git_svn_parents` parameter to the `push_svn_to_git` function to explicitly set the `git svn fetch ...` command commits as parents to a resulted merge commit (by default is turned off to reduce quantity of commits in a repository commits graph)
+
 2019.12.29:
 * refactor: cmdoplib: minor refactor
 

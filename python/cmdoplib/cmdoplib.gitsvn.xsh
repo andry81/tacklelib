@@ -2783,7 +2783,7 @@ def if_git_svn_commit_is_ancestor_to_commits_in_list(git_svn_tuple_ref_to_check,
 #     then do use the `git_subtrees_root` argument as a root path to the subtree directories.
 #
 def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_hard = False,
-                      prune_empty_git_svn_commits = True, verbosity = 0):
+                      prune_empty_git_svn_commits = True, retain_commmit_git_svn_parents = False, verbosity = 0):
   print(">git_push_from_svn: {0}".format(configure_dir))
 
   set_verbosity_level(verbosity)
@@ -3454,6 +3454,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 # ('<prefix>', '<refspec>')
                 refspec_merge_tuple_list = []
                 child_branch_merge_commit_hash_list = []
+                has_parent_refspec_merge_commit = False
 
                 # Collect refspecs w/o merge.
                 #
@@ -3490,7 +3491,9 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   git_svn_trunk_first_commit_author_timestamp, git_svn_trunk_first_commit_author_date_time, \
                   git_svn_trunk_first_commit_timestamp, git_svn_trunk_first_commit_date_time = \
                     get_git_first_commit_from_git_log(ret[1].rstrip())
-                  if git_svn_trunk_first_commit_svn_rev == unpushed_svn_commit_rev:
+
+                  has_parent_refspec_merge_commit = (git_svn_trunk_first_commit_svn_rev == unpushed_svn_commit_rev)
+                  if has_parent_refspec_merge_commit:
                     # the fetched svn revision is confirmed, can continue now
 
                     # NOTE: The attempts has been made to resolve all related conditions:
@@ -3517,7 +3520,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                     ##  3. call_git(['cherry-pick', '--allow-empty', '--no-commit', '-X', 'subtree=' + child_parent_git_path_prefix, child_branch_refspec])
                     ##  4. call_git(['pull', '--no-edit', '--no-commit', '--allow-unrelated-histories', '-s', 'subtree', '-Xsubtree=' + child_parent_git_path_prefix + '/', child_git_pull_refspec_token])
 
-                    refspec_merge_tuple_list.append((None, git_svn_trunk_remote_refspec_token))
+                    if retain_commmit_git_svn_parents:
+                      refspec_merge_tuple_list.append((None, git_svn_trunk_remote_refspec_token))
                     reuse_commit_message_refspec_token = git_svn_trunk_remote_refspec_token
                     reuse_commit_datetime = unpushed_svn_commit_datetime
                   else:
@@ -3588,9 +3592,10 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
                 #   `fatal: Non-fast-forward commit does not make sense into an empty head`
                 #
-                call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] +
-                  [refspec for prefix, refspec in refspec_merge_tuple_list] +
-                  [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
+                if len(refspec_merge_tuple_list) > 0:
+                  call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] +
+                    [refspec for prefix, refspec in refspec_merge_tuple_list] +
+                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
 
                 # Merge collected refspecs with prefixes into local index.
                 #
@@ -3616,6 +3621,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   2. Commit date.
                 #
                 author_svn_token = yaml_expand_global_string('${${SCM_TOKEN}.USER} <${${SCM_TOKEN}.EMAIL}>')
+
                 if reuse_commit_message is None:
                   call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_datetime, '-C', reuse_commit_message_refspec_token])
                 else:
@@ -3831,9 +3837,14 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
                 #   `fatal: Non-fast-forward commit does not make sense into an empty head`
                 #
-                call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours', git_svn_trunk_remote_refspec_token] +
-                  [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
-                  [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
+                if retain_commmit_git_svn_parents:
+                  call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours', git_svn_trunk_remote_refspec_token] +
+                    [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
+                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
+                elif len(child_refspec_merge_tuple_list) > 0:
+                  call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] +
+                    [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
+                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
 
                 # Merge a parent commit into local index.
                 #
