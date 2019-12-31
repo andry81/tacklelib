@@ -26,6 +26,24 @@ def compare_file_paths(p1, p2, op = '=='):
 
   return eval('"' + p1_ + '" ' + op + ' "' + p2_ + '"')
 
+def is_file_path_beginswith(p1, p2):
+  p1_ = p1.replace('\\', '/')
+  p2_ = p2.replace('\\', '/')
+  if platform.system() == 'Windows':
+    p1_ = p1_.casefold()
+    p2_ = p2_.casefold()
+
+    return p1.startswith(p2)
+
+def is_file_path_endswith(p1, p2):
+  p1_ = p1.replace('\\', '/')
+  p2_ = p2.replace('\\', '/')
+  if platform.system() == 'Windows':
+    p1_ = p1_.casefold()
+    p2_ = p2_.casefold()
+
+    return p1.endswith(p2)
+
 def print_max(str, max_lines = 9):
   if max_lines >= 0:
     num_new_lines = str.count('\n')
