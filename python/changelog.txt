@@ -1,3 +1,6 @@
+2020.01.04:
+* changed: cmdoplib: yaml: made optional in generation a config file before load it, disable it by default
+
 2019.12.31:
 * new: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
 

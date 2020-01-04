@@ -62,7 +62,8 @@ def yaml_update_environ_vars(load_second_yaml_dict = None, search_in_yaml_global
 
 def yaml_load_config(config_dir, config_file, to_globals = True, to_environ = False,
                      search_by_global_pred_at_third = None, search_by_environ_pred_at_third = None,
-                     set_global_var_pred = None, set_environ_var_pred = None):
+                     set_global_var_pred = None, set_environ_var_pred = None,
+                     autogen_from_tmpl_if_not_exist = False, config_file_in_tmpl = '{0}.in'):
   if not os.path.isdir(config_dir):
     raise Exception('config_dir is not existing directory: `{}`'.format(config_dir))
   if config_file == '':
@@ -71,17 +72,22 @@ def yaml_load_config(config_dir, config_file, to_globals = True, to_environ = Fa
     raise Exception('either to_globals or to_environ must be True')
 
   config_file_out = os.path.join(config_dir, config_file).replace('\\','/')
-  config_file_in = '{0}.in'.format(config_file_out)
 
-  if not os.path.exists(config_file_out) and os.path.exists(config_file_in):
-    print('"{0}" -> "{1}"'.format(config_file_in, config_file_out))
-    try:
-      shutil.copyfile(config_file_in, config_file_out)
-    except:
-      # `exit` with the parentheses to workaround the issue:
-      # `source` xsh file with try/except does hang`:
-      # https://github.com/xonsh/xonsh/issues/3301
-      exit(255)
+  if autogen_from_tmpl_if_not_exist:
+    config_file_in = config_file_in_tmpl.format(config_file_out)
+
+    if not os.path.exists(config_file_out):
+      if os.path.exists(config_file_in):
+        print('"{0}" -> "{1}"'.format(config_file_in, config_file_out))
+        try:
+          shutil.copyfile(config_file_in, config_file_out)
+        except:
+          # `exit` with the parentheses to workaround the issue:
+          # `source` xsh file with try/except does hang`:
+          # https://github.com/xonsh/xonsh/issues/3301
+          exit(255)
+      else:
+        raise Exception('config file template to generate from is not found: `{0}`'.format(config_file_in))
 
   config_yaml = None
 
