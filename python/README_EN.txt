@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.20
+* 2020.01.04
 * tacklelib--python
 
 1. DESCRIPTION
@@ -63,17 +63,26 @@ from:
 
 2. Interpreters:
 
-* python 3.7.3 or 3.7.5 (3.4+, but not the 3.7.4, see `KNOWN ISSUES` section)
-  https://www.python.org
-  - to run python scripts
+* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+  https://python.org
+  - standard implementation to run python scripts
+  - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
+    section
+  - 3.5+ is required for the direct import by a file path (with any extension)
+    as noted in the documentation:
+    https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
 
 3. Modules
 
 * Python site modules:
 
+**  xonsh/0.9.12
+    https://github.com/xonsh/xonsh
+    - to run python scripts and import python modules with `.xsh` file
+      extension
 **  plumbum 1.6.7
     https://plumbum.readthedocs.io/en/latest/
-    - to run python scripts in a shell like environment (.xsh)
+    - to run python scripts in a shell like environment
 **  win_unicode_console
     - to enable unicode symbols support in the Windows console
 **  pyyaml 5.1.1
@@ -95,6 +104,16 @@ from:
 
 ** fcache
    - to fix issues from the `fcache execution issues` section.
+
+5. Applications:
+
+* subversion 1.8+
+  https://tortoisesvn.net
+  - to run svn client
+
+* git 2.24+
+  https://git-scm.com
+  - to run git client
 
 -------------------------------------------------------------------------------
 5. CATALOG CONTENT DESCRIPTION

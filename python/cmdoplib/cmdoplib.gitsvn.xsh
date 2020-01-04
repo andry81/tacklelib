@@ -2783,7 +2783,7 @@ def if_git_svn_commit_is_ancestor_to_commits_in_list(git_svn_tuple_ref_to_check,
 #     then do use the `git_subtrees_root` argument as a root path to the subtree directories.
 #
 def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_hard = False,
-                      prune_empty_git_svn_commits = True, retain_commmit_git_svn_parents = False, verbosity = 0):
+                      prune_empty_git_svn_commits = True, retain_commit_git_svn_parents = False, verbosity = 0):
   print(">git_push_from_svn: {0}".format(configure_dir))
 
   set_verbosity_level(verbosity)
@@ -3520,7 +3520,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                     ##  3. call_git(['cherry-pick', '--allow-empty', '--no-commit', '-X', 'subtree=' + child_parent_git_path_prefix, child_branch_refspec])
                     ##  4. call_git(['pull', '--no-edit', '--no-commit', '--allow-unrelated-histories', '-s', 'subtree', '-Xsubtree=' + child_parent_git_path_prefix + '/', child_git_pull_refspec_token])
 
-                    if retain_commmit_git_svn_parents:
+                    if retain_commit_git_svn_parents:
                       refspec_merge_tuple_list.append((None, git_svn_trunk_remote_refspec_token))
                     reuse_commit_message_refspec_token = git_svn_trunk_remote_refspec_token
                     reuse_commit_datetime = unpushed_svn_commit_datetime
@@ -3837,7 +3837,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
                 #   `fatal: Non-fast-forward commit does not make sense into an empty head`
                 #
-                if retain_commmit_git_svn_parents:
+                if retain_commit_git_svn_parents:
                   call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours', git_svn_trunk_remote_refspec_token] +
                     [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
                     [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])

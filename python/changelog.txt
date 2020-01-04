@@ -1,4 +1,8 @@
 2020.01.04:
+* fixed: a typo
+* changed: readme update
+
+2020.01.04:
 * changed: cmdoplib: yaml: made optional in generation a config file before load it, disable it by default
 
 2019.12.31:
