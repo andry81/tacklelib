@@ -1,4 +1,8 @@
 2020.01.04:
+* fixed: python: a typo
+* changed: python: readme update
+
+2020.01.04:
 * changed: python: cmdoplib: yaml: made optional in generation a config file before load it, disable it by default
 
 2019.12.31:
