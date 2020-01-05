@@ -11,7 +11,7 @@ discover_executable('SVN_EXEC', 'svn', 'SVN')
 
 call_svn(['--version'], verbosity = -1)
 
-def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
+def get_svn_commit_list(svn_path, depth = 1, from_rev = None, to_rev = None):
   rev_list = []
 
   if from_rev is None:
@@ -22,14 +22,14 @@ def get_svn_commit_list(wcpath, depth = 1, from_rev = None, to_rev = None):
 
   if not to_rev is None:
     if depth != '*':
-      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), wcpath])
+      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev) + ':' + str(to_rev), svn_path])
     else:
-      ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), wcpath])
+      ret = call_svn(['log', '-q', '-r', str(from_rev) + ':' + str(to_rev), svn_path])
   else:
     if depth != '*':
-      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev), wcpath])
+      ret = call_svn(['log', '-q', '-l', str(depth), '-r', str(from_rev), svn_path])
     else:
-      ret = call_svn(['log', '-q', '-r', str(from_rev), wcpath])
+      ret = call_svn(['log', '-q', '-r', str(from_rev), svn_path])
 
   stdout_lines = ret[1].rstrip()
   stderr_lines = ret[2].rstrip()
