@@ -1,4 +1,14 @@
 2020.01.04:
+* fixed: python: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` invalid search logic not using `git_path_prefix` in a `git log` command as a subdirectory search context
+* new: python: cmdoplib: gitsvn: `git_path_prefix` parameter in `git_repos.lst.in` configuration file
+* new: python: cmdoplib: gitsvn: `git_log_list_child_max_depth_fetch` parameter calculation to define a dependency between git log search depth and the git-svn repositories tree structure depth
+* changed: python: cmdoplib: callgit: better filter of not critical warnings
+* changed: python: cmdoplib: callsvn: better filter of not critical warnings
+* changed: python: cmdoplib: gitsvn: make a git-svn fetch only on writable (not read only) repositories
+* refactor: python: cmdoplib: gitsvn: moderate refactor
+* refactor: python: cmdoplib: svn: moderate refactor
+
+2020.01.04:
 * fixed: python: a typo
 * changed: python: readme update
 

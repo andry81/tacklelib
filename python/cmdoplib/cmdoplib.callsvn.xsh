@@ -31,7 +31,7 @@ def call_svn(args_list,
     if len(stderr_lines) > 0:
       print(stderr_lines)
       if not ignore_warnings:
-        stderr_warning_match = re.match('warning: [^+]', stderr_lines)
+        stderr_warning_match = re.match('warning:\\s[^+-].*', stderr_lines, flags = re.MULTILINE)
         if stderr_warning_match:
           raise Exception('specific warnings from the `svn ...` command is treated as errors')
 
