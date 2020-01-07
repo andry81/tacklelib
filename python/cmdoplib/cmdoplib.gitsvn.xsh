@@ -1133,7 +1133,7 @@ def git_init(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
             break
 
         if root_remote_name is None:
-          raise Exception('the root record is not found in the git repositories list')
+          raise Exception('the root record is not found in the git repositories list: scm_token={0}'.format(scm_token))
 
         root_git_svn_init_cmdline_list = shlex.split(root_git_svn_init_cmdline)
 
@@ -1370,14 +1370,12 @@ def git_print_repos_list_footer(column_widths):
 def read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths, update_svn_repo_uuid = True):
   print('- Reading GIT-SVN repositories list:')
 
-  has_root = False
-
   git_repos_reader.reset()
+
+  root_remote_name = None
 
   for row in git_repos_reader:
     if row['scm_token'] == scm_token and row['branch_type'] == 'root':
-      has_root = True
-
       root_remote_name = row['remote_name']
 
       root_git_reporoot = yaml_expand_global_string(row['git_reporoot'])
@@ -1410,8 +1408,8 @@ def read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtree
 
       break
 
-  if not has_root:
-    raise Exception('Have has no root branch in the git_repos.lst')
+  if root_remote_name is None:
+    raise Exception('the root record is not found in the git repositories list: scm_token={0}'.format(scm_token))
 
   if git_subtrees_root is None:
     git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
@@ -1821,7 +1819,7 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
   while True:
     current_timestamp = datetime.utcnow().timestamp()
 
-    # True if has at least one repository with next timestamp less than current timestamp
+    # True if has at least one repository with a commit timestamp greater than current timestamp
     has_not_checked_timeline = False
     notpushed_svn_commit_all_list_len = 0
 
@@ -2320,7 +2318,7 @@ def git_fetch(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
           git_remove_svn_branch(git_svn_trunk_remote_refspec_shorted_token, git_svn_trunk_remote_refspec_token)
           """
 
-          # fetch only on a writable (not readonly) repository
+          # svn fetch and git push is available only on a writable (not readonly) repository
           if not fetch_state_ref['is_read_only_repo']:
             # direct use of the config section name `svn`
             last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
@@ -2791,7 +2789,7 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
           git_remove_svn_branch(git_svn_trunk_remote_refspec_shorted_token, git_svn_trunk_remote_refspec_token)
           """
 
-          # fetch only on a writable (not readonly) repository
+          # svn fetch and git push is available only on a writable (not readonly) repository
           if not fetch_state_ref['is_read_only_repo']:
             # direct use of the config section name `svn`
             last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
@@ -3244,8 +3242,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
             git_remove_svn_branch(git_svn_trunk_remote_refspec_shorted_token, git_svn_trunk_remote_refspec_token)
             """
 
-            # fetch only on a writable (not readonly) repository
-            if not fetch_state_ref['is_read_only_repo']:
+            # svn fetch and git push is available only on a writable (not readonly) repository or if git-svn commits is not requested for retain as parent commits
+            if not fetch_state_ref['is_read_only_repo'] or not retain_commit_git_svn_parents:
               # direct use of the config section name `svn`
               last_pushed_git_svn_commit = fetch_state_ref['last_pushed_git_svn_commit']
               last_pushed_git_svn_commit_rev = last_pushed_git_svn_commit[0]
@@ -3667,6 +3665,11 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                 is_parent_first_time_push = parent_fetch_state_ref['is_first_time_push']
 
+                # svn fetch and git push is available only on a writable (not readonly) repository
+                is_parent_read_only_repo = parent_fetch_state_ref['is_read_only_repo']
+                if is_parent_read_only_repo:
+                  raise Exception('fetch-merge-push sequence is corrupted, the being pushed repository is not writable: remote_name=`{0}`'.format(remote_name))
+
                 # create child branches per last pushed commit from a child repository
                 git_fetch_child_subtree_merge_branches(parent_children_tuple_ref_list)
 
@@ -3979,6 +3982,11 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
               is_first_time_push = fetch_state_ref['is_first_time_push']
 
+              # svn fetch and git push is available only on a writable (not readonly) repository
+              is_read_only_repo = fetch_state_ref['is_read_only_repo']
+              if is_read_only_repo:
+                raise Exception('fetch-merge-push sequence is corrupted, the being pushed repository is not writable: remote_name=`{0}`'.format(remote_name))
+
               git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
               git_remote_refspec_token = get_git_remote_refspec_token(remote_name, git_local_branch, git_remote_branch)
 
@@ -4056,10 +4064,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                 if not ret[0]:
                   # CAUTION:
-                  #   1. We have to cleanup before the `git cherry-pick ...` command, otherwise the command may fail with the messages:
-                  #      `error: your local changes would be overwritten by cherry-pick`
-                  #      `hint: commit your changes or stash them to proceed.`
-                  #   2. We have to reset with the `--hard`, otherwise another error message:
+                  #   1. We have to reset with the `--hard`, otherwise error message:
                   #      `error: The following untracked working tree files would be overwritten by merge:`
                   #
                   call_git(['reset', '--hard', git_local_refspec_token])

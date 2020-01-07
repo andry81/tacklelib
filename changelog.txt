@@ -1,3 +1,6 @@
+2020.01.07:
+* refactor: python: minor refactor and cleanup
+
 2020.01.04:
 * fixed: python: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` invalid search logic not using `git_path_prefix` in a `git log` command as a subdirectory search context
 * new: python: cmdoplib: gitsvn: `git_path_prefix` parameter in `git_repos.lst.in` configuration file
