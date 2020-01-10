@@ -1,3 +1,21 @@
+2020.01.10:
+* fixed: python: cmdoplib: gitsvn: multiple fixups after test runs
+* new: python: cmdoplib: gitsvn: added `ordinal_index` to be able identify-by-index all nodes in a repositories tree
+* changed: python: cmdoplib: gitsvn: added numeration to the name of a working copy directory of non root repositories
+
+2020.01.09:
+* fixed: python: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function now filters commits by the `git log --until=...` command to return a child repository commits relative to the timestamp of a parent repository commit
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* new: python: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function automatically fetches/merges a child repository into a subtree branch using `git_path_prefix` and other parameters
+* changed: python: cmdoplib: gitsvn: improved `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* changed: python: cmdoplib: gitsvn: code cleanup
+* changed: python: cmdoplib: gitsvn: all functions now does strip surrounded non printable characters from git repos list field values to be able to compose field rows into tables with aligned columns
+* refactor: python: cmdoplib: gitsvn: moderate functions refactor
+
+2020.01.07:
+* new: python: cmdoplib: gitsvn: added `last_pushed_git_svn_commit_fetch_timestamp` and `last_notpushed_svn_commit_fetch_timestamp` parameters to be able to analyze last pushed/notpushed commit timestamp versus a child repository commit timestamp in repostiories tree
+* changed: python: cmdoplib: gitsvn: `update_git_svn_repo_fetch_state` function reworked, code a bit reduced and refactored
+
 2020.01.07:
 * refactor: python: minor refactor and cleanup
 
