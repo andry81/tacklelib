@@ -1,4 +1,8 @@
 2020.01.10:
+* changed: python: cmdoplib: gitsvn, svn: raw `plumbum.local.cwd` call replaced by a wrapper to print the current directory before respective change
+* refactor: python: cmdoplib: gitsvn: renamed `.git/svn2git` subdirectory into `.git/.pyxvcs`
+
+2020.01.10:
 * fixed: python: cmdoplib: gitsvn: multiple fixups after test runs
 * new: python: cmdoplib: gitsvn: added `ordinal_index` to be able identify-by-index all nodes in a repositories tree
 * changed: python: cmdoplib: gitsvn: added numeration to the name of a working copy directory of non root repositories

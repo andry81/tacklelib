@@ -9,6 +9,28 @@ tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.yaml.xsh')
 import os, sys, shutil, plumbum
 from conditional import conditional
 
+class local_cwd():
+  def __init__(self, push_fmt_str, pop_fmt_str, *args, **kwargs):
+    self.args = args
+    self.kwargs = kwargs
+    self.prev_cwd = None
+    self.next_cwd = None
+    self.push_fmt_str = push_fmt_str
+    self.pop_fmt_str = pop_fmt_str
+
+  def __enter__(self):
+    if not self.push_fmt_str is None:
+      newdir = self.args[0]
+      print(self.push_fmt_str.format(newdir))
+    self.prev_cwd = plumbum.local.cwd
+    self.next_cwd = plumbum.local.cwd(*self.args, **self.kwargs)
+    return self.next_cwd.__enter__()
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    if not self.pop_fmt_str is None:
+      print(self.pop_fmt_str.format(self.prev_cwd))
+    return self.next_cwd.__exit__(exc_type, exc_value, traceback)
+
 # call from pipe
 def pcall(args):
   args.pop(0)(*args)
