@@ -13,7 +13,6 @@ tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.callsvn.xsh')
 tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.callgit.xsh')
 
 import os, sys, io, csv, shlex, copy, re, shutil, math
-from plumbum import local
 from conditional import conditional
 from datetime import datetime # must be the same everythere
 #from datetime import timezone
@@ -296,10 +295,8 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
         parent_fetch_state_ref = parent_tuple_ref[1]
         last_notpushed_svn_commit_fetch_timestamp = parent_fetch_state_ref['last_notpushed_svn_commit_fetch_timestamp']
 
-      print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-
       if subtree_git_path_prefix == '':
-        with local.cwd(subtree_git_wcroot):
+        with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
           # find the last svn commit revision (a revision number is not defined)
           git_last_svn_rev, child_git_commit_hash, \
           git_commit_author_timestamp, git_commit_author_date_time, \
@@ -321,7 +318,7 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
         # fetch local branch particular commit from child working copy into parent working copy temporary local branch
         call_git(['fetch', subtree_git_wcroot, subtree_git_remote_refspec_token + ':refs/heads/' + subtree_local_tmp_branch, child_git_commit_hash])
       else:
-        with local.cwd(subtree_git_wcroot):
+        with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
           # find the last svn commit revision (a revision number is not defined)
           git_last_svn_rev, child_git_commit_hash, \
           git_commit_author_timestamp, git_commit_author_date_time, \
@@ -1260,12 +1257,11 @@ def git_init(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
   if git_svn_preserve_empty_dirs_file_placeholder is None:
     git_svn_preserve_empty_dirs_file_placeholder = getglobalvar('GIT_SVN_REMOTE.PRESERVE_EMPTY_DIRS_FILE_PLACEHOLDER')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
@@ -1273,7 +1269,7 @@ def git_init(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
 
       is_builtin_git_subtrees_root = False
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
         is_builtin_git_subtrees_root = True
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
@@ -1464,9 +1460,7 @@ def git_init(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
             except FileExistsError:
               pass
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-
-          with local.cwd(subtree_git_wcroot):
+          with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
             if not os.path.exists(subtree_git_wcroot + '/.git'):
               call_git(['init', subtree_git_wcroot])
 
@@ -1605,7 +1599,7 @@ def read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtree
     raise Exception('the root record is not found in the git repositories list: scm_token={0}'.format(scm_token))
 
   if git_subtrees_root is None:
-    git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+    git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
   root_svn_repopath = root_svn_reporoot + (('/' + root_svn_path_prefix) if root_svn_path_prefix != '' else '')
 
@@ -2060,7 +2054,7 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
 
       svn_repopath = svn_reporoot + (('/' + svn_path_prefix) if svn_path_prefix != '' else '')
 
-      with conditional(git_wcroot != '.', local.cwd(git_wcroot)):
+      with conditional(git_wcroot != '.', local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', git_wcroot)):
         git_remote_refspec_token, git_remote_local_refspec_token = \
           get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2402,21 +2396,20 @@ def git_fetch(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
   git_user = getglobalvar(scm_token + '.USER')
   git_email = getglobalvar(scm_token + '.EMAIL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
   max_time_depth_in_multiple_svn_commits_fetch_sec = get_max_time_depth_in_multiple_svn_commits_fetch_sec()
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
         read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths,
@@ -2445,11 +2438,8 @@ def git_fetch(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2502,11 +2492,8 @@ def git_fetch(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           last_pruned_git_svn_commit_dict = fetch_state_ref['last_pruned_git_svn_commit_dict']
 
           git_svn_fetch_cmdline_list = []
@@ -2624,19 +2611,18 @@ def git_reset(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
   git_user = getglobalvar(scm_token + '.USER')
   git_email = getglobalvar(scm_token + '.EMAIL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
         read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths,
@@ -2663,11 +2649,8 @@ def git_reset(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2732,11 +2715,8 @@ def git_reset(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2784,11 +2764,8 @@ def git_reset(configure_dir, scm_token, git_subtrees_root = None, root_only = Fa
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           if remove_svn_on_reset:
             git_svn_trunk_remote_refspec_shorted_token = get_git_svn_trunk_remote_refspec_token(remote_name, shorted = True)
             git_svn_trunk_remote_refspec_token = get_git_svn_trunk_remote_refspec_token(remote_name)
@@ -2835,21 +2812,20 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
   git_user = getglobalvar(scm_token + '.USER')
   git_email = getglobalvar(scm_token + '.EMAIL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
   max_time_depth_in_multiple_svn_commits_fetch_sec = get_max_time_depth_in_multiple_svn_commits_fetch_sec()
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
         read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths,
@@ -2876,11 +2852,8 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2936,11 +2909,8 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
 
@@ -2993,11 +2963,8 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           last_pruned_git_svn_commit_dict = fetch_state_ref['last_pruned_git_svn_commit_dict']
 
           git_svn_fetch_cmdline_list = []
@@ -3093,11 +3060,8 @@ def git_pull(configure_dir, scm_token, git_subtrees_root = None, root_only = Fal
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
 
           ret = call_git_no_except(['show-ref', '--verify', git_local_refspec_token])
@@ -3302,8 +3266,6 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
   git_user = getglobalvar(scm_token + '.USER')
   git_email = getglobalvar(scm_token + '.EMAIL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
@@ -3330,14 +3292,15 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
   max_time_depth_in_multiple_svn_commits_fetch_sec = get_max_time_depth_in_multiple_svn_commits_fetch_sec()
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
         read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths)
@@ -3361,11 +3324,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
 
           ret = call_git_no_except(['show-ref', '--verify', git_local_refspec_token])
@@ -3413,11 +3373,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
           git_remote_refspec_token, git_remote_local_refspec_token = \
             get_git_remote_refspec_token_tuple(remote_name, git_local_branch, git_remote_branch)
@@ -3472,11 +3429,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
           if not parent_tuple_ref is None:
             subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-            print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-          else:
-            print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-          with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+          with conditional(not parent_tuple_ref is None,
+                           local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
             last_pruned_git_svn_commit_dict = fetch_state_ref['last_pruned_git_svn_commit_dict']
 
             git_svn_fetch_cmdline_list = []
@@ -3543,11 +3497,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
         if not parent_tuple_ref is None:
           subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-          print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-        else:
-          print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-        with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+        with conditional(not parent_tuple_ref is None,
+                         local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
           git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
 
           ret = call_git_no_except(['show-ref', '--verify', git_local_refspec_token])
@@ -3657,7 +3608,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                 parent_git_wcroot = parent_repo_params_ref['git_wcroot']
 
-                with conditional(parent_git_wcroot != '.', local.cwd(parent_git_wcroot)):
+                with conditional(parent_git_wcroot != '.',
+                                 local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', parent_git_wcroot)):
                   call_git(['log', '--format=' + get_default_git_log_format(),
                     get_git_remote_refspec_token(parent_remote_name, parent_git_local_branch, parent_git_remote_branch),
                     '--since', str(child_first_notpushed_svn_commit_timestamp)] +
@@ -3720,7 +3672,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
               child_git_wcroot = child_repo_params_ref['git_wcroot']
 
-              with conditional(child_git_wcroot != '.', local.cwd(child_git_wcroot)):
+              with conditional(child_git_wcroot != '.',
+                               local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', child_git_wcroot)):
                 call_git(['log', '--format=' + get_default_git_log_format(),
                   get_git_remote_refspec_token(child_remote_name, child_git_local_branch, child_git_remote_branch),
                   '--since', str(parent_first_notpushed_svn_commit_timestamp)] +
@@ -3936,11 +3889,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
               if not parent_parent_tuple_ref is None:
                 subtree_git_wcroot = parent_repo_params_ref['git_wcroot']
 
-                print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-              else:
-                print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-              with conditional(not parent_parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_parent_tuple_ref is None else None):
+              with conditional(not parent_parent_tuple_ref is None,
+                               local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_parent_tuple_ref is None else None):
                 # svn fetch and git push is available only on a writable (not readonly) repository
                 is_parent_read_only_repo = parent_fetch_state_ref['is_read_only_repo']
                 if is_parent_read_only_repo:
@@ -4253,11 +4203,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
             if not parent_tuple_ref is None:
               subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-              print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-            else:
-              print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-            with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+            with conditional(not parent_tuple_ref is None,
+                             local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
               # svn fetch and git push is available only on a writable (not readonly) repository
               is_read_only_repo = fetch_state_ref['is_read_only_repo']
               if is_read_only_repo:
@@ -4492,19 +4439,18 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
   git_user = getglobalvar(scm_token + '.USER')
   git_email = getglobalvar(scm_token + '.EMAIL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
-
   if not os.path.exists(wcroot_path):
     os.mkdir(wcroot_path)
 
-  with local.cwd(wcroot_path), GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path), \
+       GitReposListReader(configure_dir + '/git_repos.lst') as git_repos_reader, ServiceProcCache() as svc_proc_cache:
     executed_procs = cache_init_service_proc(svc_proc_cache)
 
     with tkl.OnExit(lambda: cache_close_running_procs(executed_procs, svc_proc_cache)):
       column_names, column_widths = get_git_svn_repos_list_table_params()
 
       if git_subtrees_root is None:
-        git_subtrees_root = wcroot_path + '/.git/svn2git/gitwc'
+        git_subtrees_root = wcroot_path + '/.git/.pyxvcs/gitwc'
 
       git_svn_repo_tree_dict, git_svn_repo_tree_tuple_ref_preorder_list, svn_repo_root_to_uuid_dict, git_svn_params_dict = \
         read_git_svn_repo_list(git_repos_reader, scm_token, wcroot_path, git_subtrees_root, column_names, column_widths,
@@ -4550,11 +4496,8 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
       if not parent_tuple_ref is None:
         subtree_git_wcroot = repo_params_ref['git_wcroot']
 
-        print(' ->> cwd: `{0}`...'.format(subtree_git_wcroot))
-      else:
-        print(' ->> cwd: `{0}`...'.format(wcroot_path))
-
-      with conditional(not parent_tuple_ref is None, local.cwd(subtree_git_wcroot) if not parent_tuple_ref is None else None):
+      with conditional(not parent_tuple_ref is None,
+                       local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
         print('- GIT searching...')
 
         if not svn_rev is None:
@@ -4610,7 +4553,7 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
         call_git(['checkout', '--no-guess', git_commit_hash])
 
       if svn_subtrees_root is None:
-        svn_subtrees_root = wcroot_path + '/.git/svn2git/svnwc'
+        svn_subtrees_root = wcroot_path + '/.git/.pyxvcs/svnwc'
 
       subtree_svn_dir = remote_name + "'" + svn_path_prefix.replace('/', '--')
       subtree_svn_wcroot = os.path.abspath(os.path.join(svn_subtrees_root, subtree_svn_dir)).replace('\\', '/')
@@ -4622,20 +4565,18 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
         except FileExistsError:
           pass
 
-      print(' ->> cwd: `{0}`...'.format(subtree_svn_wcroot))
-
-      with local.cwd(subtree_svn_wcroot):
+      with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_svn_wcroot):
         print('- SVN checkouting...')
 
         svn_repopath = svn_reporoot + (('/' + svn_path_prefix) if svn_path_prefix != '' else '')
 
         if not os.path.exists('.svn'):
           # shift current directory up to make svn checkout
-          with local.cwd('..'):
+          with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', '..'):
             call_svn(['co', '-r' + str(git_last_svn_rev), '--ignore-externals', svn_repopath, subtree_svn_dir])
         else:
           # shift current directory up to show the subdirectory
-          with local.cwd('..'):
+          with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', '..'):
             call_svn(['up', '-r' + str(git_last_svn_rev), '--ignore-externals', subtree_svn_dir])
 
       print('- GIT-SVN comparing...')
