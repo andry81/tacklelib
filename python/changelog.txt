@@ -1,3 +1,6 @@
+2020.01.11:
+* new: added license file to support the subdirectory as a standalone project
+
 2020.01.10:
 * changed: cmdoplib: gitsvn, svn: raw `plumbum.local.cwd` call replaced by a wrapper to print the current directory before respective change
 * refactor: cmdoplib: gitsvn: renamed `.git/svn2git` subdirectory into `.git/.pyxvcs`
