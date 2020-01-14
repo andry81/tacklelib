@@ -224,6 +224,10 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
                                            git_subtrees_root, svn_repo_root_to_uuid_dict, git_svn_params_dict):
   parent_repo_params_ref = parent_tuple_ref[0]
 
+  """
+  parent_svn_reporoot = parent_repo_params_ref['svn_reporoot']
+  """
+
   parent_git_local_branch = parent_repo_params_ref['git_local_branch']
 
   children_tuple_ref_list_size = len(children_tuple_ref_list)
@@ -248,6 +252,8 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
     subtree_parent_git_path_prefix = child_repo_params_ref['parent_git_path_prefix']
     if subtree_parent_git_path_prefix == '':
       raise Exception('not root branch type must have not empty git parent path prefix')
+
+    subtree_svn_repopath = subtree_svn_reporoot + (('/' + subtree_svn_path_prefix) if subtree_svn_path_prefix != '' else '')
 
     child_last_pushed_git_svn_commit = child_fetch_state_ref['last_pushed_git_svn_commit']
     child_last_pushed_git_svn_commit_rev = child_last_pushed_git_svn_commit[0]
@@ -295,29 +301,46 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
         parent_fetch_state_ref = parent_tuple_ref[1]
         last_notpushed_svn_commit_fetch_timestamp = parent_fetch_state_ref['last_notpushed_svn_commit_fetch_timestamp']
 
+      """
       if subtree_git_path_prefix == '':
-        with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
-          # find the last svn commit revision (a revision number is not defined)
-          git_last_svn_rev, child_git_commit_hash, \
-          git_commit_author_timestamp, git_commit_author_date_time, \
-          git_commit_commit_timestamp, git_commit_commit_date_time, \
-          num_overall_git_commits, \
-          git_svn_commit_fetch_timestamp = \
-            get_last_git_svn_rev_by_git_log(subtree_remote_name, subtree_git_local_branch, subtree_git_remote_branch,
-              subtree_svn_reporoot, subtree_svn_path_prefix, subtree_git_path_prefix,
-              git_svn_params_dict, git_from_commit_commit_timestamp = git_from_commit_commit_timestamp)
-          if not git_last_svn_rev > 0 and num_overall_git_commits > 0:
-            raise Exception('last svn revision is not found in the git log output: path=`{0}`'.format(subtree_svn_reporoot + '/' +subtree_svn_path_prefix))
+      """
 
-        if first_notpushed_svn_commit_sorted_by_timestamp_tuple is None and \
-           (not last_notpushed_svn_commit_fetch_timestamp is None and last_notpushed_svn_commit_fetch_timestamp < git_commit_author_timestamp):
-          # Ignore the last pushed child repository commit because it's timestamp either is earlier than the last notpushed svn commits fetch timestamp (too early to merge case)
-          # or have has no commits at all to extract a timestamp to compare with.
-          continue
+      # CAUTION:1
+      #   Duplicate code here to avoid current directory change twice:
+      #
+      with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
+        # find the last svn commit revision (a revision number is not defined)
+        git_last_svn_rev, child_git_commit_hash, \
+        git_commit_author_timestamp, git_commit_author_date_time, \
+        git_commit_commit_timestamp, git_commit_commit_date_time, \
+        num_overall_git_commits, \
+        git_svn_commit_fetch_timestamp = \
+          get_last_git_svn_rev_by_git_log(subtree_remote_name, subtree_git_local_branch, subtree_git_remote_branch,
+            subtree_svn_reporoot, subtree_svn_path_prefix, subtree_git_path_prefix,
+            git_svn_params_dict, git_from_commit_commit_timestamp = git_from_commit_commit_timestamp)
 
-        # fetch local branch particular commit from child working copy into parent working copy temporary local branch
-        call_git(['fetch', subtree_git_wcroot, subtree_git_remote_refspec_token + ':refs/heads/' + subtree_local_tmp_branch, child_git_commit_hash])
+        if child_git_commit_hash is None:
+          raise Exception('last git-svn commit is not found in the git log output: svn_rev=`{0}` svn_repopath=`{1}`'.
+            format(git_last_svn_rev, subtree_svn_repopath))
+
+        if not git_last_svn_rev > 0 and num_overall_git_commits > 0:
+          raise Exception('last svn revision is not found in the git log output: svn_rev=`{0}` svn_repopath=`{1}`'.
+            format(git_last_svn_rev, subtree_svn_repopath))
+
+      if first_notpushed_svn_commit_sorted_by_timestamp_tuple is None and \
+         (not last_notpushed_svn_commit_fetch_timestamp is None and last_notpushed_svn_commit_fetch_timestamp < git_commit_author_timestamp):
+        # Ignore the last pushed child repository commit because it's timestamp either is earlier than the last notpushed svn commits fetch timestamp (too early to merge case)
+        # or have has no commits at all to extract a timestamp to compare with.
+        continue
+
+      # fetch local branch particular commit from child working copy into parent working copy temporary local branch
+      call_git(['fetch', subtree_git_wcroot, subtree_git_remote_refspec_token + ':refs/heads/' + subtree_local_tmp_branch, child_git_commit_hash])
+
+      """
       else:
+        # CAUTION:
+        #   Duplicate code here to avoid current directory change twice:
+        #
         with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot):
           # find the last svn commit revision (a revision number is not defined)
           git_last_svn_rev, child_git_commit_hash, \
@@ -328,8 +351,10 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
             get_last_git_svn_rev_by_git_log(subtree_remote_name, subtree_git_local_branch, subtree_git_remote_branch,
               subtree_svn_reporoot, subtree_svn_path_prefix, subtree_git_path_prefix,
               git_svn_params_dict, git_from_commit_commit_timestamp = git_from_commit_commit_timestamp)
-          if not git_last_svn_rev > 0 and num_overall_git_commits > 0:
-            raise Exception('last svn revision is not found in the git log output: path=`{0}`'.format(subtree_svn_reporoot + '/' +subtree_svn_path_prefix))
+          if child_git_commit_hash is None:
+            raise Exception('last git-svn commit is not found in the git log output: path=`{0}`'.format(subtree_svn_repopath))
+          if not last_pushed_git_svn_commit_rev > 0 and num_overall_git_commits > 0:
+            raise Exception('last svn revision is not found in the git log output: path=`{0}`'.format(subtree_svn_repopath))
 
           if first_notpushed_svn_commit_sorted_by_timestamp_tuple is None and \
              (not last_notpushed_svn_commit_fetch_timestamp is None and last_notpushed_svn_commit_fetch_timestamp < git_commit_author_timestamp):
@@ -344,6 +369,7 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
 
           ret = call_git_no_except(['show-ref', '--verify', subtree_git_local_refspec_token])
           if not ret[0]:
+            is_subtree_git_local_refspec_token_exist = True
             # CAUTION:
             #   1. We have to cleanup before the first merge command, otherwise the command may fail with the messages:
             #      `error: your local changes would be overwritten by ...`
@@ -352,16 +378,39 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
             #      `error: The following untracked working tree files would be overwritten by merge:`
             #
             call_git(['reset', '--hard', subtree_git_local_refspec_token])
-
-          subtree_svn_repopath = subtree_svn_reporoot + (('/' + subtree_svn_path_prefix) if subtree_svn_path_prefix != '' else '')
+          else:
+            is_subtree_git_local_refspec_token_exist = False
 
           # replace value of the `git-svn-id` token in the commit message (a child svn repository token) by a parent svn repostiory token
           ret = call_git(['log', '--max-count=1', '--format=%B', child_git_commit_hash])
           reuse_commit_message = ret[1].rstrip()
-          reuse_commit_message = \
-            re.sub(r'^git-svn-id:\s[^@]+@(\d+)\s[^\n\r]+$', 'git-svn-id: ' + subtree_svn_repopath + r'@\1 ' + svn_repo_root_to_uuid_dict[subtree_svn_reporoot],
-              reuse_commit_message, count = 1, flags = re.MULTILINE)
 
+          git_svn_id_regex_match = re.search(r'^git-svn-id:\s+([^\n\r]+)$', reuse_commit_message, flags = re.MULTILINE)
+          if git_svn_id_regex_match:
+            reuse_commit_message = \
+              re.sub(r'^git-svn-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$',
+                r'git-svn-from-id: \1' + '\n' +
+                r'git-svn-to-id: ' + subtree_svn_repopath +
+                (r'\2 ' + svn_repo_root_to_uuid_dict[subtree_svn_reporoot],
+                reuse_commit_message, count = 1, flags = re.MULTILINE)
+          else:
+            git_svn_to_id_match = re.search(r'^git-svn-to-id:\s+([^\n\r]+)$', reuse_commit_message, flags = re.MULTILINE)
+            reuse_commit_message = \
+              re.sub(r'^git-svn-from-id:\s+([^\n\r]+)\r?\n', '', reuse_commit_message, flags = re.MULTILINE)
+            if git_svn_to_id_match:
+              reuse_commit_message = \
+                re.sub(r'^git-svn-to-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$',
+                  r'git-svn-from-id: \1' + '\n' +
+                  r'git-svn-to-id: ' + subtree_svn_repopath +
+                  (r'\2 ' + svn_repo_root_to_uuid_dict[subtree_svn_reporoot],
+                  reuse_commit_message, count = 1, flags = re.MULTILINE)
+
+          # CAUTION:
+          #   This implementation is disabled because of side effects:
+          #   https://stackoverflow.com/questions/59702488/git-merge-multiple-commits-into-one-in-an-orphan-branch-each-commit-in-a-prefix/59707222#59707222
+          #
+          """
+      """
           # CAUTION:
           #   The `git switch -c ...` still can guess and create not empty
           #   branch with a commit or commits. Have to use it with the `--orphan` to
@@ -397,8 +446,8 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
           #
           author_svn_token = yaml_expand_global_string('${${SCM_TOKEN}.USER} <${${SCM_TOKEN}.EMAIL}>')
 
-          with tkl.TmpFileIO('w+t') as stdin_iostr:
-            stdin_iostr.write(reuse_commit_message)
+          with tkl.TmpFileIO('w+b') as stdin_iostr:
+            stdin_iostr.write(reuse_commit_message.encode('utf-8'))
             stdin_iostr.flush() # otherwise would be an empty commit message
             # WORKAROUND:
             #   Temporary workwound, based on:
@@ -421,9 +470,75 @@ def git_fetch_child_subtree_merge_branches(children_tuple_ref_list, parent_tuple
           #   We have to try to initialize it from here.
           #
           call_git(['checkout', '--no-guess', subtree_git_local_branch])
+          """
+      """
+
+          # CAUTION:
+          #   Reimplementation based on:
+          #   https://stackoverflow.com/questions/59702488/git-merge-multiple-commits-into-one-in-an-orphan-branch-each-commit-in-a-prefix/59707222#59707222
+          #
+
+          # Start merge a commit w/o commit it through a direct read/write to the source tree.
+          #
+
+          call_git(['read-tree', '--empty'])
+
+          # Merge a refspec with prefix into local index.
+          #
+
+          subtree_tmp_branch_refspec = 'refs/heads/' + subtree_local_tmp_branch
+
+          if subtree_git_path_prefix != "":
+            call_git(['read-tree', '--prefix=' + subtree_git_path_prefix, subtree_tmp_branch_refspec])
+          else:
+            call_git(['read-tree', subtree_tmp_branch_refspec])
+
+          # Create a tree object from the local index.
+          #
+
+          ret = call_git(['write-tree'])
+          merge_tree_hash = ret[1].strip()
+
+          # Commit the tree object with the mainline commit message reuse.
+          #
+
+          # Change and make a commit:
+          #   1. Author name and email.
+          #   2. Commit author date.
+          #
+          """
+      """
+          author_svn_token = yaml_expand_global_string('${${SCM_TOKEN}.USER} <${${SCM_TOKEN}.EMAIL}>')
+          """
+      """
+          call_env = {
+            'GIT_AUTHOR_NAME' : yaml_expand_global_string('${${SCM_TOKEN}.USER}'),
+            'GIT_AUTHOR_EMAIL': yaml_expand_global_string('${${SCM_TOKEN}.EMAIL}'),
+            'GIT_AUTHOR_DATE' : reuse_commit_author_date_time
+          }
+
+          with tkl.TmpFileIO('w+b') as stdin_iostr:
+            stdin_iostr.write(reuse_commit_message.encode('utf-8'))
+            stdin_iostr.flush() # otherwise would be an empty commit message
+            # WORKAROUND:
+            #   Temporary workwound, based on:
+            #   `plumbum.local['...'].run(stdin = myobj)` ignores stdin as a not empty temporary file` : https://github.com/tomerfiliba/plumbum/issues/487
+            #
+            with open(stdin_iostr.path, 'rt') as stdin_file:
+              ret = call_git(['commit-tree', merge_tree_hash, '-p', child_git_commit_hash, '-F', '-'],
+                stdin = stdin_file, env = call_env)
+
+          merge_commmit_hash = ret[1].strip()
+
+          # update or create a subtree branch w/o switch on it
+          if is_subtree_git_local_refspec_token_exist:
+            call_git(['update-ref', subtree_git_local_refspec_token, merge_commmit_hash])
+          else:
+            call_git(['branch', '--no-track', subtree_git_local_branch, merge_commmit_hash])
 
         # fetch merged subtree local branch from child working copy into parent working copy temporary local branch
         call_git(['fetch', subtree_git_wcroot, subtree_local_tmp_branch + ':refs/heads/' + subtree_local_tmp_branch, child_git_commit_hash])
+        """
 
 def git_remove_child_subtree_merge_branches(children_tuple_ref_list):
   for children_tuple_ref in children_tuple_ref_list:
@@ -465,7 +580,7 @@ def get_git_fetch_first_commit_hash(remote_name, git_local_branch, git_remote_br
   return first_commit_hash.strip()
 """
 
-# Returns only the first git commit parameters or nothing.
+# Returns the first found git commit parameters or nothing.
 #
 def get_first_git_svn_commit_from_git_log(str):
   commit_svn_rev = 0
@@ -483,10 +598,11 @@ def get_first_git_svn_commit_from_git_log(str):
     value_list = [value.strip() for value in line.split(":", 1)]
     key = value_list[0]
     if key == 'commit':
-      if not commit_hash is None:
-        # return the previous one
-        return (commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time)
       commit_hash = value_list[1]
+      author_timestamp = None
+      commit_timestamp = None
+      author_date_time = None
+      commit_date_time = None
     elif key == 'timestamp':
       timestamp_list = value_list[1].split('|')
       author_timestamp = int(timestamp_list[0])
@@ -495,26 +611,45 @@ def get_first_git_svn_commit_from_git_log(str):
       date_time_list = value_list[1].split('|')
       author_date_time = date_time_list[0]
       commit_date_time = date_time_list[1]
-    elif key == 'git-svn-id':
-      git_svn_url = value_list[1].split(' ', 1)[0]
-      commit_svn_rev_index = git_svn_url.rfind('@')
-      if commit_svn_rev_index > 0:
-        svn_path = git_svn_url[:commit_svn_rev_index]
-        commit_svn_rev = int(git_svn_url[commit_svn_rev_index + 1:])
+    elif key == 'git-svn-id' or key == 'git-svn-to-id':
+      param_value = value_list[1]
+      git_svn_url_index = param_value.rfind(' ')
+      if git_svn_url_index > 0:
+        git_svn_url = param_value[:git_svn_url_index].strip()
 
-  return (commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time)
+        commit_svn_rev_index = git_svn_url.rfind('@')
+        if commit_svn_rev_index > 0:
+          commit_svn_rev_str = git_svn_url[commit_svn_rev_index + 1:]
+          commit_svn_rev = int(commit_svn_rev_str)
+        elif key == 'git-svn-to-id':
+          commit_svn_rev = 0
 
-# Returns the git commit where was found a svn revision under the requested remote svn url,
-# otherwise would return partially the last commit parameters.
+        return (commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time)
+
+  return (0, None, None, None, None, None)
+
+# Returns the first git commit where was found a git commit hash under the requested remote svn url when an svn commit revision can be taken from next git commit,
+# otherwise would return partially the last git commit parameters without svn commit revision and git commit hash.
 #
-def get_first_git_svn_commit_from_git_log2(str, svn_reporoot, svn_path_prefix):
+def get_first_or_last_git_svn_commit_from_git_log(str, svn_reporoot, svn_path_prefix, continue_search_svn_rev = False):
   svn_remote_path = svn_reporoot + ('/' + svn_path_prefix if svn_path_prefix != '' else '')
 
   commit_svn_rev = 0
+  commit_hash = None
   author_timestamp = None
   commit_timestamp = None
   author_date_time = None
   commit_date_time = None
+  num_commits = 0
+
+  is_commit_located = False
+  located_commit_hash = None
+  located_author_timestamp = None
+  located_commit_timestamp = None
+  located_author_date_time = None
+  located_commit_date_time = None
+  located_num_commits = 0
+
   num_commits = 0
 
   # To iterate over lines instead chars.
@@ -526,6 +661,13 @@ def get_first_git_svn_commit_from_git_log2(str, svn_reporoot, svn_path_prefix):
     value_list = [value.strip() for value in line.split(":", 1)]
     key = value_list[0]
     if key == 'commit':
+      if is_commit_located:
+        if not continue_search_svn_rev or commit_svn_rev > 0:
+          # return the previous one
+          return (commit_svn_rev,
+            located_commit_hash, located_author_timestamp, located_author_date_time, located_commit_timestamp, located_commit_date_time, located_num_commits,
+            commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time, num_commits)
+
       commit_hash = value_list[1]
       author_timestamp = None
       commit_timestamp = None
@@ -540,21 +682,50 @@ def get_first_git_svn_commit_from_git_log2(str, svn_reporoot, svn_path_prefix):
       date_time_list = value_list[1].split('|')
       author_date_time = date_time_list[0]
       commit_date_time = date_time_list[1]
-    elif key == 'git-svn-id':
-      git_svn_url = value_list[1].split(' ', 1)[0]
-      commit_svn_rev_index = git_svn_url.rfind('@')
-      if commit_svn_rev_index > 0:
-        svn_path = git_svn_url[:commit_svn_rev_index]
-        commit_svn_rev = int(git_svn_url[commit_svn_rev_index + 1:])
+    elif key == 'git-svn-id' or key == 'git-svn-to-id':
+      param_value = value_list[1]
+      git_svn_url_index = param_value.rfind(' ')
+      if git_svn_url_index > 0:
+        is_commit_prev_located = is_commit_located
 
-        svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
-        svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+        git_svn_url = param_value[:git_svn_url_index].strip()
 
-        if svn_path_wo_scheme == svn_remote_path_wo_scheme:
-          return (commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time, num_commits)
+        commit_svn_rev_index = git_svn_url.rfind('@')
+        if commit_svn_rev_index > 0:
+          svn_path = git_svn_url[:commit_svn_rev_index]
 
-  # if not found then timestamp is the last commit timestamp
-  return (0, None, author_timestamp, author_date_time, commit_timestamp, commit_date_time, num_commits)
+          commit_svn_rev_str = git_svn_url[commit_svn_rev_index + 1:]
+          commit_svn_rev = int(commit_svn_rev_str)
+
+          svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
+          svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+
+          if svn_path_wo_scheme == svn_remote_path_wo_scheme:
+            is_commit_located = True
+          else:
+            # reset
+            commit_svn_rev = 0
+        elif key == 'git-svn-to-id':
+          svn_path = git_svn_url
+          commit_svn_rev = 0
+
+          svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
+          svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+
+          if svn_path_wo_scheme == svn_remote_path_wo_scheme:
+            is_commit_located = True
+
+        if not is_commit_prev_located and is_commit_located:
+          located_commit_hash = commit_hash
+          located_author_timestamp = author_timestamp
+          located_author_date_time = author_date_time
+          located_commit_timestamp = commit_timestamp
+          located_commit_date_time = commit_date_time
+          located_num_commits = num_commits
+
+  return (commit_svn_rev,
+    located_commit_hash, located_author_timestamp, located_author_date_time, located_commit_timestamp, located_commit_date_time, located_num_commits,
+    commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time, num_commits)
 
 # Returns the git commit list where was found all svn revisions under the requested remote svn url.
 #
@@ -564,6 +735,7 @@ def get_git_commit_list_from_git_log(str, svn_reporoot, svn_path_prefix):
   commit_list = []
 
   commit_svn_rev = 0
+  commit_hash = None
   author_timestamp = None
   commit_timestamp = None
   author_date_time = None
@@ -593,18 +765,33 @@ def get_git_commit_list_from_git_log(str, svn_reporoot, svn_path_prefix):
       date_time_list = value_list[1].split('|')
       author_date_time = date_time_list[0]
       commit_date_time = date_time_list[1]
-    elif key == 'git-svn-id':
-      git_svn_url = value_list[1].split(' ', 1)[0]
-      commit_svn_rev_index = git_svn_url.rfind('@')
-      if commit_svn_rev_index > 0:
-        svn_path = git_svn_url[:commit_svn_rev_index]
-        commit_svn_rev = int(git_svn_url[commit_svn_rev_index + 1:])
+    elif key == 'git-svn-id' or key == 'git-svn-to-id':
+      param_value = value_list[1]
+      git_svn_url_index = param_value.rfind(' ')
+      if git_svn_url_index > 0:
+        git_svn_url = param_value[:git_svn_url_index].strip()
 
-        svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
-        svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+        commit_svn_rev_index = git_svn_url.rfind('@')
+        if commit_svn_rev_index > 0:
+          svn_path = git_svn_url[:commit_svn_rev_index]
 
-        if svn_path_wo_scheme == svn_remote_path_wo_scheme:
-          commit_list.append((commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time))
+          commit_svn_rev_str = git_svn_url[commit_svn_rev_index + 1:]
+          commit_svn_rev = int(commit_svn_rev_str)
+
+          svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
+          svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+
+          if svn_path_wo_scheme == svn_remote_path_wo_scheme:
+            commit_list.append((commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time))
+        elif key == 'git-svn-to-id':
+          svn_path = git_svn_url
+          commit_svn_rev = 0
+
+          svn_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_path)[1:]).geturl()
+          svn_remote_path_wo_scheme = tkl.ParseResult('', *tkl.urlparse(svn_remote_path)[1:]).geturl()
+
+          if svn_path_wo_scheme == svn_remote_path_wo_scheme:
+            commit_list.append((commit_svn_rev, commit_hash, author_timestamp, author_date_time, commit_timestamp, commit_date_time))
 
   return (commit_list if len(commit_list) > 0 else None, num_commits)
 
@@ -942,6 +1129,9 @@ def get_git_svn_subtree_ignore_paths_regex_from_parent_ref(parent_tuple_ref, chi
   return subtree_git_svn_ignore_paths_regex
 
 
+def get_default_git_log_root_depth():
+  return 16
+
 def get_default_git_log_format():
   return 'commit: %H%ntimestamp: %at|%ct%ndate_time: %ai|%ci%nauthor: %an <%ae>%n%b'
 
@@ -973,18 +1163,18 @@ def get_default_git_log_format():
 #
 
 # returns as tuple:
-#   git_last_svn_rev                - last pushed svn revision if has any
-#   git_commit_hash                 - git commit associated with the last pushed svn revision if has any, otherwise the last git commit
-#   git_commit_author_timestamp     - git author timestamp of the `git_commit_hash` commit
-#   git_commit_author_date_time     - git author datetime of the `git_commit_hash` commit
-#   git_commit_commit_timestamp     - git commit timestamp of the `git_commit_hash` commit
-#   git_commit_commit_date_time     - git commit datetime of the `git_commit_hash` commit
+#   git_last_svn_rev                - last pushed svn revision if has any, CAN BE extracted from the commit with different hash!
+#   git_commit_hash                 - the last pushed git-svn commit hash with or without an svn revision
+#   git_commit_author_timestamp     - git author timestamp of the `git_commit_hash` commit with or without an svn revision
+#   git_commit_author_date_time     - git author datetime of the `git_commit_hash` commit with or without an svn revision
+#   git_commit_commit_timestamp     - git commit timestamp of the `git_commit_hash` commit with or without an svn revision
+#   git_commit_commit_date_time     - git commit datetime of the `git_commit_hash` commit with or without an svn revision
 #   num_overall_git_commits         - number of overall looked up commits from branch HEAD commit by the remote refspec token
 #   last_fetch_timestamp            - last fetch timestamp
 #
 def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_path_prefix,
                                     git_svn_params_dict,
-                                    git_log_next_depth = -1, git_log_root_depth = 16, except_on_max_num_git_commits_lookup = 16,
+                                    git_log_next_depth = -1, git_log_root_depth = get_default_git_log_root_depth(),
                                     git_log_format = get_default_git_log_format(),
                                     git_from_commit_commit_timestamp = None, enable_retry = True):
   git_log_prev_depth = -1
@@ -1004,6 +1194,12 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
 
   svn_path_prefix_comp_list = svn_path_prefix.split('/')
 
+  located_git_commit_hash = None
+  located_git_commit_author_timestamp = None
+  located_git_commit_author_date_time = None
+  located_git_commit_commit_timestamp = None
+  located_git_commit_commit_date_time = None
+
   # 1. iterate to increase the `git log` depth (`--max-count`) in case of equal the first and the last commit timestamps
   # 2. iterate to shift the `git log` window using `--until` parameter
   while True:
@@ -1021,11 +1217,22 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
     while path_comp_index < svn_path_prefix_comp_list_size:
       svn_path_prefix_relpath = '/'.join(svn_path_prefix_comp_list[:path_comp_index+1])
 
-      git_last_svn_rev, git_commit_hash, \
+      git_last_svn_rev, \
+      git_commit_hash, \
       git_commit_author_timestamp, git_commit_author_date_time, \
-      git_commit_commit_timestamp, git_commit_commit_date_time, \
-      num_git_commits = \
-        get_first_git_svn_commit_from_git_log2(ret[1], svn_reporoot, svn_path_prefix_relpath)
+      git_commit_commit_timestamp, git_commit_commit_date_time, num_git_commits, \
+      last_git_commit, \
+      last_git_commit_author_timestamp, last_git_commit_author_date_time, \
+      last_git_commit_commit_timestamp, last_git_commit_commit_date_time, last_num_git_commits = \
+        get_first_or_last_git_svn_commit_from_git_log(ret[1], svn_reporoot, svn_path_prefix_relpath,
+          continue_search_svn_rev = True)
+
+      if located_git_commit_hash is None and not git_commit_hash is None:
+        located_git_commit_hash = git_commit_hash
+        located_git_commit_author_timestamp = git_commit_author_timestamp
+        located_git_commit_author_date_time = git_commit_author_date_time
+        located_git_commit_commit_timestamp = git_commit_commit_timestamp
+        located_git_commit_commit_date_time = git_commit_commit_date_time
 
       if git_last_svn_rev > 0:
         break
@@ -1061,7 +1268,7 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
       get_first_git_svn_commit_from_git_log(ret[1].strip())
 
     # increase the depth of the `git log` if the last commit timestamp is not less than the first commit timestamp
-    if git_commit_commit_timestamp is None or git_commit_commit_timestamp == git_first_commit_commit_timestamp:
+    if last_git_commit_commit_timestamp is None or last_git_commit_commit_timestamp == git_first_commit_commit_timestamp:
       git_log_next_depth_increase_count += 1
       if git_log_next_depth_increase_max_count < git_log_next_depth_increase_count:
         raise Exception('git log frame size is increased too many times: path=`{0}`'.format(svn_reporoot + '/' + svn_path_prefix))
@@ -1072,18 +1279,17 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
     else:
       # update conditions
       git_log_prev_num_commits = -1
-      git_from_commit_commit_timestamp = git_commit_commit_timestamp
+      git_from_commit_commit_timestamp = last_git_commit_commit_timestamp
 
       num_overall_git_commits += num_git_commits - 1
 
-    if not except_on_max_num_git_commits_lookup is None and except_on_max_num_git_commits_lookup < num_overall_git_commits + 1:
-      raise Exception('maximal commits lookup limit is reached: path=`{0}` commits={1} max={2}'.format(
-        svn_reporoot + '/' + svn_path_prefix, num_overall_git_commits + 1, except_on_max_num_git_commits_lookup))
-
-  return (0, None, None, None, None, None, num_overall_git_commits + 1, last_fetch_timestamp)
+  return (git_last_svn_rev,
+    located_git_commit_hash,
+    located_git_commit_author_timestamp, located_git_commit_author_date_time, located_git_commit_commit_timestamp, located_git_commit_commit_date_time,
+    num_overall_git_commits + 1, last_fetch_timestamp)
 
 # returns as tuple:
-#   git_last_svn_rev                - last svn revision if has any
+#   git_last_svn_rev                - last svn revision if has any, extracts only from the commit with the hash
 #   git_commit_hash                 - git commit associated with the last svn revision if has any, otherwise the last git commit
 #   git_commin_author_timestamp     - git author timestamp of the `git_commit_hash` commit
 #   git_commin_author_date_time     - git author datetime of the `git_commit_hash` commit
@@ -1094,7 +1300,8 @@ def get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_br
 #
 def get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_path_prefix,
                                        svn_rev, git_svn_params_dict,
-                                       git_log_next_depth = -1, git_log_root_depth = 16, except_on_max_num_git_commits_lookup = None,
+                                       git_log_next_depth = -1, git_log_root_depth = get_default_git_log_root_depth(),
+                                       except_on_max_num_git_commits_lookup = None,
                                        git_log_format = get_default_git_log_format(),
                                        git_from_commit_commit_timestamp = None, enable_retry = True):
   git_log_prev_depth = -1
@@ -1126,6 +1333,8 @@ def get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote
       (['--', git_path_prefix] if git_path_prefix != '' else []),
       max_stdout_lines = 16)
 
+    last_git_commit_commit_timestamp = None
+
     path_comp_index = 0
     svn_path_prefix_comp_list_size = len(svn_path_prefix_comp_list)
     while path_comp_index < svn_path_prefix_comp_list_size:
@@ -1148,9 +1357,9 @@ def get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote
 
           commit_index += 1
 
-        git_commit_commit_timestamp = git_svn_commit_list[-1][4] # a last commit commit timestamp
+        last_git_commit_commit_timestamp = git_svn_commit_list[-1][4] # a last commit commit timestamp
       else:
-        git_commit_commit_timestamp = None
+        last_git_commit_commit_timestamp = None
 
       path_comp_index += 1
 
@@ -1174,7 +1383,7 @@ def get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote
       get_first_git_svn_commit_from_git_log(ret[1].strip())
 
     # increase the depth of the `git log` if the last commit timestamp is not less than the first commit timestamp
-    if not git_commit_commit_timestamp is None and git_commit_commit_timestamp == git_first_commit_commit_timestamp:
+    if not last_git_commit_commit_timestamp is None and last_git_commit_commit_timestamp == git_first_commit_commit_timestamp:
       git_log_next_depth_increase_count += 1
       if git_log_next_depth_increase_max_count < git_log_next_depth_increase_count:
         raise Exception('git log frame size is increased too many times: path=`{0}`'.format(svn_reporoot + '/' + svn_path_prefix))
@@ -1185,7 +1394,7 @@ def get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote
     else:
       # update conditions
       git_log_prev_num_commits = -1
-      git_from_commit_commit_timestamp = git_commit_commit_timestamp
+      git_from_commit_commit_timestamp = last_git_commit_commit_timestamp
 
       num_overall_git_commits += num_git_commits - 1
 
@@ -1535,7 +1744,7 @@ def git_print_repos_list_header(column_names, column_widths, fmt_str = '{:<{}} {
   text = ''
   for column_width in column_widths:
     if len(text) > 0:
-      text += ' '
+      text += r' '
     text += (column_width * '=')
 
   print('  ' + text)
@@ -1549,7 +1758,7 @@ def git_print_repos_list_footer(column_widths):
   text = ''
   for column_width in column_widths:
     if len(text) > 0:
-      text += ' '
+      text += r' '
     text += (column_width * '-')
 
   print('  ' + text)
@@ -2062,6 +2271,12 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
         git_last_pushed_commit_hash = get_git_last_pushed_commit_hash(git_reporoot, git_remote_local_refspec_token)
 
         last_pushed_git_svn_commit_rev = 0
+        last_pushed_git_svn_commit_hash = None
+        last_pushed_git_svn_commit_author_timestamp = None
+        last_pushed_git_svn_commit_author_date_time = None
+        last_pushed_git_svn_commit_commit_timestamp = None
+        last_pushed_git_svn_commit_commit_date_time = None
+        last_pushed_git_svn_commit_fetch_timestamp = None
 
         if not git_last_pushed_commit_hash is None:
           # get last git-svn revision w/o fetch because it must be already fetched
@@ -2073,8 +2288,10 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
           last_pushed_git_svn_commit_fetch_timestamp = \
             get_last_git_svn_rev_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_path_prefix,
               git_svn_params_dict)
-          if not last_pushed_git_svn_commit_rev > 0 and num_overall_git_commits > 0:
-            raise Exception('last svn revision is not found in the git log output: path=`{0}`'.format(svn_reporoot + '/' +svn_path_prefix))
+
+          if last_pushed_git_svn_commit_hash is None:
+            raise Exception('last git-svn commit is not found in the git log output: git_path_prefix=`{0}` svn_repopath=`{1}`'.
+              format(git_path_prefix, svn_repopath))
 
           """
           else:
@@ -2090,8 +2307,6 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
           if not last_pushed_git_svn_commit_rev >= 0:
             raise Exception('invalid last_pushed_git_svn_commit_rev value: `' + str(last_pushed_git_svn_commit_rev) + '`')
           """
-        else:
-          last_pushed_git_svn_commit_fetch_timestamp = None
 
         # update git-svn commit author timestamp and datetime (just in case)
         if last_pushed_git_svn_commit_rev > 0:
@@ -2114,13 +2329,6 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
 
           last_pushed_git_svn_commit_author_timestamp = target_svn_commit[2]
           last_pushed_git_svn_commit_author_date_time = target_svn_commit[3]
-        else:
-          # nothing found
-          last_pushed_git_svn_commit_hash = None
-          last_pushed_git_svn_commit_author_timestamp = None
-          last_pushed_git_svn_commit_author_date_time = None
-          last_pushed_git_svn_commit_commit_timestamp = None
-          last_pushed_git_svn_commit_commit_date_time = None
 
         # get svn revision list not pushed into respective git repository
 
@@ -2232,7 +2440,8 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
         #   all the rest are None.
         #
         fetch_state_ref['last_pushed_git_svn_commit'] = (
-          last_pushed_git_svn_commit_rev, last_pushed_git_svn_commit_hash,
+          last_pushed_git_svn_commit_rev,
+          last_pushed_git_svn_commit_hash,
           int(last_pushed_git_svn_commit_author_timestamp) if not last_pushed_git_svn_commit_author_timestamp is None else None,
           last_pushed_git_svn_commit_author_date_time,
           int(last_pushed_git_svn_commit_commit_timestamp) if not last_pushed_git_svn_commit_commit_timestamp is None else None,
@@ -2327,13 +2536,13 @@ def update_git_svn_repo_fetch_state(git_svn_repo_tree_tuple_ref_preorder_list, g
 
         if notpushed_svn_commit_list_len > 4:
           notpushed_svn_commit_list_str = '[' + \
-            str(notpushed_svn_commit_list[0][0]) + ' ' + str(notpushed_svn_commit_list[1][0]) + ' ... ' + \
-            str(notpushed_svn_commit_list[-2][0]) + ' ' + str(notpushed_svn_commit_list[-1][0]) + ']'
+            str(notpushed_svn_commit_list[0][0]) + r' ' + str(notpushed_svn_commit_list[1][0]) + ' ... ' + \
+            str(notpushed_svn_commit_list[-2][0]) + r' ' + str(notpushed_svn_commit_list[-1][0]) + ']'
         else:
           text = ''
           for notpushed_svn_commit in notpushed_svn_commit_list:
             if len(text) > 0:
-              text += ' '
+              text += r' '
             text += str(notpushed_svn_commit[0])
           notpushed_svn_commit_list_str = '[' + text + ']'
 
@@ -3877,8 +4086,6 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
               parent_svn_reporoot = parent_repo_params_ref['svn_reporoot']
               parent_svn_path_prefix = parent_repo_params_ref['svn_path_prefix']
 
-              parent_svn_repopath = parent_svn_reporoot + (('/' + parent_svn_path_prefix) if parent_svn_path_prefix != '' else '')
-
               parent_git_local_branch = parent_repo_params_ref['git_local_branch']
               parent_git_remote_branch = parent_repo_params_ref['git_remote_branch']
 
@@ -3888,6 +4095,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
               if not parent_parent_tuple_ref is None:
                 subtree_git_wcroot = parent_repo_params_ref['git_wcroot']
+
+              parent_svn_repopath = parent_svn_reporoot + (('/' + parent_svn_path_prefix) if parent_svn_path_prefix != '' else '')
 
               with conditional(not parent_parent_tuple_ref is None,
                                local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_parent_tuple_ref is None else None):
@@ -3901,6 +4110,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                 ret = call_git_no_except(['show-ref', '--verify', parent_git_local_refspec_token])
                 if not ret[0]:
+                  is_parent_git_local_refspec_token_exist = True
                   # CAUTION:
                   #   1. We have to cleanup before the first merge command, otherwise the command may fail with the messages:
                   #      `error: your local changes would be overwritten by ...`
@@ -3909,6 +4119,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   #      `error: The following untracked working tree files would be overwritten by merge:`
                   #
                   call_git(['reset', '--hard', parent_git_local_refspec_token])
+                else:
+                  is_parent_git_local_refspec_token_exist = False
 
                 # create child branches per last pushed commit from a child repository
                 git_fetch_child_subtree_merge_branches(parent_children_tuple_ref_list, git_svn_repo_tree_tuple_ref,
@@ -3921,13 +4133,18 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 if child_subtree_branch_refspec_list is None or not len(child_subtree_branch_refspec_list) > 0:
                   raise Exception('fetch-merge-push sequence is corrupted, the children repository branch list is empty')
 
+                parent_last_pushed_git_svn_commit = parent_fetch_state_ref['last_pushed_git_svn_commit']
+                parent_last_pushed_git_svn_commit_rev = parent_last_pushed_git_svn_commit[0]
+                parent_last_pushed_git_svn_commit_author_timestamp = parent_last_pushed_git_svn_commit[2]
+
                 reuse_commit_message_refspec_token = None
                 reuse_commit_message = None
-                reuse_commit_date_time = None
+                reuse_commit_author_timestamp = None
+                reuse_commit_author_date_time = None
 
                 # ('<prefix>', '<refspec>')
                 refspec_merge_tuple_list = []
-                child_branch_merge_commit_hash_list = []
+                merge_commit_hash_list = []
                 has_parent_refspec_merge_commit = False
 
                 # Collect refspecs w/o merge.
@@ -3940,9 +4157,6 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                   if len(git_svn_fetch_ignore_paths_regex) > 0:
                     git_svn_fetch_cmdline_list.append('--ignore-paths=' + git_svn_fetch_ignore_paths_regex)
-
-                  parent_last_pushed_git_svn_commit = parent_fetch_state_ref['last_pushed_git_svn_commit']
-                  parent_last_pushed_git_svn_commit_rev = parent_last_pushed_git_svn_commit[0]
 
                   parent_last_pruned_git_svn_commit_dict = parent_fetch_state_ref['last_pruned_git_svn_commit_dict']
 
@@ -3971,6 +4185,10 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   git_svn_trunk_first_commit_timestamp, git_svn_trunk_first_commit_date_time = \
                     get_first_git_svn_commit_from_git_log(ret[1].strip())
 
+                  if not git_svn_trunk_first_commit_svn_rev > 0:
+                    raise Exception('fetch-merge-push sequence is corrupted, git-svn remote branch commit does not contain an svn revision: refspec={0}'.
+                      format(git_svn_trunk_remote_refspec_token))
+
                   has_parent_refspec_merge_commit = (git_svn_trunk_first_commit_svn_rev == notpushed_svn_commit_rev)
                   if has_parent_refspec_merge_commit:
                     # the fetched svn revision is confirmed, can continue now
@@ -3996,8 +4214,12 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                     if retain_commit_git_svn_parents:
                       refspec_merge_tuple_list.append((None, git_svn_trunk_remote_refspec_token))
+
+                      merge_commit_hash = get_git_remote_head_commit_hash(git_svn_trunk_remote_refspec_token)
+                      merge_commit_hash_list.append(merge_commit_hash)
+
                     reuse_commit_message_refspec_token = git_svn_trunk_remote_refspec_token
-                    reuse_commit_date_time = notpushed_svn_commit_date_time
+                    reuse_commit_author_date_time = notpushed_svn_commit_date_time
                   else:
                     print('- The svn commit merge from a parent repository is skipped, the respective svn commit revision was not found as the last fetched: fetched=' +
                       str(notpushed_svn_commit_rev) + ' first_found=' + str(git_svn_trunk_first_commit_svn_rev))
@@ -4008,6 +4230,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   raise Exception('fetch-merge-push sequence is corrupted, the parent repository does not have a child repository')
 
                 max_child_git_svn_commit_rev = 0  # must be 0 instead of None
+                max_child_last_pushed_git_svn_commit_author_timestamp = 0
+                max_child_last_pushed_git_svn_commit_author_date_time = ''
 
                 """
                 for git_svn_child_merge_commit_index, child_tuple_ref in enumerate(parent_children_tuple_ref_list):
@@ -4018,6 +4242,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   child_fetch_state_ref = child_tuple_ref[1]
 
                   child_remote_name = child_repo_params_ref['remote_name']
+
+                  child_svn_reporoot = child_repo_params_ref['svn_reporoot']
 
                   child_git_local_branch = child_repo_params_ref['git_local_branch']
                   child_git_remote_branch = child_repo_params_ref['git_remote_branch']
@@ -4030,8 +4256,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                     refspec_merge_tuple_list.append((child_parent_git_path_prefix + '/', child_branch_refspec))
 
-                    child_branch_merge_commit_hash = get_git_local_head_commit_hash(child_branch_refspec)
-                    child_branch_merge_commit_hash_list.append(child_branch_merge_commit_hash)
+                    merge_commit_hash = get_git_local_head_commit_hash(child_branch_refspec)
+                    merge_commit_hash_list.append(merge_commit_hash)
 
                     child_last_pushed_git_svn_commit = child_fetch_state_ref['last_pushed_git_svn_commit']
                     child_last_pushed_git_svn_commit_rev = child_last_pushed_git_svn_commit[0]
@@ -4040,21 +4266,85 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
 
                     if max_child_git_svn_commit_rev < child_last_pushed_git_svn_commit_rev:
                       max_child_git_svn_commit_rev = child_last_pushed_git_svn_commit_rev
+                    if max_child_last_pushed_git_svn_commit_author_timestamp < child_last_pushed_git_svn_commit_author_timestamp:
+                      max_child_last_pushed_git_svn_commit_author_timestamp = child_last_pushed_git_svn_commit_author_timestamp
+                      max_child_last_pushed_git_svn_commit_author_date_time = child_last_pushed_git_svn_commit_author_date_time
 
+                    # take message from the first commit in the list if not taken from a parent commit
                     if reuse_commit_message_refspec_token is None:
                       reuse_commit_message_refspec_token = child_branch_refspec
-                      reuse_commit_date_time = child_last_pushed_git_svn_commit_author_date_time
 
                       # replace value of the `git-svn-id` token in the commit message (a child svn repository token) by a parent svn repostiory token
                       ret = call_git(['log', '--max-count=1', '--format=%B', reuse_commit_message_refspec_token])
                       reuse_commit_message = ret[1].rstrip()
-                      reuse_commit_message = \
-                        re.sub(r'^git-svn-id:\s[^@]+@(\d+)\s[^\n\r]+$', 'git-svn-id: ' + parent_svn_repopath + r'@\1 ' + svn_repo_root_to_uuid_dict[parent_svn_reporoot],
-                          reuse_commit_message, count = 1, flags = re.MULTILINE)
+
+                      git_svn_id_regex_match = re.search(r'^git-svn-id:\s+([^\n\r]+)$', reuse_commit_message, flags = re.MULTILINE)
+                      if git_svn_id_regex_match:
+                        reuse_commit_message = \
+                          re.sub(r'^git-svn-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$',
+                            r'git-svn-from-id: \1' + '\n' +
+                            r'git-svn-to-id: ' + parent_svn_repopath +
+                            (r'\2 ' if child_svn_reporoot == parent_svn_reporoot else r' ') +
+                            svn_repo_root_to_uuid_dict[parent_svn_reporoot],
+                            reuse_commit_message, flags = re.MULTILINE)
+                      else:
+                        git_svn_to_id_match = re.search(r'^git-svn-to-id:\s+([^\n\r]+)$', reuse_commit_message, flags = re.MULTILINE)
+                        reuse_commit_message = \
+                          re.sub(r'^git-svn-from-id:\s+([^\n\r]+)(?:\r?\n)?', '', reuse_commit_message, flags = re.MULTILINE)
+                        if git_svn_to_id_match:
+                          reuse_commit_message = \
+                            re.sub(r'^git-svn-to-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$',
+                              r'git-svn-from-id: \1' + '\n' +
+                              r'git-svn-to-id: ' + parent_svn_repopath +
+                              (r'\2 ' if child_svn_reporoot == parent_svn_reporoot else r' ') +
+                              svn_repo_root_to_uuid_dict[parent_svn_reporoot],
+                              reuse_commit_message, flags = re.MULTILINE)
+                    else:
+                      # replace value of the `git-svn-id` token in the commit message (a child svn repository token) by a parent svn repostiory token
+                      ret = call_git(['log', '--max-count=1', '--format=%B', child_branch_refspec])
+                      reuse_another_commit_message = ret[1].rstrip()
+
+                      git_svn_id_regex_match = re.search(r'^git-svn-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$', reuse_another_commit_message, flags = re.MULTILINE)
+                      if git_svn_id_regex_match:
+                        reuse_commit_message += \
+                          r'git-svn-from-id: ' + git_svn_id_regex_match.group(1) + '\n' + \
+                          r'git-svn-to-id: ' + parent_svn_repopath + \
+                          ((git_svn_id_regex_match.group(2) + r' ') if child_svn_reporoot == parent_svn_reporoot else r' ') + \
+                          svn_repo_root_to_uuid_dict[parent_svn_reporoot] + '\n'
+                      else:
+                        git_svn_to_id_match_iter = re.finditer(r'^git-svn-to-id:\s+([^@]+(@\d+)?\s+[^\n\r]+)$', reuse_another_commit_message, flags = re.MULTILINE)
+                        for git_svn_to_id_match in git_svn_to_id_match_iter:
+                          reuse_commit_message += \
+                            r'git-svn-from-id: ' + git_svn_to_id_match.group(1) + '\n' + \
+                            r'git-svn-to-id: ' + parent_svn_repopath + \
+                            ((git_svn_to_id_match.group(2) + r' ') if child_svn_reporoot == parent_svn_reporoot else r' ') + \
+                            svn_repo_root_to_uuid_dict[parent_svn_reporoot] + '\n'
+
+                if reuse_commit_author_date_time is None:
+                  reuse_commit_author_timestamp = max_child_last_pushed_git_svn_commit_author_timestamp
+                  reuse_commit_author_date_time = max_child_last_pushed_git_svn_commit_author_date_time
 
                 if not max_child_git_svn_commit_rev > 0:
                   raise Exception('fetch-merge-push sequence is corrupted, no one child repository branch is merged')
 
+                # CAUTION:
+                #   Before a push we must check if a commit was already merged, otherwise a push command would throw an error:
+                #   `error: failed to push some refs to '...'`
+                # `  hint: Updates were rejected because the tip of your current branch is behind`
+                # `  hint: its remote counterpart. Integrate the remote changes (e.g.`
+                # `  hint: 'git pull ...') before pushing again.`
+                #
+                if not has_parent_refspec_merge_commit:
+                  if parent_last_pushed_git_svn_commit_author_timestamp == reuse_commit_author_timestamp:
+                    # skip the push
+                    continue
+
+                # To check whether the parent repository commit is already merged from children repositories we can compare
+                # CAUTION:
+                #   This implementation is disabled because of side effects:
+                #   https://stackoverflow.com/questions/59702488/git-merge-multiple-commits-into-one-in-an-orphan-branch-each-commit-in-a-prefix/59707222#59707222
+                #
+                """
                 # Start merge collected refspecs w/o commit them.
                 #
 
@@ -4064,8 +4354,9 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #
                 if len(refspec_merge_tuple_list) > 0:
                   call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] +
-                    [refspec for prefix, refspec in refspec_merge_tuple_list] +
-                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
+                    [i for j in [(*refspec_merge_tuple, merge_commit_hash) for refspec_merge_tuple, merge_commit_hash in zip(refspec_merge_tuple_list, merge_commit_hash_list)] for i in j])
+                    #[refspec for prefix, refspec in refspec_merge_tuple_list] +
+                    #[merge_commit_hash for merge_commit_hash in merge_commit_hash_list])
 
                 # Merge collected refspecs with prefixes into local index.
                 #
@@ -4093,23 +4384,93 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 author_svn_token = yaml_expand_global_string('${${SCM_TOKEN}.USER} <${${SCM_TOKEN}.EMAIL}>')
 
                 if reuse_commit_message is None:
-                  call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_date_time, '-C', reuse_commit_message_refspec_token])
+                  call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_author_date_time, '-C', reuse_commit_message_refspec_token])
                 else:
-                  with tkl.TmpFileIO('w+t') as stdin_iostr:
-                    stdin_iostr.write(reuse_commit_message)
+                  with tkl.TmpFileIO('w+b') as stdin_iostr:
+                    stdin_iostr.write(reuse_commit_message.encode('utf-8'))
                     stdin_iostr.flush() # otherwise would be an empty commit message
                     # WORKAROUND:
                     #   Temporary workwound, based on:
                     #   `plumbum.local['...'].run(stdin = myobj)` ignores stdin as a not empty temporary file` : https://github.com/tomerfiliba/plumbum/issues/487
                     #
                     with open(stdin_iostr.path, 'rt') as stdin_file:
-                      call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_date_time, '-F', '-'], stdin = stdin_file)
+                      call_git(['commit', '--no-edit', '--allow-empty', '--author=' + author_svn_token, '--date', reuse_commit_author_date_time, '-F', '-'], stdin = stdin_file)
 
                 ret = call_git(['rev-parse', 'HEAD'])
                 parent_head_git_commit_hash = ret[1].strip()
 
                 if not len(parent_head_git_commit_hash) > 0:
                   raise Exception('fetch-merge-push sequence is corrupted, HEAD commit does not exist')
+                """
+
+                # CAUTION:
+                #   Reimplementation based on:
+                #   https://stackoverflow.com/questions/59702488/git-merge-multiple-commits-into-one-in-an-orphan-branch-each-commit-in-a-prefix/59707222#59707222
+                #
+
+                # Start merge a commit w/o commit it through a direct read/write to the source tree.
+                #
+
+                call_git(['read-tree', '--empty'])
+
+                # Merge a refspec with prefix into local index.
+                #
+
+                for prefix, refspec in refspec_merge_tuple_list:
+                  if not prefix is None:
+                    call_git(['read-tree', '--prefix=' + prefix, refspec])
+                  else:
+                    call_git(['read-tree', refspec])
+
+                # Create a tree object from the local index.
+                #
+
+                ret = call_git(['write-tree'])
+                merge_tree_hash = ret[1].strip()
+
+                # Commit the local index with the mainline commit message reuse.
+                #
+
+                # Change and make a commit:
+                #   1. Author name and email.
+                #   2. Commit author date.
+                #
+                """
+                author_svn_token = yaml_expand_global_string('${${SCM_TOKEN}.USER} <${${SCM_TOKEN}.EMAIL}>')
+                """
+                call_env = {
+                  'GIT_AUTHOR_NAME' : yaml_expand_global_string('${${SCM_TOKEN}.USER}'),
+                  'GIT_AUTHOR_EMAIL': yaml_expand_global_string('${${SCM_TOKEN}.EMAIL}'),
+                  'GIT_AUTHOR_DATE' : reuse_commit_author_date_time
+                }
+
+                if reuse_commit_message is None:
+                  ret = call_git(['commit-tree', merge_tree_hash] +
+                    [i for j in [('-p', merge_commit_hash) for merge_commit_hash in merge_commit_hash_list] for i in j] +
+                    ['-C', reuse_commit_message_refspec_token],
+                    env = call_env)
+                else:
+                  with tkl.TmpFileIO('w+b') as stdin_iostr:
+                    stdin_iostr.write(reuse_commit_message.encode('utf-8'))
+                    stdin_iostr.flush() # otherwise would be an empty commit message
+                    # WORKAROUND:
+                    #   Temporary workwound, based on:
+                    #   `plumbum.local['...'].run(stdin = myobj)` ignores stdin as a not empty temporary file` : https://github.com/tomerfiliba/plumbum/issues/487
+                    #
+                    with open(stdin_iostr.path, 'rt') as stdin_file:
+                      ret = call_git(['commit-tree', merge_tree_hash] +
+                        [i for j in [('-p', merge_commit_hash) for merge_commit_hash in merge_commit_hash_list] for i in j] +
+                        ['-F', '-'], stdin = stdin_file, env = call_env)
+
+                merge_commmit_hash = ret[1].strip()
+
+                # update branch and switch on it
+                if is_parent_git_local_refspec_token_exist:
+                  call_git(['update-ref', parent_git_local_refspec_token, merge_commmit_hash])
+
+                  call_git(['switch', '--no-guess', parent_git_local_branch])
+                else:
+                  call_git(['switch', '-c', parent_git_local_branch, merge_commmit_hash])
 
                 """
                 call_git(['update-ref', parent_git_local_refspec_token, parent_head_git_commit_hash])
@@ -4124,16 +4485,25 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                   call_git(['push', '-u', parent_remote_name, parent_git_push_refspec_token])
                   parent_fetch_state_ref['is_first_time_push'] = False
 
-                ret = call_git(['log', '--max-count=1',
+                git_log_next_depth = get_default_git_log_root_depth() + git_svn_params_dict['git_log_list_child_max_depth_fetch']
+
+                ret = call_git(['log', '--max-count=' + str(git_log_next_depth),
                   '--format=' + get_default_git_log_format(), parent_git_remote_refspec_token])
 
-                last_pushed_git_svn_commit_rev, last_pushed_git_svn_commit_hash, \
+                last_pushed_git_svn_commit_rev, \
+                last_pushed_git_svn_commit_hash, \
                 last_pushed_git_svn_commit_author_timestamp, last_pushed_git_svn_commit_author_date_time, \
-                last_pushed_git_svn_commit_commit_timestamp, last_pushed_git_svn_commit_commit_date_time = \
-                  get_first_git_svn_commit_from_git_log(ret[1].strip())
+                last_pushed_git_svn_commit_commit_timestamp, last_pushed_git_svn_commit_commit_date_time, last_pushed_num_git_commits, \
+                last_git_svn_commit_hash, \
+                last_git_svn_commit_author_timestamp, last_git_svn_commit_author_date_time, \
+                last_git_svn_commit_commit_timestamp, last_git_svn_commit_commit_date_time, last_pushed_num_git_commits = \
+                  get_first_or_last_git_svn_commit_from_git_log(ret[1].strip(), parent_svn_reporoot, parent_svn_path_prefix,
+                    continue_search_svn_rev = True)
 
+                """
                 if last_pushed_git_svn_commit_hash != parent_head_git_commit_hash:
                   raise Exception('fetch-merge-push sequence is corrupted, HEAD commit hash has changed after the push')
+                """
 
                 # update last pushed git/svn commit
                 parent_fetch_state_ref['last_pushed_git_svn_commit'] = (
@@ -4257,7 +4627,8 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
               git_svn_trunk_first_commit_author_timestamp, git_svn_trunk_first_commit_author_date_time, \
               git_svn_trunk_first_commit_commit_timestamp, git_svn_trunk_first_commit_commit_date_time = \
                 get_first_git_svn_commit_from_git_log(ret[1].strip())
-              if git_svn_trunk_first_commit_svn_rev == notpushed_svn_commit_rev:
+
+              if git_svn_trunk_first_commit_svn_rev > 0 and git_svn_trunk_first_commit_svn_rev == notpushed_svn_commit_rev:
                 # the fetched svn revision is confirmed, can continue now
 
                 # CAUTION:
@@ -4265,8 +4636,14 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   otherwise a parent repository commit won't contain changes made in a child repository in previous svn revisions.
                 #
                 # ('<prefix>', '<refspec>')
-                child_refspec_merge_tuple_list = []
-                child_branch_merge_commit_hash_list = []
+                refspec_merge_tuple_list = []
+                merge_commit_hash_list = []
+
+                if retain_commit_git_svn_parents:
+                  refspec_merge_tuple_list.append((None, git_svn_trunk_remote_refspec_token))
+
+                  merge_commit_hash = get_git_remote_head_commit_hash(git_svn_trunk_remote_refspec_token)
+                  merge_commit_hash_list.append(merge_commit_hash)
 
                 # not empty child branches list
                 child_subtree_branch_refspec_list = git_get_local_branch_refspec_list('^refs/heads/[^-]+--subtree')
@@ -4283,10 +4660,10 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                     if child_branch_refspec in child_subtree_branch_refspec_list:
                       child_parent_git_path_prefix = child_repo_params_ref['parent_git_path_prefix']
 
-                      child_refspec_merge_tuple_list.append((child_parent_git_path_prefix + '/', child_branch_refspec))
+                      refspec_merge_tuple_list.append((child_parent_git_path_prefix + '/', child_branch_refspec))
 
-                      child_branch_merge_commit_hash = get_git_local_head_commit_hash(child_branch_refspec)
-                      child_branch_merge_commit_hash_list.append(child_branch_merge_commit_hash)
+                      merge_commit_hash = get_git_local_head_commit_hash(child_branch_refspec)
+                      merge_commit_hash_list.append(merge_commit_hash)
 
                 # CAUTION:
                 #   We should not use `git merge ...` commad in case when the HEAD is detached, otherwise the merge
@@ -4294,10 +4671,6 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   So, a merged commit would be empty because the source branch commit would merge on top of it's own.
                 #
 
-                # check if HEAD is not pointing to the source branch
-                """
-                if head_git_commit_hash != git_svn_trunk_first_commit_hash:
-                """
                 # Start merge a commit w/o merge it to retain the merge parent list.
                 #
 
@@ -4305,14 +4678,11 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 #   The `-no-ff` parameter should not use in case of merge into empty head, otherwise:
                 #   `fatal: Non-fast-forward commit does not make sense into an empty head`
                 #
-                if retain_commit_git_svn_parents:
+                if len(refspec_merge_tuple_list) > 0:
                   call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours', git_svn_trunk_remote_refspec_token] +
-                    [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
-                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
-                elif len(child_refspec_merge_tuple_list) > 0:
-                  call_git(['merge', '--allow-unrelated-histories', '--no-edit', '--no-commit', '-s', 'ours'] +
-                    [refspec for prefix, refspec in child_refspec_merge_tuple_list] +
-                    [child_branch_merge_commit_hash for child_branch_merge_commit_hash in child_branch_merge_commit_hash_list])
+                    [i for j in [(*refspec_merge_tuple, merge_commit_hash) for refspec_merge_tuple, merge_commit_hash in zip(refspec_merge_tuple_list, merge_commit_hash_list)] for i in j])
+                    #[refspec for prefix, refspec in refspec_merge_tuple_list] +
+                    #[merge_commit_hash for merge_commit_hash in merge_commit_hash_list])
 
                 # Merge a parent commit into local index.
                 #
@@ -4322,7 +4692,7 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 # Merge collected child refspecs with prefixes into local index.
                 #
 
-                for prefix, refspec in child_refspec_merge_tuple_list:
+                for prefix, refspec in refspec_merge_tuple_list:
                   if not prefix is None:
                     # WORKAROUND:
                     #   To workaround an issue with the error message `error: Entry '<prefix>/...' overlaps with '<prefix>/...'.  Cannot bind.`
@@ -4353,12 +4723,6 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 if not len(head_git_commit_hash) > 0:
                   raise Exception('HEAD commit does not exist')
 
-                """
-                if head_git_commit_hash != git_svn_trunk_first_commit_hash:
-                  git_local_refspec_token = get_git_local_refspec_token(git_local_branch, git_remote_branch)
-                  call_git(['update-ref', git_local_refspec_token, head_git_commit_hash])
-                """
-
                 git_push_refspec_token = get_git_push_refspec_token(git_local_branch, git_remote_branch)
 
                 is_first_time_push = fetch_state_ref['is_first_time_push']
@@ -4376,8 +4740,13 @@ def git_push_from_svn(configure_dir, scm_token, git_subtrees_root = None, reset_
                 last_pushed_git_svn_commit_commit_timestamp, last_pushed_git_svn_commit_commit_date_time = \
                   get_first_git_svn_commit_from_git_log(ret[1].strip())
 
+                if not last_pushed_git_svn_commit_rev > 0:
+                  raise Exception('fetch-merge-push sequence is corrupted, last pushed commit does not contain an svn revision: refspec={0}'.
+                    format(git_svn_trunk_remote_refspec_token))
+
                 if last_pushed_git_svn_commit_hash != head_git_commit_hash:
-                  raise Exception('fetch-merge-push sequence is corrupted, HEAD commit hash has changed after the push')
+                  raise Exception('fetch-merge-push sequence is corrupted, HEAD commit hash has changed after the push: head_before={0} head_after={1}'.
+                    format(head_git_commit_hash, last_pushed_git_svn_commit_hash))
 
                 # update last pushed git/svn commit
                 fetch_state_ref['last_pushed_git_svn_commit'] = (
@@ -4496,12 +4865,14 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
       if not parent_tuple_ref is None:
         subtree_git_wcroot = repo_params_ref['git_wcroot']
 
+      svn_repopath = svn_reporoot + (('/' + svn_path_prefix) if svn_path_prefix != '' else '')
+
       with conditional(not parent_tuple_ref is None,
                        local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_git_wcroot) if not parent_tuple_ref is None else None):
         print('- GIT searching...')
 
         if not svn_rev is None:
-          # find a particular last svn commit revision (a revision number is defined)
+          # find a particular svn commit revision when a revision number is defined
           git_last_svn_rev, git_commit_hash, \
           git_commit_author_timestamp, git_commit_author_date_time, \
           git_commit_commit_timestamp, git_commit_commit_date_time, \
@@ -4510,7 +4881,7 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
             get_last_git_svn_commit_by_git_log(remote_name, git_local_branch, git_remote_branch, svn_reporoot, svn_path_prefix, git_path_prefix,
               svn_rev, git_svn_params_dict)
         else:
-          # find the last svn commit revision (a revision number is not defined)
+          # find the last svn commit revision when a revision number is not defined
           git_last_svn_rev, git_commit_hash, \
           git_commit_author_timestamp, git_commit_author_date_time, \
           git_commit_commit_timestamp, git_commit_commit_date_time, \
@@ -4520,7 +4891,8 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
               git_svn_params_dict)
 
         if not git_last_svn_rev > 0 and num_overall_git_commits > 0:
-          raise Exception('svn revision is not found in the git log output: rev={0} path=`{1}`'.format(svn_rev, svn_reporoot + '/' +svn_path_prefix))
+          raise Exception('svn revision is not found in the git log output: svn_rev={0} svn_repopath=`{1}`'.
+            format(git_last_svn_rev, svn_repopath))
 
         print('- GIT checkouting...')
 
@@ -4567,8 +4939,6 @@ def git_svn_compare_commits(configure_dir, scm_token, remote_name, svn_rev,
 
       with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', subtree_svn_wcroot):
         print('- SVN checkouting...')
-
-        svn_repopath = svn_reporoot + (('/' + svn_path_prefix) if svn_path_prefix != '' else '')
 
         if not os.path.exists('.svn'):
           # shift current directory up to make svn checkout
