@@ -20,7 +20,7 @@ class local_cwd():
 
   def __enter__(self):
     if not self.push_fmt_str is None:
-      newdir = self.args[0]
+      newdir = os.path.abspath(self.args[0]).replace('\\', '/')
       print(self.push_fmt_str.format(newdir))
     self.prev_cwd = plumbum.local.cwd
     self.next_cwd = plumbum.local.cwd(*self.args, **self.kwargs)
@@ -28,7 +28,8 @@ class local_cwd():
 
   def __exit__(self, exc_type, exc_value, traceback):
     if not self.pop_fmt_str is None:
-      print(self.pop_fmt_str.format(self.prev_cwd))
+      prevdir = os.path.abspath(str(self.prev_cwd)).replace('\\', '/')
+      print(self.pop_fmt_str.format(prevdir))
     return self.next_cwd.__exit__(exc_type, exc_value, traceback)
 
 # call from pipe
@@ -236,6 +237,7 @@ def call(cmd_expr, args_list,
           raise Exception('unknown environment variable format: ' + yaml_environ_var_name + ': ' + str(type(yaml_environ_var_value)))
 
   # use the explicit enviroment dictionary
+  local_environ_expanded_vars = []
   if not env is None:
     for env_var, env_value in env.items():
       # save previous environment variable into local stack if has not been already saved
@@ -245,11 +247,17 @@ def call(cmd_expr, args_list,
       # set the variable
       setenvvar(env_var, yaml_expand_environ_value(env_value))
       environ_expanded_vars.append(env_var)
+      local_environ_expanded_vars.append(env_var)
 
   if verbosity > 0 and len(environ_expanded_vars) > 0:
-    # print command environment variable at first
-    print('- environment variables:')
+    # print all environment variables
+    print('- all environment variables:')
     for env_var in environ_expanded_vars:
+      print('  ' + env_var + '=`' + getenvvar(env_var) + '`')
+  elif not env is None:
+    # print only immediate process environment variables
+    print('- local environment variables:')
+    for env_var in local_environ_expanded_vars:
       print('  ' + env_var + '=`' + getenvvar(env_var) + '`')
 
   if len(yaml_environ_vars_local_stack) > 0 and (stdout is None or not hasattr(stdout, 'name') or stdout.name != '<null>'):

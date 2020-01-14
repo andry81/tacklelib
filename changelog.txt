@@ -1,3 +1,17 @@
+2020.01.14:
+* fixed: python: cmdoplib: gitsvn: `get_first_or_last_git_svn_commit_from_git_log` has to find commit svn revision separately from a git commit hash and rest of git commit parameters because a git repository can contain now git-svn commits without an svn revision in the `git-svn-to-id` parameters as a child repository merge commit with an association versus different svn repository (different revision counter)
+* fixed: python: cmdoplib: gitsvn: open temporary text files through the `TmpFileIO` class using `w+b` mode instead of `w+b` because of silent line returns replacement
+* changed: python: cmdoplib: gitsvn: reduced functionality of the `get_first_git_svn_commit_from_git_log` function to always search only for the first git-svn commit
+* changed: python: cmdoplib: gitsvn: improved functionality of the `get_first_or_last_git_svn_commit_from_git_log` function to return both the first git-svn commit with or without an svn revision and the first git-svn commit only with an svn revision
+* refactor: python: cmdoplib: gitsvn: `get_first_git_svn_commit_from_git_log2` renamed into `get_first_or_last_git_svn_commit_from_git_log`
+
+2020.01.13:
+* fixed: python: cmdoplib: gitsvn: in case of merge from a child repository into not yet existed parent repository branch (special case) the `merge` + `read-tree` + `commit` call sequence is replaced by the low level `read-tree` + `write-tree` + `commit-tree` call sequence as more relaible and without high level side effects around the head reference
+* fixed: python: cmdoplib: std: minor fix around `local_cwd` class to print a path with slashes only
+* fixed: python: cmdoplib: gitsvn: missed to print immediate local environment variables in the `call*` functions even if the verbosity level is minimal
+* new: python: cmdoplib: gitsvn: added additional `git-svn-from-id` and `git-svn-to-id` identifiers to replace the `git-svn-id` and `git-svn-to-id` identifiers in a commit message in case of a merge from child repository into parent repository w/o existence a merge commit from parent repository
+* changed: python: cmdoplib: gitsvn: code cleanup
+
 2020.01.11:
 * new: python: added license file to support the subdirectory as a standalone project
 
