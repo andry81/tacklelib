@@ -179,6 +179,10 @@ def cache_init_service_proc(service_proc_cache):
     proc_column_widths = [8, 24, 64, 32]
 
     cache_print_proc_list_header(proc_column_names, proc_column_widths, proc_column_fmt)
+
+    # NOTE:
+    #   Use `w+t` instead of `w+b` to enable implicit line endings convertion.
+    #
     stdout_iostr = tkl.TmpFileIO('w+t')
     stderr_iostr = tkl.TmpFileIO('w+t')
 

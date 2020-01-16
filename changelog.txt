@@ -1,3 +1,19 @@
+2020.01.16:
+* fixed: python: cmdoplib: gitsvn: merge and push was broken after last changes
+* refactor: python: cmdoplib: cache: minor comment
+
+2020.01.15:
+* fixed: python: cmdoplib: gitsvn: support merge not from the head commit of git-svn remote branch (merge from a middle of git-svn remote branch which has been already fetched)
+* fixed: python: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` searching is corrected to search from the complete version of the `svn_path_prefix` down to the root directory
+* fixed: python: cmdoplib: gitsvn: fixed exception `the parent GIT repository `...` is ahead to the child GIT repository` for the case when a not pushed commit from a child repository is not actually going to be pushed (empty commit) into child repository and then be merged into parent repository which must be in that case be behind the child repository
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* new: python: cmdoplib: gitsvn: `disable_parent_child_ahead_behind_check` flag in the `git_push_from_svn` function to disable check whether the last pushed parent/child repository commit is ahead/behind to the first not pushed child/parent repository commit
+* changed: python: cmdoplib: gitsvn: merge command completely replaced by `read-tree` + `write-tree` + `commit-tree` sequence of commands
+* changed: python: cmdoplib: gitsvn: rewrited `get_last_git_svn_commit_by_git_log` and `get_last_git_svn_rev_by_git_log` functions
+* changed: python: cmdoplib: gitsvn: `get_git_commit_list_from_git_log` changed to match svn path not exactly (as prefixed)
+* refactor: python: cmdoplib: gitsvn: move common push code into `git_merge_and_push` function
+* refactor: python: cmdoplib: gitsvn: code cleanup
+
 2020.01.14:
 * fixed: python: cmdoplib: gitsvn: `get_first_or_last_git_svn_commit_from_git_log` has to find commit svn revision separately from a git commit hash and rest of git commit parameters because a git repository can contain now git-svn commits without an svn revision in the `git-svn-to-id` parameters as a child repository merge commit with an association versus different svn repository (different revision counter)
 * fixed: python: cmdoplib: gitsvn: open temporary text files through the `TmpFileIO` class using `w+b` mode instead of `w+b` because of silent line returns replacement
