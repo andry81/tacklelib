@@ -1,3 +1,10 @@
+2020.01.17:
+* fixed: python: cmdoplib: gitsvn: merge and push over orphan branch
+* fixed: python: cmdoplib: gitsvn: repository ordinal index accidental reset
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* changed: python: cmdoplib: gitsvn: improved parent/child check on ahead/behind state through the `git_check_if_parent_child_in_ahead_behind_state` function with recursion
+* changed: python: cmdoplib: gitsvn: now `git-svn-id` leaves as is if a commit was in the output merge branch
+
 2020.01.16:
 * fixed: python: cmdoplib: gitsvn: merge and push was broken after last changes
 * refactor: python: cmdoplib: cache: minor comment
