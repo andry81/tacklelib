@@ -1,3 +1,16 @@
+2020.01.18:
+* fixed: python: cmdoplib: gitsvn: invalid non existed branch check and author timestamp usage in the `git_fetch_child_subtree_merge_branches` function
+* fixed: python: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` function usage before call to `git_fetch_child_subtree_merge_branches` function
+* changed: python: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` changed to save a first advanced svn commit to later use it's date time for the `--since` parameter of a `git log` command
+* new: python: cmdoplib: gitsvn: added `since_commit_commit_timestamp` parameter to `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* new: python: todo list file
+* refactor: python: cmdoplib: gitsvn: moderate refactor
+
+2020.01.17:
+* fixed: python: cmdoplib: gitsvn: list index out of range on svn not pushed commits list
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* refactor: python: cmdoplib: cache: minor refactor
+
 2020.01.17:
 * fixed: python: cmdoplib: gitsvn: merge and push over orphan branch
 * fixed: python: cmdoplib: gitsvn: repository ordinal index accidental reset

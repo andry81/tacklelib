@@ -300,6 +300,7 @@ include/tacklelib/utility/type_traits.hpp -text
 include/tacklelib/utility/utility.hpp -text
 /license.txt -text
 python/README_EN.txt -text
+python/TODO.txt -text
 python/changelog.txt -text
 python/cmdoplib/cmdoplib.cache.xsh -text
 python/cmdoplib/cmdoplib.callgit.xsh -text
