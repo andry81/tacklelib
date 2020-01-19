@@ -1,3 +1,9 @@
+2020.01.19:
+* fixed: cmdoplib: gitsvn: incomplete parent/child check on ahead/behind state
+* fixed: cmdoplib: gitsvn: invalid `until_commit_commit_timestamp` in the `git_fetch_child_subtree_merge_branches` function
+* changed: cmdoplib: gitsvn: restored not pushed commits skip w/o advance on skipped push
+* changed: cmdoplib: gitsvn: moved `parent_tuple_ref` and `children_tuple_ref_list` keys initialization in a dictionary to the end to be able to observe all the rest parameters at first in the Pydev IDE watch window
+
 2020.01.18:
 * fixed: cmdoplib: gitsvn: invalid non existed branch check and author timestamp usage in the `git_fetch_child_subtree_merge_branches` function
 * fixed: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` function usage before call to `git_fetch_child_subtree_merge_branches` function
