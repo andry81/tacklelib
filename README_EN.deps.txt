@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2019.12.29
+* 2020.01.20
 * tacklelib
 
 1. DESCRIPTION
@@ -91,9 +91,9 @@ Legend:
 * fmt
   00 demand:    REQUIRED
   01 platform:  WINDOWS, LINUX
-  02 version:   #b742f622ab2fe2c2a7c7cff4939374b42c64c04b (2019.03.18)
-                from https://github.com/fmtlib/fmt/commits/master
-                (https://github.com/fmtlib/fmt/commit/a5a9805a91502d392cd927f4a368a187145bfd9a )
+  02 version:   #f94b7364b9409f05207c3af3fa4666730e11a854 (2019.12.11)
+                from https://github.com/fmtlib/fmt/releases/tag/6.1.2 (https://fmt.dev/6.1.2/ )
+                (https://github.com/fmtlib/fmt/commit/f94b7364b9409f05207c3af3fa4666730e11a854 )
   03 desc:      C++ string safe formatter
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--fmt
                 [02] https://github.com/andry81/tacklelib--3dparty--fmt.git
@@ -185,13 +185,17 @@ Legend:
 * libarchive
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   3.3.3 (2018.09.04) from https://www.libarchive.org/downloads/
+  02 version:   release 3.3.3
+                #5fe69dd018745a88eecf1f7db40daf12d26f7ed0 (2018.09.04)
+                from https://github.com/libarchive/libarchive
+                (https://github.com/libarchive/libarchive/commit/5fe69dd018745a88eecf1f7db40daf12d26f7ed0 )
   03 desc:      C archive pipeline/filter library to organize access to
                 compress algorithms in 3dparty libraries which must be attached
                 separately
   04 forked:    NO
   05 original:  [01] https://www.libarchive.org
                 [02] https://www.libarchive.org/downloads/
+                [03] https://github.com/libarchive/libarchive
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
   08 variables: ARC_LIBARCHIVE_ROOT, ENABLE_LZMA
@@ -305,10 +309,12 @@ Legend:
 * google test
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 1.8.1 (2018.08.31) #2fe3bd994b3189899d93f1d5a881e725e046fdc2
+  02 version:   release 1.10.0
+                #703bd9caab50b139428cea1aaff9974ebee5742e (2019.10.03)
                 from https://github.com/google/googletest/releases
+                (https://github.com/google/googletest/commit/703bd9caab50b139428cea1aaff9974ebee5742e )
   03 desc:      C++ test library
-  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--qooqletest
+  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--googletest
                 [02] https://github.com/andry81/tacklelib--3dparty--googletest.git
   05 original:  [01] https://github.com/google/googletest
                 [02] https://github.com/abseil/googletest
