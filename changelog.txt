@@ -1,3 +1,6 @@
+2020.01.20:
+* changed: dependencies update
+
 2020.01.19:
 * fixed: python: cmdoplib: gitsvn: incomplete parent/child check on ahead/behind state
 * fixed: cmdoplib: gitsvn: invalid `until_commit_commit_timestamp` in the `git_fetch_child_subtree_merge_branches` function
