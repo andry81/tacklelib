@@ -1,3 +1,6 @@
+2020.01.21:
+* changed: dependencies update
+
 2020.01.20:
 * changed: dependencies update
 

@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2020.01.20
+* 2020.01.21
 * tacklelib
 
 1. DESCRIPTION
@@ -185,10 +185,10 @@ Legend:
 * libarchive
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 3.3.3
-                #5fe69dd018745a88eecf1f7db40daf12d26f7ed0 (2018.09.04)
+  02 version:   release 3.4.1
+                #cce09646b566c61c2debff58a70da780b8457883 (2019.12.30)
                 from https://github.com/libarchive/libarchive
-                (https://github.com/libarchive/libarchive/commit/5fe69dd018745a88eecf1f7db40daf12d26f7ed0 )
+                (https://github.com/libarchive/libarchive/commit/cce09646b566c61c2debff58a70da780b8457883 )
   03 desc:      C archive pipeline/filter library to organize access to
                 compress algorithms in 3dparty libraries which must be attached
                 separately
@@ -212,11 +212,16 @@ Legend:
 * xz utils
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   5.2.4 (2018.04.29) from https://sf.net/p/lzmautils
+  02 version:   5.2.4
+                #b5be61cc06088bb07f488f9baf7d447ff47b37c1 (2018.04.29)
+                from https://git.tukaani.org/xz.git
+                (https://git.tukaani.org/?p=xz.git;a=commit;h=b5be61cc06088bb07f488f9baf7d447ff47b37c1 )
   03 desc:      C compress algorithms library
   04 forked:    NO
-  05 original:  [01] https://tukaani.org/xz/
-                [02] https://sf.net/p/lzmautils
+  05 original:  [01] https://git.tukaani.org/xz.git
+                [02] https://git.tukaani.org/?p=xz.git
+                [03] https://tukaani.org/xz/
+                [04] https://sf.net/p/lzmautils
   06 build:     (default) indirectly from libarchive build
   07 linkage:   (default) indirectly from libarchive build
   08 variables: ARC_XZ_UTILS_ROOT, LIBLZMA_INCLUDE_DIR, LIBLZMA_LIBRARY,

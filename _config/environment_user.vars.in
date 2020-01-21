@@ -86,7 +86,7 @@ bool cache ENABLE_TEST=0
 bool cache ENABLE_COVERAGE=0
 bool cache ENABLE_INSTALL=0
 
-#ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xz"
+#ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils"
 #cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
