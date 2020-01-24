@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2020.01.21
+* 2020.01.24
 * tacklelib
 
 1. DESCRIPTION
@@ -91,7 +91,8 @@ Legend:
 * fmt
   00 demand:    REQUIRED
   01 platform:  WINDOWS, LINUX
-  02 version:   #f94b7364b9409f05207c3af3fa4666730e11a854 (2019.12.11)
+  02 version:   release 6.1.2
+                #f94b7364b9409f05207c3af3fa4666730e11a854 (2019.12.11)
                 from https://github.com/fmtlib/fmt/releases/tag/6.1.2 (https://fmt.dev/6.1.2/ )
                 (https://github.com/fmtlib/fmt/commit/f94b7364b9409f05207c3af3fa4666730e11a854 )
   03 desc:      C++ string safe formatter
@@ -113,7 +114,8 @@ Legend:
 * pystring
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   1.1.3 (2012.10.17) #c2de99deb4f0bd13751f8436400b5e8662301769
+  02 version:   1.1.3
+                #c2de99deb4f0bd13751f8436400b5e8662301769 (2012.10.17)
                 from https://github.com/imageworks/pystring/releases
                 (https://github.com/imageworks/pystring/commit/c2de99deb4f0bd13751f8436400b5e8662301769 )
   03 desc:      C++ python string functions
@@ -156,7 +158,9 @@ Legend:
 * p7 logger
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   5.2 (2019.06.29) from http://baical.net/downloads.html
+  02 version:   release 5.2
+                (2019.06.29)
+                from http://baical.net/downloads.html
   03 desc:      C++ (in C-style) client/server fast logger with support of
                 logging into text/binary file or into network and gui
                 application to open the binary log file or recieve log from
@@ -212,7 +216,7 @@ Legend:
 * xz utils
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   5.2.4
+  02 version:   release 5.2.4
                 #b5be61cc06088bb07f488f9baf7d447ff47b37c1 (2018.04.29)
                 from https://git.tukaani.org/xz.git
                 (https://git.tukaani.org/?p=xz.git;a=commit;h=b5be61cc06088bb07f488f9baf7d447ff47b37c1 )
@@ -240,8 +244,9 @@ Legend:
 * 7zip
   00 demand:    OPTIONAL
   01 platform:  WINDOWS ONLY
-  02 version:   18.06 (2018.12.30) from
-                https://www.7-zip.org/download.html
+  02 version:   18.06
+                (2018.12.30)
+                from https://www.7-zip.org/download.html
                 (https://www.7-zip.org/a/lzma1806.7z )
   03 desc:      C/C++ compress algorithms library
   04 forked:    NO
@@ -287,8 +292,9 @@ Legend:
 * qd
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   2.3.22 (2018.11.09) from
-                http://crd-legacy.lbl.gov/~dhbailey/mpdist/
+  02 version:   release 2.3.22
+                (2018.11.09)
+                from http://crd-legacy.lbl.gov/~dhbailey/mpdist/
   03 desc:      C++ floating point high precision extension library
                 (double-double, quad-double)
   04 forked:    [01] https://sf.net/p/orbittools/qd_
