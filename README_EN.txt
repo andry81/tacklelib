@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.12.29
+* 2020.01.25
 * tacklelib
 
 1. DESCRIPTION
@@ -349,7 +349,7 @@ NOTE:
   `README_EN.linux_x86_64.txt` file.
 
 -------------------------------------------------------------------------------
-10.1. Manual copy step
+8.1. Manual copy step
 -------------------------------------------------------------------------------
 
 To run bash shell scripts (`.sh` file extension) you should copy the
@@ -360,7 +360,7 @@ CAUTION:
   to properly set permissions on the file.
 
 -------------------------------------------------------------------------------
-10.2. Generation step(s)
+8.2. Generation step(s)
 -------------------------------------------------------------------------------
 
 To generate the source files which are not included in a version control system
@@ -378,23 +378,24 @@ system do call to:
 
 If a version of a template file in the first line is different to the version
 in the first line of the instantiated file, then an error would be thrown
-(template version change protection).
+(instantiated version change protection).
 
 If some from template instantiated configuration files has been changed before
 the script call and has the same version with the instantiated one files, then
 they will be overwritten upon a call by the script
-(the template file body hashing and caching is not yet implemented).
+(another protection through the template file body hashing and caching is not
+yet implemented).
 
 If a build is stopping on errors described above, then you have to merge all
 respective instantiated configuration files manually from template files before
 continue or run the script again.
 
 CAUTION:
-  If a template file has been changed without a version change, then the script
-  will overwrite a previously instantiated file without a warning, because the
-  script has no functionality to separately check a template file body change
-  and so there is no prevension from an accidental overwrite of a previously
-  instantiated configuration file with the user changes!
+  If a template file has been changed without the version line change, then the
+  script will overwrite a previously instantiated file without a warning,
+  because the script has no functionality to separately check a template file
+  body change and so there is no prevension from an accidental overwrite of a
+  previously instantiated configuration file with the user changes!
 
 After that you should put or edit existed respective variables inside these
 generated files:
@@ -438,7 +439,7 @@ First mirror:
   * https://github.com/andry81/contools--3dparty.git
 
 -------------------------------------------------------------------------------
-10.3. Configuration step
+8.3. Configuration step
 -------------------------------------------------------------------------------
 
 To make a final configuration call to:
