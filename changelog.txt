@@ -1,4 +1,7 @@
 2020.01.25:
+* new: python: cmdoplib: std: additional `args_separators` parameter in the `call` function to protect a list command line arguments from futher splitting
+
+2020.01.25:
 * changed: readme update
 
 2020.01.24:
