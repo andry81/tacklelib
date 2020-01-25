@@ -123,7 +123,7 @@ def set_verbosity_level(verbosity):
 
 def call(cmd_expr, args_list,
          stdin = sys.stdin, stdout = sys.stdout, stderr = sys.stderr,
-         env = None, no_except = False, in_bg = False,
+         env = None, no_except = False, in_bg = False, args_separators = ' ,;=',
          cmd_expr_expander = get_default_call_cmd_expr_expander(), dry_run = False, verbosity = None):
   global VERBOSITY_LEVEL
 
@@ -143,7 +143,7 @@ def call(cmd_expr, args_list,
       give_quotes = False
 
       for c in arg:
-        if c.isspace():
+        if c.isspace() or c in args_separators:
           give_quotes = True
           break
     else:
