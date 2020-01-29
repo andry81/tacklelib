@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.7)
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
+include(tacklelib/String)
 include(tacklelib/Utility)
 
 # CMake Warning (dev) at ... (list):

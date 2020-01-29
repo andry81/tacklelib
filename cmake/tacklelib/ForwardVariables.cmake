@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.7)
 #   for variables set rules represented here.
 #
 
+include(tacklelib/String)
 include(tacklelib/List)
 include(tacklelib/Props)
 

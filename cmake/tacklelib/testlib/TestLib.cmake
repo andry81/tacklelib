@@ -7,6 +7,7 @@ include(tacklelib/ReturnCodeFile)
 include(tacklelib/ForwardVariables)
 include(tacklelib/ForwardArgs)
 include(tacklelib/SetVarsFromFiles)
+include(tacklelib/String)
 include(tacklelib/Utility)
 
 function(tkl_testlib_init)

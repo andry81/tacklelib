@@ -37,7 +37,7 @@
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
 #   <compiler_token_name>: MSVC | GCC | CLANG | ...
-#   <compiler_version>:   <major_version>[.<minor_version>]
+#   <compiler_version>:   <major_version>[*+] | <major_version>.<minor_version>[*+]
 #     <major_version>:    an integral value corresponding to the regex: [0-9]*
 #     <minor_version>:    an integral value corresponding to the regex: [0-9]*
 # <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
@@ -66,7 +66,7 @@ CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
-BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0"
+BOOST_ROOT:UNIX="/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0"
 # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 #Boost_ARCHITECTURE::::X86="-x32"
 #Boost_ARCHITECTURE::::X64="-x64"
@@ -102,7 +102,7 @@ bool cache ENABLE_INSTALL=0
 
 # test
 
-force GOOGLETEST_VERSION="1.8.1"
+force GOOGLETEST_VERSION="1.10.0"
 force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 
 # math

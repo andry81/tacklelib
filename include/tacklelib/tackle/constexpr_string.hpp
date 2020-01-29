@@ -32,7 +32,7 @@ namespace tackle {
 namespace detail {
 
     template <bool is_constexpr>
-    struct _impl
+    struct _constexpr_string_impl
     {
         // use compile-time assert
 
@@ -72,7 +72,7 @@ namespace detail {
     };
 
     template <>
-    struct _impl<false>
+    struct _constexpr_string_impl<false>
     {
         // return empty string instead of compile-time assert
 
@@ -126,11 +126,11 @@ namespace detail {
         template <size_t S>
         FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const CharT (& arr)[S]) :
             m_ptr(detail::
-                _impl<UTILITY_IS_CONSTEXPR_VALUE(arr)>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(arr)>::
                 _consexpr_validate_ptr(arr)
             ),
             m_size(detail::
-                _impl<true>::
+                _constexpr_string_impl<true>::
                 _consexpr_validate_size(arr)
             )
         {
@@ -146,11 +146,11 @@ namespace detail {
         // we still need both constructors to reduce unnecessary casts to/from C-style character arrays
         FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const CharT * ptr, size_t len) :
             m_ptr(detail::
-                _impl<UTILITY_IS_CONSTEXPR_VALUE(ptr)>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(ptr)>::
                 _consexpr_validate_ptr(ptr, len + 1)
             ),
             m_size(detail::
-                _impl<UTILITY_IS_CONSTEXPR_VALUE(size)>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(size)>::
                 _consexpr_validate_size(ptr, len + 1)
             )
         {
@@ -166,11 +166,11 @@ namespace detail {
         template <typename t_traits, typename t_alloc>
         FORCE_INLINE CONSTEXPR_FUNC constexpr_basic_string(const std::basic_string<CharT, t_traits, t_alloc> & str) :
             m_ptr(detail::
-                _impl<UTILITY_IS_CONSTEXPR_VALUE(str.data())>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(str.data())>::
                 _consexpr_validate_ptr(str.data(), str.size())
             ),
             m_size(detail::
-                _impl<UTILITY_IS_CONSTEXPR_VALUE(str.size())>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(str.size())>::
                 _consexpr_validate_size(str.data(), str.size())
             )
         {
