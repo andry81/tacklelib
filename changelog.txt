@@ -1,3 +1,18 @@
+2020.01.29:
+* fixed: cpp: utility: missed clang compiler check in the platform header
+* new: cpp: utility: added the rest built-in types `int*_identity` template classes
+* new: cpp: utility: `constexpr_reverse` constexpr function to reverse bits in multibyte compile time values in compile time
+* new: cpp: utility: implemented constexpr crc algorithms to be able to generate a crc in compile time
+* changed: cpp: utility: crc algorithms moved from private to public headers, cpp file is removed
+* changed: config: 3dparty dependencies update
+* refactor: cpp: tackle, utility: `detail::_impl` namespaces renamed into more unique
+
+2020.01.26:
+* new: cmake: String.cmake module for string operations
+* new: cmake: Version: Visual Studio 2017 detection support
+* new: cmake: Version: MSVC version year from a version
+* new: cmake: Version: additional compiler version filter format: `<major_version>[*+]` or `<major_version>.<minor_version>[*+]` to use either partial pattern matching (`14.1*` equals to `14.1` or `14.16`, but not to `14.2`) or greater or equal matching (`14.1+` equals to `14.1` and higher like `14.999` or `15.0`)
+
 2020.01.25:
 * new: python: cmdoplib: std: additional `args_separators` parameter in the `call` function to protect a list command line arguments from futher splitting
 

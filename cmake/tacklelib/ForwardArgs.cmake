@@ -16,6 +16,7 @@ cmake_minimum_required(VERSION 3.7)
 
 include(tacklelib/ForwardVariables)
 include(tacklelib/Props)
+include(tacklelib/String)
 include(tacklelib/List)
 include(tacklelib/Utility)
 

@@ -622,6 +622,25 @@ namespace utility
         return res;
     }
 
+    namespace detail
+    {
+        template <typename T>
+        static FORCE_INLINE CONSTEXPR_FUNC T _constexpr_reverse(size_t next_index, T value)
+        {
+            return (next_index < sizeof(value) * CHAR_BIT) ?
+                ((value & (T(0x01U) << next_index)) ?
+                    (T(0x01U) << (sizeof(value) * CHAR_BIT - next_index - 1)) :
+                    0) |
+                _constexpr_reverse(next_index + 1, value) : 0;
+        }
+    }
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_FUNC T constexpr_reverse(T value)
+    {
+        return detail::_constexpr_reverse(0, value);
+    }
+
     template<typename T>
     FORCE_INLINE uint32_t t_rotl32(uint32_t n, unsigned int c)
     {

@@ -94,6 +94,7 @@ cmake/tacklelib/Reimpl.cmake -text
 cmake/tacklelib/ReturnCodeFile.cmake -text
 cmake/tacklelib/SetVarsFromFiles.cmake -text
 cmake/tacklelib/Std.cmake -text
+cmake/tacklelib/String.cmake -text
 cmake/tacklelib/Time.cmake -text
 cmake/tacklelib/Utility.cmake -text
 cmake/tacklelib/Version.cmake -text
@@ -279,6 +280,8 @@ include/tacklelib/tackle/tmpl_string.hpp -text
 include/tacklelib/tacklelib.hpp -text
 include/tacklelib/utility/addressof.hpp -text
 include/tacklelib/utility/assert.hpp -text
+include/tacklelib/utility/crc.hpp -text
+include/tacklelib/utility/crc_tables.hpp -text
 include/tacklelib/utility/debug.hpp -text
 include/tacklelib/utility/library.hpp -text
 include/tacklelib/utility/library_api_define.hpp -text
@@ -462,9 +465,6 @@ src/utility/arc/libarchive/libarchive.cpp -text
 src/utility/arc/libarchive/libarchive.hpp -text
 src/utility/assert.hpp -text
 src/utility/assert_private.hpp -text
-src/utility/crc.cpp -text
-src/utility/crc.hpp -text
-src/utility/crc_tables.hpp -text
 src/utility/debug.cpp -text
 src/utility/hash.hpp -text
 src/utility/log/p7logger/p7_logger.hpp -text

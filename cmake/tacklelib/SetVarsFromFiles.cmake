@@ -38,6 +38,7 @@ include(tacklelib/Checks)
 include(tacklelib/ForwardVariables)
 include(tacklelib/ForwardArgs)
 include(tacklelib/Version)
+include(tacklelib/String)
 include(tacklelib/Utility)
 
 # THE DEFAULT ASSIGNMENT RULES LIST WHICH ARE USED EACH TIME WHEN A VARIABLE BEING DECLARED (can be ignored by the `force` attribute):
@@ -1400,7 +1401,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (NOT var_compiler_name_to_process STREQUAL "")
           if (NOT compiler_name_to_filter STREQUAL "")
-            tkl_compare_compiler_tokens("${var_compiler_name_to_process}" "${compiler_name_to_filter}" is_equal_config_compilers)
+            tkl_compare_compiler_tokens("${compiler_name_to_filter}" = "${var_compiler_name_to_process}" is_equal_config_compilers)
             if (NOT is_equal_config_compilers)
               # silently ignore valid tokens that didn't pass the filter
               continue()

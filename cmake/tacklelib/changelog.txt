@@ -1,3 +1,9 @@
+2020.01.26:
+* new: String.cmake module for string operations
+* new: Version: Visual Studio 2017 detection support
+* new: Version: MSVC version year from a version
+* new: Version: additional compiler version filter format: `<major_version>[*+]` or `<major_version>.<minor_version>[*+]` to use either partial pattern matching (`14.1*` equals to `14.1` or `14.16`, but not to `14.2`) or greater or equal matching (`14.1+` equals to `14.1` and higher like `14.999`, but not `15.1`)
+
 2019.11.10:
 * changed: SetVarsFromFiles.cmake: `*$/{<undefined_variable>}` substitution sequence is replaced by `*:$/{<undefined_variable>}`
 

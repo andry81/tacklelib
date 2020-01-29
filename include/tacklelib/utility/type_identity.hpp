@@ -8,6 +8,8 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/string_identity.hpp>
+#include <tacklelib/utility/crc.hpp>
 
 #include <cstdint>
 #include <type_traits>
@@ -27,9 +29,12 @@
 // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
 #define UTILITY_CONSTEXPR_VALUE(exp)                    (::utility::constexpr_value<decltype(exp), (exp)>::value)
 
-// available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
+// 1. available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
+// 2. additionally using crc32 hashing to make an unique call instantiation in different translation units over the same type
 //
-#define UTILITY_IS_TYPE_COMPLETE(type)                  (::utility::is_type_complete<(type), __COUNTER__>::value)
+#define UTILITY_IS_TYPE_COMPLETE(type)                  (::utility::is_type_complete<(type), \
+    UTILITY_CONSTEXPR_VALUE((::utility::constexpr_crc(32, ::utility::g_crc32_04C11DB7, 0U, UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(__FILE__ ":" UTILITY_PP_STRINGIZE(__LINE__) ":" UTILITY_PP_STRINGIZE(__COUNTER__)), 0U, 0xFFFFFFFFU, 0xFFFFFFFFU, true, true))) \
+    >::value)
 
 // Checks expression on constexpr nature.
 //
@@ -46,7 +51,7 @@
 //
 //  Where it does not work:
 //  * This won't work on function declarations.
-//  * This won't work on functions returning `void` (tip: all `constexpr` functions in C++11 must consist only from a single and not a void return statement).
+//  * This won't work on void returning functions without implementation (tip: all `constexpr` functions in C++11 must consist only from a single and not a void return statement).
 //
 #ifndef UTILITY_COMPILER_CXX_CLANG
 #define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(noexcept(::utility::makeprval((__VA_ARGS__))))
@@ -429,14 +434,14 @@ namespace utility
     struct int_identity
     {
         using type = int;
-        static CONSTEXPR const int value = v;
+        static CONSTEXPR const type value = v;
     };
 
     template <int... v>
     struct int_identities
     {
         using type = int;
-        static CONSTEXPR const int values[] = { v... };
+        static CONSTEXPR const type values[] = { v... };
     };
 
     // size identity / identities
@@ -445,14 +450,94 @@ namespace utility
     struct size_identity
     {
         using type = size_t;
-        static CONSTEXPR const size_t value = v;
+        static CONSTEXPR const type value = v;
     };
 
     template <size_t... v>
     struct size_identities
     {
         using type = size_t;
-        static CONSTEXPR const size_t values[] = { v... };
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // int8_t identity / identities
+
+    template <int8_t v>
+    struct int8_identity
+    {
+        using type = int8_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <int8_t... v>
+    struct int8_identities
+    {
+        using type = int8_t;
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // uint8_t identity / identities
+
+    template <uint8_t v>
+    struct uint8_identity
+    {
+        using type = uint8_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <uint8_t... v>
+    struct uint8_identities
+    {
+        using type = uint8_t;
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // int16_t identity / identities
+
+    template <int16_t v>
+    struct int16_identity
+    {
+        using type = int16_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <int16_t... v>
+    struct int16_identities
+    {
+        using type = int16_t;
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // uint16_t identity / identities
+
+    template <uint16_t v>
+    struct uint16_identity
+    {
+        using type = uint16_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <uint16_t... v>
+    struct uint16_identities
+    {
+        using type = uint16_t;
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // int32_t identity / identities
+
+    template <int32_t v>
+    struct int32_identity
+    {
+        using type = int32_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <int32_t... v>
+    struct int32_identities
+    {
+        using type = int32_t;
+        static CONSTEXPR const type values[] = { v... };
     };
 
     // uint32_t identity / identities
@@ -461,14 +546,30 @@ namespace utility
     struct uint32_identity
     {
         using type = uint32_t;
-        static CONSTEXPR const uint32_t value = v;
+        static CONSTEXPR const type value = v;
     };
 
     template <uint32_t... v>
     struct uint32_identities
     {
         using type = uint32_t;
-        static CONSTEXPR const uint32_t values[] = { v... };
+        static CONSTEXPR const type values[] = { v... };
+    };
+
+    // int64_t identity / identities
+
+    template <int64_t v>
+    struct int64_identity
+    {
+        using type = int64_t;
+        static CONSTEXPR const type value = v;
+    };
+
+    template <int64_t... v>
+    struct uint64_identities
+    {
+        using type = int64_t;
+        static CONSTEXPR const type values[] = { v... };
     };
 
     // uint64_t identity / identities
@@ -477,14 +578,14 @@ namespace utility
     struct uint64_identity
     {
         using type = uint64_t;
-        static CONSTEXPR const uint64_t value = v;
+        static CONSTEXPR const type value = v;
     };
 
     template <uint64_t... v>
     struct uint64_identities
     {
         using type = uint64_t;
-        static CONSTEXPR const uint64_t values[] = { v... };
+        static CONSTEXPR const type values[] = { v... };
     };
 
     // for explicit partial specialization of type_index_identity_base
