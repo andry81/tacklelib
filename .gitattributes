@@ -59,6 +59,7 @@ _scripts/deploy/gen_links.sh -text
 _scripts/deploy/user_links.lst -text
 _scripts/license.txt -text
 _scripts/tools/.svnignore -text
+_scripts/tools/__init__.bat -text
 _scripts/tools/bash_entry -text
 _scripts/tools/buildlib.sh -text
 _scripts/tools/check_build_type.bat -text

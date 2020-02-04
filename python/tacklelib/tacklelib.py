@@ -263,7 +263,7 @@ def tkl_classcopy(x, from_globals, to_globals):
 
   return cls_copy
 
-# to readdress `globals()` in all functions
+# to copy a member with `globals()` readdress
 def tkl_membercopy(x, from_globals, to_globals):
   #print('membercopy:', x)
   if id(from_globals) != id(to_globals):
@@ -408,6 +408,32 @@ def tkl_declare_global(var, value, from_globals = None):
       value_copy = tkl_membercopy(value, from_globals, imported_module_globals)
       setattr(imported_module, var, value_copy)
       #imported_module_globals[var] = value_copy
+
+# to remove globals in a current module from the stack
+def tkl_remove_global(var):
+  target_module = tkl_get_stack_frame_module_by_offset(1)
+
+  is_target_module_inited = tkl_is_inited(target_module)
+  if not is_target_module_inited:
+    raise Exception('tacklelib is not properly initialized, call to tkl_init in the top module')
+
+  global_state = getattr(target_module, 'TackleGlobalState', None)
+
+  imported_modules = global_state.imported_modules
+  global_vars = global_state.global_vars
+
+  # at first, delete as a global
+  #exec('global ' + var + '\n' + var + ' = value_copy')
+
+  delattr(target_module, var)
+
+  del global_vars[var]
+
+  # delete a global in rest of imported modules
+  for imported_module in imported_modules:
+    if id(imported_module) != id(target_module):
+      delattr(imported_module, var)
+
 
 # ref_module_name:
 #   `module`    - either import the module file as `module` if the module was not imported before or import locally and membercopy the module content into existed one.

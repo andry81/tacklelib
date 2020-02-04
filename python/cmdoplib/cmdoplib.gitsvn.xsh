@@ -1154,6 +1154,32 @@ def git_update_svn_config_refspecs(remote_name):
 def get_git_subtree_wcroot(dir_prefix_str, git_subtrees_root, subtree_remote_name, subtree_parent_git_path_prefix):
   return os.path.abspath(os.path.join(git_subtrees_root, dir_prefix_str + subtree_remote_name + "'" + subtree_parent_git_path_prefix.replace('/', '--'))).replace('\\', '/')
 
+def makedirs(configure_dir, scm_token, verbosity = 0):
+  print("git_init: {0}".format(configure_dir))
+
+  set_verbosity_level(verbosity)
+
+  if configure_dir == '':
+    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+    return 1
+
+  if configure_dir[-1:] in ['\\', '/']:
+    configure_dir = configure_dir[:-1]
+
+  if not os.path.isdir(configure_dir):
+    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+    return 32
+
+  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+  if wcroot_dir == '': return -254
+  if WCROOT_OFFSET == '': return -253
+
+  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+
+  if not os.path.exists(wcroot_path):
+    print('  ' + wcroot_path)
+    os.makedirs(wcroot_path)
+
 def git_init(configure_dir, scm_token, git_subtrees_root = None, root_only = False, update_svn_repo_uuid = False, verbosity = 0):
   print("git_init: {0}".format(configure_dir))
 

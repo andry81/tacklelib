@@ -1,3 +1,12 @@
+2020.02.04:
+* fixed: python: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
+* fixed: python: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function
+* fixed: python: cmdoplib: std: call to `tkl_remove_global` in the `delglobalvar` function instead of `globals` function
+* new: python: tacklelib: `tkl_remove_global` function to remove globals declared through the `tkl_declare_global`
+* new: python: cmdoplib: gitsvn, svn: `makedirs` function to create all working directories
+* changed: readme update
+* refactor: python: _scripts: minor refactor
+
 2020.01.29:
 * fixed: cpp: utility: missed clang compiler check in the platform header
 * new: cpp: utility: added the rest built-in types `int*_identity` template classes

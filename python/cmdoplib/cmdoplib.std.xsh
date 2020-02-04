@@ -57,7 +57,7 @@ def delval(x):
 # https://github.com/xonsh/xonsh/issues/3296
 def delglobalvar(x):
   #del ${x}
-  del globals()[x]
+  tkl_remove_global(x)
 
 def setglobalvar(x, value):
   #${x} = value
