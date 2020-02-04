@@ -7,7 +7,8 @@ rem  2. Non english locale in paths.
 
 if not defined NEST_LVL set NEST_LVL=0
 
-call :PROJECT_ROOT "%%~dp0..\.."
+call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\.."
+call :CANONICAL_PATH CONTOOLS_ROOT "%%~dp0..\tools"
 
 set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/_config/environment_system.vars.in"
 set "CONFIG_VARS_SYSTEM_FILE=%PROJECT_ROOT%/_config/environment_system.vars"
@@ -20,7 +21,7 @@ if not defined PRINT_VARS_SET set PRINT_VARS_SET=0
 
 exit /b 0
 
-:PROJECT_ROOT
-set "PROJECT_ROOT=%~dpf1"
-set "PROJECT_ROOT=%PROJECT_ROOT:\=/%"
+:CANONICAL_PATH
+set "%~1=%~dpf2"
+call set "%%~1=%%%~1:\=/%%"
 exit /b 0

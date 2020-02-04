@@ -1,6 +1,6 @@
 # pure python module for commands w/o extension modules usage
 
-import os, re, types
+import os, re, types, copy
 
 class YamlConfig(dict):
   def __init__(self, user_config = None):
@@ -31,7 +31,7 @@ class YamlEnv(object):
 
   def push_unexpanded_vars(self):
     # `(<previous dictionary>, [<newly added keys>])`
-    self.unexpanded_stack.append((self.unexpanded_vars, []))
+    self.unexpanded_stack.append((copy.deepcopy(self.unexpanded_vars), [])) # dictionary must be a deep copy!
 
   def pop_unexpanded_vars(self, reexpand_vars, remove_pred = None, list_as_cmdline = False):
     if len(self.unexpanded_stack) == 0:
@@ -49,7 +49,7 @@ class YamlEnv(object):
 
   def push_expanded_vars(self):
     # `(<previous dictionary>, [<newly added keys>])`
-    self.expanded_stack.append((self.expanded_vars, []))
+    self.expanded_stack.append((copy.deepcopy(self.expanded_vars), [])) # dictionary must be a deep copy!
 
   def pop_expanded_vars(self, remove_pred = None):
     if len(self.expanded_stack) == 0:
@@ -308,13 +308,23 @@ class YamlEnv(object):
     return out_value
 
   # expands `${...}` string expressions, lists and dictionaries recursively for all variables in the storage
-  def expand(self, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, ignore_types = None, list_as_cmdline = False):
-    self.expanded_vars.update(
-      self.expand_dict(
-        self.unexpanded_vars,
-        search_in_expand_dict_at_second = search_in_expand_dict_at_second,
-        search_by_pred_at_third = search_by_pred_at_third,
-        ignore_types = ignore_types,
-        list_as_cmdline = list_as_cmdline
+  def expand(self, search_in_expand_dict_at_second = None, search_by_pred_at_third = None, ignore_types = None, list_as_cmdline = False, update = False):
+    if not update:
+      self.expanded_vars = \
+        self.expand_dict(
+          self.unexpanded_vars,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+          search_by_pred_at_third = search_by_pred_at_third,
+          ignore_types = ignore_types,
+          list_as_cmdline = list_as_cmdline
+        )
+    else:
+      self.expanded_vars.update(
+        self.expand_dict(
+          self.unexpanded_vars,
+          search_in_expand_dict_at_second = search_in_expand_dict_at_second,
+          search_by_pred_at_third = search_by_pred_at_third,
+          ignore_types = ignore_types,
+          list_as_cmdline = list_as_cmdline
+        )
       )
-    )

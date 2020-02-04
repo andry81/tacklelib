@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2020.01.24
+* 2020.01.31
 * tacklelib
 
 1. DESCRIPTION
@@ -65,7 +65,7 @@ Legend:
     the dependency immediate dependent of variants from
 
 
-# multipurpose
+# utility
 
 * boost
   00 demand:    REQUIRED
@@ -85,8 +85,6 @@ Legend:
   12 macroses:
   13 used as:   headers, static libraries, shared libraries
   14 depend on: NO
-
-# utility
 
 * fmt
   00 demand:    REQUIRED
@@ -114,10 +112,10 @@ Legend:
 * pystring
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   1.1.3
-                #c2de99deb4f0bd13751f8436400b5e8662301769 (2012.10.17)
-                from https://github.com/imageworks/pystring/releases
-                (https://github.com/imageworks/pystring/commit/c2de99deb4f0bd13751f8436400b5e8662301769 )
+  02 version:   above release 1.1.3
+                #4af4a865208b400b9cd5ae71b0e162a6baf331f9 (2019.03.21)
+                from https://github.com/imageworks/pystring/commits/master
+                (https://github.com/imageworks/pystring/commit/4af4a865208b400b9cd5ae71b0e162a6baf331f9 )
   03 desc:      C++ python string functions
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--pystring
                 [02] https://github.com/andry81/tacklelib--3dparty--pystring.git
@@ -158,8 +156,8 @@ Legend:
 * p7 logger
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 5.2
-                (2019.06.29)
+  02 version:   release 5.3
+                (2020.01.27)
                 from http://baical.net/downloads.html
   03 desc:      C++ (in C-style) client/server fast logger with support of
                 logging into text/binary file or into network and gui
@@ -322,7 +320,7 @@ Legend:
   01 platform:  WINDOWS, LINUX
   02 version:   release 1.10.0
                 #703bd9caab50b139428cea1aaff9974ebee5742e (2019.10.03)
-                from https://github.com/google/googletest/releases
+                from https://github.com/google/googletest/releases/tag/release-1.10.0
                 (https://github.com/google/googletest/commit/703bd9caab50b139428cea1aaff9974ebee5742e )
   03 desc:      C++ test library
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--googletest

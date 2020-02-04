@@ -1,3 +1,10 @@
+2020.02.04:
+* fixed: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
+* fixed: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function
+* fixed: cmdoplib: std: call to `tkl_remove_global` in the `delglobalvar` function instead of `globals` function
+* new: tacklelib: `tkl_remove_global` function to remove globals declared through the `tkl_declare_global`
+* new: cmdoplib: gitsvn, svn: `makedirs` function to create all working directories
+
 2020.01.25:
 * new: cmdoplib: std: additional `args_separators` parameter in the `call` function to protect a list command line arguments from futher splitting
 
