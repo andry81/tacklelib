@@ -1,3 +1,11 @@
+2020.02.05:
+* fixed: _scripts: configure execution
+* fixed: _config: local 3dparty paths in the `tacklelib--3dparty` project
+* fixed: cmake: String: `tkl_string_begins_with` function
+* fixed: cmake: Version: `tkl_get_msvc_version` and `tkl_compare_compiler_tokens` functions
+* changed: _config: switched to `Visual Studio 2017` cmake generator
+* changed: readme update
+
 2020.02.04:
 * fixed: python: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
 * fixed: python: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function

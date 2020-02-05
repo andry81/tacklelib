@@ -1,3 +1,7 @@
+2020.02.05:
+* fixed: String: `tkl_string_begins_with` function
+* fixed: Version: `tkl_get_msvc_version` and `tkl_compare_compiler_tokens` functions
+
 2020.01.26:
 * new: String.cmake module for string operations
 * new: Version: Visual Studio 2017 detection support

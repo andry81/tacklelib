@@ -68,7 +68,7 @@
 #final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MINGW_BIN_DIR}")
 
 # always required system variables <<
-top CMAKE_GENERATOR:WIN="Visual Studio 14 2015"
+top CMAKE_GENERATOR:WIN="Visual Studio 15 2017"
 #top CMAKE_GENERATOR:WIN="MinGW Makefiles"
 top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
 #top CMAKE_GENERATOR_PLATFORM="" # must be at least empty

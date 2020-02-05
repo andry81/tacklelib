@@ -86,7 +86,7 @@ bool cache ENABLE_TEST=0
 bool cache ENABLE_COVERAGE=0
 bool cache ENABLE_INSTALL=0
 
-#ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils"
+#ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils/xzutils-5_2_4-release"
 #cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
@@ -103,11 +103,11 @@ bool cache ENABLE_INSTALL=0
 # test
 
 force GOOGLETEST_VERSION="1.10.0"
-force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
+force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest/googletest-1_10_0-release/googletest"
 
 # math
 
-#QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd"
+#QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd/qd-2_3_22-release"
 
 #bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
 #bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
@@ -117,8 +117,8 @@ force GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest"
 top TACKLELIB_LINK_TYPE="dynamic"
 top TACKLELIB_ADDRESS_MODEL="32"
 
-top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt"
-top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring"
+top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt/fmt-6_1_2-release"
+top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring/pystring-1_1_3-20190321"
 
 #top TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
 top TACKLELIB_DEP_LIBS=(fmt pystring)
