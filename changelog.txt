@@ -1,4 +1,9 @@
 2020.02.05:
+* fixed: build errors
+* new: _scripts: windows batch scripts with buitin logging
+* changed: svn ignores
+
+2020.02.05:
 * fixed: _scripts: configure execution
 * fixed: _config: local 3dparty paths in the `tacklelib--3dparty` project
 * fixed: cmake: String: `tkl_string_begins_with` function

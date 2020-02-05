@@ -10,7 +10,7 @@
 #include <tacklelib/utility/assert.hpp>
 #include <tacklelib/utility/utility.hpp>
 
-#include <utility/crc_tables.hpp>
+#include <tacklelib/utility/crc_tables.hpp>
 
 #include <cstdlib>
 #include <cstdint>

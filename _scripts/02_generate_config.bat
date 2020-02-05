@@ -4,12 +4,32 @@ rem Configuration variable files generator script.
 
 setlocal
 
+call "%%~dp0__init__/__init0__.bat" || goto INIT_EXIT
+
+if %IMPL_MODE%0 NEQ 0 goto IMPL
+
+rem no local logging if nested call
+set WITH_LOGGING=0
+if %NEST_LVL%0 EQU 0 set WITH_LOGGING=1
+
+if %WITH_LOGGING% EQU 0 goto IMPL
+
+if not exist "%PROJECT_ROOT%\.log" mkdir "%PROJECT_ROOT%\.log"
+
+rem use stdout/stderr redirection with logging
+call "%%CONTOOLS_ROOT%%\get_datetime.bat"
+set "LOG_FILE_NAME_SUFFIX=%RETURN_VALUE:~0,4%'%RETURN_VALUE:~4,2%'%RETURN_VALUE:~6,2%_%RETURN_VALUE:~8,2%'%RETURN_VALUE:~10,2%'%RETURN_VALUE:~12,2%''%RETURN_VALUE:~15,3%"
+
+set IMPL_MODE=1
+"%COMSPEC%" /C call %0 %* 2>&1 | "%CONTOOLS_ROOT%\wtee.exe" "%PROJECT_ROOT%\.log\%LOG_FILE_NAME_SUFFIX%.%~n0.log"
+exit /b
+
+:IMPL
 set IN_GENERATOR_SCRIPT=1
 
 call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
-
 
 set "CMDLINE_SYSTEM_FILE_IN=%PROJECT_ROOT%\_config\_scripts\02\%~n0.system%~x0.in"
 set "CMDLINE_USER_FILE_IN=%PROJECT_ROOT%\_config\_scripts\02\%~n0.user%~x0.in"
