@@ -8,8 +8,8 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
-#include <tacklelib/utility/string_identity.hpp>
-#include <tacklelib/utility/crc.hpp>
+//#include <tacklelib/utility/string_identity.hpp>
+//#include <tacklelib/utility/crc.hpp>
 
 #include <cstdint>
 #include <type_traits>
@@ -566,7 +566,7 @@ namespace utility
     };
 
     template <int64_t... v>
-    struct uint64_identities
+    struct int64_identities
     {
         using type = int64_t;
         static CONSTEXPR const type values[] = { v... };
