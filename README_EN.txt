@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.01.25
+* 2020.02.04
 * tacklelib
 
 1. DESCRIPTION
@@ -123,6 +123,16 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 Read the `README_EN.deps.txt` file for the common dependencies for the Windows
 and the Linux platforms.
 
+To prepare local third party library sources you can:
+
+  1. Download the local third party project:
+     https://svn.code.sf.net/p/tacklelib/3dparty/trunk
+  2. Read the instructions in the project readme to checkout and build
+     third party libraries.
+  3. Link the checkouted library sources as a directory using the `mklink`
+     command:
+     `mklink /D _3dparty <path-to-project-root>/_src`
+
 -------------------------------------------------------------------------------
 6. CATALOG CONTENT DESCRIPTION
 -------------------------------------------------------------------------------
@@ -131,7 +141,7 @@ and the Linux platforms.
  |
  +- /`_3dparty`
  |  #
- |  # Local 3dparty dependencies catalog.
+ |  # Local 3dparty dependencies catalog. Must be created by the user.
  |
  +- /`_out`
  |  #
