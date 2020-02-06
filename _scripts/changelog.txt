@@ -1,3 +1,9 @@
+2019.02.06:
+* changed: allocated `SCRIPTS_LOGS_ROOT` variable to address the root directory for the script's logs
+
+2020.02.05:
+* new: windows batch scripts with buitin logging
+
 2019.08.17:
 * fixed: tools: decode errors in the `list_urls_in_files.py` script
 * fixed: tools: warning message `cmdoplib.py:10: DeprecationWarning: invalid escape sequence \(` in case of import the `cmdoplib.py` module through the `importlib` module
