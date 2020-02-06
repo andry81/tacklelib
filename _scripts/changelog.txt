@@ -1,4 +1,7 @@
 2019.02.06:
+* new: bash shell scripts with buitin logging
+
+2019.02.06:
 * changed: allocated `SCRIPTS_LOGS_ROOT` variable to address the root directory for the script's logs
 
 2020.02.05:
