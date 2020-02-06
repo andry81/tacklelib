@@ -12,14 +12,14 @@ if %NEST_LVL%0 EQU 0 set WITH_LOGGING=1
 
 if %WITH_LOGGING% EQU 0 goto IMPL
 
-if not exist "%PROJECT_ROOT%\.log" mkdir "%PROJECT_ROOT%\.log"
+if not exist "%SCRIPTS_LOGS_ROOT%\.log" mkdir "%SCRIPTS_LOGS_ROOT%\.log"
 
 rem use stdout/stderr redirection with logging
 call "%%CONTOOLS_ROOT%%\get_datetime.bat"
 set "LOG_FILE_NAME_SUFFIX=%RETURN_VALUE:~0,4%'%RETURN_VALUE:~4,2%'%RETURN_VALUE:~6,2%_%RETURN_VALUE:~8,2%'%RETURN_VALUE:~10,2%'%RETURN_VALUE:~12,2%''%RETURN_VALUE:~15,3%"
 
 set IMPL_MODE=1
-"%COMSPEC%" /C call %0 %* 2>&1 | "%CONTOOLS_ROOT%\wtee.exe" "%PROJECT_ROOT%\.log\%LOG_FILE_NAME_SUFFIX%.%~n0.log"
+"%COMSPEC%" /C call %0 %* 2>&1 | "%CONTOOLS_ROOT%\wtee.exe" "%SCRIPTS_LOGS_ROOT%\.log\%LOG_FILE_NAME_SUFFIX%.%~n0.log"
 exit /b
 
 :IMPL

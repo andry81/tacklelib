@@ -9,6 +9,7 @@ if not defined NEST_LVL set NEST_LVL=0
 
 call :CANONICAL_PATH PROJECT_ROOT "%%~dp0..\.."
 call :CANONICAL_PATH CONTOOLS_ROOT "%%~dp0..\tools"
+call :CANONICAL_PATH SCRIPTS_LOGS_ROOT "%%PROJECT_ROOT%%"
 
 set "CONFIG_VARS_SYSTEM_FILE_IN=%PROJECT_ROOT%/_config/environment_system.vars.in"
 set "CONFIG_VARS_SYSTEM_FILE=%PROJECT_ROOT%/_config/environment_system.vars"

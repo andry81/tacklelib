@@ -13,12 +13,12 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then
 tkl_include "../tools/projectlib.sh" || exit $?
 
 tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../.." s || Exit
-
 PROJECT_ROOT="${RETURN_VALUE:-*:\$}" # safety: replace by not applicable or unexisted directory if empty
 
 tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../tools" s || Exit
-
 CONTOOLS_ROOT="${RETURN_VALUE:-*:\$}" # safety: replace by not applicable or unexisted directory if empty
+
+SCRIPTS_LOGS_ROOT="${PROJECT_ROOT:-*:\$}" # safety: replace by not applicable or unexisted directory if empty
 
 CONFIG_VARS_SYSTEM_FILE_IN="$PROJECT_ROOT/_config/environment_system.vars.in"
 CONFIG_VARS_SYSTEM_FILE="$PROJECT_ROOT/_config/environment_system.vars"
