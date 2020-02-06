@@ -1,4 +1,8 @@
 2019.02.06:
+* changed: `.svnignore` synchronized with the `.gitignore`
+* refactor: `.svnignore` files removed from all nested directories and added to the root file
+
+2019.02.06:
 * new: _scripts: bash shell scripts with buitin logging
 
 2019.02.06:
