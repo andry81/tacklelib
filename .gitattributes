@@ -4,7 +4,6 @@
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
 /README_EN.txt -text
-_config/.svnignore -text
 _config/_scripts/01/01_generate_src.cache_cmds.in -text
 _config/_scripts/01/01_generate_src.deps.bat.in -text
 _config/_scripts/01/01_generate_src.deps.sh.in -text
@@ -58,7 +57,6 @@ _scripts/deploy/create_links.sh -text
 _scripts/deploy/gen_links.sh -text
 _scripts/deploy/user_links.lst -text
 _scripts/license.txt -text
-_scripts/tools/.svnignore -text
 _scripts/tools/__init__.bat -text
 _scripts/tools/bash_entry -text
 _scripts/tools/buildlib.sh -text
@@ -229,7 +227,6 @@ cmake_tests/02_bench/01_script_mode/09_Eval/01_simple_eval.test.cmake -text
 cmake_tests/02_bench/01_script_mode/09_Eval/01_simple_eval.test.lib.vars -text
 cmake_tests/02_bench/01_script_mode/09_Eval/01_simple_eval.test.vars -text
 cmake_tests/README_EN.txt -text
-cmake_tests/_config/.svnignore -text
 cmake_tests/_config/_scripts/01/01_generate_config.deps.bat.in -text
 cmake_tests/_config/_scripts/01/01_generate_config.deps.sh.in -text
 cmake_tests/_config/_scripts/01/01_generate_config.system.bat.in -text
@@ -255,7 +252,6 @@ cmake_tests/tests_01_unit.cmake -text
 cmake_tests/tests_02_bench.cmake -text
 deploy/approot/${PROJECT_NAME}.sh -text
 examples/utility/log/p7logger/p7_logger_example1.cpp -text
-include/tacklelib/.svnignore -text
 include/tacklelib/debug.hpp.in -text
 include/tacklelib/optimization.hpp.in -text
 include/tacklelib/setup.hpp.in -text
@@ -336,7 +332,6 @@ python_patches/fcache/cache.py -text
 python_patches/fcache/cache.py.diff -text
 python_patches/fcache/posixemulation.py -text
 python_patches/fcache/posixemulation.py.diff -text
-python_tests/.svnignore -text
 python_tests/01_unit/00_empty/test_main_00_00.xsh -text
 python_tests/01_unit/01_import_module/01_basic_import/inc1/testlib.inc1.py -text
 python_tests/01_unit/01_import_module/01_basic_import/inc2/testlib.inc2.py -text
@@ -404,12 +399,10 @@ python_tests/01_unit/02_declare_global/06_import_from_global_check_in_lvl2_modul
 python_tests/01_unit/02_declare_global/06_import_from_global_check_in_lvl2_modules/test_main_02_06.xsh -text
 python_tests/01_unit/02_declare_global/07_import_from_global_change_in_local/inc1.xsh -text
 python_tests/01_unit/02_declare_global/07_import_from_global_change_in_local/test_main_02_07.xsh -text
-python_tests/02_interactive/01_fcache_workarounds/.svnignore -text
 python_tests/02_interactive/01_fcache_workarounds/test.bat -text
 python_tests/02_interactive/01_fcache_workarounds/test.sh -text
 python_tests/02_interactive/01_fcache_workarounds/test_fcache.xpy -text
 python_tests/README_EN.txt -text
-python_tests/_config/.svnignore -text
 python_tests/_config/_scripts/01/01_generate_config.system.bat.in -text
 python_tests/_config/_scripts/01/01_generate_config.system.sh.in -text
 python_tests/_config/environment_system.vars.in -text
@@ -428,7 +421,6 @@ python_tests/_scripts/tools/projectlib.sh -text
 python_tests/changelog.txt -text
 python_tests/conftest.py -text
 python_tests/pytest.ini -text
-src/.svnignore -text
 src/common.hpp -text
 src/debug.hpp.in -text
 src/optimization.hpp.in -text
