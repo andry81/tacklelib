@@ -12,58 +12,87 @@
    The cache contains both parameters for both files (4 parameters) together
    or none of them.
 
-   <Template>  | <Instance>  | <Cache> | <Actions>
-   ------------+-------------+-------  +--------------------------------------
-   absent      | existed     | any     | 1. Throw an error
-               |             |         | (the template must exist)
-   ------------+-------------+---------+--------------------------------------
-   existed     | absent      | any     | 1. Generated the instance
-               |             |         | 2. Calculate the template and
-               |             |         |    the instance body hashes
-               |             |         | 3. Write the template and the
-               |             |         |    instance version and body hash
-               |             |         |    to the cache overwriting it
-   ------------+-------------+---------+--------------------------------------
-   existed     | existed     | absent  | 1. Run the comparator (GUI)
-               |             |         | 2. Calculate the template and
-               |             |         |    the instance body hashes
-               |             |         | 3. Write the template and the
-               |             |         |    instance version and body hash
-               |             |         |    to the cache overwriting it
-   ------------+-------------+---------+--------------------------------------
-   existed     | existed     | changed | 1. Run the comparator (GUI)
-               |             |         | 2. Calculate the template and
-               |             |         |    the instance body hashes
-               |             |         | 3. Write the template and the
-               |             |         |    instance version and body hash
-               |             |         |    to the cache overwriting it
-   ------------+-------------+---------+--------------------------------------
-   existed     | * version   | any     | 1. Run the comparator (GUI)
-               |   absent,   |         | 2. Calculate the template and
-               |   changed   |         |    the instance body hashes
-               |   or NAN    |         | 3. Write the template and the
-               | * body hash |         |    instance version and body hash
-               |   any       |         |    to the cache overwriting it
-               |             |         | (always compare case)
-               |             |         |
-   ------------+-------------+---------+--------------------------------------
-   * version   | any         | any     | 1. Throw an error
-     absent or |             |         | (the template must contain a version
-     NAN       |             |         | number)
-   * body hash |             |         |
-     any       |             |         |
+ <Template>  | <Instance>  | <Cache>    | <Actions>
+ ------------+-------------+------------+--------------------------------------
+ absent      | existed     | any        | 1. Throw an error becuase the
+             |             |            |    template must always exist.
+ ------------+-------------+------------+--------------------------------------
+ existed     | absent      | any        | 1. Generated the instance
+             |             |            | 2. Calculate the template and
+             |             |            |    the instance body hashes
+             |             |            | 3. Write the template and the
+             |             |            |    instance version and body hash
+             |             |            |    to the cache overwriting it
+ ------------+-------------+------------+--------------------------------------
+ existed     | existed     | absent     | 1. Run the comparator (GUI)
+             |             |            | 2. Calculate the template and
+             |             |            |    the instance body hashes
+             |             |            | 3. Write the template and the
+             |             |            |    instance version and body hash
+             |             |            |    to the cache overwriting it
+ ------------+-------------+------------+--------------------------------------
+ existed     | existed     | * template | 1. If the template version is
+             |             | version or |    less than in the cache and the
+             |             | body hash  |    body hash is not different,
+             |             | is changed |    then:
+             |             | * instance | 1.1. Run the comparator (GUI)
+             |             | version or | 1.2. Calculate the template and
+             |             | body hash  |      the instance body hashes
+             |             | is any     | 1.3. Write the template and the
+             |             |            |      instance version and body hash
+             |             |            |      to the cache overwriting it
+             |             |            | 2. If the template version is
+             |             |            |    greater than in the cache and
+             |             |            |    body hash is not different,
+             |             |            |    then throw an error because the
+             |             |            |    template version is the only
+             |             |            |    component which was changed
+             |             |            |    after a checkout.
+             |             |            | 3. If the template version is not
+             |             |            |    different and body hash is
+             |             |            |    different, then throw an error
+             |             |            |    because either has been forgotten
+             |             |            |    to increment the template version
+             |             |            |    before the last commit or is
+             |             |            |    forgot to increment it before
+             |             |            |    the next commit.
+ ------------+-------------+------------+--------------------------------------
+ existed     | existed     | * template | 1. Run the comparator (GUI)
+             |             | version or | 2. Calculate the instance body hash
+             |             | body hash  | 3. Write the instance version
+             |             | is not     |    and body hash to the cache
+             |             | changed    |    overwriting only the instance
+             |             | * instance |    associated components in the
+             |             | version or |    cache
+             |             | body hash  |
+             |             | is changed |
+ ------------+-------------+------------+--------------------------------------
+ existed     | * version   | any        | 1. Run the comparator (GUI)
+             |   absent,   |            | 2. Calculate the template and
+             |   changed   |            |    the instance body hashes
+             |   or NAN    |            | 3. Write the template and the
+             | * body hash |            |    instance version and body hash
+             |   is any    |            |    to the cache overwriting it
+             |             |            | (always compare case)
+             |             |            |
+ ------------+-------------+------------+--------------------------------------
+ * version   | any         | any        | 1. Throw an error because the
+   absent or |             |            |    template must always contain a
+   NAN       |             |            |    version number.
+ * body hash |             |            |
+   is any    |             |            |
 
-  Legend:
-    `any`         - Does not matter the state, the file or a value can exist
-                    or not.
-    `existed`     - Does not matter the state but the file or a value is
-                    present.
-    `absent`      - The file or a value does not exist.
-    `unchanged`   - The file or a value or values is unchanged versus the same
-                    component or components to a left column item.
-                    If not specified which one component, then addresses the
-                    entire item or all items.
-    `changed`     - The file or a value or values is changed versus the same
-                    component or components to a left column item.
-                    If not specified which one component, then addresses the
-                    entire item or all items.
+Legend:
+  `any`         - Does not matter the state, the file or a value can exist
+                  or not.
+  `existed`     - Does not matter the state but the file or a value is
+                  present.
+  `absent`      - The file or a value does not exist.
+  `unchanged`   - The file or a value or values is unchanged versus the same
+                  component or components to a left column item.
+                  If not specified which one component, then addresses the
+                  entire item or all items.
+  `changed`     - The file or a value or values is changed versus the same
+                  component or components to a left column item.
+                  If not specified which one component, then addresses the
+                  entire item or all items.
