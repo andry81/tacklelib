@@ -1,4 +1,7 @@
 2020.02.08:
+* fixed: cmake: unresolved external symbol linkage error `... testing::FLAGS_gtest_filter`
+
+2020.02.08:
 * changed: todo list update
 
 2020.02.08:
