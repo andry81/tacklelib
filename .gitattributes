@@ -4,6 +4,7 @@
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
 /README_EN.txt -text
+/TODO.txt -text
 _config/_scripts/01/01_generate_src.cache_cmds.in -text
 _config/_scripts/01/01_generate_src.deps.bat.in -text
 _config/_scripts/01/01_generate_src.deps.sh.in -text

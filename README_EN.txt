@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.04
+* 2020.02.08
 * tacklelib
 
 1. DESCRIPTION
@@ -344,7 +344,7 @@ the generator name.
 
 Example:
   CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
-  CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
+  CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*:$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
 -------------------------------------------------------------------------------
 8. CONFIGURE
@@ -444,9 +444,9 @@ To start use external 3dparty project directories you can take as a basic
 example the 3dparty project structure from these links:
 
 Primary:
-  * https://svn.code.sf.net/p/contools/3dparty/trunk
+  * https://svn.code.sf.net/p/tacklelib/3dparty/trunk
 First mirror:
-  * https://github.com/andry81/contools--3dparty.git
+  * https://github.com/andry81/tacklelib--3dparty.git
 
 -------------------------------------------------------------------------------
 8.3. Configuration step

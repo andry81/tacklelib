@@ -1,0 +1,69 @@
+1. Extract additionally to the template file line version (some kind of
+   shebang line with a version for the file) the body hash (with out version
+   line) and compare it with the same values from the instance file and from
+   the cache (implement it too).
+
+   Here is the table of states and the actions associated with each state.
+
+   The template and the instance file has 2 parameters:
+   * version
+   * body hash (excluding the version line)
+
+   The cache contains both parameters for both files (4 parameters) together
+   or none of them.
+
+   <Template>  | <Instance>  | <Cache> | <Actions>
+   ------------+-------------+-------  +--------------------------------------
+   absent      | existed     | any     | 1. Throw an error
+               |             |         | (the template must exist)
+   ------------+-------------+---------+--------------------------------------
+   existed     | absent      | any     | 1. Generated the instance
+               |             |         | 2. Calculate the template and
+               |             |         |    the instance body hashes
+               |             |         | 3. Write the template and the
+               |             |         |    instance version and body hash
+               |             |         |    to the cache overwriting it
+   ------------+-------------+---------+--------------------------------------
+   existed     | existed     | absent  | 1. Run the comparator (GUI)
+               |             |         | 2. Calculate the template and
+               |             |         |    the instance body hashes
+               |             |         | 3. Write the template and the
+               |             |         |    instance version and body hash
+               |             |         |    to the cache overwriting it
+   ------------+-------------+---------+--------------------------------------
+   existed     | existed     | changed | 1. Run the comparator (GUI)
+               |             |         | 2. Calculate the template and
+               |             |         |    the instance body hashes
+               |             |         | 3. Write the template and the
+               |             |         |    instance version and body hash
+               |             |         |    to the cache overwriting it
+   ------------+-------------+---------+--------------------------------------
+   existed     | * version   | any     | 1. Run the comparator (GUI)
+               |   absent,   |         | 2. Calculate the template and
+               |   changed   |         |    the instance body hashes
+               |   or NAN    |         | 3. Write the template and the
+               | * body hash |         |    instance version and body hash
+               |   any       |         |    to the cache overwriting it
+               |             |         | (always compare case)
+               |             |         |
+   ------------+-------------+---------+--------------------------------------
+   * version   | any         | any     | 1. Throw an error
+     absent or |             |         | (the template must contain a version
+     NAN       |             |         | number)
+   * body hash |             |         |
+     any       |             |         |
+
+  Legend:
+    `any`         - Does not matter the state, the file or a value can exist
+                    or not.
+    `existed`     - Does not matter the state but the file or a value is
+                    present.
+    `absent`      - The file or a value does not exist.
+    `unchanged`   - The file or a value or values is unchanged versus the same
+                    component or components to a left column item.
+                    If not specified which one component, then addresses the
+                    entire item or all items.
+    `changed`     - The file or a value or values is changed versus the same
+                    component or components to a left column item.
+                    If not specified which one component, then addresses the
+                    entire item or all items.
