@@ -1,3 +1,8 @@
+2020.02.08:
+* new: todo list file
+* changed: cmake: _3dparty: Global3dparty.cmake: removed case-sensitive duplicates from the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` list variables before usage
+* changed: readme file
+
 2019.02.06:
 * changed: `.svnignore` synchronized with the `.gitignore`
 * refactor: `.svnignore` files removed from all nested directories and added to the root file

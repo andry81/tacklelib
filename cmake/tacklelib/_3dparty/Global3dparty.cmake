@@ -10,6 +10,9 @@ function(find_global_3dparty_environments out_global_vars_file_path_list_var)
 
   set(global_vars_file_path_list "")
 
+  list(REMOVE_DUPLICATES _3DPARTY_GLOBAL_ROOTS_LIST)
+  list(REMOVE_DUPLICATES _3DPARTY_GLOBAL_ROOTS_FILE_LIST)
+
   foreach(root_path IN LISTS _3DPARTY_GLOBAL_ROOTS_LIST)
     foreach(file_path IN LISTS _3DPARTY_GLOBAL_ROOTS_FILE_LIST)
       set(env_file_path "${root_path}/${file_path}")
