@@ -626,6 +626,7 @@ if (TESTLIB_ENABLED)
   tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
     PUBLIC
       TACKLE_TESTLIB
+      GTEST_LINKED_AS_SHARED_LIBRARY=1 # gtest links as dynamic by default
   )
 
   # we need the same Boost definitions here to maintain the link with the same libraries
