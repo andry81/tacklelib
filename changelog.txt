@@ -1,3 +1,7 @@
+2020.02.09:
+* fixed: cpp: build under googletest 1.10.0
+* refactor: cpp: tests: `stdlib` renamed into `std`, `thislib` renamed into `tkl`
+
 2020.02.08:
 * fixed: cmake: unresolved external symbol linkage error `... testing::FLAGS_gtest_filter`
 

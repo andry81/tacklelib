@@ -236,7 +236,7 @@ TEST(TackleDequeTest, deque_push_back_front)
 }
 
 template <typename T>
-inline void test_stdlib_deque_push_back_time(size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_std_deque_push_back_time(size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         std::deque<T> deq;
@@ -264,7 +264,7 @@ inline void test_stdlib_deque_push_back_time(size_t max_size_from_limit, size_t 
 }
 
 template <typename T>
-inline void test_thislib_deque_push_back_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_tkl_deque_push_back_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         tackle::deque<T> deq{ tackle::deque_params{ min_arr0_capacity, min_arr1_capacity_bytes } };
@@ -292,7 +292,7 @@ inline void test_thislib_deque_push_back_time(size_t min_arr0_capacity, size_t m
 }
 
 template <typename T>
-inline void test_stdlib_deque_push_front_time(size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_std_deque_push_front_time(size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         std::deque<T> deq;
@@ -320,7 +320,7 @@ inline void test_stdlib_deque_push_front_time(size_t max_size_from_limit, size_t
 }
 
 template <typename T>
-inline void test_thislib_deque_push_front_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_tkl_deque_push_front_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         tackle::deque<T> deq{ tackle::deque_params{ min_arr0_capacity, min_arr1_capacity_bytes } };
@@ -347,28 +347,28 @@ inline void test_thislib_deque_push_front_time(size_t min_arr0_capacity, size_t 
     }
 }
 
-TEST(TackleDequeTest, stdlib_deque_push_back_time)
+TEST(TackleDequeTest, std_deque_push_back_time)
 {
-    test_stdlib_deque_push_back_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_std_deque_push_back_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, stdlib_deque_push_front_time)
+TEST(TackleDequeTest, std_deque_push_front_time)
 {
-    test_stdlib_deque_push_front_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_std_deque_push_front_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, thislib_deque_push_back_time)
+TEST(TackleDequeTest, tkl_deque_push_back_time)
 {
-    test_thislib_deque_push_back_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_tkl_deque_push_back_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, thislib_deque_push_front_time)
+TEST(TackleDequeTest, tkl_deque_push_front_time)
 {
-    test_thislib_deque_push_front_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_tkl_deque_push_front_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
 template <typename T>
-inline void test_stdlib_deque_opindex_time(size_t size)
+inline void test_std_deque_opindex_time(size_t size)
 {
     std::deque<T> deq;
 
@@ -383,7 +383,7 @@ inline void test_stdlib_deque_opindex_time(size_t size)
 }
 
 template <typename T>
-inline void test_thislib_deque_opindex_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t size)
+inline void test_tkl_deque_opindex_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t size)
 {
     tackle::deque<T> deq{ tackle::deque_params{ min_arr0_capacity, min_arr1_capacity_bytes } };
 
@@ -397,14 +397,14 @@ inline void test_thislib_deque_opindex_time(size_t min_arr0_capacity, size_t min
     }
 }
 
-TEST(TackleDequeTest, stdlib_deque_opindex_time)
+TEST(TackleDequeTest, std_deque_opindex_time)
 {
-    test_stdlib_deque_opindex_time<int>(DEBUG_RELEASE_EXPR(100000, 1000000));
+    test_std_deque_opindex_time<int>(DEBUG_RELEASE_EXPR(100000, 1000000));
 }
 
-TEST(TackleDequeTest, thislib_deque_opindex_time)
+TEST(TackleDequeTest, tkl_deque_opindex_time)
 {
-    test_thislib_deque_opindex_time<int>(256, 256 * 1024, DEBUG_RELEASE_EXPR(100000, 1000000));
+    test_tkl_deque_opindex_time<int>(256, 256 * 1024, DEBUG_RELEASE_EXPR(100000, 1000000));
 }
 
 template <typename T>
@@ -865,7 +865,7 @@ TEST(TackleDequeTest, deque_pop_push_back_front)
 }
 
 template <typename T>
-inline void test_stdlib_deque_pop_back_time(size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_std_deque_pop_back_time(size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         std::deque<T> deq;
@@ -899,7 +899,7 @@ inline void test_stdlib_deque_pop_back_time(size_t max_size_from_limit, size_t m
 }
 
 template <typename T>
-inline void test_thislib_deque_pop_back_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_tkl_deque_pop_back_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         tackle::deque<T> deq{ tackle::deque_params{ min_arr0_capacity, min_arr1_capacity_bytes } };
@@ -933,7 +933,7 @@ inline void test_thislib_deque_pop_back_time(size_t min_arr0_capacity, size_t mi
 }
 
 template <typename T>
-inline void test_stdlib_deque_pop_front_time(size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_std_deque_pop_front_time(size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         std::deque<T> deq;
@@ -967,7 +967,7 @@ inline void test_stdlib_deque_pop_front_time(size_t max_size_from_limit, size_t 
 }
 
 template <typename T>
-inline void test_thislib_deque_pop_front_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
+inline void test_tkl_deque_pop_front_time(size_t min_arr0_capacity, size_t min_arr1_capacity_bytes, size_t max_size_from_limit, size_t max_size_to_limit)
 {
     for (size_t j = 1; j <= max_size_to_limit; j++) {
         tackle::deque<T> deq{ tackle::deque_params{ min_arr0_capacity, min_arr1_capacity_bytes } };
@@ -1000,22 +1000,22 @@ inline void test_thislib_deque_pop_front_time(size_t min_arr0_capacity, size_t m
     }
 }
 
-TEST(TackleDequeTest, stdlib_deque_pop_back_time)
+TEST(TackleDequeTest, std_deque_pop_back_time)
 {
-    test_stdlib_deque_pop_back_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_std_deque_pop_back_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, stdlib_deque_pop_front_time)
+TEST(TackleDequeTest, std_deque_pop_front_time)
 {
-    test_stdlib_deque_pop_front_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_std_deque_pop_front_time<int>(50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, thislib_deque_pop_back_time)
+TEST(TackleDequeTest, tkl_deque_pop_back_time)
 {
-    test_thislib_deque_pop_back_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_tkl_deque_pop_back_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
 }
 
-TEST(TackleDequeTest, thislib_deque_pop_front_time)
+TEST(TackleDequeTest, tkl_deque_pop_front_time)
 {
-    test_thislib_deque_pop_front_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
+    test_tkl_deque_pop_front_time<int>(256, 256 * 1024, 50, DEBUG_RELEASE_EXPR(100, 1000));
 }

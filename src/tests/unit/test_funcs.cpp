@@ -169,7 +169,7 @@ TEST(FunctionsTest, int_log2_pof2_ceil_time)
     }
 }
 
-TEST(FunctionsTest, int_stdlib_log2_floor_time)
+TEST(FunctionsTest, int_std_log2_floor_time)
 {
     for (int i = 1; i < 1000000; i++) {
         const int log2_floor_value = int(log2(i));
@@ -181,7 +181,7 @@ TEST(FunctionsTest, int_stdlib_log2_floor_time)
     }
 }
 
-TEST(FunctionsTest, int_thislib_log2_floor_time)
+TEST(FunctionsTest, int_tkl_log2_floor_time)
 {
     for (int i = 1; i < 1000000; i++) {
         const int log2_floor_value = ::math::int_log2_floor(i);
@@ -193,7 +193,7 @@ TEST(FunctionsTest, int_thislib_log2_floor_time)
     }
 }
 
-TEST(FunctionsTest, int_stdlib_log2_ceil_time)
+TEST(FunctionsTest, int_std_log2_ceil_time)
 {
     for (int i = 1; i < 1000000; i++) {
         const int log2_ceil_value = int(log2(i + i - 1));
@@ -205,7 +205,7 @@ TEST(FunctionsTest, int_stdlib_log2_ceil_time)
     }
 }
 
-TEST(FunctionsTest, int_thislib_log2_ceil_time)
+TEST(FunctionsTest, int_tkl_log2_ceil_time)
 {
     for (int i = 1; i < 1000000; i++) {
         const int log2_ceil_value = ::math::int_log2_ceil(i);

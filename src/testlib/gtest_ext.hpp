@@ -8,6 +8,17 @@
 
 #include <functional>
 
+// gtest version >= 1.10.0
+#if !defined(GTEST_IS_NULL_LITERAL_)
+#define IF_GTEST_VERSION_GREATER_EQUAL_1_10_0_(x)   x
+#define IF_GTEST_VERSION_GREATER_EQUAL_1_10_0(x)    IF_GREATER_EQUAL_GTEST_VERSION_1_10_0_(x)
+#define IF_GTEST_VERSION_LESS_1_10_0(x)
+#else
+#define IF_GTEST_VERSION_GREATER_EQUAL_1_10_0(x)
+#define IF_GTEST_VERSION_LESS_1_10_0_(x)            x
+#define IF_GTEST_VERSION_LESS_1_10_0(x)             IF_GTEST_VERSION_LESS_1_10_0_(x)
+#endif
+
 
 #define EXPECT_TRUE_PRED(v1, fail_pred) \
     EXPECT_PRED1( \
