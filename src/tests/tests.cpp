@@ -11,6 +11,9 @@ DECLARE_TEST_CASES
     DECLARE_TEST_CASE_FUNC(FunctionsTest, *, nullptr, nullptr, "", "", "", 0),
 
     DECLARE_TEST_CASE_FUNC(TackleDequeTest, *, nullptr, nullptr, "", "", "", 0),
+
+    // tests mostly in compile time
+    DECLARE_TEST_CASE_FUNC(TackleTmplStringTest, *, nullptr, nullptr, "", "", "", 0),
 #endif
 
 #ifdef BENCH_TESTS
