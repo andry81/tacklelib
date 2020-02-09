@@ -33,6 +33,8 @@
 
 #include <gtest/gtest.h>
 
+#include <src/testlib/gtest_ext.hpp>
+
 // back compatability
 #undef ASSERT_TRUE
 #undef ASSERT_FALSE
@@ -152,7 +154,7 @@
 #define UNIT_ASSERT_EQ(v1, v2) \
     do {{ \
         const auto & exp_var_1 = (v1); \
-        if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(exp_var_1)>::Compare(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
+        if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper IF_GTEST_VERSION_LESS_1_10_0(<GTEST_IS_NULL_LITERAL_(exp_var_1)>) ::Compare(UTILITY_PP_STRINGIZE(v1), UTILITY_PP_STRINGIZE(v2), exp_var_1, v2)); \
         else UTILITY_GTEST_FAIL_EXP_MACRO_INLINE(exp_value, UTILITY_PP_FILE, UTILITY_PP_LINE); \
         UTILITY_ASSERT_POST_TEST(); \
     }} while(false)
@@ -297,7 +299,7 @@
 #endif
 
 #define UNIT_VERIFY_EQ_IMPL(v1, v2) [&](const auto & v_1, const auto & v_2, const char * v1_str, const char * v2_str, const char * file, unsigned int line) -> const auto & { \
-        if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v_1)>::Compare(v1_str, v2_str, v_1, v_2)); \
+        if (const ::testing::AssertionResult exp_value = ::testing::internal:: IF_GTEST_VERSION_LESS_1_10_0(EqHelper<GTEST_IS_NULL_LITERAL_(v_1)>) ::Compare(v1_str, v2_str, v_1, v_2)); \
         else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line); \
         UTILITY_ASSERT_POST_TEST(); \
         return v_1; \
@@ -907,7 +909,7 @@ namespace utility
 #if defined(UNIT_TESTS) || defined(BENCH_TESTS)
         template <typename T1, typename T2>
         FORCE_INLINE const T1 & gtest_verify(const T1 & v1, const T2 & v2, const char * v1_str, const char * v2_str) const {
-            if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper<GTEST_IS_NULL_LITERAL_(v1)>::Compare(v1_str, v2_str, v1, v2));
+            if (const ::testing::AssertionResult exp_value = ::testing::internal::EqHelper IF_GTEST_VERSION_LESS_1_10_0(<GTEST_IS_NULL_LITERAL_(v1)>) ::Compare(v1_str, v2_str, v1, v2));
             else UTILITY_GTEST_FAIL_EXP_FUNC_INLINE(exp_value, file, line);
 
             UTILITY_ASSERT_POST_TEST();
