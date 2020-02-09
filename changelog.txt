@@ -1,5 +1,5 @@
 2020.02.09:
-* fixed: cpp: tests: bench tests warning about `TackleTmplStringTest` tests
+* fixed: cpp: tests: unit tests warning about `TackleTmplStringTest` tests
 
 2020.02.09:
 * fixed: cpp: build under googletest 1.10.0
