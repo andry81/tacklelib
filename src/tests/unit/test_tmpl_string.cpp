@@ -176,10 +176,6 @@ TEST(TackleTmplStringTest, constexpr_get2)
 #undef TEST_TACKLE_TMPL_STRING
 }
 
-TEST(TackleTmplStringTest, is_exception)
-{
-}
-
 using overload_resolution_1 = char[1];
 using overload_resolution_2 = char[2];
 
