@@ -1,4 +1,7 @@
 2020.02.09:
+* new: cpp: tests: added 1 overload resolution unit test for the `tmpl_string` and `constexpr_string` classes
+
+2020.02.09:
 * fixed: cpp: tests: unit tests warning about `TackleTmplStringTest` tests
 
 2020.02.09:

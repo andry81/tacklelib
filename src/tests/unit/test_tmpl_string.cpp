@@ -196,3 +196,38 @@ TEST(TackleTmplStringTest, tmpl_string_vs_constexpr_string_overload)
         static_assert(sizeof(overload_resolution_2) == sizeof(test_overload_resolution(s)), "must be called function with the constexpr_basic_string argument");
     }
 }
+
+using overload_resolution_3 = char[3];
+using overload_resolution_4 = char[4];
+
+template <uint64_t id, typename CharT, CharT... tchars>
+const overload_resolution_1 & test_overload_resolution2(const tackle::tmpl_basic_string<id, CharT, tchars...> &);
+template <typename CharT>
+const overload_resolution_2 & test_overload_resolution2(const tackle::constexpr_basic_string<CharT> &);
+template <typename CharT>
+const overload_resolution_3 & test_overload_resolution2(const std::basic_string<CharT> &);
+template <typename CharT>
+const overload_resolution_4 & test_overload_resolution2(const CharT *);
+
+TEST(TackleTmplStringTest, tmpl_string_vs_constexpr_string_overload2)
+{
+    {
+        const auto s = TACKLE_TMPL_STRING(0, "");
+        static_assert(sizeof(overload_resolution_1) == sizeof(test_overload_resolution2(s)), "must be called function with the tmpl_basic_string argument");
+    }
+
+    {
+        const auto s = TACKLE_CONSTEXPR_STRING("");
+        static_assert(sizeof(overload_resolution_2) == sizeof(test_overload_resolution2(s)), "must be called function with the constexpr_basic_string argument");
+    }
+
+    {
+        const auto s = std::string("");
+        static_assert(sizeof(overload_resolution_3) == sizeof(test_overload_resolution2(s)), "must be called function with the std::basic_string argument");
+    }
+
+    {
+        const auto s = "";
+        static_assert(sizeof(overload_resolution_4) == sizeof(test_overload_resolution2(s)), "must be called function with the CharT* argument");
+    }
+}
