@@ -8,6 +8,13 @@ def call_svn(args_list,
              stdin = None, stdout = None, stderr = None,
              max_stdout_lines = 9, ignore_warnings = False,
              **kwargs):
+  # retarget stdout/stderr to original handles to avoid it's interception and so the blocking
+  if max_stdout_lines < 0:
+    if not stdout:
+      stdout = sys.stdout
+    if not stderr:
+      stderr = sys.stderr
+
   try:
     ret = call('${SVN}', args_list,
       stdin = stdin, stdout = stdout, stderr = stderr,
