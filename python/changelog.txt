@@ -1,3 +1,6 @@
+2020.02.10:
+* fixed: cmdoplib: callsvn, callgit: avoid stdout/stderr blocking on `max_stdout_lines < 0`
+
 2020.02.04:
 * fixed: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
 * fixed: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function

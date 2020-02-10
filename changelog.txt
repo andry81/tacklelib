@@ -1,3 +1,6 @@
+2020.02.10:
+* fixed: python: cmdoplib: callsvn, callgit: avoid stdout/stderr blocking on `max_stdout_lines < 0`
+
 2020.02.09:
 * new: cpp: tests: added 1 overload resolution unit test for the `tmpl_string` and `constexpr_string` classes
 
