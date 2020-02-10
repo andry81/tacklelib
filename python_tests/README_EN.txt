@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.20
+* 2020.02.10
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -18,7 +18,7 @@
 7.2.2. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
 7.3. fcache execution issues
 7.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
-8. AUTHOR EMAIL
+8. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -282,6 +282,6 @@ Patch python `fcache` module sources by patches from the
 `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
-8. AUTHOR EMAIL
+8. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

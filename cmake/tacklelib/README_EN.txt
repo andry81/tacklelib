@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.06.16
+* 2020.02.10
 * tacklelib--cmake
 
 1. DESCRIPTION
@@ -7,7 +7,7 @@
 3. REPOSITORIES
 4. PREREQUISITES
 5. TESTS
-6. AUTHOR EMAIL
+6. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -52,6 +52,6 @@ Second mirror:
   https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake_tests/
 
 -------------------------------------------------------------------------------
-6. AUTHOR EMAIL
+6. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

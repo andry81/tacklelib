@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2019.10.08
+* 2020.02.10
 * tacklelib
 
 1. DESCRIPTION
@@ -40,7 +40,7 @@
        `//lib/i386-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line`.
 6.2. Hardware issues
 6.2.1. CDROM/DVDROM is empty or not unmountable
-7. AUTHOR EMAIL
+7. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -575,7 +575,6 @@ Try to eject the disk by using one of these commands:
               command.  Not all devices support this command.
 
 -------------------------------------------------------------------------------
-7. AUTHOR EMAIL
+7. AUTHOR
 -------------------------------------------------------------------------------
-
 Andrey Dibrov (andry at inbox dot ru)
