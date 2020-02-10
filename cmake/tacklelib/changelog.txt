@@ -1,3 +1,6 @@
+2020.02.10:
+* changed: readme update
+
 2020.02.08:
 * changed: _3dparty: Global3dparty.cmake: removed case-sensitive duplicates from the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` list variables before usage
 

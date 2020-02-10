@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.14
+* 2020.02.10
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -8,7 +8,7 @@
 4. PREREQUISITES
 5. DEPLOY
 6. CATALOG CONTENT DESCRIPTION
-7. AUTHOR EMAIL
+7. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -132,6 +132,6 @@ sudo chmod o+r /bin/bash_entry
      # The cmake entry point into respective tests group.
 
 -------------------------------------------------------------------------------
-7. AUTHOR EMAIL
+7. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

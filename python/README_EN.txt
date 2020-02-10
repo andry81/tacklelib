@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.01.04
+* 2020.02.10
 * tacklelib--python
 
 1. DESCRIPTION
@@ -20,7 +20,7 @@
        Python 3.x Installer ended prematurely (Windows msi)
 6.3. fcache execution issues
 6.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
-7. AUTHOR EMAIL
+7. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -301,6 +301,6 @@ Patch python `fcache` module sources by patches from the
 `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
-7. AUTHOR EMAIL
+7. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

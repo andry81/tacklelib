@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.08
+* 2020.02.10
 * tacklelib
 
 1. DESCRIPTION
@@ -9,21 +9,21 @@
 5. DEPENDENCIES
 6. CATALOG CONTENT DESCRIPTION
 7. PROJECT CONFIGURATION VARIABLES
-8. CONFIGURE
-8.1. Manual copy step
-8.2. Generation step(s)
-8.3. Configuration step
-9. BUILD
-9.1. From scripts
-9.2. From `Visual Studio`
-9.3. From `Qt Creator`
-10. INSTALL
-11. POSTINSTALL
-12. KNOWN ISSUES
-12.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+8. PRECONFIGURE
+9. CONFIGURE
+9.1. Generation step(s)
+9.2. Configuration step
+10. BUILD
+10.1. From scripts
+10.2. From `Visual Studio`
+10.3. From `Qt Creator`
+11. INSTALL
+12. POSTINSTALL
+13. KNOWN ISSUES
+13.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
       generator presence and must be set if not: ...` cmake configuration
       error message
-13. AUTHOR EMAIL
+14. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -38,10 +38,6 @@ Windows AND Linux together. But, to build particularly under Linux you have to
 read additionally another readme files:
 
 `README_EN.linux_x86_64.txt`
-
-WARNING:
-  Use the SVN access to find out latest functionality and bug fixes.
-  See the REPOSITORIES section.
 
 -------------------------------------------------------------------------------
 2. LICENSE
@@ -126,12 +122,15 @@ and the Linux platforms.
 To prepare local third party library sources you can:
 
   1. Download the local third party project:
-     https://svn.code.sf.net/p/tacklelib/3dparty/trunk
+     https://sf.net/p/tacklelib/3dparty
   2. Read the instructions in the project readme to checkout and build
      third party libraries.
   3. Link the checkouted library sources as a directory using the `mklink`
      command:
      `mklink /D _3dparty <path-to-project-root>/_src`
+     or
+     Run the `preconfigure.*` script to make all links together
+     (see the `PRECONFIGURE` section).
 
 -------------------------------------------------------------------------------
 6. CATALOG CONTENT DESCRIPTION
@@ -248,6 +247,9 @@ To prepare local third party library sources you can:
  |    #
  |    # Directory with sources to build.
  |
+ +- `preconfigure.bat`
+ |   #
+ |   # Scrtip to make a local preconfigure.
  |
  +- `CMakeLists.txt`
      #
@@ -347,7 +349,7 @@ Example:
   CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*:$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
 
 -------------------------------------------------------------------------------
-8. CONFIGURE
+7. PRECONFIGURE
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -355,22 +357,26 @@ NOTE:
   Windows platform (`.bat` file extension) and for the Linux like platform
   (`.sh` file extension).
 
-  For the additional details related particularly to the Linux do read the
-  `README_EN.linux_x86_64.txt` file.
-
--------------------------------------------------------------------------------
-8.1. Manual copy step
--------------------------------------------------------------------------------
-
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+`_scripts/tools/bash_entry` into the `/bin` directory of your platform.
 
 CAUTION:
   For the Linux like platform do read the `README_EN.linux_x86_64.txt` file
   to properly set permissions on the file.
 
+To be able to configure and build the sources you must run the
+`preconfigure.*` script at least once.
+
 -------------------------------------------------------------------------------
-8.2. Generation step(s)
+8. CONFIGURE
+-------------------------------------------------------------------------------
+
+NOTE:
+  For the additional details related particularly to the Linux do read the
+  `README_EN.linux_x86_64.txt` file.
+
+-------------------------------------------------------------------------------
+8.1. Generation step(s)
 -------------------------------------------------------------------------------
 
 To generate the source files which are not included in a version control system
@@ -449,7 +455,7 @@ First mirror:
   * https://github.com/andry81/tacklelib--3dparty.git
 
 -------------------------------------------------------------------------------
-8.3. Configuration step
+8.2. Configuration step
 -------------------------------------------------------------------------------
 
 To make a final configuration call to:
@@ -475,7 +481,7 @@ be in a directory pointed by the `CMAKE_BIN_DIR` configuration variable.
 9.1. From scripts
 -------------------------------------------------------------------------------
 
-1. Run `/_scripts/04_build_x86.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `/_scripts/04_build.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
@@ -513,7 +519,7 @@ NOTE:
 10. INSTALL
 -------------------------------------------------------------------------------
 
-1. Run `/_scripts/05_install_x86.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `/_scripts/05_install.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
@@ -534,7 +540,7 @@ NOTE:
 NOTE:
   Is not required for the Windows platform.
 
-1. Run `/_scripts/06_post_install_x86.* [<ConfigName>]`, where:
+1. Run `/_scripts/06_post_install.* [<ConfigName>]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
@@ -580,6 +586,6 @@ Solution #3:
    is not applicable.
 
 -------------------------------------------------------------------------------
-13. AUTHOR EMAIL
+13. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

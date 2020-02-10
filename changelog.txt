@@ -1,4 +1,8 @@
 2020.02.10:
+* fixed: back merge of the `bash_entry` script from the `contools` project
+* changed: global readme update
+
+2020.02.10:
 * fixed: python: cmdoplib: callsvn, callgit: avoid stdout/stderr blocking on `max_stdout_lines < 0`
 
 2020.02.09:
