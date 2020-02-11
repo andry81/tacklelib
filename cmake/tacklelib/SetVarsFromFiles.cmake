@@ -191,7 +191,7 @@ include(tacklelib/Utility)
 #   Must be used ONLY to override an assignment of a top level package variable in a not top level package.
 #
 # `package`:
-#   Applicable only to final class variable. Declares final variable in a package scope.
+#   Applicable only to variables with the `final` attribute. Declares final variable in a package scope.
 #
 # `final`:
 #   A variable with sealed assignment or final assignment.
@@ -216,7 +216,6 @@ include(tacklelib/Utility)
 #   * global + package
 #   * force + override
 #   * force + package (if have no `final` attribute)
-#   * top + final
 # 
 # Available attribute compositions:
 #   * top + override
@@ -1259,11 +1258,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # override w/o top
         if (use_override_var AND NOT use_top_package_var)
           message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-        endif()
-
-        # top + final
-        if (use_top_package_var AND use_final_var)
-          message(FATAL_ERROR "The variable TOP and FINAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         # package w/o final
