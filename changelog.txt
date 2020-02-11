@@ -1,3 +1,6 @@
+2020.02.11:
+* changed: cmake: SetVarsFromFiles: removed check on mix between `top` and `final` attributes
+
 2020.02.10:
 * fixed: back merge of the `bash_entry` script from the `contools` project
 * changed: global readme update
