@@ -1,3 +1,6 @@
+2020.02.12:
+* refactor: _config: 3dparty variables moved out of the project to the `tacklelib--3dparty` project
+
 2020.02.11:
 * changed: cmake: SetVarsFromFiles: removed check on mix between `top` and `final` attributes
 

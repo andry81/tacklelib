@@ -58,6 +58,12 @@
 # CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
+# CAUTION:
+#   This file can be loaded not from the cmake loader which means that the
+#   `<compiler_name>`, `<config_name>` and `<arch_name>` filter value is not known yet.
+#   So you must not use them here but use them instead in the user environment file!
+#
+
 ## required program variables and paths
 #final path exist WINDIR:WIN="C:\Windows"
 #final path exist CMAKE_COMMAND_DIR:WIN="C:\Program Files\CMake\bin"
