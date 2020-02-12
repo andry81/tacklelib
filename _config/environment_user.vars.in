@@ -67,7 +67,7 @@ CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 # arc
 
-ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
+top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
 
 # cache is required here to override cache variables
 top bool cache ENABLE_LZMA=1
@@ -94,7 +94,7 @@ top bool LIBLZMA_HAS_LZMA_PRESET=1
 
 # log
 
-LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client/p7client-5_3_0-release"
+top LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client/p7client-5_3_0-release"
 
 # test
 
