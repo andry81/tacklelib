@@ -1,4 +1,7 @@
 2020.02.12:
+* fixed: _config: `ARC_LIBARCHIVE_ROOT` and `LOG_P7_CLIENT_ROOT` has to be declared either with the `global` or `top` attribute
+
+2020.02.12:
 * refactor: _config: 3dparty variables moved out of the project to the `tacklelib--3dparty` project
 
 2020.02.11:
