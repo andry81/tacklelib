@@ -1,3 +1,12 @@
+2020.02.16:
+* fixed: EnableTargetExtension: removed call to `tkl_check_global_vars_consistency` from the `add_custom_target` hook as not required
+* fixed: Project: `tkl_find_package_begin` function for always canonical and absolute path in the `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` property
+* new: EnableTargetExtension: `tkl_pushset_package_vars` and `tkl_popset_package_vars` to hookup push/pop context variables for a package from a `add_subdirectory` and `find_package` hooks
+* new: ForwardVariables: `tkl_pop_var_from_stack` improvement to avoid pop into a variable or pop into another variable
+* new: ForwardVariables: `tkl_*register_*_context_var`, `tkl_has_*_context_var*`, `tkl_get_*_context_var`, `tkl_pushunset_not_inheritable_*_context_vars`, `tkl_pop_not_inheritable_*_context_vars`, `tkl_pushset_all_*_context_vars`, `tkl_popset_all_*_context_vars` to register/unregister system/user variables for a context to push/pop them by context
+* new: Project: `tkl_register_package_var` and `tkl_unregister_package_var` functions to register/unregister a package system context variables
+* refactor: minor refactor
+
 2020.02.11:
 * changed: SetVarsFromFiles: removed check on mix between `top` and `final` attributes
 

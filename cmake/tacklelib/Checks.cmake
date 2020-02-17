@@ -9,6 +9,8 @@ cmake_minimum_required(VERSION 3.9)
 #     (https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html )
 #
 
+include(tacklelib/ForwardVariables)
+
 function(tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig)
   get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
   if(NOT DEFINED GENERATOR_IS_MULTI_CONFIG)
@@ -38,8 +40,12 @@ function(tkl_check_global_vars_consistency)
   # CMAKE_CONFIGURATION_TYPES consistency check
   tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig()
 
-  # CMAKE_BUILD_TYPE consistency check
-  tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
+  # CMAKE_BUILD_TYPE consistency check, can be checked ONLY if not a registered context variable (explicit user override)
+  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+  tkl_has_system_context_var("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" CMAKE_BUILD_TYPE has_CMAKE_BUILD_TYPE)
+  if (NOT has_CMAKE_BUILD_TYPE)
+    tkl_check_CMAKE_BUILD_TYPE_vs_multiconfig()
+  endif()
 endfunction()
 
 function(tkl_check_existence_of_system_vars)

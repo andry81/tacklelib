@@ -4,6 +4,11 @@ set(TACKLELIB_FORWARD_VARIABLES_INCLUDE_DEFINED 1)
 
 cmake_minimum_required(VERSION 3.7)
 
+# at least cmake 3.3 is required for:
+# * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
+#   `if(<variable|string> IN_LIST <variable>)`
+#
+
 # at least cmake 3.7 is required for:
 # * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
 #   `if(<variable|string> GREATER_EQUAL <variable|string>)`
@@ -286,6 +291,11 @@ function(tkl_pop_var_from_stack stack_entry var_name)
   #   All local variables here are unique, just in case.
   #
 
+  # ARGV2 - update_var
+  if (${ARGC} GREATER 3)
+    message(FATAL_ERROR "maximum 3 arguments is supported")
+  endif()
+
   if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
@@ -300,12 +310,23 @@ function(tkl_pop_var_from_stack stack_entry var_name)
 
   math(EXPR _2BA2974B_vars_stack_next_size ${_2BA2974B_vars_stack_size}-1)
 
-  get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
-  if (_2BA2974B_is_var_defined)
-    get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
-    set(${var_name} "${_2BA2974B_var_value}" PARENT_SCOPE)
-  else()
-    unset(${var_name} PARENT_SCOPE)
+  # update the var_name by default
+  if ("${ARGV2}" STREQUAL "")
+    get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
+    if (_2BA2974B_is_var_defined)
+      get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
+      set(${var_name} "${_2BA2974B_var_value}" PARENT_SCOPE)
+    else()
+      unset(${var_name} PARENT_SCOPE)
+    endif()
+  elseif (NOT "${ARGV2}" STREQUAL ".")
+    get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
+    if (_2BA2974B_is_var_defined)
+      get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
+      set(${ARGV2} "${_2BA2974B_var_value}" PARENT_SCOPE)
+    else()
+      unset(${ARGV2} PARENT_SCOPE)
+    endif()
   endif()
 
   if (_2BA2974B_vars_stack_next_size)
@@ -654,5 +675,367 @@ macro(tkl_track_vars_end) # WITH OUT ARGUMENTS!
 
   tkl_pop_prop_from_stack(. GLOBAL "tkl::track_vars::vars_stack::vars" "tkl::track_vars")
 endmacro()
+
+function(tkl_register_user_context_var ctx_name scope_name var_name var_value inheritable_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  tkl_is_var(_46AC7C2B_is_var_name "${var_name}")
+  if (NOT _46AC7C2B_is_var_name)
+    message(FATAL_ERROR "`${var_name}` must be a variable: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (_46AC7C2B_is_vars_stack_set)
+    message(FATAL_ERROR "`${var_name}` is already registered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+  list(APPEND _46AC7C2B_var_names_register_list "${var_name}")
+
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "${var_value}")
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable" "${inheritable_var}")
+
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+endfunction()
+
+function(tkl_unregister_user_context_var ctx_name scope_name var_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  tkl_is_var(_46AC7C2B_is_var_name "${var_name}")
+  if (NOT _46AC7C2B_is_var_name)
+    message(FATAL_ERROR "`${var_name}` must be a variable: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (NOT _46AC7C2B_is_vars_stack_set)
+    message(FATAL_ERROR "`${var_name}` is already unregistered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+  list(REMOVE_ITEM _46AC7C2B_var_names_register_list "${var_name}")
+
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
+
+  list(LENGTH _46AC7C2B_var_names_register_list _46AC7C2B_var_names_register_list_size)
+  if (_46AC7C2B_var_names_register_list_size)
+    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+  else()
+    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
+  endif()
+endfunction()
+
+function(tkl_unregister_all_user_context_vars ctx_name scope_name)
+  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  if (NOT var_names_register_list_set)
+    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
+    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
+  endforeach()
+
+  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
+endfunction()
+
+function(tkl_has_user_context_vars ctx_name scope_name out_var)
+  get_property(is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  set(${out_var} ${is_vars_register_set} PARENT_SCOPE)
+endfunction()
+
+function(tkl_has_user_context_var ctx_name scope_name var_name out_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  set(${out_var} "${_46AC7C2B_is_var_set}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_get_user_context_var ctx_name scope_name var_name out_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (_46AC7C2B_is_var_set)
+    get_property(_46AC7C2B_is_var_value GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]")
+    set(${out_var} "${_46AC7C2B_is_var_value}" PARENT_SCOPE)
+  else()
+    unset(${out_var} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(tkl_pushunset_not_inheritable_user_context_vars ctx_name scope_name)
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
+    if (NOT is_var_inheritable)
+      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
+      unset(${var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction()
+
+function(tkl_pop_not_inheritable_user_context_vars ctx_name scope_name)
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
+    if (NOT is_var_inheritable)
+      tkl_pop_prop_from_stack(var_value GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
+      if (DEFINED var_value)
+        set(${var_name} "${var_value}" PARENT_SCOPE)
+      else()
+        unset(${var_name} PARENT_SCOPE)
+      endif()
+    endif()
+  endforeach()
+endfunction()
+
+macro(tkl_pushunset_not_inheritable_user_context_vars_macro ctx_name scope_name)
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    if (NOT _46AC7C2B_is_var_inheritable)
+      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::user_vars_register_stack")
+      unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endmacro()
+
+macro(tkl_pop_not_inheritable_user_context_vars_macro ctx_name scope_name)
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    if (NOT _46AC7C2B_is_var_inheritable)
+      tkl_pop_prop_from_stack(_46AC7C2B_var_value GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::user_vars_register_stack")
+      if (DEFINED _46AC7C2B_var_value)
+        set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
+      else()
+        unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+      endif()
+    endif()
+  endforeach()
+endmacro()
+
+function(tkl_pushset_all_user_context_vars ctx_name scope_name)
+  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  if (NOT var_names_register_list_set)
+    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  tkl_push_prop_to_stack(GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::user_vars_register_stack")
+
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    tkl_push_prop_to_stack(GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
+    tkl_push_var_to_stack("tkl::user_vars_register" ${var_name})
+    get_property(var_value GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]")
+    set(${var_name} "${var_value}" PARENT_SCOPE)
+  endforeach()
+endfunction()
+
+function(tkl_pop_all_user_context_vars ctx_name scope_name)
+  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  if (NOT var_names_register_list_set)
+    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  tkl_pop_prop_from_stack(var_names_register_list GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::user_vars_register_stack")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
+    tkl_pop_var_from_stack("tkl::user_vars_register" ${var_name} var_value)
+    if (DEFINED var_value)
+      set(${var_name} "${var_value}" PARENT_SCOPE)
+    else()
+      unset(${var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction()
+
+function(tkl_register_system_context_var ctx_name scope_name var_name var_value inheritable_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (_46AC7C2B_is_vars_stack_set)
+    message(FATAL_ERROR "`${var_name}` is already registered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+  list(APPEND _46AC7C2B_var_names_register_list "${var_name}")
+
+  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "${var_value}")
+  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable" "${inheritable_var}")
+
+  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+endfunction()
+
+function(tkl_unregister_system_context_var ctx_name scope_name var_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (NOT _46AC7C2B_is_vars_stack_set)
+    message(FATAL_ERROR "`${var_name}` is already unregistered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+  list(REMOVE_ITEM _46AC7C2B_var_names_register_list "${var_name}")
+
+  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
+  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
+
+  list(LENGTH _46AC7C2B_var_names_register_list _46AC7C2B_var_names_register_list_size)
+  if (_46AC7C2B_var_names_register_list_size)
+    set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+  else()
+    set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
+  endif()
+endfunction()
+
+function(tkl_has_system_context_vars ctx_name scope_name out_var)
+  get_property(is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  set(${out_var} ${is_vars_register_set} PARENT_SCOPE)
+endfunction()
+
+function(tkl_has_system_context_var ctx_name scope_name var_name out_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  set(${out_var} "${_46AC7C2B_is_var_set}" PARENT_SCOPE)
+endfunction()
+
+function(tkl_get_system_context_var ctx_name scope_name var_name out_var)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if (_46AC7C2B_is_var_set)
+    get_property(_46AC7C2B_is_var_value GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]")
+    set(${out_var} "${_46AC7C2B_is_var_value}" PARENT_SCOPE)
+  else()
+    unset(${out_var} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(tkl_pushunset_not_inheritable_system_context_vars ctx_name scope_name)
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
+    if (NOT is_var_inheritable)
+      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
+      unset(${var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction()
+
+function(tkl_pop_not_inheritable_system_context_vars ctx_name scope_name)
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
+    if (NOT is_var_inheritable)
+      tkl_pop_prop_from_stack(var_value GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
+      if (DEFINED var_value)
+        set(${var_name} "${var_value}" PARENT_SCOPE)
+      else()
+        unset(${var_name} PARENT_SCOPE)
+      endif()
+    endif()
+  endforeach()
+endfunction()
+
+macro(tkl_pushunset_not_inheritable_system_context_vars_macro ctx_name scope_name)
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    if (NOT _46AC7C2B_is_var_inheritable)
+      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::system_vars_register_stack")
+      unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endmacro()
+
+macro(tkl_pop_not_inheritable_system_context_vars_macro ctx_name scope_name)
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    if (NOT _46AC7C2B_is_var_inheritable)
+      tkl_pop_prop_from_stack(_46AC7C2B_var_value GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::system_vars_register_stack")
+      if (DEFINED _46AC7C2B_var_value)
+        set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
+      else()
+        unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+      endif()
+    endif()
+  endforeach()
+endmacro()
+
+function(tkl_pushset_all_system_context_vars ctx_name scope_name)
+  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  if (NOT var_names_register_list_set)
+    message(FATAL_ERROR "Has no registered system variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  tkl_push_prop_to_stack(GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::system_vars_register_stack")
+
+  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    tkl_push_prop_to_stack(GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
+    tkl_push_var_to_stack("tkl::system_vars_register" ${var_name})
+    get_property(var_value GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]")
+    set(${var_name} "${var_value}" PARENT_SCOPE)
+  endforeach()
+endfunction()
+
+function(tkl_pop_all_system_context_vars ctx_name scope_name)
+  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  if (NOT var_names_register_list_set)
+    message(FATAL_ERROR "Has no registered system variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  endif()
+
+  tkl_pop_prop_from_stack(var_names_register_list GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::system_vars_register_stack")
+
+  foreach(var_name IN LISTS var_names_register_list)
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
+    tkl_pop_var_from_stack("tkl::system_vars_register" ${var_name} var_value)
+    if (DEFINED var_value)
+      set(${var_name} "${var_value}" PARENT_SCOPE)
+    else()
+      unset(${var_name} PARENT_SCOPE)
+    endif()
+  endforeach()
+endfunction()
 
 endif()
