@@ -251,7 +251,7 @@ To prepare local third party library sources you can:
  |    #
  |    # Directory with sources to build.
  |
- +- `preconfigure.bat`
+ +- `01_preconfigure.*`
  |   #
  |   # Scrtip to make a local preconfigure.
  |

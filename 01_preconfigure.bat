@@ -11,9 +11,9 @@ if %UAC_MODE%0 EQU 0 (
   exit /b
 )
 
-echo.1. Download the local third party project: `tacklelib--3dparty`: https://sf.net/p/tacklelib/3dparty
-echo 2. Read the instructions in the project readme to checkout and build third party libraries.
-echo.3. Press any key to continue and select the `_src` subdirectory in the `tacklelib-3dparty` project as a third party catalog.
+echo.1. Download the local third party project: `tacklelib--3dparty`: `https://sf.net/p/tacklelib/3dparty`.
+echo 2. Read the instructions from the readme file in the downloaded project to checkout third party sources.
+echo.3. Press any key to continue and select the `_src` subdirectory in the `tacklelib--3dparty` project as a third party catalog.
 
 pause
 

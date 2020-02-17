@@ -1,4 +1,8 @@
 2020.02.17:
+* changed: readme file
+* refactor: minor refactor
+
+2020.02.17:
 * new: _scripts/tools: `wxFileDialog` utility to select a file/directory in GUI
 * new: _scripts/tools: `cmd_admin.lnk` shortcut file to promote privileges up to the administrator from a script in the Windows
 * new: preconfigure scripts
