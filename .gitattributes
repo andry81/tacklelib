@@ -1,10 +1,14 @@
 * text=auto !eol
 /.svnignore -text
+/01_preconfigure.bat -text
+/01_preconfigure.sh -text
 /CMakeLists.txt -text
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
 /README_EN.txt -text
 /TODO.txt -text
+/__init__.bat -text
+/__init__.sh -text
 _config/_scripts/01/01_generate_src.cache_cmds.in -text
 _config/_scripts/01/01_generate_src.deps.bat.in -text
 _config/_scripts/01/01_generate_src.deps.sh.in -text
@@ -63,6 +67,7 @@ _scripts/tools/bash_entry -text
 _scripts/tools/buildlib.sh -text
 _scripts/tools/check_build_type.bat -text
 _scripts/tools/check_config_version.bat -text
+_scripts/tools/cmd_admin.lnk -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat -text
 _scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.sh -text
 _scripts/tools/get_datetime.bat -text
@@ -76,6 +81,7 @@ _scripts/tools/set_vars_from_locked_file_pair.sh -text
 _scripts/tools/traplib.sh -text
 _scripts/tools/update_build_type.bat -text
 _scripts/tools/wtee.exe -text
+_scripts/tools/wxFileDialog.exe -text
 /changelog.txt -text
 cmake/tacklelib/Checks.cmake -text
 cmake/tacklelib/EnableTargetsExtension.cmake -text

@@ -1,4 +1,9 @@
 2020.02.17:
+* new: _scripts/tools: `wxFileDialog` utility to select a file/directory in GUI
+* new: _scripts/tools: `cmd_admin.lnk` shortcut file to promote privileges up to the administrator from a script in the Windows
+* new: preconfigure scripts
+
+2020.02.17:
 * fixed: _scripts/tools: bash_entry: incomplete convert backend paths to native with forward slashes for `BASH_SOURCE_*` variables
 * changed: readme update
 
