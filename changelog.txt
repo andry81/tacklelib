@@ -1,3 +1,7 @@
+2020.02.17:
+* fixed: _scripts/tools: bash_entry: incomplete convert backend paths to native with forward slashes for `BASH_SOURCE_*` variables
+* changed: readme update
+
 2020.02.16:
 * fixed: cmake: EnableTargetExtension: removed call to `tkl_check_global_vars_consistency` from the `add_custom_target` hook as not required
 * fixed: cmake: Project: `tkl_find_package_begin` function for always canonical and absolute path in the `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` property

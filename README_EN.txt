@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.10
+* 2020.02.17
 * tacklelib
 
 1. DESCRIPTION
@@ -119,9 +119,13 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 Read the `README_EN.deps.txt` file for the common dependencies for the Windows
 and the Linux platforms.
 
+NOTE:
+  To run bash shell scripts (`.sh` file extension) you should copy the
+  `_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+
 To prepare local third party library sources you can:
 
-  1. Download the local third party project:
+  1. Download the local third party project: `tacklelib--3dparty`:
      https://sf.net/p/tacklelib/3dparty
   2. Read the instructions in the project readme to checkout and build
      third party libraries.
@@ -129,7 +133,7 @@ To prepare local third party library sources you can:
      command:
      `mklink /D _3dparty <path-to-project-root>/_src`
      or
-     Run the `preconfigure.*` script to make all links together
+     Run the `01_preconfigure.*` script to make all links together
      (see the `PRECONFIGURE` section).
 
 -------------------------------------------------------------------------------
@@ -357,8 +361,9 @@ NOTE:
   Windows platform (`.bat` file extension) and for the Linux like platform
   (`.sh` file extension).
 
-To run bash shell scripts (`.sh` file extension) you should copy the
-`_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+NOTE:
+  To run bash shell scripts (`.sh` file extension) you should copy the
+  `_scripts/tools/bash_entry` into the `/bin` directory of your platform.
 
 CAUTION:
   For the Linux like platform do read the `README_EN.linux_x86_64.txt` file
