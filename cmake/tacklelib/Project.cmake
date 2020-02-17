@@ -778,13 +778,16 @@ endfunction()
 function(tkl_source_groups_from_dir_list source_group_root type path_dir_list path_glob_suffix)
   string(REPLACE "/" "\\" source_group_root "${source_group_root}")
 
+  #message("  tkl_source_groups_from_dir_list: path_dir_list=${path_dir_list}")
+
   foreach(path_dir IN LISTS path_dir_list)
-    #message(STATUS path_dir=${path_dir})
-    if(NOT EXISTS ${path_dir}/)
+    #message("  tkl_source_groups_from_dir_list: path_dir=${path_dir}")
+    if(NOT IS_DIRECTORY "${path_dir}")
       continue()
     endif()
 
     file(GLOB_RECURSE children_list RELATIVE ${path_dir} "${path_dir}/${path_glob_suffix}")
+    #message("  tkl_source_groups_from_dir_list: children_list=${children_list}")
 
     set(group_path_dir_list "")
 
@@ -976,10 +979,22 @@ function(tkl_add_subdirectory_begin target_src_dir)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
+  if ("${target_src_dir}" STREQUAL "")
+    message(FATAL_ERROR "Subdirectory path is empty.")
+  endif()
+
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
   tkl_add_subdirectory_begin_message("${target_src_dir}" ${ARGN})
+
+  # push-unset not inheritable context variables
+  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
+  # must be always canonical and absolute
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
+
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${target_src_dir_abs})
 endfunction()
 
@@ -990,6 +1005,12 @@ function(tkl_add_subdirectory_end target_src_dir)
 
   tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   tkl_unregister_directory_scope_targets()
+
+  # pop not inheritable context variables
+  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  tkl_pop_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
   tkl_add_subdirectory_end_message(${target_src_dir} ${ARGN})
 
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}-1")
@@ -1040,23 +1061,41 @@ function(tkl_add_subdirectory_end_message target_src_dir)
   message("leaving subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}")
 endfunction()
 
-function(tkl_find_package_begin package_src_dir_var package)
+function(tkl_find_package_begin package_root_dir_var package)
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
-  tkl_find_package_begin_message(${package_src_dir_var} ${package} ${ARGN})
+  tkl_find_package_begin_message(${package_root_dir_var} ${package} ${ARGN})
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" ${package})
-  if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${${package_src_dir_var}})
+  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+    set(package_root_dir "${${package_root_dir_var}}")
+    if ("${package_root_dir}" STREQUAL "")
+      message(FATAL_ERROR "Package root diretory path is empty: package_root_dir_var=`${package_root_dir_var}`")
+    endif()
+
+    # push-unset not inheritable context variables
+    get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+    tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
+    # must be always canonical and absolute
+    get_filename_component(package_root_dir_abs ${package_root_dir} ABSOLUTE)
+
+    tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" "${package_root_dir_abs}")
   else()
+    # push-unset not inheritable context variables
+    get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+    tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
     tkl_pushunset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   endif()
 endfunction()
 
-function(tkl_find_package_end package_src_dir_var package)
+function(tkl_find_package_end package_root_dir_var package)
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
@@ -1064,22 +1103,28 @@ function(tkl_find_package_end package_src_dir_var package)
   tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
   tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   tkl_unregister_directory_scope_targets()
-  tkl_find_package_end_message(${package_src_dir_var} ${package} ${ARGN})
+
+  # pop not inheritable context variables
+  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  tkl_pop_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
+  tkl_find_package_end_message(${package_root_dir_var} ${package} ${ARGN})
 
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}-1")
 endfunction()
 
-function(tkl_find_package_begin_message package_src_dir_var package)
-  if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    message("entering package: ${package}: ${package_src_dir_var}=`${${package_src_dir_var}}`...")
+function(tkl_find_package_begin_message package_root_dir_var package)
+  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+    message("entering package: ${package}: ${package_root_dir_var}=`${${package_root_dir_var}}`...")
   else()
     message("entering package: ${package}...")
   endif()
 endfunction()
 
-function(tkl_find_package_end_message package_src_dir_var package)
-  if (NOT package_src_dir_var STREQUAL "" AND NOT package_src_dir_var STREQUAL ".")
-    message("leaving package: ${package}: ${package_src_dir_var}=`${${package_src_dir_var}}`")
+function(tkl_find_package_end_message package_root_dir_var package)
+  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+    message("leaving package: ${package}: ${package_root_dir_var}=`${${package_root_dir_var}}`")
   else()
     message("leaving package: ${package}")
   endif()
@@ -1756,7 +1801,7 @@ endfunction()
 function(tkl_add_target_subdirectory target_root_dir_var target target_binary_root)
   tkl_is_var(is_target_root_dir_var ${target_root_dir_var})
   if (NOT is_target_root_dir_var)
-    #message(FATAL_ERROR "${target_root_dir_var} must be a variable")
+    #message(FATAL_ERROR "`${target_root_dir_var}` must be a variable")
     return()
   endif()
 
@@ -1778,7 +1823,7 @@ function(tkl_print_flags)
       else()
         message(STATUS "* ${flag_var}=")
       endif()
-    endforeach(flag_var)
+    endforeach()
   else()
     message(FATAL_ERROR "ARGN must be defined and not empty")
   endif()
@@ -1817,19 +1862,20 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
          property_type property_value)
   tkl_is_var(is_target_root_dir_var ${target_root_dir_var})
   if (NOT is_target_root_dir_var)
-    #message(FATAL_ERROR "${target_root_dir_var} must be a variable")
+    #message(FATAL_ERROR "`${target_root_dir_var}` must be a variable")
     return()
   endif()
 
-  if (NOT IS_DIRECTORY "${${target_root_dir_var}}")
-    message(FATAL_ERROR "${target_root_dir_var} must be existing directory path variable: ${target_root_dir_var}=`${${target_root_dir_var}}`")
+  set(target_root_dir ${${target_root_dir_var}})
+
+  if (NOT IS_DIRECTORY "${target_root_dir}")
+    message(FATAL_ERROR "`${target_root_dir_var}` must be existing directory path variable: ${target_root_dir_var}=`${target_root_dir}`")
   endif()
 
   if(package_target_rel_path_pattern STREQUAL "")
     message(FATAL_ERROR "package target relative path pattern must not be empty")
   endif()
 
-  set(target_root_dir ${${target_root_dir_var}})
   get_filename_component(target_root_dir_abs ${target_root_dir} ABSOLUTE)
 
   string(TOLOWER "${target_root_dir_abs}" target_root_dir_path_abs_lower)
@@ -1915,12 +1961,12 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
       continue()
     endif()
 
-    get_target_property(package_src_dir ${target} PACKAGE_SOURCE_DIR)
-    if (package_src_dir)
-      string(TOLOWER "${package_src_dir}" package_src_dir_lower)
+    get_target_property(package_root_dir ${target} PACKAGE_SOURCE_DIR)
+    if (package_root_dir)
+      string(TOLOWER "${package_root_dir}" package_root_dir_lower)
 
-      tkl_subtract_absolute_paths(${package_src_dir_lower} ${target_root_dir_path_abs_lower} package_target_rel_path_dir)
-      #message("  target=${target}\n   package_src_dir_lower=${package_src_dir_lower}\n   target_root_dir_path_abs_lower=${target_root_dir_path_abs_lower}\n   package_target_rel_path_dir=${package_target_rel_path_dir}\n   package_target_rel_path_pattern=${package_target_rel_path_pattern}\n")
+      tkl_subtract_absolute_paths(${package_root_dir_lower} ${target_root_dir_path_abs_lower} package_target_rel_path_dir)
+      #message("  target=${target}\n   package_root_dir_lower=${package_root_dir_lower}\n   target_root_dir_path_abs_lower=${target_root_dir_path_abs_lower}\n   package_target_rel_path_dir=${package_target_rel_path_dir}\n   package_target_rel_path_pattern=${package_target_rel_path_pattern}\n")
 
       if (NOT package_target_rel_path_dir STREQUAL "")
         if(package_target_rel_path_pattern STREQUAL ".") # special pattern means "equal to package source directory" or "not recursively from package source directory"
@@ -2066,6 +2112,40 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
       endif()
     endif()
   endif()
+endfunction()
+
+function(tkl_register_package_var package_root_dir_var var_name var_value inheritable_var)
+  tkl_is_var(is_package_root_dir_var ${package_root_dir_var})
+  if (NOT is_package_root_dir_var)
+    #message(FATAL_ERROR "$`{package_root_dir_var}` must be a variable")
+    return()
+  endif()
+
+  set(package_root_dir "${${package_root_dir_var}}")
+  if (NOT IS_DIRECTORY "${package_root_dir}")
+    message(FATAL_ERROR "Package root diretory path does not exist: package_root_dir_var=`${package_root_dir_var}` package_root_dir=`${package_root_dir}`")
+  endif()
+
+  get_filename_component(package_root_dir ${package_root_dir} ABSOLUTE)
+
+  tkl_register_system_context_var("tkl_register_package_var" "${package_root_dir}" "${var_name}" "${var_value}" "${inheritable_var}")
+endfunction()
+
+function(tkl_unregister_package_var package_root_dir_var var_name var_value)
+  tkl_is_var(is_package_root_dir_var ${package_root_dir_var})
+  if (NOT is_package_root_dir_var)
+    #message(FATAL_ERROR "`${package_root_dir_var}` must be a variable")
+    return()
+  endif()
+
+  set(package_root_dir "${${package_root_dir_var}}")
+  if (NOT IS_DIRECTORY "${package_root_dir}")
+    message(FATAL_ERROR "Package root diretory path does not exist: package_root_dir_var=`${package_root_dir_var}` package_root_dir=`${package_root_dir}`")
+  endif()
+
+  get_filename_component(package_root_dir ${package_root_dir} ABSOLUTE)
+
+  tkl_unregister_system_context_var("tkl_register_package_var" "${package_root_dir}" "${var_name}")
 endfunction()
 
 endif()

@@ -17,17 +17,43 @@ include(tacklelib/Reimpl)
 #
 
 # PERFORMANCE INFO:
-#   1. TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS=OFF:
-#     * Much faster.
-#     * Builtin macro variables ARGx are emulated through the function scope
-#       variables with the same name.
-#      TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS=ON:
-#     * Slower.
-#     * Builtin function variables ARGx are ignored because of a function
-#       scope, the rest upper context would be restored on a function return.
+#   1. * TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS=OFF:
+#      ** Much faster.
+#      ** Builtin macro variables ARGx are emulated through the function scope
+#        variables with the same name.
+#      * TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS=ON:
+#      ** Slower.
+#      ** Builtin function variables ARGx are ignored because of a function
+#         scope, the rest upper context would be restored on a function return.
 #
 
-if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
+macro(tkl_pushset_package_vars)
+  # push-set all registered context variables for a package source directory
+  get_property(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  tkl_has_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" _9DB7D667_has_system_context_vars)
+  if (_9DB7D667_has_system_context_vars)
+    tkl_pushset_all_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
+  unset(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+  unset(_9DB7D667_has_system_context_vars)
+endmacro()
+
+macro(tkl_popset_package_vars)
+  # pop-set all registered context variables for a package source directory
+  get_property(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  tkl_has_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" _9DB7D667_has_system_context_vars)
+  if (_9DB7D667_has_system_context_vars)
+    tkl_pop_all_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
+  unset(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
+  unset(_9DB7D667_has_system_context_vars)
+endmacro()
+
+if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS)
   macro(tkl_add_library_invoker)
     _add_library(${ARGV})
   endmacro()
@@ -38,13 +64,14 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
 
   macro(tkl_add_custom_target_invoker)
     _add_custom_target(${ARGV})
-
-    # Global variables inconsistency check, see details in this file header.
-    tkl_check_global_vars_consistency()
   endmacro()
 
   macro(tkl_add_subdirectory_invoker)
+    tkl_pushset_package_vars()
+
     _add_subdirectory(${ARGV})
+
+    tkl_popset_package_vars()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()
@@ -61,7 +88,11 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
 
     tkl_add_subdirectory_begin(${ARGV})
 
+    tkl_pushset_package_vars()
+
     _add_subdirectory(${ARGV}) # DOES NOT CHANGE ARGVn arguments!
+
+    tkl_popset_package_vars()
 
     tkl_add_subdirectory_end(${ARGV})
     tkl_pop_ARGVn_from_stack()
@@ -80,7 +111,11 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_INVOKERS)
     #
     tkl_pushset_ARGVn_to_stack(${ARGV})
 
+    tkl_pushset_package_vars()
+
     _find_package(${ARGV})
+
+    tkl_popset_package_vars()
 
     tkl_pop_ARGVn_from_stack()
 
@@ -123,9 +158,6 @@ else()
 
     _add_custom_target(${ARGV})
 
-    # Global variables inconsistency check, see details in this file header.
-    tkl_check_global_vars_consistency()
-
     tkl_forward_changed_vars_to_parent_scope()
     tkl_track_vars_end()
   endfunction()
@@ -151,7 +183,11 @@ else()
     # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
+    tkl_pushset_package_vars()
+
     _add_subdirectory(${ARGV})
+
+    tkl_popset_package_vars()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()
@@ -167,7 +203,11 @@ else()
     # changed variables (except the builtins) into upper context by ourselves!
     tkl_track_vars_begin()
 
+    tkl_pushset_package_vars()
+
     _find_package(${ARGV})
+
+    tkl_popset_package_vars()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()

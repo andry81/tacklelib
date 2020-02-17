@@ -136,6 +136,13 @@ tkl_check_var(OPTIONAL PATH GTEST_ROOT)
 tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTLIB)
 tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTS)
 
+# WORKAROUND:
+#   The issue:
+#   `CMakeLists.txt tries to override globally visible CMAKE_BUILD_TYPE through the cache` :
+#   https://github.com/libarchive/libarchive/issues/1163
+#
+tkl_register_package_var(ARC_LIBARCHIVE_ROOT CMAKE_BUILD_TYPE Release 0)
+
 ###############################################################################
 ## projects description #######################################################
 ###############################################################################
