@@ -57,13 +57,19 @@
 // string with safe offset through the static assert on an constexpr expression
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_AND_CONSTEXPR_OFFSET_TUPLE(str, constexpr_offset) \
     ( \
-        STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str), STATIC_ASSERT_PARAM(constexpr_offset), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(str))), \
-        UTILITY_CONSTEXPR_VALUE((str) + (constexpr_offset))), UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (constexpr_offset) - 1 \
-    )
+        STATIC_ASSERT_CONSTEXPR_TRUE((constexpr_offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str), \
+            STATIC_ASSERT_PARAM(constexpr_offset), \
+            STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(str))), \
+        ((str) + (constexpr_offset)) \
+    ), \
+    UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (constexpr_offset) - 1)
 
 // string with safe offset through the runtime condition on a string static size
 #define UTILITY_STATIC_STRING_WITH_LENGTH_AND_OFFSET_TUPLE(str, offset) \
-    (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? (str) + (offset) : (str) + UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1), (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (offset) - 1) : 0)
+    (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? \
+        (str) + (offset) : (str) + UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1), \
+    (((offset) < UTILITY_CONSTEXPR_ARRAY_SIZE(str)) ? \
+        (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - (offset) - 1) : 0)
 
 
 #define UTILITY_LITERAL_STRING_VALUE(c_str) \
@@ -532,7 +538,8 @@ namespace utility {
     template <typename CharT>
     FORCE_INLINE CONSTEXPR_FUNC size_t constexpr_string_length(const CharT * const & str)
     {
-        return (STATIC_ASSERT_CONSTEXPR_TRUE(str),
+        return (
+            STATIC_ASSERT_CONSTEXPR_TRUE(str),
             detail::_string_length(str, 0));
     }
 

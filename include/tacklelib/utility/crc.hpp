@@ -38,7 +38,7 @@
 namespace utility
 {
 
-    template <typename CrcT, typename BufT>
+    template <typename CrcT, size_t TableS, typename BufT>
     FORCE_INLINE CrcT t_crc(size_t width, const CrcT (& table)[TableS], CrcT crc, const BufT * buf, size_t size, CrcT crc_init, CrcT xor_in, CrcT xor_out, bool input_reflected, bool result_reflected)
     {
         DEBUG_ASSERT_EQ(TableS, 256);
@@ -64,7 +64,7 @@ namespace utility
     namespace detail
     {
         template <typename CrcT, size_t TableS, typename BufT>
-        static FORCE_INLINE CONSTEXPR_FUNC CrcT _constexpr_crc(size_t next_index, const CrcT (& table)[TableS], CrcT crc, const BufT * buf, size_t size, bool input_reflected)
+        FORCE_INLINE CONSTEXPR_FUNC CrcT _constexpr_crc(size_t next_index, const CrcT (& table)[TableS], CrcT crc, const BufT * buf, size_t size, bool input_reflected)
         {
             return (next_index < size) ?
                 _constexpr_crc(next_index + 1, table, table[(crc ^ (input_reflected ? buf[next_index] : utility::constexpr_reverse(buf[next_index]))) & 0xFF] ^ (crc >> 8), buf, size, input_reflected) :
@@ -75,19 +75,23 @@ namespace utility
     template <typename CrcT, size_t TableS, typename BufT>
     FORCE_INLINE CONSTEXPR_FUNC CrcT constexpr_crc(size_t width, const CrcT (& table)[TableS], CrcT crc, const BufT * buf, size_t size, CrcT crc_init, CrcT xor_in, CrcT xor_out, bool input_reflected, bool result_reflected)
     {
-        DEBUG_ASSERT_EQ(TableS, 256);
-        DEBUG_ASSERT_GE(sizeof(crc) * CHAR_BIT, width);
-        DEBUG_ASSERT_GE(sizeof(crc), sizeof(BufT));
-
         return (
-            (!crc && crc_init) ?
-                (result_reflected ?
-                    detail::_constexpr_crc(0, table, crc_init ^ xor_in, buf, size, input_reflected) :
-                    (constexpr_reverse(detail::_constexpr_crc(0, table, crc_init ^ xor_in, buf, size, input_reflected) >> (sizeof(crc) * CHAR_BIT - width)))) :
-                (result_reflected ?
-                    detail::_constexpr_crc(0, table, crc ^ xor_in, buf, size, input_reflected) :
-                    (constexpr_reverse(detail::_constexpr_crc(0, table, crc ^ xor_in, buf, size, input_reflected) >> (sizeof(crc) * CHAR_BIT - width))))
-            ) ^ xor_out;
+            STATIC_ASSERT_CONSTEXPR_TRUE(TableS == 256,
+                STATIC_ASSERT_PARAM(TableS)),
+            STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(sizeof(crc) * CHAR_BIT >= width,
+                sizeof(crc) * CHAR_BIT,
+                width),
+            STATIC_ASSERT_CONSTEXPR_TRUE(sizeof(crc) >= sizeof(BufT),
+                STATIC_ASSERT_PARAM(sizeof(crc)),
+                STATIC_ASSERT_PARAM(sizeof(BufT))),
+            ((!crc && crc_init) ?
+                    (result_reflected ?
+                        detail::_constexpr_crc(0, table, crc_init ^ xor_in, buf, size, input_reflected) :
+                        (constexpr_reverse(detail::_constexpr_crc(0, table, crc_init ^ xor_in, buf, size, input_reflected) >> (sizeof(crc) * CHAR_BIT - width)))) :
+                    (result_reflected ?
+                        detail::_constexpr_crc(0, table, crc ^ xor_in, buf, size, input_reflected) :
+                        (constexpr_reverse(detail::_constexpr_crc(0, table, crc ^ xor_in, buf, size, input_reflected) >> (sizeof(crc) * CHAR_BIT - width))))
+                ) ^ xor_out);
     }
 
     template <typename BufT>

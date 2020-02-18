@@ -1,3 +1,12 @@
+2020.02.18:
+* fixed: cpp: tackle: `DEBUG_FUNC_LINE_*`/`DEBUG_FILE_LINE_*` macroses fixup
+* fixed: cpp: utility: `constexpr_crc` not constexpr asserts inside the function
+* fixed: cpp: utility: `UTILITY_IS_CONSTEXPR_VALUE` macro incorrect value in Visual Studio 2017 15.9.19
+* new: cpp: utility: `STATIC_ASSERT_RELAXED_CONSTEXPR_*` macroses to evaluate not completely compile-time expressions in a constexpr function context
+* new: cpp: tests: `constexpr_crc` function test cases
+* refactor: cpp: tests: `TackleTmplStringTest` test cases refactor
+* refactor: cpp: tackle: moderate refactor
+
 2020.02.17:
 * changed: readme file
 * refactor: minor refactor

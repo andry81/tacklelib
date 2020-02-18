@@ -9,6 +9,7 @@
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/type_identity.hpp>
 
+#include <stdexcept>
 
 // CAUTION:
 //  Redundant parentheses are required here to bypass a tricky error in the GCC 5.4.x around expressions with `>` and `<` characters in case of usage inside another expressions with the same characters:
@@ -42,15 +43,22 @@
 
 // static asserts to use in an constexpr expression
 
-#define STATIC_ASSERT_CONSTEXPR_TRUE(exp, ...)          ((void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
-#define STATIC_ASSERT_CONSTEXPR_FALSE(exp, ...)         ((void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_exp, ...)            ((void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_FALSE(constexpr_exp, ...)           ((void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
 
-#define STATIC_ASSERT_CONSTEXPR_TRUE_ID(id, exp, ...)   ((void)::utility::static_assert_constexpr_id<id, UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
-#define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, exp, ...)  ((void)::utility::static_assert_constexpr_id<id, !UTILITY_CONSTEXPR(exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_TRUE_ID(id, constexpr_exp, ...)     ((void)::utility::static_assert_constexpr_id<id, UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, constexpr_exp, ...)    ((void)::utility::static_assert_constexpr_id<id, !UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
+
+// can examine non constexpr expression, throws error if false expression in a constexpr context
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(exp, ...)              ((void)((exp) ? true : ::utility::not_constexpr_context<-1, decltype(exp)>(__VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE(exp, ...)             ((void)(!(exp) ? true : ::utility::not_constexpr_context<-1, decltype(exp)>(__VA_ARGS__)))
+
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(id, exp, ...)       ((void)((exp) ? true : ::utility::not_constexpr_context<id, decltype(exp)>(__VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE_ID(id, exp, ...)      ((void)(!(exp) ? true : ::utility::not_constexpr_context<id, decltype(exp)>(__VA_ARGS__)))
 
 // NOTE:
-//  The reson this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
-//  To do so we pass parameter values separately into template arguments to trigger a compiler to index them inside compile time error messsages.
+//  The reason this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
+//  To do so we pass parameter values separately into template arguments to trigger a compiler to index them inside compile time error messages.
 //
 // Example:
 //  STATIC_ASSERT_TRUE2(a != b, a, b, "my custom message"); // types of a and b will be printed in a compiler errors output in case if a == b
@@ -113,6 +121,15 @@
 
 namespace utility
 {
+    // to generate an error upon a call in runtime
+    template <int id, typename T, typename... Args>
+    T not_constexpr_context(Args &&... args)
+    {
+        // exception in a constexpr context is not acceptable
+        throw std::domain_error("must not be instantiated in constexpr context");
+        return T();
+    }
+
     // static assert to use in an constexpr expression
 
     template <bool v, typename...>

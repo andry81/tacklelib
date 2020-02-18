@@ -459,6 +459,7 @@ src/tests/unit/pch.cpp -text
 src/tests/unit/test_deque.cpp -text
 src/tests/unit/test_funcs.cpp -text
 src/tests/unit/test_tmpl_string.cpp -text
+src/tests/unit/test_tmpl_string_crc.cpp -text
 src/utility/algorithm.hpp -text
 src/utility/algorithm/generated/gen_unroll_copy_switch.bat -text
 src/utility/algorithm/generated/unroll_copy_switch.hpp -text

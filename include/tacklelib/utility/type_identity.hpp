@@ -54,9 +54,9 @@
 //  * This won't work on void returning functions without implementation (tip: all `constexpr` functions in C++11 must consist only from a single and not a void return statement).
 //
 #ifndef UTILITY_COMPILER_CXX_CLANG
-#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(noexcept(::utility::makeprval((__VA_ARGS__))))
+#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(noexcept(::utility::makeprval((__VA_ARGS__, 0))))
 #else
-#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(__builtin_constant_p((__VA_ARGS__))) // might be used for the GCC too
+#define UTILITY_IS_CONSTEXPR_VALUE(...)                 UTILITY_CONSTEXPR(__builtin_constant_p((__VA_ARGS__, 0))) // can be used for the GCC too
 #endif
 
 #define UTILITY_DEPENDENT_TYPENAME_COMPILE_ERROR_BY_INCOMPLETE_TYPE(dependent_type_name) \
@@ -700,16 +700,14 @@ namespace utility
     };
 
     template <typename T>
-    CONSTEXPR_FUNC typename remove_cvref<T>::type makeprval(T && v)
+    CONSTEXPR_FUNC void makeprval(T && v)
     {
-        return v;
     }
 
     // static array type must be overloaded separately, otherwise will be an error: `error: function returning an array`
     template <typename T>
-    CONSTEXPR_FUNC const typename remove_cvref<T>::type & makeprval(const T & v)
+    CONSTEXPR_FUNC void makeprval(const T & v)
     {
-        return v;
     }
 
     // integer_sequence/index_sequence implementation for C++11
