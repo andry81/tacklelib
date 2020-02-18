@@ -7,7 +7,8 @@
 
 
 // CAUTION:
-//  TACKLE_TMPL_STRING can not be used directly in the UTILITY_CONSTEXPR_VALUE macro because of the error:
+//  The `TACKLE_TMPL_STRING` and it's derivatives can not be used directly or indirectly (through a constexpr function) in the `UTILITY_CONSTEXPR_VALUE` macro or
+//  any other truly compile-time expression (at least until C++17 standard) because of the error:
 //  `error C3477: a lambda cannot appear in an unevaluated context`
 //
 
@@ -16,8 +17,9 @@ TEST(TackleTmplStringTest, constexpr_)
 #define TEST_TACKLE_TMPL_STRING(id, c_str_) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str_); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() having not compile time result"); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() having not compile time result"); \
+        static_assert(!UTILITY_IS_CONSTEXPR_VALUE(s), "s value is constexpr when should not"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() value is not constexpr"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_)), STATIC_ASSERT_PARAM(s.size())); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_)), STATIC_ASSERT_PARAM(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
@@ -38,8 +40,9 @@ TEST(TackleTmplStringTest, constexpr_)
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, c_str_) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str_, constexpr_offset); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() having not compile time result"); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() having not compile time result"); \
+        static_assert(!UTILITY_IS_CONSTEXPR_VALUE(s), "s value is constexpr when should not"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() value is not constexpr"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.size())); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
@@ -56,8 +59,9 @@ TEST(TackleTmplStringTest, constexpr_)
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, len, c_str_) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() having not compile time result"); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() having not compile time result"); \
+        static_assert(!UTILITY_IS_CONSTEXPR_VALUE(s), "s value is constexpr when should not"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() value is not constexpr"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, len + 1 == s.size(), STATIC_ASSERT_PARAM(len + 1), STATIC_ASSERT_PARAM(s.size())); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, len == s.length(), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
@@ -77,7 +81,7 @@ TEST(TackleTmplStringTest, constexpr_get)
 #define TEST_TACKLE_TMPL_STRING(id, index, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET having not compile time result"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET value is not constexpr"); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 0, "");
@@ -95,7 +99,7 @@ TEST(TackleTmplStringTest, constexpr_get)
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, index, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET having not compile time result"); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET value is not constexpr"); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 0, 0, "");

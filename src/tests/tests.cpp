@@ -14,6 +14,7 @@ DECLARE_TEST_CASES
 
     // tests mostly in compile time
     DECLARE_TEST_CASE_FUNC(TackleTmplStringTest, *, nullptr, nullptr, "", "", "", 0),
+    DECLARE_TEST_CASE_FUNC(TackleTmplStringCrcTest, *, nullptr, nullptr, "", "", "", 0),
 #endif
 
 #ifdef BENCH_TESTS
