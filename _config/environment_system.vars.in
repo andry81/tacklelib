@@ -68,14 +68,18 @@
 #final path exist WINDIR:WIN="C:\Windows"
 #final path exist CMAKE_COMMAND_DIR:WIN="C:\Program Files\CMake\bin"
 #final path exist MINGW_BIN_DIR:WIN="c:\mingw-w64\8.x\i686-8.1.0-win32-sjlj-rt_v6-rev0\mingw32\bin"
-##final path exist canonical CMAKE_MAKE_PROGRAM:WIN="$/{MINGW_BIN_DIR}\mingw32-make.exe"
+#final path exist MSYS_BIN_DIR:WIN="c:/msys32/20181211/usr/bin"
+#final path exist canonical CMAKE_MAKE_PROGRAM:WIN="$/{MINGW_BIN_DIR}/mingw32-make.exe"
+#final path exist canonical CC=$/{MINGW_BIN_DIR}/gcc.exe
+#final path exist canonical CXX=$/{MINGW_BIN_DIR}/g++.exe
 #
 ## WORKAROUND: `For MinGW make to work correctly sh.exe must NOT be in your path.`
-#final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MINGW_BIN_DIR}")
+#final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MSYS_BIN_DIR}")
 
 # always required system variables <<
 top CMAKE_GENERATOR:WIN="Visual Studio 15 2017"
 #top CMAKE_GENERATOR:WIN="MinGW Makefiles"
+#top CMAKE_GENERATOR:WIN="MSYS Makefiles"
 top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
 #top CMAKE_GENERATOR_PLATFORM="" # must be at least empty
 

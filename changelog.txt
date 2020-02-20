@@ -1,4 +1,8 @@
 2020.02.20:
+* fixed: _scripts: CMAKE_MAKE_PROGRAM variable direct use from `*configure.*` script
+* changed: _config: added `MSYS Makefiles` as an alternative to build on gcc from Windows
+
+2020.02.20:
 * fixed: cpp: utility: `UTILITY_IS_CONSTEXPR_VALUE` macro fixup in the `Visual Studio 2015 Update 3` compiler
 * fixed: cpp: utility: improved `STATIC_ASSERT_RELAXED_CONSTEXPR_*` macroses to use with lambda expressions under C++11 compiler
 * changed: cpp: tests: `TackleTmplStringTest` test cases improved
