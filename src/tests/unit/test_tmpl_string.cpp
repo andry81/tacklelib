@@ -5,6 +5,8 @@
 
 #include <tacklelib/utility/type_identity.hpp>
 
+#include <cstring>
+
 
 // CAUTION:
 //  The `TACKLE_TMPL_STRING` and it's derivatives can not be used directly or indirectly (through a constexpr function) in the `UTILITY_CONSTEXPR_VALUE` macro or
@@ -20,9 +22,18 @@ TEST(TackleTmplStringTest, constexpr_)
         static_assert(!UTILITY_IS_CONSTEXPR_VALUE(s), "s value is constexpr when should not"); \
         static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() value is not constexpr"); \
         static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_)), STATIC_ASSERT_PARAM(s.size())); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_)), STATIC_ASSERT_PARAM(s.length())); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == s.size(), \
+            STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_)), STATIC_ASSERT_PARAM(s.size())); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) == s.length(), \
+            STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_)), STATIC_ASSERT_PARAM(s.length())); \
         ASSERT_EQ(s.c_str(), s.data()); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) == TACKLE_TMPL_STRING(id, c_str_).size(), \
+            UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_), TACKLE_TMPL_STRING(id, c_str_).size()); \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) == TACKLE_TMPL_STRING(id, c_str_).length(), \
+            UTILITY_CONSTEXPR_STRING_LEN(c_str_), TACKLE_TMPL_STRING(id, c_str_).length()); \
+        ASSERT_EQ(TACKLE_TMPL_STRING(id, c_str_).c_str(), TACKLE_TMPL_STRING(id, c_str_).data()); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, "");
@@ -35,6 +46,8 @@ TEST(TackleTmplStringTest, constexpr_)
     TEST_TACKLE_TMPL_STRING(1, L"");
     TEST_TACKLE_TMPL_STRING(1, L"test");
 
+    TEST_TACKLE_TMPL_STRING(2, UTILITY_PP_FILE);
+
 #undef TEST_TACKLE_TMPL_STRING
 
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, c_str_) \
@@ -43,9 +56,22 @@ TEST(TackleTmplStringTest, constexpr_)
         static_assert(!UTILITY_IS_CONSTEXPR_VALUE(s), "s value is constexpr when should not"); \
         static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.size()), "tmpl_basic_string::size() value is not constexpr"); \
         static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset == s.size(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.size())); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset == s.length(), STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.length())); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset == s.size(), \
+            STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.size())); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset == s.length(), \
+            STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset), STATIC_ASSERT_PARAM(s.length())); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset, s.size()); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset, s.length()); \
         ASSERT_EQ(s.c_str(), s.data()); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset == TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).size(), \
+            UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).size()); \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(2, UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset == TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).length(), \
+            UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).length()); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str_) - constexpr_offset, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).size()); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_STRING_LEN(c_str_) - constexpr_offset, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).length()); \
+        ASSERT_EQ(TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).c_str(), TACKLE_TMPL_STRING(id, c_str_, constexpr_offset).data()); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 1, "test");
@@ -53,6 +79,8 @@ TEST(TackleTmplStringTest, constexpr_)
 
     TEST_TACKLE_TMPL_STRING(1, 1, "test");
     TEST_TACKLE_TMPL_STRING(1, 1, L"test");
+
+    TEST_TACKLE_TMPL_STRING(2, 1, UTILITY_PP_FILE);
 
 #undef TEST_TACKLE_TMPL_STRING
 
@@ -64,7 +92,16 @@ TEST(TackleTmplStringTest, constexpr_)
         static_assert(UTILITY_IS_CONSTEXPR_VALUE(s.length()), "tmpl_basic_string::length() value is not constexpr"); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, len + 1 == s.size(), STATIC_ASSERT_PARAM(len + 1), STATIC_ASSERT_PARAM(s.size())); \
         STATIC_ASSERT_CONSTEXPR_TRUE_ID(2, len == s.length(), STATIC_ASSERT_PARAM(len), STATIC_ASSERT_PARAM(s.length())); \
+        ASSERT_EQ(len + 1, s.size()); \
+        ASSERT_EQ(len, s.length()); \
         ASSERT_EQ(s.c_str(), s.data()); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(10, len + 1 == TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).size(), \
+            len + 1, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).size()); \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(11, len == TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).length(), \
+            len, TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).length()); \
+        ASSERT_EQ(TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).c_str(), TACKLE_TMPL_STRING(id, c_str_, constexpr_offset, len).data()); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 1, 2, "test");
@@ -72,6 +109,8 @@ TEST(TackleTmplStringTest, constexpr_)
 
     TEST_TACKLE_TMPL_STRING(1, 1, 2, "test");
     TEST_TACKLE_TMPL_STRING(1, 1, 2, L"test");
+
+    TEST_TACKLE_TMPL_STRING(2, 1, 2, UTILITY_PP_FILE);
 
 #undef TEST_TACKLE_TMPL_STRING
 }
@@ -99,7 +138,8 @@ TEST(TackleTmplStringTest, constexpr_get)
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, index, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset); \
-        static_assert(UTILITY_IS_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_GET(s, index)), "UTILITY_CONSTEXPR_GET value is not constexpr"); \
+        const auto c = UTILITY_CONSTEXPR_GET(s, index); \
+        static_assert(UTILITY_IS_CONSTEXPR_VALUE(c), "c value is not constexpr"); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 0, 0, "");
@@ -123,11 +163,16 @@ TEST(TackleTmplStringTest, constexpr_get)
 
 TEST(TackleTmplStringTest, constexpr_get2)
 {
-#define TEST_TACKLE_TMPL_STRING(id, index, c_char, c_str) \
+#define TEST_TACKLE_TMPL_STRING(id, index, c_char, c_str_) \
     { \
-        const auto s = TACKLE_TMPL_STRING(id, c_str); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        ASSERT_EQ(UTILITY_GET(s, index), c_char); \
+        const auto s = TACKLE_TMPL_STRING(id, c_str_); \
+        const auto c = UTILITY_CONSTEXPR_GET(s, index); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, c == c_char, STATIC_ASSERT_PARAM(c), STATIC_ASSERT_PARAM(c_char)); \
+        ASSERT_EQ(c, c_char); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str_), index) == c_char, UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str_), index), c_char); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str_), index), c_char); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 0, '0', "012");
@@ -142,14 +187,17 @@ TEST(TackleTmplStringTest, constexpr_get2)
 
 #undef TEST_TACKLE_TMPL_STRING
 
-    const auto s1 = TACKLE_TMPL_STRING(0, "0123", 1);
-    STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_CONSTEXPR_GET(s1, 0) == '1', STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s1, 0)));
-
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, index, c_char, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        ASSERT_EQ(UTILITY_GET(s, index), c_char); \
+        const auto c = UTILITY_CONSTEXPR_GET(s, index); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, c == c_char, STATIC_ASSERT_PARAM(c), STATIC_ASSERT_PARAM(c_char)); \
+        ASSERT_EQ(c, c_char); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset), index) == c_char, \
+            UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset), index), c_char); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset), index), c_char); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 1, 0, '1', "012");
@@ -165,8 +213,14 @@ TEST(TackleTmplStringTest, constexpr_get2)
 #define TEST_TACKLE_TMPL_STRING(id, constexpr_offset, len, index, c_char, c_str) \
     { \
         const auto s = TACKLE_TMPL_STRING(id, c_str, constexpr_offset, len); \
-        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(s, index) == c_char, STATIC_ASSERT_PARAM(UTILITY_CONSTEXPR_GET(s, index)), STATIC_ASSERT_PARAM(c_char)); \
-        ASSERT_EQ(UTILITY_GET(s, index), c_char); \
+        const auto c = UTILITY_CONSTEXPR_GET(s, index); \
+        STATIC_ASSERT_CONSTEXPR_TRUE_ID(1, c == c_char, STATIC_ASSERT_PARAM(c), STATIC_ASSERT_PARAM(c_char)); \
+        ASSERT_EQ(c, c_char); \
+    } \
+    { \
+        STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(1, UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset, len), index) == c_char, \
+            UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset, len), index), c_char); \
+        ASSERT_EQ(UTILITY_CONSTEXPR_GET(TACKLE_TMPL_STRING(id, c_str, constexpr_offset, len), index), c_char); \
     } (void)0
 
     TEST_TACKLE_TMPL_STRING(0, 1, 2, 0, '1', "0123");

@@ -50,11 +50,11 @@
 #define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, constexpr_exp, ...)    ((void)::utility::static_assert_constexpr_id<id, !UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
 
 // can examine non constexpr expression, throws error if false expression in a constexpr context
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(exp, ...)              ((void)((exp) ? true : ::utility::not_constexpr_context<-1, decltype(exp)>(__VA_ARGS__)))
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE(exp, ...)             ((void)(!(exp) ? true : ::utility::not_constexpr_context<-1, decltype(exp)>(__VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(exp, ...)              ((void)((exp) ? true : ::utility::not_constexpr_context<-1>(exp, __VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE(exp, ...)             ((void)(!(exp) ? true : ::utility::not_constexpr_context<-1>(exp, __VA_ARGS__)))
 
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(id, exp, ...)       ((void)((exp) ? true : ::utility::not_constexpr_context<id, decltype(exp)>(__VA_ARGS__)))
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE_ID(id, exp, ...)      ((void)(!(exp) ? true : ::utility::not_constexpr_context<id, decltype(exp)>(__VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(id, exp, ...)       ((void)((exp) ? true : ::utility::not_constexpr_context<id>(exp, __VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE_ID(id, exp, ...)      ((void)(!(exp) ? true : ::utility::not_constexpr_context<id>(exp, __VA_ARGS__)))
 
 // NOTE:
 //  The reason this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
@@ -122,12 +122,11 @@
 namespace utility
 {
     // to generate an error upon a call in runtime
-    template <int id, typename T, typename... Args>
-    T not_constexpr_context(Args &&... args)
+    template <int id, typename... Args>
+    void not_constexpr_context(Args &&... args)
     {
         // exception in a constexpr context is not acceptable
         throw std::domain_error("must not be instantiated in constexpr context");
-        return T();
     }
 
     // static assert to use in an constexpr expression
