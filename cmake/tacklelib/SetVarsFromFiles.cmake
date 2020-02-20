@@ -935,7 +935,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # use special unexisted directory value to differentiate it from the defined empty value
 
       # CAUTION:
-      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*:$/{aa}/../bb')` would expand into invalid absolute path
       #
       set(config_${make_var_name} "*:\$/{${make_var_name}}")
     endif()
@@ -1015,7 +1015,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use special unexisted directory value to differentiate it from the defined empty value
 
         # CAUTION:
-        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*:$/{aa}/../bb')` would expand into invalid absolute path
         #
         set(config_CMAKE_CURRENT_PACKAGE_NAME "*:\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       endif()
@@ -2151,7 +2151,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             if (NOT is_vars_equal)
-              message(FATAL_ERROR "ODR violation, variables must declare the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${var_parsed_value}` -> `${previous_var_value}` (is_path=`${is_path_var_value}`)")
+              message(FATAL_ERROR "ODR violation, variables must declare the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${previous_var_value}` -> `${var_parsed_value}` (is_path=`${is_path_var_value}`)")
             endif()
 
             # use previous value to avoid a value change, but apply all related attributes

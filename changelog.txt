@@ -1,4 +1,11 @@
 2020.02.20:
+* changed: _config: mingw/cygwin/msys build support
+* changed: cmake: `tkl_discover_builtin_vars` changed to discover only environment variables
+* refactor: cmake: `tkl_discover_*` functions renamed
+* refactor: cmake: minor refactor
+* refactor: _config: minor refactor
+
+2020.02.20:
 * fixed: _scripts: CMAKE_MAKE_PROGRAM variable direct use from `*configure.*` script
 * changed: _config: added `MSYS Makefiles` as an alternative to build on gcc from Windows
 

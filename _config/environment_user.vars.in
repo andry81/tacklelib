@@ -13,16 +13,16 @@
 #  `"` -> `$/"` or `(` -> `$/(` or `$/` -> `$/$/`
 #  Use `$/{` as a start sequence for a variable's value substitution: `$/{<variable>}`, where `<variable>`
 #  is already parsed variable from configuration file WITHOUT condition(s) or `:` characters. Otherwise a not yet parsed variable or
-#  invalid one will be replaced by the `*$/{<variable>}` sequence to fail the most usage cases in a file path,
-#  where `*` - is not valid character in a windows path and `/` is a character to block a file or directory creation with
-#  such a name on a Linux system (but not a block for `mkdir -p`!).
+#  invalid one will be replaced by the `*:$/{<variable>}` sequence to fail the most usage cases in a file path,
+#  where `*:` - is not valid character sequence in a windows path (`:` character additionally can block a relative path *after* the variable)
+#  and `/` is a character to block a file or directory creation with such a name on a Linux system (but not a block for `mkdir -p`!).
 #  In all other cases the `$/` sequence prints as is in all contexts: in a cmake script, in a unix shell script and in a
 #  windows batch script.
 
 # CAUTION:
 #  DO NOT USE `@` character pairs unescaped as a plain value as long as it is used as a placehoder in a replacement of `@<variable>@` sequence,
 #  where the `<variable>` is a cmake variable. For that case do replace all `@` characters by this escape sequence: `$/@`.
-#  It will block the substitution in case of an accidental match of `@<variable>@`, where the `<variable>` ends by the `$/` string.
+#  It will avoid the substitution in case of an accidental match.
 
 # NOTE:
 #  In a unix shell script a variable name with `:` character is not permitted, so variables with not allowed characters
@@ -61,9 +61,6 @@
 # has to be here because the architecture value is not yet known in the system variables configuration file
 CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
 CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
-
-# to enable Mingw GCC compiler
-#MINGW:WIN=ON
 
 # arc
 
