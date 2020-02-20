@@ -1,3 +1,8 @@
+2020.02.20:
+* fixed: cpp: utility: `UTILITY_IS_CONSTEXPR_VALUE` macro fixup in the `Visual Studio 2015 Update 3` compiler
+* fixed: cpp: utility: improved `STATIC_ASSERT_RELAXED_CONSTEXPR_*` macroses to use with lambda expressions under C++11 compiler
+* changed: cpp: tests: `TackleTmplStringTest` test cases improved
+
 2020.02.18:
 * fixed: cpp: tackle: `DEBUG_FUNC_LINE_*`/`DEBUG_FILE_LINE_*` macroses fixup
 * fixed: cpp: utility: `constexpr_crc` not constexpr asserts inside the function
