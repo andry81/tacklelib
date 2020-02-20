@@ -46,7 +46,7 @@ function(tkl_cache_or_discover_var var cache_type desc)
   endif()
 endfunction()
 
-function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
+function(tkl_discover_env_var_to flag_var out_var var_name cache_type desc)
   if((NOT out_var) OR (NOT var_name))
     message(FATAL_ERROR "out_var and var_name variables must be not empty: out_var=`${out_var}` var_name=`${var_name}`")
   endif()
@@ -76,7 +76,7 @@ function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
     set(uncached_var_defined 0)
   endif()
 
-  # always set both cache and not cache values into the same value unconditionally, environment variable has priority over others
+  # always set both cache and not cache values into the same value unconditionally
   if(env_var_defined)
     if (cached_var_defined)
       set(${out_var} $ENV{${var_name}} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
@@ -84,52 +84,57 @@ function(tkl_discover_var_to flag_var out_var var_name cache_type desc)
     set(${out_var} $ENV{${var_name}} PARENT_SCOPE)
     set(${flag_var} 1 PARENT_SCOPE)
     return()
-  elseif (cached_var_defined)
-    if ("${cached_var}" STREQUAL "" AND NOT "${uncached_var}" STREQUAL "")
-      message(WARNING "not empty not cache variable was rewrited by empty cache variable: ${var_name}=`${uncached_var}` -> ``")
-    endif()
-    set(${out_var} ${cached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
-    set(${out_var} ${cached_var} PARENT_SCOPE)
-    set(${flag_var} 2 PARENT_SCOPE)
-    return()
-  elseif (uncached_var_defined)
-    set(${out_var} ${uncached_var} PARENT_SCOPE)
-    set(${flag_var} 3 PARENT_SCOPE)
-    return()
+  #elseif (cached_var_defined)
+  #  if ("${cached_var}" STREQUAL "" AND NOT "${uncached_var}" STREQUAL "")
+  #    message(WARNING "not empty not cache variable was rewrited by empty cache variable: ${var_name}=`${uncached_var}` -> ``")
+  #  endif()
+  #  set(${out_var} ${cached_var} CACHE ${cache_type} ${desc} FORCE) # before the normal set, otherwise it will remove the normal variable!
+  #  set(${out_var} ${cached_var} PARENT_SCOPE)
+  #  set(${flag_var} 2 PARENT_SCOPE)
+  #  return()
+  #elseif (uncached_var_defined)
+  #  set(${out_var} ${uncached_var} PARENT_SCOPE)
+  #  set(${flag_var} 3 PARENT_SCOPE)
+  #  return()
   endif()
 
   set(${flag_var} 0 PARENT_SCOPE)
 endfunction()
 
-function(tkl_discover_var var_name cache_type desc)
-  tkl_discover_var_to(is_discovered ${var_name} ${var_name} ${cache_type} ${desc})
+function(tkl_discover_env_var var_name cache_type desc)
+  tkl_discover_env_var_to(is_discovered ${var_name} ${var_name} ${cache_type} ${desc})
   if(is_discovered)
     message(STATUS "(*) discovered environment variable: ${var_name}=`${${var_name}}`")
   endif()
 endfunction()
 
-function(tkl_discover_builtin_vars prefix_list cache_type desc)
+function(tkl_discover_builtin_env_vars prefix_list cache_type desc)
   if(ARGN)
     foreach(prefix IN LISTS prefix_list)
       foreach(suffix IN LISTS ARGN)
         string(TOUPPER "${suffix}" suffix_upper)
         set(var ${prefix}_${suffix_upper})
 
-        if (desc STREQUAL ".")
-          # reuse default description
-          get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
-        else()
-          set(var_cache_desc "${desc}")
-        endif()
-
         # unique variable because in the cache scope
-        tkl_discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
-        # update cache with FORCE
-        set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
-        set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
-        tkl_unset_all(_F862E761_new_${var})
-        if(is_discovered)
+        tkl_discover_env_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+        if (is_discovered)
           message(STATUS "(*) discovered environment variable: (builtin) ${var}=`${${var}}`")
+
+          # update cache with FORCE only if alreaady exists
+          get_property(var_cache_value_is_set CACHE "${var}" PROPERTY VALUE SET)
+          if (var_cache_value_is_set)
+            if (desc STREQUAL ".")
+              # reuse default description
+              get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
+            else()
+              set(var_cache_desc "${desc}")
+            endif()
+
+            set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
+          endif()
+
+          set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
+          tkl_unset_all(_F862E761_new_${var})
         endif()
       endforeach()
     endforeach()
@@ -137,21 +142,26 @@ function(tkl_discover_builtin_vars prefix_list cache_type desc)
     foreach(prefix IN LISTS prefix_list)
       set(var ${prefix})
 
-      if (desc STREQUAL ".")
-        # reuse default description
-        get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
-      else()
-        set(var_cache_desc "${desc}")
-      endif()
-
       # unique variable because in the cache scope
-      tkl_discover_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
-      # update cache with FORCE
-      set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
-      set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
-      tkl_unset_all(_F862E761_new_${var})
-      if(is_discovered)
+      tkl_discover_env_var_to(is_discovered _F862E761_new_${var} ${var} ${cache_type} .)
+      if (is_discovered)
         message(STATUS "(*) discovered environment variable: (builtin) ${var}=`${${var}}`")
+
+        # update cache with FORCE only if alreaady exists
+        get_property(var_cache_value_is_set CACHE "${var}" PROPERTY VALUE SET)
+        if (var_cache_value_is_set)
+          if (desc STREQUAL ".")
+            # reuse default description
+            get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
+          else()
+            set(var_cache_desc "${desc}")
+          endif()
+
+          set(${var} "${_F862E761_new_${var}}" CACHE ${cache_type} ${var_cache_desc} FORCE)
+        endif()
+
+        set(${var} "${_F862E761_new_${var}}" PARENT_SCOPE)
+        tkl_unset_all(_F862E761_new_${var})
       endif()
     endforeach()
   endif()
@@ -200,6 +210,7 @@ macro(tkl_declare_primary_builtin_vars)
   message(STATUS "(*) CMAKE_VERSION=`${CMAKE_VERSION}`")
   message(STATUS "(*) CMAKE_MODULE_PATH=`${CMAKE_MODULE_PATH}`")
   message(STATUS "(*) CMAKE_C_COMPILER_ID=`${CMAKE_C_COMPILER_ID}` CMAKE_CXX_COMPILER_ID=`${CMAKE_CXX_COMPILER_ID}` OSTYPE=`$ENV{OSTYPE}`")
+  message(STATUS "(*) CMAKE_C_COMPILER_VERSION=`${CMAKE_C_COMPILER_VERSION}` CMAKE_CXX_COMPILER_VERSION=`${CMAKE_CXX_COMPILER_VERSION}`")
   message(STATUS "(*) CMAKE_C_COMPILER_ARCHITECTURE_ID=`${CMAKE_C_COMPILER_ARCHITECTURE_ID}` CMAKE_CXX_COMPILER_ARCHITECTURE_ID=`${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}`")
 
   # check if generator is multiconfig
@@ -264,9 +275,9 @@ macro(tkl_declare_primary_builtin_vars)
 endmacro()
 
 macro(tkl_declare_secondary_builtin_vars)
-  tkl_discover_var(MSYS         STRING "msys environment flag")
-  tkl_discover_var(MINGW        STRING "mingw environment flag")
-  tkl_discover_var(CYGWIN       STRING "cygwin environment flag")
+  tkl_discover_env_var(MSYS         STRING "msys environment flag")
+  tkl_discover_env_var(MINGW        STRING "mingw environment flag")
+  tkl_discover_env_var(CYGWIN       STRING "cygwin environment flag")
 
   tkl_detect_file_system_paths_sensitivity(TACKLELIB_FILE_SYSTEM_NAME_CASE_SENSITIVE TACKLELIB_FILE_SYSTEM_BACK_AND_FORWARD_SLASH_SEPARATOR)
 endmacro()
@@ -278,20 +289,20 @@ macro(tkl_declare_ternary_builtin_vars)
 
   # only top level project can discovery or change global cmake flags
   if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
-    tkl_discover_builtin_vars(CMAKE_INSTALL_PREFIX        PATH .)
+    tkl_discover_builtin_env_vars(CMAKE_INSTALL_PREFIX        PATH .)
 
-    tkl_discover_builtin_vars(CMAKE_CXX_FLAGS             STRING .)
-    tkl_discover_builtin_vars(CMAKE_EXE_LINKER_FLAGS      STRING .)
-    tkl_discover_builtin_vars(CMAKE_MODULE_LINKER_FLAGS   STRING .)
-    tkl_discover_builtin_vars(CMAKE_STATIC_LINKER_FLAGS   STRING .)
-    tkl_discover_builtin_vars(CMAKE_SHARED_LINKER_FLAGS   STRING .)
+    tkl_discover_builtin_env_vars(CMAKE_CXX_FLAGS             STRING .)
+    tkl_discover_builtin_env_vars(CMAKE_EXE_LINKER_FLAGS      STRING .)
+    tkl_discover_builtin_env_vars(CMAKE_MODULE_LINKER_FLAGS   STRING .)
+    tkl_discover_builtin_env_vars(CMAKE_STATIC_LINKER_FLAGS   STRING .)
+    tkl_discover_builtin_env_vars(CMAKE_SHARED_LINKER_FLAGS   STRING .)
 
     # all other variables
     if (CMAKE_CONFIGURATION_TYPES)
-      tkl_discover_builtin_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
+      tkl_discover_builtin_env_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
           STRING . ${CMAKE_CONFIGURATION_TYPES})
     else()
-      tkl_discover_builtin_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
+      tkl_discover_builtin_env_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
           STRING . ${CMAKE_BUILD_TYPE})
     endif()
   endif()
