@@ -83,13 +83,18 @@
 
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) _wassert(msg_w, file_w, line)
-#define ASSERT_FAIL_WIDE(msg, file, line, funcsig) _wassert(msg, file, line)
+#   define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) _wassert(msg_w, file_w, line)
+#   define ASSERT_FAIL_WIDE(msg, file, line, funcsig) _wassert(msg, file, line)
 #elif defined(UTILITY_PLATFORM_POSIX)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_fail(msg, file, line, funcsig)
-#define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#   if !defined(UTILITY_PLATFORM_MINGW)
+#       define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#       define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#   else
+#       define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_func(file, line, funcsig, msg)
+#       define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_func(file, line, funcsig, msg)
+#   endif
 #else
-#error platform is not implemented
+#   error platform is not implemented
 #endif
 
 

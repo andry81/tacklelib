@@ -15,7 +15,7 @@ namespace tackle
 {
     // CAUTION:
     //  In some cases (for example, for a logger function calls) the `top` must be constructed from literal strings,
-    //  but there is no way to check it fully uniform and portably, so allow it be as a raw pointer and a length.
+    //  but there is no way to check it fully uniform and portable, so allow it be stored by value.
     //
     template <typename T>
     class inline_stack

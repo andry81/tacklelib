@@ -31,19 +31,31 @@
 #   define UTILITY_PLATFORM_SOLARIS
 #   define UTILITY_PLATFORM_POSIX
 #   define UTILITY_PLATFORM_SHORT_NAME "Solaris"
-#elif defined(__CYGWIN__) // cygwin is not win32:
+#elif defined(__MSYS__)
+#   define UTILITY_PLATFORM_MSYS
+#   define UTILITY_PLATFORM_POSIX
+#   define UTILITY_PLATFORM_SHORT_NAME "Msys"
+#   if defined(__MINGW32__) || defined(__MINGW64__) || defined(MINGW)
+#       include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
+#       define UTILITY_PLATFORM_MINGW
+#   endif
+#elif defined(__CYGWIN__)   // cygwin is not win32, but can be msys or with mingw
 #   define UTILITY_PLATFORM_CYGWIN
 #   define UTILITY_PLATFORM_POSIX
 #   define UTILITY_PLATFORM_SHORT_NAME "Cygwin"
+#   if defined(__MINGW32__) || defined(__MINGW64__) || defined(MINGW)
+#       include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
+#       define UTILITY_PLATFORM_MINGW
+#   endif
 #elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || \
       defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
 #   define UTILITY_PLATFORM_WINDOWS
-#   if defined(__MINGW32__) || defined(__MINGW64__)
-#     include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
-#     define UTILITY_PLATFORM_MINGW
-#     define UTILITY_PLATFORM_SHORT_NAME "Mingw"
+#   if defined(__MINGW32__) || defined(__MINGW64__) || defined(MINGW)
+#       include <_mingw.h>  //  Get the information about the MinGW runtime, i.e. __MINGW32_*VERSION.
+#       define UTILITY_PLATFORM_MINGW
+#       define UTILITY_PLATFORM_SHORT_NAME "Mingw"
 #   else
-#     define UTILITY_PLATFORM_SHORT_NAME "Windows"
+#       define UTILITY_PLATFORM_SHORT_NAME "Windows"
 #   endif
 #elif defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__) // MacOS
 #   define UTILITY_PLATFORM_APPLE

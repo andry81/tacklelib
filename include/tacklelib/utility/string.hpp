@@ -21,7 +21,9 @@
 #include <cstdlib>
 #include <cstdint>
 #include <cwchar>
-#include <uchar.h> // in GCC `cuchar` header might not exist
+#ifndef UTILITY_PLATFORM_MINGW
+#   include <uchar.h> // in GCC `cuchar` header might not exist
+#endif
 #include <memory>
 #include <algorithm>
 #include <type_traits>

@@ -14,30 +14,30 @@
 
 // enable assertion in the Release
 #ifndef NDEBUG
-#include <cassert>
+#   include <cassert>
 #else
-#undef NDEBUG
-#include <cassert>
-#define NDEBUG
+#   undef NDEBUG
+#   include <cassert>
+#   define NDEBUG
 #endif
 
 
 // heap corruption provoke simple check
 #if ERROR_IF_EMPTY_PP_DEF(USE_MEMORY_REALLOCATION_IN_VERIFY_ASSERT)
-#define UTILITY_DBG_HEAP_CHECK() delete [] (new char [1])
+#   define UTILITY_DBG_HEAP_CHECK() delete [] (new char [1])
 #else
-#define UTILITY_DBG_HEAP_CHECK() (void)0
+#   define UTILITY_DBG_HEAP_CHECK() (void)0
 #endif
 
 
 // FPU precision control check
 #if ERROR_IF_EMPTY_PP_DEF(USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT)
-#define UTILITY_FPU_PRECISION_CHECK() if ((_controlfp(0, 0) & _MCW_PC) != (USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT_VALUE)) \
-    { \
-        ASSERT_FAIL("UTILITY_FPU_PRECISION_CHECK()", L"UTILITY_FPU_PRECISION_CHECK()", UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
-    } (void)0
+#   define UTILITY_FPU_PRECISION_CHECK() if ((_controlfp(0, 0) & _MCW_PC) != (USE_FPU_PRECISION_CHECK_IN_VERIFY_ASSERT_VALUE)) \
+        { \
+            ASSERT_FAIL("UTILITY_FPU_PRECISION_CHECK()", L"UTILITY_FPU_PRECISION_CHECK()", UTILITY_PP_FILE, UTILITY_PP_FILE_WIDE, UTILITY_PP_LINE, UTILITY_PP_FUNCSIG); \
+        } (void)0
 #else
-#define UTILITY_FPU_PRECISION_CHECK() (void)0
+#   define UTILITY_FPU_PRECISION_CHECK() (void)0
 #endif
 
 // verify/assert post test macro
@@ -47,13 +47,18 @@
 
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) _wassert(msg_w, file_w, line)
-#define ASSERT_FAIL_WIDE(msg, file, line, funcsig) _wassert(msg, file, line)
+#   define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) _wassert(msg_w, file_w, line)
+#   define ASSERT_FAIL_WIDE(msg, file, line, funcsig) _wassert(msg, file, line)
 #elif defined(UTILITY_PLATFORM_POSIX)
-#define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_fail(msg, file, line, funcsig)
-#define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#   if !defined(UTILITY_PLATFORM_MINGW)
+#       define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#       define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_fail(msg, file, line, funcsig)
+#   else
+#       define ASSERT_FAIL(msg, msg_w, file, file_w, line, funcsig) __assert_func(file, line, funcsig, msg)
+#       define ASSERT_FAIL_ANSI(msg, file, line, funcsig) __assert_func(file, line, funcsig, msg)
+#   endif
 #else
-#error platform is not implemented
+#   error platform is not implemented
 #endif
 
 

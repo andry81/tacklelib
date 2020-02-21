@@ -1,3 +1,10 @@
+2020.02.21:
+* fixed: cpp: msys/mingw build fixup
+* fixed: cpp: utility: `constexpr_basic_string` build fix
+* fixed: cpp: utility: `debug.hpp` build fixup
+* fixed: _config: 3dparty libarchive fixup around ACL_LIBRARY macro
+* refactor: cpp: moderate refactor
+
 2020.02.20:
 * changed: _config: mingw/cygwin/msys build support
 * changed: cmake: `tkl_discover_builtin_vars` changed to discover only environment variables
