@@ -17,7 +17,9 @@
 
 #include <string>
 #include <cwchar>
-#include <uchar.h> // in GCC `cuchar` header might not exist
+#ifndef UTILITY_PLATFORM_MINGW
+#   include <uchar.h> // in GCC `cuchar` header might not exist
+#endif
 #include <memory>
 #include <utility>
 #include <algorithm>
@@ -150,7 +152,7 @@ namespace detail {
                 _consexpr_validate_ptr(ptr, len + 1)
             ),
             m_size(detail::
-                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(size)>::
+                _constexpr_string_impl<UTILITY_IS_CONSTEXPR_VALUE(len)>::
                 _consexpr_validate_size(ptr, len + 1)
             )
         {

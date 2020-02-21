@@ -76,8 +76,8 @@
 #define LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME                   ::utility::log::p7logger::LogFlag_TruncateSrcFuncToName
 #define LOG_P7_FLAG_TRUNCATE_FILE_TO_REL_PATH               ::utility::log::p7logger::LogFlag_TruncateSrcFileToRelativePath
 #define LOG_P7_FLAG_ALLOW_NOT_STATIC_FMT                    ::utility::log::p7logger::LogFlag_AllowToUseNotStaticFmt
-#define LOG_P7_FLAG_USE_STD_FMT_FORMAT                      ::utility::log::p7logger::LogFlag_UseStdFmtCompatibleFmt        // not yet a c++ standard, but will be: http://fmtlib.net/Text%20Formatting.html
-#define LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT               ::utility::log::p7logger::LogFlag_UseStdPrintfCompatibleFmt
+#define LOG_P7_FLAG_USE_FMTLIB_FMT                          ::utility::log::p7logger::LogFlag_UseFmtLibCompatibleFmt        // not yet a c++ standard, but will be: http://fmtlib.net/Text%20Formatting.html
+#define LOG_P7_FLAG_USE_PRINTF_FMT                          ::utility::log::p7logger::LogFlag_UsePrintfCompatibleFmt
 #define LOG_P7_FLAG_DEFAULT                                 ::utility::log::p7logger::LogFlag_Default
 
 #define LOG_P7_DEFAULT_MODULE                               ::utility::log::p7logger::p7TraceModule{}
@@ -89,10 +89,10 @@
     (trace_handle.func_name<constexpr_flags>(trace_module, id, lvl, \
         DEBUG_FILE_LINE_FUNC_MAKE_A_( \
             UTILITY_CONSTEXPR((constexpr_flags) & LOG_P7_FLAG_TRUNCATE_FILE_TO_NAME), \
-            UTILITY_CONSTEXPR((constexpr_flags) & LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME)) \
+            UTILITY_CONSTEXPR((constexpr_flags) & LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME)), \
         fmt, ## __VA_ARGS__))
 
-// full set of arguments
+// single log version
 
 #define LOG_P7(constexpr_flags, trace_handle, trace_module, id, lvl, fmt, ...) \
     LOG_P7_(log, constexpr_flags, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
@@ -115,120 +115,120 @@
 #define LOG_P7_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
 
-// reduced version to std fmt compatible fmt argument
+// single log version with fmtlib compatible fmt argument
 
-#define LOG_P7_STDFMT(trace_handle, trace_module, id, lvl, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB(constexpr_flags, trace_handle, trace_module, id, lvl, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, lvl, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_TRACE(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_TRACE(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_DEBUG(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_DEBUG(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_INFO(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_INFO(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_WARNING(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_WARNING(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_ERROR(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_ERROR(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_STDFMT_CRITICAL(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
+#define LOG_P7_FMTLIB_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmtlib_fmt, ## __VA_ARGS__)
 
-// reduced version to std printf compatible fmt argument
+// single log version with printf compatible fmt argument
 
-#define LOG_P7_CFMT(trace_handle, trace_module, id, lvl, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF(constexpr_flags, trace_handle, trace_module, id, lvl, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, lvl, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_TRACE(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_TRACE(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_DEBUG(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_DEBUG(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_INFO(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_INFO(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_WARNING(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_WARNING(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_ERROR(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_ERROR(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7_CFMT_CRITICAL(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
+#define LOG_P7_PRNF_CRITICAL(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, printf_fmt, ## __VA_ARGS__)
 
-// multiline version for full set of arguments
+// multiline log version
 
 #define LOG_P7M(constexpr_flags, trace_handle, trace_module, id, lvl, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_TRACE(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_TRACE(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_DEBUG(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_DEBUG(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_INFO(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_INFO(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_WARNING(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_WARNING(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_ERROR(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_ERROR(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CRITICAL(trace_handle, trace_module, id, fmt, ...) \
+#define LOG_P7M_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
 
-// mutiline version reduced to std fmt compatible fmt argument
+// multiline log version with fmtlib compatible fmt argument
 
-#define LOG_P7M_STDFMT(trace_handle, trace_module, id, lvl, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB(constexpr_flags, trace_handle, trace_module, id, lvl, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, lvl, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_TRACE(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_TRACE(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_DEBUG(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_DEBUG(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_INFO(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_INFO(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_WARNING(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_WARNING(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_ERROR(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_ERROR(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmtlib_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_STDFMT_CRITICAL(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
+#define LOG_P7M_FMTLIB_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmtlib_fmt, ## __VA_ARGS__)
 
-// mutiline version reduced to std printf compatible fmt argument
+// multiline log version with printf compatible fmt argument
 
-#define LOG_P7M_CFMT(trace_handle, trace_module, id, lvl, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, lvl, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF(constexpr_flags, trace_handle, trace_module, id, lvl, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, lvl, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_TRACE(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_TRACE(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_TRACE, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_DEBUG(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_DEBUG(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_DEBUG, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_INFO(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_INFO(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_INFO, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_WARNING(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_WARNING(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_WARNING, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_ERROR(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_ERROR(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_ERROR, printf_fmt, ## __VA_ARGS__)
 
-#define LOG_P7M_CFMT_CRITICAL(trace_handle, trace_module, id, fmt, ...) \
-    LOG_P7_(log_multiline, LOG_P7_FLAG_DEFAULT | LOG_P7_FLAG_USE_STD_PRINTF_FMT_FORMAT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
+#define LOG_P7M_PRNF_CRITICAL(constexpr_flags, trace_handle, trace_module, id, printf_fmt, ...) \
+    LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_PRINTF_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, printf_fmt, ## __VA_ARGS__)
 
 
 // workaround for the bug in v4.7 around __FILE__/__LINE__ caching
@@ -288,13 +288,13 @@ namespace p7logger {
     {
         LogFlag_None                                = 0,
 
-        // Shall truncate source file argument at compile time to a file name (address shifts statically on a compile time calculated offset).
+        // Shall truncate source file argument at compile time (C++11) to a file name (address shifts statically on a compile time calculated offset).
         // Overrides the LogFlag_TruncateSrcFileToRelativePath flag (fastest truncation).
         // Example: "c:/src/mydir/myfile.cpp" -> "myfile.cpp"
         //
         LogFlag_TruncateSrcFileToFileName           = 0x00000001,
 
-        // Shall truncate source function argument at compile time to a function name (address shifts statically on a compile time calculated offset).
+        // Shall truncate source function argument at runtime or compile time (C++11/17, depends on a constexpr function) to a function name (address shifts by a constexpr function on a calculated offset).
         // Example: "myns::`anonymous-namespace'::myfoo" -> "myfoo"
         //
         LogFlag_TruncateSrcFuncToName               = 0x00000002,
@@ -314,21 +314,21 @@ namespace p7logger {
         // Allows to use not static storage `fmt` argument to evaluate it on a client side to replace it by a static storage string as required by the p7 format.
         // Can slow down a client call because of an inplace argument strings transformation or reformat.
         //
-        LogFlag_AllowToUseNotStaticFmt              = 0x40000000, // must be used together with LogFlag_UseStdPrintfCompatibleFmt and with LogFlag_AllowRuntimeClientSideConversion
+        LogFlag_AllowToUseNotStaticFmt              = 0x40000000, // must be used together with LogFlag_UsePrintfCompatibleFmt and with LogFlag_AllowRuntimeClientSideConversion
 
         // Shall treat the `fmt` argument as compatible with the `fmt::format`/`fmt::print` function format string.
         // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
         // Slow downs a client call because of an inplace argument strings transformation or reformat.
         //
-        LogFlag_UseStdFmtCompatibleFmt              = 0x01000000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
+        LogFlag_UseFmtLibCompatibleFmt              = 0x01000000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
 
         // Shall treat the `fmt` argument as compatible with the `std::printf`/`std::wprintf` function format string.
         // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
         // Slow downs a client call because of an inplace argument strings transformation or reformat.
         //
-        LogFlag_UseStdPrintfCompatibleFmt           = 0x00100000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
+        LogFlag_UsePrintfCompatibleFmt              = 0x00100000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
 
         LogFlag_Default                             = LogFlag_TruncateSrcFileToFileName | LogFlag_TruncateSrcFuncToName
     };
@@ -343,21 +343,21 @@ namespace detail {
     struct _validate_basic_log_flags
     {
         static_assert(is_static_storage_fmt || (log_flags & LogFlag_AllowToUseNotStaticFmt),
-            "If the fmt may be not a static storage string, then the fmt has to be explicitly allowed to be not a static storage string");
+            "If the fmt format string is not a static storage string, then the fmt has to be explicitly allowed to be not a static storage string");
 
         static_assert(
-            !((log_flags & LogFlag_UseStdFmtCompatibleFmt) && (log_flags & LogFlag_UseStdPrintfCompatibleFmt)),
-            "Only one of 2 supported formats is available at a time");
+            !((log_flags & LogFlag_UseFmtLibCompatibleFmt) && (log_flags & LogFlag_UsePrintfCompatibleFmt)),
+            "Only one of 2 supported formats is applicable at a time");
 
         static_assert(
-            !(log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
-            "Current implementation is required the LogFlag_UseStdFmtCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
+            !(log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
+            "Current implementation is required the LogFlag_UseFmtLibCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
 
         static_assert(
-            !(log_flags & LogFlag_UseStdPrintfCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
-            "Current implementation is required the LogFlag_UseStdPrintfCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
+            !(log_flags & LogFlag_UsePrintfCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
+            "Current implementation is required the LogFlag_UsePrintfCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
 
-        static_assert(!is_multiline_log || (log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
+        static_assert(!is_multiline_log || (log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
             "Currently multiline log implementation available only through the client side evaluation through one of 2 supported format strings");
 
         // duplication for a standalone check for particularly multiline log
@@ -370,8 +370,8 @@ namespace detail {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         // char is not supported by the platform, has to be converted or evaluated inplace
-        static_assert((log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+        static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
 #endif
     };
 
@@ -380,8 +380,8 @@ namespace detail {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         // char is not supported by the platform, has to be converted or evaluated inplace
-        static_assert((log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+        static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
 #endif
     };
 
@@ -390,8 +390,8 @@ namespace detail {
     {
 #if !defined(UTILITY_PLATFORM_WINDOWS)
         // wchar_t is not supported by the platform, has to be converted or evaluated inplace
-        static_assert((log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+        static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
 #endif
     };
 
@@ -400,8 +400,8 @@ namespace detail {
     {
 #if !defined(UTILITY_PLATFORM_WINDOWS)
         // wchar_t is not supported by the platform, has to be converted or evaluated inplace
-        static_assert((log_flags & LogFlag_UseStdFmtCompatibleFmt) || (log_flags & LogFlag_UseStdPrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+        static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
 #endif
     };
 
@@ -1588,7 +1588,7 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::string fmt_utf8;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -1602,13 +1602,13 @@ namespace detail {
             TM("%s"),   // UTF-16
             utility::get_c_str(fmt_utf16)) ? true : false;
 #else
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseStdFmtCompatibleFmt) && !(log_flags & LogFlag_UseStdPrintfCompatibleFmt))) {
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
-        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
                 fmt::format(fmt, std::forward<Args>(args)...)
@@ -1666,7 +1666,7 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::string fmt_utf8;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -1680,13 +1680,13 @@ namespace detail {
             TM("%s"),   // UTF-16
             utility::get_c_str(fmt_utf16)) ? true : false;
 #else
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseStdFmtCompatibleFmt) && !(log_flags & LogFlag_UseStdPrintfCompatibleFmt))) {
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
-        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
                 fmt::format(fmt, std::forward<Args>(args)...)
@@ -1741,13 +1741,13 @@ namespace detail {
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseStdFmtCompatibleFmt) && !(log_flags & LogFlag_UseStdPrintfCompatibleFmt))) {
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
-        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
                 fmt::format(fmt, std::forward<Args>(args)...)
@@ -1770,7 +1770,7 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::wstring fmt_utf16;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -1819,13 +1819,13 @@ namespace detail {
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseStdFmtCompatibleFmt) && !(log_flags & LogFlag_UseStdPrintfCompatibleFmt))) {
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
-        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
                 fmt::format(fmt, std::forward<Args>(args)...)
@@ -1848,7 +1848,7 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::wstring fmt_utf16;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -1899,7 +1899,7 @@ namespace detail {
         // we have to evaluate fmt here
         std::string fmt_utf8;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -1977,7 +1977,7 @@ namespace detail {
         // we have to evaluate fmt here
         std::string fmt_utf8;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -2055,7 +2055,7 @@ namespace detail {
         // we have to evaluate fmt here
         std::wstring fmt_utf16;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {
@@ -2133,7 +2133,7 @@ namespace detail {
         // we have to evaluate fmt here
         std::wstring fmt_utf16;
 
-        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseStdFmtCompatibleFmt)) {
+        if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
         else {

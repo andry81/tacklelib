@@ -19,7 +19,9 @@
 #include <cstdlib>
 #include <cstdint>
 #include <cwchar>
-#include <uchar.h> // in GCC `cuchar` header might not exist
+#ifndef UTILITY_PLATFORM_MINGW
+#   include <uchar.h> // in GCC `cuchar` header might not exist
+#endif
 #include <memory>
 #include <algorithm>
 #include <type_traits>
@@ -568,19 +570,19 @@ namespace utility {
     //
 
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT * const & a, const CharT * const & b)
+    FORCE_INLINE CONSTEXPR_FUNC bool constexpr_is_equal_c_str(const CharT * const & a, const CharT * const & b)
     {
-        return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || is_equal_c_str(a + 1, b + 1));
+        return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || constexpr_is_equal_c_str(a + 1, b + 1));
     }
 
     template <typename CharT, size_t S>
-    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT (& a)[S], const CharT (& b)[S])
+    FORCE_INLINE CONSTEXPR_FUNC bool constexpr_is_equal_c_str(const CharT (& a)[S], const CharT (& b)[S])
     {
-        return is_equal_c_str(a + 0, b + 0);
+        return constexpr_is_equal_c_str(a + 0, b + 0);
     }
 
     template <typename CharT, size_t S0, size_t S1>
-    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT (& a)[S0], const CharT (& b)[S1])
+    FORCE_INLINE CONSTEXPR_FUNC bool constexpr_is_equal_c_str(const CharT (& a)[S0], const CharT (& b)[S1])
     {
         return false;
     }

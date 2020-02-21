@@ -476,6 +476,13 @@ tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     LIBRARY_API_EXPORTS_TACKLELIB
 )
 
+if (MINGW)
+  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
+    PRIVATE
+      MINGW
+  )
+endif()
+
 # we need the same Boost definitions here to maintain the link with the same libraries
 if (Boost_FOUND)
   tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
@@ -635,6 +642,13 @@ if (TESTLIB_ENABLED)
       TACKLE_TESTLIB
       GTEST_LINKED_AS_SHARED_LIBRARY=1 # gtest links as dynamic by default
   )
+
+  if (MINGW)
+    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+      PRIVATE
+        MINGW
+    )
+  endif()
 
   # we need the same Boost definitions here to maintain the link with the same libraries
   if (Boost_FOUND)
@@ -866,6 +880,13 @@ if (TESTS_ENABLED)
       PRIVATE
         LOG_SRC_ROOT="${LOG_SRC_ROOT}"
     )
+
+    if (MINGW)
+      tkl_add_target_compile_definitions(${target} *
+        PRIVATE
+          MINGW
+      )
+    endif()
 
     if (NOT target_is_liblinked)
       # we must include these definitions to link dependency appropriately

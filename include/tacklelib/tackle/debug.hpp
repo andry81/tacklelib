@@ -17,30 +17,51 @@
 
 #include <string>
 #include <cwchar>
-#include <uchar.h>  // in GCC `cuchar` header might not exist
+#ifndef UTILITY_PLATFORM_MINGW
+#   include <uchar.h>  // in GCC `cuchar` header might not exist
+#endif
 
 
 // CAUTION:
 //  TACKLE_TMPL_STRING macro has used to guarantee the same address for the same literal string, otherwise 2 the same literal strings may have different addresses following the C++ standard!
 //
 
-#define DEBUG_FUNC_LINE_A                               ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) }, \
+#define DEBUG_FUNC_LINE_A_(truncate_func)               ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) }, \
                                                             UTILITY_PP_LINE }
-#define DEBUG_FUNC_LINE_MAKE_A()                        ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) }, \
+#define DEBUG_FUNC_LINE_A                               DEBUG_FUNC_LINE_A_(true)
+
+#define DEBUG_FUNC_LINE_MAKE_A_(truncate_func)          ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) }, \
                                                              UTILITY_PP_LINE })
-#define DEBUG_FUNC_LINE_MAKE_PUSH_A(stack)              ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).cstr() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) }, \
+#define DEBUG_FUNC_LINE_MAKE_A                          DEBUG_FUNC_LINE_MAKE_A_(true)
+
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A_(stack)             ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) }, \
                                                             UTILITY_PP_LINE })
+#define DEBUG_FUNC_LINE_MAKE_PUSH_A                     DEBUG_FUNC_LINE_MAKE_PUSH_A_(stack, true)
 
 
-#define DEBUG_FUNCSIG_LINE_A                            ::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE }
-#define DEBUG_FUNCSIG_LINE_MAKE_A()                     ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
-#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A(stack)           ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ TACKLE_TMPL_STRING(0, UTILITY_PP_FUNCSIG), UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_A_(truncate_func)            ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNCSIG + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNCSIG) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0) }, \
+                                                            UTILITY_PP_LINE }
+#define DEBUG_FUNCSIG_LINE_A                            DEBUG_FUNCSIG_LINE_A_(true)
+
+#define DEBUG_FUNCSIG_LINE_MAKE_A_(truncate_func)           ::tackle::DebugFuncLineInlineStackA::make(::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNCSIG + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0), \
+                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNCSIG) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0) }, \
+                                                             UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_MAKE_A                       DEBUG_FUNCSIG_LINE_MAKE_A_(true)
+
+#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A_(stack, truncate_func) ::tackle::DebugFuncLineInlineStackA::make_push(stack, ::tackle::DebugFuncLineA{ ::tackle::constexpr_string{ \
+                                                            UTILITY_PP_FUNCSIG + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNCSIG) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNCSIG) : 0) }, \
+                                                            UTILITY_PP_LINE })
+#define DEBUG_FUNCSIG_LINE_MAKE_PUSH_A                  DEBUG_FUNCSIG_LINE_MAKE_PUSH_A_(stack, true)
 
 
 #define DEBUG_FILE_LINE_A_(truncate_file) \
@@ -93,8 +114,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } }
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } }
 #define DEBUG_FILE_LINE_FUNC_A                          DEBUG_FILE_LINE_FUNC_A_(true, true)
 
 #define DEBUG_FILE_LINE_FUNC_MAKE_A_(truncate_file, truncate_func) \
@@ -103,8 +124,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } })
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } })
 #define DEBUG_FILE_LINE_FUNC_MAKE_A()                   DEBUG_FILE_LINE_FUNC_MAKE_A_(true, true)
 
 #define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A_(stack, truncate_file, truncate_func) \
@@ -113,8 +134,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_string{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } })
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } })
 #define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A(stack)         DEBUG_FILE_LINE_FUNC_MAKE_PUSH_A_(stack, true, true)
 
 
@@ -124,8 +145,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE_WIDE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_wstring{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } }
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } }
 #define DEBUG_FILE_LINE_FUNC_W                          DEBUG_FILE_LINE_FUNC_W_(true, true)
 
 #define DEBUG_FILE_LINE_FUNC_MAKE_W_(truncate_file, truncate_func) \
@@ -134,8 +155,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE_WIDE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_wstring{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } })
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } })
 #define DEBUG_FILE_LINE_FUNC_MAKE_W()                   DEBUG_FILE_LINE_FUNC_MAKE_W_(true, true)
 
 #define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W_(stack, truncate_file, truncate_func) \
@@ -144,8 +165,8 @@
                                                             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FILE_WIDE) - 1) - (truncate_file ? ::utility::get_file_name_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FILE_WIDE)) : 0) }, \
                                                             UTILITY_PP_LINE, \
                                                         ::tackle::constexpr_wstring{ \
-                                                            TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC).c_str() + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0), \
-                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(TACKLE_TMPL_STRING(0, UTILITY_PP_FUNC)) : 0) } })
+                                                            UTILITY_PP_FUNC + (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0), \
+                                                            UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(UTILITY_PP_FUNC) - 1) - (truncate_func ? ::utility::get_unmangled_src_func_constexpr_offset(UTILITY_PP_FUNC) : 0) } })
 #define DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W(stack)         DEBUG_FILE_LINE_FUNC_MAKE_PUSH_W_(stack, true, true)
 
 

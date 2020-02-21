@@ -11,10 +11,10 @@
 #include <tacklelib/utility/optimization.hpp>
 
 #if defined(UTILITY_COMPILER_CXX_MSC) || defined(UTILITY_PLATFORM_MINGW)
-#include <intrin.h>
+#   include <intrin.h>
 #else
-#include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc
-#include <signal.h>
+#   include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc
+#   include <signal.h>
 #endif
 
 

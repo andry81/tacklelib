@@ -20,9 +20,9 @@
 #include <tacklelib/tackle/file_handle.hpp>
 
 #ifdef UTILITY_COMPILER_CXX_MSC
-#include <intrin.h>
+#   include <intrin.h>
 #else
-#include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc
+#   include <x86intrin.h>  // Not just <immintrin.h> for compilers other than icc
 #endif
 
 #include <type_traits>
@@ -39,21 +39,21 @@
 #include <cstdint>
 
 #if defined(UTILITY_PLATFORM_POSIX)
-#include <termios.h>
-#include <unistd.h>
+#   include <termios.h>
+#   include <unistd.h>
 #endif
 
 #include <cstdio>
 #include <memory.h>
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-#include <conio.h>
-# if defined(UTILITY_PLATFORM_MINGW)
-#   include <share.h>
-# endif
+#   include <conio.h>
 #elif defined(UTILITY_PLATFORM_POSIX)
+#   if !defined(UTILITY_PLATFORM_MINGW)
+#       include <share.h>
+#   endif
 #else
-#error platform is not implemented
+#   error platform is not implemented
 #endif
 
 
