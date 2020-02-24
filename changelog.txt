@@ -1,3 +1,6 @@
+2020.02.24:
+* fixed: python: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
+
 2020.02.21:
 * fixed: cpp: msys/mingw build fixup
 * fixed: cpp: utility: `constexpr_basic_string` build fix
