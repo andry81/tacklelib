@@ -67,14 +67,14 @@ CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
 
 # cache is required here to override cache variables
-top bool force ENABLE_LZMA=1
-top bool force ENABLE_TAR=0
-top bool force ENABLE_CPIO=0
-top bool force ENABLE_CAT=0
-top bool force ENABLE_TEST=0
-top bool force ENABLE_COVERAGE=0
-top bool force ENABLE_ACL=0
-top bool force ENABLE_INSTALL=0
+top bool force cache ENABLE_LZMA=1
+top bool force cache ENABLE_TAR=0
+top bool force cache ENABLE_CPIO=0
+top bool force cache ENABLE_CAT=0
+top bool force cache ENABLE_TEST=0
+top bool force cache ENABLE_COVERAGE=0
+top bool force cache ENABLE_ACL=0
+top bool force cache ENABLE_INSTALL=0
 
 top ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils/xzutils-5_2_4-release"
 top cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"

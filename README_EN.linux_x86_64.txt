@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2020.02.10
+* 2020.02.25
 * tacklelib
 
 1. DESCRIPTION
@@ -224,14 +224,14 @@ cd ~/_3dparty/linux_mint_gcc_x86/boost
 
 # download manually or through the wget utility
 >
-wget -O boost_1_69_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.69.0/boost_1_69_0.tar.bz2/download
+wget -O boost_1_72_0.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
 
 >
-tar xvfo boost_1_69_0.tar.bz2
+tar xvfo boost_1_72_0.tar.bz2
 
 # configure
 >
-cd boost_1_69_0
+cd boost_1_72_0
 ./bootstrap.sh
 
 # CAUTION
@@ -244,37 +244,27 @@ cd boost_1_69_0
 
 ## full build, all static
 ##>
-##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
-##stage
+##./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 stage
 #
 ## full build, all shared
 ##>
-##./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
-##stage
+##./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned --build-type=complete "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 stage
 
 # partial build, all static
 >
-./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
---with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
-stage
+./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer stage
 
 # partial build, all shared
 >
-./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
---with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
-stage
+./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer stage
 
 # install, all static
 >
-sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
---with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
-install
+sudo ./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=static runtime-link=static threading=multi debug-symbols=on --build-dir=__build-gcc-32 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer install
 
 # install, all shared
 >
-sudo ./bjam --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_69_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 \
---with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer \
-install
+sudo ./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boost_1_72_0 --layout=versioned "variant=release,debug" toolset=gcc address-model=32 architecture=x86 link=shared runtime-link=shared threading=multi debug-symbols=on --build-dir=__build-gcc-32 --with-atomic --with-chrono --with-date_time --with-filesystem --with-system --with-iostreams --with-program_options --with-random --with-regex --with-serialization --with-thread --with-timer install
 
 -------------------------------------------------------------------------------
 3.1.10. GoogleTest library build (optional)
