@@ -1,3 +1,7 @@
+2020.02.26:
+* fixed: _scripts/tools: bash_entry: accidental `$1` argument pass into `source` statement
+* new: _scripts/tools: bash_entry: `tkl_make_source_file_components_from_file_path` function to manually update source file components from any file path
+
 2020.02.24:
 * fixed: python: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
 
