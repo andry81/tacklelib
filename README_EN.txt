@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.17
+* 2020.02.27
 * tacklelib
 
 1. DESCRIPTION
@@ -62,34 +62,25 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 
-Currently tested these set of OS platforms, compilers, IDE's and interpreters
-to run from:
+Currently used these set of OS platforms, compilers, interpreters, modules,
+IDE's, applications and patches to run with or from:
 
-1. OS platforms.
+1. OS platforms:
 
 * Windows 7 (`.bat` only, minimal version for the cmake 3.14)
 * Cygwin 1.7.x (`.sh` only)
 * Linux Mint 18.3 x64 (`.sh` only)
 
-2. C++11 compilers.
+2. C++11 compilers:
 
-* (primary) Microsoft Visual C++ 2015 Update 3
+* (primary) Microsoft Visual C++ 2015 Update 3 or Microsoft Visual C++ 2017
 * (secondary) GCC 5.4+
 * (experimental) Clang 3.8+
 
-3. IDE's.
-
-* Microsoft Visual Studio 2015 Update 3
-* Microsoft Visual Studio 2017
-* QtCreator 4.6+
-
-4. Interpreters:
+3. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
-* cmake 3.14+ :
-  https://cmake.org/download/
-  - to run cmake scripts and modules
 * python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
   https://python.org
   - standard implementation to run python scripts
@@ -98,6 +89,67 @@ to run from:
   - 3.5+ is required for the direct import by a file path (with any extension)
     as noted in the documentation:
     https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
+* cmake 3.14+ :
+  https://cmake.org/download/
+  - to run cmake scripts and modules
+
+4. Modules:
+
+* Python site modules:
+
+**  xonsh/0.9.12
+    https://github.com/xonsh/xonsh
+    - to run python scripts and import python modules with `.xsh` file
+      extension
+**  plumbum 1.6.7
+    https://plumbum.readthedocs.io/en/latest/
+    - to run python scripts in a shell like environment
+**  win_unicode_console
+    - to enable unicode symbols support in the Windows console
+**  pyyaml 5.1.1
+    - to read yaml format files (.yaml, .yml)
+**  conditional 1.3
+    - to support conditional `with` statements
+**  fcache 0.4.7
+    - for local cache storage for python scripts
+**  psutil 5.6.7
+    - for processes list request
+**  tzlocal 2.0.0
+    - for local timezone request
+
+Temporary dropped usage:
+
+**  prompt-toolkit 2.0.9
+    - optional dependency to the Xonsh on the Windows
+**  cmdix 0.2.0
+    https://github.com/jaraco/cmdix
+    - extension to use Unix core utils within Python environment as plain
+      executable or python function
+
+5. IDE's:
+
+* Microsoft Visual Studio 2015 Update 3
+* Microsoft Visual Studio 2017
+* QtCreator 4.6+
+
+6. Applications:
+
+* subversion 1.8+
+  https://tortoisesvn.net
+  - to run svn client
+
+* git 2.24+
+  https://git-scm.com
+  - to run git client
+
+7. Patches:
+
+* Python site modules contains patches in the `python_patches`
+  subdirectory:
+
+** fcache
+   - to fix issues from the `fcache execution issues` section.
+
 
 Noticeable cmake changes from the version 3.14:
 
@@ -116,8 +168,8 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 5. DEPENDENCIES
 -------------------------------------------------------------------------------
 
-Read the `README_EN.deps.txt` file for the common dependencies for the Windows
-and the Linux platforms.
+Read the `README_EN.deps.txt` description file for the common dependencies in
+the Windows and in the Linux platforms.
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
@@ -263,8 +315,8 @@ To prepare local third party library sources you can:
 7. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-* `_config/environment_system.vars`
-* `_config/environment_user.vars`
+1. `_config/environment_system.vars`
+   `_config/environment_user.vars`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.
@@ -289,7 +341,7 @@ dynamic variable.
 * PROJECT_NAME
 
 Name of the project. Must contain the same value as respective `project(...)`
-command in the `CMakeLists.txt` file, otherwise the error will be thrown.
+command in the `CMakeLists.txt` file, otherwise an error will be thrown.
 
 * PROJECT_TOP_ROOT, PROJECT_ROOT
 
@@ -315,7 +367,7 @@ the `/_config/environment_user.vars` configuration files.
 Optional variable which defines a directory with local 3dparty projects or
 libraries.
 
-* CMAKE_CONFIG_TYPES=(<semicolon_separated_list>)
+* CMAKE_CONFIG_TYPES=(<space_separated_list>)
 
 Required variable which defines predefined list of configuration names has used
 from the `/_scripts/*_configure.*` script.
@@ -325,7 +377,7 @@ Example:
 
 * CMAKE_CONFIG_ABBR_TYPES=(<semicolon_separated_list>)
 
-Optional variable which defines a list of associated with the
+An optional variable which defines a list of associated with the
 CMAKE_CONFIG_TYPES variable values of abbreviated configuration names has used
 from the `/_scripts/*_configure.*` script.
 Useful to define short names for respective complete configuration names to
@@ -349,11 +401,16 @@ The cmake version 3.14+ can use a separate architecture name additionally to
 the generator name.
 
 Example:
-  CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `environment_system.vars` stage
-  CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*:$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
+  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture
+  # parameter does not supported in the `environment_system.vars` stage
+  CMAKE_GENERATOR_PLATFORM:WIN=Win32
+
+  # must be at least empty to avoid generation of the
+  # `*:$/{CMAKE_GENERATOR_PLATFORM}` as an replacement value
+  CMAKE_GENERATOR_PLATFORM:UNIX=""
 
 -------------------------------------------------------------------------------
-7. PRECONFIGURE
+8. PRECONFIGURE
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -367,13 +424,15 @@ NOTE:
 
 CAUTION:
   For the Linux like platform do read the `README_EN.linux_x86_64.txt` file
-  to properly set permissions on the file.
+  to properly set permissions on the file `/bin/bash_entry` or build the
+  project.
 
-To be able to configure and build the sources you must run the
-`preconfigure.*` script at least once.
+To be able to configure and build the sources (after download the dependencies
+from the `DEPENDENCIES` section) you must run the `01_preconfigure.*` script
+to create symbol links in the project directory to the 3dparty dependencies.
 
 -------------------------------------------------------------------------------
-8. CONFIGURE
+9. CONFIGURE
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -381,7 +440,7 @@ NOTE:
   `README_EN.linux_x86_64.txt` file.
 
 -------------------------------------------------------------------------------
-8.1. Generation step(s)
+9.1. Generation step(s)
 -------------------------------------------------------------------------------
 
 To generate the source files which are not included in a version control system
@@ -431,36 +490,49 @@ variables.
 
 For example, if:
 
-_3DPARTY_GLOBAL_ROOTS_LIST=("d:/3dparty1" "d:/3dparty1")
+_3DPARTY_GLOBAL_ROOTS_LIST:WIN=("d:/3dparty1" "d:/3dparty2")
+_3DPARTY_GLOBAL_ROOTS_LIST:UNIX=(/home/opt/3dparty1 /home/opt/3dparty2)
 _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment1.vars" "environment2.vars")
 
 , then the generated file paths would be ordered like this:
 
+For the Windows platform:
+
 `d:/3dparty1/environment1.vars`
 `d:/3dparty1/environment2.vars`
 `d:/3dparty2/environment1.vars`
 `d:/3dparty2/environment2.vars`
+
+For the Linux like platform:
+
+`/home/opt/3dparty1/environment1.vars`
+`/home/opt/3dparty1/environment2.vars`
+`/home/opt/3dparty2/environment1.vars`
+`/home/opt/3dparty2/environment2.vars`
 
 , and would be loaded together with the local configuration files but before
 them:
 
+For the Windows platform:
+
 `d:/3dparty1/environment1.vars`
 `d:/3dparty1/environment2.vars`
 `d:/3dparty2/environment1.vars`
 `d:/3dparty2/environment2.vars`
-`/_config/environment_system.vars`
-`/_config/environment_user.vars`
+`<root>/_config/environment_system.vars`
+`<root>/_config/environment_user.vars`
 
-To start use external 3dparty project directories you can take as a basic
-example the 3dparty project structure from these links:
+For the Linux like platform:
 
-Primary:
-  * https://svn.code.sf.net/p/tacklelib/3dparty/trunk
-First mirror:
-  * https://github.com/andry81/tacklelib--3dparty.git
+`/home/opt/3dparty1/environment1.vars`
+`/home/opt/3dparty1/environment2.vars`
+`/home/opt/3dparty2/environment1.vars`
+`/home/opt/3dparty2/environment2.vars`
+`<root>/_config/environment_system.vars`
+`<root>/_config/environment_user.vars`
 
 -------------------------------------------------------------------------------
-8.2. Configuration step
+9.2. Configuration step
 -------------------------------------------------------------------------------
 
 To make a final configuration call to:
@@ -476,14 +548,14 @@ NOTE:
   to a not multiconfig generator, otherwise it must not be used.
 
 -------------------------------------------------------------------------------
-9. BUILD
+10. BUILD
 -------------------------------------------------------------------------------
 
 Does not matter which one method below would be selected when the output would
 be in a directory pointed by the `CMAKE_BIN_DIR` configuration variable.
 
 -------------------------------------------------------------------------------
-9.1. From scripts
+10.1. From scripts
 -------------------------------------------------------------------------------
 
 1. Run `/_scripts/04_build.* [<ConfigName> [<TargetName>]]`, where:
@@ -499,7 +571,7 @@ NOTE:
   target - `help`.
 
 -------------------------------------------------------------------------------
-9.2. From `Visual Studio`
+10.2. From `Visual Studio`
 -------------------------------------------------------------------------------
 
 1. Open `<PROJECT_NAME>.sln` file addressed by a directory path in the
@@ -509,7 +581,7 @@ NOTE:
 3. Run build from the IDE.
 
 -------------------------------------------------------------------------------
-9.3. From `Qt Creator`
+10.3. From `Qt Creator`
 -------------------------------------------------------------------------------
 
 1. Open `CMakeLists.txt` file.
@@ -521,7 +593,7 @@ NOTE:
 4. Run build from the IDE.
 
 -------------------------------------------------------------------------------
-10. INSTALL
+11. INSTALL
 -------------------------------------------------------------------------------
 
 1. Run `/_scripts/05_install.* [<ConfigName> [<TargetName>]]`, where:
@@ -539,7 +611,7 @@ NOTE:
   The cmake may not support a target selection for a particular generator.
 
 -------------------------------------------------------------------------------
-11. POSTINSTALL
+12. POSTINSTALL
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -557,11 +629,11 @@ CAUTION:
   gain different results!
 
 -------------------------------------------------------------------------------
-12. KNOWN ISSUES
+13. KNOWN ISSUES
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-12.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+13.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
       generator presence and must be set if not: ...` cmake configuration
       error message
 -------------------------------------------------------------------------------
@@ -591,6 +663,6 @@ Solution #3:
    is not applicable.
 
 -------------------------------------------------------------------------------
-13. AUTHOR
+14. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

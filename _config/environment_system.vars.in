@@ -88,7 +88,7 @@ top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATO
 #top CMAKE_GENERATOR_PLATFORM="" # must be at least empty
 
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
-top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid the `*$/{CMAKE_GENERATOR_PLATFORM}` generation as an replacement value
+top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid generation of the `*:$/{CMAKE_GENERATOR_PLATFORM}` as an replacement value
 
 top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out"
 final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
@@ -109,7 +109,8 @@ final package PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current proj
 top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}"           # top parent project root in context of parent build
 
 # CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
-final package _3DPARTY_GLOBAL_ROOTS_LIST=("d:/_3dparty")
+final package _3DPARTY_GLOBAL_ROOTS_LIST:WIN=("d:/_3dparty")
+final package _3DPARTY_GLOBAL_ROOTS_LIST:UNIX=(/home/opt/_3dparty)
 final package _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
 final package _3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
 
