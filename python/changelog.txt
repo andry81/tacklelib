@@ -1,3 +1,6 @@
+2020.02.27:
+* fixed: tacklelib: missed change in `is_file_path_beginswith` and `is_file_path_endswith` functions
+
 2020.02.24:
 * fixed: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
 
