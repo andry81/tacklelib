@@ -23,12 +23,16 @@
 # redirection that may exist on the way (useful in cygwin/msys/mingw contexts).
 #
 
-if /bin/test "${BASH+set}" != set -o "${BASH_VERSINFO+set}" != "set" -o ${BASH_VERSINFO[0]:-0} -lt 3 >/dev/null 2>&1; then
-  echo "bash_entry: error: script designed only for the Bash version 3.x or higher." >&2
+if [[ -n "$BASH" ]]; then
+
+if [[ -z "$SOURCE_TACKLELIB_BASH_ENTRY_SH" || SOURCE_TACKLELIB_BASH_ENTRY_SH -eq 0 ]]; then
+
+SOURCE_TACKLELIB_BASH_ENTRY_SH=1 # including guard
+
+if (( BASH_VERSINFO[0] < 3 )); then
+  echo "$0: error: script designed only for the Bash version 3.x or higher." >&2
   exit 253
 fi
-
-if [[ -n "$BASH" ]]; then
 
 # WORKAROUND:
 #   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
@@ -45,9 +49,36 @@ function tkl_return_local()
   tkl_declare_global "$@"
 }
 
+function tkl_declare_local_array()
+{
+  local IFS=$' \t\r\n' # just in case, workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+  eval declare "$1=(\"\${@:2}\")"
+}
+
 function tkl_declare_global()
 {
-  eval "$1=\"\$2\"" # right argument does NOT evaluate
+  # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
+  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then 
+    declare -g $1="$2"
+  else
+    ## Tricky implementation to set global variable from a function w/o:
+    ## 1. special characters handle
+    ## 2. issues with value injection
+    #read -r -d$'.' $1 <<< "$2" # WARNING: in old bash (3.2.x) will assign to a local variable if a local overlaps global
+    eval "$1=\"\$2\"" # right argument does NOT evaluate
+  fi
+}
+
+function tkl_declare_global_array()
+{
+  # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
+  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then 
+    local IFS=$' \t\r\n' # just in case, workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+    eval declare -g "$1=(\"\${@:2}\")"
+  else
+    local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+    eval "$1=(\"\${@:2}\")" # WARNING: in old bash (3.2.x) will assign to a local variable if a local overlaps global
+  fi
 }
 
 function tkl_declare_global_eval()
@@ -93,7 +124,7 @@ function tkl_false()
 
 function tkl_set_return()
 {
-  return ${1:-0};
+  [[ -n "$1" ]] && return $1
 }
 
 function tkl_push_var_to_stack_impl()
@@ -173,7 +204,7 @@ function tkl_pop_var_from_stack()
 
   local _2BA2974B_vars_stack_size
   tkl_declare_global_eval _2BA2974B_vars_stack_size "\${tkl__vars_stack__$1__$2__size}"
-  if [[ -z "${_2BA2974B_vars_stack_size}" ]] || (( ! _2BA2974B_vars_stack_size )); then
+  if (( ! ${#_2BA2974B_vars_stack_size} || ! _2BA2974B_vars_stack_size )); then
     echo "tkl_pop_var_from_stack: variables stack either undefined or empty" >&2
     return 3
   fi
@@ -189,7 +220,7 @@ function tkl_pop_var_from_stack()
     unset $2
   fi
 
-  if [[ -n "${_2BA2974B_vars_stack_next_size}" ]] && (( _2BA2974B_vars_stack_next_size )); then
+  if (( ${#_2BA2974B_vars_stack_next_size} && _2BA2974B_vars_stack_next_size )); then
     tkl_export "tkl__vars_stack__$1__$2__size" "${_2BA2974B_vars_stack_next_size}"
   else
     unset tkl__vars_stack__$1__$2__size
@@ -205,7 +236,7 @@ function tkl_pop_var_from_stack()
 function tkl_get_var_stack_size()
 {
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
   if [[ -z "$1" ]]; then
     echo "tkl_get_var_stack_size: stack entry must be not empty" >&2
@@ -220,9 +251,7 @@ function tkl_get_var_stack_size()
   #local var_name="$2"
 
   tkl_declare_global_eval RETURN_VALUE "\${tkl__vars_stack__$1__$2__size}"
-  if [[ -z "$RETURN_VALUE" ]]; then
-    RETURN_VALUE=0
-  fi
+  [[ -z "$RETURN_VALUE" ]] && RETURN_VALUE=0
 
   return 0
 }
@@ -231,10 +260,15 @@ function tkl_is_abs_path()
 {
   local file_path="$1"
 
+  # drop return value
+  RETURN_VALUE=0
+
+  [[ -z "$file_path" ]] && return 1
+
   if [[ "${file_path:0:1}" == "/" || "${file_path:0:1}" == "\\" ]]; then
     RETURN_VALUE=1
     return 0
-  elif (( ${#file_path} >= 2 )) && [[ "${file_path:1:0}" == ":" ]]; then
+  elif [[ "${file_path:1:1}" == ":" ]]; then
     RETURN_VALUE=1
     return 0
   fi
@@ -246,9 +280,9 @@ function tkl_is_abs_path()
 function tkl_get_source_file_path()
 {
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
-  if [[ -n "$BASH_LINENO" ]] && (( ${BASH_LINENO[${#BASH_LINENO[@]}-1]} > 0 )); then
+  if (( ${#BASH_LINENO[@]} && BASH_LINENO[${#BASH_LINENO[@]}-1] > 0 )); then
     local ScriptFilePath="${BASH_SOURCE[${#BASH_LINENO[@]}-1]//\\//}"
   else
     local ScriptFilePath="${0//\\//}"
@@ -260,8 +294,8 @@ function tkl_get_source_file_path()
 function tkl_make_source_file_components_from_file_path()
 {
   tkl_export BASH_SOURCE_FILE "$1"
-  tkl_export BASH_SOURCE_DIR "${1%[/]*}"
-  tkl_export BASH_SOURCE_FILE_NAME "${1##*[/]}"
+  tkl_export BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
 }
 
 function tkl_make_source_file_components()
@@ -278,9 +312,7 @@ function tkl_include()
   #   1. All variables here must be unique irrespective to the function scope,
   #      because `source "..."` still can remove or change a local variable!
 
-  if [[ -z "$BASH_SOURCE_DIR" ]]; then
-    tkl_make_source_file_components
-  fi
+  [[ -z "$BASH_SOURCE_DIR" ]] && tkl_make_source_file_components
 
   local _84CB4B34_include_file_path
   for _84CB4B34_include_file_path in "$@"; do
@@ -302,21 +334,11 @@ function tkl_include()
           ;;
         esac
         for _84CB4B34_path_prefix in $BASH_SOURCE_PATH; do
-          if [[ "${_84CB4B34_include_file_path:0:1}" == "/" || "${_84CB4B34_include_file_path:0:1}" == "\\" ]]; then
-            if tkl_get_abs_path_from_dir "${_84CB4B34_path_prefix}${_84CB4B34_include_file_path}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
-              if [[ -f "$RETURN_VALUE" ]]; then
-                _84CB4B34_included=1
-                tkl_include_local_impl
-                break
-              fi
-            fi
-          else
-            if tkl_get_abs_path_from_dir "${_84CB4B34_path_prefix}/${_84CB4B34_include_file_path}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
-              if [[ -f "$RETURN_VALUE" ]]; then
-                _84CB4B34_included=1
-                tkl_include_local_impl
-                break
-              fi
+          if tkl_get_abs_path_from_dir "${_84CB4B34_path_prefix}/${_84CB4B34_include_file_path}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
+            if [[ -f "$RETURN_VALUE" ]]; then
+              _84CB4B34_included=1
+              tkl_include_local_impl
+              break
             fi
           fi
         done
@@ -345,8 +367,8 @@ function tkl_include_local_impl()
   local RETURN_VALUE="$RETURN_VALUE"
 
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$RETURN_VALUE"
-  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${RETURN_VALUE%[/]*}"
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${RETURN_VALUE##*[/]}"
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
 
   #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
@@ -356,8 +378,8 @@ function tkl_include_local_impl()
 
   # manually restore the stack, avoid usage of the `trap` command, because of side effect around the `source` command!
   tkl_pop_var_from_stack global BASH_SOURCE_FILE
-  tkl_pop_var_from_stack global BASH_SOURCE_DIR
   tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME
+  tkl_pop_var_from_stack global BASH_SOURCE_DIR
 
   #echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
@@ -366,16 +388,16 @@ function tkl_include_local_impl()
 
 function tkl_get_native_parent_dir()
 {
-  tkl_convert_backend_path_to_native "$1" s
+  tkl_convert_backend_path_to_native "$1" -s
 
   RETURN_VALUE="${RETURN_VALUE%[/]*}"
   [[ -z "$RETURN_VALUE" ]] && return 1
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      if [[ "${RETURN_VALUE: -1:1}" == ":" ]]; then
-        RETURN_VALUE="" # root directory does not have a parent directory
-        return 1
+      if [[ "${RETURN_VALUE: -1}" == ":" ]]; then
+        RETURN_VALUE='' # root directory does not have a parent directory
+        return 2
       fi
     ;;
   esac
@@ -383,155 +405,10 @@ function tkl_get_native_parent_dir()
   return 0
 }
 
-### traplib.sh ###
-
-function tkl_get_trap_cmd_line()
-{
-  tkl_get_trap_cmd_line_impl RETURN_VALUES "$@"
-}
-
-function tkl_get_trap_cmd_line_impl()
-{
-  local out_var="$1"
-  shift
-
-  # drop return values
-  eval "$out_var=()"
-
-  local trap_sig
-  local stack_var
-  local stack_arr
-  local trap_cmdline
-  local trap_prev_cmdline
-  local i
-
-  i=0
-  for trap_sig in "$@"; do
-    stack_var="_traplib_stack_${trap_sig}_cmdline"
-    declare -a "stack_arr=(\"\${$stack_var[@]}\")"
-    if (( ${#stack_arr[@]} )); then
-      for trap_cmdline in "${stack_arr[@]}"; do
-        declare -a "trap_prev_cmdline=(\"\${$out_var[i]}\")"
-        if [[ -n "$trap_prev_cmdline" ]]; then
-          eval "$out_var[i]=\"\$trap_cmdline; \$trap_prev_cmdline\"" # the last stored is the first executed
-        else
-          eval "$out_var[i]=\"\$trap_cmdline\""
-        fi
-      done
-    else
-      # use the signal current trap command line
-      declare -a "trap_cmdline=(`trap -p "$trap_sig"`)"
-      eval "$out_var[i]=\"\${trap_cmdline[2]}\""
-    fi
-    (( i++ ))
-  done
-}
-
-function tkl_push_trap()
-{
-  # drop return values
-  EXIT_CODES=()
-  RETURN_VALUES=()
-
-  local cmdline="$1"
-  [[ -z "$cmdline" ]] && return 0 # nothing to push
-  shift
-
-  local trap_sig
-  local stack_var
-  local stack_arr
-  local trap_cmdline_size
-  local prev_cmdline
-
-  for trap_sig in "$@"; do
-    stack_var="_traplib_stack_${trap_sig}_cmdline"
-    declare -a "stack_arr=(\"\${$stack_var[@]}\")"
-    trap_cmdline_size=${#stack_arr[@]}
-    if (( trap_cmdline_size )); then
-      # append to the end is equal to push trap onto stack
-      eval "$stack_var[trap_cmdline_size]=\"\$cmdline\""
-    else
-      # first stack element is always the trap current command line if not empty
-      declare -a "prev_cmdline=(`trap -p $trap_sig`)"
-      if (( ${#prev_cmdline[2]} )); then
-        eval "$stack_var=(\"\${prev_cmdline[2]}\" \"\$cmdline\")"
-      else
-        eval "$stack_var=(\"\$cmdline\")"
-      fi
-    fi
-    # update the signal trap command line
-    tkl_get_trap_cmd_line "$trap_sig"
-    trap "${RETURN_VALUES[0]}" "$trap_sig"
-    EXIT_CODES[i++]=$?
-  done
-}
-
-function tkl_pop_trap()
-{
-  # drop return values
-  EXIT_CODES=()
-  RETURN_VALUES=()
-
-  local IFS
-
-  local trap_sig
-  local stack_var
-  local stack_arr
-  local trap_cmdline_size
-  local trap_cmdline
-  local i
-
-  i=0
-  for trap_sig in "$@"; do
-    stack_var="tkl__traps_stack__${trap_sig}"
-    declare -a "stack_arr=(\"\${$stack_var[@]}\")"
-    trap_cmdline_size=${#stack_arr[@]}
-    if (( trap_cmdline_size )); then
-      (( trap_cmdline_size-- ))
-      RETURN_VALUES[i]="${stack_arr[trap_cmdline_size]}"
-      # unset the end
-      unset $stack_var[trap_cmdline_size]
-      (( !trap_cmdline_size )) && unset $stack_var
-
-      # update the signal trap command line
-      if (( trap_cmdline_size )); then
-        tkl_get_trap_cmd_line_impl trap_cmdline "$trap_sig"
-        trap "${trap_cmdline[0]}" "$trap_sig"
-      else
-        trap "" "$trap_sig" # just clear the trap
-      fi
-      EXIT_CODES[i]=$?
-    else
-      # nothing to pop
-      RETURN_VALUES[i]=""
-    fi
-    (( i++ ))
-  done
-}
-
-function tkl_pop_exec_trap()
-{
-  # drop exit codes
-  EXIT_CODES=()
-
-  tkl_pop_trap "$@"
-
-  local i=0
-  local cmdline
-
-  for cmdline in "${RETURN_VALUES[@]}"; do
-    # execute as function and store exit code
-    eval "function _traplib_immediate_handler() { $cmdline; }"
-    _traplib_immediate_handler
-    EXIT_CODES[i++]=$?
-    unset _traplib_immediate_handler
-  done
-}
-
 function tkl_get_abs_path_from_dir()
 {
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
   local DirPath="$1"
   local RelativePath="$2"
@@ -540,29 +417,16 @@ function tkl_get_abs_path_from_dir()
   DirPath="${DirPath//[$'\r\n']}" 
   RelativePath="${RelativePath//[$'\r\n']}" 
 
-  # WORKAROUND:
-  #   Because some versions of readlink can not handle windows native absolute
-  #   paths correctly, then always try to convert directory path to a backend
-  #   path before the readlink in case if the path has specific native path
-  #   characters.
-  if [[ "${DirPath:1:1}" == ":" ]]; then
-    tkl_convert_native_path_to_backend "$DirPath"
-    DirPath="$RETURN_VALUE"
+  if [[ -n "$DirPath" ]]; then
+    if [[ "${RelativePath:0:1}" != '/' ]]; then
+      tkl_normalize_path "$DirPath${RelativePath:+/}$RelativePath" -a || return 2
+    else
+      tkl_normalize_path "$RelativePath" -a || return 3
+    fi
+    return 0
   fi
 
-  if [[ -n "$DirPath" ]]; then
-    if [[ -x "/bin/readlink" ]]; then
-      if [[ "${RelativePath:0:1}" != '/' ]]; then
-        RETURN_VALUE=$(/bin/readlink -m "$DirPath${RelativePath:+/}$RelativePath")
-      else
-        RETURN_VALUE=$(/bin/readlink -m "$RelativePath")
-      fi
-    else
-      return 1
-    fi
-  else
-    return 2
-  fi
+  return 255
 }
 
 function tkl_convert_backend_path_to_native()
@@ -570,75 +434,60 @@ function tkl_convert_backend_path_to_native()
   # cygwin/msys2 uses cygpath command to convert paths
   # msys/mingw uses old style conversion through the "cmd.exe ^/C" call
 
-  # drop return value
+  # set return value to input value
   RETURN_VALUE="$1"
 
-  local LastError=0
   local PathToConvert="$1"
   local Flags="$2"
 
-  local ConvertedPath=""
+  local ConvertedPath=''
 
   if [[ "${Flags/i/}" != "$Flags" ]]; then
     # w/ user mount points bypassing
     tkl_exctract_path_ignoring_user_mount_points -w "$PathToConvert"
-    LastError=$?
+    local LastError=$?
+    # convert backslashes to slashes
+    [[ "${Flags/s/}" != "$Flags" ]] && RETURN_VALUE="${RETURN_VALUE//\\//}"
+    return LastError
+  fi
+
+  tkl_normalize_path "$PathToConvert" || return 1
+
+  if (( ${#RETURN_VALUE} >= 2 )) && [[ "${RETURN_VALUE:1:1}" != ":" ]]; then
+    case "$OSTYPE" in
+      msys* | mingw*)
+        while true; do
+          # in msys2 and higher we must use /bin/cygpath.exe to convert the path
+          if [[ "$OSTYPE" == "msys" && -f "/bin/cygpath.exe" ]]; then
+            ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
+            break
+          fi
+          local ComSpecInternal="${COMSPEC//\\//}" # workaround for a "command not found" in the msys shell
+          # msys replaces mount point path properly if it ends by '/' character
+          RETURN_VALUE="${RETURN_VALUE%/}/"
+          tkl_escape_string "$RETURN_VALUE" '' 2
+          # msys automatically converts argument to the native path if it begins from '/' character
+          ConvertedPath="`"$ComSpecInternal" '^/C' \(echo.$RETURN_VALUE\)`"
+          # remove last slash
+          RETURN_VALUE="${ConvertedPath%[/\\]}"
+          break
+        done
+      ;;
+
+      cygwin*)
+        ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
+        # remove last slash
+        RETURN_VALUE="${ConvertedPath%[/\\]}"
+      ;;
+    esac
   fi
 
   if [[ "${Flags/s/}" != "$Flags" ]]; then
     # convert backslashes to slashes
     RETURN_VALUE="${RETURN_VALUE//\\//}"
-  fi
-
-  if [[ "${Flags/i/}" != "$Flags" ]]; then
-    return $LastError
-  fi
-
-  [[ -n "$PathToConvert" ]] || return 1
-
-  tkl_get_abs_path_from_dir "$PathToConvert" || return 2
-
-  case "$OSTYPE" in
-    msys* | mingw*)
-      while true; do
-        # in msys2 and higher we must use /bin/cygpath.exe to convert the path
-        if [[ "$OSTYPE" == "msys" && -f "/bin/cygpath.exe" ]]; then
-          ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
-          break
-        fi
-        local ComSpecInternal="${COMSPEC//\\//}" # workaround for a "command not found" in the msys shell
-        # msys replaces mount point path properly if it ends by '/' character
-        RETURN_VALUE="${RETURN_VALUE%/}/"
-        tkl_escape_string "$RETURN_VALUE" '' 2
-        # msys automatically converts argument to the native path if it begins from '/' character
-        ConvertedPath="`"$ComSpecInternal" '^/C' \(echo $RETURN_VALUE\)`"
-        break
-      done
-    ;;
-
-    cygwin*)
-      ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
-    ;;
-
-    *)
-      if [[ "${Flags/s/}" != "$Flags" ]]; then
-        # convert backslashes to slashes
-        RETURN_VALUE="${RETURN_VALUE//\\//}"
-      fi
-
-      return 0
-    ;;
-  esac
-
-  # remove last slash
-  ConvertedPath="${ConvertedPath%[/\\]}"
-
-  if [[ "${Flags/s/}" != "$Flags" ]]; then
-    # convert backslashes to slashes
-    RETURN_VALUE="${ConvertedPath//\\//}"
   else
     # convert all slashes to backward slashes
-    RETURN_VALUE="${ConvertedPath//\//\\}"
+    RETURN_VALUE="${RETURN_VALUE//\//\\}"
   fi
 
   return 0
@@ -647,12 +496,14 @@ function tkl_convert_backend_path_to_native()
 function tkl_find_char()
 {
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
   # (Required) String which would be searched.
   local String="$1"
   # (Required) Chars for search.
   local Chars="$2"
+  # (Optional) Including by default, 0 - if excluding
+  local Including="${3:-1}"
 
   if [[ -z "$String" ]]; then
     RETURN_VALUE="-1"
@@ -667,17 +518,82 @@ function tkl_find_char()
   local CharsLen="${#Chars}"
   local i
   local j
-  for (( i=0; i < StringLen; i++ )); do
-    for (( j=0; j < CharsLen; j++ )); do
-      if [[ "${String:$i:1}" == "${Chars:$j:1}" ]]; then
+
+  if (( Including )); then
+    for (( i=0; i < StringLen; i++ )); do
+      for (( j=0; j < CharsLen; j++ )); do
+        if [[ "${String:i:1}" == "${Chars:j:1}" ]]; then
+          RETURN_VALUE="$i"
+          return 0
+          break
+        fi
+      done
+    done
+  else
+    for (( i=0; i < StringLen; i++ )); do
+      for (( j=0; j < CharsLen; j++ )); do
+        if [[ "${String:i:1}" != "${Chars:j:1}" ]]; then
+          RETURN_VALUE="$i"
+          return 0
+          break
+        fi
+      done
+    done
+  fi
+
+  RETURN_VALUE="-1"
+
+  return 3
+}
+
+function tkl_find_string()
+{
+  # drop return value
+  RETURN_VALUE="-1"
+
+  # (Required) String which would be searched.
+  local String="$1"
+  # (Required) Sub string which would be searched for.
+  local Substring="$2"
+  # (Optional) Flags
+  local flags="$3"
+
+  local nocaseSearch=0
+  [[ "${flags//i/}" != "$flags" ]] && nocaseSearch=1
+
+  local usePerl=0
+  [[ "${flags//p/}" != "$flags" ]] && usePerl=1
+
+  [[ -z "$String" ]] && return 1
+  if [[ -z "$Substring" ]]; then
+    RETURN_VALUE="${#String}"
+    return 2
+  fi
+
+  if (( ! usePerl )); then
+    local StringLen=${#String}
+    local SubstringLen=${#Substring}
+    local StringIterLen
+    (( StringIterLen=StringLen-SubstringLen+1 ))
+    local i
+    for (( i=0; i < StringIterLen; i++ )); do
+      if [[ "${String:i:SubstringLen}" == "$Substring" ]]; then
         RETURN_VALUE="$i"
         return 0
         break
       fi
     done
-  done
 
-  RETURN_VALUE="-1"
+    RETURN_VALUE='-1'
+  else
+    if (( ! nocaseSearch )); then
+      RETURN_VALUE="`/bin/perl.exe -e 'print index($ARGV[0],$ARGV[1]);' "$String" "$Substring"`"
+    else
+      RETURN_VALUE="`/bin/perl.exe -e 'my $a=$ARGV[0]; my $b=$ARGV[1]; $a =~ /$b/i; print $-[0];' "$String" "$Substring"`"
+    fi
+
+    (( RETURN_VALUE >= 0 )) && return 0
+  fi
 
   return 3
 }
@@ -685,7 +601,7 @@ function tkl_find_char()
 function tkl_escape_string()
 {
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
   # (Required) String which would be escaped.
   local String="$1"
@@ -712,10 +628,10 @@ function tkl_escape_string()
     esac
   fi
 
-  local EscapedString=""
+  local EscapedString=''
   local StringCharEscapeOffset=-1
   local i
-  for (( i=0; i<${#String}; i++ )); do
+  for (( i=0; i < ${#String}; i++ )); do
     local StringChar="${String:$i:1}"
     case $EscapeType in
       0)
@@ -745,48 +661,280 @@ function tkl_escape_string()
     esac
   done
 
-  [[ -n "$EscapedString" ]] || return 2
+  [[ -z "$EscapedString" ]] && return 2
 
   RETURN_VALUE="$EscapedString"
 
   return 0
 }
 
+function tkl_serialize_array()
+{
+  local __array_var="$1"
+  local __out_var="$2"
+
+  [[ -z "$__array_var" ]] && return 1
+  [[ -z "$__out_var" ]] && return 2
+
+  local __array_var_size
+  eval declare "__array_var_size=\${#$__array_var[@]}"
+
+  (( ! __array_var_size )) && { tkl_declare_global $__out_var ''; return 0; }
+
+  local __escaped_array_str=''
+
+  local __index
+  local __value
+  for (( __index=0; __index < __array_var_size; __index++ )); do
+    eval declare "__value=\"\${$__array_var[__index]}\""
+    __value="${__value//\?/?00}"
+    __value="${__value//|/?01}"
+    __escaped_array_str="$__escaped_array_str${__escaped_array_str:+|}$__value"
+  done
+
+  tkl_declare_global $__out_var "$__escaped_array_str"
+
+  return 0
+}
+
+function tkl_deserialize_array()
+{
+  local __serialized_array="$1"
+  local __out_var="$2"
+
+  [[ -z "$__out_var" ]] && return 1
+  [[ -z "$__serialized_array" ]] && { tkl_declare_global $__out_var ''; return 0; }
+
+  local IFS='|'
+  local __deserialized_array=($__serialized_array)
+
+  tkl_declare_global_array $__out_var
+
+  local __index=0
+  local __value
+  for __value in "${__deserialized_array[@]}"; do
+    __value="${__value//\?01/|}"
+    __value="${__value//\?00/?}"
+    tkl_declare_global $__out_var[__index] "$__value"
+    (( __index++ ))
+  done
+
+  return 0
+}
+
+function tkl_byte_to_char()
+{
+  local octal
+  builtin printf -v octal %03o $1
+  builtin printf -v RETURN_VALUE \\$octal
+}
+
+function tkl_char_to_sbyte()
+{
+  builtin printf -v RETURN_VALUE %d "'${1:0:1}"
+  # workaround for "printf" positive values
+  (( RETURN_VALUE >= 128 && ( RETURN_VALUE -= 256 ) ))
+}
+
+function tkl_char_to_ubyte()
+{
+  builtin printf -v RETURN_VALUE %d "'${1:0:1}"
+  # workaround for "printf" negative values
+  (( RETURN_VALUE < 0 && ( RETURN_VALUE += 256 ) ))
+}
+
+# 1. does not call to an external utility or bash shell process
+# 2. reduces path removing relative path arithmetic
+# 3. optionally converts relative path to the absolute path, where the path like `../blabla` is required to be converted, but not the `./blabla`
+#
+function tkl_normalize_path()
+{
+  #echo "FUNCNAME=${FUNCNAME[@]}"
+  # convert all back slashes to slashes
+  local path_to_normalize="${1//\\//}"
+  local flags="$2"
+
+  # set return value to input value
+  RETURN_VALUE="$path_to_normalize"
+
+  [[ -z "$path_to_normalize" ]] && return 1
+
+  local convert_to_abs_path=0
+  [[ "${flags/a/}" != "$flags" ]] && convert_to_abs_path=1
+
+  local num_reductions
+  local path_prefix
+  local path_suffix
+  local path_suffix0
+  local path_suffix1
+  local path_accumulator=''
+  local path_abs_prefix=''  # only for '<prefix>:' or `/`
+
+  local IFS='/'
+
+  local path="$path_to_normalize"
+
+  read -r path_prefix path_suffix <<< "$path"
+
+  # process absolute path prefix at first
+  if [[ -z "$path_prefix" ]]; then
+    path_abs_prefix='/'
+    path="$path_suffix"
+    read -r path_prefix path_suffix <<< "$path"
+  elif [[ "${path_prefix/:/.}" != "$path_prefix" ]]; then
+    path_abs_prefix="$path_prefix"
+    path="$path_suffix"
+    read -r path_prefix path_suffix <<< "$path"
+  fi
+
+  local path_accumulator_has_abs_component  # 1 in case if `path_accumulator` has absolute component (not `..`)
+  local continue_reduction=1
+  while (( continue_reduction )); do
+    num_reductions=0
+    continue_reduction=0
+    path_accumulator_has_abs_component=0
+
+    while [[ -n "$path_prefix" || -n "$path_suffix" ]]; do
+      #echo "1: abs_prefix=$path_abs_prefix prefix=$path_prefix suffix=$path_suffix accum=$path_accumulator"
+
+      if [[ -z "$path_prefix" || "$path_prefix" == '.' ]]; then
+        (( num_reductions++ ))
+        path="$path_suffix"
+        read -r path_prefix path_suffix <<< "$path"
+      elif [[ "$path_prefix" == '..' ]]; then
+        if [[ -n "$path_accumulator" ]]; then
+          # can not reduce from here, just pass as is
+          path_accumulator="$path_accumulator/.."
+          # continue reduction next time from the beginning
+          (( path_accumulator_has_abs_component )) && continue_reduction=1
+          path="$path_suffix"
+          read -r path_prefix path_suffix <<< "$path"
+        elif [[ -z "$path_abs_prefix" ]]; then
+          # path is above to the current directory, required to convert to the absolute path
+          if [[ "${PWD: -1}" != '/' ]]; then
+            path="$PWD/$path"
+          else
+            path="$PWD$path"
+          fi
+          read -r path_prefix path_suffix <<< "$path"
+
+          # process absolute path prefix
+          if [[ -z "$path_prefix" ]]; then
+            path_abs_prefix='/'
+            path="$path_suffix"
+            read -r path_prefix path_suffix <<< "$path"
+          elif [[ "${path_prefix/:/.}" != "$path_prefix" ]]; then
+            path_abs_prefix="$path_prefix"
+            path="$path_suffix"
+            read -r path_prefix path_suffix <<< "$path"
+          fi
+        else
+          # can not convert a relative path above the root, leave as is
+          path_accumulator='..'
+          path="$path_suffix"
+          read -r path_prefix path_suffix <<< "$path"
+        fi
+      else
+        if [[ -n "$path_abs_prefix" ]] || (( ! convert_to_abs_path )); then
+          path="$path_suffix"
+          read -r path_suffix0 path_suffix1 <<< "$path"
+          #echo "2: suffix0=$path_suffix0 suffix1=$path_suffix1"
+          if [[ "$path_suffix0" == '..' ]]; then
+            # can reduce in place
+            (( num_reductions++ ))
+            path="$path_suffix1"
+            read -r path_prefix path_suffix <<< "$path"
+          elif [[ "$path_suffix0" == '.' ]]; then
+            # can reduce in place
+            (( num_reductions++ ))
+            path_accumulator="$path_accumulator${path_accumulator:+/}$path_prefix"
+            path_accumulator_has_abs_component=1
+            path="$path_suffix1"
+            read -r path_prefix path_suffix <<< "$path"
+          else
+            path_accumulator="$path_accumulator${path_accumulator:+/}$path_prefix"
+            path_accumulator_has_abs_component=1
+            path_prefix="$path_suffix0"
+            path_suffix="$path_suffix1"
+          fi
+        else
+          if [[ "${PWD: -1}" != '/' ]]; then
+            path="$PWD/$path"
+          else
+            path="$PWD$path"
+          fi
+          read -r path_prefix path_suffix <<< "$path"
+
+          # process absolute path prefix
+          if [[ -z "$path_prefix" ]]; then
+            path_abs_prefix='/'
+            path="$path_suffix"
+            read -r path_prefix path_suffix <<< "$path"
+          elif [[ "${path_prefix/:/.}" != "$path_prefix" ]]; then
+            path_abs_prefix="$path_prefix"
+            path="$path_suffix"
+            read -r path_prefix path_suffix <<< "$path"
+          fi
+        fi
+      fi
+    done
+
+    #echo "3: abs_prefix=$path_abs_prefix prefix=$path_prefix suffix=$path_suffix accum=$path_accumulator reductions=$num_reductions continue=$continue_reduction"
+
+    (( num_reductions )) && continue_reduction=1
+    (( ! continue_reduction )) && break
+
+    path="$path_accumulator"
+    path_accumulator='' # restart parsing from beginning
+    read -r path_prefix path_suffix <<< "$path"
+  done
+
+  if [[ -n "$path_abs_prefix" ]]; then
+    if [[ "${path_abs_prefix: -1}" != '/' ]]; then
+      path_accumulator="$path_abs_prefix/$path_accumulator"
+    else
+      path_accumulator="$path_abs_prefix$path_accumulator"
+    fi
+  elif [[ -z "$path_accumulator" ]]; then
+    if (( convert_to_abs_path )); then
+      path_accumulator="$PWD"
+    else
+      path_accumulator='.'
+    fi
+  fi
+
+  RETURN_VALUE="$path_accumulator"
+
+  #echo "RETURN_VALUE=$RETURN_VALUE"
+
+  return 0
+}
+
 function tkl_convert_native_path_to_backend()
 {
-  # drop return value
+  # set return value to input value
   RETURN_VALUE="$1"
 
-  # Convert all back slashes to slashes.
+  # convert all back slashes to slashes
   local PathToConvert="${1//\\//}"
 
-  [[ -n "$PathToConvert" ]] || return 1
+  [[ -z "$PathToConvert" ]] && return 1
 
   # workaround for the bash 3.1.0 bug for the expression "${arg:X:Y}",
   # where "Y == 0" or "Y + X >= ${#arg}"
   local PathToConvertLen=${#PathToConvert}
   local PathPrefixes=('' '')
-  local PathSuffix=""
-  if (( PathToConvertLen > 0 )); then
-    PathPrefixes[0]="${PathToConvert:0:1}"
-  fi
-  if (( PathToConvertLen > 1 )); then
-    PathPrefixes[1]="${PathToConvert:1:1}"
-  fi
-  if (( PathToConvertLen >= 3 )); then
+  local PathSuffix=''
+  (( PathToConvertLen > 0 )) && PathPrefixes[0]="${PathToConvert:0:1}"
+  (( PathToConvertLen > 1 )) && PathPrefixes[1]="${PathToConvert:1:1}"
+  if (( PathToConvertLen >= 2 )) && [[ "${PathPrefixes[0]}" != '/' && "${PathPrefixes[0]}" != '.' && "${PathPrefixes[1]}" == ':' ]]; then
     PathSuffix="${PathToConvert:2}"
     PathSuffix="${PathSuffix%/}"
-  fi
 
-  # Convert path drive prefix too.
-  if [[ "${PathPrefixes[0]}" != '/' && "${PathPrefixes[0]}" != '.' && "${PathPrefixes[1]}" == ':' ]]; then
+    # Convert path drive prefix too.
     case "$OSTYPE" in
       cygwin*) PathToConvert="/cygdrive/${PathPrefixes[0]}$PathSuffix" ;;
-      *)
-        PathToConvert="/${PathPrefixes[0]}$PathSuffix"
-        # add slash to the end of path in case of drive only path
-        (( ! ${#PathSuffix} )) && PathToConvert="$PathToConvert/"
-      ;;
+      *) PathToConvert="/${PathPrefixes[0]}$PathSuffix" ;;
     esac
   fi
 
@@ -797,8 +945,8 @@ function tkl_convert_native_path_to_backend()
 
 function tkl_exctract_path_ignoring_user_mount_points()
 {
-  # Splits the path into 2 paths by exracting builtin paths from the beginning of
-  # the path in this order:
+  # Splits the path into 2 paths by extracting builtin paths from the beginning
+  # of the path in this order:
   # "/usr/bin" => "/usr/lib" => "/usr" => "/lib" => "/<drive>/" => "/"
   # That is because, the Cygwin backend has the redirection of
   # "/usr/bin" and "/usr/lib" into "/bin" and "/lib" paths respectively, but
@@ -828,9 +976,9 @@ function tkl_exctract_path_ignoring_user_mount_points()
   local PathToConvert="$1"
 
   # drop return value
-  RETURN_VALUE=""
+  RETURN_VALUE=''
 
-  (( ${#PathToConvert} )) || return 1
+  [[ -z "$PathToConvert" ]] && return 1
 
   local DoConvertToBackendTypePath=1
   if [[ "${Flags//w/}" != "$Flags" ]]; then
@@ -840,20 +988,17 @@ function tkl_exctract_path_ignoring_user_mount_points()
   fi
 
   # enable nocase match
-  local oldShopt=""
+  local oldShopt=''
   function LocalReturn()
   {
-    if [[ -n "$oldShopt" ]]; then
-      # Restore state
-      eval $oldShopt
-    fi
+    [[ -n "$oldShopt" ]] && eval $oldShopt
     unset -f "${FUNCNAME[0]}" # drop function after execution
   }
 
   trap "LocalReturn; trap - RETURN" RETURN || return 253
 
-  oldShopt="$(shopt -p nocasematch)" # Read state before change
-  if [[ "$oldShopt" != "shopt -s nocasematch" ]]; then
+  oldShopt=$(shopt -p nocasematch) # Read state before change
+  if [[ "$oldShopt" != 'shopt -s nocasematch' ]]; then
     shopt -s nocasematch
   else
     oldShopt=''
@@ -903,7 +1048,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
         RETURN_VALUE="${PathPrefix%/}/"
         tkl_escape_string "$RETURN_VALUE" '' 2
         # msys automatically converts argument to the native path if it begins from '/' character
-        ConvertedPath="$("$ComSpecInternal" '^/C' \(echo $RETURN_VALUE\))"
+        ConvertedPath=$("$ComSpecInternal" '^/C' \(echo.$RETURN_VALUE\))
         break
       done
       ;;
@@ -934,7 +1079,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
 function tkl_bash_entry()
 {
   local BashEntryPath="$1"
-  [[ -n "$BashEntryPath" ]] || return 1
+  [[ -z "$BashEntryPath" ]] && return 1
 
   trap ':' RETURN # set to empty command to avoid reset from child function calls
 
@@ -944,7 +1089,9 @@ function tkl_bash_entry()
   return 0
 }
 
-if [[ -z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0 ]]; then
+fi
+
+if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
   # Script was not included, then execute it. 
 
   if [[ -z "$BASH_ENTRY_FILE" || ! -f "$BASH_ENTRY_FILE" ]]; then

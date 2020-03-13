@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_PROJECTLIB_SH} )); then
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_PROJECTLIB_SH" || SOURCE_PROJECTLIB_SH -eq 0) ]]; then
 
 SOURCE_PROJECTLIB_SH=1 # including guard
 
 source "/bin/bash_entry" || exit $?
-tkl_include "../../../_scripts/tools/buildlib.sh" || exit $?
+tkl_include "../../../bash/tacklelib/buildlib.sh" || exit $?
 
 function UpdateOsName()
 {
@@ -24,10 +24,10 @@ function GenerateConfig()
 {
   local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/python_tests/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
+  tkl_load_command_args_from_file -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
 
-  Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
+  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
 
   return $LastError
 }

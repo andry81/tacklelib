@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.10
+* 2020.03.03
 * tacklelib--scripts
 
 1. DESCRIPTION
@@ -114,7 +114,7 @@ Otherwise you have to set at least all dependent variables on yourself before
 call to the cmake.
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+`/bash/tacklelib/bash_entry` into the `/bin` directory of your platform.
 
 In pure Linux you have additional step to make scripts executable:
 

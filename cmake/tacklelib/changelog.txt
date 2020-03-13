@@ -1,3 +1,6 @@
+2020.03.08:
+* changed: readme update
+
 2020.02.20:
 * changed: `tkl_discover_builtin_vars` changed to discover only environment variables
 * refactor: `tkl_discover_*` functions renamed

@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.10
+* 2020.03.08
 * tacklelib--python
 
 1. DESCRIPTION
@@ -25,7 +25,9 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-Tacklelib library python modules.
+The `tacklelib` library python support modules to run python scripts on
+Windows and Linux platforms separately without any other extra dependencies
+except those from the PREREQUISITES section below.
 
 WARNING:
   Use the SVN access to find out latest functionality and bug fixes.
@@ -54,12 +56,19 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 
-Currently tested these set of OS platforms, interpreters and modules to run
-from:
+Currently used these set of OS platforms, compilers, interpreters, modules,
+IDE's, applications and patches to run with or from:
 
 1. OS platforms.
 
 * Windows 7 (`.bat` only)
+* Cygwin 1.5+ or 3.0+ (`.sh` only):
+  https://cygwin.com
+  - to run scripts under cygwin
+* Msys2 20190524+ (`.sh` only):
+  https://www.msys2.org
+  - to run scripts under msys2
+* Linux Mint 18.3 x64 (`.sh` only)
 
 2. Interpreters:
 
@@ -110,7 +119,6 @@ from:
 * subversion 1.8+
   https://tortoisesvn.net
   - to run svn client
-
 * git 2.24+
   https://git-scm.com
   - to run git client

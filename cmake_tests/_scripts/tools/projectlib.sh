@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_PROJECTLIB_SH} )); then
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_PROJECTLIB_SH" || SOURCE_PROJECTLIB_SH -eq 0) ]]; then
 
 SOURCE_PROJECTLIB_SH=1 # including guard
 
 source "/bin/bash_entry" || exit $?
-tkl_include "../../../_scripts/tools/buildlib.sh" || exit $?
+tkl_include "../../../bash/tacklelib/buildlib.sh" || exit $?
 
 function GenerateConfig()
 {
@@ -15,18 +15,17 @@ function GenerateConfig()
   MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
 
-  Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
+  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
 
   local CONFIG_FILE_IN="$PROJECT_ROOT/cmake_tests/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
-  local IFS
 
-  local IFS
-  while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do 
+  local IFS=$'|\t\r\n'
+  while read -r ScriptFilePath ScriptCmdLine; do 
     [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
     [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
     ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
     declare -a "ScriptCmdLineArr=($ScriptCmdLine)" # evaluate command line only
-    Call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
+    tkl_call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
   done < "$CONFIG_FILE_IN"
 
   return $LastError
