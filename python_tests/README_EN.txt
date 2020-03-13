@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.10
+* 2020.03.10
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -15,7 +15,9 @@
 7.1.2. `OSError: [WinError 6] The handle is invalid`
 7.2. pytest execution issues
 7.2.1. Some tests from `python_tests/01_unit` directory fails
-7.2.2. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
+7.2.2. Testes with `xsh` extension runs at first ignoring the predefined pytest
+       order
+7.2.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
 7.3. fcache execution issues
 7.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
 8. AUTHOR
@@ -23,7 +25,9 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-Python tests designed to test python modules from the tacklelib library.
+Python tests designed to test `python` modules from the `tacklelib` library,
+but with support from `bash` and `cmake` modules from the `tacklelib` library
+itself.
 
 WARNING:
   Use the SVN access to find out latest functionality and bug fixes.
@@ -52,17 +56,26 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 
-Currently tested these set of OS platforms, interpreters and modules to run
-from:
+Currently used these set of OS platforms, compilers, interpreters, modules,
+IDE's, applications and patches to run with or from:
 
-1. OS platforms.
+1. OS platforms:
 
-* Windows 7 (`.bat` only)
+* Windows 7 (`.bat` only, minimal version for the cmake 3.14)
+* Cygwin 1.5+ or 3.0+ (`.sh` only):
+  https://cygwin.com
+  - to run scripts under cygwin
+* Msys2 20190524+ (`.sh` only):
+  https://www.msys2.org
+  - to run scripts under msys2
+* Linux Mint 18.3 x64 (`.sh` only)
 
 2. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
+* perl 5.10+
+  - to run specific bash script functions with `perl` calls
 * python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
   https://python.org
   - standard implementation to run python scripts
@@ -73,7 +86,7 @@ from:
     https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
 * cmake 3.15.1 (3.14+):
   https://cmake.org/download/
-  - to read configuration variables and run `python_tests` scripts
+  - to run cmake scripts and modules
 
 3. Modules
 
@@ -106,7 +119,16 @@ from:
 **  tacklelib--python :
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
 
-4. Patches:
+4. Applications:
+
+* cygwin cygpath 1.42+
+  - to run `bash_entry` script under cygwin
+* msys cygpath 3.0+
+  - to run `bash_entry` script under msys2
+* cygwin readlink 6.10+
+  - to run specific bash script functions with `readlink` calls
+
+5. Patches:
 
 * Python site modules contains patches in the `python_patches` directory:
 
@@ -121,10 +143,10 @@ configuration files in the `/python_tests/_config` subdirectory to run the
 tests.
 
 Otherwise you have to set at least all dependent variables on yourself before
-call to tests scripts.
+call to test scripts.
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+`/bash/tacklelib/bash_entry` module into the `/bin` directory of your platform.
 
 In pure Linux you have additional step to make scripts executable:
 
@@ -246,7 +268,25 @@ To fix that case you have to run all tests by a predefined script:
 `test_all.bat`
 
 -------------------------------------------------------------------------------
-7.2.2. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
+7.2.2. Testes with `xsh` extension runs at first ignoring the predefined pytest
+       order
+-------------------------------------------------------------------------------
+
+Issue:
+
+The python xonsh plugin breaks tests run order:
+`xonsh incorrectly reorders the test for the pytest` :
+https://github.com/xonsh/xonsh/issues/3380
+`Remove test reordering in pytest plugin` :
+https://github.com/xonsh/xonsh/pull/3468
+
+Solution:
+
+To fix that case you have to run all tests by a predefined script:
+`test_all.bat`
+
+-------------------------------------------------------------------------------
+7.2.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
 -------------------------------------------------------------------------------
 
 Issue:

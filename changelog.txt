@@ -1,3 +1,56 @@
+2020.03.13:
+* fixed: bash: bash_entry: `tkl_is_abs_path` function
+* new: bash: `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
+* changed: bash: improved function `tkl_get_abs_path_from_dir`
+* changed: bash: improved function `tkl_convert_native_path_to_backend`
+* changed: bash: improved function `tkl_convert_backend_path_to_native`
+* changed: bash: improved function `tkl_include`
+* changed: bash: `readlink -m` usage replaced by the `tkl_normalize_path` function
+* changed: bash: trap functions extracted from the `bash_entry` back to `traplib.sh` module
+* refactor: bash: global `bash_entry` script refactor
+
+2020.03.11:
+* fixed: bash: `tkl_push_trap`, `tkl_pop_trap`, `tkl_get_trap_cmd_line` and `tkl_pop_exec_trap` rewrited to support RETURN signals
+
+2020.03.10:
+* changed: python_tests: readme update
+
+2020.03.09:
+* changed: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+* changed: cmake_tests: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+* changed: python_tests: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+
+2020.03.08:
+* new: bash: `buildlib.sh` module migrated from the tools directory
+* changed: _scripts/tools: `buildlib.sh` module migrated into the bash directory
+* changed: bash: readme update
+* changed: bash_tests: readme update
+* changed: cmake: readme update
+* changed: cmake_tests: readme update
+* changed: python: readme update
+* changed: python_tests: readme update
+* refactor: cmake_tests: _scripts/tools: minor refactor
+* refactor: python_tests: _scripts/tools: minor refactor
+
+2020.03.05:
+* new: bash: `baselib.sh`, `funclib.sh`, `hashlib.sh`, `stringlib.sh`, `testlib.sh` modules migrated from the `contools` project
+* new: bash_tests: changelog file
+* new: bash_tests: readme file
+* new: bash_tests: 01_bash_entry/01_normalize_path tests
+* changed: cmake_tests: readme update
+* changed: python_tests: readme update
+* changed: readme update
+* refactor: bash: global shell scripts refactor
+
+2020.03.03:
+* new: bash: standalone changelog file
+* new: bash: readme file
+* new: bash: license file
+* changed: _scripts: moved not required anymore bash shell files into separate directory
+* changed: _scripts: removed `traplib.sh` module from usage because it's content is a part of the `bash_entry` module
+* changed: readme update
+* refactor: _scripts: shell scripts placement refactor, `_tools` directory must contain all required shell scripts by a copy because the `_scripts` directory must be referenced as a standalone directory without any other dependencies
+
 2020.03.02:
 * fixed: python_tests: `02_interactive/*` tests execution under cygwin and Linux
 

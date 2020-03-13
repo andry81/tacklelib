@@ -1,0 +1,27 @@
+2020.03.13:
+* fixed: bash_entry: `tkl_is_abs_path` function
+* new: `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
+* changed: improved function `tkl_get_abs_path_from_dir`
+* changed: improved function `tkl_convert_native_path_to_backend`
+* changed: improved function `tkl_convert_backend_path_to_native`
+* changed: improved function `tkl_include`
+* changed: `readlink -m` usage replaced by the `tkl_normalize_path` function
+* changed: trap functions extracted from the `bash_entry` back to `traplib.sh` module
+* refactor: global `bash_entry` script refactor
+
+2020.03.11:
+* fixed: `tkl_push_trap`, `tkl_pop_trap`, `tkl_get_trap_cmd_line` and `tkl_pop_exec_trap` rewrited to support RETURN signals
+
+2020.03.08:
+* new: `buildlib.sh` module migrated from the tools directory
+* changed: readme update
+
+2020.03.05:
+* new: `baselib.sh`, `funclib.sh`, `hashlib.sh`, `stringlib.sh`, `testlib.sh` modules migrated from the `contools` project
+* refactor: global shell scripts refactor
+
+2020.03.03:
+* new: standalone changelog file
+* new: readme file
+* new: license file
+* new: `bash_entry`, `traplib.sh` modules migrated from the tools directory

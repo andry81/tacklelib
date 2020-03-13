@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.27
+* 2020.03.08
 * tacklelib
 
 1. DESCRIPTION
@@ -28,14 +28,22 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-The C++11 generic library which may respresents the same ideas as introduced in
-Boost/STL/Loki C++ libraries and at first focused for extension of already
-existed C++ code. Sources has been written under MSVC2015 Update 3 and
-recompiled in GCC v5.4. As a backbone build system the cmake v3 is used.
+A composite generic library consisted of various modules on different
+languages:
+* C++11.
+  Represents the same ideas as introduced in Boost/STL/Loki C++ libraries and
+  at first focused for extension of already existed C++ code.
+* CMake.
+  CMake modules to support and extend a build of a c++ project under cmake
+  environment.
+* Python.
+  Various extension modules for the python.
+* Bash.
+  Various extension modules for the bash shell.
 
 In next sections will be introduced common steps to build the project under
-Windows AND Linux together. But, to build particularly under Linux you have to
-read additionally another readme files:
+Windows AND Linux together. To build particularly under Linux you have to read
+additionally another readme file:
 
 `README_EN.linux_x86_64.txt`
 
@@ -68,7 +76,12 @@ IDE's, applications and patches to run with or from:
 1. OS platforms:
 
 * Windows 7 (`.bat` only, minimal version for the cmake 3.14)
-* Cygwin 1.7.x (`.sh` only)
+* Cygwin 1.5+ or 3.0+ (`.sh` only):
+  https://cygwin.com
+  - to run scripts under cygwin
+* Msys2 20190524+ (`.sh` only):
+  https://www.msys2.org
+  - to run scripts under msys2
 * Linux Mint 18.3 x64 (`.sh` only)
 
 2. C++11 compilers:
@@ -81,6 +94,8 @@ IDE's, applications and patches to run with or from:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
+* perl 5.10+
+  - to run specific bash script functions with `perl` calls
 * python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
   https://python.org
   - standard implementation to run python scripts
@@ -89,7 +104,7 @@ IDE's, applications and patches to run with or from:
   - 3.5+ is required for the direct import by a file path (with any extension)
     as noted in the documentation:
     https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
-* cmake 3.14+ :
+* cmake 3.15.1 (3.14+):
   https://cmake.org/download/
   - to run cmake scripts and modules
 
@@ -137,10 +152,15 @@ Temporary dropped usage:
 * subversion 1.8+
   https://tortoisesvn.net
   - to run svn client
-
 * git 2.24+
   https://git-scm.com
   - to run git client
+* cygwin cygpath 1.42+
+  - to run `bash_entry` script under cygwin
+* msys cygpath 3.0+
+  - to run `bash_entry` script under msys2
+* cygwin readlink 6.10+
+  - to run specific bash script functions with `readlink` calls
 
 7. Patches:
 
@@ -173,7 +193,8 @@ the Windows and in the Linux platforms.
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
-  `_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+  `/bash/tacklelib/bash_entry` module into the `/bin` directory of your
+  platform.
 
 To prepare local third party library sources you can:
 
@@ -241,13 +262,6 @@ To prepare local third party library sources you can:
  |  | # Contains special `__init*__` script to allocate basic environment
  |  | # variables and make common preparations.
  |  |
- |  +-/tools/`bash_entry`
- |  |   #
- |  |   # Script for inclusion into all unix bash shell scripts a basic
- |  |   # functionality directly from the root `/bin` directory. Must be
- |  |   # appropriately copied into the `/bin` directory before the usage any
- |  |   # of below unix bash shell scripts.
- |  |
  |  +-/`01_generate_src.*`
  |  |   #
  |  |   # Script to generate source files in the root project and local 3dparty
@@ -278,6 +292,14 @@ To prepare local third party library sources you can:
  |  +-/`06_pack.*`
  |      #
  |      # Script to call cmake pack step on the bundle target.
+ |
+ +- /`bash`
+ |    #
+ |    # Directory with external bash modules.
+ |
+ +- /`bash_tests`
+ |    #
+ |    # Directory with tests for bash modules from the `bash` subdirectory.
  |
  +- /`cmake`
  |    #
@@ -420,7 +442,8 @@ NOTE:
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
-  `_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+  `/bash/tacklelib/bash_entry` module into the `/bin` directory of your
+  platform.
 
 CAUTION:
   For the Linux like platform do read the `README_EN.linux_x86_64.txt` file

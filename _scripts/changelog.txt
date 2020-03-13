@@ -1,3 +1,11 @@
+2020.03.08:
+* changed: `buildlib.sh` module migrated into the bash directory
+
+2020.03.03:
+* changed: moved not required anymore bash shell files into separate directory
+* changed: removed `traplib.sh` module from usage because it's content is a part of the `bash_entry` module
+* refactor: shell scripts placement refactor, `_tools` directory must contain all required shell scripts by a copy because the `_scripts` directory must be referenced as a standalone directory without any other dependencies
+
 2020.02.26:
 * fixed: tools: bash_entry: accidental `$1` argument pass into `source` statement
 * new: tools: bash_entry: `tkl_make_source_file_components_from_file_path` function to manually update source file components from any file path

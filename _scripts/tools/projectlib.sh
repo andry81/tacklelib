@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_PROJECTLIB_SH} )); then
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_PROJECTLIB_SH} || ! SOURCE_PROJECTLIB_SH )); then
 
 SOURCE_PROJECTLIB_SH=1 # including guard
+
+# CAUTION:
+#   All includes must use local modules from the `_scripts` subdirectory
+#   because this is a standalone directory referenced from external projects.
+#
 
 source "/bin/bash_entry" || exit $?
 tkl_include "buildlib.sh" || exit $?
@@ -12,8 +17,8 @@ function GenerateSrc()
 {
   local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.in"
 
-  local IFS
-  while IFS=$'|\t\r\n' read -r FromFilePath ToFilePath; do
+  local IFS=$'|\t\r\n'
+  while read -r FromFilePath ToFilePath; do
     [[ -z "${FromFilePath//[$' \t']/}" ]] && continue
     [[ -z "${ToFilePath//[$' \t']/}" ]] && continue
     [[ "${FromFilePath:i:1}" == "#" ]] && continue
@@ -26,13 +31,13 @@ function GenerateSrc()
 
   local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
-  local IFS
-  while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do
+  local IFS=$'|\t\r\n'
+  while read -r ScriptFilePath ScriptCmdLine; do
     [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
     [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
     ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
     declare -a "ScriptCmdLineArr=($ScriptCmdLine)" # evaluate command line only
-    Call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
+    tkl_call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
   done < "$CONFIG_FILE_IN"
 
   return 0
@@ -43,25 +48,24 @@ function GenerateConfig()
   local CMDLINE_SYSTEM_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
   local CMDLINE_USER_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.user.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_USER_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_USER_FILE_IN"
   eval "CMAKE_CMD_LINE_USER=($RETURN_VALUE)"
 
-  Call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
-  Call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $LastError
+  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
+  tkl_call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $LastError
 
   local CONFIG_FILE_IN="$PROJECT_ROOT/_config/_scripts/02/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
-  local IFS
 
-  local IFS
-  while IFS=$'|\t\r\n' read -r ScriptFilePath ScriptCmdLine; do 
+  local IFS=$'|\t\r\n'
+  while read -r ScriptFilePath ScriptCmdLine; do 
     [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
     [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
     ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
     declare -a "ScriptCmdLineArr=($ScriptCmdLine)" # evaluate command line only
-    Call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
+    tkl_call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
   done < "$CONFIG_FILE_IN"
 
   return $LastError
@@ -89,10 +93,11 @@ function UpdateBuildType()
     local is_found=0
     local config_abbr_type_index=0
 
-    local IFS=$'; \t\r\n'; for i in $CMAKE_CONFIG_ABBR_TYPES; do
+    local IFS=$'; \t\r\n'
+    for i in $CMAKE_CONFIG_ABBR_TYPES; do
       if [[ "$i" == "$CMAKE_BUILD_TYPE" ]]; then
         local config_type_index=0
-        local IFS=$'; \t\r\n'; for j in $CMAKE_CONFIG_TYPES; do
+        for j in $CMAKE_CONFIG_TYPES; do
           if (( config_abbr_type_index == config_type_index )); then
             # update build type
             CMAKE_BUILD_TYPE="$j"
@@ -114,7 +119,7 @@ function Configure()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
@@ -123,7 +128,7 @@ function Configure()
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
   [[ -z "$CMAKE_BUILD_TYPE_ARG" ]] && CMAKE_BUILD_TYPE_ARG="."
-  Call set_vars_from_files \
+  tkl_call set_vars_from_files \
     "${CONFIG_VARS_SYSTEM_FILE//;/\\;};${CONFIG_VARS_USER_FILE//;/\\;}" "$OS_NAME" . "$CMAKE_BUILD_TYPE_ARG" . ";" \
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
@@ -134,7 +139,7 @@ function Configure()
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/$ScriptFileName.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
   local CMAKE_CMD_LINE="$RETURN_VALUE"
 
@@ -144,9 +149,9 @@ function Configure()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
-    Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
-    Popd
+  tkl_pushd "$CMAKE_BUILD_DIR" && {
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
+    tkl_popd
   }
 
   return $LastError
@@ -158,7 +163,7 @@ function Build()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
@@ -167,7 +172,7 @@ function Build()
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
   [[ -z "$CMAKE_BUILD_TYPE_ARG" ]] && CMAKE_BUILD_TYPE_ARG="."
-  Call set_vars_from_files \
+  tkl_call set_vars_from_files \
     "${CONFIG_VARS_SYSTEM_FILE//;/\\;};${CONFIG_VARS_USER_FILE//;/\\;}" "$OS_NAME" . "$CMAKE_BUILD_TYPE_ARG" . ";" \
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
@@ -178,15 +183,15 @@ function Build()
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/04/$ScriptFileName.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
   local CMAKE_CMD_LINE="$RETURN_VALUE"
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
-    Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
-    Popd
+  tkl_pushd "$CMAKE_BUILD_DIR" && {
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
+    tkl_popd
   }
 
   return $LastError
@@ -198,7 +203,7 @@ function Install()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
@@ -207,7 +212,7 @@ function Install()
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
   [[ -z "$CMAKE_BUILD_TYPE_ARG" ]] && CMAKE_BUILD_TYPE_ARG="."
-  Call set_vars_from_files \
+  tkl_call set_vars_from_files \
     "${CONFIG_VARS_SYSTEM_FILE//;/\\;};${CONFIG_VARS_USER_FILE//;/\\;}" "$OS_NAME" . "$CMAKE_BUILD_TYPE_ARG" . ";" \
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
@@ -218,13 +223,13 @@ function Install()
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
   eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
-    Call cmake "${CMAKE_CMD_LINE[@]}" || { Popd; return $LastError; }
-    Popd
+  tkl_pushd "$CMAKE_BUILD_DIR" && {
+    tkl_call cmake "${CMAKE_CMD_LINE[@]}" || { tkl_popd; return $LastError; }
+    tkl_popd
   }
 
   return $LastError
@@ -236,7 +241,7 @@ function PostInstall()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
@@ -245,7 +250,7 @@ function PostInstall()
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
   [[ -z "$CMAKE_BUILD_TYPE_ARG" ]] && CMAKE_BUILD_TYPE_ARG="."
-  Call set_vars_from_files \
+  tkl_call set_vars_from_files \
     "${CONFIG_VARS_SYSTEM_FILE//;/\\;};${CONFIG_VARS_USER_FILE//;/\\;}" "$OS_NAME" . "$CMAKE_BUILD_TYPE_ARG" . ";" \
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
@@ -256,9 +261,9 @@ function PostInstall()
 
   #local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
-  Pushd "$CMAKE_INSTALL_ROOT" && {
-    PostInstallImpl "$@" || { Popd; return $LastError; }
-    Popd
+  tkl_pushd "$CMAKE_INSTALL_ROOT" && {
+    PostInstallImpl "$@" || { tkl_popd; return $LastError; }
+    tkl_popd
   }
 
   return $LastError
@@ -277,80 +282,81 @@ function PostInstallImpl()
     return 253
   fi
 
-  local IFS
   local dir
   local from_dir
-  local i
 
   # command parameters for the `collect_ldd_deps.sh` scripts
   local file_deps_root_list
   local file_deps_mkdir_list
   local file_deps_cpdir_list
-  local IFS=$':\t\r\n'
+
   declare -a "file_deps_root_list=(\$FILE_DEPS_ROOT_LIST)"
   declare -a "file_deps_mkdir_list=(\$FILE_DEPS_MKDIR_LIST)"
   declare -a "file_deps_cpdir_list=(\$FILE_DEPS_CPDIR_LIST)"
 
   # create application directories at first
-  MakeDir "${file_deps_mkdir_list[@]}" || Exit
+  tkl_make_dir "${file_deps_mkdir_list[@]}" || Exit
+
+  local IFS=$':\t\r\n'
 
   # copy directories recursively
-  i=0
+  local i=0
   for dir in "${file_deps_cpdir_list[@]}"; do
     (( i == 0 )) && from_dir="$dir"
     if (( (i % 2) == 1 )); then
-      Call cp -R "$from_dir" "$dir" || return Exit
+      tkl_call cp -R "$from_dir" "$dir" || return Exit
     fi
     (( i++ ))
   done
 
   # collect shared object dependencies
-  Call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" "$FILE_DEPS_LIST_TO_FIND" "$FILE_DEPS_ROOT_LIST" \
+  tkl_call "$PROJECT_ROOT/_scripts/deploy/collect_ldd_deps.sh" "$FILE_DEPS_LIST_TO_FIND" "$FILE_DEPS_ROOT_LIST" \
     "$FILE_DEPS_LIST_TO_EXCLUDE" "$FILE_DEPS_LD_PATH_LIST" deps.lst . || return $?
 
   # create user symlinks
-  Call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" -u . || return $?
+  tkl_call "$PROJECT_ROOT/_scripts/deploy/create_links.sh" -u . || return $?
 
   # generate common links file from collected and created dependencies
-  Call "$PROJECT_ROOT/_scripts/deploy/gen_links.sh" . _scripts/deploy || return $?
+  tkl_call "$PROJECT_ROOT/_scripts/deploy/gen_links.sh" . _scripts/deploy || return $?
 
   # patch executables
-  Call patchelf --set-interpreter "./lib/ld-linux.so.2" --set-rpath "\$ORIGIN:\$ORIGIN/lib" "./$PROJECT_NAME" || return $?
-  Call patchelf --shrink-rpath "./$PROJECT_NAME" || return $?
+  tkl_call patchelf --set-interpreter "./lib/ld-linux.so.2" --set-rpath "\$ORIGIN:\$ORIGIN/lib" "./$PROJECT_NAME" || return $?
+  tkl_call patchelf --shrink-rpath "./$PROJECT_NAME" || return $?
 
   local file
 
   for file in "${file_deps_root_list[@]}"; do
-    MoveFile -L "$file" "lib/" || return $?
+    tkl_move_file -L "$file" "lib/" || return $?
   done
 
   # copy approot if exists
   if [[ -d "$PROJECT_ROOT/deploy/approot" ]]; then
-    Call cp -R "$PROJECT_ROOT/deploy/approot/." "$PWD" || return $?
+    tkl_call cp -R "$PROJECT_ROOT/deploy/approot/." "$PWD" || return $?
   fi
 
   # copy specific scripts if exists
   if [[ -d "$PROJECT_ROOT/_scripts/deploy" ]]; then
-    Call cp -R "$PROJECT_ROOT/_scripts/deploy" "$PWD/_scripts" || return $?
+    tkl_call cp -R "$PROJECT_ROOT/_scripts/deploy" "$PWD/_scripts" || return $?
   fi
   if [[ -d "$PROJECT_ROOT/_scripts/admin" ]]; then
-    Call cp -R "$PROJECT_ROOT/_scripts/admin" "$PWD/_scripts" || return $?
+    tkl_call cp -R "$PROJECT_ROOT/_scripts/admin" "$PWD/_scripts" || return $?
   fi
 
   local file_name
 
   # rename files in the current directory beginning by the `$` character
-  local IFS=$' \t\r\n'; for file in `find "$PWD" -type f -name "\\\$*"`; do
-    GetFileDir "$file"
+  local IFS=$' \t\r\n'
+  for file in `find "$PWD" -type f -name "\\\$*"`; do
+    tkl_get_file_dir "$file"
     file_dir="$RETURN_VALUE"
 
-    GetFileName "$file"
+    tkl_get_file_name "$file"
 
     file_name_prefix=$(echo "$RETURN_VALUE" | { IFS=$'.\r\n'; read -r prefix suffix; echo "$prefix"; })
     file_name_ext=$(echo "$RETURN_VALUE" | { IFS=$'.\r\n'; read -r prefix suffix; echo "$suffix"; })
     file_name_to_rename="${file_name_prefix//\$\{PROJECT_NAME\}/$PROJECT_NAME}.$file_name_ext"
 
-    Call mv "$file" "$file_dir/$file_name_to_rename" || return $?
+    tkl_call mv "$file" "$file_dir/$file_name_to_rename" || return $?
   done
 
   return 0
@@ -362,7 +368,7 @@ function Pack()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    Call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
   fi
 
   source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
@@ -371,7 +377,7 @@ function Pack()
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
   [[ -z "$CMAKE_BUILD_TYPE_ARG" ]] && CMAKE_BUILD_TYPE_ARG="."
-  Call set_vars_from_files \
+  tkl_call set_vars_from_files \
     "${CONFIG_VARS_SYSTEM_FILE//;/\\;};${CONFIG_VARS_USER_FILE//;/\\;}" "$OS_NAME" . "$CMAKE_BUILD_TYPE_ARG" . ";" \
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
@@ -389,15 +395,15 @@ function Pack()
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/07/$ScriptFileName.in"
 
-  MakeCommandArgumentsFromFile -e "$CMDLINE_FILE_IN"
+  tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
   local CMAKE_CMD_LINE="$RETURN_VALUE"
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  Pushd "$CMAKE_BUILD_DIR" && {
-    Call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { Popd; return $LastError; }
-    Popd
+  tkl_pushd "$CMAKE_BUILD_DIR" && {
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
+    tkl_popd
   }
 
   return $LastError
@@ -474,9 +480,9 @@ function CheckBuildType()
   fi
 
   local is_found=0
-  local IFS
+  local IFS=$'; \t\r\n'
 
-  local IFS=$'; \t\r\n'; for i in $CMAKE_CONFIG_TYPES; do
+  for i in $CMAKE_CONFIG_TYPES; do
     if [[ "$i" == "$CMAKE_BUILD_TYPE" ]]; then
       is_found=1
       break

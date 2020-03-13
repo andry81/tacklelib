@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.02.10
+* 2020.03.08
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -13,7 +13,7 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-Cmake tests designed to test cmake modules from the tacklelib library.
+CMake tests designed to test `cmake` modules from the `tacklelib` library.
 
 WARNING:
   Use the SVN access to find out latest functionality and bug fixes.
@@ -42,24 +42,33 @@ Second mirror:
 4. PREREQUISITES
 -------------------------------------------------------------------------------
 
-Currently tested these set of OS platforms, interpreters and modules to run
-from:
+Currently used these set of OS platforms, compilers, interpreters, modules,
+IDE's, applications and patches to run with or from:
 
-1. OS platforms.
+1. OS platforms:
 
-* Windows 7 (`.bat` only)
+* Windows 7 (`.bat` only, minimal version for the cmake 3.14)
+* Cygwin 1.5+ or 3.0+ (`.sh` only):
+  https://cygwin.com
+  - to run scripts under cygwin
+* Msys2 20190524+ (`.sh` only):
+  https://www.msys2.org
+  - to run scripts under msys2
+* Linux Mint 18.3 x64 (`.sh` only)
 
 2. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
+* perl 5.10+
+  - to run specific bash script functions with `perl` calls
 * cmake 3.15.1 (3.14+):
   https://cmake.org/download/
-  - to run `cmake_tests` scripts
+  - to run cmake scripts and modules
 
 3. Modules
 
-* Cmake testing modules:
+* CMake testing modules:
 
 **  tacklelib--cmake:
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
@@ -72,10 +81,10 @@ configuration files in the `/cmake_tests/_config` subdirectory to run the
 tests.
 
 Otherwise you have to set at least all dependent variables on yourself before
-call to tests scripts.
+call to test scripts.
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/_scripts/tools/bash_entry` into the `/bin` directory of your platform.
+`/bash/tacklelib/bash_entry` module into the `/bin` directory of your platform.
 
 In pure Linux you have additional step to make scripts executable:
 

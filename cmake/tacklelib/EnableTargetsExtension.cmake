@@ -217,8 +217,12 @@ else()
   endfunction()
 endif()
 
-# functions reimplementation
+# cmake system functions reimplementation
 
+# CAUTION:
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
+#
 macro(add_library)
   tkl_add_library_begin(${ARGV})
   tkl_add_library_invoker(${ARGV})

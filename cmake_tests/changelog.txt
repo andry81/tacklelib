@@ -1,3 +1,13 @@
+2020.03.09:
+* changed: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+
+2020.03.08:
+* changed: readme update
+* refactor: _scripts/tools: minor refactor
+
+2020.03.05:
+* changed: readme update
+
 2020.02.10:
 * changed: readme update
 
