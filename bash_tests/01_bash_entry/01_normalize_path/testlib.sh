@@ -4,11 +4,11 @@
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]]; then
 
 tkl_include '../../__init__.sh' || exit $?
-tkl_include "$PROJECT_ROOT/traplib.sh" || exit $?
+tkl_include "$PROJECT_ROOT/testlib.sh" || exit $?
 
 function TestUserModuleInit()
 {
-  TEST_SOURCES=('baselib.sh' 'testlib.sh')
+  TEST_SOURCES=("$PROJECT_ROOT/baselib.sh")
   TEST_FUNCTIONS=()
 }
 

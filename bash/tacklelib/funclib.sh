@@ -89,9 +89,8 @@ function tkl_make_func_copy_ex()
 
   # escape function declaration string
   FuncEscapedDecl="${FuncEscapedDecl//\\/\\\\}"
-  #FuncEscapedDecl="${FuncEscapedDecl//\$/\\\$}"
 
-  (( ${#SuffixCmd} )) && FuncEscapedDecl="${FuncEscapedDecl%\}*}$SuffixCmd"$'\n'"}"
+  (( ${#SuffixCmd} )) && FuncEscapedDecl="${FuncEscapedDecl%\}*}"$'\n'"$SuffixCmd"$'\n'"}"
 
   # make new function
   eval function "$NewFuncName()" "$FuncEscapedDecl"
@@ -105,8 +104,6 @@ function tkl_delete_func()
 {
   local FuncName="$1" # has to be declared
 
-  #echo "DeleteThisFunction: $FuncName: ${FUNCNAME[@]}"
-
   [[ -z "$FuncName" ]] && return 2
 
   declare -f "$FuncName" > /dev/null &&
@@ -118,15 +115,13 @@ function tkl_delete_func()
   return 1
 }
 
-# unsets current function call
+# deletes current function implementation
 function tkl_delete_this_func()
 {
   local FuncName="${FUNCNAME[1]}"
 
-  #echo "DeleteThisFunction: $FuncName: ${FUNCNAME[@]}"
-
   if [[ -n "$FuncName" ]]; then
-    unset $FuncName
+    unset -f $FuncName
     return 0
   fi
 
@@ -161,7 +156,7 @@ function tkl_make_func_unique_copy()
     tkl_get_shell_pid
     local ShellPID="${RETURN_VALUE:-65535}" # default value if fail
 
-    tkl_make_func_copy_ex "$Flags" "$FuncDecl" "${NewFuncName}${IdPrefix:+_}${IdPrefix}_${ShellPID}_${RETURN_VALUES[0]}_${RETURN_VALUES[3]}_${RETURN_VALUES[2]}${IdSuffix:+_}${IdSuffix}" "$SuffixCmd" || return 3
+    tkl_make_func_copy_ex "$Flags" "$FuncDecl" "${NewFuncName}${IdPrefix:+_}${IdPrefix}_${ShellPID}_${RETURN_VALUES[0]}_${RETURN_VALUES[1]}_${RETURN_VALUES[3]}${IdSuffix:+_}${IdSuffix}" "$SuffixCmd" || return 3
   else
     tkl_make_func_copy_ex "$Flags" "$FuncDecl" "${NewFuncName}${IdPrefix:+_}${IdPrefix}${IdSuffix:+_}${IdSuffix}" "$SuffixCmd" || return 4
   fi
@@ -196,8 +191,8 @@ function tkl_get_func_body()
   RETURN_VALUE=''
 
   tkl_get_func_decl "$FuncName" || return 1
-
   local FuncBody="${RETURN_VALUE#*\{}"
+
   FuncBody="${FuncBody#*[$'\r\n']}"
   FuncBody="${FuncBody%\}*}"
   RETURN_VALUE="${FuncBody%[$'\r\n']*}"
@@ -267,7 +262,7 @@ function tkl_get_func_call_ctx()
   tkl_join_array FUNCNAME '|' $(( CtxLevel + 2 )) && tkl_crc32 "${RETURN_VALUES[1]}" && tkl_dec_to_hex "$RETURN_VALUE" ||
   {
     # drop return values
-    RETURN_VALUES=('' '' 0 '' 0)
+    RETURN_VALUES=(0 '' 0 '' 0)
     return 1
   }
 
@@ -278,7 +273,7 @@ function tkl_get_func_call_ctx()
   tkl_join_array BASH_LINENO '|' $(( CtxLevel + 2 )) && tkl_crc32 "${RETURN_VALUES[1]}" && tkl_dec_to_hex "$RETURN_VALUE" ||
   {
     # drop return values
-    RETURN_VALUES=('' '' 0 '' 0)
+    RETURN_VALUES=(0 '' 0 '' 0)
     return 2
   }
 
@@ -286,7 +281,8 @@ function tkl_get_func_call_ctx()
   local FuncsStackCallLines="${RETURN_VALUES[1]}"
 
   RETURN_VALUES=(
-    "$FuncsStackCallNamesHashToken" "$FuncsStackCallNames" "$FuncsStackCallNumNames"
+    "$FuncsStackCallNumNames"
+    "$FuncsStackCallNamesHashToken" "$FuncsStackCallNames"
     "$FuncsStackCallLinesHashToken" "$FuncsStackCallLines"
   )
 

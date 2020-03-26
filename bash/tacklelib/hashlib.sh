@@ -184,14 +184,7 @@ function tkl_crc32()
   local str="$1"
   local pred="${2:-tkl_crc32_gnu}"
 
-  # drop return value
-  RETURN_VALUE=''
-
-  [[ -z "$str" ]] && return 1
-
   eval "$pred" '"$str"'
-
-  return 0
 }
 
 # Returns hash identifier of a function body.

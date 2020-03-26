@@ -55,6 +55,10 @@ function tkl_declare_local_array()
   eval declare "$1=(\"\${@:2}\")"
 }
 
+# CAUTION:
+#   In case of usage versus an array item and an array variable name is a variable value, the `tkl_declare_global_array` function
+#   MUST BE placed after ALL local variables to avoid item accidental assignment to a local array variable!
+#
 function tkl_declare_global()
 {
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
@@ -65,10 +69,20 @@ function tkl_declare_global()
     ## 1. special characters handle
     ## 2. issues with value injection
     #read -r -d$'.' $1 <<< "$2" # WARNING: in old bash (3.2.x) will assign to a local variable if a local overlaps global
+
+    # CAUTION:
+    #   To unset current context local variable, but NOT the upper context local variable!
+    #
+    unset $1 2> /dev/null
+
     eval "$1=\"\$2\"" # right argument does NOT evaluate
   fi
 }
 
+# CAUTION:
+#   In case of an array variable name in a variable value, then the function MUST BE used
+#   after ALL local variables to avoid item accidental assignment to a local array variable!
+#
 function tkl_declare_global_array()
 {
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
@@ -77,23 +91,44 @@ function tkl_declare_global_array()
     eval declare -g "$1=(\"\${@:2}\")"
   else
     local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+
+    # CAUTION:
+    #   To unset current context local variable, but NOT the upper context local variable!
+    #
+    unset $1 2> /dev/null
+
     eval "$1=(\"\${@:2}\")" # WARNING: in old bash (3.2.x) will assign to a local variable if a local overlaps global
   fi
 }
 
 function tkl_declare_global_eval()
 {
+  # CAUTION:
+  #   To unset current context local variable, but NOT the upper context local variable!
+  #
+  unset $1 2> /dev/null
+
   eval "$1=\"$2\"" # right argument does evaluate
 }
 
 function tkl_export()
 {
+  # CAUTION:
+  #   To unset current context local variable, but NOT the upper context local variable!
+  #
+  unset $1 2> /dev/null
+
   eval "$1=\"\$2\"" # right argument does NOT evaluate
   export $1
 }
 
 function tkl_export_eval()
 {
+  # CAUTION:
+  #   To unset current context local variable, but NOT the upper context local variable!
+  #
+  unset $1 2> /dev/null
+
   eval "$1=\"$2\"" # right argument does evaluate
   export $1
 }
@@ -124,7 +159,7 @@ function tkl_false()
 
 function tkl_set_return()
 {
-  [[ -n "$1" ]] && return $1
+  [[ "${1#[0-9]}" != "$1" ]] && return $1
 }
 
 function tkl_push_var_to_stack_impl()
@@ -151,7 +186,7 @@ function tkl_push_var_to_stack_impl()
 
   local _2BA2974B_vars_stack_size
   tkl_eval_if -n "\${tkl__vars_stack__$1__$2__size}" && {
-    tkl_declare_global_eval _2BA2974B_vars_stack_size "\${tkl__vars_stack__$1__$2__size}"
+    eval "_2BA2974B_vars_stack_size=\"\${tkl__vars_stack__$1__$2__size}\""
     tkl_true
   } || _2BA2974B_vars_stack_size=0
 
@@ -203,7 +238,7 @@ function tkl_pop_var_from_stack()
   #local _2BA2974B_var_name="$2"
 
   local _2BA2974B_vars_stack_size
-  tkl_declare_global_eval _2BA2974B_vars_stack_size "\${tkl__vars_stack__$1__$2__size}"
+  eval "_2BA2974B_vars_stack_size=\"\${tkl__vars_stack__$1__$2__size}\""
   if (( ! ${#_2BA2974B_vars_stack_size} || ! _2BA2974B_vars_stack_size )); then
     echo "tkl_pop_var_from_stack: variables stack either undefined or empty" >&2
     return 3
@@ -213,7 +248,7 @@ function tkl_pop_var_from_stack()
   (( _2BA2974B_vars_stack_next_size=_2BA2974B_vars_stack_size-1 ))
 
   local _2BA2974B_is_var_defined
-  tkl_declare_global_eval _2BA2974B_is_var_defined "\${tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_next_size}__defined}"
+  eval "_2BA2974B_is_var_defined=\"\${tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_next_size}__defined}\""
   if (( _2BA2974B_is_var_defined )); then
     tkl_export_eval "$2" "\${tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_next_size}}"
   else
@@ -496,7 +531,7 @@ function tkl_convert_backend_path_to_native()
 function tkl_find_char()
 {
   # drop return value
-  RETURN_VALUE=''
+  RETURN_VALUE='-1'
 
   # (Required) String which would be searched.
   local String="$1"
@@ -505,17 +540,11 @@ function tkl_find_char()
   # (Optional) Including by default, 0 - if excluding
   local Including="${3:-1}"
 
-  if [[ -z "$String" ]]; then
-    RETURN_VALUE="-1"
-    return 1
-  fi
-  if [[ -z "$Chars" ]]; then
-    RETURN_VALUE="-1"
-    return 2
-  fi
+  [[ -z "$String" ]] && return 1
+  [[ -z "$Chars" ]] && return 2
 
-  local StringLen="${#String}"
-  local CharsLen="${#Chars}"
+  local StringLen=${#String}
+  local CharsLen=${#Chars}
   local i
   local j
 
@@ -541,9 +570,7 @@ function tkl_find_char()
     done
   fi
 
-  RETURN_VALUE="-1"
-
-  return 3
+  return 255
 }
 
 function tkl_find_string()
@@ -566,7 +593,7 @@ function tkl_find_string()
 
   [[ -z "$String" ]] && return 1
   if [[ -z "$Substring" ]]; then
-    RETURN_VALUE="${#String}"
+    RETURN_VALUE=${#String}
     return 2
   fi
 
@@ -595,7 +622,7 @@ function tkl_find_string()
     (( RETURN_VALUE >= 0 )) && return 0
   fi
 
-  return 3
+  return 255
 }
 
 function tkl_escape_string()
@@ -630,14 +657,13 @@ function tkl_escape_string()
 
   local EscapedString=''
   local StringCharEscapeOffset=-1
+  local StringSize=${#String}
   local i
-  for (( i=0; i < ${#String}; i++ )); do
-    local StringChar="${String:$i:1}"
+  for (( i=0; i < StringSize; i++ )); do
+    local StringChar="${String:i:1}"
     case $EscapeType in
       0)
-        tkl_find_char "$EscapeChars" "$StringChar"
-        StringCharEscapeOffset="$RETURN_VALUE"
-        if (( StringCharEscapeOffset < 0 )); then
+        if [[ "${EscapeChars//$StringChar/}" == "$EscapeChars" ]]; then
           EscapedString="$EscapedString$StringChar"
         else
           EscapedString="$EscapedString\\$StringChar"
@@ -651,12 +677,11 @@ function tkl_escape_string()
         fi
       ;;
       *)
-        tkl_find_char "$EscapeChars" "$StringChar"
-        StringCharEscapeOffset="$RETURN_VALUE"
-        if (( StringCharEscapeOffset >= 0 )); then
-          EscapedString="$EscapedString^"
+        if [[ "${EscapeChars//$StringChar/}" == "$EscapeChars" ]]; then
+          EscapedString="$EscapedString$StringChar"
+        else
+          EscapedString="$EscapedString^$StringChar"
         fi
-        EscapedString="$EscapedString$StringChar"
       ;;
     esac
   done
@@ -708,10 +733,11 @@ function tkl_deserialize_array()
   local IFS='|'
   local __deserialized_array=($__serialized_array)
 
-  tkl_declare_global_array $__out_var
-
   local __index=0
   local __value
+
+  tkl_declare_global_array $__out_var # CAUTION: MUST BE after all local variables
+
   for __value in "${__deserialized_array[@]}"; do
     __value="${__value//\?01/|}"
     __value="${__value//\?00/?}"
@@ -989,13 +1015,13 @@ function tkl_exctract_path_ignoring_user_mount_points()
 
   # enable nocase match
   local oldShopt=''
-  function LocalReturn()
+  function tkl_local_return_impl()
   {
     [[ -n "$oldShopt" ]] && eval $oldShopt
     unset -f "${FUNCNAME[0]}" # drop function after execution
   }
 
-  trap "LocalReturn; trap - RETURN" RETURN || return 253
+  builtin trap "tkl_local_return_impl; builtin trap - RETURN" RETURN || return 253
 
   oldShopt=$(shopt -p nocasematch) # Read state before change
   if [[ "$oldShopt" != 'shopt -s nocasematch' ]]; then
@@ -1081,7 +1107,7 @@ function tkl_bash_entry()
   local BashEntryPath="$1"
   [[ -z "$BashEntryPath" ]] && return 1
 
-  trap ':' RETURN # set to empty command to avoid reset from child function calls
+  builtin trap ':' RETURN # set to empty command to avoid reset from child function calls
 
   tkl_exctract_path_ignoring_user_mount_points -b "$BashEntryPath" || return 2
   export BASH_ENTRY_FILE="$RETURN_VALUE"
@@ -1092,7 +1118,7 @@ function tkl_bash_entry()
 fi
 
 if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
-  # Script was not included, then execute it. 
+  # Script was not included, then execute it.
 
   if [[ -z "$BASH_ENTRY_FILE" || ! -f "$BASH_ENTRY_FILE" ]]; then
     tkl_bash_entry "/usr/local/bin/bash"
