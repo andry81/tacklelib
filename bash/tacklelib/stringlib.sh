@@ -23,8 +23,8 @@ function tkl_compare_strings()
   local oldShopt=""
   function tkl_local_return_impl()
   {
+    tkl_push_trap "tkl_delete_this_func" RETURN
     [[ -n "$oldShopt" ]] && eval $oldShopt
-    tkl_delete_this_func
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl
@@ -68,8 +68,8 @@ function tkl_to_lower_case()
   local oldShopt=""
   function tkl_local_return_impl()
   {
+    tkl_push_trap "tkl_delete_this_func" RETURN
     [[ -n "$oldShopt" ]] && eval $oldShopt
-    tkl_delete_this_func
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl

@@ -17,8 +17,7 @@ LastError=0
 function tkl_pause()
 {
   local key
-  read -n1 -r -p "Press any key to continue..." key
-  echo
+  read -n1 -r -p "Press any key to continue..."$'\n' key
 }
 
 function tkl_exit()

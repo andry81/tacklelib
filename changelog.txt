@@ -1,13 +1,41 @@
+2020.03.26:
+* fixed: bash: testlib.sh: multiple fixup
+* fixed: bash: bash_entry: `tkl_set_return` temporary workaround over not numeric argument
+* changed: bash: testlib.sh: new `traplib.sh` module usage
+* changed: bash: bash_entry: `tkl_escape_string` function speedup
+
+2020.03.19:
+* changed: bash: traplib.sh: reimplemented storage arrays for trap hendlers to store and call multiple handlers has been set for a single function and bash process
+* changed: bash: hashlib.sh: removed check on empty string in the `tkl_crc32` function
+
+2020.03.17:
+* fixed: bash: bash_entry: `tkl_declare_global` function must remove a current context local variable in case of it's presence
+* fixed: bash: traplib.sh: multiple fixes around `tkl_*_trap` functions
+* new: bash: traplib.sh: non RETURN signal traps chaining from the bottom to the top
+* changed: bash: minor other changes
+
+2020.03.16:
+* fixed: bash: testlib.sh: miscount bug in the `for in "${RETURN_VALUES[@]}"` and "\$$i" expressions
+* changed: bash: testlib.sh: replaced by all `trap` commands by `tkl_*_trap` functions
+* changed: bash: traplib.sh: improved trap functions, overrided the `trap` command in case of inclusion the `traplib.sh` module
+
+2020.03.15:
+* fixed: bash: testlib.sh: `TEST_SOURCES` incorrect parsing
+* fixed: bash: testlib.sh: `tkl_testmodule_run_test` function arrays pass into isolated bash test process
+* new: bash: testlib:.sh: `tkl_test_assert_true` and `tkl_test_assert_false` function to test separate expressions
+* changed: bash: testlib.sh: functionality has been rewriten
+* refactor: bash: testlib.sh: global refactoring
+
 2020.03.13:
 * fixed: bash: bash_entry: `tkl_is_abs_path` function
-* new: bash: `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
-* changed: bash: improved function `tkl_get_abs_path_from_dir`
-* changed: bash: improved function `tkl_convert_native_path_to_backend`
-* changed: bash: improved function `tkl_convert_backend_path_to_native`
-* changed: bash: improved function `tkl_include`
-* changed: bash: `readlink -m` usage replaced by the `tkl_normalize_path` function
-* changed: bash: trap functions extracted from the `bash_entry` back to `traplib.sh` module
-* refactor: bash: global `bash_entry` script refactor
+* new: bash: bash_entry:  `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
+* changed: bash: bash_entry: improved function `tkl_get_abs_path_from_dir`
+* changed: bash: bash_entry: improved function `tkl_convert_native_path_to_backend`
+* changed: bash: bash_entry: improved function `tkl_convert_backend_path_to_native`
+* changed: bash: bash_entry: improved function `tkl_include`
+* changed: bash: bash_entry: `readlink -m` usage replaced by the `tkl_normalize_path` function
+* changed: bash: traplib.sh: trap functions from the `bash_entry` extracted back to `traplib.sh` module
+* refactor: bash: bash_entry: global `bash_entry` script refactor
 
 2020.03.11:
 * fixed: bash: `tkl_push_trap`, `tkl_pop_trap`, `tkl_get_trap_cmd_line` and `tkl_pop_exec_trap` rewrited to support RETURN signals

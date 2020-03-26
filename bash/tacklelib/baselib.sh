@@ -124,7 +124,7 @@ function tkl_reverse_array()
 
   eval "InArrSize=\${#$InArrName[@]}"
 
-  tkl_declare_global_array $OutArrName
+  tkl_declare_global_array $OutArrName # CAUTION: MUST BE after all local variables
   for (( i=InArrSize, j=0; --i >= 0; j++ )); do
     eval "$OutArrName[j]=\"\${$InArrName[i]}\""
   done
@@ -855,8 +855,15 @@ function tkl_join_array()
   local ArrayBegin="${3:-0}"
   local ArrayJoinSize="$4"
 
+  # drop return values
+  RETURN_VALUES=(0 '')
+
+  (( ArrayBegin < 0 )) && return 1
+
   local ArraySize
   eval "ArraySize=\${#$ArrayName[@]}"
+  (( ! ArraySize )) && return 2
+
   (( ArraySize < ArrayBegin )) && ArrayBegin=$ArraySize
   local ArrayMaxJoinSize=$(( ArraySize-ArrayBegin ))
   if [[ -z "$ArrayJoinSize" ]]; then
@@ -865,11 +872,7 @@ function tkl_join_array()
     ArrayMaxJoinSize=$ArrayJoinSize
   fi
 
-  # drop return values
-  RETURN_VALUES=(0 '')
-
-  (( ArraySize )) || return 1
-  (( ArrayBegin >= 0 && ArrayBegin < ArraySize )) || return 2
+  (( ArrayBegin < ArraySize )) || return 3
 
   local IFS="$JoinChar"
   local JoinedArray
