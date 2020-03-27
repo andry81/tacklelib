@@ -1,3 +1,7 @@
+2020.03.27:
+* fixed: traplib.sh: minor fixup
+* changed: traplib.sh: description update
+
 2020.03.26:
 * fixed: testlib.sh: multiple fixup
 * fixed: bash_entry: `tkl_set_return` temporary workaround over not numeric argument
