@@ -6,43 +6,48 @@
 #
 # Pros:
 #   1. Automatically restores the previous trap handler in nested functions.
-#      Originally the RETURN trap does restore ONLY if ALL functions in the stack did set it.
-#   2. The RETURN signal trap can be composed with other signals to achieve the RAII pattern as in other languages.
-#      Or, for example, temporary disable interruption handling with auto restore at the end of a function while an
-#      initialization code is executing.
-#   3. Protection from call not from a function context in case of the RETURN signal trap.
-#   4. Chains non RETURN signal handlers in the whole stack together per bash process from the bottom to the top and
-#      executes them in order reversed to the `tkl_push_trap` function calls.
-#   5. Chains RETURN signal trap handlers for a single function from the bottom to the top and
-#      executes them in order reversed to the `tkl_push_trap` function calls.
-#   6. Because the EXIT signal does not trigger the RETURN signal trap handler, then
-#      the EXIT signal trap handler does setup automatically at least once per bash process
-#      when the RETURN signal trap handler makes setup first time in a bash process.
+#      Originally the `RETURN` trap restores ONLY if ALL functions in the stack did set it.
+#   2. The `RETURN` signal trap can support other signal traps to achieve the RAII pattern as in other languages.
+#      For example, to temporary disable interruption handling and auto restore it at the end of a function
+#      while an initialization code is executing.
+#   3. Protection from call not from a function context in case of the `RETURN` signal trap.
+#   4. The not `RETURN` signal handlers in the whole stack invokes together in a bash process from the
+#      bottom to the top and executes them in order reversed to the `tkl_push_trap` function calls
+#   5. The `RETURN` signal trap handlers invokes only for a single function from the bottom to the top in
+#      reverse order to the `tkl_push_trap` function calls.
+#   6. Because the `EXIT` signal does not trigger the `RETURN` signal trap handler, then the `EXIT` signal trap
+#      handler does setup automatically at least once per bash process when the `RETURN` signal trap handler
+#      makes setup at first time in a bash process.
 #      That includes all bash processes, for example, represented as `(...)` or `$(...)` operators.
-#      So the EXIT signal trap handlers automatically handles all the RETURN trap handlers before to run itself.
-#   7. The RETURN signal trap handler still can call to `tkl_push_trap` and `tkl_pop_trap` functions to process
-#      non RETURN signal trap handlers.
-#   8. The RETURN signal trap handler can call to `tkl_set_trap_postponed_exit` function from both the EXIT and
-#      RETURN signal trap handlers.
-#      If is called from the RETURN signal trap handler, then the EXIT trap handler will be called after all the
-#      RETURN signal trap handlers in the bash process.
-#      If is called from the EXIT signal trap handler, then the EXIT trap handler will change the exit code after
-#      the last EXIT signal trap handler is invoked.
-#   9. Faster access to trap stack as a global variable instead of usage the `...` or `$(...)` operators
+#      So the `EXIT` signal trap handlers automatically handles all the `RETURN` trap handlers before to run itself.
+#   7. The `RETURN` signal trap handler still can call to `tkl_push_trap` and `tkl_pop_trap` functions to process
+#      the not `RETURN` signal traps
+#   8. The `RETURN` signal trap handler can call to `tkl_set_trap_postponed_exit` function from both the `EXIT` and
+#      `RETURN` signal trap handlers.
+#      If is called from the `RETURN` signal trap handler, then the `EXIT` trap handler will be called after all the
+#      `RETURN` signal trap handlers in the bash process.
+#      If is called from the `EXIT` signal trap handler, then the `EXIT` trap handler will change the exit code after
+#      the last `EXIT` signal trap handler is invoked.
+#   9. Faster access to trap stack as a global variable instead of usage the `(...)` or `$(...)` operators
 #      which invokes an external bash process.
+#   10. The `source` command ignores by the `RETURN` signal trap handler, so all calls to the `source` command will not
+#      invoke the `RETURN` signal trap user code (marked in the Pros, because `RETURN` signal trap handler has to be
+#      called only after return from a function in the first place and not from a script inclusion).
 #
 # Cons:
 #   1. You must not use builtin `trap` command in the handler passed to the `tkl_push_trap` function as `tkl_*_trap` functions
 #      does use it internally.
-#   2. You must not use builtin `exit` command in the EXIT signal handlers while the EXIT signal trap
-#      handler is running. Otherwise that will leave the rest of the RETURN and EXIT signal trap handlers not executed.
-#      To change the exit code from the EXIT handler you can use `tkl_set_trap_postponed_exit` function for that.
-#   3. You must not use builtin `return` command in the RETURN signal trap handler while the RETURN signal trap handler
-#      is running. Otherwise that will leave the rest of the RETURN signal trap handlers not executed.
+#   2. You must not use builtin `exit` command in the `EXIT` signal handlers while the `EXIT` signal trap
+#      handler is running. Otherwise that will leave the rest of the `RETURN` and `EXIT` signal trap handlers not executed.
+#      To change the exit code from the `EXIT` handler you can use `tkl_set_trap_postponed_exit` function for that.
+#   3. You must not use builtin `return` command in the `RETURN` signal trap handler while the `RETURN` signal trap handler
+#      is running. Otherwise that will leave the rest of the `RETURN` and `EXIT` signal trap handlers not executed.
 #   4. All calls to the `tkl_push_trap` and `tkl_pop_trap` functions has no effect if has been called from a trap
 #      handler for a signal the trap handler is handling (recursive call through the signal).
 #   5. You have to replace all builtin `trap` commands in nested or 3dparty scripts by `tkl_*_trap` functions if
 #      already using the library.
+#   6. The `source` command ignores by the `RETURN` signal trap handler, so all calls to the `source` command will not
+#      invoke the `RETURN` signal trap user code (marked in the Cons, because of losing the back compatability here).
 #
 #   1. Examples with RETURN signal handlers auto pop:
 #   1.1. with the library:
@@ -238,7 +243,6 @@ function tkl_has_trap_cmd_line()
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
   local i=0
-  local j
   for trap_sig in "$@"; do
     if [[ -n "$trap_sig" ]]; then
       stack_var="tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}"
@@ -269,7 +273,6 @@ function tkl_get_last_trap_cmd_line()
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
   local i=0
-  local j
   for trap_sig in "$@"; do
     if [[ -n "$trap_sig" ]]; then
       stack_var="tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}"
@@ -277,9 +280,8 @@ function tkl_get_last_trap_cmd_line()
       if (( stack_arr_size )); then
         eval "RETURN_VALUE[i++]=\"\${$stack_var[@]: -1}\""
       else
-        # use the signal current trap command line
-        declare -a "trap_prev_cmdline=(`builtin trap -p "$trap_sig"`)"
-        eval "RETURN_VALUE[i++]=\"\${trap_prev_cmdline[2]}\""
+        # must be to avoid miscount in `for in ...`
+        RETURN_VALUE[i++]=''
       fi
     else
       # must be to avoid miscount in `for in ...`
@@ -543,7 +545,6 @@ function tkl_push_trap()
   local is_processed
 
   local i=0
-  local j
   for trap_sig in "$@"; do
     is_processed=0
 
@@ -639,7 +640,6 @@ function tkl_pop_trap()
   local is_processed
 
   local i=0
-  local j
   for trap_sig in "$@"; do
     is_processed=0
     stack_var="tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}"
