@@ -91,8 +91,12 @@ bash/tacklelib/license.txt -text
 bash/tacklelib/stringlib.sh -text
 bash/tacklelib/testlib.sh -text
 bash/tacklelib/traplib.sh -text
-bash_tests/01_bash_entry/01_normalize_path/test1.sh -text
+bash_tests/01_bash_entry/01_normalize_path/test_1.sh -text
 bash_tests/01_bash_entry/01_normalize_path/testlib.sh -text
+bash_tests/02_traplib/01_push_trap/test_1.sh -text
+bash_tests/02_traplib/01_push_trap/test_254.sh -text
+bash_tests/02_traplib/01_push_trap/testlib.sh -text
+bash_tests/02_traplib/01_push_trap/testlib_disabled_sigint.sh -text
 bash_tests/README_EN.txt -text
 bash_tests/__init__.sh -text
 bash_tests/changelog.txt -text

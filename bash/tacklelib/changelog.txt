@@ -1,3 +1,8 @@
+2020.03.30:
+* fixed: `testlib.sh` multiple fixup
+* changed: `traplib.sh` minor cleanup
+* refactor: minor refactor
+
 2020.03.27:
 * fixed: traplib.sh: minor fixup
 * changed: traplib.sh: description update

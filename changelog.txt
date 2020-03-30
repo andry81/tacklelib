@@ -1,3 +1,13 @@
+2020.03.30:
+* fixed: bash: `testlib.sh` multiple fixup
+* new: bash_tests: `01_bash_entry/01_normalize_path` tests
+* new: bash_tests: `02_traplib/01_push_trap` tests
+* changed: bash: `traplib.sh` minor cleanup
+* changed: cmake_tests: minor cleanup
+* changed: python_tests: minor cleanup
+* refactor: bash: minor refactor
+* refactor: bash_tests: tests refactor
+
 2020.03.27:
 * fixed: bash: traplib.sh: minor fixup
 * changed: bash: traplib.sh: description update
