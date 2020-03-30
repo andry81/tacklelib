@@ -6,6 +6,7 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) && (-z "$SOUR
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
 source '/bin/bash_entry' || exit $?
+tkl_include 'traplib.sh' || exit $?
 
 # Special exit code value variable has used by the specific set of functions
 # like `tkl_call` and `tkl_exit` to hold the exit code over the builtin

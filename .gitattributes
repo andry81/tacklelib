@@ -63,7 +63,6 @@ _scripts/deploy/gen_links.sh -text
 _scripts/deploy/user_links.lst -text
 _scripts/license.txt -text
 _scripts/tools/__init__.bat -text
-_scripts/tools/buildlib.sh -text
 _scripts/tools/check_build_type.bat -text
 _scripts/tools/check_config_version.bat -text
 _scripts/tools/cmd_admin.lnk -text

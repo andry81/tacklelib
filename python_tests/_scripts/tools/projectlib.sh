@@ -6,7 +6,7 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 SOURCE_PROJECTLIB_SH=1 # including guard
 
 source '/bin/bash_entry' || exit $?
-tkl_include '../../../bash/tacklelib/buildlib.sh' || exit $?
+tkl_include 'buildlib.sh' || exit $?
 
 function UpdateOsName()
 {
