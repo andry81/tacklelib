@@ -150,7 +150,7 @@
 #          
 #        > echo $?
 #          0
-##   5.2. with the library:
+#   5.2. with the library:
 #        > . traplib.sh
 #        > pause() { local key; read -n1 -r -p "Press any key to continue..."$'\n' key; }
 #        > foo() { tkl_push_trap 'echo 1' INT; echo foo; boo() { tkl_push_trap 'echo 2' INT; echo boo; pause; }; boo; }
@@ -179,7 +179,7 @@
 #          2
 #        > echo $?
 #          2
-##   6.2. with the library:
+#   6.2. with the library:
 #        > . traplib.sh
 #        > pause() { local key; read -n1 -r -p "Press any key to continue..."$'\n' key; }
 #        > foo() { tkl_push_trap 'echo 1; tkl_set_trap_postponed_exit 1' INT; echo foo; boo() { tkl_push_trap 'echo 2; tkl_set_trap_postponed_exit 2' INT; echo boo; pause; }; boo; pause; }

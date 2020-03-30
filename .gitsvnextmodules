@@ -1,0 +1,144 @@
+[submodule "_scripts/tools/baselib.sh"]
+	path = _scripts/tools/baselib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/baselib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "_scripts/tools/buildlib.sh"]
+	path = _scripts/tools/buildlib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/buildlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "_scripts/tools/funclib.sh"]
+	path = _scripts/tools/funclib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/funclib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "_scripts/tools/hashlib.sh"]
+	path = _scripts/tools/hashlib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/hashlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "_scripts/tools/stringlib.sh"]
+	path = _scripts/tools/stringlib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/stringlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "_scripts/tools/traplib.sh"]
+	path = _scripts/tools/traplib.sh
+	owner = _scripts/tools
+	url = ^/trunk/bash/tacklelib/traplib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/baselib.sh"]
+	path = cmake_tests/_scripts/tools/baselib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/baselib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/buildlib.sh"]
+	path = cmake_tests/_scripts/tools/buildlib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/buildlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/funclib.sh"]
+	path = cmake_tests/_scripts/tools/funclib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/funclib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/hashlib.sh"]
+	path = cmake_tests/_scripts/tools/hashlib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/hashlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/stringlib.sh"]
+	path = cmake_tests/_scripts/tools/stringlib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/stringlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/traplib.sh"]
+	path = cmake_tests/_scripts/tools/traplib.sh
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/traplib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/baselib.sh"]
+	path = python_tests/_scripts/tools/baselib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/baselib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/buildlib.sh"]
+	path = python_tests/_scripts/tools/buildlib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/buildlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/funclib.sh"]
+	path = python_tests/_scripts/tools/funclib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/funclib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/hashlib.sh"]
+	path = python_tests/_scripts/tools/hashlib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/hashlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/stringlib.sh"]
+	path = python_tests/_scripts/tools/stringlib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/stringlib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/traplib.sh"]
+	path = python_tests/_scripts/tools/traplib.sh
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/bash/tacklelib/traplib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file

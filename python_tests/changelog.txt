@@ -1,4 +1,7 @@
 2020.03.30:
+* changed: svn file externals on `_scripts/tools` directory
+
+2020.03.30:
 * changed: minor cleanup
 
 2020.03.10:

@@ -119,11 +119,11 @@ function Configure()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_exit
   fi
 
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || Exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || tkl_exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || tkl_exit
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -133,9 +133,9 @@ function Configure()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || Exit
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_exit
 
-  source "${ScriptDirPath:-.}/__init2__.sh" || Exit
+  source "${ScriptDirPath:-.}/__init2__.sh" || tkl_exit
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/$ScriptFileName.in"
 
@@ -150,8 +150,8 @@ function Configure()
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
-    tkl_popd
+    tkl_push_trap 'tkl_popd' RETURN
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $LastError
   }
 
   return $LastError
@@ -163,11 +163,11 @@ function Build()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_exit
   fi
 
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || Exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || tkl_exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || tkl_exit
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -177,9 +177,9 @@ function Build()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || Exit
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_exit
 
-  source "${ScriptDirPath:-.}/__init2__.sh" || Exit
+  source "${ScriptDirPath:-.}/__init2__.sh" || tkl_exit
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/04/$ScriptFileName.in"
 
@@ -190,8 +190,8 @@ function Build()
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
-    tkl_popd
+    tkl_push_trap 'tkl_popd' RETURN
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $LastError
   }
 
   return $LastError
@@ -203,11 +203,11 @@ function Install()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_exit
   fi
 
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || Exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || tkl_exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || tkl_exit
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -217,9 +217,9 @@ function Install()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || Exit
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_exit
 
-  source "${ScriptDirPath:-.}/__init2__.sh" || Exit
+  source "${ScriptDirPath:-.}/__init2__.sh" || tkl_exit
 
   local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
@@ -228,8 +228,8 @@ function Install()
   eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
-    tkl_call cmake "${CMAKE_CMD_LINE[@]}" || { tkl_popd; return $LastError; }
-    tkl_popd
+    tkl_push_trap 'tkl_popd' RETURN
+    tkl_call cmake "${CMAKE_CMD_LINE[@]}" || return $LastError
   }
 
   return $LastError
@@ -241,11 +241,11 @@ function PostInstall()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_exit
   fi
 
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || Exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || tkl_exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || tkl_exit
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -255,15 +255,15 @@ function PostInstall()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || Exit
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_exit
 
-  source "${ScriptDirPath:-.}/__init2__.sh" || Exit
+  source "${ScriptDirPath:-.}/__init2__.sh" || tkl_exit
 
   #local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$ScriptFileName.in"
 
   tkl_pushd "$CMAKE_INSTALL_ROOT" && {
-    PostInstallImpl "$@" || { tkl_popd; return $LastError; }
-    tkl_popd
+    tkl_push_trap 'tkl_popd' RETURN
+    PostInstallImpl "$@" || return $LastError
   }
 
   return $LastError
@@ -295,7 +295,7 @@ function PostInstallImpl()
   declare -a "file_deps_cpdir_list=(\$FILE_DEPS_CPDIR_LIST)"
 
   # create application directories at first
-  tkl_make_dir "${file_deps_mkdir_list[@]}" || Exit
+  tkl_make_dir "${file_deps_mkdir_list[@]}" || tkl_exit
 
   local IFS=$':\t\r\n'
 
@@ -304,7 +304,7 @@ function PostInstallImpl()
   for dir in "${file_deps_cpdir_list[@]}"; do
     (( i == 0 )) && from_dir="$dir"
     if (( (i % 2) == 1 )); then
-      tkl_call cp -R "$from_dir" "$dir" || return Exit
+      tkl_call cp -R "$from_dir" "$dir" || return tkl_exit
     fi
     (( i++ ))
   done
@@ -368,11 +368,11 @@ function Pack()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || Exit
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_exit
   fi
 
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || Exit
-  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || Exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_files.sh" || tkl_exit
+  source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || tkl_exit
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -382,9 +382,9 @@ function Pack()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || Exit
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_exit
 
-  source "${ScriptDirPath:-.}/__init2__.sh" || Exit
+  source "${ScriptDirPath:-.}/__init2__.sh" || tkl_exit
 
   if [[ ! -d "$NSIS_INSTALL_ROOT" ]]; then
     echo "$0: error: NSIS_INSTALL_ROOT directory does not exist: \`$NSIS_INSTALL_ROOT\`." >&2
@@ -402,8 +402,8 @@ function Pack()
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || { tkl_popd; return $LastError; }
-    tkl_popd
+    tkl_push_trap 'tkl_popd' RETURN
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $LastError
   }
 
   return $LastError

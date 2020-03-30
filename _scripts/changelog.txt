@@ -1,3 +1,7 @@
+2020.03.30:
+* fixed: tools: missed changes
+* changed: svn file externals on `tools` directory
+
 2020.03.08:
 * changed: `buildlib.sh` module migrated into the bash directory
 
