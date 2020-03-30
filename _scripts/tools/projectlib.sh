@@ -10,8 +10,8 @@ SOURCE_PROJECTLIB_SH=1 # including guard
 #   because this is a standalone directory referenced from external projects.
 #
 
-source "/bin/bash_entry" || exit $?
-tkl_include "buildlib.sh" || exit $?
+source '/bin/bash_entry' || exit $?
+tkl_include 'buildlib.sh' || exit $?
 
 function GenerateSrc()
 {

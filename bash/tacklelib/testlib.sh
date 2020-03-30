@@ -32,12 +32,15 @@ SOURCE_TACKLELIB_TESTLIB_FILE="$BASH_SOURCE_FILE"
 function tkl_test_echo()
 {
   local code=$?
-  echo "$@"
+  echo "$@" 1>&3
   return $code
 }
 
 function tkl_testmodule_init()
 {
+  # avoid double initialization
+  [[ -n "$TestModuleSessionId" ]] && return 0
+
   tkl_push_trap '' INT # ignore interruption while at init
   tkl_push_trap 'tkl_pop_trap INT' RETURN
 
@@ -63,6 +66,8 @@ function tkl_testmodule_init()
 
   TEST_SOURCES=()
   TEST_FUNCTIONS=()
+  TEST_VARIABLES=()
+  TEST_EXIT_CODES=()
 
   CONTINUE_ON_TEST_FAIL=1
   CONTINUE_ON_SIGINT=0
@@ -98,6 +103,10 @@ function tkl_testmodule_init()
   TestModuleScriptLogDir="${TestModuleScriptBaseFileName}.${TestModuleSessionId}"
 
   TestModuleRetcodeFilePath="/tmp/$TestModuleScriptLogDir/retcode.txt"
+  TestModuleScriptFilePath="/tmp/$TestModuleScriptLogDir/test_script.sh"
+  TestModuleScriptLogDirVarPath="/tmp/$TestModuleScriptLogDir/test_script_log_dir.var"
+
+  TestModuleScriptOutputDirPath="$BASH_SOURCE_DIR/.log"
 
   # enable extra variables check and test asserts
   export TEST_ENABLE_EXTRA_VARIABLES_CHECK=0
@@ -109,6 +118,11 @@ function tkl_testmodule_init()
   tkl_push_trap "tkl_testmodule_int_handler" INT
 
   mkdir "/tmp/$TestModuleScriptLogDir"
+
+  # create empty module files
+  echo '' > "$TestModuleRetcodeFilePath"
+  echo '' > "$TestModuleScriptFilePath"
+  echo '' > "$TestModuleScriptLogDirVarPath"
 
   tkl_testmodule_set_last_error 127
 
@@ -131,6 +145,8 @@ function tkl_testmodule_exit_handler()
   echo "-------------------------------------------------------------------------------"
 
   rm -f "$TestModuleRetcodeFilePath"
+  rm -f "$TestModuleScriptFilePath"
+  rm -f "$TestModuleScriptLogDirVarPath"
   rmdir "/tmp/$TestModuleScriptLogDir"
 
   printf '\7' # beep
@@ -138,12 +154,13 @@ function tkl_testmodule_exit_handler()
 
 function tkl_testmodule_int_handler()
 {
-  (( ! CONTINUE_ON_SIGINT )) && exit 254
+  (( ! CONTINUE_ON_SIGINT )) && tkl_set_trap_postponed_exit 254
 }
 
 function tkl_test_init()
 {
   TestScriptEntry="$1"
+  TestStdoutDeclare="$2"
 
   tkl_push_trap '' INT # ignore interruption while at init
   tkl_push_trap 'tkl_pop_trap INT' RETURN
@@ -192,15 +209,13 @@ function tkl_test_init()
     TestHasNoVarEnvDiffFilePath="/tmp/$TestModuleScriptLogDir/$TestScriptLogDir/2_has_no_vars_diff.txt"
   fi
 
-  TestScriptOutputDirPath="$BASH_SOURCE_DIR/.log"
-
   tkl_push_trap "tkl_test_exit_handler" EXIT
   tkl_pop_trap RETURN
   tkl_pop_trap INT
   tkl_push_trap "tkl_test_int_handler" INT
 
   mkdir "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir" || exit 240
-  mkdir -p "$TestScriptOutputDirPath/$TestModuleScriptLogDir" || exit 241
+  mkdir -p "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir" || exit 241
 
   tkl_test_set_last_error 128
 
@@ -210,6 +225,9 @@ function tkl_test_init()
     exec 6> "$TestHasNoVarsEnvFilePath"
   fi
 
+  # save generated log directory name
+  echo "$TestScriptLogDir" > "$TestModuleScriptLogDirVarPath"
+
   return 0
 }
 
@@ -218,6 +236,7 @@ function tkl_test_exit_handler()
   local ExitCode=$?
 
   tkl_push_trap '' INT # ignore interruption while at exit
+  tkl_push_trap 'tkl_pop_trap INT' RETURN
 
   local Output="${TestStdoutDeclare%$'\n'}" # remove last line return as optional
   echo -n -e "$Output${Output:+$'\n'}" >"$TestStdoutDefFilePath"
@@ -225,8 +244,11 @@ function tkl_test_exit_handler()
     diff -c "$TestStdoutFilePath" "$TestStdoutDefFilePath" |
     sed -e 's|--- /tmp/traplib/|--- |' -e 's|\*\*\* /tmp/traplib/|\*\*\* |')
   if [[ -n "$StdoutsDiff" ]]; then
-    echo -n "$StdoutsDiff" >"$TestStdoutsDiffFilePath"
+    echo -n "$StdoutsDiff" > "$TestStdoutsDiffFilePath"
     tkl_test_add_last_error 245 0x01
+  else
+    # reset the into success if not done yet
+    tkl_test_assert_true '(( 1 ))'
   fi
 
   # close all pipes
@@ -244,16 +266,22 @@ function tkl_test_exit_handler()
       if [[ -n "$HasVarsEnv" ]]; then
         tkl_compare_envs "$HasVarsEnv" "$TestInitEnv" "%%=*" "%%=*" &&
         if [[ -n "$RETURN_VALUE" ]]; then
-            echo "$RETURN_VALUE" >"$TestHasVarEnvDiffFilePath"
-            tkl_test_add_last_error 246 0x02
+          echo "$RETURN_VALUE" > "$TestHasVarEnvDiffFilePath"
+          tkl_test_add_last_error 246 0x02
+        else
+          # reset the into success if not done yet
+          tkl_test_assert_true '(( 1 ))'
         fi
       fi
       HasNoVarsEnv=$(cat "$TestHasNoVarsEnvFilePath")
       if [[ -n "$HasNoVarsEnv" ]]; then
         tkl_compare_envs "$HasNoVarsEnv" "$TestInitEnv" "%%=*" "%%=*" &&
         if [[ -n "$RETURN_VALUE" ]]; then
-          echo "$RETURN_VALUE" >"$TestHasNoVarEnvDiffFilePath"
+          echo "$RETURN_VALUE" > "$TestHasNoVarEnvDiffFilePath"
           tkl_test_add_last_error 247 0x04
+        else
+          # reset the into success if not done yet
+          tkl_test_assert_true '(( 1 ))'
         fi
       fi
     else
@@ -261,30 +289,35 @@ function tkl_test_exit_handler()
     fi
   fi
 
-  tkl_testmodule_get_last_error
+  local TestLastError
+  tkl_testmodule_get_last_error TestLastError
 
   {
     # remove output files only if test is passed!
     if (( TestLastError && TestFlags & 0x01 )); then
-      mv -v "$TestStdoutsDiffFilePath" "$TestScriptOutputDirPath/$TestModuleScriptLogDir"
+      mv -v "$TestStdoutsDiffFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
     else
       rm -f "$TestStdoutsDiffFilePath"
     fi 
 
-    local tmp_output_copied=0
     if (( TEST_ENABLE_ALL_TEMP_OUTPUT_COPY )); then
       if (( TestLastError )); then
-        mv -v "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir" "$TestScriptOutputDirPath/$TestModuleScriptLogDir"
-        tmp_output_copied=1
+        cp -vr "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir"
+      fi
+      if (( TEST_ENABLE_EXTRA_VARIABLES_CHECK )); then
+        rm -f "$TestHasVarEnvDiffFilePath"
+        rm -f "$TestHasNoVarEnvDiffFilePath"
+        rm -f "$TestHasVarsEnvFilePath"
+        rm -f "$TestHasNoVarsEnvFilePath"
       fi
     elif (( TEST_ENABLE_EXTRA_VARIABLES_CHECK )); then
       if (( TestLastError && TestFlags & 0x02 )); then
-        mv -v "$TestHasVarEnvDiffFilePath" "$TestScriptOutputDirPath/$TestModuleScriptLogDir"
+        mv -v "$TestHasVarEnvDiffFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
       else
         rm -f "$TestHasVarEnvDiffFilePath"
       fi
       if (( TestLastError && TestFlags & 0x04 )); then
-        mv -v "$TestHasNoVarEnvDiffFilePath" "$TestScriptOutputDirPath/$TestModuleScriptLogDir"
+        mv -v "$TestHasNoVarEnvDiffFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
       else
         rm -f "$TestHasNoVarEnvDiffFilePath"
       fi
@@ -292,18 +325,15 @@ function tkl_test_exit_handler()
       rm -f "$TestHasNoVarsEnvFilePath"
     fi
 
-    if (( ! tmp_output_copied )); then
-      rm -f "$TestStdoutFilePath"
-      rm -f "$TestStdoutDefFilePath"
-      rm -f "$TestInitEnvFilePath"
-      rm -f "$TestExitEnvFilePath"
-
-      # move test output into respective
-      rmdir "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir"
-    fi
+    # move test output into respective
+    rm -f "$TestStdoutFilePath"
+    rm -f "$TestStdoutDefFilePath"
+    rm -f "$TestInitEnvFilePath"
+    rm -f "$TestExitEnvFilePath"
+    rmdir "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir"
 
     # copy return codes at last
-    cp -v "$TestModuleRetcodeFilePath" "$TestScriptOutputDirPath/$TestModuleScriptLogDir"
+    cp -v "$TestModuleRetcodeFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
 
     echo
   } > /dev/null
@@ -322,13 +352,13 @@ function tkl_test_exit_handler()
 function tkl_test_int_handler()
 {
   tkl_test_add_last_error 254
-  (( ! CONTINUE_ON_SIGINT )) && exit $TestLastError
+  (( ! CONTINUE_ON_SIGINT )) && tkl_set_trap_postponed_exit $TestLastError
 }
 
 function tkl_testmodule_get_last_error()
 {
   local IFS=$'\r\n'
-  read -r TestLastError < "$TestModuleRetcodeFilePath"
+  read -r $1 < "$TestModuleRetcodeFilePath"
 }
 
 function tkl_testmodule_set_last_error()
@@ -382,7 +412,8 @@ function tkl_testmodule_run_test()
   local TestFuncArgs=("$@")
 
   # replace special character to line returns
-  TestStdoutDeclare="${TestStdoutDeclare//:/$'\n'}"
+  tkl_escape_string "${TestStdoutDeclare//:/$'\n'}" '' 1
+  TestStdoutDeclare="$RETURN_VALUE"
 
   tkl_get_func_body "$TestScriptEntry"
   local TestFuncBody="$RETURN_VALUE"
@@ -391,23 +422,21 @@ function tkl_testmodule_run_test()
   local IFS=$'\n'
   local TestFuncDecls="${RETURN_VALUES[*]}"
 
-  tkl_serialize_array TestFuncArgs TestFuncArgsSerializedArr
-  tkl_make_command_line '' 1 "$TestFuncArgsSerializedArr"
-  local TestFuncArgsSerializedArrCmdLine="$RETURN_VALUE"
-
   # Test script to run single test w/o environment inheritance from parent shell process.
   # First line in environment output is internal parameters list from
   # functions `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars`.
-  local TestScript="
+  local TestScript="#/bin/bash
 source '/bin/bash_entry'
 
 tkl_include \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
 
 TestModuleSessionId=\"$TestModuleSessionId\"
+TestModuleScriptOutputDirPath=\"$TestModuleScriptOutputDirPath\"
 TestModuleScriptLogDir=\"$TestModuleScriptLogDir\"
 TestModuleRetcodeFilePath=\"$TestModuleRetcodeFilePath\"
+TestModuleScriptLogDirVarPath=\"$TestModuleScriptLogDirVarPath\"
 
-tkl_test_init \"$TestScriptEntry\" || tkl_test_exit_if_error \$?
+tkl_test_init \"$TestScriptEntry\" '$TestStdoutDeclare' || tkl_test_exit_if_error \$?
 
 echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
 
@@ -423,13 +452,32 @@ echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
   local i=0
   TestScript="${TestScript}TEST_SCRIPT_ARGS=()"$'\n'
   for arg in "${TestFuncArgs[@]}"; do
-    tkl_make_command_line '' 1 "$arg"
+    tkl_escape_string "$arg" '' 1
     TestScript="${TestScript}TEST_SCRIPT_ARGS[$i]='$RETURN_VALUE'"$'\n'
     (( i++ ))
   done
 
-  TestScript="${TestScript}
-$TestFuncDecls
+  TestScript="${TestScript}"$'\n'
+
+  local var_name
+  local i=0
+  for arg in "${TEST_VARIABLES[@]}"; do
+    if (( ! ( i % 2 ) )); then
+      var_name="$arg"
+    else
+      if [[ "${arg:0:1}" != "(" ]]; then
+        tkl_escape_string "$arg" '' 1
+        TestScript="${TestScript}declare $var_name='$RETURN_VALUE'"$'\n'
+      else
+        TestScript="${TestScript}declare $var_name=$arg"$'\n'
+      fi
+    fi
+    (( i++ ))
+  done
+
+  TestScript="${TestScript}"$'\n'
+
+  TestScript="${TestScript}$TestFuncDecls
 
 tkl_safe_func_call TestUserInit
 
@@ -448,19 +496,46 @@ tkl_push_trap 'tkl_test_script_LocalExitHandler' EXIT
 set -o posix
 set > \"\$TestInitEnvFilePath\"
 
+function $TestScriptEntry()
+{
 $TestFuncBody
+}
+
+$TestScriptEntry
 "
+
+  # save the script text into temporary file before run it
+  echo "$TestScript" > "$TestModuleScriptFilePath"
 
   # run a test case in the standalone bash process
   #echo "TestScript=$TestScript"
   /bin/bash -c "$TestScript"
-  TestProcessLastError=$?
+  local TestProcessLastError=$?
 
-  tkl_testmodule_get_last_error
+  # copy temporary test script file into the log test case directory
+  local TestScriptLogDir
+  read -r TestScriptLogDir < "$TestModuleScriptLogDirVarPath"
+  cp "$TestModuleScriptFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
 
-  echo TestProcessLastError=$TestProcessLastError
-  echo TestLastError=$TestLastError
-  if (( ! TestProcessLastError && ! TestLastError )); then
+  local TestLastError
+  tkl_testmodule_get_last_error TestLastError
+
+  [[ -z "$TestLastError" ]] && TestLastError=255 # just in case
+
+  local i=0
+  local test_func_name
+  local registered_exit_code=0
+  for arg in "${TEST_EXIT_CODES[@]}"; do
+    if (( ! ( i % 2 ) )); then
+      test_func_name="$arg"
+    elif [[ "$test_func_name" == "$TestScriptEntry" ]]; then
+      registered_exit_code=$arg
+      break
+    fi
+    (( i++ ))
+  done
+
+  if (( TestProcessLastError == registered_exit_code && ! TestLastError )); then
     (( NUM_TESTS_PASSED++ ))
   else
     (( NUM_TESTS_FAILED++ ))
@@ -468,19 +543,26 @@ $TestFuncBody
   (( NUM_TESTS_OVERALL++ ))
   (( TestLastError && ! CONTINUE_ON_TEST_FAIL )) && exit $TestLastError
   (( TestProcessLastError && ! CONTINUE_ON_TEST_FAIL )) && exit $TestProcessLastError
+
+  return 0
 }
 
 function tkl_test_assert_true()
 {
   local TestLastError
-  local IFS=$'\r\n'
-  read -r TestLastError < "$TestModuleRetcodeFilePath"
+  tkl_testmodule_get_last_error TestLastError
 
   if eval "$1"; then
     if (( TestLastError == 128 )); then
       tkl_test_set_last_error 0
     fi
   else
+    echo "${FUNCNAME[0]}: ${FUNCNAME[1]} ($(( BASH_LINENO[0] + 1 ))): \`$1\`"
+    shift
+    while (( $# )); do
+      eval "echo \"\${FUNCNAME[0]}:  arg: $1=\\\`\$$1\\\`\""
+      shift
+    done
     if (( ! TestLastError || TestLastError == 128 )); then
       tkl_test_set_last_error 250
     fi
@@ -498,6 +580,12 @@ function tkl_test_assert_false()
       tkl_test_set_last_error 0
     fi
   else
+    echo "${FUNCNAME[0]}: ${FUNCNAME[1]} ($(( BASH_LINENO[0] + 1 ))): \`$1\`"
+    shift
+    while (( $# )); do
+      eval "echo \"\${FUNCNAME[0]}:  arg: $1=\\\`\$$1\\\`\""
+      shift
+    done
     if (( ! TestLastError || TestLastError == 128 )); then
       tkl_test_set_last_error 251
     fi

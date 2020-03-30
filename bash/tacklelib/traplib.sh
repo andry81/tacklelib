@@ -62,7 +62,7 @@
 #          trap -- 'echo 2' RETURN
 #   1.2. with the library:
 #        > . traplib.sh
-#        > foo() { echo foo; boo() { tkl_push_trap 'echo 2' RETURN; echo boo; }; boo; builtin trap -p RETURN; }
+#        > foo() { echo foo; boo() { tkl_push_trap 'echo 2' RETURN; echo boo; }; boo }
 #        > foo
 #          foo
 #          boo
@@ -121,9 +121,8 @@
 #          *CTRL-C*
 #        > echo $?
 #          130
-#        > builtin trap -p INT
-#          
 #   4.2. with the library:
+#        > . traplib.sh
 #        > pause() { local key; read -n1 -r -p "Press any key to continue..."$'\n' key; }
 #        > foo() { tkl_push_trap 'echo 1' INT; tkl_push_trap 'tkl_pop_trap INT' RETURN; echo foo; boo() { tkl_push_trap 'echo 2' INT; tkl_push_trap 'tkl_pop_trap INT' RETURN; echo boo; }; boo; pause; }
 #        > ( foo )
@@ -135,8 +134,6 @@
 #          *CTRL-C*
 #        > echo $?
 #          130
-#        > builtin trap -p INT
-#          
 #
 #   5. Examples with non RETURN handlers chaining:
 #   5.1. without the library:
@@ -153,9 +150,8 @@
 #          
 #        > echo $?
 #          0
-#        > builtin trap -p INT
-#          
-#   5.2. with the library:
+##   5.2. with the library:
+#        > . traplib.sh
 #        > pause() { local key; read -n1 -r -p "Press any key to continue..."$'\n' key; }
 #        > foo() { tkl_push_trap 'echo 1' INT; echo foo; boo() { tkl_push_trap 'echo 2' INT; echo boo; pause; }; boo; }
 #        > ( foo )
@@ -169,8 +165,6 @@
 #          
 #        > echo $?
 #          0
-#        > builtin trap -p INT
-#          
 #
 #   6. Examples with non RETURN handlers chaining with the postponed exit from a trap handler:
 #   6.1. without the library:
@@ -185,9 +179,8 @@
 #          2
 #        > echo $?
 #          2
-#        > builtin trap -p INT
-#          
-#   6.2. with the library:
+##   6.2. with the library:
+#        > . traplib.sh
 #        > pause() { local key; read -n1 -r -p "Press any key to continue..."$'\n' key; }
 #        > foo() { tkl_push_trap 'echo 1; tkl_set_trap_postponed_exit 1' INT; echo foo; boo() { tkl_push_trap 'echo 2; tkl_set_trap_postponed_exit 2' INT; echo boo; pause; }; boo; pause; }
 #        > ( foo )
@@ -199,8 +192,6 @@
 #          1
 #        > echo $?
 #          2
-#        > builtin trap -p INT
-#          
 #
 #   7. Examples with mix of RETURN and EXIT handlers:
 #   7.1. without the library:
@@ -211,6 +202,7 @@
 #          3
 #          e1
 #   7.2. with the library:
+#        > . traplib.sh
 #        > ( tkl_push_trap 'echo e1' EXIT; echo 1; foo() { ( tkl_push_trap 'echo r2' RETURN; tkl_push_trap 'echo e2' EXIT; echo 2; ); }; foo; echo 3; )
 #          1
 #          2

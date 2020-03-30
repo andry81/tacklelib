@@ -4,6 +4,7 @@ _config/*.vars
 /_out
 _scripts/tools/__pycache*__
 bash_tests/01_bash_entry/01_normalize_path/.log
+bash_tests/02_traplib/01_push_trap/.log
 cmake_tests/_config/*.vars
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
