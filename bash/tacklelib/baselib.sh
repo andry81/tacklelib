@@ -845,7 +845,7 @@ function tkl_wait()
 
 function tkl_set_last_error()
 {
-  return ${1:-$LastError}
+  return ${1:-$tkl__last_error}
 }
 
 function tkl_join_array()

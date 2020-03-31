@@ -340,9 +340,21 @@ function tkl_make_source_file_components()
   tkl_make_source_file_components_from_file_path "$RETURN_VALUE"
 }
 
+function tkl_set_show_includes()
+{
+  export tkl__include__show_includes=1
+}
+
+function tkl_unset_show_includes()
+{
+  unset tkl__include__show_includes
+}
+
 # Alternative inclusion command additionally to the `source` command.
 function tkl_include()
 {
+  local LastError=$?
+
   # CAUTION:
   #   1. All variables here must be unique irrespective to the function scope,
   #      because `source "..."` still can remove or change a local variable!
@@ -353,7 +365,9 @@ function tkl_include()
   for _84CB4B34_include_file_path in "$@"; do
     if tkl_is_abs_path "$_84CB4B34_include_file_path"; then
       if tkl_get_abs_path_from_dir "$_84CB4B34_include_file_path" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
+        tkl_set_return $LastError
         tkl_include_local_impl
+        LastError=$?
       fi
     else
       local _84CB4B34_included=0
@@ -372,7 +386,9 @@ function tkl_include()
           if tkl_get_abs_path_from_dir "${_84CB4B34_path_prefix}/${_84CB4B34_include_file_path}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
             if [[ -f "$RETURN_VALUE" ]]; then
               _84CB4B34_included=1
+              tkl_set_return $LastError
               tkl_include_local_impl
+              LastError=$?
               break
             fi
           fi
@@ -381,11 +397,15 @@ function tkl_include()
 
       if (( ! _84CB4B34_included )); then
         if tkl_get_abs_path_from_dir "$BASH_SOURCE_DIR" "$_84CB4B34_include_file_path" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
+          tkl_set_return $LastError
           tkl_include_local_impl
+          LastError=$?
         fi
       fi
     fi
   done
+
+  return $LastError
 }
 
 # CAUTION:
@@ -393,6 +413,8 @@ function tkl_include()
 #
 function tkl_include_local_impl()
 {
+  local LastError=$?
+
   # CAUTION:
   #   DO NOT USE `trap` command here and anythere else to pop the variables, because the `source` command would trigger it TOO!
   #
@@ -409,7 +431,15 @@ function tkl_include_local_impl()
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
   #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
 
+  if (( tkl__include__show_includes )); then
+    local source_prefix
+    local nest_level=$(( ${#BASH_LINENO[@]} / 3 - 1 ))
+    (( nest_level )) && printf -v source_prefix "%*s" ${nest_level} ''
+    echo "${source_prefix// /| }source: \`${BASH_SOURCE_FILE}\`"
+  fi
+  tkl_set_return $LastError
   source "${BASH_SOURCE_FILE}"
+  LastError=$?
 
   # manually restore the stack, avoid usage of the `trap` command, because of side effect around the `source` command!
   tkl_pop_var_from_stack global BASH_SOURCE_FILE
@@ -419,6 +449,8 @@ function tkl_include_local_impl()
   #echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
   #echo " <- BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
+
+  return $LastError
 }
 
 function tkl_get_native_parent_dir()

@@ -199,7 +199,6 @@ function tkl_hash_func_body_as_token()
 
   [[ -z "$FuncName" ]] && return 1
 
-  local LastError
   local FuncDecl
   local FuncDeclSize
 
@@ -228,7 +227,6 @@ function tkl_hash_func_as_token()
 
   [[ -z "$FuncName" ]] && return 1
 
-  local LastError
   local FuncDecl
   local FuncDeclSize
 

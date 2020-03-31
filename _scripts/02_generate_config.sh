@@ -3,7 +3,7 @@
 # Configuration variable files generator script.
 
 # Script ONLY for execution.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]]; then 
 
 source "/bin/bash_entry" || exit $?
 tkl_include "__init__/__init0__.sh" || exit $?
@@ -12,7 +12,7 @@ tkl_include "__init__/__init0__.sh" || exit $?
 (( ! IMPL_MODE && ! NEST_LVL )) && {
   export IMPL_MODE=1
   exec 3>&1 4>&2
-  trap 'exec 2>&4 1>&3' EXIT HUP INT QUIT RETURN
+  tkl_push_trap 'exec 2>&4 1>&3' EXIT
 
   [[ ! -e "${SCRIPTS_LOGS_ROOT}/.log" ]] && mkdir "${SCRIPTS_LOGS_ROOT}/.log"
 
@@ -47,8 +47,8 @@ tkl_include "__init__/__init1__.sh" || exit $?
 (( NEST_LVL+=1 ))
 
 
-GenerateConfig || Exit
+GenerateConfig || tkl_exit $?
 
-Exit
+tkl_exit
 
 fi

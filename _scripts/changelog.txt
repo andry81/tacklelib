@@ -1,3 +1,8 @@
+2020.03.31:
+* fixed: missed changes
+* fixed: unix shell scripts execution
+* fixed: tools: replaced all `exit` commands by `return` commands in library code
+
 2020.03.30:
 * fixed: tools: missed changes
 * changed: svn file externals on `tools` directory

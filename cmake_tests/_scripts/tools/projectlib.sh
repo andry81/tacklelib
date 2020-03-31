@@ -5,8 +5,8 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_PROJECTLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
-tkl_include 'buildlib.sh' || exit $?
+source '/bin/bash_entry' || return $?
+tkl_include 'buildlib.sh' || return $?
 
 function GenerateConfig()
 {
@@ -15,7 +15,7 @@ function GenerateConfig()
   MakeCommandArgumentsFromFile -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
 
-  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $LastError
+  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $?
 
   local CONFIG_FILE_IN="$PROJECT_ROOT/cmake_tests/_config/_scripts/01/${BASH_SOURCE_FILE_NAME%[.]*}.deps.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
@@ -28,7 +28,7 @@ function GenerateConfig()
     tkl_call "$PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
   done < "$CONFIG_FILE_IN"
 
-  return $LastError
+  return 0
 }
 
 function CheckConfigVersion()
@@ -55,7 +55,7 @@ function CheckConfigVersion()
     if [[ "${CMAKE_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
       if [[ "${CMAKE_FILE_IN_VER_LINE:13}" == "${CMAKE_FILE_VER_LINE:13}" ]]; then
         echo "$0: error: version of \`$VARS_SYSTEM_FILE_IN\` is not equal to version of \`$VARS_SYSTEM_FILE\`, user must merge changes by yourself!" >&2
-        exit 4
+        return 4
       fi
     fi
   fi

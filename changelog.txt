@@ -1,3 +1,14 @@
+2020.03.31:
+* fixed: _scripts: missed changes
+* fixed: _scripts: unix shell scripts execution
+* fixed: _scripts: tools: replaced all `exit` commands by `return` commands in library code
+* fixed: bash: missed changes
+* fixed: cmake_tests: missed changes
+* fixed: python_tests: missed changes
+* new: bash: bash_entry: `tkl_set_show_includes` and `tkl_unset_show_includes` functions to explicitly show all `source` calls in the `tkl_include` function
+* changed: bash: bash_entry: support return code from `tkl_include` function
+* refactor: bash: `LastError` replaced by `tkl__last_error` variable
+
 2020.03.30:
 * fixed: _scripts: tools: missed changes
 * changed: _scripts: svn file externals on `tools` directory

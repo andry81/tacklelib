@@ -6,7 +6,8 @@
 #
 # Pros:
 #   1. Automatically restores the previous trap handler in nested functions.
-#      Originally the `RETURN` trap restores ONLY if ALL functions in the stack did set it.
+#      Originally the `RETURN` trap restores ONLY if ALL functions in the stack did set the `trap - RETURN` at the end
+#      of the handler.
 #   2. The `RETURN` signal trap can support other signal traps to achieve the RAII pattern as in other languages.
 #      For example, to temporary disable interruption handling and auto restore it at the end of a function
 #      while an initialization code is executing.
@@ -72,15 +73,14 @@
 #
 #   2. Examples with RETURN signal handlers nesting:
 #   2.1. without the library:
-#        > foo() { builtin trap 'echo 1' RETURN; echo foo; boo() { builtin trap 'echo 2' RETURN; echo boo; }; boo; builtin trap -p RETURN; }
+#        > foo() { builtin trap 'echo 1; trap - RETURN' RETURN; echo foo; boo() { builtin trap 'echo 2; trap - RETURN' RETURN; echo boo; }; boo; builtin trap -p RETURN; }
 #        > foo
 #          foo
 #          boo
 #          2
-#          trap -- 'echo 2' RETURN
 #          1
 #        > builtin trap -p RETURN
-#          trap -- 'echo 1' RETURN
+#          
 #   2.2. with the library:
 #        > . traplib.sh
 #        > foo() { tkl_push_trap 'echo 1' RETURN; echo foo; boo() { tkl_push_trap 'echo 2' RETURN; echo boo; }; boo; }
