@@ -42,8 +42,8 @@ tkl_include "__init__/__init1__.sh" || exit $?
 
 (( NEST_LVL++ ))
 
-tkl_exit "tools/set_vars_from_files.sh" || tkl_exit $?
-tkl_exit "tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || tkl_exit $?
+tkl_include "tools/set_vars_from_files.sh" || tkl_exit $?
+tkl_include "tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || tkl_exit $?
 
 
 # CAUTION: an empty value and `*` value has different meanings!
