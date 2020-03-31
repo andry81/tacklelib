@@ -6,16 +6,18 @@
 #  2. Non english locale in paths.
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_ROOT_INIT0_SH" || SOURCE_ROOT_INIT0_SH -eq 0) ]]; then 
+
+SOURCE_ROOT_INIT0_SH=1 # including guard
 
 [[ -z "$NEST_LVL" ]] && NEST_LVL=0
 
-tkl_include "../tools/projectlib.sh" || exit $?
+tkl_include "../tools/projectlib.sh" || return $?
 
-tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../.." s || Exit
+tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../.." s || return $?
 PROJECT_ROOT="${RETURN_VALUE:-*:\$}" # safety: replace by not applicable or unexisted directory if empty
 
-tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../tools" s || Exit
+tkl_convert_backend_path_to_native "$BASH_SOURCE_DIR/../tools" s || return $?
 CONTOOLS_ROOT="${RETURN_VALUE:-*:\$}" # safety: replace by not applicable or unexisted directory if empty
 
 SCRIPTS_LOGS_ROOT="${PROJECT_ROOT:-*:\$}" # safety: replace by not applicable or unexisted directory if empty

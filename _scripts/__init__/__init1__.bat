@@ -5,6 +5,10 @@ rem  In case of usage the QtCreator there is set of special broken cases you hav
 rem  1. Invalid characters in paths: `(`, `)` and `.`.
 rem  2. Non english locale in paths.
 
+if %SOURCE_ROOT_INIT1_BAT%0 NEQ 0 exit /b
+
+set SOURCE_ROOT_INIT1_BAT=1
+
 if not defined NEST_LVL set NEST_LVL=0
 
 call "%%~dp0__init0__.bat" || exit /b

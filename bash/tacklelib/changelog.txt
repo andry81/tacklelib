@@ -1,3 +1,8 @@
+2020.03.31:
+* new: bash_entry: `tkl_set_show_includes` and `tkl_unset_show_includes` functions to explicitly show all `source` calls in the `tkl_include` function
+* changed: bash_entry: support return code from `tkl_include` function
+* refactor: `LastError` replaced by `tkl__last_error` variable
+
 2020.03.30:
 * fixed: `testlib.sh` multiple fixup
 * changed: `traplib.sh` minor cleanup

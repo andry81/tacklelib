@@ -7,21 +7,11 @@
 # 3. path where to read a file with variable values (each per line, must be the same quantity of lines with the variable names file)
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]]; then
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]]; then
 
-source "/bin/bash_entry" || exit $?
-source "$PROJECT_ROOT/_scripts/tools/set_vars_from_locked_file_pair.sh" || exit $?
-
-function CallAndPrintIf()
-{
-  eval "$1" && {
-    echo ">>${@:2}"
-    echo
-  }
-  "${@:2}"
-  LastError=$?
-  return $LastError
-}
+source "/bin/bash_entry" || return $?
+tkl_include "buildlib.sh" || return $?
+tkl_include "set_vars_from_locked_file_pair.sh" || return $?
 
 function set_vars_from_files()
 {
@@ -38,25 +28,20 @@ function set_vars_from_files()
   fi
 
   # cleanup on return
-  #
-  # CAUTION:
-  #   `trap - RETURN` is required here, otherwise the return trap would be called again in a parent scope function,
-  #   in case if there was no trap command!
-  #
-  trap "rm -rf \"$TEMP_OUTPUT_DIR\" 2> /dev/null; trap - RETURN" RETURN 
+  tkl_push_trap "rm -rf \"$TEMP_OUTPUT_DIR\" 2> /dev/null" RETURN
 
   local RETURN_VALUE
   tkl_convert_backend_path_to_native "$TEMP_OUTPUT_DIR" s
   TEMP_OUTPUT_DIR="$RETURN_VALUE"
 
   # arguments: <flag0>[...<flagN>] "<file0>[...\;<fileN>]" <os_name> <compiler_name> <config_name> <arch_name> <list_separator_char>
-  CallAndPrintIf "(( TOOLS_VERBOSE ))" cmake "-DCMAKE_MODULE_PATH=$PROJECT_ROOT/cmake" \
+  tkl_call_and_print_if "(( TOOLS_VERBOSE ))" cmake "-DCMAKE_MODULE_PATH=$PROJECT_ROOT/cmake" \
     -P "$PROJECT_ROOT/cmake/tacklelib/tools/SetVarsFromFiles.cmd.cmake" \
     "${@:7}" \
     --flock "$TEMP_OUTPUT_DIR/lock" --vars "$TEMP_OUTPUT_DIR/var_names.lst" --values "$TEMP_OUTPUT_DIR/var_values.lst" \
     "${@:1:6}" || return $?
 
-  CallAndPrintIf "(( TOOLS_VERBOSE ))" set_vars_from_locked_file_pair \
+  tkl_call_and_print_if "(( TOOLS_VERBOSE ))" set_vars_from_locked_file_pair \
     "$TEMP_OUTPUT_DIR/lock" "$TEMP_OUTPUT_DIR/var_names.lst" "$TEMP_OUTPUT_DIR/var_values.lst" \
     "$PRINT_VARS_SET" || return $?
 

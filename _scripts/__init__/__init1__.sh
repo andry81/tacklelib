@@ -6,13 +6,15 @@
 #  2. Non english locale in paths.
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) ]] && (( ! ${#SOURCE_ROOT_INIT1_SH} )); then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_ROOT_INIT1_SH" || SOURCE_ROOT_INIT1_SH -eq 0) ]]; then 
 
-tkl_include "__init0__.sh" || exit $?
+SOURCE_ROOT_INIT1_SH=1 # including guard
+
+tkl_include "__init0__.sh" || return $?
 
 # optional compare in case of generator script
-CallAndPrintIf "(( INIT_VERBOSE ))" CheckConfigVersion "$IN_GENERATOR_SCRIPT" \
+tkl_call_and_print_if "(( INIT_VERBOSE ))" CheckConfigVersion "$IN_GENERATOR_SCRIPT" \
   "$CONFIG_VARS_SYSTEM_FILE_IN" "$CONFIG_VARS_SYSTEM_FILE" \
-  "$CONFIG_VARS_USER_FILE_IN" "$CONFIG_VARS_USER_FILE" || Exit
+  "$CONFIG_VARS_USER_FILE_IN" "$CONFIG_VARS_USER_FILE" || return $?
 
 fi

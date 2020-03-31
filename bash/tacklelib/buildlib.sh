@@ -5,13 +5,14 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) && (-z "$SOUR
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
-tkl_include 'traplib.sh' || exit $?
+source '/bin/bash_entry' || return $?
+tkl_include 'traplib.sh' || return $?
+tkl_include 'string.sh' || return $?
 
 # Special exit code value variable has used by the specific set of functions
 # like `tkl_call` and `tkl_exit` to hold the exit code over the builtin
 # functions like `pushd` and `popd` which does change the exit code.
-LastError=0
+tkl__last_error=0
 
 [[ -z "$NEST_LVL" ]] && export NEST_LVL=0
 
@@ -29,7 +30,7 @@ function tkl_exit()
 
   [[ -n "$1" ]] && exit $1
 
-  exit $LastError
+  exit $tkl__last_error
 }
 
 function tkl_call()
@@ -38,8 +39,8 @@ function tkl_call()
   echo ">$RETURN_VALUE"
   echo
   "$@"
-  LastError=$?
-  return $LastError
+  tkl__last_error=$?
+  return $tkl__last_error
 }
 
 function tkl_call_and_print_if()
@@ -50,8 +51,8 @@ function tkl_call_and_print_if()
     echo
   }
   "${@:2}"
-  LastError=$?
-  return $LastError
+  tkl__last_error=$?
+  return $tkl__last_error
 }
 
 function tkl_pushd()
