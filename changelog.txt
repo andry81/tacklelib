@@ -1,4 +1,7 @@
 2020.03.31:
+* fixed: _scripts: scripts execution
+
+2020.03.31:
 * fixed: _scripts: missed changes
 * fixed: _scripts: unix shell scripts execution
 * fixed: _scripts: tools: replaced all `exit` commands by `return` commands in library code

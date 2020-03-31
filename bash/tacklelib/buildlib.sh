@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -gt 0) && (-z "$SOURCE_TACKLELIB_BUILDLIB_SH" || SOURCE_TACKLELIB_BUILDLIB_SH -eq 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BUILDLIB_SH" || SOURCE_TACKLELIB_BUILDLIB_SH -eq 0) ]]; then 
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
 source '/bin/bash_entry' || return $?
 tkl_include 'traplib.sh' || return $?
-tkl_include 'string.sh' || return $?
+tkl_include 'stringlib.sh' || return $?
 
 # Special exit code value variable has used by the specific set of functions
 # like `tkl_call` and `tkl_exit` to hold the exit code over the builtin
