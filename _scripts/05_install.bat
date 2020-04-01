@@ -39,6 +39,10 @@ if not defined CMAKE_BUILD_TYPE (
   goto EXIT
 ) >&2
 
+rem CAUTION:
+rem   This declares only most probable variant (guess) respective to the script extension.
+rem   If not then the user have to explicitly pass the target name.
+rem
 if not defined CMAKE_BUILD_TARGET set "CMAKE_BUILD_TARGET=INSTALL"
 
 rem preload configuration files only to make some checks
@@ -137,7 +141,13 @@ set LASTERROR=%ERRORLEVEL%
 
 set /A NEST_LVL-=1
 
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
+
 :INIT_EXIT
+set LASTERROR=%ERRORLEVEL%
+
 if %NEST_LVL%0 EQU 0 pause
 
 exit /b %LASTERROR%

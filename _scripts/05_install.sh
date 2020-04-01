@@ -56,7 +56,11 @@ if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
   tkl_exit 255
 fi
 
-[[ -z "$CMAKE_BUILD_TARGET" ]] && CMAKE_BUILD_TARGET="all"
+# CAUTION:
+#   This declares only most probable variant (guess) respective to the script extension.
+#   If not then the user have to explicitly pass the target name.
+#
+[[ -z "$CMAKE_BUILD_TARGET" ]] && CMAKE_BUILD_TARGET="install"
 
 UpdateOsName
 

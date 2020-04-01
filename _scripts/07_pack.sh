@@ -49,7 +49,8 @@ tkl_include "tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || tkl_exit $?
 # CAUTION: an empty value and `*` value has different meanings!
 #
 CMAKE_BUILD_TYPE="$1"
-CMAKE_BUILD_TARGET="bundle" #CMAKE_BUILD_TARGET="$2"  # cmake pack does not support particular target packaging
+# cmake pack does not support particular target enpackage
+CMAKE_BUILD_TARGET="bundle"
 
 if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
   echo "$0: error: CMAKE_BUILD_TYPE must be defined." >&2
