@@ -1,4 +1,7 @@
 2020.04.02:
+* fixed: bash: bash_entry: missed to pass command line into inner `source` command from the `tkl_include` function
+
+2020.04.02:
 * changed: _scripts: minor cleanup
 
 2020.03.31:

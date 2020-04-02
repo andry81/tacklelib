@@ -1,3 +1,6 @@
+2020.04.02:
+* fixed: bash_entry: missed to pass command line into inner `source` command from the `tkl_include` function
+
 2020.03.31:
 * new: bash_entry: `tkl_set_show_includes` and `tkl_unset_show_includes` functions to explicitly show all `source` calls in the `tkl_include` function
 * changed: bash_entry: support return code from `tkl_include` function
