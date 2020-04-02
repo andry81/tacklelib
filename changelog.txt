@@ -1,4 +1,7 @@
 2020.04.02:
+* fixed: bash: bash_entry: we must always pass the command line from `tkl_include` into the `source` command
+
+2020.04.02:
 * fixed: bash: bash_entry: missed to pass command line into inner `source` command from the `tkl_include` function
 
 2020.04.02:
