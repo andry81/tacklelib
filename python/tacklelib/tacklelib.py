@@ -28,6 +28,11 @@ class TackleGlobalState:
   # key:    <variable_token>
   # value:  <value>
   global_vars = {}
+  # key:    <variable_token>
+  # value:  <value>
+  #   Available keys:
+  #     'log_import_module' -> Boolean
+  global_config = {}
 
   @classmethod
   def clear(cls):
@@ -39,6 +44,7 @@ class TackleGlobalState:
     cls.being_imported_modules_by_file_path.clear()
     cls.reimport_being_imported_modules_by_file_path.clear()
     cls.global_vars.clear()
+    cls.global_config.clear()
 
 # all members must be as a container to copy by reference
 class TackleGlobalCache:
@@ -49,7 +55,7 @@ class TackleGlobalCache:
   def clear(cls):
     cls.packaged_modules.clear()  # references in all modules must stay the same
 
-def tkl_init(tkl_module, import_file_exts = ['.xsh'], reset_global_state = True):
+def tkl_init(tkl_module, import_file_exts = ['.xsh'], global_config = None, reset_global_state = True):
   #print('tkl_init')
 
   # enable the `inspect.getmodulename` to return module name with non standard file extensions
@@ -67,7 +73,7 @@ def tkl_init(tkl_module, import_file_exts = ['.xsh'], reset_global_state = True)
   tkl_module_globals = vars(tkl_module)
 
   target_module0_globals = vars(target_module0)
-  if target_module1:
+  if target_module1 is not None:
     target_module1_globals = vars(target_module1)
 
   # update global cache
@@ -75,31 +81,37 @@ def tkl_init(tkl_module, import_file_exts = ['.xsh'], reset_global_state = True)
 
   target_module0.TackleGlobalCache = tkl_module.tkl_membercopy(TackleGlobalCache, tkl_module_globals, target_module0_globals)
   target_module0.TackleGlobalCache.packaged_modules = packaged_modules
-  if target_module1:
+  if target_module1 is not None:
     target_module1.TackleGlobalCache = tkl_module.tkl_membercopy(TackleGlobalCache, tkl_module_globals, target_module1_globals)
     target_module1.TackleGlobalCache.packaged_modules = packaged_modules
 
   # update global state
   prev_target_module0_global_state = target_module0_global_state = getattr(target_module0, 'TackleGlobalState', None)
-  if reset_global_state or target_module0_global_state is None:
+  if reset_global_state is not None or target_module0_global_state is None:
     target_module0_global_state = TackleGlobalState
-    if reset_global_state and not prev_target_module0_global_state is None:
+    if reset_global_state is not None and prev_target_module0_global_state is not None:
         target_module0_global_state.clear()
 
-  if target_module1:
+  if target_module1 is not None:
     prev_target_module1_global_state = target_module1_global_state = getattr(target_module1, 'TackleGlobalState', None)
-    if reset_global_state or target_module1_global_state is None:
+    if reset_global_state is not None or target_module1_global_state is None:
       target_module1_global_state = TackleGlobalState
-      if reset_global_state and not prev_target_module1_global_state is None:
+      if reset_global_state is not None and prev_target_module1_global_state is not None:
           target_module1_global_state.clear()
 
+  # reset the global config
+  if global_config is not None:
+    target_module0_global_state.global_config = global_config
+    if target_module1 is not None:
+      target_module1_global_state.global_config = global_config
+
   target_module0_global_state.tkl_module[0] = tkl_module
-  if target_module1:
+  if target_module1 is not None:
     target_module1_global_state.tkl_module[0] = tkl_module
 
   # all functions in the module have has a 'tkl_' prefix, all classes begins by `Tackle`, so we don't need a scope here
   tkl_merge_module(tkl_module, target_module0, tkl_module)
-  if target_module1:
+  if target_module1 is not None:
       tkl_merge_module(tkl_module, target_module1, tkl_module)
 
   # declare the current module as an already imported module to be able to propagate a global variable to it
@@ -107,7 +119,7 @@ def tkl_init(tkl_module, import_file_exts = ['.xsh'], reset_global_state = True)
   target_module0_file_path = target_module0.__file__.replace('\\', '/')
   target_module0_global_state.imported_modules[target_module0] = (target_module0.__name__, target_module0_file_path, {})
   target_module0_global_state.imported_modules_by_file_path[os.path.normcase(target_module0_file_path).replace('\\', '/')] = target_module0
-  if target_module1:
+  if target_module1 is not None:
     target_module1_file_path = target_module1.__file__.replace('\\', '/')
     target_module1_global_state.imported_modules[target_module1] = (target_module1.__name__, target_module1_file_path, {})
     target_module1_global_state.imported_modules_by_file_path[os.path.normcase(target_module1_file_path).replace('\\', '/')] = target_module1
@@ -121,13 +133,13 @@ def tkl_uninit():
 
   target_module0_global_state = getattr(target_module0, 'TackleGlobalState', None)
   target_module0_global_cache = getattr(target_module0, 'TackleGlobalCache', None)
-  if target_module1:
+  if target_module1 is not None:
     target_module1_global_state = getattr(target_module1, 'TackleGlobalState', None)
     target_module1_global_cache = getattr(target_module1, 'TackleGlobalCache', None)
 
   target_module0_global_state.clear()
   target_module0_global_cache.clear()
-  if target_module1:
+  if target_module1 is not None:
     target_module1_global_state.clear()
     target_module1_global_cache.clear()
 
@@ -142,12 +154,23 @@ def tkl_is_inited(target_module):
 
   return True
 
+def tkl_get_global_config(target_module):
+  global_state = getattr(target_module, 'TackleGlobalState', None)
+  if global_state is not None:
+    return global_state.global_config
+
+  return None
+
+def tkl_update_global_config(target_module, new_global_config):
+  global_state = getattr(target_module, 'TackleGlobalState', None)
+  global_state.global_config.update(new_global_config)
+
 def tkl_get_imported_module_by_file_path(imported_module_file_path, current_globals = None):
   # CAUTION:
   #   We can not use the stack access here until we get a module where to search for the global state class.
   #   Instead the current globals already has to contain the globals state class.
   #
-  if not current_globals:
+  if current_globals is None:
     current_globals = globals()
 
   imported_module_file_path = os.path.normcase(os.path.abspath(imported_module_file_path)).replace('\\', '/')
@@ -457,10 +480,13 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
     raise Exception('tacklelib is not properly initialized, call to tkl_init in the top module')
 
   global_state = getattr(target_module, 'TackleGlobalState', None)
+  global_config = global_state.global_config
 
   import_nest_index = global_state.import_nest_index[0]
 
-  print(('| ' * import_nest_index) + 'import :', import_nest_index, module_file_path, 'as', module_name_wo_ext if ref_module_name is None else ref_module_name, end='')
+  log_import_module = global_config.get('log_import_module')
+  if log_import_module:
+    print(('| ' * import_nest_index) + 'import :', import_nest_index, module_file_path, 'as', module_name_wo_ext if ref_module_name is None else ref_module_name, end='')
 
   target_module_globals = vars(target_module)
 
@@ -506,7 +532,8 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
   for imported_module, imported_module_value in imported_modules.items():
     imported_module_file_path = imported_module_value[1]
     if imported_module_file_path == module_file_path:
-      print(' (cached)')
+      if log_import_module:
+        print(' (cached)')
 
       register_imported_module_for_reimport = reimport_if_being_imported and (True if imported_module_file_path in being_imported_modules_by_file_path else False)
 
@@ -585,7 +612,8 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
 
       return imported_module
 
-  print()
+  if log_import_module:
+    print()
 
   import_nest_index = global_state.import_nest_index
 
@@ -768,10 +796,12 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
   if not reimport_being_imported_module_list is None:
     import_nest_index = global_state.import_nest_index[0]
 
-    print(('| ' * import_nest_index) + 'reimport :', import_nest_index, module_file_path)
+    if log_import_module:
+      print(('| ' * import_nest_index) + 'reimport :', import_nest_index, module_file_path)
     for reimport_being_imported_module_tuple in reimport_being_imported_module_list:
       (from_module, to_module, target_module) = reimport_being_imported_module_tuple
-      print(('| ' * import_nest_index) + '         : ->', to_module.__file__)
+      if log_import_module:
+        print(('| ' * import_nest_index) + '         : ->', to_module.__file__)
       tkl_merge_module(from_module, to_module, target_module, ignore_merge_imported_modules = True)
     del reimport_being_imported_module_list
 
