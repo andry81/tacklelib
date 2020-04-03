@@ -1,4 +1,7 @@
 2020.04.03:
+* changed: minor cleanup
+
+2020.04.03:
 * new: python: tacklelib: global configuration paramaters support
 * changed: python: tacklelib: extracted `log_import_module` parameter into global config from the `tkl_import_module` function
 * changed: python: tacklelib: minor cleanup
