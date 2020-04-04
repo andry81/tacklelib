@@ -1,4 +1,10 @@
 2020.04.04:
+* new: bash: bash_entry: `tkl_exec_inproc_entry` function
+* new: bash: buildlib.sh: `tkl_set_error`, `tkl_call_inproc_entry` and `tkl_call_inproc_entry_and_print_if` functions
+* changed: bash: bash_entry: `tkl_make_source_file_components_from_file_path` replaced by `tkl_pushset_source_file_components_from_file_path` and `tkl_pop_source_file_components_from_file_path` functions
+* changed: bash: buildlib.sh: `tkl_call*` functions now changes and restores source file components before the call
+
+2020.04.04:
 * new: bash: bash_entry: `tkl_is_file_os_exec` and `tkl_exec_inproc` functions to execute shell scripts in the same shell process
 * new: bash: buildlib.sh: `tkl_call_inproc` and `tkl_call_inproc_and_print_if` functions to execute shell scripts in the same shell process
 * changed: bash: code cleanup
