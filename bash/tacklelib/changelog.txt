@@ -1,3 +1,8 @@
+2020.04.04:
+* new: bash_entry: `tkl_is_file_os_exec` and `tkl_exec_inproc` functions to execute shell scripts in the same shell process
+* new: buildlib.sh: `tkl_call_inproc` and `tkl_call_inproc_and_print_if` functions to execute shell scripts in the same shell process
+* changed: code cleanup
+
 2020.04.03:
 * fixed: bash_entry: missed change
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script ONLY for execution.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]]; then
 
 source "/bin/bash_entry" || exit $?
 tkl_include "__init__.sh" || exit $?
@@ -10,7 +10,7 @@ function Call()
 {
   echo ">$@"
   echo
-  "$@"
+  tkl_exec_inproc "$@"
   LastError=$?
   return $LastError
 }

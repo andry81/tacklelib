@@ -1128,6 +1128,53 @@ function tkl_exctract_path_ignoring_user_mount_points()
   return 0
 }
 
+function tkl_is_file_os_exec()
+{
+  [[ ! -x "$1" ]] && return 255
+
+  local exec_header_bytes
+  case "$OSTYPE" in
+    cygwin* | msys* | mingw*)
+      # CAUTION:
+      #   The bash version 3.2+ might require a file path together with the extension,
+      #   otherwise will throw the error: `bash: ...: No such file or directory`.
+      #   So we make a guess to avoid the error.
+      #
+      {
+        read -r -n 4 exec_header_bytes 2> /dev/null < "$1" ||
+        {
+          [[ -x "${1%.exe}.exe" ]] && read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.exe}.exe"
+        } ||
+        {
+          [[ -x "${1%.com}.com" ]] && read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.com}.com"
+        }
+      } &&
+      if [[ "${exec_header_bytes:0:3}" == $'MZ\x90' ]]; then
+        # $'MZ\x90\00' for bash version 3.2.42+
+        # $'MZ\x90\03' for bash version 4.0+
+        [[ "${exec_header_bytes:3:1}" == $'\x00' || "${exec_header_bytes:3:1}" == $'\x03' ]] && return 0
+      fi
+    ;;
+    *)
+      read -r -n 4 exec_header_bytes < "$1"
+      [[ "$exec_header_bytes" == $'\x7fELF' ]] && return 0
+    ;;
+  esac
+
+  return 1
+}
+
+# executes script in the shell process in case of a shell script, otherwise executes as usual
+function tkl_exec_inproc()
+{
+  if tkl_is_file_os_exec "$1"; then
+    "$@"
+  else
+    . "$@"
+  fi
+  return $?
+}
+
 function tkl_bash_entry()
 {
   local BashEntryPath="$1"

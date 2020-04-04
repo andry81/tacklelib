@@ -425,7 +425,7 @@ function tkl_testmodule_run_test()
   # Test script to run single test w/o environment inheritance from parent shell process.
   # First line in environment output is internal parameters list from
   # functions `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars`.
-  local TestScript="#/bin/bash
+  local TestScript="#!/bin/bash
 source '/bin/bash_entry'
 
 tkl_include \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
