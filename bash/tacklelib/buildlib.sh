@@ -16,6 +16,14 @@ tkl__last_error=0
 
 [[ -z "$NEST_LVL" ]] && export NEST_LVL=0
 
+function tkl_set_error()
+{
+  if [[ -n "$1" ]]; then
+    tkl__last_error=$1
+    return $tkl__last_error
+  fi
+}
+
 function tkl_pause()
 {
   local key
@@ -41,6 +49,8 @@ function tkl_call()
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   echo
+  tkl_pushset_source_file_components_from_file_path "$1"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
   "$@"
   tkl__last_error=$?
   return $tkl__last_error
@@ -56,6 +66,8 @@ function tkl_call_and_print_if()
     echo ">$RETURN_VALUE"
     echo
   }
+  tkl_pushset_source_file_components_from_file_path "$2"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
   "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error
@@ -69,6 +81,8 @@ function tkl_call_inproc()
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   echo
+  tkl_pushset_source_file_components_from_file_path "$1"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
   tkl_exec_inproc "$@"
   tkl__last_error=$?
   return $tkl__last_error
@@ -84,6 +98,40 @@ function tkl_call_inproc_and_print_if()
     echo ">$RETURN_VALUE"
     echo
   }
+  tkl_pushset_source_file_components_from_file_path "$2"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_exec_inproc "${@:2}"
+  tkl__last_error=$?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes in the same shell process in case of a script.
+#
+function tkl_call_inproc_entry()
+{
+  tkl_make_command_line '' 1 "${@:3}"
+  echo ">$2: $1 $RETURN_VALUE"
+  echo
+  tkl_pushset_source_file_components_from_file_path "$2"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_exec_inproc_entry "$@"
+  tkl__last_error=$?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes in the same shell process in case of a script.
+#
+function tkl_call_inproc_entry_and_print_if()
+{
+  tkl_make_command_line '' 1 "${@:4}"
+  eval "$1" && {
+    echo ">$3: $2 $RETURN_VALUE"
+    echo
+  }
+  tkl_pushset_source_file_components_from_file_path "$3"
+  tkl_push_trap "tkl_pop_source_file_components" RETURN
   tkl_exec_inproc "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error

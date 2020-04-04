@@ -326,18 +326,27 @@ function tkl_get_source_file_path()
   tkl_get_abs_path_from_dir "$ScriptFilePath" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s
 }
 
-function tkl_make_source_file_components_from_file_path()
-{
-  tkl_export BASH_SOURCE_FILE "$1"
-  tkl_export BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
-  tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
-}
-
 function tkl_make_source_file_components()
 {
   tkl_get_source_file_path || return $?
 
-  tkl_make_source_file_components_from_file_path "$RETURN_VALUE"
+  tkl_export BASH_SOURCE_FILE "$RETURN_VALUE"
+  tkl_export BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+}
+
+function tkl_pushset_source_file_components_from_file_path()
+{
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$1"
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+}
+
+function tkl_pop_source_file_components()
+{
+  tkl_pop_var_from_stack global BASH_SOURCE_FILE
+  tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME
+  tkl_pop_var_from_stack global BASH_SOURCE_DIR
 }
 
 function tkl_set_show_includes()
@@ -415,11 +424,7 @@ function tkl_include_local_impl()
 
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
 
-  local RETURN_VALUE="$RETURN_VALUE"
-
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$RETURN_VALUE"
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
-  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+  tkl_pushset_source_file_components_from_file_path "$RETURN_VALUE"
 
   #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
@@ -436,9 +441,7 @@ function tkl_include_local_impl()
   LastError=$?
 
   # manually restore the stack, avoid usage of the `trap` command, because of side effect around the `source` command!
-  tkl_pop_var_from_stack global BASH_SOURCE_FILE
-  tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME
-  tkl_pop_var_from_stack global BASH_SOURCE_DIR
+  tkl_pop_source_file_components
 
   #echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
@@ -1171,6 +1174,21 @@ function tkl_exec_inproc()
     "$@"
   else
     . "$@"
+  fi
+  return $?
+}
+
+# executes script in the shell process in case of a shell script, otherwise executes as usual
+function tkl_exec_inproc_entry()
+{
+  local entry="$1"
+  shift
+
+  if tkl_is_file_os_exec "$1"; then
+    "${@:2}"
+  else
+    . "$1"
+    eval "$entry \"\${@:2}\""
   fi
   return $?
 }
