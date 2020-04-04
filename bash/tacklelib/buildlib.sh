@@ -33,6 +33,9 @@ function tkl_exit()
   exit $tkl__last_error
 }
 
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
 function tkl_call()
 {
   tkl_make_command_line '' 1 "$@"
@@ -43,6 +46,9 @@ function tkl_call()
   return $tkl__last_error
 }
 
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
 function tkl_call_and_print_if()
 {
   tkl_make_command_line '' 1 "${@:2}"
@@ -51,6 +57,34 @@ function tkl_call_and_print_if()
     echo
   }
   "${@:2}"
+  tkl__last_error=$?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes in the same shell process in case of a script.
+#
+function tkl_call_inproc()
+{
+  tkl_make_command_line '' 1 "$@"
+  echo ">$RETURN_VALUE"
+  echo
+  tkl_exec_inproc "$@"
+  tkl__last_error=$?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes in the same shell process in case of a script.
+#
+function tkl_call_inproc_and_print_if()
+{
+  tkl_make_command_line '' 1 "${@:2}"
+  eval "$1" && {
+    echo ">$RETURN_VALUE"
+    echo
+  }
+  tkl_exec_inproc "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error
 }
