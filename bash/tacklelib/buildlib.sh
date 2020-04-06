@@ -83,7 +83,6 @@ function tkl_call_inproc()
   echo
   tkl_pushset_source_file_components_from_file_path "$1"
   tkl_push_trap "tkl_pop_source_file_components" RETURN
-  echo ">$@"
   tkl_exec_inproc "$@"
   tkl__last_error=$?
   return $tkl__last_error

@@ -188,7 +188,6 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 -------------------------------------------------------------------------------
 5. DEPENDENCIES
 -------------------------------------------------------------------------------
-
 Any project which is dependent on this project have has to contain the
 `README_EN.deps.txt` description file for the common dependencies in the
 Windows and in the Linux like platforms.

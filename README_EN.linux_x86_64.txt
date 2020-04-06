@@ -58,7 +58,6 @@ build under the Linux. All other steps which are the common here is left to the
 -------------------------------------------------------------------------------
 2. DEPENDENCIES
 -------------------------------------------------------------------------------
-
 Read the `README_EN.deps.txt` file for the common dependencies for the Windows
 and the Linux platforms.
 
