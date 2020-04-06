@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.08
+* 2020.04.06
 * tacklelib
 
 1. DESCRIPTION
@@ -42,8 +42,9 @@ languages:
   Various extension modules for the bash shell.
 
 In next sections will be introduced common steps to build the project under
-Windows AND Linux together. To build particularly under Linux you have to read
-additionally another readme file:
+the Windows AND the Linux like platform together.
+To build particularly under the Linux you have to read additionally another
+readme file:
 
 `README_EN.linux_x86_64.txt`
 
@@ -96,7 +97,7 @@ IDE's, applications and patches to run with or from:
   - to run unix shell scripts
 * perl 5.10+
   - to run specific bash script functions with `perl` calls
-* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+* python 3.7.3 or 3.7.5 (3.5+)
   https://python.org
   - standard implementation to run python scripts
   - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
@@ -188,8 +189,9 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 5. DEPENDENCIES
 -------------------------------------------------------------------------------
 
-Read the `README_EN.deps.txt` description file for the common dependencies in
-the Windows and in the Linux platforms.
+Any project which is dependent on this project have has to contain the
+`README_EN.deps.txt` description file for the common dependencies in the
+Windows and in the Linux like platforms.
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
