@@ -51,15 +51,16 @@ related build issues.
 Read the `README_EN.txt` file for the start details to configure and build
 for both under the Windows and under the Linux platforms.
 
-From here and after will be described ONLY additional steps to configure and
-build under the Linux. All other steps which are the common here is left to the
-`README_EN.txt` file.
+CAUTION:
+  From here and after will be described ONLY additional steps to configure and
+  build under the Linux. All other steps which are the common here are left to
+  the `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 2. DEPENDENCIES
 -------------------------------------------------------------------------------
 Read the `README_EN.deps.txt` file for the common dependencies for the Windows
-and the Linux platforms.
+and the Linux like platforms.
 
 Additional dependencies specific to the Linux:
 
@@ -216,6 +217,12 @@ sudo bash ./chown_mod.sh [<user> [<group>]]
 3.1.9. Boost library download and build
 -------------------------------------------------------------------------------
 
+WARNING:
+  Use the version described in the `README_EN.deps.txt` file in the respective
+  section or use links from there to find out the latest available package
+  version.
+  Here is we use specific version as a temporary example.
+
 >
 mkdir /home/opt
 mkdir -p ~/_3dparty/linux_mint_gcc_x86/boost
@@ -269,6 +276,12 @@ sudo ./b2 --reconfigure --prefix=/home/opt/_3dparty/linux_mint_gcc_x86/boost/boo
 3.1.10. GoogleTest library build (optional)
 -------------------------------------------------------------------------------
 
+WARNING:
+  Use the version described in the `README_EN.deps.txt` file in the respective
+  section or use links from there to find out the latest available package
+  version.
+  Here is we use specific version as a temporary example.
+
 # CHANGE DIRECTORY INTO UNPACKED `googletest` DIRECTORY BEFORE TYPE ANY COMMANDS
 # >
 # cd .../googletest-1.8.0
@@ -297,6 +310,12 @@ cp libgtest.a ../lib
 -------------------------------------------------------------------------------
 3.1.11. xz library download, build and install
 -------------------------------------------------------------------------------
+
+WARNING:
+  Use the version described in the `README_EN.deps.txt` file in the respective
+  section or use links from there to find out the latest available package
+  version.
+  Here is we use specific version as a temporary example.
 
 >
 mkdir /home/opt
