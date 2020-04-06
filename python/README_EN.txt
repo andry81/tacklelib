@@ -73,9 +73,13 @@ IDE's, applications and patches to run with or from:
   - to run scripts under msys2
 * Linux Mint 18.3 x64 (`.sh` only)
 
-2. Interpreters:
+2. C++11 compilers:
 
-* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+N/A
+
+3. Interpreters:
+
+* python 3.7.3 or 3.7.5 (3.6.2+)
   https://python.org
   - standard implementation to run python scripts
   - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
@@ -84,7 +88,7 @@ IDE's, applications and patches to run with or from:
     as noted in the documentation:
     https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
 
-3. Modules
+4. Modules
 
 * Python site modules:
 
@@ -110,14 +114,11 @@ IDE's, applications and patches to run with or from:
 **  pytest 5.2.0
     - to run python tests (test*.py)
 
-4. Patches:
+5. IDE's:
 
-* Python site modules contains patches in the `python_patches` directory:
+N/A
 
-** fcache
-   - to fix issues from the `fcache execution issues` section.
-
-5. Applications:
+6. Applications:
 
 * subversion 1.8+
   https://tortoisesvn.net
@@ -125,6 +126,14 @@ IDE's, applications and patches to run with or from:
 * git 2.24+
   https://git-scm.com
   - to run git client
+
+7. Patches:
+
+* Python site modules contains patches in the `python_patches`
+  subdirectory:
+
+** fcache
+   - to fix issues from the `fcache execution issues` section.
 
 -------------------------------------------------------------------------------
 5. CATALOG CONTENT DESCRIPTION

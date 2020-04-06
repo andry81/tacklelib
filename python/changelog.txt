@@ -1,3 +1,6 @@
+2020.04.06:
+* changed: readme update
+
 2020.04.03:
 * new: tacklelib: global configuration paramaters support
 * changed: tacklelib: extracted `log_import_module` parameter into global config from the `tkl_import_module` function
