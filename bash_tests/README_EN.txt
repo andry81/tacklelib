@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.08
+* 2020.04.06
 * tacklelib--bash_tests
 
 1. DESCRIPTION
@@ -61,21 +61,29 @@ IDE's, applications and patches to run with or from:
   - to run scripts under msys2
 * Linux Mint 18.3 x64 (`.sh` only)
 
-2. Interpreters:
+2. C++11 compilers:
+
+N/A
+
+3. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
 * perl 5.10+
   - to run specific bash script functions with `perl` calls
 
-3. Modules
+4. Modules:
 
 * Bash testing modules:
 
 **  tacklelib--bash:
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/bash/tacklelib/
 
-4. Applications:
+5. IDE's:
+
+N/A
+
+6. Applications:
 
 * cygwin cygpath 1.42+
   - to run `bash_entry` script under cygwin

@@ -1,3 +1,6 @@
+2020.04.06:
+* changed: readme update
+
 2020.03.30:
 * new: `01_bash_entry/01_normalize_path` tests
 * new: `02_traplib/01_push_trap` tests
