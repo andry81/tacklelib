@@ -1,5 +1,5 @@
 * README_EN.linux_x86_64.txt
-* 2020.03.05
+* 2020.04.06
 * tacklelib
 
 1. DESCRIPTION
@@ -45,8 +45,8 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-Tacklelib project, initial steps for Linux only targets and related build
-issues.
+Tacklelib (taacklelib) project, initial steps for Linux only targets and
+related build issues.
 
 Read the `README_EN.txt` file for the start details to configure and build
 for both under the Windows and under the Linux platforms.
@@ -337,10 +337,10 @@ make install
 -------------------------------------------------------------------------------
 
 To run bash shell scripts (`.sh` file extension) you should copy the
-`/bash/tacklelib/bash_entry` module into the `/bin` directory of your platform:
+`bash_entry` module into the `/bin` directory of your platform:
 
 >
-sudo cp .../bash/tacklelib/bash_entry /bin
+sudo cp bash_entry /bin
 
 -------------------------------------------------------------------------------
 4.2. Manual preparation step
