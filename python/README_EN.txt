@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.08
+* 2020.04.06
 * tacklelib--python
 
 1. DESCRIPTION
@@ -18,8 +18,11 @@
 6.2. Python installation issues:
 6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
        Python 3.x Installer ended prematurely (Windows msi)
-6.3. fcache execution issues
-6.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
+6.3. Python execution issues:
+6.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+6.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+6.4. fcache execution issues
+6.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
 7. AUTHOR
 
 -------------------------------------------------------------------------------
@@ -193,13 +196,13 @@ Warning:
 
 Issues:
 
-pip no longer supports Python 3.2
+  pip no longer supports Python 3.2
 
 Solution:
 
-Download previous version of the `get-pip.py`:
+  Download previous version of the `get-pip.py`:
 
-https://bootstrap.pypa.io/3.2/get-pip.py
+  https://bootstrap.pypa.io/3.2/get-pip.py
 
 -------------------------------------------------------------------------------
 6.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
@@ -208,40 +211,40 @@ https://bootstrap.pypa.io/3.2/get-pip.py
 
 Issue:
 
-The `pip` package requested by the `get-pip.py` script is removed from remote
-python repository.
+  The `pip` package requested by the `get-pip.py` script is removed from remote
+  python repository.
 
 Solution:
 
-Download and install all required packages manually starting from here:
+  Download and install all required packages manually starting from here:
 
-Setuptools of version prior 30.0.0 accepts Python 3.2:
-https://github.com/pypa/setuptools/blob/master/CHANGES.rst#v3000
+  Setuptools of version prior 30.0.0 accepts Python 3.2:
+  https://github.com/pypa/setuptools/blob/master/CHANGES.rst#v3000
 
-Pip of version prior to 8.0.0 accepts Python 3.2:
-https://pip.pypa.io/en/stable/news/#id235
+  Pip of version prior to 8.0.0 accepts Python 3.2:
+  https://pip.pypa.io/en/stable/news/#id235
 
-So, you have download these:
+  So, you have download these:
 
-https://pypi.org/project/setuptools/29.0.1/#files
-https://pypi.org/project/pip/7.1.2/#files
+  https://pypi.org/project/setuptools/29.0.1/#files
+  https://pypi.org/project/pip/7.1.2/#files
 
-Extract them in a directory near the python installation directory, for
-example, if you install python into:
+  Extract them in a directory near the python installation directory, for
+  example, if you install python into:
 
-`c:/python/x86/32`
+  `c:/python/x86/32`
 
-Then extract archives into:
+  Then extract archives into:
 
-`c:/python/x86/pkg`
+  `c:/python/x86/pkg`
 
-And run these commands in exact order:
+  And run these commands in exact order:
 
->
-cd c:/python/x86/pkg/setuptools-29.0.1
-c:/python/x86/python setup.py install
-cd c:/python/x86/pkg/pip-7.1.2
-c:/python/x86/python setup.py install
+  >
+  cd c:/python/x86/pkg/setuptools-29.0.1
+  c:/python/x86/python setup.py install
+  cd c:/python/x86/pkg/pip-7.1.2
+  c:/python/x86/python setup.py install
 
 -------------------------------------------------------------------------------
 6.1.4. Message `ImportError: No module named setuptools` while installing pip
@@ -250,13 +253,13 @@ c:/python/x86/python setup.py install
 
 Issue:
 
-The `setup.py` script has been run when the current directory was not inside
-the directory of extracted package.
+  The `setup.py` script has been run when the current directory was not inside
+  the directory of extracted package.
 
 Solution:
 
-Reinstall python and run `setup.py` with in the current directory inside an
-extracted package being installed.
+  Reinstall python and run `setup.py` with in the current directory inside an
+  extracted package being installed.
 
 -------------------------------------------------------------------------------
 6.2. Python installation issues:
@@ -269,24 +272,68 @@ extracted package being installed.
 
 Issues:
 
-* `Python 3.4 and 2.7 installation no Script folder and no pip installed` :
-  https://bugs.python.org/issue23604
-* `Python 3.4.1 Installer ended prematurely (Windows msi)` :
-  https://bugs.python.org/issue22028
+  * `Python 3.4 and 2.7 installation no Script folder and no pip installed` :
+    https://bugs.python.org/issue23604
+  * `Python 3.4.1 Installer ended prematurely (Windows msi)` :
+    https://bugs.python.org/issue22028
 
 Solution:
 
-Fix the broken Windows registry keys with emdedded null character.
-To do so you can use several solutions described here:
+  Fix the broken Windows registry keys with emdedded null character.
+  To do so you can use several solutions described here:
 
-http://www.swarley.me.uk/blog/2014/04/23/python-pip-and-windows-registry-corruption/
+  http://www.swarley.me.uk/blog/2014/04/23/python-pip-and-windows-registry-corruption/
 
-Or use a python script from here:
+  Or use a python script from here:
 
-https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_broken_reg_keys.py
+  https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_broken_reg_keys.py
 
 -------------------------------------------------------------------------------
-6.3. fcache execution issues
+6.3. Python execution issues:
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 265, in tkl_classcopy
+    cls_copy = type(x.__name__, x.__bases__, dict(x.__dict__))
+
+Issue:
+
+  Bug in the python implementation prior version 3.5.4 or 3.6.2:
+
+  https://stackoverflow.com/questions/45864273/slots-conflicts-with-a-class-variable-in-a-generic-class/45868049#45868049
+  `typing module conflicts with __slots__-classes` :
+  https://bugs.python.org/issue31272
+
+Solution:
+
+  Upgrade python version at least up to 3.5.4 or 3.6.2.
+
+-------------------------------------------------------------------------------
+6.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 278, in tkl_classcopy
+    for key, value in dict(inspect.getmembers(x)).items():
+  File ".../python/x86/35/lib/python3.5/inspect.py", line 309, in getmembers
+    value = getattr(object, key)
+
+Issue:
+
+  Bug in the python implementation prior version 3.6.2:
+
+Solution:
+
+  Upgrade python version at least up to 3.6.2.
+
+-------------------------------------------------------------------------------
+6.4. fcache execution issues
 -------------------------------------------------------------------------------
 * `fcache is not multiprocess aware on Windows` :
   https://github.com/tsroten/fcache/issues/26
@@ -296,17 +343,17 @@ https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_brok
   https://github.com/tsroten/fcache/issues/28
 
 -------------------------------------------------------------------------------
-6.3.1. fcache implementation hangs or fails in __getitem__/__setitem__
+6.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
 -------------------------------------------------------------------------------
 
 Issue:
 
-Module hangs on cache read/write/sync.
+  Module hangs on cache read/write/sync.
 
 Solution:
 
-Patch python `fcache` module sources by patches from the
-`python_patches/fcache` directory.
+  Patch python `fcache` module sources by patches from the
+  `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 7. AUTHOR

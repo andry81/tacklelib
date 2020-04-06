@@ -97,7 +97,7 @@ IDE's, applications and patches to run with or from:
   - to run unix shell scripts
 * perl 5.10+
   - to run specific bash script functions with `perl` calls
-* python 3.7.3 or 3.7.5 (3.5+)
+* python 3.7.3 or 3.7.5 (3.6.2+)
   https://python.org
   - standard implementation to run python scripts
   - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`

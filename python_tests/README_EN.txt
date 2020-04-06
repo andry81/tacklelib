@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.10
+* 2020.04.06
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -13,6 +13,8 @@
 7.1.1. `OSError: [WinError 87] The parameter is incorrect` while try to run
        `python_tests`
 7.1.2. `OSError: [WinError 6] The handle is invalid`
+7.1.3. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+7.1.4. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
 7.2. pytest execution issues
 7.2.1. Some tests from `python_tests/01_unit` directory fails
 7.2.2. Testes with `xsh` extension runs at first ignoring the predefined pytest
@@ -70,13 +72,17 @@ IDE's, applications and patches to run with or from:
   - to run scripts under msys2
 * Linux Mint 18.3 x64 (`.sh` only)
 
-2. Interpreters:
+2. C++11 compilers:
+
+N/A
+
+3. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
 * perl 5.10+
   - to run specific bash script functions with `perl` calls
-* python 3.7.3 or 3.7.5 (3.4+ or 3.5+)
+* python 3.7.3 or 3.7.5 (3.6.2+)
   https://python.org
   - standard implementation to run python scripts
   - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
@@ -88,7 +94,7 @@ IDE's, applications and patches to run with or from:
   https://cmake.org/download/
   - to run cmake scripts and modules
 
-3. Modules
+4. Modules
 
 * Python site modules:
 
@@ -119,7 +125,11 @@ IDE's, applications and patches to run with or from:
 **  tacklelib--python :
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
 
-4. Applications:
+5. IDE's:
+
+N/A
+
+6. Applications:
 
 * cygwin cygpath 1.42+
   - to run `bash_entry` script under cygwin
@@ -128,9 +138,10 @@ IDE's, applications and patches to run with or from:
 * cygwin readlink 6.10+
   - to run specific bash script functions with `readlink` calls
 
-5. Patches:
+7. Patches:
 
-* Python site modules contains patches in the `python_patches` directory:
+* Python site modules contains patches in the `python_patches`
+  subdirectory:
 
 ** fcache
    - to fix issues from the `fcache execution issues` section.
@@ -217,17 +228,18 @@ sudo chmod o+r /bin/bash_entry
 
 Issue:
 
-The `python_tests` scripts fails with the titled message.
+  The `python_tests` scripts fails with the titled message.
 
 Reason:
 
-Python version 3.7.4 is broken on Windows 7:
-https://bugs.python.org/issue37549 :
-`os.dup() fails for standard streams on Windows 7`
+  Python version 3.7.4 is broken on Windows 7:
+
+  https://bugs.python.org/issue37549 :
+  `os.dup() fails for standard streams on Windows 7`
 
 Solution:
 
-Reinstall the different python version.
+  Reinstall the different python version.
 
 -------------------------------------------------------------------------------
 7.1.2. `OSError: [WinError 6] The handle is invalid`
@@ -235,12 +247,55 @@ Reinstall the different python version.
 
 Issue:
 
-The python interpreter (3.7, 3.8, 3.9) sometimes throws this message at exit,
-see details here: https://bugs.python.org/issue37380
+  The python interpreter (3.7, 3.8, 3.9) sometimes throws this message at exit,
+  see details here:
+
+  `subprocess.Popen._cleanup() "The handle is invalid" error when some old process is gone` :
+  https://bugs.python.org/issue37380
 
 Solution:
 
-Reinstall the different python version.
+  Reinstall the different python version.
+
+-------------------------------------------------------------------------------
+7.1.3. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 265, in tkl_classcopy
+    cls_copy = type(x.__name__, x.__bases__, dict(x.__dict__))
+
+Issue:
+
+  Bug in the python implementation prior version 3.5.4 or 3.6.2:
+
+  https://stackoverflow.com/questions/45864273/slots-conflicts-with-a-class-variable-in-a-generic-class/45868049#45868049
+  `typing module conflicts with __slots__-classes` :
+  https://bugs.python.org/issue31272
+
+Solution:
+
+  Upgrade python version at least up to 3.5.4 or 3.6.2.
+
+-------------------------------------------------------------------------------
+7.1.4. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 278, in tkl_classcopy
+    for key, value in dict(inspect.getmembers(x)).items():
+  File ".../python/x86/35/lib/python3.5/inspect.py", line 309, in getmembers
+    value = getattr(object, key)
+
+Issue:
+
+  Bug in the python implementation prior version 3.6.2:
+
+Solution:
+
+  Upgrade python version at least up to 3.6.2.
 
 -------------------------------------------------------------------------------
 7.2. pytest execution issues
@@ -258,14 +313,14 @@ Reinstall the different python version.
 
 Issue:
 
-The pytest model collects all tests before run them so global data between
-tests might be changed or merged. You have to run each test in a standalone
-process which the pytest does not support portably even with plugins.
+  The pytest model collects all tests before run them so global data between
+  tests might be changed or merged. You have to run each test in a standalone
+  process which the pytest does not support portably even with plugins.
 
 Solution:
 
-To fix that case you have to run all tests by a predefined script:
-`test_all.bat`
+  To fix that case you have to run all tests by a predefined script:
+  `test_all.bat`
 
 -------------------------------------------------------------------------------
 7.2.2. Testes with `xsh` extension runs at first ignoring the predefined pytest
@@ -274,16 +329,16 @@ To fix that case you have to run all tests by a predefined script:
 
 Issue:
 
-The python xonsh plugin breaks tests run order:
-`xonsh incorrectly reorders the test for the pytest` :
-https://github.com/xonsh/xonsh/issues/3380
-`Remove test reordering in pytest plugin` :
-https://github.com/xonsh/xonsh/pull/3468
+  The python xonsh plugin breaks tests run order:
+  `xonsh incorrectly reorders the test for the pytest` :
+  https://github.com/xonsh/xonsh/issues/3380
+  `Remove test reordering in pytest plugin` :
+  https://github.com/xonsh/xonsh/pull/3468
 
 Solution:
 
-To fix that case you have to run all tests by a predefined script:
-`test_all.bat`
+  To fix that case you have to run all tests by a predefined script:
+  `test_all.*`
 
 -------------------------------------------------------------------------------
 7.2.3. Test from `python_tests/02_interactive/01_fcache_workarounds` hangs
@@ -291,12 +346,12 @@ To fix that case you have to run all tests by a predefined script:
 
 Issue:
 
-Test hangs on cache read/write/sync.
+  Test hangs on cache read/write/sync.
 
 Solution:
 
-Patch python `fcache` module sources by patches from the
-`python_patches/fcache` directory.
+  Patch python `fcache` module sources by patches from the
+  `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 7.3. fcache execution issues
@@ -314,12 +369,12 @@ Patch python `fcache` module sources by patches from the
 
 Issue:
 
-Module hangs on cache read/write/sync.
+  Module hangs on cache read/write/sync.
 
 Solution:
 
-Patch python `fcache` module sources by patches from the
-`python_patches/fcache` directory.
+  Patch python `fcache` module sources by patches from the
+  `python_patches/fcache` directory.
 
 -------------------------------------------------------------------------------
 8. AUTHOR
