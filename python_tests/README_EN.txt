@@ -85,8 +85,10 @@ N/A
 * python 3.7.3 or 3.7.5 (3.6.2+)
   https://python.org
   - standard implementation to run python scripts
-  - 3.7.4 has a bug in the `pytest` module execution, see `KNOWN ISSUES`
-    section
+  - 3.7.4 has a bug in the `pytest` module execution (see `KNOWN ISSUES`
+    section).
+  - 3.6.2+ is required due to multiple bugs in the python implementation prior
+    this version (see `KNOWN ISSUES` section).
   - 3.5+ is required for the direct import by a file path (with any extension)
     as noted in the documentation:
     https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
