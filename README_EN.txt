@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.06
+* 2020.04.07
 * tacklelib
 
 1. DESCRIPTION
@@ -20,9 +20,28 @@
 11. INSTALL
 12. POSTINSTALL
 13. KNOWN ISSUES
-13.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
-      generator presence and must be set if not: ...` cmake configuration
-      error message
+13.1. CMake execution issues
+13.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+        generator presence and must be set if not: ...` cmake configuration
+        error message
+13.2. Python execution issues
+13.2.1. `OSError: [WinError 6] The handle is invalid`
+13.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+13.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+13.3. Python modules issues
+13.3.1. pytest execution issues
+13.3.2. fcache execution issues
+13.4. External application issues
+13.4.1. svn+ssh issues
+13.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+          `svn: E170012: Can't create tunnel`
+13.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
+          `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
+          `at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.'`
+13.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
+          `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+          `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
+          `svn: E210002: Network connection closed unexpectedly`
 14. AUTHOR
 
 -------------------------------------------------------------------------------
@@ -659,9 +678,13 @@ CAUTION:
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-13.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
-      generator presence and must be set if not: ...` cmake configuration
-      error message
+13.1. CMake execution issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+        generator presence and must be set if not: ...` cmake configuration
+        error message
 -------------------------------------------------------------------------------
 
 The cmake configuration was generated under a cmake generator without
@@ -674,19 +697,129 @@ must not in case of a multiconfig cmake generator.
 
 Solution #1:
 
-1. Pass the configuration name value explicitly into the script or make it
-   not defined.
+  Pass the configuration name value explicitly into the script or make it
+  not defined.
 
 Solution #2:
 
-1. Change the cmake generator in the `CMAKE_GENERATOR` configuration variable
-   to the version with appropriate functionality.
+  Change the cmake generator in the `CMAKE_GENERATOR` configuration variable
+  to the version with appropriate functionality.
 
 Solution #3:
 
-1. In case of the `Qt Creator` do remove the unsupported `Default`
-   configuration at `Project` pane, where the `CMAKE_BUILD_TYPE` variable value
-   is not applicable.
+  In case of the `Qt Creator` do remove the unsupported `Default`
+  configuration at `Project` pane, where the `CMAKE_BUILD_TYPE` variable value
+  is not applicable.
+
+-------------------------------------------------------------------------------
+13.2. Python execution issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.2.1. `OSError: [WinError 6] The handle is invalid`
+-------------------------------------------------------------------------------
+
+Issue:
+
+  The python interpreter (3.7, 3.8, 3.9) sometimes throws this message at exit,
+  see details here:
+
+  `subprocess.Popen._cleanup() "The handle is invalid" error when some old process is gone` :
+  https://bugs.python.org/issue37380
+
+Solution:
+
+  Reinstall a different python version.
+
+-------------------------------------------------------------------------------
+13.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 265, in tkl_classcopy
+    cls_copy = type(x.__name__, x.__bases__, dict(x.__dict__))
+
+Issue:
+
+  Bug in the python implementation prior version 3.5.4 or 3.6.2:
+
+  https://stackoverflow.com/questions/45864273/slots-conflicts-with-a-class-variable-in-a-generic-class/45868049#45868049
+  `typing module conflicts with __slots__-classes` :
+  https://bugs.python.org/issue31272
+
+Solution:
+
+  Upgrade python version at least up to 3.5.4 or 3.6.2.
+
+-------------------------------------------------------------------------------
+13.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+-------------------------------------------------------------------------------
+
+Stack trace example:
+
+  File ".../python/tacklelib/tacklelib.py", line 278, in tkl_classcopy
+    for key, value in dict(inspect.getmembers(x)).items():
+  File ".../python/x86/35/lib/python3.5/inspect.py", line 309, in getmembers
+    value = getattr(object, key)
+
+Issue:
+
+  Bug in the python implementation prior version 3.6.2:
+
+Solution:
+
+  Upgrade python version at least up to 3.6.2.
+
+-------------------------------------------------------------------------------
+13.3. Python modules issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.3.1. pytest execution issues
+-------------------------------------------------------------------------------
+* `xonsh incorrectly reorders the test for the pytest` :
+  https://github.com/xonsh/xonsh/issues/3380
+* `a test silent ignore` :
+  https://github.com/pytest-dev/pytest/issues/6113
+* `can not order tests by a test directory path` :
+  https://github.com/pytest-dev/pytest/issues/6114
+
+-------------------------------------------------------------------------------
+13.3.2. fcache execution issues
+-------------------------------------------------------------------------------
+* `fcache is not multiprocess aware on Windows` :
+  https://github.com/tsroten/fcache/issues/26
+* ``_read_from_file` returns `None` instead of (re)raise an exception` :
+  https://github.com/tsroten/fcache/issues/27
+* `OSError: [WinError 17] The system cannot move the file to a different disk drive.` :
+  https://github.com/tsroten/fcache/issues/28
+
+-------------------------------------------------------------------------------
+13.4. External application issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.4.1. svn+ssh issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+          `svn: E170012: Can't create tunnel`
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
+          `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
+          `at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.'`
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+13.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
+          `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+          `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
+          `svn: E210002: Network connection closed unexpectedly`
+-------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 14. AUTHOR
