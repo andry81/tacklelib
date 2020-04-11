@@ -130,6 +130,34 @@ def svn_checkout(configure_dir, scm_token, bare_args, verbosity = 0):
 
   call_svn(['co', svn_checkout_url, wcroot_path] + bare_args, max_stdout_lines = -1)
 
+def svn_cleanup(configure_dir, scm_token, bare_args, verbosity = 0):
+  print("svn cleaup: {0}".format(configure_dir))
+
+  set_verbosity_level(verbosity)
+
+  if len(bare_args) > 0:
+    print('- args:', bare_args)
+
+  if configure_dir == '':
+    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+    return 1
+
+  if configure_dir[-1:] in ['\\', '/']:
+    configure_dir = configure_dir[:-1]
+
+  if not os.path.isdir(configure_dir):
+    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+    return 2
+
+  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+  if wcroot_dir == '': return -254
+  if WCROOT_OFFSET == '': return -253
+
+  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+
+  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
+    call_svn(['cleanup'] + bare_args, max_stdout_lines = -1)
+
 def svn_update(configure_dir, scm_token, bare_args, verbosity = 0):
   print("svn update: {0}".format(configure_dir))
 
