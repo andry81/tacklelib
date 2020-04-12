@@ -1,4 +1,7 @@
 2020.04.11:
+* changed: readme update (missed changes)
+
+2020.04.11:
 * new: python: cmdoplib: `svn_cleanup` function
 
 2020.04.07:

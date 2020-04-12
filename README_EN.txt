@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.07
+* 2020.04.11
 * tacklelib
 
 1. DESCRIPTION
@@ -808,11 +808,54 @@ Solution:
           `svn: E170012: Can't create tunnel`
 -------------------------------------------------------------------------------
 
+Issue #1:
+
+  The `svn ...` command was run w/o properly configured putty plink utility or
+  w/o the `SVN_SSH` environment variable with the user name parameter.
+
+Solution:
+
+  Carefully read the `SSH+SVN/PLINK SETUP` section to fix most of the cases.
+
+Issue #2
+
+  The `SVN_SSH` environment variable have has the backslash characters - `\`.
+
+Solution:
+
+  Replace all the backslash characters by forward slash character - `/` or by
+  double baskslash character - `\\`.
+
+Issue #3
+
+  The `config.private.yaml` contains invalid values or was regenerated to
+  default values.
+
+Solution:
+
+  Manually edit variables in the file for correct values.
+
 -------------------------------------------------------------------------------
 13.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
           `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
           `at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.'`
 -------------------------------------------------------------------------------
+
+Issue:
+
+  The `git svn ...` command should not be called with the `SVN_SSH` variable
+  declared for the `svn ...` command.
+
+Solution:
+
+  Read docs about the `ssh-pageant` usage from the msys tools to fix that.
+
+  See details: https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014
+
+NOTE:
+  The scripts does automatic maintain of the `ssh-pageant` utility startup.
+  All you have to do is to ensure that you are using valid paths and keys in
+  the respective configuration files.
 
 -------------------------------------------------------------------------------
 13.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
@@ -820,6 +863,25 @@ Solution:
           `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
           `svn: E210002: Network connection closed unexpectedly`
 -------------------------------------------------------------------------------
+
+Related command: `git svn ...`
+
+Issue #1:
+
+  Network is disabled:
+
+Issue #2:
+
+  The `pageant` application is not running or the private SSH key is not added.
+
+Issue #3:
+
+  The `ssh-pageant` utility is not running or the `git svn ...` command does
+  run without the `SSH_AUTH_SOCK` environment variable properly registered.
+
+Solution:
+
+  Read the deatils in the `SSH+SVN/PLINK SETUP` section.
 
 -------------------------------------------------------------------------------
 14. AUTHOR
