@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2020.01.31
+* 2020.04.12
 * tacklelib
 
 1. DESCRIPTION
@@ -74,7 +74,8 @@ Legend:
   03 desc:      C++ generic library
   04 forked:    NO
   05 original:  [01] https://www.boost.org
-                [02] https://dl.bintray.com/boostorg/release/
+                [02] https://github.com/boostorg/boost
+                [03] https://dl.bintray.com/boostorg/release/
   06 build:     (default)   standalone build from sources
   07 linkage:   (default)   prebuilded shared libraries
                 (optional)  prebuilded static libraries
@@ -89,10 +90,10 @@ Legend:
 * fmt
   00 demand:    REQUIRED
   01 platform:  WINDOWS, LINUX
-  02 version:   release 6.1.2
-                #f94b7364b9409f05207c3af3fa4666730e11a854 (2019.12.11)
-                from https://github.com/fmtlib/fmt/releases/tag/6.1.2 (https://fmt.dev/6.1.2/ )
-                (https://github.com/fmtlib/fmt/commit/f94b7364b9409f05207c3af3fa4666730e11a854 )
+  02 version:   release 6.2.0
+                #9bdd1596cef1b57b9556f8bef32dc4a32322ef3e (2020.04.05)
+                from https://github.com/fmtlib/fmt/releases/tag/6.2.0 (https://fmt.dev/6.2.0/ )
+                (https://github.com/fmtlib/fmt/commit/9bdd1596cef1b57b9556f8bef32dc4a32322ef3e )
   03 desc:      C++ string safe formatter
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--fmt
                 [02] https://github.com/andry81/tacklelib--3dparty--fmt.git
@@ -113,9 +114,9 @@ Legend:
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
   02 version:   above release 1.1.3
-                #4af4a865208b400b9cd5ae71b0e162a6baf331f9 (2019.03.21)
+                #281419de2f91f9e0f2df6acddfea3b06a43436be (2020.02.04)
                 from https://github.com/imageworks/pystring/commits/master
-                (https://github.com/imageworks/pystring/commit/4af4a865208b400b9cd5ae71b0e162a6baf331f9 )
+                (https://github.com/imageworks/pystring/commit/281419de2f91f9e0f2df6acddfea3b06a43436be )
   03 desc:      C++ python string functions
   04 forked:    [01] https://sf.net/p/tacklelib/3dparty--pystring
                 [02] https://github.com/andry81/tacklelib--3dparty--pystring.git
@@ -156,8 +157,8 @@ Legend:
 * p7 logger
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 5.3
-                (2020.01.27)
+  02 version:   release 5.5
+                (2020.03.09)
                 from http://baical.net/downloads.html
   03 desc:      C++ (in C-style) client/server fast logger with support of
                 logging into text/binary file or into network and gui
@@ -187,10 +188,10 @@ Legend:
 * libarchive
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 3.4.1
-                #cce09646b566c61c2debff58a70da780b8457883 (2019.12.30)
+  02 version:   release 3.4.2
+                #3288ebb0353beb51dfb09d444dedbe9235ead53d (2020.02.12)
                 from https://github.com/libarchive/libarchive
-                (https://github.com/libarchive/libarchive/commit/cce09646b566c61c2debff58a70da780b8457883 )
+                (https://github.com/libarchive/libarchive/commit/3288ebb0353beb51dfb09d444dedbe9235ead53d )
   03 desc:      C archive pipeline/filter library to organize access to
                 compress algorithms in 3dparty libraries which must be attached
                 separately
@@ -214,15 +215,15 @@ Legend:
 * xz utils
   00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
-  02 version:   release 5.2.4
-                #b5be61cc06088bb07f488f9baf7d447ff47b37c1 (2018.04.29)
-                from https://git.tukaani.org/xz.git
-                (https://git.tukaani.org/?p=xz.git;a=commit;h=b5be61cc06088bb07f488f9baf7d447ff47b37c1 )
+  02 version:   release 5.2.5
+                #2327a461e1afce862c22269b80d3517801103c1b (2020.03.17)
+                from https://git.tukaani.org/?p=xz.git
+                (https://git.tukaani.org/?p=xz.git;a=commit;h=2327a461e1afce862c22269b80d3517801103c1b )
   03 desc:      C compress algorithms library
   04 forked:    NO
-  05 original:  [01] https://git.tukaani.org/xz.git
-                [02] https://git.tukaani.org/?p=xz.git
-                [03] https://tukaani.org/xz/
+  05 original:  [01] https://tukaani.org/xz/
+                [02] https://git.tukaani.org/xz.git
+                [03] https://git.tukaani.org/?p=xz.git
                 [04] https://sf.net/p/lzmautils
   06 build:     (default) indirectly from libarchive build
   07 linkage:   (default) indirectly from libarchive build
@@ -296,7 +297,7 @@ Legend:
   03 desc:      C++ floating point high precision extension library
                 (double-double, quad-double)
   04 forked:    [01] https://sf.net/p/orbittools/qd_
-                [02] https://github.com/andry81/orbittools--orbittools.git
+                [02] https://github.com/andry81/orbittools--qd.git
   05 original:  [01] http://crd-legacy.lbl.gov/~dhbailey/mpdist/
                 [02] http://crd.lbl.gov/software/applied-mathematics-software/
   06 build:     (default) build from sources in a dependentee project
