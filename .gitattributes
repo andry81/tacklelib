@@ -5,6 +5,7 @@
 /CMakeLists.txt -text
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
+/README_EN.python_xonsh.known_issues.txt -text
 /README_EN.txt -text
 /TODO.txt -text
 /__init__.bat -text

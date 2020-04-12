@@ -1,4 +1,8 @@
 2020.04.11:
+* new: readme file over python xonsh module known issues
+* changed: readme file
+
+2020.04.11:
 * changed: readme update (missed changes)
 
 2020.04.11:
