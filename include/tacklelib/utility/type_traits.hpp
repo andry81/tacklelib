@@ -253,7 +253,7 @@ namespace utility
 
         // CAUTION:
         //  After this point any usage of the return value is UB!
-        //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+        //  The return value exists ONLY to remove requirement of the type default constructor existence, because underlaying
         //  storage of the type can be a late construction container.
         //
 
@@ -1093,7 +1093,7 @@ namespace utility
 
             // CAUTION:
             //  After this point any usage of the return value is UB!
-            //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+            //  The return value exists ONLY to remove requirement of the type default constructor existence, because underlaying
             //  storage of the type can be a late construction container.
             //
 
@@ -1112,7 +1112,7 @@ namespace utility
 
             // CAUTION:
             //  After this point any usage of the return value is UB!
-            //  The return value exists ONLY to remove requirement of the type default constructor existance, because underlaying
+            //  The return value exists ONLY to remove requirement of the type default constructor existence, because underlaying
             //  storage of the type can be a late construction container.
             //
 

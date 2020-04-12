@@ -349,7 +349,7 @@ To prepare local third party library sources you can:
  |
  +- `01_preconfigure.*`
  |   #
- |   # Scrtip to make a local preconfigure.
+ |   # Script to make a local preconfigure.
  |
  +- `CMakeLists.txt`
      #

@@ -260,7 +260,7 @@ namespace test
                     do_exclude = true;
                 }
                 else if (v.data_in_subdir && !std::string(v.data_in_subdir).empty()) { // filter by subdir
-                    // test on existance, disable test case if not found
+                    // test on existence, disable test case if not found
                     const tackle::path_string data_in_subdir = TestCaseWithDataReference::s_TESTS_REF_DIR / v.data_in_subdir;
                     if (!utility::is_path_exists(data_in_subdir, true) || !utility::is_directory_path(data_in_subdir, true)) {
                         TEST_LOG_OUT(FROM_GLOBAL_INIT | WARNING,
