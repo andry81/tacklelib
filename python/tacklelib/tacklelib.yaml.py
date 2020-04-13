@@ -204,12 +204,12 @@ class YamlEnv(object):
     if not isinstance(list_value, list):
       raise Exception('list_value is not a list type' + str(type(list_value)))
 
-    is_list_of_strings = True
+    is_list_to_string_convertible = True
     expanded_val = out_value = []
 
     for val in list_value:
       if isinstance(val, int) or isinstance(val, float):
-        expanded_val.append(str(val))
+        expanded_val.append(val)
       elif isinstance(val, str):
         expanded_val.append(
           self.expand_string(val,
@@ -218,7 +218,7 @@ class YamlEnv(object):
           )
         )
       elif isinstance(val, list):
-        is_list_of_strings = False
+        is_list_to_string_convertible = False
         expanded_val.append(
           self.expand_list(val,
             search_in_expand_dict_at_second = search_in_expand_dict_at_second,
@@ -227,7 +227,7 @@ class YamlEnv(object):
           )
         )
       elif isinstance(val, dict):
-        is_list_of_strings = False
+        is_list_to_string_convertible = False
         expanded_val.append(
           self.expand_dict(val,
             search_in_expand_dict_at_second = search_in_expand_dict_at_second,
@@ -238,21 +238,22 @@ class YamlEnv(object):
       else:
         raise Exception('unexpected yaml object type: ' + str(type(val)))
 
-    if list_as_cmdline and is_list_of_strings:
+    if list_as_cmdline and is_list_to_string_convertible:
       cmdline = ''
 
       for val in expanded_val:
         has_spaces = False
 
-        for c in val:
-          if c.isspace():
-            has_spaces = True
-            break
+        if isinstance(val, str):
+          for c in val:
+            if c.isspace():
+              has_spaces = True
+              break
 
         if not has_spaces:
-          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + val
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + str(val)
         else:
-          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + val + '"'
+          cmdline = (cmdline + ' ' if len(cmdline) > 0 else '') + '"' + str(val) + '"'
 
       out_value = cmdline
 
@@ -284,7 +285,9 @@ class YamlEnv(object):
         if key not in last_expanded_vars.keys() and key not in last_added_expanded_var_names:
           last_added_expanded_var_names.append(key)
 
-      if isinstance(val, str) or isinstance(val, int) or isinstance(val, float):
+      if isinstance(val, int) or isinstance(val, float):
+        out_value[key] = val
+      elif isinstance(val, str):
         out_value[key] = self.expand_string(val,
           search_in_expand_dict_at_second = search_in_expand_dict_at_second,
           search_by_pred_at_third = search_by_pred_at_third)
