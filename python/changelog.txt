@@ -1,3 +1,6 @@
+2020.04.20:
+* changed: tacklelib: utils: minor `is_file_path_beginswith` and `is_file_path_endswith` functions improvement
+
 2020.04.13:
 * fixed: tacklelib: yaml: accidental conversion of integral and float types on expansion into string type
 * fixed: cmdoplib: gitsvn: fetch command call with the `-u` flag to enable HEAD creation on an empty working copy to avoid error: `fatal: Refusing to fetch into current branch refs/heads/master of non-bare repository`
