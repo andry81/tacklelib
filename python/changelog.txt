@@ -1,3 +1,6 @@
+2020.04.21:
+* fixed: cmdoplib: callsvn, callgit: the same condition to print `<` character after a call to svn/git with the print of the command line prefixed with the `>` character
+
 2020.04.20:
 * changed: tacklelib: utils: minor `is_file_path_beginswith` and `is_file_path_endswith` functions improvement
 
