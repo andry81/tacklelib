@@ -25,7 +25,7 @@ def call_git(args_list,
       print(proc_err.stdout.rstrip())
     if len(proc_err.stderr) > 0:
       print(proc_err.stderr.rstrip())
-    if len(proc_err.stdout) > 0 or len(proc_err.stderr) > 0:
+    if stdout is None or not hasattr(stdout, 'name') or stdout.name != '<null>':
       print('<') # end of a command output
     raise
 
@@ -54,7 +54,7 @@ def call_git(args_list,
         if has_specific_warnings:
           raise Exception('specific warnings from the `git ...` command is treated as errors')
 
-    if len(stdout_lines) > 0 or len(stderr_lines) > 0:
+    if stdout is None or not hasattr(stdout, 'name') or stdout.name != '<null>':
       print('<') # end of a command output
 
   return ret
