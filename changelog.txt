@@ -1,4 +1,7 @@
 2020.04.22:
+* fixed: _config: `top final` attributes replaced by `top final package`
+
+2020.04.22:
 * fixed: _scripts: scripts reinit by a link from different directory, must remember the initialization directory instead of just a flag
 * fixed: _scripts: correct unix shell script self redirection with original handles restore (windows batch scripts can not handle redirection such way, so left as is with mixed stdout output (stderr is left redirected to stdout))
 * changed: missed change
