@@ -1152,11 +1152,9 @@ tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_
 
 ## 3dparty
 
-# multi
-
-tkl_set_target_folder(BOOST_ROOT * * . * . _3dparty/multi/boost)
-
 # utility
+
+tkl_set_target_folder(BOOST_ROOT * * . * . _3dparty/utility/boost)
 
 tkl_set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
 tkl_set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)

@@ -6,9 +6,9 @@
 #  2. Non english locale in paths.
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_ROOT_INIT2_SH" || SOURCE_ROOT_INIT2_SH -eq 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && "$TACKLELIB_SCRIPTS_INIT2_DIR" != "$BASH_SOURCE_DIR" ]]; then 
 
-SOURCE_ROOT_INIT2_SH=1 # including guard
+TACKLELIB_SCRIPTS_INIT2_DIR="$BASH_SOURCE_DIR" # including guard
 
 tkl_include "__init1__.sh" || return $?
 

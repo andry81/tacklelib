@@ -5,9 +5,9 @@ rem  In case of usage the QtCreator there is set of special broken cases you hav
 rem  1. Invalid characters in paths: `(`, `)` and `.`.
 rem  2. Non english locale in paths.
 
-if %SOURCE_ROOT_INIT2_BAT%0 NEQ 0 exit /b
+if /i "%TACKLELIB_SCRIPTS_INIT2_DIR%" == "%~dp0" exit /b
 
-set SOURCE_ROOT_INIT2_BAT=1
+set "TACKLELIB_SCRIPTS_INIT2_DIR=%~dp0"
 
 call "%%~dp0__init1__.bat" || exit /b
 
