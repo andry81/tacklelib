@@ -21,6 +21,15 @@ call "%%CONTOOLS_ROOT%%\get_datetime.bat"
 set "LOG_FILE_NAME_SUFFIX=%RETURN_VALUE:~0,4%'%RETURN_VALUE:~4,2%'%RETURN_VALUE:~6,2%_%RETURN_VALUE:~8,2%'%RETURN_VALUE:~10,2%'%RETURN_VALUE:~12,2%''%RETURN_VALUE:~15,3%"
 
 set IMPL_MODE=1
+rem CAUTION:
+rem   We should avoid use handles 3 and 4 while the redirection has take a place because handles does reuse
+rem   internally from left to right when being redirected externally.
+rem   Example: if `1` is redirected, then `3` is internally reused, then if `2` redirected, then `4` is internally reused and so on.
+rem   The discussion of the logic:
+rem   https://stackoverflow.com/questions/9878007/why-doesnt-my-stderr-redirection-end-after-command-finishes-and-how-do-i-fix-i/9880156#9880156
+rem   A partial analisis:
+rem   https://www.dostips.com/forum/viewtopic.php?p=14612#p14612
+rem
 "%COMSPEC%" /C call %0 %* 2>&1 | "%CONTOOLS_ROOT%\wtee.exe" "%SCRIPTS_LOGS_ROOT%\.log\%LOG_FILE_NAME_SUFFIX%.%~n0.log"
 exit /b
 

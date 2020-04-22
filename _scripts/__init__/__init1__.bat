@@ -5,9 +5,9 @@ rem  In case of usage the QtCreator there is set of special broken cases you hav
 rem  1. Invalid characters in paths: `(`, `)` and `.`.
 rem  2. Non english locale in paths.
 
-if %SOURCE_ROOT_INIT1_BAT%0 NEQ 0 exit /b
+if /i "%TACKLELIB_SCRIPTS_INIT1_DIR%" == "%~dp0" exit /b
 
-set SOURCE_ROOT_INIT1_BAT=1
+set "TACKLELIB_SCRIPTS_INIT1_DIR=%~dp0"
 
 if not defined NEST_LVL set NEST_LVL=0
 
