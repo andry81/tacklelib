@@ -108,14 +108,14 @@ top bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (de
 
 # utility
 
-top final TACKLELIB_LINK_TYPE="dynamic"
-top final TACKLELIB_ADDRESS_MODEL="32"
-
 top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt/fmt-6_1_2-release"
 top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring/pystring-1_1_3-20190321"
 
-#top final TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
-top final TACKLELIB_DEP_LIBS=(fmt pystring)
+top final package TACKLELIB_LINK_TYPE="dynamic"
+top final package TACKLELIB_ADDRESS_MODEL="32"
 
-top final TACKLELIB_SKIP_TESTLIB=0
-top final TACKLELIB_SKIP_TESTS=0
+#top final package TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
+top final package TACKLELIB_DEP_LIBS=(fmt pystring)
+
+top final package TACKLELIB_SKIP_TESTLIB=0
+top final package TACKLELIB_SKIP_TESTS=0
