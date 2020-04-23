@@ -190,6 +190,11 @@ include(tacklelib/Utility)
 #   Overrides assignment in not top level packages.
 #   Must be used ONLY to override an assignment of a top level package variable in a not top level package.
 #
+# `unset`:
+#   Remove the variable.
+#   Can be used with other required attributes.
+#   Must be used without an assignment.
+#
 # `package`:
 #   Applicable only to variables with the `final` attribute. Declares final variable in a package scope.
 #
@@ -216,9 +221,14 @@ include(tacklelib/Utility)
 #   * global + package
 #   * force + override
 #   * force + package (if have no `final` attribute)
-# 
+#   * unset + <other modificator except `top`, `final`, `package`>
+#   * unset + <any type attribute>
+#   * unset + <specialization>
+#   * unset + global
+#
 # Available attribute compositions:
 #   * top + override
+#   * top + unset
 #   * final + <any>
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN THE SAME PACKAGE
@@ -227,7 +237,7 @@ include(tacklelib/Utility)
 #   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
 #   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to rules
-#   n/a         - not applicable, throws an error
+#   n/a         - not applicable, may throw an error
 #
 # '. ASSIGN N+1|             |             |             |             |             |             |             |
 #   '-------,  |             |             |             |             |             |  top        |             |  final
@@ -238,16 +248,20 @@ include(tacklelib/Utility)
 # top          |  OK,mod     |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
 # final        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
 # final package|  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
+# unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
+# top unset    |  n/a        |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
 #
-# '. ASSIGN N+1|                                                                                   |             |  force
-#   '-------,  |                                                                                   |  force      |  final
-# ASSIGN N   '.|                                                                                   |  final      |  package
-# -------------+                                                                                   +-------------+-------------
-# <not set>    |                                                                                   |  OK,uncond  |  OK,uncond
-# global       |                                                                                   |  OK,uncond  |  n/a
-# top          |                                                                                   |  n/a        |  n/a
-# final        |                                                                                   |  n/a        |  n/a
-# final package|                                                                                   |  n/a        |  n/a
+# '. ASSIGN N+1|             |                                         |             |             |             |  force
+#   '-------,  |             |                                         |             |             |  force      |  final
+# ASSIGN N   '.|  unset      |                                         |  top unset  |             |  final      |  package
+# -------------+-------------+                                         +-------------+             +-------------+-------------
+# <not set>    |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
+# global       |  OK         |                                         |  n/a        |             |  OK,uncond  |  n/a
+# top          |  OK         |                                         |  n/a        |             |  n/a        |  n/a
+# final        |  n/a        |                                         |  n/a        |             |  n/a        |  n/a
+# final package|  n/a        |                                         |  n/a        |             |  n/a        |  n/a
+# unset        |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
+# top unset    |  OK         |                                         |  n/a        |             |  n/a        |  n/a
 #
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN DIFFERENT PACKAGE LEVELS
@@ -256,7 +270,8 @@ include(tacklelib/Utility)
 #   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
 #   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to the rules
-#   n/a         - not applicable, throws an error
+#   OK,equal    - value must stay the same (if was unset, then equal to last not empty value)
+#   n/a         - not applicable, may throw an error
 #   ignore      - silent ignore
 #
 # '.  LEVEL N+K|             |             |             |             |             |             |             |
@@ -264,20 +279,24 @@ include(tacklelib/Utility)
 #  LEVEL N   '.|  <not set>  |  global     |  force      |  override   |  top        |  override   |  final      |  package
 # -------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
 # <not set>    |  OK         |  error      |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# global       |  n/a        |  OK,uncond  |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  n/a
+# global       |  n/a        |  OK,equal   |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  n/a
 # top          |  n/a        |  n/a        |  n/a        |  n/a        |  ignore     |  OK,uncond  |  n/a        |  n/a
 # final        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
 # final package|  OK,uncond  |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
+# unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
+# top unset    |  OK         |  n/a        |  OK,uncond  |  n/a        |  ignore     |  OK,uncond  |  n/a        |  n/a
 #
-# '.  LEVEL N+K|                                                                                   |             |  force
-#   '-------,  |                                                                                   |  force      |  final
-#  LEVEL N   '.|                                                                                   |  final      |  package
-# -------------+                                                                                   +-------------+-------------
-# <not set>    |                                                                                   |  OK,uncond  |  OK,uncond
-# global       |                                                                                   |  OK,uncond  |  n/a
-# top          |                                                                                   |  n/a        |  n/a
-# final        |                                                                                   |  n/a        |  n/a
-# final package|                                                                                   |  n/a        |  n/a
+# '.  LEVEL N+K|             |                                         |             |             |             |  force
+#   '-------,  |             |                                         |             |             |  force      |  final
+#  LEVEL N   '.|  unset      |                                         |  top unset  |             |  final      |  package
+# -------------+-------------+                                         +-------------+             +-------------+-------------
+# <not set>    |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
+# global       |  OK         |                                         |  n/a        |             |  OK,uncond  |  n/a
+# top          |  n/a        |                                         |  OK         |             |  n/a        |  n/a
+# final        |  n/a        |                                         |  n/a        |             |  n/a        |  n/a
+# final package|  OK,uncond  |                                         |  n/a        |             |  n/a        |  n/a
+# unset        |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
+# top unset    |  n/a        |                                         |  OK         |             |  n/a        |  n/a
 #
 
 # CAUTION:
@@ -418,7 +437,7 @@ endfunction()
 #   -s                          - silent mode
 #
 #   --grant_external_vars_for_assign <grant_external_vars_for_assign_list>
-#                               - list of variables granted for unconditional assignment if has been assigned before the first load call
+#                               - list of variables granted for unconditional assignment for case if has been assigned before the first load call
 #                                 (by default would be an error if a variable has been assigned before the load call and a new value is not equal to the previous)
 #
 #   --grant_external_vars_assign_in_files <grant_external_vars_assign_in_files_list>
@@ -445,12 +464,12 @@ endfunction()
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
 #
-# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | package | final
+# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | unset | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
 #   <compiler_token_name>: MSVC | GCC | CLANG | ...
-#   <compiler_version>:   <major_version>[.<minor_version>]
+#   <compiler_version>:   <major_version>[*+] | <major_version>.<minor_version>[*+]
 #     <major_version>:    an integral value corresponding to the regex: [0-9]*
 #     <minor_version>:    an integral value corresponding to the regex: [0-9]*
 # <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
@@ -773,11 +792,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   if (NOT config_name STREQUAL "")
     string(SUBSTRING "${config_name_upper}" 0 1 char)
     if (NOT char MATCHES "[_A-Z]")
-      message(FATAL_ERROR "invalid configuration name: `${config_name}`")
+      message(FATAL_ERROR "Invalid configuration name: `${config_name}`")
     endif()
 
     if (config_name_upper MATCHES "[^_A-Z0-9]")
-      message(FATAL_ERROR "invalid configuration name: `${config_name}`")
+      message(FATAL_ERROR "Invalid configuration name: `${config_name}`")
     endif()
   endif()
 
@@ -846,6 +865,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_property(config_${config_var_name}_arch_name
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_arch_name)
 
+      get_property(config_${config_var_name}_unset_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_unset_var)
+
       get_property(config_${config_var_name}_global_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_global_var)
       get_property(config_${config_var_name}_top_package_var
@@ -900,6 +922,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${injected_var_name}_config_name "")
     set(config_${injected_var_name}_arch_name "")
 
+    set(config_${injected_var_name}_unset_var 0)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
+
     set(config_${injected_var_name}_global_var 1)   # always global
     set(config_${injected_var_name}_top_package_var 0)
     set(config_${injected_var_name}_top_package_ignored_var 0)
@@ -935,7 +959,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       # use special unexisted directory value to differentiate it from the defined empty value
 
       # CAUTION:
-      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*:$/{aa}/../bb')` would expand into invalid absolute path
+      #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
       #
       set(config_${make_var_name} "*:\$/{${make_var_name}}")
     endif()
@@ -951,6 +975,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${make_var_name}_compiler_name "")
     set(config_${make_var_name}_config_name "")
     set(config_${make_var_name}_arch_name "")
+
+    set(config_${make_var_name}_unset_var 0)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
 
     set(config_${make_var_name}_global_var 0)
     set(config_${make_var_name}_top_package_var 0)
@@ -1015,7 +1041,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use special unexisted directory value to differentiate it from the defined empty value
 
         # CAUTION:
-        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*:$/{aa}/../bb')` would expand into invalid absolute path
+        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
         #
         set(config_CMAKE_CURRENT_PACKAGE_NAME "*:\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME}")
       endif()
@@ -1027,7 +1053,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use special unexisted directory value to differentiate it from the defined empty value
 
         # CAUTION:
-        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+        #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
         #
         set(config_CMAKE_CURRENT_PACKAGE_SOURCE_DIR "*:\$/{TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
       endif()
@@ -1070,21 +1096,31 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       #
 
       if (NOT is_continue_parse_var_value)
-        if(NOT var_line MATCHES "^[ \t]*([^\"=]+)[ \t]*=[ \t]*(.*)[ \t]*\$")
-          # empty or incomplete variable assignment is an error
-          message(WARNING "invalid variable assignment expression: [${var_file_content_line}] `${CMAKE_MATCH_1}`")
-          continue()
+        if(var_line MATCHES "^[ \t]*([^\"=]+)[ \t]*=[ \t]*(.*)[ \t]*\$")
+          set(var_has_value 1)
+        else()
+          set(var_has_value 0)
+          if(NOT var_line MATCHES "^[ \t]*([^\"=]+)[ \t]*\$")
+            # empty or incomplete variable line declaration is an error
+            message(WARNING "Invalid variable line declaration: `${file_path_abs}`(${var_file_content_line}): `${CMAKE_MATCH_1}`")
+            continue()
+          endif()
         endif()
 
         set(var_token "${CMAKE_MATCH_1}")
-        set(var_value "${CMAKE_MATCH_2}")
+        if (var_has_value)
+          set(var_value "${CMAKE_MATCH_2}")
+          string(LENGTH "${var_value}" var_value_len)
+        else()
+          set(var_value "")
+          set(var_value_len 0)
+        endif()
 
         string(LENGTH "${var_token}" var_token_len)
-        string(LENGTH "${var_value}" var_value_len)
 
         # parse variable name at first
         if (NOT var_token MATCHES "([^:]+):?([^:]*)?:?([^:]*)?:?([^:]*)?:?([^:]*)?")
-          message(WARNING "invalid variable token: [${var_file_content_line}] `${var_token}`")
+          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           continue()
         endif()
 
@@ -1094,7 +1130,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         string(STRIP "${CMAKE_MATCH_4}" var_config_name)
         string(STRIP "${CMAKE_MATCH_5}" var_arch_name)
 
-        # extract name attributes (leading name tokens) from name token
+        # extract name attributes (tokens before a variable name) from name token
         string(REGEX REPLACE "[ \t]+" ";" var_name_token_list "${var_name_token}")
 
         list(LENGTH var_name_token_list var_name_token_list_len)
@@ -1105,7 +1141,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         string(REGEX REPLACE "[_a-zA-Z0-9]" "" var_name_valid_chars_filtered "${var_name}")
 
         if (var_name STREQUAL "" OR (NOT var_name_valid_chars_filtered STREQUAL ""))
-          message(FATAL_ERROR "invalid variable token: [${var_file_content_line}] `${var_token}`")
+          message(FATAL_ERROR "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         if (NOT DEFINED config_${var_name}_defined)
@@ -1122,6 +1158,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # use variable overriding
         set(use_override_var 0)
+
+        # use variable unset
+        set(use_unset_var 0)
 
         # non exclusive cmake cache set, not cache value does set too
         set(use_cache_var 0)
@@ -1177,6 +1216,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(use_override_var 1)
           endif()
 
+          if (NOT use_unset_var AND "UNSET" IN_LIST var_name_attr_list_upper)
+            set(use_unset_var 1)
+          endif()
+
           if ("BOOL" IN_LIST var_name_attr_list_upper)
             set(var_type "bool")
           endif()
@@ -1229,6 +1272,48 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # unconditionally applicable checks before any filter...
 
+        # unset + <other modificator except `final` or `package`>
+        if (use_unset_var)
+          if (use_override_var)
+            message(FATAL_ERROR "The variable UNSET and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_force_cache_var)
+            message(FATAL_ERROR "The variable UNSET and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_force_var)
+            message(FATAL_ERROR "The variable UNSET and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_existed_value)
+            message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_canonical_value)
+            message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+
+          # unset + global
+          if (use_global_var)
+            message(FATAL_ERROR "The global variable UNSET must be issued without GLOBAL modificator: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+
+          # unset + <any type attribute>
+          if (NOT var_type STREQUAL "")
+            message(FATAL_ERROR "The variable UNSET must be issued without variable type: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+
+          # unset with variable value
+          if (var_has_value)
+            message(FATAL_ERROR "The variable UNSET must be issued without variable value: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+
+          # unset + <specialization>
+          if ((NOT var_os_name STREQUAL "") OR
+              (NOT var_compiler_name STREQUAL "") OR
+              (NOT var_config_name STREQUAL "") OR
+              (NOT var_arch_name STREQUAL ""))
+            message(FATAL_ERROR "The variable UNSET must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+        elseif (NOT var_has_value)
+          # variable assignment expression without a value is an error
+          message(WARNING "Invalid variable assignment expression without a value: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          continue()
+        endif()
+
         # global + override
         if (use_global_var)
           if (use_final_var)
@@ -1273,27 +1358,105 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        string(TOUPPER "${var_os_name}" var_os_name_upper)
-        string(TOUPPER "${var_compiler_name}" var_compiler_name_upper)
-        string(TOUPPER "${var_config_name}" var_config_name_upper)
-        string(TOUPPER "${var_arch_name}" var_arch_name_upper)
-
         # not silent variable name ignore checks...
 
         # check variable token consistency
         if (var_name STREQUAL "")
-          message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           continue()
         endif()
 
         string(SUBSTRING "${var_name}" 0 1 char)
         if (NOT char MATCHES "[_A-Za-z]")
-          message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           continue()
         endif()
 
         if (var_name MATCHES "[^_A-Za-z0-9]")
-          message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          continue()
+        endif()
+
+        # variable unset
+        if (use_unset_var)
+          unset(config_${var_name})
+
+          if (NOT config_${var_name}_defined)
+            # save variable token suffix and other parameter to compare it later
+            set(config_${var_name}_load_index "${config_load_index}")
+            set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
+
+            set(config_${var_name}_file_path_c "${file_path_c}")
+            set(config_${var_name}_file_index "${file_path_index}")
+            set(config_${var_name}_line "${var_file_content_line}")
+
+            set(config_${var_name}_os_name "")
+            set(config_${var_name}_compiler_name "")
+            set(config_${var_name}_config_name "")
+            set(config_${var_name}_arch_name "")
+
+            set(config_${var_name}_global_var ${use_global_var})
+            set(config_${var_name}_top_package_var ${use_top_package_var})
+            set(config_${var_name}_final_var ${use_final_var})
+            set(config_${var_name}_package_scope_var ${use_package_scope_var})
+
+            if (use_top_package_var)
+              set(config_${var_name}_top_package_ignored_var 1)
+            else()
+              set(config_${var_name}_top_package_ignored_var 0)
+            endif()
+
+            if (grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
+              # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+              set(config_${var_name}_var_values_onchange_list ";")
+              set(config_${var_name}_has_values_onchange_list 1)
+
+              foreach (onchange_var_name IN LISTS grant_assign_on_vars_change_list)
+                if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
+                  list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
+                else()
+                  # use special unexisted directory value to differentiate it from the defined empty value
+
+                  # CAUTION:
+                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
+                  #
+                  list(APPEND config_${var_name}_var_values_onchange_list "*:\$/{${onchange_var_name}}")
+                endif()
+              endforeach()
+
+              # remove 2 first dummy empty strings
+              tkl_list_remove_sublist(config_${var_name}_var_values_onchange_list 0 2 config_${var_name}_var_values_onchange_list)
+            else()
+              set(config_${var_name}_has_values_onchange_list 0)
+              set(config_${var_name}_var_values_onchange_list "")
+            endif()
+
+            set(config_${var_name}_defined 1)     # defined to enable checks for the next assignment
+
+            # append variable to the state list
+            if (NOT var_name IN_LIST config_var_names)
+              list(APPEND config_var_names "${var_name}")
+            endif()
+          endif()
+
+          set(config_${var_name}_unset_var 1)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
+
+          if (use_only_cache_var OR use_cache_var)
+            unset(${var_name} CACHE)
+          endif()
+
+          if (NOT use_only_cache_var AND NOT use_only_env_var)
+            unset(${var_name} PARENT_SCOPE)
+          endif()
+
+          if (use_only_env_var OR use_env_var)
+            unset(ENV{${var_name}})
+          endif()
+
+          if (print_vars_set)
+            message("[${config_load_index}:${file_path_index}:${var_file_content_line}] - ${var_set_msg_name_attr_prefix_str}${var_name}${var_set_msg_suffix_str}")
+          endif()
+
           continue()
         endif()
 
@@ -1314,6 +1477,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             continue()
           endif()
         endif()
+
+        string(TOUPPER "${var_os_name}" var_os_name_upper)
+        string(TOUPPER "${var_compiler_name}" var_compiler_name_upper)
+        string(TOUPPER "${var_config_name}" var_config_name_upper)
+        string(TOUPPER "${var_arch_name}" var_arch_name_upper)
 
         # check variable on a collision with builtin variable
         foreach (injected_var_name IN LISTS injected_vars_list)
@@ -1356,12 +1524,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         else()
           string(SUBSTRING "${var_config_name_upper}" 0 1 char)
           if (NOT char MATCHES "[_A-Z]")
-            message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             continue()
           endif()
 
           if (var_name MATCHES "[^_A-Z0-9]")
-            message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             continue()
           endif()
 
@@ -1467,11 +1635,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(onchange_var_prev_value "")
             endif()
 
-            if (DEFINED config_${onchange_var_name})
+            if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
               set(onchange_var_value "${config_${onchange_var_name}}")
             else()
               # CAUTION:
-              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
               #
               set(onchange_var_value "*:\$/{${onchange_var_name}}")
             endif()
@@ -1625,7 +1793,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(this_file_line "")
       else()
         if (is_subst_open)
-          message(FATAL_ERROR "internal parser error")
+          message(FATAL_ERROR "Internal parser error")
         endif()
 
         # append line return in a particular case
@@ -1644,6 +1812,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
         endif()
 
+        set(var_has_value 1)
         set(var_value "${var_line}")
         string(LENGTH "${var_value}" var_value_len)
       endif()
@@ -1754,7 +1923,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 # make a substitution
                 math(EXPR value_len ${index}-${value_from_index})
                 string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                if (DEFINED "config_${value}")
+                if (DEFINED "config_${value}" AND NOT config_${value}_unset_var)
                   # WORKAROUND: we have to replace because `list(APPEND` will join lists together
                   tkl_escape_string_before_list_append(value "${config_${value}}")
 
@@ -1766,7 +1935,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   tkl_escape_string_before_list_append(value "${value}")
 
                   # CAUTION:
-                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
                   #
                   set(var_values_list "${var_values_list}*:\$/{${value}}")
                 endif()
@@ -1992,7 +2161,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               # make a record from last line incomplete substitution
 
               # CAUTION:
-              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+              #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
               #
               set(var_values_list "${var_values_list}*:\$/{")
 
@@ -2044,7 +2213,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
       elseif (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
         if (NOT is_continue_parse_var_value)
-          message(FATAL_ERROR "internal parser error")
+          message(FATAL_ERROR "Internal parser error")
         endif()
       else()
         set(is_continue_parse_var_value 0) # disable multiline parser
@@ -2291,6 +2460,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_arch_name "")
             endif()
 
+            set(config_${var_name}_unset_var 0)
+
             if (config_${var_name}_defined)
               if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
                 # reset after check
@@ -2312,13 +2483,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_has_values_onchange_list 1)
 
               foreach (onchange_var_name IN LISTS grant_assign_on_vars_change_list)
-                if (DEFINED config_${onchange_var_name})
+                if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
                   list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
                 else()
                   # use special unexisted directory value to differentiate it from the defined empty value
 
                   # CAUTION:
-                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('*$/{aa}/../bb')` would expand into invalid absolute path
+                  #   `:` after `*` to workaround issue with the `os.path.abspath`: `os.path.abspath('$/{aa}/../bb')` would expand into invalid absolute path
                   #
                   list(APPEND config_${var_name}_var_values_onchange_list "*:\$/{${onchange_var_name}}")
                 endif()
@@ -2368,7 +2539,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
       else()
         if (is_invalid_open_sequence)
-          message(WARNING "invalid open sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
+          message(WARNING "Invalid open sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
 
           if (is_subst_open)
             # pop open sequence context
@@ -2396,7 +2567,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
           endif()
         else()
-          message(WARNING "invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+          message(WARNING "Invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
         endif()
 
         continue()
@@ -2404,7 +2575,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endforeach()
 
     if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
-      message(WARNING "invalid variable line: (${is_next_char_to_escape},${is_str_quote_open},${is_list_bracket_open}) `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+      message(WARNING "Invalid variable line: (${is_next_char_to_escape},${is_str_quote_open},${is_list_bracket_open}) `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
 
       # pop open sequence context
       tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
@@ -2458,6 +2629,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         "${config_${config_var_name}_config_name}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_arch_name
         "${config_${config_var_name}_arch_name}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_unset_var
+        "${config_${config_var_name}_unset_var}")
 
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_global_var
         "${config_${config_var_name}_global_var}")

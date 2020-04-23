@@ -1,3 +1,7 @@
+2020.03.24:
+* new: SetVarsFromFiles.cmake: `unset` attribute to remove or drop variables for nested packages
+* changed: SetVarsFromFiles.cmake: code cleanup
+
 2020.03.08:
 * changed: readme update
 
