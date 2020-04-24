@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.11
+* 2020.04.24
 * tacklelib
 
 1. DESCRIPTION
@@ -44,6 +44,8 @@
           `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
           `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
           `svn: E210002: Network connection closed unexpectedly`
+14.5. Build issues
+14.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
 15. AUTHOR
 
 -------------------------------------------------------------------------------
@@ -342,12 +344,36 @@ To prepare local third party library sources you can:
  |    # Directory with documentation files.
  |
  +- /`include`
+ |  | #
+ |  | # Directory with public includes.
+ |  |
+ |  +-/`tacklelib/debug.hpp`
+ |  | #
+ |  | # the library common public debug symbols
+ |  |
+ |  +-/`tacklelib/optimization.hpp`
+ |  | #
+ |  | # the library common public optimization symbols
+ |  |
+ |  +-/`tacklelib/setup.hpp`
  |    #
- |    # Directory with public includes.
+ |    # the library common public setup symbols
  |
  +- /`src`
+ |  | #
+ |  | # Directory with sources to build.
+ |  |
+ |  +-/`debug.hpp`
+ |  | #
+ |  | # the library common private debug symbols
+ |  |
+ |  +-/`optimization.hpp`
+ |  | #
+ |  | # the library common private optimization symbols
+ |  |
+ |  +-/`setup.hpp`
  |    #
- |    # Directory with sources to build.
+ |    # the library common private setup symbols
  |
  +- `01_preconfigure.*`
  |   #
@@ -502,6 +528,24 @@ To generate configuration files which are not included in a version control
 system do call to:
 
 `/_scripts/02_generate_config.*` script.
+
+These set of files will be generated up on a call:
+
+  Public headers:
+
+  * /include/tacklelib/debug.hpp
+  * /include/tacklelib/optimization.hpp
+  * /include/tacklelib/setup.hpp
+
+  Private headers:
+
+  * /src/debug.hpp
+  * /src/optimization.hpp
+  * /src/setup.hpp
+
+CAUTION:
+  You have to edit these files for correct values before continue with the
+  next steps.
 
 If a version of a template file in the first line is different to the version
 in the first line of the instantiated file, then an error would be thrown
@@ -965,6 +1009,28 @@ Issue #3:
 Solution:
 
   Read the deatils in the `ssh+svn/plink setup` section.
+
+-------------------------------------------------------------------------------
+14.5. Build issues
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+14.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
+-------------------------------------------------------------------------------
+
+Issues:
+
+  An external optional library has been excluded from the build in the cmake
+  by the unset instruction of the library `*_ROOT` variable or by the variable
+  not presence. But the dependentee project still using the library in the
+  headers which must be disabled separately from the cmake by a header in the
+  dependentee project.
+
+  Read the `9.1. Generation step(s)` section for the details.
+
+Solution:
+
+  Edit respective generated files for the correct values to fix the build.
 
 -------------------------------------------------------------------------------
 15. AUTHOR
