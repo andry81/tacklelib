@@ -1,3 +1,6 @@
+2020.04.26:
+* changed: tacklelib: typos
+
 2020.04.21:
 * fixed: cmdoplib: callsvn, callgit: the same condition to print `<` character after a call to svn/git with the print of the command line prefixed with the `>` character
 
