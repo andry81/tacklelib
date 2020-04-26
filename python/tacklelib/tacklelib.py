@@ -260,7 +260,7 @@ def tkl_get_method_class(x, from_module = None):
 #
 def tkl_classcopy(x, from_globals, to_globals):
   if not inspect.isclass(x):
-    raise Exception('x must a class: ' + type(x))
+    raise Exception('x must be a class: ' + type(x))
 
   cls_copy = type(x.__name__, x.__bases__, dict(x.__dict__))
 
@@ -293,7 +293,7 @@ def tkl_membercopy(x, from_globals, to_globals):
     if inspect.isfunction(x):
       return type(x)(x.__code__, to_globals, x.__name__, x.__defaults__, x.__closure__)
     elif inspect.isclass(x):
-      # 1. ignore enumerations
+      # 1. ignore enumerations and subclasses
       if not isinstance(x, enum.Enum) and not issubclass(x, enum.Enum):
         # 2. ignore builtins because each what type has to be copied exclusively
         if getattr(builtins, x.__name__, None) is not x:
