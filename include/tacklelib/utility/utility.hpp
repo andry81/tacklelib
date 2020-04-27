@@ -60,11 +60,11 @@
 // forwards
 namespace tackle
 {
-    template <class t_elem, class t_traits, class t_alloc>
-    class FileHandle;
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    class basic_file_handle;
 
-    using FileHandleA = FileHandle<char, std::char_traits<char>, std::allocator<char> >;
-    using FileHandleW = FileHandle<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
+    template <class t_elem = char>
+    using file_handle = generic_basic_file_handle<t_elem, std::char_traits<t_elem>, std::allocator<t_elem> >;
 }
 
 namespace tackle
@@ -128,11 +128,11 @@ namespace utility
 #endif
     };
 
-    uint64_t get_file_size(tackle::FileHandleA file_handle);
-    uint64_t get_file_size(tackle::FileHandleW file_handle);
+    uint64_t get_file_size(tackle::file_handle<char> file_handle);
+    uint64_t get_file_size(tackle::file_handle<wchar_t> file_handle);
 
-    bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_block_size);
-    bool is_files_equal(tackle::FileHandleW left_file_handle, tackle::FileHandleW right_file_handle, size_t read_block_size);
+    bool is_files_equal(tackle::file_handle<char> left_file_handle, tackle::file_handle<char> right_file_handle, size_t read_block_size);
+    bool is_files_equal(tackle::file_handle<wchar_t> left_file_handle, tackle::file_handle<wchar_t> right_file_handle, size_t read_block_size);
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
 
@@ -204,42 +204,50 @@ namespace utility
     tackle::native_path_wstring fix_long_path(tackle::native_path_wstring file_path, bool throw_on_error);
 #endif
 
-    tackle::FileHandleA recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_generic_path_string, bool throw_on_error);
+    tackle::generic_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_generic_path_wstring, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_native_path_string, bool throw_on_error);
+        tackle::native_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_native_path_wstring, bool throw_on_error);
+#endif
+
+    tackle::generic_file_handle<char> recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::FileHandleW recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::FileHandleW recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 #endif
 
-    tackle::FileHandleA create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::FileHandleW create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::FileHandleW create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 #endif
 
-    tackle::FileHandleA open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::FileHandleW open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::FileHandleW open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 #endif

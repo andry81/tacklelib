@@ -10,7 +10,7 @@
 #include <tacklelib/utility/assert.hpp>
 
 #include <tacklelib/tackle/smart_handle.hpp>
-#include <tacklelib/tackle/string.hpp>
+#include <tacklelib/tackle/path_string.hpp>
 
 #include <fmt/format.h>
 
@@ -20,13 +20,13 @@
 
 namespace tackle
 {
-    template <class t_elem, class t_traits, class t_alloc>
-    class FileHandle : public SmartHandle<FILE>
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    class basic_file_handle : public smart_handle<FILE>
     {
-        using base_type = SmartHandle<FILE>;
+        using base_type = smart_handle<FILE>;
 
     public:
-        using string_type = std::basic_string<t_elem, t_traits, t_alloc>;
+        using path_string_type = path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
 
     private:
         static FORCE_INLINE void _deleter(void * p)
@@ -37,34 +37,42 @@ namespace tackle
         }
 
     public:
-        static FORCE_INLINE const FileHandle & null()
+        static FORCE_INLINE const basic_file_handle & null()
         {
-            static const FileHandle s_null = FileHandle{ nullptr, UTILITY_LITERAL_STRING("nul", t_elem) };
+            static const basic_file_handle s_null = basic_file_handle{ nullptr,
+#ifdef UTILITY_PLATFORM_WINDOWS
+                UTILITY_LITERAL_STRING("nul", t_elem)
+#elif defined(UTILITY_PLATFORM_POSIX)
+                UTILITY_LITERAL_STRING("/dev/null", t_elem)
+#else
+#error platform is not implemented
+#endif
+            };
             return s_null;
         }
 
-        FORCE_INLINE FileHandle()
+        FORCE_INLINE basic_file_handle()
         {
             *this = null();
         }
 
-        FORCE_INLINE FileHandle(const FileHandle &) = default;
-        FORCE_INLINE FileHandle(FileHandle &&) = default;
+        FORCE_INLINE basic_file_handle(const basic_file_handle &) = default;
+        FORCE_INLINE basic_file_handle(basic_file_handle &&) = default;
 
-        FORCE_INLINE FileHandle & operator =(const FileHandle &) = default;
-        FORCE_INLINE FileHandle & operator =(FileHandle &&) = default;
+        FORCE_INLINE basic_file_handle & operator =(const basic_file_handle &) = default;
+        FORCE_INLINE basic_file_handle & operator =(basic_file_handle &&) = default;
 
-        FORCE_INLINE FileHandle(FILE * p, const string_type & file_path) :
+        FORCE_INLINE basic_file_handle(FILE * p, const path_string_type & file_path) :
             base_type(p, _deleter),
             m_file_path(file_path)
         {
         }
 
-        FORCE_INLINE void reset(FileHandle handle = FileHandle::null())
+        FORCE_INLINE void reset(basic_file_handle handle = basic_file_handle::null())
         {
             auto && handle_rref = std::move(handle);
 
-            auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::DeleterType>(handle_rref.m_pv));
+            auto * deleter = DEBUG_VERIFY_TRUE(std::get_deleter<base_type::deleter_type>(handle_rref.m_pv));
             if (!deleter) {
                 // must always have a deleter
                 DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:u}): deleter is not allocated",
@@ -75,7 +83,7 @@ namespace tackle
             m_file_path.clear();
         }
 
-        FORCE_INLINE const string_type & path() const
+        FORCE_INLINE const path_string_type & path() const
         {
             return m_file_path;
         }
@@ -92,11 +100,29 @@ namespace tackle
         }
 
     private:
-        string_type m_file_path;
+        path_string_type m_file_path;
     };
 
-    using FileHandleA = FileHandle<char, std::char_traits<char>, std::allocator<char> >;
-    using FileHandleW = FileHandle<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
+    template <class t_elem, class t_traits, class t_alloc>
+    using generic_basic_file_handle = basic_file_handle<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::forward_slash_char>;
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    template <class t_elem, class t_traits, class t_alloc>
+    using native_basic_file_handle = basic_file_handle<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::backward_slash_char>;
+#else
+    template <class t_elem, class t_traits, class t_alloc>
+    using native_basic_file_handle = basic_file_handle<t_elem, t_traits, t_alloc, utility::literal_separators<t_elem>::forward_slash_char>;
+#endif
+
+    template <class t_elem = char>
+    using generic_file_handle = generic_basic_file_handle<t_elem, std::char_traits<t_elem>, std::allocator<t_elem> >;
+
+    template <class t_elem = char>
+    using native_file_handle = native_basic_file_handle<t_elem, std::char_traits<t_elem>, std::allocator<t_elem> >;
+
+    // based on generic path string
+    template <class t_elem = char>
+    using file_handle = generic_file_handle<t_elem>;
 }
 
 #endif

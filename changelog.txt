@@ -1,5 +1,13 @@
 2020.04.27:
-* new: cpp: tacklelib: path_string: `update_separator_char` function
+* new: cpp: utility: `unfix_log_path` function
+* changed: cpp: utility: construct `file_handle` class from not changed long path (not converted into UNC path or not fixed, because a path longer than 260 characters has an issue in old Windows and can be workarounded by the UNC path format)
+* changed: cpp: tackle: file handle and file reader global refactor, usage of the path string class inside file reader class
+* changed: cpp: utility: usage of the file handle class as a template class
+* changed: cpp: tackle: simplified `path_string` class tags
+* refactor: cpp: tackle, utility: use lower case type names in the smart handle, file handle and file reader classes
+
+2020.04.27:
+* new: cpp: tackle: path_string: `update_separator_char` function
 
 2020.04.26:
 * changed: python: tacklelib: typos
