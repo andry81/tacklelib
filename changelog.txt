@@ -1,3 +1,6 @@
+2020.04.27:
+* new: cpp: tacklelib: path_string: `update_separator_char` function
+
 2020.04.26:
 * changed: python: tacklelib: typos
 
