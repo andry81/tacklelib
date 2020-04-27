@@ -267,41 +267,48 @@ namespace tackle
 
     template <typename t_elem>
     struct tag_generic_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
     template <typename t_elem>
     struct tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::backward_slash_char> {};
+#else
+    template <typename t_elem>
+    struct tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
+#endif
 
-    struct tag_path_string              : tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
-    struct tag_path_wstring             : tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
-    struct tag_path_u16string           : tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
-    struct tag_path_u32string           : tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
+    struct tag_path_string_fs           : tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
+    struct tag_path_wstring_fs          : tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
+    struct tag_path_u16string_fs        : tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
+    struct tag_path_u32string_fs        : tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
 
     struct tag_path_string_bs           : tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
     struct tag_path_wstring_bs          : tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
     struct tag_path_u16string_bs        : tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
     struct tag_path_u32string_bs        : tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
 
-    template <class t_elem>
-    struct tag_generic_basic_path_string : tag_generic_path_basic_string<t_elem> {};
+    using tag_generic_path_string       = tag_path_string_fs;
+    using tag_generic_path_wstring      = tag_path_wstring_fs;
+    using tag_generic_path_u16string    = tag_path_u16string_fs;
+    using tag_generic_path_u32string    = tag_path_u32string_fs;
 
-    struct tag_generic_path_string      : tag_generic_path_basic_string<char>, tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
-    struct tag_generic_path_wstring     : tag_generic_path_basic_string<wchar_t>, tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
-    struct tag_generic_path_u16string   : tag_generic_path_basic_string<char16_t>, tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
-    struct tag_generic_path_u32string   : tag_generic_path_basic_string<char32_t>, tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
-
-    template <class t_elem>
-    struct tag_native_basic_path_string : tag_native_path_basic_string<t_elem> {};
-
-    struct tag_native_path_string       : tag_native_path_basic_string<char>, tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
-    struct tag_native_path_wstring      : tag_native_path_basic_string<wchar_t>, tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
-    struct tag_native_path_u16string    : tag_native_path_basic_string<char16_t>, tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
-    struct tag_native_path_u32string    : tag_native_path_basic_string<char32_t>, tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    using tag_native_path_string        = tag_path_string_bs;
+    using tag_native_path_wstring       = tag_path_wstring_bs;
+    using tag_native_path_u16string     = tag_path_u16string_bs;
+    using tag_native_path_u32string     = tag_path_u32string_bs;
+#else
+    using tag_native_path_string        = tag_path_string_fs;
+    using tag_native_path_wstring       = tag_path_wstring_fs;
+    using tag_native_path_u16string     = tag_path_u16string_fs;
+    using tag_native_path_u32string     = tag_path_u32string_fs;
+#endif
 
     template <typename t_elem, t_elem separator_char>
     struct tag_basic_path_string_by_separator_char :
         std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::forward_slash_char),
-            tag_generic_basic_path_string<t_elem>,
+            tag_generic_path_basic_string<t_elem>,
             typename std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::backward_slash_char),
-                tag_native_basic_path_string<t_elem>,
+                tag_native_path_basic_string<t_elem>,
                 utility::void_
             >::type
         >::type

@@ -21,17 +21,17 @@
 namespace tackle
 {
     template <typename T>
-    class SmartHandle;
+    class smart_handle;
 
     template <typename T, typename R = bool, typename Base = std::default_delete<T> >
-    class ReleaseDeleter;
+    class release_deleter;
 
-    using ReleaseDeleterFunc = std::function<void(void *)>; // to pass everything behaving like a function
+    using release_deleter_func = std::function<void(void *)>; // to pass everything behaving like a function
 
     // * not thread safe deleter with release support
     // * the deleter by user type together with the deleter by user value, the deleter by user value has priority
     template <typename T, typename R, typename Base>
-    class ReleaseDeleter : private Base {
+    class release_deleter : private Base {
     public:
         // external release state:
         //  1. should be initialized before the deleter holder
@@ -40,18 +40,18 @@ namespace tackle
         //  4. if needs to avoid the deleter then must be true
         //  5. if needs to be thread safe with the holder, then must be either atomic or it's assignment should be
         //     strictly ordered before a call to the holder release function!
-        using ReleaseStateSharedPtr = std::shared_ptr<R>;
+        using release_state_shared_ptr = std::shared_ptr<R>;
 
-        FORCE_INLINE ReleaseDeleter(ReleaseStateSharedPtr release_state_ptr, ReleaseDeleterFunc deleter = nullptr) :
+        FORCE_INLINE release_deleter(release_state_shared_ptr release_state_ptr, release_deleter_func deleter = nullptr) :
             m_release_state_ptr(std::move(release_state_ptr)),
             m_deleter(std::move(deleter))
         {}
 
-        FORCE_INLINE ReleaseDeleter(const ReleaseDeleter &) = default;
-        FORCE_INLINE ReleaseDeleter(ReleaseDeleter &&) = default;
+        FORCE_INLINE release_deleter(const release_deleter &) = default;
+        FORCE_INLINE release_deleter(release_deleter &&) = default;
 
-        FORCE_INLINE ReleaseDeleter & operator =(const ReleaseDeleter &) = default;
-        FORCE_INLINE ReleaseDeleter & operator =(ReleaseDeleter &&) = default;
+        FORCE_INLINE release_deleter & operator =(const release_deleter &) = default;
+        FORCE_INLINE release_deleter & operator =(release_deleter &&) = default;
 
         FORCE_INLINE void operator()(T * ptr)
         {
@@ -64,12 +64,12 @@ namespace tackle
             }
         }
 
-        FORCE_INLINE const ReleaseStateSharedPtr & get_state() const
+        FORCE_INLINE const release_state_shared_ptr & get_state() const
         {
             return m_release_state_ptr;
         }
 
-        FORCE_INLINE const ReleaseDeleterFunc & get_deleter() const
+        FORCE_INLINE const release_deleter_func & get_deleter() const
         {
             return m_deleter;
         }
@@ -86,42 +86,42 @@ namespace tackle
         }
 
         // deleter can reset ONLY together with the state
-        FORCE_INLINE void reset(ReleaseStateSharedPtr release_state_ptr, ReleaseDeleterFunc deleter)
+        FORCE_INLINE void reset(release_state_shared_ptr release_state_ptr, release_deleter_func deleter)
         {
             m_release_state_ptr = std::move(release_state_ptr);
             m_deleter = std::move(deleter);
         }
 
     private:
-        ReleaseStateSharedPtr   m_release_state_ptr;
-        ReleaseDeleterFunc      m_deleter;
+        release_state_shared_ptr    m_release_state_ptr;
+        release_deleter_func        m_deleter;
     };
 
     template <typename T>
-    class SmartHandle
+    class smart_handle
     {
     private:
         using SharedPtr     = std::shared_ptr<void>;
 
     public:
-        using DeleterType   = ReleaseDeleter<T>;
+        using deleter_type  = release_deleter<T>;
 
     protected:
-        FORCE_INLINE SmartHandle(T * p = nullptr, ReleaseDeleterFunc deleter_func = nullptr);
-        FORCE_INLINE SmartHandle(T * p, DeleterType deleter); // to call from derived implementation
+        FORCE_INLINE smart_handle(T * p = nullptr, release_deleter_func deleter_func = nullptr);
+        FORCE_INLINE smart_handle(T * p, deleter_type deleter); // to call from derived implementation
 
     public:
-        FORCE_INLINE SmartHandle(const SmartHandle &) = default;
-        FORCE_INLINE SmartHandle(SmartHandle &&) = default;
+        FORCE_INLINE smart_handle(const smart_handle &) = default;
+        FORCE_INLINE smart_handle(smart_handle &&) = default;
 
-        FORCE_INLINE SmartHandle & operator =(const SmartHandle &) = default;
-        FORCE_INLINE SmartHandle & operator =(SmartHandle &&) = default;
+        FORCE_INLINE smart_handle & operator =(const smart_handle &) = default;
+        FORCE_INLINE smart_handle & operator =(smart_handle &&) = default;
 
-        FORCE_INLINE ~SmartHandle();
+        FORCE_INLINE ~smart_handle();
 
     protected:
-        FORCE_INLINE void reset(T * p = nullptr, ReleaseDeleterFunc deleter = nullptr);
-        FORCE_INLINE void reset(T * p, DeleterType deleter); // to call from derived implementation
+        FORCE_INLINE void reset(T * p = nullptr, release_deleter_func deleter = nullptr);
+        FORCE_INLINE void reset(T * p, deleter_type deleter); // to call from derived implementation
 
     public:
         FORCE_INLINE operator bool() const;
@@ -134,46 +134,46 @@ namespace tackle
     };
 
     template <typename T>
-    FORCE_INLINE SmartHandle<T>::SmartHandle(T * p, ReleaseDeleterFunc deleter_func) :
+    FORCE_INLINE smart_handle<T>::smart_handle(T * p, release_deleter_func deleter_func) :
         // does not release (false) by default
-        m_pv(p, DeleterType(std::make_shared<bool>(bool(false)), std::move(deleter_func)))
+        m_pv(p, deleter_type(std::make_shared<bool>(bool(false)), std::move(deleter_func)))
     {
     }
 
     template <typename T>
-    FORCE_INLINE SmartHandle<T>::SmartHandle(T * p, DeleterType deleter) :
+    FORCE_INLINE smart_handle<T>::smart_handle(T * p, deleter_type deleter) :
         m_pv(p, std::move(deleter))
     {
     }
 
     template <typename T>
-    FORCE_INLINE SmartHandle<T>::~SmartHandle()
+    FORCE_INLINE smart_handle<T>::~smart_handle()
     {
     }
 
     template <typename T>
-    FORCE_INLINE void SmartHandle<T>::reset(T * p, ReleaseDeleterFunc deleter_func)
+    FORCE_INLINE void smart_handle<T>::reset(T * p, release_deleter_func deleter_func)
     {
         // does not release (false) by default
-        m_pv.reset(p, DeleterType(std::make_shared<bool>(bool(false)), std::move(deleter_func)));
+        m_pv.reset(p, deleter_type(std::make_shared<bool>(bool(false)), std::move(deleter_func)));
     }
 
     template <typename T>
-    FORCE_INLINE void SmartHandle<T>::reset(T * p, DeleterType deleter)
+    FORCE_INLINE void smart_handle<T>::reset(T * p, deleter_type deleter)
     {
         m_pv.reset(p, std::move(deleter));
     }
 
     template <typename T>
-    FORCE_INLINE SmartHandle<T>::operator bool() const
+    FORCE_INLINE smart_handle<T>::operator bool() const
     {
         return m_pv.get() ? true : false;
     }
 
     template <typename T>
-    FORCE_INLINE T * SmartHandle<T>::detach()
+    FORCE_INLINE T * smart_handle<T>::detach()
     {
-        auto * deleter = std::get_deleter<DeleterType>(m_pv);
+        auto * deleter = std::get_deleter<deleter_type>(m_pv);
         if (deleter) {
             // if needs to be thread safe, then this line must be either atomic or strictly ordered before the release call!
             deleter->set_state(true);
@@ -187,7 +187,7 @@ namespace tackle
     }
 
     template <typename T>
-    FORCE_INLINE T * SmartHandle<T>::get() const
+    FORCE_INLINE T * smart_handle<T>::get() const
     {
         return static_cast<T *>(m_pv.get());
     }

@@ -249,9 +249,9 @@ namespace {
             boost::fs::path{ std::move(to_path.str()) }.lexically_relative(std::move(from_path.str())).wstring();
     }
 
-    template <class t_elem, class t_traits, class t_alloc>
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE uint64_t
-        _get_file_size(const tackle::FileHandle<t_elem, t_traits, t_alloc> & file_handle)
+        _get_file_size(const tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char> & file_handle)
     {
         DEBUG_ASSERT_TRUE(file_handle.get());
 
@@ -273,11 +273,11 @@ namespace {
         return size;
     }
 
-    template <class t_elem, class t_traits, class t_alloc>
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool
         _is_files_equal(
-            tackle::FileHandle<t_elem, t_traits, t_alloc> left_file_handle,
-            tackle::FileHandle<t_elem, t_traits, t_alloc> right_file_handle,
+            tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char> left_file_handle,
+            tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char> right_file_handle,
             size_t read_block_size)
     {
         auto && left_file_handle_rref = std::move(left_file_handle);
@@ -457,7 +457,7 @@ namespace {
     FORCE_INLINE tackle::native_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_from_unc_path(
             tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> && from_path,
-            tackle::tag_native_basic_path_string<t_elem>)
+            tackle::tag_native_path_basic_string<t_elem>)
     {
         return from_path;
     }
@@ -466,7 +466,7 @@ namespace {
     FORCE_INLINE tackle::generic_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_from_unc_path(
             tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> && from_path,
-            tackle::tag_generic_basic_path_string<t_elem>)
+            tackle::tag_generic_path_basic_string<t_elem>)
     {
         using generic_basic_path_string_t = tackle::generic_basic_path_string<t_elem, t_traits, t_alloc>;
         return std::forward<typename generic_basic_path_string_t::base_type>(from_path);
@@ -481,11 +481,11 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_network_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
+        tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -551,13 +551,13 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+    FORCE_INLINE tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_local_to_network_unc_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-            tackle::tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            tackle::tag_unc_path_basic_string<t_elem>,
             bool throw_on_error)
     {
-        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using return_type_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         return_type_t to_path;
         _convert_local_to_network_unc_path(from_path, to_path, throw_on_error);
@@ -571,7 +571,7 @@ namespace {
     // converts `\\server\share\folder` -> `x:\folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_network_unc_to_local_path(
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+        tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> from_path,
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path,
         bool throw_on_error)
     {
@@ -687,7 +687,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
         _convert_network_unc_to_local_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> from_path,
             tackle::tag_path_basic_string<t_elem, separator_char>,
             bool throw_on_error)
     {
@@ -705,7 +705,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_to_local_unc_path(
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> & to_path,
+        tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> & to_path,
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -743,13 +743,13 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>
+    FORCE_INLINE tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>
         _convert_local_to_local_unc_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path,
-            tackle::tag_path_basic_string<t_elem, literal_separators<t_elem>::filesystem_unc_dir_separator_char>,
+            tackle::tag_unc_path_basic_string<t_elem>,
             bool throw_on_error)
     {
-        using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using return_type_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         return_type_t to_path;
         _convert_local_to_local_unc_path(from_path, to_path, throw_on_error);
@@ -760,11 +760,11 @@ namespace {
     // converts `\\?\x:folder` -> `x:/folder`
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _convert_local_unc_to_local_path(
-        tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+        tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> from_path,
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path)
     {
         using basic_string_t = std::basic_string<t_elem, t_traits, t_alloc>;
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -788,7 +788,7 @@ namespace {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
         _convert_local_unc_to_local_path(
-            tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char> from_path,
+            tackle::unc_basic_path_string<t_elem, t_traits, t_alloc> from_path,
             tackle::tag_path_basic_string<t_elem, separator_char>)
     {
         using return_type_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
@@ -804,7 +804,7 @@ namespace {
         _fix_long_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        using unc_path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, literal_separators<t_elem>::filesystem_unc_dir_separator_char>;
+        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && path_rref = std::move(path);
 
@@ -821,6 +821,22 @@ namespace {
         return unc_path;
 #else
         return _convert_to_native_path(path_rref);
+#endif
+    }
+
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>
+        _unfix_long_path(
+            tackle::native_basic_path_string<t_elem, t_traits, t_alloc> path,
+            tackle::tag_path_basic_string<t_elem, separator_char>,
+            bool throw_on_error)
+    {
+        auto && path_rref = std::move(path);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+        return _convert_local_unc_to_local_path(path_rref, tackle::tag_path_basic_string<t_elem, separator_char>{});
+#else
+        return _convert_from_unc_path(std::forward<unc_path_basic_string_t>(path_rref), tackle::tag_basic_path_string_by_separator_char<t_elem, separator_char>{});
 #endif
     }
 
@@ -860,24 +876,26 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::FileHandle<t_elem, t_traits, t_alloc>
+    FORCE_INLINE tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>
         _recreate_file(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> file_path,
             const t_elem * mode, SharedAccess share_flags, size_t size, uint32_t fill_by, bool throw_on_error)
     {
-        using FileHandle_t = tackle::FileHandle<t_elem, t_traits, t_alloc>;
+        using basic_file_handle_t = tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>;
 
-        auto && file_path_rref = fix_long_path(std::move(file_path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(file_path), throw_on_error);
 
-        FILE * file_ptr = _fopen(file_path_rref.c_str(), mode, share_flags);
+        FILE * file_ptr = _fopen(file_path_rref_fixed.c_str(), mode, share_flags);
 
-        FileHandle_t file_handle_ptr = FileHandle_t{ file_ptr, file_path_rref };
+        auto && file_path_rref_unfixed = _unfix_long_path(file_path_rref_fixed, tackle::tag_path_basic_string<t_elem, separator_char>{}, throw_on_error);
+
+        basic_file_handle_t file_handle_ptr = basic_file_handle_t{ file_ptr, file_path_rref_unfixed };
         if (!file_ptr) {
             if (throw_on_error) {
-                DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
             }
             else {
-                return FileHandle_t::null();
+                return basic_file_handle_t::null();
             }
         }
 
@@ -891,10 +909,10 @@ namespace {
                 const int file_err = ferror(file_ptr);
                 if (write_size < chunk.size()) {
                     if (throw_on_error) {
-                        DEBUG_BREAK_THROW(true) std::system_error{ file_err, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                        DEBUG_BREAK_THROW(true) std::system_error{ file_err, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
                     }
                     else {
-                        return FileHandle_t::null();
+                        return basic_file_handle_t::null();
                     }
                 }
             }
@@ -904,10 +922,10 @@ namespace {
             const int file_err = ferror(file_ptr);
             if (write_size < chunk_reminder) {
                 if (throw_on_error) {
-                    DEBUG_BREAK_THROW(true) std::system_error{ file_err, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                    DEBUG_BREAK_THROW(true) std::system_error{ file_err, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
                 }
                 else {
-                    return FileHandle_t::null();
+                    return basic_file_handle_t::null();
                 }
             }
         }
@@ -916,71 +934,77 @@ namespace {
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::FileHandle<t_elem, t_traits, t_alloc>
+    FORCE_INLINE tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>
         _create_file(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> file_path,
             const t_elem * mode, SharedAccess share_flags, size_t size, uint32_t fill_by, bool throw_on_error)
     {
-        using FileHandle_t = tackle::FileHandle<t_elem, t_traits, t_alloc>;
+        using basic_file_handle_t = tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>;
 
-        auto && file_path_rref = fix_long_path(std::move(file_path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(file_path), throw_on_error);
 
-        const bool file_existed = boost::fs::exists(file_path_rref.str());
+        const bool file_existed = boost::fs::exists(file_path_rref_fixed.str());
+
+        auto && file_path_rref_unfixed = _unfix_long_path(file_path_rref_fixed, tackle::tag_path_basic_string<t_elem, separator_char>{}, throw_on_error);
+
         if (file_existed) {
             if (throw_on_error) {
                 const int errno_ = 3; // file already exist
-                DEBUG_BREAK_THROW(true) std::system_error{ errno_, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                DEBUG_BREAK_THROW(true) std::system_error{ errno_, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
             }
             else {
-                return FileHandle_t::null();
+                return basic_file_handle_t::null();
             }
         }
 
-        return _recreate_file(file_path_rref, mode, share_flags, size, fill_by, throw_on_error);
+        return _recreate_file(file_path_rref_unfixed, mode, share_flags, size, fill_by, throw_on_error);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    FORCE_INLINE tackle::FileHandle<t_elem, t_traits, t_alloc>
+    FORCE_INLINE tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>
         _open_file(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> file_path,
             const t_elem * mode, SharedAccess share_flags, size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation,
             bool throw_on_error)
     {
-        using FileHandle_t = tackle::FileHandle<t_elem, t_traits, t_alloc>;
+        using basic_file_handle_t = tackle::basic_file_handle<t_elem, t_traits, t_alloc, separator_char>;
 
-        auto && file_path_rref = fix_long_path(std::move(file_path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(file_path), throw_on_error);
 
-        const bool file_existed = boost::fs::exists(std::move(file_path_rref.str()));
+        const bool file_existed = boost::fs::exists(file_path_rref_fixed.str());
+
+        auto && file_path_rref_unfixed = _unfix_long_path(file_path_rref_fixed, tackle::tag_path_basic_string<t_elem, separator_char>{}, throw_on_error);
+
         if (!file_existed) {
-            return recreate_file(file_path_rref, mode, share_flags, creation_size, fill_by_on_creation, throw_on_error);
+            return recreate_file(file_path_rref_unfixed, mode, share_flags, creation_size, fill_by_on_creation, throw_on_error);
         }
 
-        FILE * file_ptr = _fopen(file_path_rref.c_str(), mode, share_flags);
+        FILE * file_ptr = _fopen(file_path_rref_fixed.c_str(), mode, share_flags);
 
-        FileHandle_t file_handle_ptr = FileHandle_t{ file_ptr, file_path_rref };
+        basic_file_handle_t file_handle_ptr = basic_file_handle_t{ file_ptr, file_path_rref_unfixed };
         if (!file_ptr) {
             if (throw_on_error) {
-                DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
             }
             else {
-                return FileHandle_t::null();
+                return basic_file_handle_t::null();
             }
         }
 
         if (resize_if_existed != size_t(-1)) {
             // close handle before resize
             file_handle_ptr.reset();
-            boost::fs::resize_file(file_path_rref.str(), resize_if_existed);
+            boost::fs::resize_file(file_path_rref_fixed.str(), resize_if_existed);
             // reopen handle
-            file_handle_ptr = FileHandle_t{
-                file_ptr = _fopen(file_path_rref.c_str(), mode, share_flags), file_path_rref
+            file_handle_ptr = basic_file_handle_t{
+                file_ptr = _fopen(file_path_rref_fixed.c_str(), mode, share_flags), file_path_rref_unfixed
             };
             if (!file_ptr) {
                 if (throw_on_error) {
-                    DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref) };
+                    DEBUG_BREAK_THROW(true) std::system_error{ errno, std::system_category(), utility::convert_utf16_to_utf8_string(file_path_rref_unfixed) };
                 }
                 else {
-                    return FileHandle_t::null();
+                    return basic_file_handle_t::null();
                 }
             }
         }
@@ -992,36 +1016,36 @@ namespace {
     FORCE_INLINE bool _is_directory_path(tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path,
         bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        return boost::fs::is_directory(path_rref.str());
+        return boost::fs::is_directory(file_path_rref_fixed.str());
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _is_regular_file(tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path,
         bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        return boost::fs::is_regular_file(path_rref.str());
+        return boost::fs::is_regular_file(file_path_rref_fixed.str());
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _is_symlink_path(tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path,
         bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        return boost::fs::is_symlink(path_rref.str());
+        return boost::fs::is_symlink(file_path_rref_fixed.str());
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool _is_path_exists(tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path,
         bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        return boost::fs::exists(path_rref.str());
+        return boost::fs::exists(file_path_rref_fixed.str());
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1029,14 +1053,14 @@ namespace {
         _create_directory(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
         if (throw_on_error) {
-            return boost::fs::create_directory(path_rref.str());
+            return boost::fs::create_directory(file_path_rref_fixed.str());
         }
 
         boost::system::error_code ec;
-        return boost::fs::create_directory(path_rref.str(), ec);
+        return boost::fs::create_directory(file_path_rref_fixed.str(), ec);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1044,10 +1068,10 @@ namespace {
         _create_directory_if_not_exist(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
         boost::system::error_code ec;
-        return boost::fs::create_directories(std::move(path_rref.str()), ec);
+        return boost::fs::create_directories(file_path_rref_fixed.str(), ec);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1056,15 +1080,15 @@ namespace {
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> to_path,
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> from_path, bool throw_on_error)
     {
-        auto && to_path_rref = fix_long_path(std::move(to_path), throw_on_error);
-        auto && from_path_rref = fix_long_path(std::move(from_path), throw_on_error);
+        auto && to_path_rref_fixed = fix_long_path(std::move(to_path), throw_on_error);
+        auto && from_path_rref_fixed = fix_long_path(std::move(from_path), throw_on_error);
 
         if (throw_on_error) {
-            return boost::fs::create_directory_symlink(to_path_rref.str(), from_path_rref.str());
+            return boost::fs::create_directory_symlink(to_path_rref_fixed.str(), from_path_rref_fixed.str());
         }
 
         boost::system::error_code ec;
-        return boost::fs::create_directory_symlink(to_path_rref.str(), from_path_rref.str(), ec);
+        return boost::fs::create_directory_symlink(to_path_rref_fixed.str(), from_path_rref_fixed.str(), ec);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1072,14 +1096,14 @@ namespace {
         _create_directories(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
         if (throw_on_error) {
-            return boost::fs::create_directories(std::move(path_rref.str()));
+            return boost::fs::create_directories(file_path_rref_fixed.str());
         }
 
         boost::system::error_code ec;
-        return boost::fs::create_directories(std::move(path_rref.str()), ec);
+        return boost::fs::create_directories(file_path_rref_fixed.str(), ec);
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1087,24 +1111,24 @@ namespace {
         _remove_directory(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool recursively, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        if (boost::fs::is_directory(path_rref.str())) {
+        if (boost::fs::is_directory(file_path_rref_fixed.str())) {
             if (!recursively) {
                 if (throw_on_error) {
-                    return boost::fs::remove(path_rref.str());
+                    return boost::fs::remove(file_path_rref_fixed.str());
                 }
 
                 boost::system::error_code ec;
-                return boost::fs::remove(path_rref.str(), ec);
+                return boost::fs::remove(file_path_rref_fixed.str(), ec);
             }
 
             if (throw_on_error) {
-                boost::fs::remove_all(path_rref.str());
+                boost::fs::remove_all(file_path_rref_fixed.str());
             }
             else {
                 boost::system::error_code ec;
-                boost::fs::remove_all(path_rref.str(), ec);
+                boost::fs::remove_all(file_path_rref_fixed.str(), ec);
             }
 
             return true;
@@ -1118,15 +1142,15 @@ namespace {
         _remove_file(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        if (boost::fs::is_regular_file(path_rref.str())) {
+        if (boost::fs::is_regular_file(file_path_rref_fixed.str())) {
             if (throw_on_error) {
-                return boost::fs::remove(path_rref.str());
+                return boost::fs::remove(file_path_rref_fixed.str());
             }
             else {
                 boost::system::error_code ec;
-                return boost::fs::remove(path_rref.str(), ec);
+                return boost::fs::remove(file_path_rref_fixed.str(), ec);
             }
         }
 
@@ -1138,15 +1162,15 @@ namespace {
         _remove_symlink(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        auto && path_rref = fix_long_path(std::move(path), throw_on_error);
+        auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
-        if (boost::fs::is_symlink(path_rref.str())) {
+        if (boost::fs::is_symlink(file_path_rref_fixed.str())) {
             if (throw_on_error) {
-                return boost::fs::remove(path_rref.str());
+                return boost::fs::remove(file_path_rref_fixed.str());
             }
             else {
                 boost::system::error_code ec;
-                return boost::fs::remove(path_rref.str(), ec);
+                return boost::fs::remove(file_path_rref_fixed.str(), ec);
             }
         }
 
@@ -1444,22 +1468,22 @@ namespace {
 
 }
 
-    uint64_t get_file_size(tackle::FileHandleA file_handle)
+    uint64_t get_file_size(tackle::file_handle<char> file_handle)
     {
         return _get_file_size(std::move(file_handle));
     }
 
-    uint64_t get_file_size(tackle::FileHandleW file_handle)
+    uint64_t get_file_size(tackle::file_handle<wchar_t> file_handle)
     {
         return _get_file_size(std::move(file_handle));
     }
 
-    bool is_files_equal(tackle::FileHandleA left_file_handle, tackle::FileHandleA right_file_handle, size_t read_block_size)
+    bool is_files_equal(tackle::file_handle<char> left_file_handle, tackle::file_handle<char> right_file_handle, size_t read_block_size)
     {
         return _is_files_equal(std::move(left_file_handle), std::move(right_file_handle), read_block_size);
     }
 
-    bool is_files_equal(tackle::FileHandleW left_file_handle, tackle::FileHandleW right_file_handle, size_t read_block_size)
+    bool is_files_equal(tackle::file_handle<wchar_t> left_file_handle, tackle::file_handle<wchar_t> right_file_handle, size_t read_block_size)
     {
         return _is_files_equal(std::move(left_file_handle), std::move(right_file_handle), read_block_size);
     }
@@ -1732,7 +1756,37 @@ namespace {
     }
 #endif
 
-    tackle::FileHandleA recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_generic_path_string, bool throw_on_error)
+    {
+        auto && file_path_rref = std::move(file_path);
+
+        return _unfix_long_path(file_path_rref, tackle::tag_generic_path_string{}, throw_on_error);
+    }
+
+    tackle::generic_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_generic_path_wstring, bool throw_on_error)
+    {
+        auto && file_path_rref = std::move(file_path);
+
+        return _unfix_long_path(file_path_rref, tackle::tag_generic_path_wstring{}, throw_on_error);
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_native_path_string, bool throw_on_error)
+    {
+        auto && file_path_rref = std::move(file_path);
+
+        return _unfix_long_path(file_path_rref, tackle::tag_native_path_string{}, throw_on_error);
+    }
+
+    tackle::native_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_native_path_wstring, bool throw_on_error)
+    {
+        auto && file_path_rref = std::move(file_path);
+
+        return _unfix_long_path<>(file_path_rref, tackle::tag_native_path_wstring{}, throw_on_error);
+    }
+#endif
+
+    tackle::file_handle<char> recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1740,7 +1794,7 @@ namespace {
         return _recreate_file(file_path_rref, mode, share_flags, size, fill_by, throw_on_error);
     }
 
-    tackle::FileHandleW recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::file_handle<wchar_t> recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1749,7 +1803,7 @@ namespace {
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1757,7 +1811,7 @@ namespace {
         return _recreate_file(file_path_rref, mode, share_flags, size, fill_by, throw_on_error);
     }
 
-    tackle::FileHandleW recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1766,7 +1820,7 @@ namespace {
     }
 #endif
 
-    tackle::FileHandleA create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1774,7 +1828,7 @@ namespace {
         return _create_file(file_path_rref, mode, share_flags, size, fill_by, throw_on_error);
     }
 
-    tackle::FileHandleW create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1783,7 +1837,7 @@ namespace {
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1791,7 +1845,7 @@ namespace {
         return _create_file(file_path_rref, mode, share_flags, size, fill_by, throw_on_error);
     }
 
-    tackle::FileHandleW create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size, uint32_t fill_by, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1800,7 +1854,7 @@ namespace {
     }
 #endif
 
-    tackle::FileHandleA open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1809,7 +1863,7 @@ namespace {
             throw_on_error);
     }
 
-    tackle::FileHandleW open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1819,7 +1873,7 @@ namespace {
     }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::FileHandleA open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);
@@ -1828,7 +1882,7 @@ namespace {
             throw_on_error);
     }
 
-    tackle::FileHandleW open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size, size_t resize_if_existed, uint32_t fill_by_on_creation, bool throw_on_error)
     {
         auto && file_path_rref = std::move(file_path);

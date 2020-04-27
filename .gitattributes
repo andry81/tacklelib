@@ -291,6 +291,7 @@ include/tacklelib/tackle/date_time.hpp -text
 include/tacklelib/tackle/debug.hpp -text
 include/tacklelib/tackle/deque.hpp -text
 include/tacklelib/tackle/file_handle.hpp -text
+include/tacklelib/tackle/file_reader.hpp -text
 include/tacklelib/tackle/geometry/geometry.hpp -text
 include/tacklelib/tackle/geometry/vector.hpp -text
 include/tacklelib/tackle/interface_handle.hpp -text
@@ -456,7 +457,6 @@ src/tackle/aligned_storage/private/max_aligned_storage_impl.hpp -text
 src/tackle/date_time.cpp -text
 src/tackle/file_handle.cpp -text
 src/tackle/file_reader.cpp -text
-src/tackle/file_reader.hpp -text
 src/tackle/log/log_handle.cpp -text
 src/tackle/path_string.cpp -text
 src/tackle/stream_storage.hpp -text
