@@ -16,6 +16,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
 
 
 // See details around problems related to this class implementation:
@@ -67,6 +68,17 @@ namespace tackle
         FORCE_INLINE const base_type & str() const
         {
             return *this;
+        }
+
+        // to update the separator character in the path to declared one if the `base_type` was updated through the base class
+        FORCE_INLINE void update_separator_char()
+        {
+            if (UTILITY_CONSTEXPR(utility::literal_separators<char>::forward_slash_char == separator_char)) {
+                std::replace(base_type::begin(), base_type::end(), utility::literal_separators<t_elem>::backward_slash_char, separator_char);
+            }
+            else {
+                std::replace(base_type::begin(), base_type::end(), utility::literal_separators<t_elem>::forward_slash_char, separator_char);
+            }
         }
 
         using base_type::base_type;
