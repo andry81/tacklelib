@@ -1,4 +1,7 @@
 2020.04.28:
+* fixed: cpp: utility: library.hpp: code cleanup
+
+2020.04.28:
 * fixed: cpp: utility: string_identity.hpp: minor fixup
 
 2020.04.27:

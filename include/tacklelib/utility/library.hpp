@@ -45,7 +45,7 @@
 //
 
 // to make the unique link between a library implementation and it's headers
-#define LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, local_header_scope, instance_token, token_suffix, token_c_str) \
+#define LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, instance_token, token_suffix, token_c_str) \
     extern "C" const char LIBRARY_API_DECL UTILITY_PP_CONCAT4(g_build_version_date_time_str_c_$_, module_instance_name, instance_token, token_suffix)[sizeof(token_c_str)]
 
 // do check symbol for linkage directly from header
@@ -55,7 +55,7 @@
         UTILITY_PP_CONCAT4(s_static_link_enforcer_c_, module_instance_name, _, local_header_scope)(( UTILITY_PP_CONCAT4(g_build_version_date_time_str_c_$_, module_instance_name, instance_token, token_suffix) ))
 
 // do NOT check symbol for linkage directly from header
-#define LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, local_header_scope, instance_token, token_suffix, token_c_str) \
+#define LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, instance_token, token_suffix, token_c_str) \
     extern "C" const char LIBRARY_API_DECL UTILITY_PP_CONCAT4(g_build_version_date_time_str_c_$_, module_instance_name, instance_token, token_suffix)[sizeof(token_c_str)]
 
 #define LIBRARY_API_IMPLEMENT_LIB_GLOBAL_INSTANCE_TOKEN(module_instance_name, instance_token, token_suffix, token_c_str) \
@@ -63,16 +63,16 @@
 
 
 // to make the unique link between a library implementation and it's headers
-#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_EXPORT(module_instance_name, local_header_scope) \
-    LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
+#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_EXPORT(module_instance_name) \
+    LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT(module_instance_name, local_header_scope) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
-#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, local_header_scope) \
-    LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
+#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name) \
+    LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
 #define LIBRARY_API_IMPLEMENT_LIB_GLOBAL_BUILD_VERSION_DATE_TIME_TOKEN(module_instance_name) \
