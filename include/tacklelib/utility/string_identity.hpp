@@ -53,8 +53,8 @@
 #define UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE(str)     str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(str)   str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
 
-#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
-#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
+#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      str, (UTILITY_STATIC_SIZE(str))
+#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    str, (UTILITY_STATIC_SIZE(str) - 1)
 
 // string with safe offset through the static assert on an constexpr expression
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_AND_CONSTEXPR_OFFSET_TUPLE(str, constexpr_offset) \
@@ -568,6 +568,15 @@ namespace utility {
     // To compare strings in a static assert.
     // Based on: https://stackoverflow.com/questions/27490858/how-can-you-compare-two-character-strings-statically-at-compile-time
     //
+
+    // CAUTION:
+    //  A different function name, otherwise can be ambiguous function call!
+    //
+    template <typename CharT>
+    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT * a, const CharT * b)
+    {
+        return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || is_equal_c_str(a + 1, b + 1));
+    }
 
     template <typename CharT>
     FORCE_INLINE CONSTEXPR_FUNC bool constexpr_is_equal_c_str(const CharT * const & a, const CharT * const & b)

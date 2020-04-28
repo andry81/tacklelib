@@ -1,3 +1,6 @@
+2020.04.28:
+* fixed: cpp: utility: string_identity.hpp: minor fixup
+
 2020.04.27:
 * new: cpp: utility: `unfix_log_path` function
 * changed: cpp: utility: construct `file_handle` class from not changed long path (not converted into UNC path or not fixed, because a path longer than 260 characters has an issue in old Windows and can be workarounded by the UNC path format)
