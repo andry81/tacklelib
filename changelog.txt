@@ -1,3 +1,6 @@
+2020.04.29:
+* fixed: cpp: utility: changed `base` default parameter value in the `str_to_int` function to behave the same way as the `std::stoi` does
+
 2020.04.28:
 * fixed: cpp: utility: library.hpp: code cleanup
 

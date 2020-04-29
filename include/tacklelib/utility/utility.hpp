@@ -490,7 +490,7 @@ namespace utility
     std::wstring get_module_name(utility::tag_wstring, bool cached);
 
     template<typename T>
-    FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 10, bool throw_on_error = false)
+    FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
         T i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
 
