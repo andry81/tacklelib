@@ -36,7 +36,7 @@ function(tkl_list_join out_var in_list_var separator)
   set(joined_value "")
 
   set(in_list "${${in_list_var}}")
-  #message("join: ${in_list}")
+  #message("join: `${in_list}`")
 
   set(index -1)
 
@@ -48,7 +48,7 @@ function(tkl_list_join out_var in_list_var separator)
     tkl_escape_string_after_list_get(value "${value}")
 
     #list(LENGTH value len)
-    #message("tkl_list_join: [${len}] value=${value}")
+    #message("tkl_list_join: [${len}] value=`${value}`")
     if (index)
       set(joined_value "${joined_value}${separator}${value}")
     else()
@@ -56,7 +56,7 @@ function(tkl_list_join out_var in_list_var separator)
     endif()
   endforeach()
 
-  #message("joined: ${joined_value}")
+  #message("joined: `${joined_value}`")
   set(${out_var} "${joined_value}" PARENT_SCOPE)
 endfunction()
 
@@ -96,7 +96,7 @@ function(tkl_list_get out_var in_list_var)
       tkl_escape_string_after_list_get(value "${value}")
 
       #list(LENGTH value value_len)
-      #message("tkl_list_get: index=${index} [${value_len}] value=${value}")
+      #message("tkl_list_get: index=`${index}` [${value_len}] value=`${value}`")
       # WORKAROUND: empty list with one empty string treats as an empty list
       if (is_collapse_passed OR (NOT value STREQUAL ""))
         list(APPEND right_list "${value}")
@@ -169,7 +169,7 @@ function(tkl_list_remove_at out_var in_list_var)
       tkl_escape_string_after_list_get(value "${value}")
 
       #list(LENGTH value value_len)
-      #message("tkl_list_remove_at: index=${index} [${value_len}] value=${value}")
+      #message("tkl_list_remove_at: index=`${index}` [${value_len}] value=`${value}`")
       # WORKAROUND: empty list with one empty string treats as an empty list
       if (is_collapse_passed OR (NOT value STREQUAL ""))
         list(APPEND right_list "${value}")
@@ -243,7 +243,7 @@ function(tkl_list_sublist out_var begin_index length in_list_var)
     tkl_escape_string_after_list_get(value "${value}")
 
     #list(LENGTH value value_len)
-    #message("tkl_list_sublist: index=${index} [${value_len}] value=${value}")
+    #message("tkl_list_sublist: index=`${index}` [${value_len}] value=`${value}`")
     # WORKAROUND: empty list with one empty string treats as an empty list
     if (is_collapse_passed OR (NOT value STREQUAL ""))
       list(APPEND right_list "${value}")
@@ -311,7 +311,7 @@ function(tkl_list_remove_sublist out_var begin_index length in_list_var)
     tkl_escape_string_after_list_get(value "${value}")
 
     #list(LENGTH value value_len)
-    #message("tkl_list_remove_sublist: index=${index} [${value_len}] value=${value}")
+    #message("tkl_list_remove_sublist: index=`${index}` [${value_len}] value=`${value}`")
     # WORKAROUND: empty list with one empty string treats as an empty list
     if (is_collapse_passed OR (NOT value STREQUAL ""))
       list(APPEND right_list "${value}")
@@ -333,7 +333,7 @@ function(tkl_list_remove_sublist out_var begin_index length in_list_var)
       tkl_escape_string_after_list_get(value "${value}")
 
       #list(LENGTH value value_len)
-      #message("tkl_list_remove_sublist: index=${index} [${value_len}] value=${value}")
+      #message("tkl_list_remove_sublist: index=`${index}` [${value_len}] value=`${value}`")
       # WORKAROUND: empty list with one empty string treats as an empty list
       if (is_collapse_passed OR (NOT value STREQUAL ""))
         list(APPEND right_list "${value}")

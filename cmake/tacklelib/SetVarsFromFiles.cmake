@@ -377,7 +377,7 @@ make_vars\;.\;.\;."
   )
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "function function must be called at least with 1 variadic argument: argn_len=${argn_len} argn_index=${argn_index}")
+    message(FATAL_ERROR "function function must be called at least with 1 variadic argument: argn_len=`${argn_len}` argn_index=`${argn_index}`")
   endif()
 
   # Parent variable are saved, now can create local variables!
@@ -494,10 +494,10 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   endif()
 
   if (NOT ${ARGC} GREATER_EQUAL 6)
-    message(FATAL_ERROR "function must be called at least with 6 not optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called at least with 6 not optional arguments: `${ARGC}`")
   endif()
 
-  #message("ARGV=${ARGV}")
+  #message("ARGV=`${ARGV}`")
   tkl_set_vars_from_files_impl_init()
   tkl_make_var_from_ARGV_begin("${ARGN}" _50FABB52_argn)
   # in case of in a macro call we must pass all ARGV arguments explicitly
@@ -521,8 +521,8 @@ macro(tkl_set_vars_from_files_impl_init) # WITH OUT ARGUMENTS!
 
   #list(LENGTH _5A06EEFA_previous_vars_list _5A06EEFA_previous_vars_list_len)
   #list(LENGTH _5A06EEFA_previous_var_values_list _5A06EEFA_previous_var_values_list_len)
-  #message("[${_5A06EEFA_previous_vars_list_len}] _5A06EEFA_previous_vars_list=${_5A06EEFA_previous_vars_list}")
-  #message("[${_5A06EEFA_previous_var_values_list_len}] _5A06EEFA_previous_var_values_list=${_5A06EEFA_previous_var_values_list}")
+  #message("[${_5A06EEFA_previous_vars_list_len}] _5A06EEFA_previous_vars_list=`${_5A06EEFA_previous_vars_list}`")
+  #message("[${_5A06EEFA_previous_var_values_list_len}] _5A06EEFA_previous_var_values_list=`${_5A06EEFA_previous_var_values_list}`")
 
   # Parent variable are saved, now can create local variables!
   tkl_get_cmake_role(_5A06EEFA_is_in_script_mode SCRIPT)
@@ -652,7 +652,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   # always used set of arguments
   math(EXPR args_max_size ${argn_index}+6)
   if (argn_len LESS args_max_size)
-    message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
+    message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments: argn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
   endif()
 
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
@@ -684,7 +684,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     math(EXPR args_max_size ${argn_index}+4)
 
     if (argn_len LESS args_max_size)
-      message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments: argn_len=${argn_len} ARGC=${ARGC} argn_index=${argn_index}")
+      message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments: argn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
     endif()
 
     set(use_vars_late_expansion 1)
@@ -836,7 +836,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endif()
 
     get_property(config_var_names GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_var_names)
-    #message("loading: vars: ${config_var_names}")
+    #message("loading: vars: `${config_var_names}`")
 
     foreach(config_var_name IN LISTS config_var_names)
       get_property(config_${config_var_name}
@@ -884,7 +884,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_property(config_${config_var_name}_var_values_onchange_list
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_var_values_onchange_list)
 
-      #message("config_var_name=${config_var_name} -> `${config_${config_var_name}_file_path_c}`")
+      #message("config_var_name=`${config_var_name}` -> `${config_${config_var_name}_file_path_c}`")
     endforeach()
   else()
     set(config_var_names "")
@@ -1655,7 +1655,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (do_spec_collision_check)
           if (config_${var_name}_defined)
-            #message("[${var_name}:${var_os_name}:${var_compiler_name}:${var_config_name}:${arch_name}] config_${var_name}_config_name=${config_${var_name}_config_name}")
+            #message("[${var_name}:${var_os_name}:${var_compiler_name}:${var_config_name}:${arch_name}] config_${var_name}_config_name=`${config_${var_name}_config_name}`")
 
             # A variable is already assigned, but we have to check whether we can allow to specialize a variable.
             if (NOT use_force_var)
@@ -1838,7 +1838,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         foreach (index RANGE ${var_value_len_range_max})
           string(SUBSTRING "${var_value}" ${index} 1 char)
 
-          #message(" - [${index}] `${prev_char}`->`${char}`: fi=${value_from_index} `\"`->${is_str_quote_open} `(`->${is_list_bracket_open} `\$/`->${is_next_char_to_escape} `\$/{`->${is_subst_open}")
+          #message(" - [${index}] `${prev_char}`->`${char}`: fi=`${value_from_index}` `\"`->${is_str_quote_open} `(`->${is_list_bracket_open} `\$/`->${is_next_char_to_escape} `\$/{`->${is_subst_open}")
 
           if (NOT is_next_char_to_escape)
             # special cases, must be processed separately
@@ -2599,11 +2599,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_load_index
       "${config_load_index}")
 
-    #message("saving: vars: ${config_var_names}")
+    #message("saving: vars: `${config_var_names}`")
     set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_var_names "${config_var_names}")
 
     foreach(config_var_name IN LISTS config_var_names)
-      #message("config_var_name=${config_var_name} -> `${config_${config_var_name}_file_path_c}`")
+      #message("config_var_name=`${config_var_name}` -> `${config_${config_var_name}_file_path_c}`")
 
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}
         "${config_${config_var_name}}")
@@ -2709,7 +2709,7 @@ endmacro()
 #
 function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   if (NOT ${ARGC} GREATER_EQUAL 4)
-    message(FATAL_ERROR "function must be called at least with 4 not optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called at least with 4 not optional arguments: `${ARGC}`")
   endif()
 
   # Parent variable are saved, now can create local variables!

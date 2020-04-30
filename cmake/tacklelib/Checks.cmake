@@ -10,6 +10,8 @@ cmake_minimum_required(VERSION 3.9)
 #
 
 include(tacklelib/ForwardVariables)
+include(tacklelib/Eval)
+include(tacklelib/Props)
 
 function(tkl_check_CMAKE_CONFIGURATION_TYPES_vs_multiconfig)
   get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -136,14 +138,59 @@ function(tkl_check_var var_opt var_type var_name)
 
   if ((var_opt STREQUAL "REQUIRED") OR (var_opt STREQUAL "DEFINED"))
     if (NOT DEFINED ${var_name})
-      message(FATAL_ERROR "a variable must be defined: `${var_name}`")
+      message(FATAL_ERROR "tkl_check_var: `${var_name}`: a variable must be defined; type: `${var_type}`")
     endif()
+  elseif (var_opt STREQUAL "OPTIONAL")
+    # reserved
+  # check `var_opt` as a user variable or if-expression
+  elseif (DEFINED ${var_opt})
+    if (NOT DEFINED ${var_name})
+      message(FATAL_ERROR "tkl_check_var: `${var_name}`: a variable must be defined; requireness: ${var_opt}=`${${var_opt}}`")
+    endif()
+    message("tkl_check_var: `${var_name}`: ${var_opt}=`${${var_opt}}`; type: `${var_type}`")
   endif()
 
   if (var_type STREQUAL "PATH")
     if ((var_opt STREQUAL "REQUIRED") OR (var_opt STREQUAL "OPTIONAL" AND DEFINED ${var_name}))
       if (NOT EXISTS "${${var_name}}")
-        message(FATAL_ERROR "a path variable must issue an existed path: ${var_name}=`${${var_name}}`")
+        message(FATAL_ERROR "tkl_check_var: `${var_name}`: a path variable must issue an existed path: `${${var_name}}`; type: `${var_type}`")
+      endif()
+    endif()
+  endif()
+endfunction()
+
+function(tkl_check_var_eval var_opt_exp var_type var_name)
+  if (var_opt_exp STREQUAL "")
+    message(FATAL_ERROR "var_opt_exp must be set to an if-expression")
+  endif()
+  if (var_type STREQUAL "")
+    message(FATAL_ERROR "var_type must be set to a variable type")
+  endif()
+  if (var_name STREQUAL "")
+    message(FATAL_ERROR "var_name must be set to a variable name")
+  endif()
+
+  tkl_eval_begin("tkl_check_var_eval.cmake" "")
+
+  tkl_eval_append("tkl_check_var_eval.cmake" "\
+if (${var_opt_exp})
+  set_property(GLOBAL PROPERTY \"tkl::checkvar::exp\" 1)
+else()
+  set_property(GLOBAL PROPERTY \"tkl::checkvar::exp\" 0)
+endif()
+")
+
+  # evaluating...
+  tkl_eval_end("tkl_check_var_eval.cmake" .)
+
+  tkl_get_global_prop(check_var_exp_result "tkl::checkvar::exp" 1)
+
+  message("tkl_check_var_eval: `${var_name}`: if-expression: `${var_opt_exp}` -> `${check_var_exp_result}`; type: `${var_type}`")
+
+  if (var_type STREQUAL "PATH")
+    if ((var_opt STREQUAL "REQUIRED") OR (var_opt STREQUAL "OPTIONAL" AND DEFINED ${var_name}))
+      if (NOT EXISTS "${${var_name}}")
+        message(FATAL_ERROR "tkl_check_var: `${var_name}`: a path variable must issue an existed path: `${${var_name}}`; type: `${var_type}`")
       endif()
     endif()
   endif()

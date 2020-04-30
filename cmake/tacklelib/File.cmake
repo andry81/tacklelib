@@ -160,7 +160,7 @@ function(tkl_file_remove)
     endif()
 
     # call to previous implementation
-    #message("tkl_file_remove: ${file_path}")
+    #message("tkl_file_remove: `${file_path}`")
     _file(REMOVE "${file_path}")
   endforeach()
 endfunction()
@@ -187,7 +187,7 @@ function(tkl_file_remove_recurse)
     endif()
 
     # call to previous implementation
-    #message("tkl_file_remove_recurse: ${file_path}")
+    #message("tkl_file_remove_recurse: `${file_path}`")
     _file(REMOVE_RECURSE "${file_path}")
   endforeach()
 endfunction()
@@ -312,7 +312,7 @@ function(tkl_write_GENERATOR_IS_MULTI_CONFIG_into_file) # WITH OUT ARGUMENTS!
     "flock\;.\;flock_file_path")
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "write_GENERATOR_IS_MULTI_CONFIG_into_file function must be called at least with 1 not optional argument: argn_len=${argn_len} argn_index=${argn_index}")
+    message(FATAL_ERROR "write_GENERATOR_IS_MULTI_CONFIG_into_file function must be called at least with 1 not optional argument: argn_len=`${argn_len}` argn_index=`${argn_index}`")
   endif()
 
   if (DEFINED flock_file_path)

@@ -155,7 +155,7 @@ endfunction()
 # from `;` and `\` characters on passing list items into function arguments.
 function(tkl_escape_list_expansion out_var in_list)
   if (ARGC GREATER 5)
-    message(FATAL_ERROR "function must be called maximum with 3 optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called maximum with 3 optional arguments: `${ARGC}`")
   endif()
 
   if (ARGC GREATER 2)

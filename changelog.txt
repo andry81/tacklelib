@@ -1,3 +1,9 @@
+2020.04.30:
+* fixed: cmake: Project.cmake: missed `tkl::CMAKE_CURRENT_PACKAGE_NAME` and `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` set in the `tkl_declare_target_builtin_properties` function
+* new: cmake: Checks.cmake: improved `tkl_check_var` function to additionally accept first argument as a user variable name
+* new: cmake: Checks.cmake: `tkl_check_var_eval` function to use first argument as a user if-expression (requireness expression)
+* refactor: cmake: global "var=${var}" and "name: ${value}" relecement by "var=`${var}`" and "name: `${value}`"
+
 2020.04.29:
 * fixed: cpp: utility: changed `base` default parameter value in the `str_to_int` function to behave the same way as the `std::stoi` does
 

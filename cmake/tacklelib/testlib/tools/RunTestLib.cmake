@@ -20,13 +20,13 @@ if (ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST)
   message("---")
 
   tkl_make_var_from_CMAKE_ARGV_ARGC(cmake_argv)
-  #message("cmake_argv=${cmake_argv}")
+  #message("cmake_argv=`${cmake_argv}`")
 
   tkl_list_sublist(cmake_argv_tail 1 -1 cmake_argv)
-  #message("cmake_argv_tail=${cmake_argv_tail}")
+  #message("cmake_argv_tail=`${cmake_argv_tail}`")
 
   tkl_escape_list_expansion(cmake_args "${cmake_argv_tail}")
-  #message("cmake_args=${cmake_args}")
+  #message("cmake_args=`${cmake_args}`")
 
   foreach(CMAKE_COMMAND IN LISTS CMAKE_COMMAND_LIST)
     if (EXISTS "${CMAKE_COMMAND}" AND NOT IS_DIRECTORY "${CMAKE_COMMAND}")

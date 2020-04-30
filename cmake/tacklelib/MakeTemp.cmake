@@ -89,7 +89,7 @@ function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_rando
   get_filename_component(temp_dir_path_abs "${temp_dir_path}" REALPATH)
 
   file(MAKE_DIRECTORY "${temp_dir_path_abs}")
-  #message("tkl_make_temp_dir: ${temp_dir_path_abs}")
+  #message("tkl_make_temp_dir: `${temp_dir_path_abs}`")
 
   set(${out_var} "${temp_dir_path_abs}" PARENT_SCOPE)
 endfunction()

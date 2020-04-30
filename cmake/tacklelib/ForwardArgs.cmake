@@ -239,7 +239,7 @@ function(tkl_make_var_from_CMAKE_ARGV_ARGC) # WITH OUT ARGUMENTS!
   tkl_make_var_from_ARGV_begin("${ARGV}" argv)
   # in case of in a function call we don't have to pass all ARGV arguments explicitly
   tkl_make_var_from_ARGV_end(argv)
-  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=${argv}")
+  #message("tkl_make_var_from_CMAKE_ARGV_ARGC: argv=`${argv}`")
 
   list(LENGTH argv argv_len)
   set(argv_index 0)
@@ -263,7 +263,7 @@ s\;strict_checks\
     "")
 
   if (NOT argv_index LESS argv_len)
-    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argv_len=${argv_len} argv_index=${argv_index}")
+    message(FATAL_ERROR "function must be called at least with 1 not optional argument: argv_len=`${argv_len}` argv_index=`${argv_index}`")
   endif()
 
   tkl_get_cmake_role(is_in_script_mode SCRIPT)
@@ -294,7 +294,7 @@ s\;strict_checks\
     set(script_file_path_offset -1)
     while(cmake_arg_index LESS CMAKE_ARGC)
       set(arg_value "${CMAKE_ARGV${cmake_arg_index}}")
-      #message("arg_value=${arg_value}")
+      #message("arg_value=`${arg_value}`")
       if (script_file_path_offset GREATER_EQUAL 0 )
         if (script_file_path_offset LESS cmake_arg_index)
           # WORKAROUND: we have to replace because `list(APPEND` will join lists together
@@ -308,7 +308,7 @@ s\;strict_checks\
             get_filename_component(script_file_path_abs "${arg_value}" ABSOLUTE)
             if (strict_checks)
               if (NOT this_script_file_path_abs STREQUAL script_file_path_abs)
-                message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same: `this_script_file_path_abs=${this_script_file_path_abs}` script_file_path_abs=1${script_file_path_abs}1")
+                message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same: this_script_file_path_abs=`${this_script_file_path_abs}` script_file_path_abs=`${script_file_path_abs}`")
               endif()
             endif()
             set(arg_value "${script_file_path_abs}")
@@ -1048,12 +1048,12 @@ function(tkl_restore_ARGVn_from_stack stack_index)
     tkl_get_prop_stack_size(ARGV${ARGVn_index}_stack_size GLOBAL "tkl::builtin::ARGV${ARGVn_index}" "${ARGVn_stack_entry}")
     if (NOT (ARGVn_stack_index GREATER_EQUAL 0 AND ARGVn_stack_index LESS ARGV${ARGVn_index}_stack_size))
       message(FATAL_ERROR "invalid stack index for ARGV${ARGVn_index}:
-stack_index=${stack_index}
-ARGVn_index=${ARGVn_index}
-ARGVn=${ARGVn}
-ARGVn_stack_size=${ARGVn_stack_size}
-ARGV${ARGVn_index}_stack_size=${ARGV${ARGVn_index}_stack_size}
-ARGVn_stack_index=${ARGVn_stack_index}")
+stack_index=`${stack_index}`
+ARGVn_index=`${ARGVn_index}`
+ARGVn=`${ARGVn}`
+ARGVn_stack_size=`${ARGVn_stack_size}`
+ARGV${ARGVn_index}_stack_size=`${ARGV${ARGVn_index}_stack_size}`
+ARGVn_stack_index=`${ARGVn_stack_index}`")
     endif()
 
     tkl_get_prop_stack_value(ARGV${ARGVn_index} GLOBAL "tkl::builtin::ARGV${ARGVn_index}" "${ARGVn_stack_entry}" ${ARGVn_stack_index})
@@ -1114,12 +1114,12 @@ ARGVn_stack_index=${ARGVn_stack_index}")
         tkl_get_prop_stack_size(ARGV${ARGVn_index}_stack_size GLOBAL "tkl::builtin::ARGV${ARGVn_index}" "${ARGVn_stack_entry}")
         if (NOT (ARGVn_stack_index GREATER_EQUAL 0 AND ARGVn_stack_index LESS ARGV${ARGVn_index}_stack_size))
           message(FATAL_ERROR "invalid stack index for ARGV${ARGVn_index}:
-stack_index=${stack_index}
-ARGVn_index=${ARGVn_index}
-ARGVn=${ARGVn}
-ARGVn_stack_size=${ARGVn_stack_size}
-ARGV${ARGVn_index}_stack_size=${ARGV${ARGVn_index}_stack_size}
-ARGVn_stack_index=${ARGVn_stack_index}")
+stack_index=`${stack_index}`
+ARGVn_index=`${ARGVn_index}`
+ARGVn=`${ARGVn}`
+ARGVn_stack_size=`${ARGVn_stack_size}`
+ARGV${ARGVn_index}_stack_size=`${ARGV${ARGVn_index}_stack_size}`
+ARGVn_stack_index=`${ARGVn_stack_index}`")
         endif()
 
         tkl_get_prop_stack_value(ARGV${argv_index} GLOBAL "tkl::builtin::ARGV${argv_index}" "${ARGVn_stack_entry}" ${ARGVn_stack_index})
@@ -1149,10 +1149,10 @@ macro(tkl_print_ARGVn)
 
   message("---")
   message("tkl::builtin::ARGV=`${_22D2CE04_prop_ARGV}`")
-  message("tkl::builtin::ARGC=${_22D2CE04_prop_ARGC}")
+  message("tkl::builtin::ARGC=`${_22D2CE04_prop_ARGC}`")
 
   message("ARGV=`${ARGV${_22D2CE04_empty}}`")
-  message("ARGC=${ARGC${_22D2CE04_empty}}")
+  message("ARGC=`${ARGC${_22D2CE04_empty}}`")
 
   set(_22D2CE04_argn_index 0)
   while(_22D2CE04_argn_index LESS ARGC)

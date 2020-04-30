@@ -45,7 +45,7 @@ function(link_qt_components target include_inherit_type link_inherit_type target
             ${include_inherit_type}
               ${${component}_DEFINITIONS}
           )
-          #message(STATUS "* ${component}_DEFINITIONS=${${component}_DEFINITIONS}")
+          #message(STATUS "* ${component}_DEFINITIONS=`${${component}_DEFINITIONS}`")
         endif()
 
         if(${component}_INCLUDE_DIRS)
@@ -53,7 +53,7 @@ function(link_qt_components target include_inherit_type link_inherit_type target
             ${include_inherit_type}
               ${${component}_INCLUDE_DIRS}
           )
-          #message(STATUS "* ${component}_INCLUDE_DIRS=${${component}_INCLUDE_DIRS}")
+          #message(STATUS "* ${component}_INCLUDE_DIRS=`${${component}_INCLUDE_DIRS}`")
         endif()
 
         if(${component}_LIBRARIES)
@@ -61,7 +61,7 @@ function(link_qt_components target include_inherit_type link_inherit_type target
             ${link_inherit_type}
               ${${component}_LIBRARIES}
           )
-          #message(STATUS "* ${component}_LIBRARIES=${${component}_LIBRARIES}")
+          #message(STATUS "* ${component}_LIBRARIES=`${${component}_LIBRARIES}`")
         endif()
       endif()
 
