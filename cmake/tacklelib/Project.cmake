@@ -169,7 +169,7 @@ endfunction()
 
 function(tkl_generate_regex_replace_expression out_regex_match_var out_regex_replace_var in_regex_match_var in_replace_to)
   if((${in_regex_match_var} MATCHES "[^\\\\]\\(|^\\(") OR ("${in_replace_to}" MATCHES "\\\\0|\\\\1|\\\\2|\\\\3|\\\\4|\\\\5|\\\\6|\\\\7|\\\\8|\\\\9"))
-    message(FATAL_ERROR "input regex match expression does not support groups capture: in_regex_match_var=${${in_regex_match_var}} in_replace_to=${in_replace_to}")
+    message(FATAL_ERROR "input regex match expression does not support groups capture: in_regex_match_var=`${${in_regex_match_var}}`; in_replace_to=`${in_replace_to}`")
   endif()
 
   string(REPLACE "\\" "\\\\" in_replace_to_escaped "${in_replace_to}")
@@ -340,7 +340,7 @@ endmacro()
 #
 macro(tkl_preload_variables) # WITH OUT ARGUMENTS!
   if (NOT ${ARGC} GREATER_EQUAL 3)
-    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: ${ARGC}")
+    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: `${ARGC}`")
   endif()
 
   tkl_make_vars_from_ARGV_ARGN_begin("${ARGV}" "${ARGN}" . _DDDE2B35_argn)
@@ -373,7 +373,7 @@ macro(tkl_preload_variables) # WITH OUT ARGUMENTS!
   math(EXPR _DDDE2B35_argn_len ${_DDDE2B35_argn_len}-${_DDDE2B35_argn_index})
 
   if (NOT ${_DDDE2B35_argn_len} GREATER_EQUAL 3)
-    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: ${_DDDE2B35_argn_len}")
+    message(FATAL_ERROR "function must be called at least with 3 not optional arguments: `${_DDDE2B35_argn_len}`")
   endif()
 
   list(GET _DDDE2B35_argn ${_DDDE2B35_argn_index} _DDDE2B35_env_var_files_list) # discardes ;-escaping
@@ -463,7 +463,7 @@ macro(tkl_configure_environment env_var_files_root global_linkage_type supported
   endforeach()
 
   if(NOT has_supported_compiler)
-    message(FATAL_ERROR "platform is not implemented, supported compilers: ${supported_compilers}")
+    message(FATAL_ERROR "platform is not implemented, supported compilers: `${supported_compilers}`")
   endif()
 
   tkl_declare_secondary_builtin_vars()
@@ -610,7 +610,7 @@ endfunction()
 
 function(tkl_exclude_paths_from_path_list exclude_list_var include_list_var path_list exclude_path_list verbose_flag)
   if(verbose_flag)
-    message(STATUS "(**) tkl_exclude_paths_from_path_list: exclude list: ${exclude_path_list}")
+    message(STATUS "(**) tkl_exclude_paths_from_path_list: exclude list: `${exclude_path_list}`")
   endif()
 
   if(NOT include_list_var STREQUAL "" AND NOT include_list_var STREQUAL ".")
@@ -632,7 +632,7 @@ function(tkl_exclude_paths_from_path_list exclude_list_var include_list_var path
     foreach(exclude_path IN LISTS exclude_path_list)
       if("${path}" MATCHES "(.*)${exclude_path}(.*)")
         if(verbose_flag)
-          message(STATUS "(**) tkl_exclude_paths_from_path_list: excluded: ${path}")
+          message(STATUS "(**) tkl_exclude_paths_from_path_list: excluded: `${path}`")
         endif()
         set(_excluded 1)
         break()
@@ -646,7 +646,7 @@ function(tkl_exclude_paths_from_path_list exclude_list_var include_list_var path
   endforeach()
 
   if(verbose_flag)
-    message(STATUS "(**) tkl_exclude_paths_from_path_list: include list: ${include_list}")
+    message(STATUS "(**) tkl_exclude_paths_from_path_list: include list: `${include_list}`")
   endif()
 
   if (include_list_var_defined)
@@ -659,7 +659,7 @@ endfunction()
 
 function(tkl_exclude_file_paths_from_path_list exclude_list_var include_list_var path_list exclude_file_path_list verbose_flag)
   if(verbose_flag)
-    message(STATUS "(**) tkl_exclude_file_paths_from_path_list: exclude list: ${exclude_file_path_list}")
+    message(STATUS "(**) tkl_exclude_file_paths_from_path_list: exclude list: `${exclude_file_path_list}`")
   endif()
 
   if(NOT include_list_var STREQUAL "" AND NOT include_list_var STREQUAL ".")
@@ -681,7 +681,7 @@ function(tkl_exclude_file_paths_from_path_list exclude_list_var include_list_var
     foreach(exclude_file_path IN LISTS exclude_file_path_list)
       if("${path}|" MATCHES "(.*)${exclude_file_path}\\|")
         if(verbose_flag)
-          message(STATUS "(**) tkl_exclude_file_paths_from_path_list: excluded: ${path}")
+          message(STATUS "(**) tkl_exclude_file_paths_from_path_list: excluded: `${path}`")
         endif()
         set(_excluded 1)
         break()
@@ -695,7 +695,7 @@ function(tkl_exclude_file_paths_from_path_list exclude_list_var include_list_var
   endforeach()
 
   if(verbose_flag)
-    message(STATUS "(**) tkl_exclude_file_paths_from_path_list: include list: ${include_list}")
+    message(STATUS "(**) tkl_exclude_file_paths_from_path_list: include list: `${include_list}`")
   endif()
 
   if (include_list_var_defined)
@@ -708,7 +708,7 @@ endfunction()
 
 function(tkl_include_paths_from_path_list include_list_var path_list include_path_list verbose_flag)
   if(verbose_flag)
-    message(STATUS "(**) tkl_include_paths_from_path_list: include list: ${include_path_list}")
+    message(STATUS "(**) tkl_include_paths_from_path_list: include list: `${include_path_list}`")
   endif()
 
   set(include_list "")
@@ -717,7 +717,7 @@ function(tkl_include_paths_from_path_list include_list_var path_list include_pat
     foreach(include_path IN LISTS include_path_list)
       if("${path}" MATCHES "(.*)${include_path}(.*)")
         if(verbose_flag)
-          message(STATUS "(**) tkl_include_paths_from_path_list: included: ${path}")
+          message(STATUS "(**) tkl_include_paths_from_path_list: included: `${path}`")
         endif()
         list(APPEND include_list "${path}")
       endif()
@@ -729,7 +729,7 @@ endfunction()
 
 function(tkl_include_file_paths_from_path_list include_list_var path_list include_file_path_list verbose_flag)
   if(verbose_flag)
-    message(STATUS "(**) tkl_include_file_paths_from_path_list: include list: ${include_file_path_list}")
+    message(STATUS "(**) tkl_include_file_paths_from_path_list: include list: `${include_file_path_list}`")
   endif()
 
   set(include_list "")
@@ -738,7 +738,7 @@ function(tkl_include_file_paths_from_path_list include_list_var path_list includ
     foreach(include_file_path IN LISTS include_file_path_list)
       if("${path}|" MATCHES "(.*)${include_file_path}\\|")
         if(verbose_flag)
-          message(STATUS "(**) tkl_include_file_paths_from_path_list: included: ${path}")
+          message(STATUS "(**) tkl_include_file_paths_from_path_list: included: `${path}`")
         endif()
         list(APPEND include_list "${path}")
       endif()
@@ -755,7 +755,7 @@ function(tkl_source_group_by_path_list group_path type path_list include_path_li
     foreach(include_path IN LISTS include_path_list)
       if("${path}" MATCHES "(.*)${include_path}(.*)")
         if(verbose_flag)
-          message(STATUS "(**) tkl_source_group_by_path_list: ${group_path} -> (${type}) `${path}`")
+          message(STATUS "(**) tkl_source_group_by_path_list: `${group_path}` -> (${type}) `${path}`")
         endif()
         list(APPEND include_list ${path})
       endif()
@@ -774,7 +774,7 @@ function(tkl_source_group_by_file_path_list group_path type path_list include_fi
     foreach(include_file_path IN LISTS include_file_path_list)
       if("${path}|" MATCHES "(.*)${include_file_path}\\|")
         if(verbose_flag)
-          message(STATUS "(**) tkl_source_group_by_file_path_list: ${group_path} -> (${type}) `${path}`")
+          message(STATUS "(**) tkl_source_group_by_file_path_list: `${group_path}` -> (${type}) `${path}`")
         endif()
         list(APPEND include_list ${path})
       endif()
@@ -789,16 +789,16 @@ endfunction()
 function(tkl_source_groups_from_dir_list source_group_root type path_dir_list path_glob_suffix)
   string(REPLACE "/" "\\" source_group_root "${source_group_root}")
 
-  #message("  tkl_source_groups_from_dir_list: path_dir_list=${path_dir_list}")
+  #message("  tkl_source_groups_from_dir_list: path_dir_list=`${path_dir_list}`")
 
   foreach(path_dir IN LISTS path_dir_list)
-    #message("  tkl_source_groups_from_dir_list: path_dir=${path_dir}")
+    #message("  tkl_source_groups_from_dir_list: path_dir=`${path_dir}`")
     if(NOT IS_DIRECTORY "${path_dir}")
       continue()
     endif()
 
     file(GLOB_RECURSE children_list RELATIVE ${path_dir} "${path_dir}/${path_glob_suffix}")
-    #message("  tkl_source_groups_from_dir_list: children_list=${children_list}")
+    #message("  tkl_source_groups_from_dir_list: children_list=`${children_list}`")
 
     set(group_path_dir_list "")
 
@@ -813,10 +813,10 @@ function(tkl_source_groups_from_dir_list source_group_root type path_dir_list pa
 
         string(REPLACE "/" "\\" source_group_dir "${child_rel_dir}")
         if(source_group_root)
-          #message(STATUS "tkl_source_groups_from_dir_list: ${source_group_root}\\${source_group_dir} -> ${child_rel_path}")
+          #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_root}\\${source_group_dir}` -> `${child_rel_path}`")
           source_group("${source_group_root}\\${source_group_dir}" ${type} "${path_dir}/${child_path}")
         else()
-          #message(STATUS "tkl_source_groups_from_dir_list: ${source_group_dir} -> ${child_rel_path}")
+          #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_dir}` -> `${child_rel_path}`")
           source_group("${source_group_dir}" ${type} "${path_dir}/${child_path}")
         endif()
       endif()
@@ -851,6 +851,7 @@ function(tkl_declare_target_builtin_properties target)
       get_property(global_CMAKE_CURRENT_PACKAGE_NAME GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
       set_target_properties(${target} PROPERTIES PACKAGE_NAME "${global_CMAKE_CURRENT_PACKAGE_NAME}")
     else()
+      set_property(GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME" "${PROJECT_NAME}")
       set_target_properties(${target} PROPERTIES PACKAGE_NAME "${PROJECT_NAME}")
     endif()
 
@@ -859,6 +860,7 @@ function(tkl_declare_target_builtin_properties target)
       set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
     else()
       # cmake list directory instead, but that is still not a package directory!
+      set_property(GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "${CMAKE_CURRENT_LIST_DIR}")
       set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
     endif()
 
@@ -913,9 +915,9 @@ function(tkl_add_library_target_begin_message target target_alias)
   get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
-    message("adding library target: ${current_package_name}//${target}...")
+    message("adding library target: package=`${current_package_name}`; target=`${target}`...")
   else()
-    message("adding library target: ${current_package_name}//${target} -> ${target_alias}...")
+    message("adding library target: package=`${current_package_name}`; target=`${target}`; alias=`${target_alias}`...")
   endif()
 endfunction()
 
@@ -932,9 +934,9 @@ function(tkl_add_executable_target_begin_message target target_alias)
   get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
-    message("adding executable target: ${current_package_name}//${target}...")
+    message("adding executable target: package=`${current_package_name}`; target=`${target}`...")
   else()
-    message("adding executable target: ${current_package_name}//${target} -> ${target_alias}...")
+    message("adding executable target: package=`${current_package_name}`; target=`${target}`; alias=`${target_alias}`...")
   endif()
 endfunction()
 
@@ -951,9 +953,9 @@ function(tkl_add_custom_target_begin_message target target_alias)
   get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
 
   if (NOT target_alias)
-    message("adding custom target: ${current_package_name}//${target}...")
+    message("adding custom target: package=`${current_package_name}`; target=`${target}`...")
   else()
-    message("adding custom target: ${current_package_name}//${target} -> ${target_alias}...")
+    message("adding custom target: package=`${current_package_name}`; target=`${target}`;  alias=`${target_alias}`...")
   endif()
 endfunction()
 
@@ -1041,8 +1043,8 @@ macro(tkl_add_subdirectory_prepare_message)
 
   # get relative path to the source/binary directory from cmake top level directory - PROJECT_SOURCE_DIR
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
-  #message(PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR})
-  #message(target_src_dir_abs=${target_src_dir_abs})
+  #message(PROJECT_SOURCE_DIR=`${PROJECT_SOURCE_DIR}`)
+  #message(target_src_dir_abs=`${target_src_dir_abs}`)
   file(RELATIVE_PATH target_src_dir_path ${PROJECT_SOURCE_DIR} ${target_src_dir_abs})
   if((target_src_dir_path STREQUAL ".") OR (target_src_dir_path STREQUAL ""))
     set(target_src_dir_path ${target_src_dir})
@@ -1056,20 +1058,20 @@ macro(tkl_add_subdirectory_prepare_message)
       set(target_bin_dir_path "${target_bin_dir}")
     endif()
 
-    set(target_bin_dir_msg_line " bin=`${target_bin_dir_path}`")
+    set(target_bin_dir_msg_line "; bin_dir=`${target_bin_dir_path}`")
   endif()
 endmacro()
 
 function(tkl_add_subdirectory_begin_message target_src_dir)
   tkl_add_subdirectory_prepare_message(${ARGV})
   get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
-  message("entering subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}...")
+  message("entering subdirectory: package=`${current_package_name}`; src_dir=`${target_src_dir_path}`${target_bin_dir_msg_line}...")
 endfunction()
 
 function(tkl_add_subdirectory_end_message target_src_dir)
   tkl_add_subdirectory_prepare_message(${ARGV})
   get_property(current_package_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
-  message("leaving subdirectory: ${current_package_name}//`${target_src_dir_path}`${target_bin_dir_msg_line}")
+  message("leaving subdirectory: package=`${current_package_name}`; src_dir=`${target_src_dir_path}`${target_bin_dir_msg_line}")
 endfunction()
 
 function(tkl_find_package_begin package_root_dir_var package)
@@ -1127,17 +1129,17 @@ endfunction()
 
 function(tkl_find_package_begin_message package_root_dir_var package)
   if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
-    message("entering package: ${package}: ${package_root_dir_var}=`${${package_root_dir_var}}`...")
+    message("entering package: `${package}`: ${package_root_dir_var}=`${${package_root_dir_var}}`...")
   else()
-    message("entering package: ${package}...")
+    message("entering package: `${package}`...")
   endif()
 endfunction()
 
 function(tkl_find_package_end_message package_root_dir_var package)
   if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
-    message("leaving package: ${package}: ${package_root_dir_var}=`${${package_root_dir_var}}`")
+    message("leaving package: `${package}`: ${package_root_dir_var}=`${${package_root_dir_var}}`")
   else()
-    message("leaving package: ${package}")
+    message("leaving package: `${package}`")
   endif()
 endfunction()
 
@@ -1429,7 +1431,7 @@ function(tkl_initialize_library_target_defaults target flags_list)
 endfunction()
 
 function(tkl_initialize_target_defaults_impl target flags_list)
-  message(STATUS "Initializing target: ${target}...")
+  message(STATUS "Initializing target: `${target}`...")
 
   tkl_check_global_vars_consistency()
 
@@ -1771,7 +1773,7 @@ endfunction()
 function(tkl_get_target_link_libraries_recursively out_var_name target)
   set(link_libs "")
   tkl_get_target_link_libraries_recursively_impl(0 link_libs ${target} ${ARGN})
-  #message(FATAL_ERROR "  target=${target} all=${link_libs}")
+  #message(FATAL_ERROR "  target=`${target}`; all=`${link_libs}`")
 
   set(${out_var_name} ${link_libs} PARENT_SCOPE)
 endfunction()
@@ -1781,7 +1783,7 @@ function(tkl_get_target_link_libraries_recursively_impl nest_counter out_var_nam
 
   get_target_property(link_libs ${target} LINK_LIBRARIES)
 
-  #message("  target=${target} nest_counter=${nest_counter} link_libs=${link_libs}")
+  #message("  target=`${target}`; nest_counter=`${nest_counter}`; link_libs=`${link_libs}`")
 
   if (link_libs)
     set(link_libs_more "")
@@ -1794,7 +1796,7 @@ function(tkl_get_target_link_libraries_recursively_impl nest_counter out_var_nam
           list(APPEND link_libs_more ${link_libs_recur})
           list(REMOVE_DUPLICATES link_libs_more)
         endif()
-        #message("    target=${link_lib} nest_counter=${nest_counter} link_libs_recur=${link_libs_recur}")
+        #message("    target=`${link_lib}`; nest_counter=`${nest_counter}`; link_libs_recur=`${link_libs_recur}`")
       endif()
     endforeach()
 
@@ -1806,7 +1808,7 @@ function(tkl_get_target_link_libraries_recursively_impl nest_counter out_var_nam
     set(${out_var_name} "" PARENT_SCOPE)
   endif()
 
-  #message("    target=${target} nest_counter=${nest_counter} link_libs_more=${link_libs_more}")
+  #message("    target=`${target}`; nest_counter=`${nest_counter}`; link_libs_more=`${link_libs_more}`")
 endfunction()
 
 function(tkl_add_target_subdirectory target_root_dir_var target target_binary_root)
@@ -1830,9 +1832,9 @@ function(tkl_print_flags)
   if(ARGN)
     foreach(flag_var IN LISTS ARGN)
       if(${flag_var})
-        message(STATUS "* ${flag_var}=${${flag_var}}")
+        message(STATUS "* ${flag_var}=`${${flag_var}}`")
       else()
-        message(STATUS "* ${flag_var}=")
+        message(STATUS "* ${flag_var}=``")
       endif()
     endforeach()
   else()
@@ -1938,7 +1940,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
 
     get_target_property(target_type ${target} TYPE)
 
-    #message("** TYPE: ${target_type} TARGET: ${target}")
+    #message("** TYPE: `${target_type}` TARGET: `${target}`")
 
     # avoid error: INTERFACE_LIBRARY targets may only have whitelisted properties.
     if(target_type STREQUAL "INTERFACE_LIBRARY")
@@ -1977,7 +1979,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
       string(TOLOWER "${package_root_dir}" package_root_dir_lower)
 
       tkl_subtract_absolute_paths(${package_root_dir_lower} ${target_root_dir_path_abs_lower} package_target_rel_path_dir)
-      #message("  target=${target}\n   package_root_dir_lower=${package_root_dir_lower}\n   target_root_dir_path_abs_lower=${target_root_dir_path_abs_lower}\n   package_target_rel_path_dir=${package_target_rel_path_dir}\n   package_target_rel_path_pattern=${package_target_rel_path_pattern}\n")
+      #message("  target=`${target}`\n   package_root_dir_lower=`${package_root_dir_lower}`\n   target_root_dir_path_abs_lower=`${target_root_dir_path_abs_lower}`\n   package_target_rel_path_dir=`${package_target_rel_path_dir}`\n   package_target_rel_path_pattern=`${package_target_rel_path_pattern}`\n")
 
       if (NOT package_target_rel_path_dir STREQUAL "")
         if(package_target_rel_path_pattern STREQUAL ".") # special pattern means "equal to package source directory" or "not recursively from package source directory"

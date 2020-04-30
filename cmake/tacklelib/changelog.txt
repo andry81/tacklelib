@@ -1,3 +1,9 @@
+2020.04.30:
+* fixed: Project.cmake: missed `tkl::CMAKE_CURRENT_PACKAGE_NAME` and `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` set in the `tkl_declare_target_builtin_properties` function
+* new: Checks.cmake: improved `tkl_check_var` function to additionally accept first argument as a user variable name
+* new: Checks.cmake: `tkl_check_var_eval` function to use first argument as a user if-expression (requireness expression)
+* refactor: global "var=${var}" and "name: ${value}" relecement by "var=`${var}`" and "name: `${value}`"
+
 2020.04.24:
 * new: SetVarsFromFiles.cmake: `unset` attribute to remove or drop variables for nested packages
 * changed: SetVarsFromFiles.cmake: code cleanup

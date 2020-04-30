@@ -31,7 +31,7 @@ include(tacklelib/Time)
 include(tacklelib/Utility)
 
 macro(tkl_include_and_echo path)
-  message(STATUS "(*) Include: \"${path}\"")
+  message(STATUS "(*) Include: `${path}`")
   include(${path})
 endmacro()
 

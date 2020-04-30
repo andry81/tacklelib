@@ -22,10 +22,10 @@ function(tkl_testlib_init)
   endif()
 
   tkl_make_var_from_CMAKE_ARGV_ARGC(-P argv)
-  #message("argv=${argv}")
+  #message("argv=`${argv}`")
 
   tkl_list_sublist(argv 1 -1 argv)
-  #message("argv=${argv}")
+  #message("argv=`${argv}`")
 
   # parameterized flag argument values
   unset(path_match_filter_list)
@@ -135,7 +135,7 @@ function(tkl_testlib_exit)
     tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
     tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-    tkl_testlib_msg("RESULTS: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS} (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
+    tkl_testlib_msg("RESULTS: succeeded/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
   endif()
 endfunction()
 
@@ -286,7 +286,7 @@ function(tkl_testlib_enter_dir test_dir)
     endif()
   endif()
 
-  #message("tkl_testlib_enter_dir: ${test_dir_path}")
+  #message("tkl_testlib_enter_dir: `${test_dir_path}`")
 
   # always set to special not zero value to provoke test to fail by default
   tkl_set_global_prop(TACKLELIB_TESTLIB_LAST_ERROR "tkl::testlib::last_error" -1)
@@ -435,7 +435,7 @@ function(tkl_testlib_enter_dir test_dir)
   set_property(GLOBAL PROPERTY "tkl::testlib::num_failed_tests" "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}")
 
   if (TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN)
-    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: succeeded/failed of overall: ${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}\n---\n")
+    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: succeeded/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}`\n---\n")
   else()
     # tests are not found or filtered out
     tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`\n---\n")
@@ -538,7 +538,7 @@ function(tkl_testlib_test test_dir test_file_name)
     tkl_load_vars_from_files("${test_file_dir}/${test_file_name_no_ext}.lib.vars")
   endif()
 
-  #message("tkl_testlib_test: ${test_file_path}")
+  #message("tkl_testlib_test: `${test_file_path}`")
 
   tkl_get_global_prop(num_tests_run "tkl::testlib::num_tests_run" 1)
   if (num_tests_run STREQUAL "")

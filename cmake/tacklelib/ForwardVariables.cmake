@@ -226,8 +226,8 @@ function(tkl_copy_vars)
     #list(LENGTH ${ARGV1} vars_len)
     #list(LENGTH ${ARGV2} vals_len)
     #
-    #message(vars_len=${vars_len})
-    #message(vals_len=${vals_len})
+    #message(vars_len=`${vars_len}`)
+    #message(vals_len=`${vals_len}`)
   endif()
 
   if (NOT "${ARGV0}" STREQUAL "" AND NOT "${ARGV0}" STREQUAL ".")
@@ -374,7 +374,7 @@ function(tkl_get_var_stack_value out_var stack_entry prop_name index)
   endif()
 
   if (NOT index LESS vars_stack_size)
-    message(FATAL_ERROR "index out of stack bounds: index=${index} vars_stack_size=${vars_stack_size}")
+    message(FATAL_ERROR "index out of stack bounds: index=`${index}` vars_stack_size=`${vars_stack_size}`")
   endif()
 
   math(EXPR vars_stack_index ${vars_stack_size}-1-${index})
@@ -557,7 +557,7 @@ function(tkl_get_prop_stack_value out_var prop_entry prop_name stack_entry index
   endif()
 
   if (NOT index LESS props_stack_size)
-    message(FATAL_ERROR "index out of stack bounds: index=${index} props_stack_size=${props_stack_size}")
+    message(FATAL_ERROR "index out of stack bounds: index=`${index}` props_stack_size=`${props_stack_size}`")
   endif()
 
   math(EXPR props_stack_index ${props_stack_size}-1-${index})
@@ -616,7 +616,7 @@ function(tkl_track_vars_begin) # WITH OUT ARGUMENTS!
 
   tkl_copy_vars(. _39067B90_filtered_vars)
 
-  #message(" _39067B90_filtered_vars=${_39067B90_filtered_vars}")
+  #message(" _39067B90_filtered_vars=`${_39067B90_filtered_vars}`")
 
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::track_vars::vars_stack::vars" "tkl::track_vars" "${_39067B90_filtered_vars}")
 endfunction()
@@ -652,7 +652,7 @@ macro(tkl_forward_changed_vars_to_parent_scope) # WITH OUT ARGUMENTS!
   # propagate unset
   foreach(_39067B90_var IN LISTS _39067B90_vars_to_unset)
     unset(${_39067B90_var} PARENT_SCOPE)
-    #message("unset: ${_39067B90_var}")
+    #message("unset: `${_39067B90_var}`")
   endforeach()
 
   # propagate set

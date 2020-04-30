@@ -346,7 +346,7 @@ function(tkl_test_assert_true) # WITH OUT ARGUMENTS!
     unset(ARGV1)
   endif()
 
-  #message("if_exp=${ARGV0}")
+  #message("if_exp=`${ARGV0}`")
   set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::last_test_assert_true::args::exp" "${ARGV0}")
 
   if (DEFINED ARGV1)
@@ -407,7 +407,7 @@ endif()
     tkl_get_global_prop(arg_msg "tkl::testlib::testmodule::last_test_assert_true::args::msg" 0)
 
     if (NOT TACKLELIB_TESTLIB_TESTCASE_FUNC STREQUAL "")
-      tkl_test_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: ${TACKLELIB_TESTLIB_TESTCASE_FUNC}:")
+      tkl_test_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: `${TACKLELIB_TESTLIB_TESTCASE_FUNC}`:")
     else()
       tkl_test_msg("[ ASSERT ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`:")
     endif()
