@@ -1004,15 +1004,15 @@ function(tkl_add_subdirectory_begin target_src_dir)
 
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
+  # must be always canonical and absolute
+  get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
+
   tkl_add_subdirectory_begin_message("${target_src_dir}" ${ARGN})
 
   # push-unset not inheritable context variables
   get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
 
   tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-
-  # must be always canonical and absolute
-  get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
 
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${target_src_dir_abs})
 endfunction()
@@ -1021,6 +1021,9 @@ function(tkl_add_subdirectory_end target_src_dir)
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
+
+  # must be always canonical and absolute
+  get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
 
   get_property(global_CMAKE_CURRENT_PROJECT_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR")
   if (target_src_dir_abs STREQUAL global_CMAKE_CURRENT_PROJECT_SOURCE_DIR)
@@ -1060,7 +1063,6 @@ macro(tkl_add_subdirectory_prepare_message)
   endforeach()
 
   # get relative path to the source/binary directory from cmake top level directory - PROJECT_SOURCE_DIR
-  get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
   #message(PROJECT_SOURCE_DIR=`${PROJECT_SOURCE_DIR}`)
   #message(target_src_dir_abs=`${target_src_dir_abs}`)
   file(RELATIVE_PATH target_src_dir_path ${PROJECT_SOURCE_DIR} ${target_src_dir_abs})
