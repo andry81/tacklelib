@@ -53,6 +53,24 @@ macro(tkl_popset_package_vars)
   unset(_9DB7D667_has_system_context_vars)
 endmacro()
 
+# NOTE:
+#   Currently hooks only as a macro.
+#
+macro(project project_name)
+  message("creating project: `${project_name}`...")
+
+  # use project name as package name
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" "${project_name}")
+
+  # use current cmake list directory as package source directory
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
+
+  # use additional stack to detect pop
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
+
+  _project(${ARGV})
+endmacro()
+
 if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS)
   macro(tkl_add_library_invoker)
     _add_library(${ARGV})

@@ -130,20 +130,19 @@ include(tacklelib/Utility)
 #   Default assignment rules described above.
 #
 # `global`:
-#   Special variable class which value must stay the same between all packages, otherwise an error would be thrown.
+#   Special variable class which value must stay the same between all packages, otherwise an error will be thrown.
 #   Basically used for global 3dparty variables referenced from different packages.
-#   Can be declared only once per a package, can be specialized by new assignment, but can not be reassigned by the same specialization,
-#   otherwise an error (instead of a warning) would be thrown.
+#   Can be declared only once per a package, can be specialized by a new assignment, but can not be reassigned by the same specialization,
+#   otherwise an error (instead of a warning) will be thrown.
 #
 # `top`:
 #   A top level package variable in a global scope if `package` attribute is not set or in a package scope if set.
 #   If a variable has been assigned at least in one package with the `top` attribute, then the same variable
-#   must be assigned with the `top` attribute in all packages referenced from or to that package, otherwise an error would be thrown.
+#   must be assigned with the `top` attribute in all packages referenced from or to that package, otherwise an error will be thrown.
 #   Only a top level package would allow assignment of a top level package variable using the rules and then
 #   all not top level packages would silently ignore the assignment of the same variable.
-#   All assignments in the same package after the first assignment with the `top` attribute must use the `override` attribute
-#   instead of the `top` attribute to declare intention to override an assignment of the top level package variable in the same package,
-#   otherwise an error would be thrown.
+#   All assignments after the first assignment with the `top` attribute must use additionally the `override` attribute to declare intention to
+#   override an assignment of a top level package variable in any package, otherwise an error will be thrown.
 #
 
 # VARIABLE TYPE ATTRIBUTES:
@@ -182,35 +181,55 @@ include(tacklelib/Utility)
 #
 # `force_cache`:
 #   Applicable only to the cache storage variables. Declares a forced cache variable with the inner `FORCE` attribute in a cmake `set` command.
+#   Must be used with an assignment.
 #
 # `force`:
 #   Forces a variable assignment irrespective to the rules (described above).
+#   Must be used with an assignment.
 #
 # `override`:
-#   Overrides assignment in not top level packages.
+#   Overrides an assignment in not top level packages.
 #   Must be used ONLY to override an assignment of a top level package variable in a not top level package.
+#   Must be used with an assignment.
 #
 # `unset`:
-#   Remove the variable.
+#   Removes a variable not losing the state versus other attributes.
 #   Can be used with other required attributes.
+#   Can be set later under the same attributes if was not finalized for the same context in the previous instruction with the variable.
 #   Must be used without an assignment.
 #
+# `hide`:
+#   Hides a variable not losing the state versus other attributes.
+#   Can be used with other required attributes.
+#   Can be set later with a value, but a value is not visible until unhided back if was not finalized for the same context in the previous instruction with the variable.
+#   Must be used without an assignment.
+#   Can be applied respectively per variable storage.
+#
+# `unhide`:
+#   Unhides a variable.
+#   Can be used with other required attributes.
+#   Can be hided later under the same attributes if was not finalized for the same context in the previous instruction with the variable.
+#   Must be used without an assignment.
+#   Can be applied respectively per variable storage.
+#
 # `package`:
-#   Applicable only to variables with the `final` attribute. Declares final variable in a package scope.
+#   Applicable only to variables with the `final` or the `hide` attribute. Declares a finalized or a hided variable in a package scope.
 #
 # `final`:
-#   A variable with sealed assignment or final assignment.
-#   Must be always final, otherwise an error would be thrown.
-#   Without the `package` attribute applies to a last assignment irrespective to a package.
-#   With the `package` attribute applies only to the current package, in next level package can be reassigned or sealed again.
+#   A variable with sealed or finalized assignment or instruction.
+#   Must be always final, otherwise an error will be thrown.
+#   Without the `package` attribute applies to a last assignment or instruction irrespective to the package.
+#   With the `package` attribute applies only to the current package, in a next level package can be reassigned, issued or finilized again.
 #
 # `exist`:
 #   An existed path value.
 #   Must be declared together with the `path` attribute.
+#   Must be used with an assignment.
 #
 # `canonical`:
 #   A canonical path value.
 #   Must be declared together with the `path` attribute.
+#   Must be used with an assignment.
 #
 
 # CURRENT STATE: BETA, not all attributes are implemented properly, TODO: TESTS!
@@ -221,20 +240,28 @@ include(tacklelib/Utility)
 #   * global + package
 #   * force + override
 #   * force + package (if have no `final` attribute)
-#   * unset + <other modificator except `top`, `final`, `package`>
-#   * unset + <any type attribute>
-#   * unset + <specialization>
-#   * unset + global
+#   * unset/hide/unhide + <other modificator except `top`, `final`, `package`>
+#   * unset/hide/unhide + <any type attribute>
+#   * unset/hide/unhide + <specialization>
+#   * unset/hide/unhide + global
 #
 # Available attribute compositions:
 #   * top + override
-#   * top + unset
+#   * top + unset/hide/unhide
 #   * final + <any>
+
+# Package entity description:
+#   Package is a virtual entity created by these set of cmake functions
+#   maintained by hooks:
+#   * `find_package`
+#   * `add_subdirectory` followed by call to the `project` function.
+#      Set of calls to the nested `add_subdirectory` function under the same
+#      `project` does not create a new package!
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN THE SAME PACKAGE
 #
 # Legend:
-#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
+#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match, error in other cases
 #   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to rules
 #   n/a         - not applicable, may throw an error
@@ -251,23 +278,23 @@ include(tacklelib/Utility)
 # unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
 # top unset    |  n/a        |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
 #
-# '. ASSIGN N+1|             |                                         |             |             |             |  force
-#   '-------,  |             |                                         |             |             |  force      |  final
-# ASSIGN N   '.|  unset      |                                         |  top unset  |             |  final      |  package
-# -------------+-------------+                                         +-------------+             +-------------+-------------
-# <not set>    |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
-# global       |  OK         |                                         |  n/a        |             |  OK,uncond  |  n/a
-# top          |  OK         |                                         |  n/a        |             |  n/a        |  n/a
-# final        |  n/a        |                                         |  n/a        |             |  n/a        |  n/a
-# final package|  n/a        |                                         |  n/a        |             |  n/a        |  n/a
-# unset        |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
-# top unset    |  OK         |                                         |  n/a        |             |  n/a        |  n/a
+# '. ASSIGN N+1|             |             |                           |             |             |             |  force
+#   '-------,  |             |             |                           |             |  top        |  force      |  final
+# ASSIGN N   '.|  unset      |  (un)hide   |                           |  top unset  |  (un)hide   |  final      |  package
+# -------------+-------------+-------------+                           +-------------+-------------+-------------+-------------
+# <not set>    |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
+# global       |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  n/a
+# top          |  OK         |  OK         |                           |  n/a        |  n/a        |  n/a        |  n/a
+# final        |  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
+# final package|  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
+# unset        |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
+# top unset    |  OK         |  OK         |                           |  n/a        |  n/a        |  n/a        |  n/a
 #
 
-# ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN DIFFERENT PACKAGE LEVELS
+# ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE AT DIFFERENT PACKAGE LEVELS
 #
 # Legend:
-#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
+#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match, error in other cases
 #   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to the rules
 #   OK,equal    - value must stay the same (if was unset, then equal to last not empty value)
@@ -286,17 +313,17 @@ include(tacklelib/Utility)
 # unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
 # top unset    |  OK         |  n/a        |  OK,uncond  |  n/a        |  ignore     |  OK,uncond  |  n/a        |  n/a
 #
-# '.  LEVEL N+K|             |                                         |             |             |             |  force
-#   '-------,  |             |                                         |             |             |  force      |  final
-#  LEVEL N   '.|  unset      |                                         |  top unset  |             |  final      |  package
-# -------------+-------------+                                         +-------------+             +-------------+-------------
-# <not set>    |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
-# global       |  OK         |                                         |  n/a        |             |  OK,uncond  |  n/a
-# top          |  n/a        |                                         |  OK         |             |  n/a        |  n/a
-# final        |  n/a        |                                         |  n/a        |             |  n/a        |  n/a
-# final package|  OK,uncond  |                                         |  n/a        |             |  n/a        |  n/a
-# unset        |  OK         |                                         |  n/a        |             |  OK,uncond  |  OK,uncond
-# top unset    |  n/a        |                                         |  OK         |             |  n/a        |  n/a
+# '.  LEVEL N+K|             |             |                           |             |             |             |  force
+#   '-------,  |             |             |                           |             |  top        |  force      |  final
+#  LEVEL N   '.|  unset      |  (un)hide   |                           |  top unset  |  (un)hide   |  final      |  package
+# -------------+-------------+-------------+                           +-------------+-------------+-------------+-------------
+# <not set>    |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
+# global       |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  n/a
+# top          |  n/a        |  n/a        |                           |  OK         |  OK         |  n/a        |  n/a
+# final        |  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
+# final package|  OK,uncond  |  OK,uncond  |                           |  n/a        |  n/a        |  n/a        |  n/a
+# unset        |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
+# top unset    |  n/a        |  n/a        |                           |  OK         |  OK         |  n/a        |  n/a
 #
 
 # CAUTION:
@@ -461,10 +488,10 @@ endfunction()
 # <file_paths>:           Sublist of file paths to load from.
 #
 # CONFIGURATION FILE FORMAT:
-#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=<value>
-#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]]=(<value0> [<value1> [... <valueN>]])
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
 #
-# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | unset | package | final
+# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
@@ -844,6 +871,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       get_property(config_${config_var_name}_defined
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_defined)
+      get_property(config_${config_var_name}_package_defined
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_package_defined)
 
       get_property(config_${config_var_name}_load_index
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_load_index)
@@ -868,12 +897,31 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_property(config_${config_var_name}_unset_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_unset_var)
 
+      get_property(config_${config_var_name}_hidden_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var)
+      get_property(config_${config_var_name}_hidden_var_value
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_value)
+
+      get_property(config_${config_var_name}_hidden_var_cache
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache)
+      get_property(config_${config_var_name}_hidden_var_cache_value
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_value)
+      get_property(config_${config_var_name}_hidden_var_cache_type
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_type)
+      get_property(config_${config_var_name}_hidden_var_cache_docstring
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_docstring)
+      get_property(config_${config_var_name}_hidden_var_cache_with_force
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_with_force)
+
+      get_property(config_${config_var_name}_hidden_var_env
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_env)
+      get_property(config_${config_var_name}_hidden_var_env_value
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_env_value)
+
       get_property(config_${config_var_name}_global_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_global_var)
       get_property(config_${config_var_name}_top_package_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_package_var)
-      get_property(config_${config_var_name}_top_package_ignored_var
-        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_package_ignored_var)
       get_property(config_${config_var_name}_final_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_final_var)
       get_property(config_${config_var_name}_package_scope_var
@@ -909,24 +957,36 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endif()
 
     set(config_${injected_var_name} "${TACKLELIB_${injected_var_name}}")
-    set(config_${injected_var_name}_defined 1)
+    set(config_${injected_var_name}_defined 1)          # global definition counter
+    set(config_${injected_var_name}_package_defined 1)  # package definition counter
 
     set(config_${injected_var_name}_load_index ${config_load_index})
     set(config_${injected_var_name}_package_nest_lvl ${config_package_nest_lvl})
 
-    set(config_${injected_var_name}_file_path_c "") # does not have associated comparable file path
-    set(config_${injected_var_name}_file_index -1)  # does not have associated file index
-    set(config_${injected_var_name}_line 0)         # does not have associated file line
+    set(config_${injected_var_name}_file_path_c "")     # does not have associated comparable file path
+    set(config_${injected_var_name}_file_index -1)      # does not have associated file index
+    set(config_${injected_var_name}_line 0)             # does not have associated file line
     set(config_${injected_var_name}_os_name "")
     set(config_${injected_var_name}_compiler_name "")
     set(config_${injected_var_name}_config_name "")
     set(config_${injected_var_name}_arch_name "")
 
-    set(config_${injected_var_name}_unset_var 0)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
+    set(config_${injected_var_name}_unset_var 0)        # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
+
+    set(config_${injected_var_name}_hidden_var 0)
+    unset(config_${injected_var_name}_hidden_var_value)
+
+    set(config_${injected_var_name}_hidden_var_cache 0)
+    unset(config_${injected_var_name}_hidden_var_cache_value)
+    unset(config_${injected_var_name}_hidden_var_cache_type)
+    unset(config_${injected_var_name}_hidden_var_cache_docstring)
+    unset(config_${injected_var_name}_hidden_var_cache_with_force)
+
+    set(config_${injected_var_name}_hidden_var_env 0)
+    unset(config_${injected_var_name}_hidden_var_env_value)
 
     set(config_${injected_var_name}_global_var 1)   # always global
     set(config_${injected_var_name}_top_package_var 0)
-    set(config_${injected_var_name}_top_package_ignored_var 0)
     set(config_${injected_var_name}_final_var 0)
     set(config_${injected_var_name}_package_scope_var 0)
 
@@ -963,24 +1023,36 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       #
       set(config_${make_var_name} "*:\$/{${make_var_name}}")
     endif()
-    set(config_${make_var_name}_defined 1)
+    set(config_${make_var_name}_defined 1)          # global definition counter
+    set(config_${make_var_name}_package_defined 1)  # package definition counter
 
     set(config_${make_var_name}_load_index ${config_load_index})
     set(config_${make_var_name}_package_nest_lvl ${config_package_nest_lvl})
 
-    set(config_${make_var_name}_file_path_c "") # does not have associated comparable file path
-    set(config_${make_var_name}_file_index -1)  # does not have associated file index
-    set(config_${make_var_name}_line 0)         # does not have associated file line
+    set(config_${make_var_name}_file_path_c "")     # does not have associated comparable file path
+    set(config_${make_var_name}_file_index -1)      # does not have associated file index
+    set(config_${make_var_name}_line 0)             # does not have associated file line
     set(config_${make_var_name}_os_name "")
     set(config_${make_var_name}_compiler_name "")
     set(config_${make_var_name}_config_name "")
     set(config_${make_var_name}_arch_name "")
 
-    set(config_${make_var_name}_unset_var 0)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
+    set(config_${make_var_name}_unset_var 0)        # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
+
+    set(config_${make_var_name}_hidden_var 0)
+    unset(config_${make_var_name}_hidden_var_value)
+
+    set(config_${make_var_name}_hidden_var_cache 0)
+    unset(config_${make_var_name}_hidden_var_cache_value)
+    unset(config_${make_var_name}_hidden_var_cache_type)
+    unset(config_${make_var_name}_hidden_var_cache_docstring)
+    unset(config_${make_var_name}_hidden_var_cache_with_force)
+
+    set(config_${make_var_name}_hidden_var_env 0)
+    unset(config_${make_var_name}_hidden_var_env_value)
 
     set(config_${make_var_name}_global_var 0)
     set(config_${make_var_name}_top_package_var 0)
-    set(config_${make_var_name}_top_package_ignored_var 0)
     set(config_${make_var_name}_final_var 0)
     set(config_${make_var_name}_package_scope_var 0)
 
@@ -1147,6 +1219,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (NOT DEFINED config_${var_name}_defined)
           set(config_${var_name}_defined 0)
         endif()
+        set(config_${var_name}_package_defined 0)
 
         set(var_type "")
 
@@ -1180,8 +1253,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # exclusive cmake environment variable set, not environment variable does remove, all other variable types must not be declared
         set(use_only_env_var 0)
 
-        # use final variable assignment to throw an error on next variable assignment
+        # use final variable assignment to throw an error on next variable assignment, or use final variable disable to ignore next variable assignment or redisable
         set(use_final_var 0)
+
+        # hide variable's value (until unhided, ignores the same variable hide)
+        set(use_hide_var 0)
+
+        # unhine variable's value (until hided, ignores the same variable unhide)
+        set(use_unhide_var 0)
 
         # use package scope variable
         set(use_package_scope_var 0)
@@ -1218,6 +1297,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           if (NOT use_unset_var AND "UNSET" IN_LIST var_name_attr_list_upper)
             set(use_unset_var 1)
+          endif()
+
+          if (NOT use_hide_var AND "HIDE" IN_LIST var_name_attr_list_upper)
+            set(use_hide_var 1)
+          endif()
+
+          if (NOT use_unhide_var AND "UNHIDE" IN_LIST var_name_attr_list_upper)
+            set(use_unhide_var 1)
           endif()
 
           if ("BOOL" IN_LIST var_name_attr_list_upper)
@@ -1272,41 +1359,86 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # unconditionally applicable checks before any filter...
 
-        # unset + <other modificator except `final` or `package`>
-        if (use_unset_var)
-          if (use_override_var)
-            message(FATAL_ERROR "The variable UNSET and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          elseif (use_force_cache_var)
-            message(FATAL_ERROR "The variable UNSET and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          elseif (use_force_var)
-            message(FATAL_ERROR "The variable UNSET and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          elseif (use_existed_value)
-            message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          elseif (use_canonical_value)
-            message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          endif()
+        # hide + unhide
+        if (use_hide_var AND use_unhide_var)
+          message(FATAL_ERROR "The variable HIDE and UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
 
-          # unset + global
-          if (use_global_var)
-            message(FATAL_ERROR "The global variable UNSET must be issued without GLOBAL modificator: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          endif()
+        # 1. unset + <other modificator except `final` or `package`>
+        # 2. hide/unhide + <other modificator except `final` or `package`>
+        if (use_unset_var OR use_hide_var OR use_unhide_var)
+          if (use_unset_var)
+            if (use_hide_var OR use_unhide_var)
+              message(FATAL_ERROR "The variable UNSET and HIDE/UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_override_var)
+              message(FATAL_ERROR "The variable UNSET and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_force_cache_var)
+              message(FATAL_ERROR "The variable UNSET and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_force_var)
+              message(FATAL_ERROR "The variable UNSET and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_existed_value)
+              message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_canonical_value)
+              message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
 
-          # unset + <any type attribute>
-          if (NOT var_type STREQUAL "")
-            message(FATAL_ERROR "The variable UNSET must be issued without variable type: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          endif()
+            # unset + global
+            if (use_global_var)
+              message(FATAL_ERROR "The variable UNSET and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
 
-          # unset with variable value
-          if (var_has_value)
-            message(FATAL_ERROR "The variable UNSET must be issued without variable value: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          endif()
+            # unset + <any type attribute>
+            if (NOT var_type STREQUAL "")
+              message(FATAL_ERROR "The variable UNSET and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
 
-          # unset + <specialization>
-          if ((NOT var_os_name STREQUAL "") OR
-              (NOT var_compiler_name STREQUAL "") OR
-              (NOT var_config_name STREQUAL "") OR
-              (NOT var_arch_name STREQUAL ""))
-            message(FATAL_ERROR "The variable UNSET must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            # unset in assignment
+            if (var_has_value)
+              message(FATAL_ERROR "The variable UNSET must be issued without assignment: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # unset + <specialization>
+            if ((NOT var_os_name STREQUAL "") OR
+                (NOT var_compiler_name STREQUAL "") OR
+                (NOT var_config_name STREQUAL "") OR
+                (NOT var_arch_name STREQUAL ""))
+              message(FATAL_ERROR "The variable UNSET must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+          elseif (use_hide_var OR use_unhide_var)
+            if (use_override_var)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_force_cache_var)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_force_var)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_existed_value)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_canonical_value)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # hide/unhide + global
+            if (use_global_var)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # hide/unhide + <any type attribute>
+            if (NOT var_type STREQUAL "")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # hide/unhide in assingment
+            if (var_has_value)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without assignment: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # hide/unhide + <specialization>
+            if ((NOT var_os_name STREQUAL "") OR
+                (NOT var_compiler_name STREQUAL "") OR
+                (NOT var_config_name STREQUAL "") OR
+                (NOT var_arch_name STREQUAL ""))
+              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
           endif()
         elseif (NOT var_has_value)
           # variable assignment expression without a value is an error
@@ -1314,9 +1446,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           continue()
         endif()
 
-        # global + override
+        # global + ...
         if (use_global_var)
-          if (use_final_var)
+          if (use_override_var)
             message(FATAL_ERROR "The variable GLOBAL and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           elseif (use_top_package_var)
             message(FATAL_ERROR "The variable GLOBAL and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
@@ -1346,8 +1478,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         # package w/o final
-        if (use_package_scope_var AND NOT use_final_var)
-          message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        if (use_package_scope_var AND NOT use_final_var AND NOT use_hide_var)
+          message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL or w/o the HIDE attributes: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
+        # package with unhide
+        if (use_package_scope_var AND use_unhide_var)
+          message(FATAL_ERROR "The variable PACKAGE attribute is not supported with the UNHIDE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         if (NOT var_type STREQUAL "path" AND use_existed_value)
@@ -1356,6 +1493,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (NOT var_type STREQUAL "path" AND use_canonical_value)
           message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
+        # builtins checks...
+
+        if (use_unset_var OR use_hide_var OR use_unhide_var)
+          if ("${var_name}" IN_LIST injected_vars_list)
+            message(FATAL_ERROR "The UNSET/HIDE/UNHIDE can not be applied to the builtin variables: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
         endif()
 
         # not silent variable name ignore checks...
@@ -1377,11 +1522,183 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           continue()
         endif()
 
-        # variable unset
-        if (use_unset_var)
-          unset(config_${var_name})
+        # variable unset/hide/unhide
+        if (use_unset_var OR use_hide_var OR use_unhide_var)
+          if (use_hide_var)
+            # move a value to the hidden storage
 
-          if (NOT config_${var_name}_defined)
+            # first class storage
+            if (NOT use_only_cache_var AND NOT use_only_env_var)
+              if (DEFINED config_${var_name})
+                set(config_${var_name}_hidden_var_value "${config_${var_name}}")
+              else()
+                unset(config_${var_name}_hidden_var_value)
+              endif()
+
+              if (NOT config_${var_name}_hidden_var)
+                unset(config_${var_name})
+              endif()
+
+              set(config_${var_name}_hidden_var 1)
+            endif()
+
+            # cache variable
+            if (use_only_cache_var OR use_cache_var)
+              # the same condition as for a usual cache variable
+              if (NOT config_${var_name}_hidden_var_cache OR use_force_cache_var)
+                tkl_get_var(. config_${var_name}_hidden_var_cache_value ${var_name})
+                # get the rest cache properties of a variable
+                get_property(config_${var_name}_hidden_var_cache_type CACHE "${var_name}" PROPERTY TYPE)
+                get_property(config_${var_name}_hidden_var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
+                set(config_${var_name}_hidden_var_cache_with_force ${use_force_cache_var})
+                set(config_${var_name}_hidden_var_cache 1)
+              endif()
+            endif()
+
+            # environment variable
+            if (use_only_env_var OR use_env_var)
+              if (DEFINED ENV{${var_name}})
+                set(config_${var_name}_hidden_var_env_value "$ENV{${var_name}}")
+              else()
+                unset(config_${var_name}_hidden_var_env_value)
+              endif()
+              set(config_${var_name}_hidden_var_env 1)
+            endif()
+          endif()
+
+          if (use_unset_var)
+            if (NOT use_only_cache_var AND use_only_env_var)
+              # unset hidden variable storage too
+              if (config_${var_name}_hidden_var)
+                unset(config_${var_name}_hidden_var_value)
+              endif()
+
+              unset(config_${var_name})
+            endif()
+
+            if (use_only_cache_var OR use_cache_var)
+              # unset hidden variable storage too
+              if (config_${var_name}_hidden_var_cache)
+                unset(config_${var_name}_hidden_var_cache_value)
+                unset(config_${var_name}_hidden_var_cache_type)
+                unset(config_${var_name}_hidden_var_cache_docstring)
+                unset(config_${var_name}_hidden_var_cache_with_force)
+              endif()
+
+              unset(${var_name} CACHE)
+            endif()
+
+            if (use_only_env_var OR use_env_var)
+              # unset hidden variable storage too
+              if (config_${var_name}_hidden_var_env)
+                unset(config_${var_name}_hidden_var_env_value)
+              endif()
+
+              unset(ENV{${var_name}})
+            endif()
+          endif()
+
+          if(use_unhide_var)
+            # move a value from the hidden storage
+
+            # first class storage
+            if (NOT use_only_cache_var AND NOT use_only_env_var)
+              if (config_${var_name}_hidden_var)
+                if (DEFINED config_${var_name}_hidden_var_value)
+                  set(config_${var_name} "${config_${var_name}_hidden_var_value}")
+                else()
+                  unset(config_${var_name})
+                endif()
+                unset(config_${var_name}_hidden_var_value)
+                set(config_${var_name}_hidden_var 0)
+              endif()
+            endif()
+
+            # cache variable
+            if (use_only_cache_var OR use_cache_var)
+              if (config_${var_name}_hidden_var_cache)
+                if (DEFINED config_${var_name}_hidden_var_cache_value)
+                  # CAUTION:
+                  #   Resets the original variable!
+                  #
+                  if (config_${var_name}_hidden_var_cache_with_force)
+                    set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}" FORCE)
+                  else()
+                    set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}")
+                  endif()
+                else()
+                  unset(${var_name} CACHE)
+                endif()
+                unset(config_${var_name}_hidden_var_cache_value)
+                unset(config_${var_name}_hidden_var_cache_type)
+                unset(config_${var_name}_hidden_var_cache_docstring)
+                unset(config_${var_name}_hidden_var_cache_with_force)
+                set(config_${var_name}_hidden_cache_var 0)
+              endif()
+            endif()
+
+            # environment variable
+            if (use_only_env_var OR use_env_var)
+              if (config_${var_name}_hidden_var_env)
+                if (DEFINED config_${var_name}_hidden_var_env_value AND NOT DEFINED config_${var_name})
+                  set(config_${var_name} "${config_${var_name}_hidden_var_env_value}")
+                endif()
+                unset(config_${var_name}_hidden_var_env_value)
+                set(config_${var_name}_hidden_env_var 0)
+              endif()
+            endif()
+          endif()
+
+          if (config_${var_name}_defined)
+            # is a variable from the same level package?
+            if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
+              # global
+              if (config_${var_name}_global_var)
+                if (use_global_var)
+                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                endif()
+              elseif (use_global_var)
+                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+              # top
+              if (config_${var_name}_top_package_var)
+                if (use_top_package_var)
+                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                endif()
+              elseif (use_top_package_var)
+                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+            else()
+              # global
+              if (config_${var_name}_global_var)
+                if (config_${var_name}_package_defined)
+                  if (use_global_var)
+                    message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                  endif()
+                else()
+                  if (NOT use_global_var)
+                    message(FATAL_ERROR "The GLOBAL variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                  endif()
+                endif()
+              elseif (use_global_var)
+                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+              # top
+              if (config_${var_name}_top_package_var)
+                if (config_${var_name}_package_defined)
+                  if (use_top_package_var)
+                    message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                  endif()
+                else()
+                  if (NOT use_top_package_var)
+                    message(FATAL_ERROR "The TOP variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                  endif()
+                endif()
+              elseif (use_top_package_var)
+                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+            endif()
+          else()
             # save variable token suffix and other parameter to compare it later
             set(config_${var_name}_load_index "${config_load_index}")
             set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
@@ -1399,12 +1716,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_top_package_var ${use_top_package_var})
             set(config_${var_name}_final_var ${use_final_var})
             set(config_${var_name}_package_scope_var ${use_package_scope_var})
-
-            if (use_top_package_var)
-              set(config_${var_name}_top_package_ignored_var 1)
-            else()
-              set(config_${var_name}_top_package_ignored_var 0)
-            endif()
 
             if (grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
               # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
@@ -1431,26 +1742,39 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_var_values_onchange_list "")
             endif()
 
-            set(config_${var_name}_defined 1)     # defined to enable checks for the next assignment
-
             # append variable to the state list
             if (NOT var_name IN_LIST config_var_names)
               list(APPEND config_var_names "${var_name}")
             endif()
           endif()
 
-          set(config_${var_name}_unset_var 1)    # basically has meaning for variables with the `top` attribute to validate and ignore the variable in another package
-
-          if (use_only_cache_var OR use_cache_var)
-            unset(${var_name} CACHE)
+          if (use_unset_var)
+            set(config_${var_name}_unset_var 1)   # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
           endif()
 
+          # increment global definition counter
+          math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
+
+          # update the actual variable
+
+          # first class storage as is
           if (NOT use_only_cache_var AND NOT use_only_env_var)
-            unset(${var_name} PARENT_SCOPE)
+            if (set_vars)
+              if (DEFINED config_${var_name})
+                set(${var_name} "${config_${var_name}}" PARENT_SCOPE)
+              else()
+                unset(${var_name} PARENT_SCOPE)
+              endif()
+            endif()
           endif()
 
-          if (use_only_env_var OR use_env_var)
-            unset(ENV{${var_name}})
+          # environment variable from first class storage variable
+          if (set_env_vars)
+            if (DEFINED config_${var_name})
+              set(ENV{var_name} "${config_${var_name}}")
+            else()
+              unset(ENV{var_name})
+            endif()
           endif()
 
           if (print_vars_set)
@@ -1717,15 +2041,15 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             # global
             if (config_${var_name}_global_var)
               if (use_global_var)
-                message(FATAL_ERROR "The global variable must be declared only once per package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
               endif()
             elseif (use_global_var)
               message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             # top
             if (config_${var_name}_top_package_var)
-              if (use_top_package_var AND NOT config_${var_name}_top_package_ignored_var)
-                message(FATAL_ERROR "The top level variable must be declared only once per package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              if (use_top_package_var)
+                message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
               endif()
             elseif (use_top_package_var)
               message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
@@ -1733,43 +2057,81 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           else()
             # global
             if (config_${var_name}_global_var)
-              if (NOT use_global_var)
-                message(FATAL_ERROR "The global variable must be declared as GLOBAL in all other packages: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              if (config_${var_name}_package_defined)
+                if (use_global_var)
+                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
+              else()
+                if (NOT use_global_var)
+                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
               endif()
             elseif (use_global_var)
-              message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in another package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             # top
             if (config_${var_name}_top_package_var)
-              if (NOT use_top_package_var AND NOT config_${var_name}_top_package_ignored_var)
-                message(FATAL_ERROR "The top level variable must be declared as TOP in all other packages: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              if (config_${var_name}_package_defined)
+                if (use_top_package_var)
+                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
+              else()
+                if (NOT use_top_package_var)
+                  message(FATAL_ERROR "The TOP variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
               endif()
             elseif (use_top_package_var)
-              message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in another package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           endif()
         endif()
 
-        # final (re)assign
+        # final (re)assignment with or without specialization or enable/disable
         if (config_${var_name}_defined AND config_${var_name}_final_var)
           if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR (NOT use_package_scope_var))
-            message(FATAL_ERROR "The variable is a final specialization variable which can not be reassigned or specialized anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+            message(FATAL_ERROR "The variable is a final specialization variable which can not be (re)assigned or enabled/disabled (except reenable or redisabled) anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
           endif()
         endif()
 
         # all fatal checks has passed, continue with the non fatal
+        set(is_ignored_top_package_var 0)
         if (config_${var_name}_defined)
           # is a variable from a different level package?
           if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
             if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
               # a top level package variable in a not top level package, ignore it
-              set(config_${var_name}_top_package_ignored_var 1)
+              set(is_ignored_top_package_var 1)
             endif()
           endif()
         endif()
 
         # ignore only after all checks
-        if (config_${var_name}_top_package_ignored_var)
+        if (is_ignored_top_package_var)
+          # increment package definition counter
+          if (config_${var_name}_package_nest_lvl EQUAL config_package_nest_lvl)
+            math(EXPR config_${var_name}_package_defined ${config_${var_name}_package_defined}+1)
+          else()
+            math(EXPR config_${var_name}_package_defined 1)
+          endif()
+
+          # save variable token suffix and other parameter to compare it later
+          set(config_${var_name}_load_index "${config_load_index}")
+          set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
+
+          set(config_${var_name}_file_path_c "${file_path_c}")
+          set(config_${var_name}_file_index "${file_path_index}")
+          set(config_${var_name}_line "${var_file_content_line}")
+
+          set(config_${var_name}_os_name "${var_os_name_upper}")
+          set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
+          set(config_${var_name}_config_name "${var_config_name_upper}")
+          set(config_${var_name}_arch_name "${var_arch_name_upper}")
+
+          set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
+
+          # increment global definition counter
+          math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
+
           continue()
         endif()
 
@@ -2356,42 +2718,60 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               if (set_vars)
                 # cache always must be set at first
                 if (use_only_cache_var OR use_cache_var)
-                  if (is_bool_var_value)
-                    set(cache_var_type "BOOL")
-                  elseif (is_path_var_value GREATER 0)
-                    set(cache_var_type "PATH")
-                  else()
-                    set(cache_var_type "STRING")
-                  endif()
+                  if (NOT config_${var_name}_hidden_var_cache)
+                    if (is_bool_var_value)
+                      set(cache_var_type "BOOL")
+                    elseif (is_path_var_value GREATER 0)
+                      set(cache_var_type "PATH")
+                    else()
+                      set(cache_var_type "STRING")
+                    endif()
 
-                  # use original help string
-                  get_property(cache_var_desc CACHE "${var_name}" PROPERTY HELPSTRING)
+                    # use original help string
+                    get_property(cache_var_desc CACHE "${var_name}" PROPERTY HELPSTRING)
 
-                  if (use_force_cache_var)
+                    if (use_force_cache_var)
+                      # in quotes to enable a save variable's type as a list
+                      set(${var_name} "${var_parsed_value}" CACHE ${cache_var_type} "${cache_var_desc}" FORCE)
+                    else()
+                      # in quotes to enable a save variable's type as a list
+                      set(${var_name} "${var_parsed_value}" CACHE ${cache_var_type} "${cache_var_desc}")
+                    endif()
+                  elseif (use_force_cache_var) # the same condition as for a usual cache variable
                     # in quotes to enable a save variable's type as a list
-                    set(${var_name} "${var_parsed_value}" CACHE ${cache_var_type} "${cache_var_desc}" FORCE)
-                  else()
-                    # in quotes to enable a save variable's type as a list
-                    set(${var_name} "${var_parsed_value}" CACHE ${cache_var_type} "${cache_var_desc}")
+                    set(config_${var_name}_hidden_var_cache_value "${var_parsed_value}")
+                    set(config_${var_name}_hidden_var_cache_type ${cache_var_type})
+                    set(config_${var_name}_hidden_var_cache_with_force 1)
                   endif()
                 endif()
 
                 if (NOT use_only_cache_var AND NOT use_only_env_var)
-                  # in quotes to enable a save variable's type as a list
-                  set(${var_name} "${var_parsed_value}" PARENT_SCOPE)
-                endif()
-
-                if (use_only_cache_var OR use_only_env_var)
-                  unset(${var_name} PARENT_SCOPE)
+                  if (NOT config_${var_name}_hidden_var)
+                    # in quotes to enable a save variable's type as a list
+                    set(${var_name} "${var_parsed_value}" PARENT_SCOPE)
+                  else()
+                    # set instead the hidden variable storage
+                    set(config_${var_name}_hidden_var_value "${var_parsed_value}")
+                  endif()
                 endif()
 
                 if (use_only_env_var OR use_env_var)
-                  # in quotes to enable a save variable's type as a list
-                  set(ENV{${var_name}} "${var_parsed_value}")
+                  if (NOT config_${var_name}_hidden_env_var)
+                    # in quotes to enable a save variable's type as a list
+                    set(ENV{${var_name}} "${var_parsed_value}")
+                  else()
+                    # in quotes to enable a save variable's type as a list
+                    set(config_${var_name}_hidden_var_env_value "${var_parsed_value}")
+                  endif()
                 endif()
               elseif (set_env_vars)
-                # in quotes to enable a save variable's type as a list
-                set(ENV{${var_name}} "${var_parsed_value}")
+                if (NOT config_${var_name}_hidden_env_var)
+                  # in quotes to enable a save variable's type as a list
+                  set(ENV{${var_name}} "${var_parsed_value}")
+                else()
+                  # in quotes to enable a save variable's type as a list
+                  set(config_${var_name}_hidden_var_env_value "${var_parsed_value}")
+                endif()
               endif()
             else()
               if (DEFINED var_lines_file_path)
@@ -2437,6 +2817,13 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               message("[${config_load_index}:${file_path_index}:${var_file_content_line}] [${var_token_suffix_note}] ${var_set_msg_name_attr_prefix_str}${var_name}=`${config_${var_name}}`${var_set_msg_suffix_str}")
             endif()
 
+            # increment package definition counter
+            if (config_${var_name}_package_nest_lvl EQUAL config_package_nest_lvl)
+              math(EXPR config_${var_name}_package_defined ${config_${var_name}_package_defined}+1)
+            else()
+              math(EXPR config_${var_name}_package_defined 1)
+            endif()
+
             # save variable token suffix and other parameter to compare it later
             set(config_${var_name}_load_index "${config_load_index}")
             set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
@@ -2445,32 +2832,15 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_file_index "${file_path_index}")
             set(config_${var_name}_line "${var_file_content_line}")
 
-            # reset the variable specialization in case of global/top/package attribute usage between packages
+            set(config_${var_name}_os_name "${var_os_name_upper}")
+            set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
+            set(config_${var_name}_config_name "${var_config_name_upper}")
+            set(config_${var_name}_arch_name "${var_arch_name_upper}")
+
+            set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
+
             if ((NOT config_${var_name}_defined) OR
-                (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR
-                (NOT use_global_var AND NOT use_top_package_var AND NOT config_${var_name}_package_scope_var))
-              set(config_${var_name}_os_name "${var_os_name_upper}")
-              set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
-              set(config_${var_name}_config_name "${var_config_name_upper}")
-              set(config_${var_name}_arch_name "${var_arch_name_upper}")
-            else()
-              set(config_${var_name}_os_name "")
-              set(config_${var_name}_compiler_name "")
-              set(config_${var_name}_config_name "")
-              set(config_${var_name}_arch_name "")
-            endif()
-
-            set(config_${var_name}_unset_var 0)
-
-            if (config_${var_name}_defined)
-              if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-                # reset after check
-                set(config_${var_name}_global_var ${use_global_var})
-                set(config_${var_name}_top_package_var ${use_top_package_var})
-                set(config_${var_name}_final_var ${use_final_var})
-                set(config_${var_name}_package_scope_var ${use_package_scope_var})
-              endif()
-            else()
+                (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl))
               set(config_${var_name}_global_var ${use_global_var})
               set(config_${var_name}_top_package_var ${use_top_package_var})
               set(config_${var_name}_final_var ${use_final_var})
@@ -2499,7 +2869,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               tkl_list_remove_sublist(config_${var_name}_var_values_onchange_list 0 2 config_${var_name}_var_values_onchange_list)
             endif()
 
-            set(config_${var_name}_defined 1)
+            # increment global definition counter
+            math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
 
             # append variable to the state list
             if (NOT var_name IN_LIST config_var_names)
@@ -2607,8 +2978,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}
         "${config_${config_var_name}}")
+
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_defined
         "${config_${config_var_name}_defined}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_package_defined
+        "${config_${config_var_name}_package_defined}")
 
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_load_index
         "${config_${config_var_name}_load_index}")
@@ -2633,12 +3007,31 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_unset_var
         "${config_${config_var_name}_unset_var}")
 
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var
+        "${config_${config_var_name}_hidden_var}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_value
+        "${config_${config_var_name}_hidden_var_value}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache
+        "${config_${config_var_name}_hidden_var_cache}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_value
+        "${config_${config_var_name}_hidden_var_cache_value}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_type
+        "${config_${config_var_name}_hidden_var_cache_type}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_docstring
+        "${config_${config_var_name}_hidden_var_cache_decstring}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_cache_with_force
+        "${config_${config_var_name}_hidden_var_cache_with_force}")
+
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_env
+        "${config_${config_var_name}_hidden_var_env}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_env_value
+        "${config_${config_var_name}_hidden_var_env_value}")
+
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_global_var
         "${config_${config_var_name}_global_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_package_var
         "${config_${config_var_name}_top_package_var}")
-      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_package_ignored_var
-        "${config_${config_var_name}_top_package_ignored_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_final_var
         "${config_${config_var_name}_final_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_package_scope_var
