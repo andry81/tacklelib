@@ -107,7 +107,16 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
     message(FATAL_ERROR "specific builtin variables are forbidden to use: `${var_name}`")
   endif()
 
-  get_property(var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
+  # `if (DEFINED CACHE{...})` is supported from 3.14.0: https://cmake.org/cmake/help/v3.14/release/3.14.html#commands
+  if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14.0")
+    if (DEFINED CACHE{${var_name}})
+      set(var_cache_value_is_set 1)
+    else()
+      set(var_cache_value_is_set 0)
+    endif()
+  else()
+    get_property(var_cache_value_is_set CACHE "${var_name}" PROPERTY VALUE SET)
+  endif()
 
   if (NOT var_cache_value_is_set)
     # propagate uncached variant of a variable

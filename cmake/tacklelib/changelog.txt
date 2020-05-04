@@ -1,3 +1,13 @@
+2020.05.04:
+* fixed: Project.cmake: reverted previous fix around `tkl::CMAKE_CURRENT_PACKAGE_NAME` as not correct and added minor changes
+* fixed: Checks.cmake: missed check in the `tkl_check_var` function
+* fixed: SetVarsFromFiles.cmake: multiple fixes around variables parser
+* new: Project.cmake, EnableTargetExtensions.cmake: use project name as a package name, detect project end in the end of the `add_subdirectory` function
+* new: SetVarsFromFiles.cmake: `hide` and `unhide` attributes to temporary hide a variable in a nested package or packages
+* new: EnableTargetExtensions.cmake: `project(...)` hook to push project name as a package name and print a being created project
+* changed: SetVarsFromFiles.cmake: in source documentation
+* changed: ForwardVariables.cmake: minor improvement in the `tkl_get_var` function
+
 2020.04.30:
 * fixed: Project.cmake: missed `tkl::CMAKE_CURRENT_PACKAGE_NAME` and `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` set in the `tkl_declare_target_builtin_properties` function
 * new: Checks.cmake: improved `tkl_check_var` function to additionally accept first argument as a user variable name

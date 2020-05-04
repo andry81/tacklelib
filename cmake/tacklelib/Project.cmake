@@ -29,8 +29,9 @@ cmake_minimum_required(VERSION 3.9)
 # 3. Be careful with the usual `set(<var> <value>)` when the cache value has
 #    been already exist, because it actually does not change the cache value but
 #    changes state of the ${<var>} value. In another words if you try later to
-#    unset the original variable by the `unset(<var>)` then the cached value
-#    would be revealed and might be different than after the very first set!
+#    unset the cache variable by the `unset(<var> CACHE)`, then the not cached
+#    value will be revealed and might be different when after the very first
+#    set!
 #
 
 include(tacklelib/Std)
@@ -839,6 +840,8 @@ function(tkl_declare_target_builtin_properties target)
 
     get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME" SET)
     get_property(is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" SET)
+
+    get_property(is_target_PACKAGE_NAME_set TARGET ${target} PROPERTY PACKAGE_NAME SET)
     get_property(is_target_PACKAGE_SOURCE_DIR_set TARGET ${target} PROPERTY PACKAGE_SOURCE_DIR SET)
 
     # back compatability, just in case
@@ -847,21 +850,24 @@ function(tkl_declare_target_builtin_properties target)
       set_target_properties(${target} PROPERTIES SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
     endif()
 
-    if (is_global_CMAKE_CURRENT_PACKAGE_NAME_set)
-      get_property(global_CMAKE_CURRENT_PACKAGE_NAME GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
-      set_target_properties(${target} PROPERTIES PACKAGE_NAME "${global_CMAKE_CURRENT_PACKAGE_NAME}")
-    else()
-      set_property(GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME" "${PROJECT_NAME}")
-      set_target_properties(${target} PROPERTIES PACKAGE_NAME "${PROJECT_NAME}")
+    if (NOT is_target_PACKAGE_NAME_set)
+      if (is_global_CMAKE_CURRENT_PACKAGE_NAME_set)
+        get_property(global_CMAKE_CURRENT_PACKAGE_NAME GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
+        set_target_properties(${target} PROPERTIES PACKAGE_NAME "${global_CMAKE_CURRENT_PACKAGE_NAME}")
+      else()
+        # CAUTION: project name instead, but that still is not a package name!
+        set_target_properties(${target} PROPERTIES PACKAGE_NAME "${PROJECT_NAME}")
+      endif()
     endif()
 
-    if (is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set)
-      get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-      set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-    else()
-      # cmake list directory instead, but that is still not a package directory!
-      set_property(GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "${CMAKE_CURRENT_LIST_DIR}")
-      set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+    if (NOT is_target_PACKAGE_SOURCE_DIR_set)
+      if (is_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR_set)
+        get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+        set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+      else()
+        # CAUTION: cmake list directory instead, but that still is not a package directory!
+        set_target_properties(${target} PROPERTIES PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+      endif()
     endif()
 
     # in case if cmake list directory would require too
@@ -1014,6 +1020,18 @@ endfunction()
 function(tkl_add_subdirectory_end target_src_dir)
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
+  endif()
+
+  get_property(global_CMAKE_CURRENT_PROJECT_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR")
+  if (target_src_dir_abs STREQUAL global_CMAKE_CURRENT_PROJECT_SOURCE_DIR)
+    # project name
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
+
+    # package source directory
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
+
+    # use additional stack to detect pop
+    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package")
   endif()
 
   tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
@@ -1985,14 +2003,14 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
         if(package_target_rel_path_pattern STREQUAL ".") # special pattern means "equal to package source directory" or "not recursively from package source directory"
           if(package_target_rel_path_dir STREQUAL package_target_rel_path_pattern)
             set_target_properties(${target} PROPERTIES ${property_type} ${property_value})
-            #message(  "set_target_properties(${target} PROPERTIES ${property_type} ${property_value}\n")
+            #message("  set_target_properties(${target} PROPERTIES ${property_type} ${property_value})\n")
           endif()
         elseif(package_target_rel_path_pattern STREQUAL "*") # special pattern means "any"
           set_target_properties(${target} PROPERTIES ${property_type} ${property_value})
-          #message(  "set_target_properties(${target} PROPERTIES ${property_type} ${property_value}\n")
+          #message("  set_target_properties(${target} PROPERTIES ${property_type} ${property_value})\n")
         elseif(package_target_rel_path_dir MATCHES ${package_target_rel_path_pattern})
           set_target_properties(${target} PROPERTIES ${property_type} ${property_value})
-          #message(  "set_target_properties(${target} PROPERTIES ${property_type} ${property_value}\n")
+          #message("  set_target_properties(${target} PROPERTIES ${property_type} ${property_value})\n")
         endif()
       endif()
     endif()

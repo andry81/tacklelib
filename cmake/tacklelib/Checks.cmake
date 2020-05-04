@@ -143,7 +143,7 @@ function(tkl_check_var var_opt var_type var_name)
   elseif (var_opt STREQUAL "OPTIONAL")
     # reserved
   # check `var_opt` as a user variable or if-expression
-  elseif (DEFINED ${var_opt})
+  elseif (DEFINED ${var_opt} AND ${var_opt})
     if (NOT DEFINED ${var_name})
       message(FATAL_ERROR "tkl_check_var: `${var_name}`: a variable must be defined; requireness: ${var_opt}=`${${var_opt}}`")
     endif()
