@@ -93,37 +93,6 @@ namespace tackle
         path_basic_string & operator+= (base_type r) = delete;
         path_basic_string & operator+= (const t_elem * p) = delete;
 
-        // NOTE:
-        //  W/o `= delete` to avoid compilation error under msvc2015 update 3: `error C2995: function template has already been defined`
-        //
-
-        // WORKAROUND: error C2556: overloaded function differs only by return type from
-        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
-            std::basic_string<t_elem_, t_traits_, t_alloc_> r);
-
-        // WORKAROUND: error C2556: overloaded function differs only by return type from
-        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
-            std::basic_string<t_elem_, t_traits_, t_alloc_> l,
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
-
-        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
-
-        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
-            const t_elem_ * p);
-
-        template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
-            const t_elem_ * p,
-            path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
-
     public:
         FORCE_INLINE path_basic_string & operator/= (base_type r)
         {

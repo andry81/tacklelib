@@ -1,3 +1,7 @@
+2020.05.06:
+* fixed: cpp: linkage error throws `error LNK2019: unresolved external symbol "..."` in the MSVC2017 15.9.19 compiler fix by removing the `operator+` function disable (not required)
+* changed: cpp: code cleanup
+
 2020.05.05:
 * fixed: cmake: multiple build fixes
 * refactor: cmake: global replace of `<variable> STREQUAL <variable>` by `<string> STREQUAL <string>` because the first sometimes does not work as expected
