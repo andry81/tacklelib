@@ -27,69 +27,13 @@ include(tacklelib/Reimpl)
 #         scope, the rest upper context would be restored on a function return.
 #
 
-macro(tkl_pushset_package_vars)
-  # push-set all registered context variables for a package source directory
-  get_property(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-  tkl_has_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" _9DB7D667_has_system_context_vars)
-  if (_9DB7D667_has_system_context_vars)
-    tkl_pushset_all_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-  endif()
-
-  unset(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
-  unset(_9DB7D667_has_system_context_vars)
-endmacro()
-
-macro(tkl_popset_package_vars)
-  # pop-set all registered context variables for a package source directory
-  get_property(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-  tkl_has_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" _9DB7D667_has_system_context_vars)
-  if (_9DB7D667_has_system_context_vars)
-    tkl_pop_all_system_context_vars("tkl_register_package_var" "${_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-  endif()
-
-  unset(_9DB7D667_global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR)
-  unset(_9DB7D667_has_system_context_vars)
-endmacro()
-
-# NOTE:
-#   Currently hooks only as a macro.
-#
-macro(project project_name)
-  message("creating project: `${project_name}`...")
-
-  # use project name as package name
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" "${project_name}")
-
-  # use current cmake list directory as package source directory
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
-
-  # use additional stack to detect pop
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
-
-  _project(${ARGV})
-endmacro()
-
 if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS)
-  macro(tkl_add_library_invoker)
-    _add_library(${ARGV})
-  endmacro()
-
-  macro(tkl_add_executable_invoker)
-    _add_executable(${ARGV})
-  endmacro()
-
-  macro(tkl_add_custom_target_invoker)
-    _add_custom_target(${ARGV})
+  macro(tkl_project_invoker)
+    _project(${ARGV})
   endmacro()
 
   macro(tkl_add_subdirectory_invoker)
-    tkl_pushset_package_vars()
-
     _add_subdirectory(${ARGV})
-
-    tkl_popset_package_vars()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()
@@ -106,11 +50,7 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS)
 
     tkl_add_subdirectory_begin(${ARGV})
 
-    tkl_pushset_package_vars()
-
     _add_subdirectory(${ARGV}) # DOES NOT CHANGE ARGVn arguments!
-
-    tkl_popset_package_vars()
 
     tkl_add_subdirectory_end(${ARGV})
     tkl_pop_ARGVn_from_stack()
@@ -129,18 +69,85 @@ if (NOT TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS)
     #
     tkl_pushset_ARGVn_to_stack(${ARGV})
 
-    tkl_pushset_package_vars()
-
     _find_package(${ARGV})
-
-    tkl_popset_package_vars()
 
     tkl_pop_ARGVn_from_stack()
 
     # Global variables inconsistency check, see details in this file header.
     tkl_check_global_vars_consistency()
   endmacro()
+
+  macro(tkl_add_library_invoker)
+    _add_library(${ARGV})
+  endmacro()
+
+  macro(tkl_add_executable_invoker)
+    _add_executable(${ARGV})
+  endmacro()
+
+  macro(tkl_add_custom_target_invoker)
+    _add_custom_target(${ARGV})
+  endmacro()
 else()
+  function(tkl_project_invoker)
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
+    tkl_track_vars_begin()
+
+    _project(${ARGV})
+
+    tkl_forward_changed_vars_to_parent_scope()
+    tkl_track_vars_end()
+  endfunction()
+
+  # CAUTION:
+  #   Must be a macro to automatically propagate changes from the inner
+  #   `_add_subdirectory`.
+  #
+  macro(tkl_add_target_subdirectory_invoker)
+    tkl_add_subdirectory_begin(${ARGV})
+    tkl_add_subdirectory_invoker(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    tkl_check_global_vars_consistency()
+
+    tkl_add_subdirectory_end(${ARGV})
+  endmacro()
+
+  function(tkl_add_subdirectory_invoker)
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
+    tkl_track_vars_begin()
+
+    _add_subdirectory(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    tkl_check_global_vars_consistency()
+
+    tkl_forward_changed_vars_to_parent_scope()
+    tkl_track_vars_end()
+  endfunction()
+
+  function(tkl_find_package_invoker)
+    # Now ARGx built-in variables would be related to the function parameters
+    # list instead of the upper caller context which might have has
+    # different/shifted parameters list, so now we have to propagate all
+    # changed variables (except the builtins) into upper context by ourselves!
+    tkl_track_vars_begin()
+
+    _find_package(${ARGV})
+
+    # Global variables inconsistency check, see details in this file header.
+    tkl_check_global_vars_consistency()
+
+    tkl_forward_changed_vars_to_parent_scope()
+    tkl_track_vars_end()
+  endfunction()
+
   function(tkl_add_library_invoker)
     # Now ARGx built-in variables would be related to the function parameters
     # list instead of the upper caller context which might have has
@@ -179,63 +186,20 @@ else()
     tkl_forward_changed_vars_to_parent_scope()
     tkl_track_vars_end()
   endfunction()
-
-  # CAUTION:
-  #   Must be a macro to automatically propagate changes from the inner
-  #   `_add_subdirectory`.
-  #
-  macro(tkl_add_target_subdirectory_invoker)
-    tkl_add_subdirectory_begin(${ARGV})
-    tkl_add_subdirectory_invoker(${ARGV})
-
-    # Global variables inconsistency check, see details in this file header.
-    tkl_check_global_vars_consistency()
-
-    tkl_add_subdirectory_end(${ARGV})
-  endmacro()
-
-  function(tkl_add_subdirectory_invoker)
-    # Now ARGx built-in variables would be related to the function parameters
-    # list instead of the upper caller context which might have has
-    # different/shifted parameters list, so now we have to propagate all
-    # changed variables (except the builtins) into upper context by ourselves!
-    tkl_track_vars_begin()
-
-    tkl_pushset_package_vars()
-
-    _add_subdirectory(${ARGV})
-
-    tkl_popset_package_vars()
-
-    # Global variables inconsistency check, see details in this file header.
-    tkl_check_global_vars_consistency()
-
-    tkl_forward_changed_vars_to_parent_scope()
-    tkl_track_vars_end()
-  endfunction()
-
-  function(tkl_find_package_invoker)
-    # Now ARGx built-in variables would be related to the function parameters
-    # list instead of the upper caller context which might have has
-    # different/shifted parameters list, so now we have to propagate all
-    # changed variables (except the builtins) into upper context by ourselves!
-    tkl_track_vars_begin()
-
-    tkl_pushset_package_vars()
-
-    _find_package(${ARGV})
-
-    tkl_popset_package_vars()
-
-    # Global variables inconsistency check, see details in this file header.
-    tkl_check_global_vars_consistency()
-
-    tkl_forward_changed_vars_to_parent_scope()
-    tkl_track_vars_end()
-  endfunction()
 endif()
 
 # cmake system functions reimplementation
+
+# CAUTION:
+#   Must not be redefined before or after, otherwise the infinite recursion can
+#   take a place!
+#
+macro(project project_name)
+  tkl_project_begin("${project_name}")
+  tkl_project_invoker(${ARGV})
+endmacro()
+
+tkl_register_implementation(macro project)
 
 # CAUTION:
 #   Must not be redefined before or after, otherwise the infinite recursion can

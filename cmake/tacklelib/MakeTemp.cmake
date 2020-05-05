@@ -20,7 +20,7 @@ function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_rando
     set(temp_base_dir "$ENV{TEMP}")
   endif()
 
-  if (temp_base_dir STREQUAL "")
+  if ("${temp_base_dir}" STREQUAL "")
     if (WIN32)
       if (DEFINED ENV{LOCALAPPDATA} AND IS_DIRECTORY "$ENV{LOCALAPPDATA}/Temp")
         set(temp_base_dir "$ENV{LOCALAPPDATA}/Temp")
@@ -32,7 +32,7 @@ function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_rando
     endif()
   endif()
 
-  if (temp_base_dir STREQUAL "")
+  if ("${temp_base_dir}" STREQUAL "")
     message(FATAL_ERROR "temporary directory is not reachable")
   endif()
 
@@ -43,7 +43,7 @@ function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_rando
     tkl_get_global_prop(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX "tkl::temp_dir::last_timestamp_index" 1)
 
     string(TIMESTAMP timestamp_utc "${time_fmt}" UTC)
-    if (TACKLELIB_TEMP_DIR_LAST_TIMESTAMP STREQUAL timestamp_utc)
+    if ("${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP}" STREQUAL "${timestamp_utc}")
       math(EXPR TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX ${TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX}+1)
     else()
       set(TACKLELIB_TEMP_DIR_LAST_TIMESTAMP "${timestamp_utc}")
@@ -63,7 +63,7 @@ function(tkl_make_temp_dir out_var dir_name_prefix time_fmt proc_index dir_rando
   endif()
 
   if (timestamp_utc)
-    if (NOT proc_index STREQUAL "")
+    if (NOT "${proc_index}" STREQUAL "")
       # MakeTempDir calls in multiple cmake processes
       set(proc_index_token "${proc_index}")
       string(LENGTH "${proc_index_token}" proc_index_token_len)
@@ -98,7 +98,7 @@ function(tkl_make_basic_timestamp_temp_dir out_var dir_name_prefix dir_random_na
   # first time the call handler generation from a function
   tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
 
-  if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
+  if (NOT "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" STREQUAL "")
     # running under TestLib, the macro can call under different cmake processe when the inner timestamp is not yet changed (timestamp has seconds resolution)
     tkl_make_temp_dir(temp_dir_path "${dir_name_prefix}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" ${dir_random_name_suffix_len})
   else()

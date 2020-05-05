@@ -45,7 +45,7 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
   set(${out_argv_var} ";")
 
   # to be able to append empty values at begginning
-  if (NOT _BBD57550_argv_joined_list STREQUAL "")
+  if (NOT "${_BBD57550_argv_joined_list}" STREQUAL "")
     set(_BBD57550_argv_joined_list ";;${_BBD57550_argv_joined_list}")
   else()
     set(_BBD57550_argv_joined_list ";${_BBD57550_argv_joined_list}")
@@ -54,7 +54,7 @@ macro(tkl_make_var_from_ARGV_end out_argv_var)
 
   set(_BBD57550_var_index 0)
 
-  while (NOT _BBD57550_argv_joined_list STREQUAL _BBD57550_argv_joined_list_accum)
+  while (NOT "${_BBD57550_argv_joined_list}" STREQUAL "${_BBD57550_argv_joined_list_accum}")
     # with finite loop insurance
     if (_BBD57550_var_index GREATER_EQUAL 64)
       message(FATAL_ERROR "ARGV arguments are too many or infinite loop is detected")
@@ -141,11 +141,11 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
   string(SUBSTRING "${_9E220B1D_argv_joined_list}" 0 ${_9E220B1D_argn_offset} _9E220B1D_args_joined_list)
 
   # remove last separator
-  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+  if (NOT "${_9E220B1D_args_joined_list}" STREQUAL "")
     # remove last `;` character
     string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_args_joined_list "${_9E220B1D_args_joined_list}")
   endif()
-  if (NOT _9E220B1D_argv_joined_list STREQUAL ";")
+  if (NOT "${_9E220B1D_argv_joined_list}" STREQUAL ";")
     # remove last `;` character
     string(REGEX REPLACE "(.*)\;$" "\\1" _9E220B1D_argv_joined_list "${_9E220B1D_argv_joined_list}")
   endif()
@@ -153,14 +153,14 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
   set(_9E220B1D_var_index 0)
 
   # to be able to append empty values at begginning
-  if (NOT _9E220B1D_args_joined_list STREQUAL "")
+  if (NOT "${_9E220B1D_args_joined_list}" STREQUAL "")
     set(_9E220B1D_args_joined_list ";;${_9E220B1D_args_joined_list}")
   else()
     set(_9E220B1D_args_joined_list ";${_9E220B1D_args_joined_list}")
   endif()
   set(_9E220B1D_argv_joined_list_accum ";${_9E220B1D_argv_joined_list_accum}")
 
-  while (NOT _9E220B1D_args_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+  while (NOT "${_9E220B1D_args_joined_list}" STREQUAL "${_9E220B1D_argv_joined_list_accum}")
     # with finite loop insurance
     if (_9E220B1D_var_index GREATER_EQUAL 64)
       message(FATAL_ERROR "(1) ARGV arguments are too many or infinite loop is detected")
@@ -181,13 +181,13 @@ macro(tkl_make_vars_from_ARGV_ARGN_end out_argv_var out_argn_var)
   endwhile()
 
   # to be able to append empty values at begginning
-  if (NOT _9E220B1D_argv_joined_list STREQUAL "")
+  if (NOT "${_9E220B1D_argv_joined_list}" STREQUAL "")
     set(_9E220B1D_argv_joined_list ";;${_9E220B1D_argv_joined_list}")
   else()
     set(_9E220B1D_argv_joined_list ";${_9E220B1D_argv_joined_list}")
   endif()
 
-  while (NOT _9E220B1D_argv_joined_list STREQUAL _9E220B1D_argv_joined_list_accum)
+  while (NOT "${_9E220B1D_argv_joined_list}" STREQUAL "${_9E220B1D_argv_joined_list_accum}")
     # with finite loop insurance
     if (_9E220B1D_var_index GREATER_EQUAL 64)
       message(FATAL_ERROR "(2) ARGV arguments are too many or infinite loop is detected")
@@ -307,7 +307,7 @@ s\;strict_checks\
             # then compare on equality with the absolute path in the CMAKE_SCRIPT_MODE_FILE variable.
             get_filename_component(script_file_path_abs "${arg_value}" ABSOLUTE)
             if (strict_checks)
-              if (NOT this_script_file_path_abs STREQUAL script_file_path_abs)
+              if (NOT "${this_script_file_path_abs}" STREQUAL "${script_file_path_abs}")
                 message(FATAL_ERROR "path to this script file and a command line argument after the `-P` option must be the same: this_script_file_path_abs=`${this_script_file_path_abs}` script_file_path_abs=`${script_file_path_abs}`")
               endif()
             endif()
@@ -320,7 +320,7 @@ s\;strict_checks\
           list(APPEND ${out_var} "${arg_value}") # converted into the absolute path
         endif()
       else()
-        if (arg_value STREQUAL "-P")
+        if ("${arg_value}" STREQUAL "-P")
           math(EXPR script_file_path_offset ${cmake_arg_index}+1)
         endif()
       endif()
@@ -333,7 +333,7 @@ s\;strict_checks\
 endfunction()
 
 function(tkl_use_ARGVn_stack_begin stack_entry)
-  if (stack_entry STREQUAL "" OR stack_entry STREQUAL ".")
+  if ("${stack_entry}" STREQUAL "" OR "${stack_entry}" STREQUAL ".")
     tkl_pushunset_prop_to_stack(. GLOBAL "tkl::ARGVn_stack::stack_entry" "tkl::ARGVn_stack")
   else()
     tkl_pushset_prop_to_stack(. GLOBAL "tkl::ARGVn_stack::stack_entry" "tkl::ARGVn_stack" "${stack_entry}")
@@ -1071,7 +1071,7 @@ ARGVn_stack_index=`${ARGVn_stack_index}`")
 #  # unset previously used ARGV0..N
 #  if (${stack_index} LESS ARGVn_stack_size)
 #    tkl_get_global_prop(last_ARGVn "tkl::builtin::last_ARGVn[${ARGVn_stack_entry}]" ${stack_index})
-#    if (last_ARGVn STREQUAL "")
+#    if ("${last_ARGVn}" STREQUAL "")
 #      set(last_ARGVn 0)
 #    endif()
 #  endif()

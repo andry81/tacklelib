@@ -63,7 +63,7 @@
 
 
 // to make the unique link between a library implementation and it's headers
-#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_EXPORT(module_instance_name) \
+#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_EXPORT(module_instance_name, _unused_) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_EXPORT(module_instance_name, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
@@ -71,7 +71,7 @@
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT(module_instance_name, local_header_scope, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 
-#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name) \
+#define LIBRARY_API_DECLARE_HEADER_LIB_BUILD_VERSION_DATE_TIME_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, _unused_) \
     LIBRARY_API_DECLARE_HEADER_LIB_INSTANCE_TOKEN_IMPORT_NO_LINKAGE_CHECK(module_instance_name, _, BUILD_VERSION_DATE_TIME_TOKEN, \
         "**build_version**: " BUILD_VERSION_DATE_TIME_STR)
 

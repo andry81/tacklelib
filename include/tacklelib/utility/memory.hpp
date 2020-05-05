@@ -20,6 +20,10 @@
 #include <memory>
 #include <stdexcept>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 #ifndef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_MAKE_UNIQUE
 
@@ -73,7 +77,7 @@ namespace std
 
 namespace utility
 {
-    enum MemoryType
+    enum LIBRARY_API_DECL MemoryType
     {
         MemType_VirtualMemory   = 1,
         MemType_PhysicalMemory  = 2
@@ -82,7 +86,7 @@ namespace utility
     // proc_id:
     //  0               - current process
     //  *               - target process
-    size_t get_process_memory_size(MemoryType mem_type, size_t proc_id);
+    size_t LIBRARY_API_DECL get_process_memory_size(MemoryType mem_type, size_t proc_id);
 
     // simple buffer to reallocate memory on demand
     //
@@ -90,7 +94,7 @@ namespace utility
     //      Because the buffer class does not reallocate memory if requested buffer size less than already existed, then out of size read/write access WOULD NOT BE CATCHED!
     //      To workaround that we must AT LEAST do guard the end of the buffer in the DEBUG.
     //
-    class Buffer
+    class LIBRARY_API_DECL Buffer
     {
     public:
         // memory power-of-2 sizes

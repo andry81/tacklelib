@@ -15,11 +15,15 @@
 #include <vector>
 #include <functional>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 namespace tackle
 {
     template <class t_elem = char>
-    class file_reader
+    class LIBRARY_API_DECL file_reader
     {
     public:
         using chunk_sizes_type  = std::vector<size_t> ;

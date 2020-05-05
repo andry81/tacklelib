@@ -14,6 +14,9 @@
 #include <string>
 #include <utility>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
 
 
 // public interface class holder of private logger types
@@ -28,19 +31,19 @@ namespace tackle {
 
     // input only parameters
 
-    struct log_client_params_in
+    struct LIBRARY_API_DECL log_client_params_in
     {
         const log_handle &  handle;
         const std::string   channel_name;
     };
 
-    struct log_channel_params_in
+    struct LIBRARY_API_DECL log_channel_params_in
     {
         const std::string & module_name;
         const uint32_t      id;
     };
 
-    struct log_trace_params_in
+    struct LIBRARY_API_DECL log_trace_params_in
     {
         log_handle &        handle;
         const log_handle &  module; // has to be duplicated

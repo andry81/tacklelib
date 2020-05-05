@@ -1,19 +1,36 @@
 #include <tacklelib/tackle/path_string.hpp>
 
 
+#define IMPLEMENT_TEMPLATE_INSTANCE_VARIANT_0(char_) \
+    template class path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char>; \
+    template class path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::backward_slash_char>
+
+#if 0
+    template path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> operator+ ( \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> l, \
+        std::basic_string<char_, std::char_traits<char_>, std::allocator<char_> > r); \
+    \
+    template path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> operator+ ( \
+        std::basic_string<char_, std::char_traits<char_>, std::allocator<char_>> l, \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> r); \
+    \
+    template path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> operator+ ( \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> l, \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> r); \
+    \
+    template path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> LIBRARY_API_DECL operator+ ( \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> l, \
+        const char_ * p); \
+    \
+    template path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> LIBRARY_API_DECL operator+ ( \
+        const char_ * p, \
+        path_basic_string<char_, std::char_traits<char_>, std::allocator<char_>, utility::literal_separators<char_>::forward_slash_char> r)
+#endif
+
 namespace tackle
 {
-    // forward slash path strings
-    template class path_basic_string<char, std::char_traits<char>, std::allocator<char>, utility::literal_separators<char>::forward_slash_char>;
-    template class path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, utility::literal_separators<wchar_t>::forward_slash_char>;
-
-    template class path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, utility::literal_separators<char16_t>::forward_slash_char>;
-    template class path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, utility::literal_separators<char32_t>::forward_slash_char>;
-
-    // back slash path strings
-    template class path_basic_string<char, std::char_traits<char>, std::allocator<char>, utility::literal_separators<char>::backward_slash_char>;
-    template class path_basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>, utility::literal_separators<wchar_t>::backward_slash_char>;
-
-    template class path_basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t>, utility::literal_separators<char16_t>::backward_slash_char>;
-    template class path_basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t>, utility::literal_separators<char32_t>::backward_slash_char>;
+    IMPLEMENT_TEMPLATE_INSTANCE_VARIANT_0(char);
+    IMPLEMENT_TEMPLATE_INSTANCE_VARIANT_0(wchar_t);
+    IMPLEMENT_TEMPLATE_INSTANCE_VARIANT_0(char16_t);
+    IMPLEMENT_TEMPLATE_INSTANCE_VARIANT_0(char32_t);
 }
