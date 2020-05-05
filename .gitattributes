@@ -461,6 +461,7 @@ src/tackle/log/log_handle.cpp -text
 src/tackle/path_string.cpp -text
 src/tackle/stream_storage.hpp -text
 src/tackle/variant.hpp -text
+src/tacklelib.cpp -text
 src/tacklelib_private.hpp -text
 src/testlib/gtest_ext.hpp -text
 src/testlib/testlib.cpp -text

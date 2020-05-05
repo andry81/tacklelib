@@ -1,3 +1,13 @@
+2020.05.05:
+* fixed: multiple build fixes
+* refactor: global replace of `<variable> STREQUAL <variable>` by `<string> STREQUAL <string>` because the first sometimes does not work as expected
+
+2020.05.04:
+* changed: ForwardVariables.cmake: reimplemented context variable, merged system and user variables into single functions, simplfied all context variable functions
+* changed: Project.cmake: reimplemented usage of context variables in `find_package`, `add_subdirectory` and `project` hooks
+* changed: Project.cmake: `project` hook reimplemented
+* refactor: ForwardVariables.cmake: made most of function parameter names unique to reduce a probability of interference with the local variables
+
 2020.05.04:
 * fixed: Project.cmake: reverted previous fix around `tkl::CMAKE_CURRENT_PACKAGE_NAME` as not correct and added minor changes
 * fixed: Checks.cmake: missed check in the `tkl_check_var` function

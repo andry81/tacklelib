@@ -17,6 +17,10 @@
 #   include <signal.h>
 #endif
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 // break point placeholder, useful inside custom user macroses to emulate function call break points
 #define BREAK_POINT_PLACEHOLDER()                   ::utility::unused() // `__asm nop` - can't be placed inside expressions, only statements
@@ -52,8 +56,8 @@
 namespace utility
 {
     // break on true
-    void debug_break(bool condition = false);
-    bool is_under_debugger();
+    void LIBRARY_API_DECL debug_break(bool condition = false);
+    bool LIBRARY_API_DECL is_under_debugger();
 }
 
 #endif

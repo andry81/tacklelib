@@ -23,25 +23,30 @@ include(tacklelib/String)
 include(tacklelib/List)
 include(tacklelib/Props)
 
-function(tkl_is_var out_is_var_def var_name)
-  if(("${out_is_var_def}" STREQUAL "") OR (out_is_var_def STREQUAL var_name))
-    message(FATAL_ERROR "out_is_var_def must be not empty and not equal to var_name: out_is_var_def=`${out_is_var_def}` var_name=`${var_name}`")
+function(tkl_is_var _5C580E6F_out_is_var_def _5C580E6F_var_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "if (DEFINED ${_5C580E6F_var_name})" still can be applied to a local variable!
+  #
+
+  if(("${_5C580E6F_out_is_var_def}" STREQUAL "") OR ("${_5C580E6F_out_is_var_def}" STREQUAL "${_5C580E6F_var_name}"))
+    message(FATAL_ERROR "out_is_var_def must be not empty and not equal to var_name: out_is_var_def=`${_5C580E6F_out_is_var_def}` var_name=`${_5C580E6F_var_name}`")
   endif()
-  if("${var_name}" STREQUAL "")
+  if("${_5C580E6F_var_name}" STREQUAL "")
     message(FATAL_ERROR "var_name must be not empty")
   endif()
 
-  if ((var_name STREQUAL ".") OR (NOT DEFINED ${var_name}))
-    set(${out_is_var_def} 0 PARENT_SCOPE)
+  if (("${_5C580E6F_var_name}" STREQUAL ".") OR (NOT DEFINED ${_5C580E6F_var_name}))
+    set(${_5C580E6F_out_is_var_def} 0 PARENT_SCOPE)
   endif()
 
-  get_cmake_property(vars_list VARIABLES)
+  get_cmake_property(_5C580E6F_vars_list VARIABLES)
 
-  list(FIND vars_list ${var_name} var_index)
-  if(NOT var_index EQUAL -1)
-    set(${out_is_var_def} 1 PARENT_SCOPE)
+  list(FIND _5C580E6F_vars_list ${_5C580E6F_var_name} _5C580E6F_var_index)
+  if(NOT _5C580E6F_var_index EQUAL -1)
+    set(${_5C580E6F_out_is_var_def} 1 PARENT_SCOPE)
   else()
-    set(${out_is_var_def} 0 PARENT_SCOPE)
+    set(${_5C580E6F_out_is_var_def} 0 PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -69,17 +74,17 @@ endmacro()
 # 1. User must not use builtin ARGC/ARGV/ARGN/ARGV0..N variables because they are a part of function/macro call stack
 #
 function(tkl_get_var out_uncached_var out_cached_var var_name)
-  if (var_name STREQUAL "" OR var_name STREQUAL ".")
+  if ("${var_name}" STREQUAL "" OR "${var_name}" STREQUAL ".")
     message(FATAL_ERROR "var_name must be not empty and valid")
   endif()
 
-  if (NOT out_uncached_var STREQUAL "" AND NOT out_uncached_var STREQUAL ".")
+  if (NOT "${out_uncached_var}" STREQUAL "" AND NOT "${out_uncached_var}" STREQUAL ".")
     set(out_uncached_var_defined 1)
   else()
     set(out_uncached_var_defined 0)
   endif()
 
-  if (NOT out_cached_var STREQUAL "" AND NOT out_cached_var STREQUAL ".")
+  if (NOT "${out_cached_var}" STREQUAL "" AND NOT "${out_cached_var}" STREQUAL ".")
     set(out_cached_var_defined 1)
   else()
     set(out_cached_var_defined 0)
@@ -90,13 +95,13 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
   endif()
 
   if (out_uncached_var_defined)
-    if (out_uncached_var STREQUAL var_name)
+    if ("${out_uncached_var}" STREQUAL "${var_name}")
       message(FATAL_ERROR "out_uncached_var and var_name variables must be different: `${out_uncached_var}`")
     endif()
   endif()
 
   if (out_uncached_var_defined OR out_cached_var_defined)
-    if (out_uncached_var STREQUAL out_cached_var)
+    if ("${out_uncached_var}" STREQUAL "${out_cached_var}")
       message(FATAL_ERROR "out_uncached_var and out_cached_var variables must be different: `${out_cached_var}`")
     endif()
   endif()
@@ -201,7 +206,7 @@ function(tkl_copy_vars)
       if (_24C487FA_var_prefix_filter_len)
         string(SUBSTRING "${_24C487FA_var_name}" 0 ${_24C487FA_var_prefix_filter_len} _24C487FA_var_name_prefix)
         # copy values only from "parent scope" variables
-        if (_24C487FA_var_name_prefix STREQUAL "${ARGV3}")
+        if ("${_24C487FA_var_name_prefix}" STREQUAL "${ARGV3}")
           continue()
         endif()
       endif()
@@ -252,47 +257,57 @@ endfunction()
 
 # custom user variables stack over properties
 
-function(tkl_push_var_to_stack stack_entry var_name)
+function(tkl_push_var_to_stack _B85ED509_stack_entry _B85ED509_var_name)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
-  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
+  #   because "if (DEFINED ${_B85ED509_var_name})" still can be applied to a local variable!
   #
 
-  if ("${stack_entry}" STREQUAL "")
+  if ("${_B85ED509_stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
-  if ("${var_name}" STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
+  if ("${_B85ED509_var_name}" STREQUAL "")
+    message(FATAL_ERROR "var_name must be not empty: stack_entry=`${_B85ED509_stack_entry}`")
   endif()
 
-  get_property(_2BA2974B_is_vars_stack_set GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" SET)
-  if (_2BA2974B_is_vars_stack_set)
-    get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
+  get_property(_B85ED509_is_vars_stack_set GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::size" SET)
+  if (_B85ED509_is_vars_stack_set)
+    get_property(_B85ED509_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::size")
   else()
-    set(_2BA2974B_vars_stack_size 0)
+    set(_B85ED509_vars_stack_size 0)
   endif()
 
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}" "${${var_name}}")
-  if (DEFINED ${var_name})
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}::defined" 1)
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::${_B85ED509_vars_stack_size}" "${${_B85ED509_var_name}}")
+  if (DEFINED ${_B85ED509_var_name})
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::${_B85ED509_vars_stack_size}::defined" 1)
   else()
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_size}::defined" 0)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::${_B85ED509_vars_stack_size}::defined" 0)
   endif()
 
-  math(EXPR _2BA2974B_vars_stack_size ${_2BA2974B_vars_stack_size}+1)
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" ${_2BA2974B_vars_stack_size})
+  math(EXPR _B85ED509_vars_stack_size ${_B85ED509_vars_stack_size}+1)
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${_B85ED509_stack_entry}][${_B85ED509_var_name}]::size" ${_B85ED509_vars_stack_size})
 endfunction()
 
-function(tkl_pushset_var_to_stack stack_entry var_name var_value)
-  tkl_push_var_to_stack("${stack_entry}" "${var_name}")
+function(tkl_pushset_var_to_stack _B85ED509_stack_entry _B85ED509_var_name _B85ED509_var_value)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "${_B85ED509_var_name}" still can expand to a local variable!
+  #
 
-  set(${var_name} "${var_value}" PARENT_SCOPE)
+  tkl_push_var_to_stack("${_B85ED509_stack_entry}" "${_B85ED509_var_name}")
+
+  set(${_B85ED509_var_name} "${_B85ED509_var_value}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_pushunset_var_to_stack stack_entry var_name)
-  tkl_push_var_to_stack("${stack_entry}" "${var_name}")
+function(tkl_pushunset_var_to_stack _B85ED509_stack_entry _B85ED509_var_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "${_B85ED509_var_name}" still can expand to a local variable!
+  #
 
-  unset(${var_name} PARENT_SCOPE)
+  tkl_push_var_to_stack("${_B85ED509_stack_entry}" "${_B85ED509_var_name}")
+
+  unset(${_B85ED509_var_name} PARENT_SCOPE)
 endfunction()
 
 function(tkl_pop_var_from_stack stack_entry var_name)
@@ -312,41 +327,41 @@ function(tkl_pop_var_from_stack stack_entry var_name)
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
-  get_property(_2BA2974B_vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
-  if (NOT _2BA2974B_vars_stack_size)
+  get_property(vars_stack_size GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size")
+  if (NOT vars_stack_size)
     message(FATAL_ERROR "variables stack either undefined or empty")
   endif()
 
-  math(EXPR _2BA2974B_vars_stack_next_size ${_2BA2974B_vars_stack_size}-1)
+  math(EXPR vars_stack_next_size ${vars_stack_size}-1)
 
   # update the var_name by default
   if ("${ARGV2}" STREQUAL "")
-    get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
-    if (_2BA2974B_is_var_defined)
-      get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
-      set(${var_name} "${_2BA2974B_var_value}" PARENT_SCOPE)
+    get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}::defined")
+    if (is_var_defined)
+      get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}")
+      set(${var_name} "${var_value}" PARENT_SCOPE)
     else()
       unset(${var_name} PARENT_SCOPE)
     endif()
   elseif (NOT "${ARGV2}" STREQUAL ".")
-    get_property(_2BA2974B_is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
-    if (_2BA2974B_is_var_defined)
-      get_property(_2BA2974B_var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
-      set(${ARGV2} "${_2BA2974B_var_value}" PARENT_SCOPE)
+    get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}::defined")
+    if (is_var_defined)
+      get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}")
+      set(${ARGV2} "${var_value}" PARENT_SCOPE)
     else()
       unset(${ARGV2} PARENT_SCOPE)
     endif()
   endif()
 
-  if (_2BA2974B_vars_stack_next_size)
-    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" ${_2BA2974B_vars_stack_next_size})
+  if (vars_stack_next_size)
+    set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size" ${vars_stack_next_size})
   else()
     set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}")
-  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${_2BA2974B_vars_stack_next_size}::defined")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_next_size}::defined")
 endfunction()
 
 function(tkl_get_var_stack_size out_var stack_entry var_name)
@@ -365,11 +380,11 @@ function(tkl_get_var_stack_size out_var stack_entry var_name)
   set(${out_var} ${vars_stack_size} PARENT_SCOPE)
 endfunction()
 
-function(tkl_get_var_stack_value out_var stack_entry prop_name index)
+function(tkl_get_var_stack_value out_var stack_entry var_name index)
   if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
-  if ("${var_name}" STREQUAL "")
+  if ("${out_var}" STREQUAL "")
     message(FATAL_ERROR "var_name must be not empty: stack_entry=`${stack_entry}`")
   endif()
 
@@ -391,13 +406,13 @@ function(tkl_get_var_stack_value out_var stack_entry prop_name index)
   get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}::defined")
   if (is_var_defined)
     get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}")
-    set(${var_name} "${var_value}" PARENT_SCOPE)
+    set(${out_var} "${var_value}" PARENT_SCOPE)
   else()
-    unset(${var_name} PARENT_SCOPE)
+    unset(${out_var} PARENT_SCOPE)
   endif()
 endfunction()
 
-function(tkl_get_var_stack_value_no_error out_var stack_entry prop_name index)
+function(tkl_get_var_stack_value_no_error out_var stack_entry var_name index)
   if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
@@ -416,12 +431,12 @@ function(tkl_get_var_stack_value_no_error out_var stack_entry prop_name index)
     get_property(is_var_defined GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}::defined")
     if (is_var_defined)
       get_property(var_value GLOBAL PROPERTY "tkl::vars_stack[${stack_entry}][${var_name}]::${vars_stack_index}")
-      set(${var_name} "${var_value}" PARENT_SCOPE)
+      set(${out_var} "${var_value}" PARENT_SCOPE)
     else()
-      unset(${var_name} PARENT_SCOPE)
+      unset(${out_var} PARENT_SCOPE)
     endif()
   else()
-    unset(${var_name} PARENT_SCOPE)
+    unset(${out_var} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -432,28 +447,28 @@ function(tkl_push_prop_to_stack prop_entry prop_name stack_entry)
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
   if ("${prop_name}" STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty")
+    message(FATAL_ERROR "prop_name must be not empty")
   endif()
   if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
 
-  get_property(_2BA2974B_is_props_stack_set GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" SET)
-  if (_2BA2974B_is_props_stack_set)
-    get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size")
+  get_property(is_props_stack_set GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" SET)
+  if (is_props_stack_set)
+    get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size")
   else()
-    set(_2BA2974B_props_stack_size 0)
+    set(props_stack_size 0)
   endif()
 
-  get_property(_2BA2974B_prop_value_set "${prop_entry}" PROPERTY "${prop_name}" SET)
-  if (_2BA2974B_prop_value_set)
-    get_property(_2BA2974B_prop_value "${prop_entry}" PROPERTY "${prop_name}")
-    set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_size}" "${_2BA2974B_prop_value}")
+  get_property(prop_value_set "${prop_entry}" PROPERTY "${prop_name}" SET)
+  if (prop_value_set)
+    get_property(prop_value "${prop_entry}" PROPERTY "${prop_name}")
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_size}" "${prop_value}")
   endif()
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_size}::defined" ${_2BA2974B_prop_value_set})
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_size}::defined" ${prop_value_set})
 
-  math(EXPR _2BA2974B_props_stack_size ${_2BA2974B_props_stack_size}+1)
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" ${_2BA2974B_props_stack_size})
+  math(EXPR props_stack_size ${props_stack_size}+1)
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" ${props_stack_size})
 endfunction()
 
 function(tkl_pushset_prop_to_stack out_var prop_entry prop_name stack_entry var_value)
@@ -461,7 +476,7 @@ function(tkl_pushset_prop_to_stack out_var prop_entry prop_name stack_entry var_
 
   set_property("${prop_entry}" PROPERTY "${prop_name}" "${var_value}")
 
-  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
+  if (NOT "${out_var}" STREQUAL "" AND NOT "${out_var}" STREQUAL ".")
     set(${out_var} "${var_value}" PARENT_SCOPE)
   endif()
 endfunction()
@@ -471,7 +486,7 @@ function(tkl_pushunset_prop_to_stack out_var prop_entry prop_name stack_entry)
 
   set_property("${prop_entry}" PROPERTY "${prop_name}") # unset property
 
-  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
+  if (NOT "${out_var}" STREQUAL "" AND NOT "${out_var}" STREQUAL ".")
     unset(${out_var} PARENT_SCOPE)
   endif()
 endfunction()
@@ -481,45 +496,45 @@ function(tkl_pop_prop_from_stack out_var prop_entry prop_name stack_entry)
   #   All local variables here are unique, just in case.
   #
 
-  if (prop_entry STREQUAL "")
+  if ("${prop_entry}" STREQUAL "")
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
-  if (prop_name STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty")
+  if ("${prop_name}" STREQUAL "")
+    message(FATAL_ERROR "prop_name must be not empty")
   endif()
-  if (stack_entry STREQUAL "")
+  if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
 
-  get_property(_2BA2974B_props_stack_size GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size")
-  if (NOT _2BA2974B_props_stack_size)
+  get_property(props_stack_size GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size")
+  if (NOT props_stack_size)
     message(FATAL_ERROR "properties stack either undefined or empty")
   endif()
 
-  math(EXPR _2BA2974B_props_stack_next_size ${_2BA2974B_props_stack_size}-1)
+  math(EXPR props_stack_next_size ${props_stack_size}-1)
 
-  get_property(_2BA2974B_is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
-  if (_2BA2974B_is_prop_defined)
-    get_property(_2BA2974B_prop_value GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}")
-    set_property("${prop_entry}" PROPERTY "${prop_name}" "${_2BA2974B_prop_value}")
+  get_property(is_prop_defined GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_next_size}::defined")
+  if (is_prop_defined)
+    get_property(prop_value GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_next_size}")
+    set_property("${prop_entry}" PROPERTY "${prop_name}" "${prop_value}")
   else()
-    set(_2BA2974B_prop_value "")
+    set(prop_value "")
     set_property("${prop_entry}" PROPERTY "${prop_name}") # unset property
   endif()
 
-  if (_2BA2974B_props_stack_next_size)
-    set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" ${_2BA2974B_props_stack_next_size})
+  if (props_stack_next_size)
+    set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size" ${props_stack_next_size})
   else()
     set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::size") # unset property
   endif()
 
   # unset previous
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}")
-  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${_2BA2974B_props_stack_next_size}::defined")
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_next_size}")
+  set_property(GLOBAL PROPERTY "tkl::props_stack[${stack_entry}][${prop_name}]::${props_stack_next_size}::defined")
 
-  if (NOT out_var STREQUAL "" AND NOT out_var STREQUAL ".")
-    if (_2BA2974B_is_prop_defined)
-      set(${out_var} "${_2BA2974B_prop_value}" PARENT_SCOPE)
+  if (NOT "${out_var}" STREQUAL "" AND NOT "${out_var}" STREQUAL ".")
+    if (is_prop_defined)
+      set(${out_var} "${prop_value}" PARENT_SCOPE)
     else()
       unset(${out_var} PARENT_SCOPE)
     endif()
@@ -527,13 +542,13 @@ function(tkl_pop_prop_from_stack out_var prop_entry prop_name stack_entry)
 endfunction()
 
 function(tkl_get_prop_stack_size out_var prop_entry prop_name stack_entry)
-  if (prop_entry STREQUAL "")
+  if ("${prop_entry}" STREQUAL "")
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
-  if (prop_name STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty")
+  if ("${prop_name}" STREQUAL "")
+    message(FATAL_ERROR "prop_name must be not empty")
   endif()
-  if (stack_entry STREQUAL "")
+  if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
 
@@ -546,13 +561,13 @@ function(tkl_get_prop_stack_size out_var prop_entry prop_name stack_entry)
 endfunction()
 
 function(tkl_get_prop_stack_value out_var prop_entry prop_name stack_entry index)
-  if (prop_entry STREQUAL "")
+  if ("${prop_entry}" STREQUAL "")
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
-  if (prop_name STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty")
+  if ("${prop_name}" STREQUAL "")
+    message(FATAL_ERROR "prop_name must be not empty")
   endif()
-  if (stack_entry STREQUAL "")
+  if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
 
@@ -581,13 +596,13 @@ function(tkl_get_prop_stack_value out_var prop_entry prop_name stack_entry index
 endfunction()
 
 function(tkl_get_prop_stack_value_no_error out_var prop_entry prop_name stack_entry index)
-  if (prop_entry STREQUAL "")
+  if ("${prop_entry}" STREQUAL "")
     message(FATAL_ERROR "prop_entry must be not empty")
   endif()
-  if (prop_name STREQUAL "")
-    message(FATAL_ERROR "var_name must be not empty")
+  if ("${prop_name}" STREQUAL "")
+    message(FATAL_ERROR "prop_name must be not empty")
   endif()
-  if (stack_entry STREQUAL "")
+  if ("${stack_entry}" STREQUAL "")
     message(FATAL_ERROR "stack_entry must be not empty")
   endif()
 
@@ -685,366 +700,268 @@ macro(tkl_track_vars_end) # WITH OUT ARGUMENTS!
   tkl_pop_prop_from_stack(. GLOBAL "tkl::track_vars::vars_stack::vars" "tkl::track_vars")
 endmacro()
 
-function(tkl_register_user_context_var ctx_name scope_name var_name var_value inheritable_var)
+function(tkl_register_context_var_set ctx_name scope_name var_name var_value inheritable_var)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
   #
 
-  tkl_is_var(_46AC7C2B_is_var_name "${var_name}")
-  if (NOT _46AC7C2B_is_var_name)
-    message(FATAL_ERROR "`${var_name}` must be a variable: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
   endif()
 
-  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
   if (_46AC7C2B_is_vars_stack_set)
     message(FATAL_ERROR "`${var_name}` is already registered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
   endif()
 
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+  message("register context variable set: ${var_name}=`${var_value}`; ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${inheritable_var}`")
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
   list(APPEND _46AC7C2B_var_names_register_list "${var_name}")
 
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "${var_value}")
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable" "${inheritable_var}")
+  set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]" "${var_value}")
+  set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable" "${inheritable_var}")
 
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+  set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
 endfunction()
 
-function(tkl_unregister_user_context_var ctx_name scope_name var_name)
+function(tkl_unregister_context_var ctx_name scope_name var_name)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
   #
 
-  tkl_is_var(_46AC7C2B_is_var_name "${var_name}")
-  if (NOT _46AC7C2B_is_var_name)
-    message(FATAL_ERROR "`${var_name}` must be a variable: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
   endif()
 
-  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
   if (NOT _46AC7C2B_is_vars_stack_set)
     message(FATAL_ERROR "`${var_name}` is already unregistered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
   endif()
 
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+  message("unregister context variable: `${var_name}`: ctx=`${ctx_name}`; scope=`${scope_name}`")
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
   list(REMOVE_ITEM _46AC7C2B_var_names_register_list "${var_name}")
 
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
+  set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
+  set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
 
   list(LENGTH _46AC7C2B_var_names_register_list _46AC7C2B_var_names_register_list_size)
   if (_46AC7C2B_var_names_register_list_size)
-    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
+    set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
   else()
-    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
+    set_property(GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
   endif()
 endfunction()
 
-function(tkl_unregister_all_user_context_vars ctx_name scope_name)
-  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  if (NOT var_names_register_list_set)
-    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+function(tkl_has_context_vars out_var ctx_name scope_name)
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid: ctx_name=`${ctx_name}`")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid: scope_name=`${scope_name}`")
   endif()
 
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
-    set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
-  endforeach()
-
-  set_property(GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
-endfunction()
-
-function(tkl_has_user_context_vars ctx_name scope_name out_var)
-  get_property(is_vars_register_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
+  get_property(is_vars_register_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
   set(${out_var} ${is_vars_register_set} PARENT_SCOPE)
 endfunction()
 
-function(tkl_has_user_context_var ctx_name scope_name var_name out_var)
+function(tkl_has_ctx_context_var out_var ctx_name scope_name var_name)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
   #
 
-  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
+  endif()
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
   set(${out_var} "${_46AC7C2B_is_var_set}" PARENT_SCOPE)
 endfunction()
 
-function(tkl_get_user_context_var ctx_name scope_name var_name out_var)
+function(tkl_get_context_var out_var ctx_name scope_name var_name)
   # CAUTION:
   #   All local variables here must be unique irrespective to the function scope,
   #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
   #
 
-  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
+  endif()
+
+  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
   if (_46AC7C2B_is_var_set)
-    get_property(_46AC7C2B_is_var_value GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]")
+    get_property(_46AC7C2B_is_var_value GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${var_name}]")
     set(${out_var} "${_46AC7C2B_is_var_value}" PARENT_SCOPE)
   else()
     unset(${out_var} PARENT_SCOPE)
   endif()
 endfunction()
 
-function(tkl_pushunset_not_inheritable_user_context_vars ctx_name scope_name)
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
-    if (NOT is_var_inheritable)
-      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
-      unset(${var_name} PARENT_SCOPE)
-    endif()
-  endforeach()
+function(tkl_push_all_context_vars ctx_name scope_name)
+  tkl_push_all_context_vars_macro("${ctx_name}" "${scope_name}")
 endfunction()
 
-function(tkl_pop_not_inheritable_user_context_vars ctx_name scope_name)
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
-    if (NOT is_var_inheritable)
-      tkl_pop_prop_from_stack(var_value GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
-      if (DEFINED var_value)
-        set(${var_name} "${var_value}" PARENT_SCOPE)
-      else()
-        unset(${var_name} PARENT_SCOPE)
-      endif()
-    endif()
-  endforeach()
+function(tkl_restore_not_inheritable_context_vars ctx_name scope_name)
+  tkl_restore_not_inheritable_context_vars_macro("${ctx_name}" "${scope_name}")
 endfunction()
 
-macro(tkl_pushunset_not_inheritable_user_context_vars_macro ctx_name scope_name)
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+function(tkl_pop_all_context_vars ctx_name scope_name)
+  tkl_pop_all_context_vars_macro("${scope_name}" "${scope_name}")
+endfunction()
+
+macro(tkl_push_all_context_vars_macro ctx_name scope_name)
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
 
   foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
-    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
-    if (NOT _46AC7C2B_is_var_inheritable)
-      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::user_vars_register_stack")
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    get_property(_46AC7C2B_var_value_set GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" SET)
+    if (_46AC7C2B_var_value_set)
+      get_property(_46AC7C2B_var_value GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]")
+      message("context variable push-set: ${_46AC7C2B_var_name}=`${_46AC7C2B_var_value}`; ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+      tkl_push_var_to_stack("tkl::ctx_vars_register_stack" ${_46AC7C2B_var_name})
+      set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
+    else()
+      message("context variable push-unset: `${_46AC7C2B_var_name}`: ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+      tkl_push_var_to_stack("tkl::ctx_vars_register_stack" ${_46AC7C2B_var_name})
       unset(${_46AC7C2B_var_name} PARENT_SCOPE)
     endif()
   endforeach()
+
+  unset(_46AC7C2B_var_name)
+  unset(_46AC7C2B_var_names_register_list)
+  unset(_46AC7C2B_is_var_inheritable)
+  unset(_46AC7C2B_var_value_set)
+  unset(_46AC7C2B_var_value)
 endmacro()
 
-macro(tkl_pop_not_inheritable_user_context_vars_macro ctx_name scope_name)
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
+macro(tkl_pushreset_not_inheritable_context_vars_macro ctx_name scope_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "${_46AC7C2B_var_name}" still can expand to a local variable!
+  #
+
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
+  endif()
+
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
 
   foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
-    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
     if (NOT _46AC7C2B_is_var_inheritable)
-      tkl_pop_prop_from_stack(_46AC7C2B_var_value GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::user_vars_register_stack")
-      if (DEFINED _46AC7C2B_var_value)
-        set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
-      else()
-        unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+      tkl_get_prop_stack_size(_46AC7C2B_prop_stack_size GLOBAL "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::ctx_vars_register_stack")
+      if (_46AC7C2B_prop_stack_size)
+        message("context variable push-reset: `${_46AC7C2B_var_name}`: ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+        tkl_get_var_stack_value(_46AC7C2B_var_value "tkl::ctx_vars_register_stack" "${_46AC7C2B_var_name}" 0)
+        tkl_push_var_to_stack("tkl::ctx_not_inheritable_vars_register_stack" ${_46AC7C2B_var_name})
+        if (DEFINED _46AC7C2B_var_value)
+          set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
+        else()
+          unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+        endif()
       endif()
     endif()
   endforeach()
+
+  unset(_46AC7C2B_var_name)
+  unset(_46AC7C2B_var_names_register_list)
+  unset(_46AC7C2B_is_var_inheritable)
+  unset(_46AC7C2B_prop_stack_size)
+  unset(_46AC7C2B_var_value)
 endmacro()
 
-function(tkl_pushset_all_user_context_vars ctx_name scope_name)
-  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  if (NOT var_names_register_list_set)
-    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+macro(tkl_poprestore_not_inheritable_context_vars_macro ctx_name scope_name)
+  # CAUTION:
+  #   All local variables here must be unique irrespective to the function scope,
+  #   because "${_46AC7C2B_var_name}" still can expand to a local variable!
+  #
+
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
   endif()
 
-  tkl_push_prop_to_stack(GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::user_vars_register_stack")
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
 
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    tkl_push_prop_to_stack(GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
-    tkl_push_var_to_stack("tkl::user_vars_register" ${var_name})
-    get_property(var_value GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]")
-    set(${var_name} "${var_value}" PARENT_SCOPE)
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    if (NOT _46AC7C2B_is_var_inheritable)
+      tkl_get_prop_stack_size(_46AC7C2B_prop_stack_size GLOBAL "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::ctx_vars_register_stack")
+      if (_46AC7C2B_prop_stack_size)
+        tkl_pop_var_from_stack("tkl::ctx_not_inheritable_vars_register_stack" "${_46AC7C2B_var_name}" _46AC7C2B_var_value)
+        if (DEFINED _46AC7C2B_var_value)
+          message("context variable pop-restore: ${_46AC7C2B_var_name}=`${_46AC7C2B_var_value}`: ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+          set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
+        else()
+          message("context variable pop-restore: `${_46AC7C2B_var_name}`: ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+          unset(${_46AC7C2B_var_name} PARENT_SCOPE)
+        endif()
+      endif()
+    endif()
   endforeach()
-endfunction()
 
-function(tkl_pop_all_user_context_vars ctx_name scope_name)
-  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  if (NOT var_names_register_list_set)
-    message(FATAL_ERROR "Has no registered user variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
+  unset(_46AC7C2B_var_name)
+  unset(_46AC7C2B_var_names_register_list)
+  unset(_46AC7C2B_is_var_inheritable)
+  unset(_46AC7C2B_prop_stack_size)
+  unset(_46AC7C2B_var_value)
+endmacro()
+
+macro(tkl_pop_all_context_vars_macro ctx_name scope_name)
+  if ("${ctx_name}" STREQUAL "" OR "${ctx_name}" STREQUAL ".")
+    message(FATAL_ERROR "ctx_name must be not empty and valid")
+  endif()
+  if ("${scope_name}" STREQUAL "" OR "${scope_name}" STREQUAL ".")
+    message(FATAL_ERROR "scope_name must be not empty and valid")
   endif()
 
-  tkl_pop_prop_from_stack(var_names_register_list GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::user_vars_register_stack")
+  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}]::var_names")
 
-  foreach(var_name IN LISTS var_names_register_list)
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::user_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::user_vars_register_stack")
-    tkl_pop_var_from_stack("tkl::user_vars_register" ${var_name} var_value)
-    if (DEFINED var_value)
-      set(${var_name} "${var_value}" PARENT_SCOPE)
+  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
+    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::ctx_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
+    tkl_pop_var_from_stack("tkl::ctx_vars_register_stack" "${_46AC7C2B_var_name}" _46AC7C2B_var_value)
+    if (DEFINED _46AC7C2B_var_value)
+      message("context variable pop-set: ${_46AC7C2B_var_name}=`${_46AC7C2B_var_value}`; ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
+      set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
     else()
-      unset(${var_name} PARENT_SCOPE)
-    endif()
-  endforeach()
-endfunction()
-
-function(tkl_register_system_context_var ctx_name scope_name var_name var_value inheritable_var)
-  # CAUTION:
-  #   All local variables here must be unique irrespective to the function scope,
-  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
-  #
-
-  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
-  if (_46AC7C2B_is_vars_stack_set)
-    message(FATAL_ERROR "`${var_name}` is already registered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
-  endif()
-
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-  list(APPEND _46AC7C2B_var_names_register_list "${var_name}")
-
-  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "${var_value}")
-  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable" "${inheritable_var}")
-
-  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
-endfunction()
-
-function(tkl_unregister_system_context_var ctx_name scope_name var_name)
-  # CAUTION:
-  #   All local variables here must be unique irrespective to the function scope,
-  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
-  #
-
-  get_property(_46AC7C2B_is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
-  if (NOT _46AC7C2B_is_vars_stack_set)
-    message(FATAL_ERROR "`${var_name}` is already unregistered: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
-  endif()
-
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-  list(REMOVE_ITEM _46AC7C2B_var_names_register_list "${var_name}")
-
-  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]") # unset property
-  set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable") # unset property
-
-  list(LENGTH _46AC7C2B_var_names_register_list _46AC7C2B_var_names_register_list_size)
-  if (_46AC7C2B_var_names_register_list_size)
-    set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "${_46AC7C2B_var_names_register_list}")
-  else()
-    set_property(GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names") # unset property
-  endif()
-endfunction()
-
-function(tkl_has_system_context_vars ctx_name scope_name out_var)
-  get_property(is_vars_register_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  set(${out_var} ${is_vars_register_set} PARENT_SCOPE)
-endfunction()
-
-function(tkl_has_system_context_var ctx_name scope_name var_name out_var)
-  # CAUTION:
-  #   All local variables here must be unique irrespective to the function scope,
-  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
-  #
-
-  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
-  set(${out_var} "${_46AC7C2B_is_var_set}" PARENT_SCOPE)
-endfunction()
-
-function(tkl_get_system_context_var ctx_name scope_name var_name out_var)
-  # CAUTION:
-  #   All local variables here must be unique irrespective to the function scope,
-  #   because "if (DEFINED ${var_name})" still can be applied to a local variable!
-  #
-
-  get_property(_46AC7C2B_is_var_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" SET)
-  if (_46AC7C2B_is_var_set)
-    get_property(_46AC7C2B_is_var_value GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]")
-    set(${out_var} "${_46AC7C2B_is_var_value}" PARENT_SCOPE)
-  else()
-    unset(${out_var} PARENT_SCOPE)
-  endif()
-endfunction()
-
-function(tkl_pushunset_not_inheritable_system_context_vars ctx_name scope_name)
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
-    if (NOT is_var_inheritable)
-      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
-      unset(${var_name} PARENT_SCOPE)
-    endif()
-  endforeach()
-endfunction()
-
-function(tkl_pop_not_inheritable_system_context_vars ctx_name scope_name)
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    get_property(is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]::inheritable")
-    if (NOT is_var_inheritable)
-      tkl_pop_prop_from_stack(var_value GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
-      if (DEFINED var_value)
-        set(${var_name} "${var_value}" PARENT_SCOPE)
-      else()
-        unset(${var_name} PARENT_SCOPE)
-      endif()
-    endif()
-  endforeach()
-endfunction()
-
-macro(tkl_pushunset_not_inheritable_system_context_vars_macro ctx_name scope_name)
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
-    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
-    if (NOT _46AC7C2B_is_var_inheritable)
-      tkl_pushunset_prop_to_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::system_vars_register_stack")
+      message("context variable pop-unset: `${_46AC7C2B_var_name}`: ctx=`${ctx_name}`; scope=`${scope_name}`; inheritable=`${_46AC7C2B_is_var_inheritable}`")
       unset(${_46AC7C2B_var_name} PARENT_SCOPE)
     endif()
   endforeach()
+
+  unset(_46AC7C2B_var_name)
+  unset(_46AC7C2B_var_names_register_list)
+  unset(_46AC7C2B_is_var_inheritable)
+  unset(_46AC7C2B_var_value)
 endmacro()
-
-macro(tkl_pop_not_inheritable_system_context_vars_macro ctx_name scope_name)
-  get_property(_46AC7C2B_var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(_46AC7C2B_var_name IN LISTS _46AC7C2B_var_names_register_list)
-    get_property(_46AC7C2B_is_var_inheritable GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]::inheritable")
-    if (NOT _46AC7C2B_is_var_inheritable)
-      tkl_pop_prop_from_stack(_46AC7C2B_var_value GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${_46AC7C2B_var_name}]" "tkl::system_vars_register_stack")
-      if (DEFINED _46AC7C2B_var_value)
-        set(${_46AC7C2B_var_name} "${_46AC7C2B_var_value}" PARENT_SCOPE)
-      else()
-        unset(${_46AC7C2B_var_name} PARENT_SCOPE)
-      endif()
-    endif()
-  endforeach()
-endmacro()
-
-function(tkl_pushset_all_system_context_vars ctx_name scope_name)
-  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  if (NOT var_names_register_list_set)
-    message(FATAL_ERROR "Has no registered system variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
-  endif()
-
-  tkl_push_prop_to_stack(GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::system_vars_register_stack")
-
-  get_property(var_names_register_list GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    tkl_push_prop_to_stack(GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
-    tkl_push_var_to_stack("tkl::system_vars_register" ${var_name})
-    get_property(var_value GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]")
-    set(${var_name} "${var_value}" PARENT_SCOPE)
-  endforeach()
-endfunction()
-
-function(tkl_pop_all_system_context_vars ctx_name scope_name)
-  get_property(var_names_register_list_set GLOBAL PROPERTY "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" SET)
-  if (NOT var_names_register_list_set)
-    message(FATAL_ERROR "Has no registered system variables: ctx_name=`${ctx_name}` scope_name=`${scope_name}`")
-  endif()
-
-  tkl_pop_prop_from_stack(var_names_register_list GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}]::var_names" "tkl::system_vars_register_stack")
-
-  foreach(var_name IN LISTS var_names_register_list)
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::system_vars_register[${ctx_name}][${scope_name}][${var_name}]" "tkl::system_vars_register_stack")
-    tkl_pop_var_from_stack("tkl::system_vars_register" ${var_name} var_value)
-    if (DEFINED var_value)
-      set(${var_name} "${var_value}" PARENT_SCOPE)
-    else()
-      unset(${var_name} PARENT_SCOPE)
-    endif()
-  endforeach()
-endfunction()
 
 endif()

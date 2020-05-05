@@ -103,7 +103,7 @@ function(tkl_get_msvc_version var_major_out var_minor_out)
     set(major_version 14)
     string(SUBSTRING "${CMAKE_MATCH_0}" 2 2 minor_version)
     string(REGEX REPLACE "0*([1-9][0-9]*)" "\\1" minor_version "${minor_version}")
-    if (minor_version STREQUAL "")
+    if ("${minor_version}" STREQUAL "")
       set(minor_version 0)
     endif()
   elseif (major_msc_version EQUAL 18)
@@ -143,7 +143,7 @@ function(tkl_get_gcc_version var_major_out var_minor_out)
 
   string(STRIP "${CMAKE_MATCH_2}" minor_version)
   string(REGEX REPLACE "0*([1-9][0-9]*)" "\\1" minor_version "${minor_version}")
-  if (minor_version STREQUAL "")
+  if ("${minor_version}" STREQUAL "")
     set(minor_version 0)
   endif()
 
@@ -165,7 +165,7 @@ function(tkl_get_clang_version var_major_out var_minor_out)
 
   string(STRIP "${CMAKE_MATCH_2}" minor_version)
   string(REGEX REPLACE "0*([1-9][0-9]*)" "\\1" minor_version "${minor_version}")
-  if (minor_version STREQUAL "")
+  if ("${minor_version}" STREQUAL "")
     set(minor_version 0)
   endif()
 
@@ -206,15 +206,15 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
 
   set(compiler_token_name "${CMAKE_MATCH_1}")
   set(compiler_token_major_version "${CMAKE_MATCH_3}")
-  if (compiler_token_major_version STREQUAL "" AND NOT "${CMAKE_MATCH_2}" STREQUAL "")
+  if ("${compiler_token_major_version}" STREQUAL "" AND NOT "${CMAKE_MATCH_2}" STREQUAL "")
     set(compiler_token_major_version 0)
   endif()
   set(compiler_token_minor_version "${CMAKE_MATCH_5}")
-  if (compiler_token_minor_version STREQUAL "" AND NOT "${CMAKE_MATCH_4}" STREQUAL "")
+  if ("${compiler_token_minor_version}" STREQUAL "" AND NOT "${CMAKE_MATCH_4}" STREQUAL "")
     set(compiler_token_minor_version 0)
   endif()
 
-  if (compiler_token_major_version STREQUAL "" AND NOT compiler_token_minor_version STREQUAL "")
+  if ("${compiler_token_major_version}" STREQUAL "" AND NOT "${compiler_token_minor_version}" STREQUAL "")
     message(FATAL_ERROR "the major version must be not empty if the minor version is not empty: `${compiler_token_upper}`")
   endif()
 
@@ -226,15 +226,15 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
 
   set(compiler_token_to_filter_name "${CMAKE_MATCH_1}")
   set(compiler_token_to_filter_major_version "${CMAKE_MATCH_3}")
-  if (compiler_token_to_filter_major_version STREQUAL "" AND NOT "${CMAKE_MATCH_2}" STREQUAL "")
+  if ("${compiler_token_to_filter_major_version}" STREQUAL "" AND NOT "${CMAKE_MATCH_2}" STREQUAL "")
     set(compiler_token_to_filter_major_version 0)
   endif()
   set(compiler_token_to_filter_minor_version "${CMAKE_MATCH_5}")
-  if (compiler_token_to_filter_minor_version STREQUAL "" AND NOT "${CMAKE_MATCH_4}" STREQUAL "")
+  if ("${compiler_token_to_filter_minor_version}" STREQUAL "" AND NOT "${CMAKE_MATCH_4}" STREQUAL "")
     set(compiler_token_to_filter_minor_version 0)
   endif()
 
-  if (compiler_token_to_filter_major_version STREQUAL "" AND NOT compiler_token_to_filter_minor_version STREQUAL "")
+  if ("${compiler_token_to_filter_major_version}" STREQUAL "" AND NOT "${compiler_token_to_filter_minor_version}" STREQUAL "")
     message(FATAL_ERROR "the major version must be not empty if the minor version is not empty: `${compiler_token_to_filter_upper}`")
   endif()
 
@@ -245,7 +245,7 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
   if (compiler_token_minor_version MATCHES "([^*+]+)[*+]")
     message(FATAL_ERROR "only the second argument can contain the pattern matching characters: `${compiler_token_upper}`")
   endif()
-  if (compiler_token_to_filter_major_version STREQUAL "" AND NOT compiler_token_to_filter_minor_version STREQUAL "")
+  if ("${compiler_token_to_filter_major_version}" STREQUAL "" AND NOT "${compiler_token_to_filter_minor_version}" STREQUAL "")
     message(FATAL_ERROR "the major version filter must not be empty if the minor version filter is not empty: `${compiler_token_to_filter}`")
   endif()
 
@@ -256,7 +256,7 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
     set (compiler_token_to_filter_major_version_and_higher 1)
     set (compiler_token_to_filter_minor_version_and_higher 0)
 
-    if (NOT compiler_token_to_filter_minor_version STREQUAL "")
+    if (NOT "${compiler_token_to_filter_minor_version}" STREQUAL "")
       message(FATAL_ERROR "the minor version filter must be empty if the major version filter is using the pattern matching: `${compiler_token_to_filter}`")
     endif()
 
@@ -287,13 +287,13 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
     endif()
   endif()
 
-  if (compiler_token_name STREQUAL compiler_token_to_filter_name)
-    if ((compiler_token_major_version STREQUAL "" AND NOT compiler_token_to_filter_major_version STREQUAL "") OR
-        (compiler_token_minor_version STREQUAL "" AND NOT compiler_token_to_filter_minor_version STREQUAL ""))
+  if ("${compiler_token_name}" STREQUAL "${compiler_token_to_filter_name}")
+    if (("${compiler_token_major_version}" STREQUAL "" AND NOT "${compiler_token_to_filter_major_version}" STREQUAL "") OR
+        ("${compiler_token_minor_version}" STREQUAL "" AND NOT "${compiler_token_to_filter_minor_version}" STREQUAL ""))
       set(${out_var} 0 PARENT_SCOPE)
     else()
       # specific cases
-      if (NOT compiler_token_major_version STREQUAL "" AND NOT compiler_token_minor_version STREQUAL "")
+      if (NOT "${compiler_token_major_version}" STREQUAL "" AND NOT "${compiler_token_minor_version}" STREQUAL "")
         if (compiler_token_major_version EQUAL 14)
           if (compiler_token_minor_version GREATER 0 AND compiler_token_minor_version LESS 10)
             set(compiler_token_minor_version ${compiler_token_minor_version}0)
@@ -301,7 +301,7 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
         endif()
       endif()
       if (NOT compiler_token_to_filter_major_version_and_higher AND NOT compiler_token_to_filter_minor_version_and_higher)
-        if (NOT compiler_token_to_filter_major_version STREQUAL "" AND NOT compiler_token_to_filter_minor_version STREQUAL "")
+        if (NOT "${compiler_token_to_filter_major_version}" STREQUAL "" AND NOT "${compiler_token_to_filter_minor_version}" STREQUAL "")
           if (compiler_token_to_filter_major_version EQUAL 14)
             if (compiler_token_to_filter_minor_version GREATER 0 AND compiler_token_to_filter_minor_version LESS 10)
               set(compiler_token_to_filter_minor_version ${compiler_token_to_filter_minor_version}0)
@@ -312,7 +312,7 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
 
       # Change the `=` operator to the `>=` operator instead in case of the `+` version suffix.
       # The `*` suffix still must check on string prefix (limited range) instead of the `+` which stands for the true `equal or higher` operator.
-      if (op STREQUAL "=")
+      if ("${op}" STREQUAL "=")
         if (compiler_token_to_filter_major_version_greater_or_equal OR compiler_token_to_filter_minor_version_greater_or_equal)
           set(op ">=")
         endif()
@@ -321,10 +321,10 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
       #message("    ${compiler_token_name} ${compiler_token_major_version} ${compiler_token_minor_version}  ${op}")
       #message("      ${compiler_token_to_filter_name} ${compiler_token_to_filter_major_version} ${compiler_token_to_filter_minor_version} ${compiler_token_to_filter_major_version_and_higher} ${compiler_token_to_filter_minor_version_and_higher}")
 
-      if (op STREQUAL "=")
+      if ("${op}" STREQUAL "=")
         if (NOT compiler_token_to_filter_major_version_and_higher AND NOT compiler_token_to_filter_minor_version_and_higher)
-          if (((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
-              ((compiler_token_minor_version STREQUAL "") OR (compiler_token_to_filter_minor_version STREQUAL "") OR (compiler_token_minor_version EQUAL compiler_token_to_filter_minor_version)))
+          if ((("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
+              (("${compiler_token_minor_version}" STREQUAL "") OR ("${compiler_token_to_filter_minor_version}" STREQUAL "") OR (compiler_token_minor_version EQUAL compiler_token_to_filter_minor_version)))
             set(${out_var} 1 PARENT_SCOPE)
           else()
             set(${out_var} 0 PARENT_SCOPE)
@@ -334,17 +334,17 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
           if (compiler_token_to_filter_major_version_and_higher)
             tkl_string_begins_with("${compiler_token_major_version}" "${compiler_token_to_filter_major_version}" is_filter_str_prefix)
           else()
-            if ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
+            if (("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
               tkl_string_begins_with("${compiler_token_minor_version}" "${compiler_token_to_filter_minor_version}" is_filter_str_prefix)
             endif()
           endif()
           set(${out_var} ${is_filter_str_prefix} PARENT_SCOPE)
         endif()
-      elseif (op STREQUAL ">=")
+      elseif ("${op}" STREQUAL ">=")
         if (NOT compiler_token_to_filter_major_version_and_higher AND NOT compiler_token_to_filter_minor_version_and_higher)
-          if (((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version GREATER compiler_token_to_filter_major_version)) OR
-              (((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
-              ((compiler_token_minor_version STREQUAL "") OR (compiler_token_to_filter_minor_version STREQUAL "") OR (compiler_token_minor_version GREATER_EQUAL compiler_token_to_filter_minor_version))))
+          if ((("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version GREATER compiler_token_to_filter_major_version)) OR
+              ((("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
+              (("${compiler_token_minor_version}" STREQUAL "") OR ("${compiler_token_to_filter_minor_version}" STREQUAL "") OR (compiler_token_minor_version GREATER_EQUAL compiler_token_to_filter_minor_version))))
             set(${out_var} 1 PARENT_SCOPE)
           else()
             set(${out_var} 0 PARENT_SCOPE)
@@ -354,19 +354,19 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
           if (compiler_token_to_filter_major_version_and_higher)
             tkl_string_begins_with("${compiler_token_major_version}" "${compiler_token_to_filter_major_version}" is_filter_str_prefix)
           else()
-            if ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version GREATER compiler_token_to_filter_major_version))
+            if (("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version GREATER compiler_token_to_filter_major_version))
               set (is_filter_str_prefix 1)
-            elseif ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
+            elseif (("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
               tkl_string_begins_with("${compiler_token_minor_version}" "${compiler_token_to_filter_minor_version}" is_filter_str_prefix)
             endif()
           endif()
           set(${out_var} ${is_filter_str_prefix} PARENT_SCOPE)
         endif()
-      elseif (op STREQUAL "<")
+      elseif ("${op}" STREQUAL "<")
         if (NOT compiler_token_to_filter_major_version_and_higher AND NOT compiler_token_to_filter_minor_version_and_higher)
-          if (((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version LESS compiler_token_to_filter_major_version)) OR
-              (((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
-            ((compiler_token_minor_version STREQUAL "") OR (compiler_token_to_filter_minor_version STREQUAL "") OR (compiler_token_minor_version LESS compiler_token_to_filter_minor_version))))
+          if ((("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version LESS compiler_token_to_filter_major_version)) OR
+              ((("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version)) AND
+            (("${compiler_token_minor_version}" STREQUAL "") OR ("${compiler_token_to_filter_minor_version}" STREQUAL "") OR (compiler_token_minor_version LESS compiler_token_to_filter_minor_version))))
             set(${out_var} 1 PARENT_SCOPE)
           else()
             set(${out_var} 0 PARENT_SCOPE)
@@ -376,9 +376,9 @@ function(tkl_compare_compiler_tokens compiler_token op compiler_token_to_filter 
           if (compiler_token_to_filter_major_version_and_higher)
             tkl_string_begins_with("${compiler_token_major_version}" "${compiler_token_to_filter_major_version}" is_filter_str_prefix)
           else()
-            if ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version LESS compiler_token_to_filter_major_version))
+            if (("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version LESS compiler_token_to_filter_major_version))
               set (is_filter_str_prefix 1)
-            elseif ((compiler_token_major_version STREQUAL "") OR (compiler_token_to_filter_major_version STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
+            elseif (("${compiler_token_major_version}" STREQUAL "") OR ("${compiler_token_to_filter_major_version}" STREQUAL "") OR (compiler_token_major_version EQUAL compiler_token_to_filter_major_version))
               tkl_string_begins_with("${compiler_token_minor_version}" "${compiler_token_to_filter_minor_version}" is_filter_str_prefix)
             endif()
           endif()

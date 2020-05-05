@@ -422,7 +422,7 @@ make_vars\;.\;.\;."
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index ${argn_index}+1)
 
-  if (file_paths STREQUAL "")
+  if ("${file_paths}" STREQUAL "")
     message(FATAL_ERROR "file_paths argument is not defined")
   endif()
 
@@ -685,7 +685,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
   math(EXPR argn_index ${argn_index}+1)
 
-  if (file_paths STREQUAL "")
+  if ("${file_paths}" STREQUAL "")
     message(FATAL_ERROR "file_paths argument is not defined")
   endif()
 
@@ -729,7 +729,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     math(EXPR argn_index ${argn_index}+1)
   endif()
 
-  if (NOT config_name STREQUAL "")
+  if (NOT "${config_name}" STREQUAL "")
     set(is_config_name_value_can_late_expand 0)
   else()
     set(is_config_name_value_can_late_expand 1)
@@ -737,22 +737,22 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   # config_name consistency check
   if(use_vars_late_expansion AND is_config_name_value_can_late_expand)
-    if (CMAKE_CONFIGURATION_TYPES STREQUAL "")
+    if ("${CMAKE_CONFIGURATION_TYPES}" STREQUAL "")
       message(FATAL_ERROR "CMAKE_CONFIGURATION_TYPES variable must contain configuration names in case of empty config_name argument to construct complement generator expressions: CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}`")
     endif()
   endif()
 
   # process some predefined placeholders
-  if ((os_name STREQUAL ".") OR (os_name STREQUAL "*"))
+  if (("${os_name}" STREQUAL ".") OR ("${os_name}" STREQUAL "*"))
     set(os_name "")
   endif()
-  if ((compiler_name STREQUAL ".") OR (compiler_name STREQUAL "*"))
+  if (("${compiler_name}" STREQUAL ".") OR ("${compiler_name}" STREQUAL "*"))
     set(compiler_name "")
   endif()
-  if ((config_name STREQUAL ".") OR (config_name STREQUAL "*"))
+  if (("${config_name}" STREQUAL ".") OR ("${config_name}" STREQUAL "*"))
     set(config_name "")
   endif()
-  if ((arch_name STREQUAL ".") OR (arch_name STREQUAL "*"))
+  if (("${arch_name}" STREQUAL ".") OR ("${arch_name}" STREQUAL "*"))
     set(arch_name "")
   endif()
 
@@ -771,7 +771,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   set(compare_var_paths_as_case_sensitive 1)
 
-  if (os_name STREQUAL "" AND NOT is_in_script_mode)
+  if ("${os_name}" STREQUAL "" AND NOT is_in_script_mode)
     if (WIN32 OR WIN64)
       set(os_name_to_filter WIN)
     elseif (MSYS)
@@ -791,18 +791,18 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(os_name_to_filter "${os_name_upper}")
   endif()
 
-  if (os_name_to_filter STREQUAL "WIN" OR
-      os_name_to_filter STREQUAL "MSYS" OR
-      os_name_to_filter STREQUAL "MINGW" OR
-      os_name_to_filter STREQUAL "CYGWIN")
+  if ("${os_name_to_filter}" STREQUAL "WIN" OR
+      "${os_name_to_filter}" STREQUAL "MSYS" OR
+      "${os_name_to_filter}" STREQUAL "MINGW" OR
+      "${os_name_to_filter}" STREQUAL "CYGWIN")
     set(compare_var_paths_as_case_sensitive 0) # treats all Windows file systems as case insensitive
   endif()
 
-  if (list_separator_char STREQUAL "")
+  if ("${list_separator_char}" STREQUAL "")
     set(list_separator_char ";")  # builtin list separator in the cmake
   endif()
 
-  if (compiler_name STREQUAL "" AND NOT is_in_script_mode)
+  if ("${compiler_name}" STREQUAL "" AND NOT is_in_script_mode)
     if (MSVC)
       tkl_get_msvc_version_token(compiler_name_to_filter)
     elseif (GCC)
@@ -816,7 +816,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(compiler_name_to_filter "${compiler_name_upper}")
   endif()
 
-  if (NOT config_name STREQUAL "")
+  if (NOT "${config_name}" STREQUAL "")
     string(SUBSTRING "${config_name_upper}" 0 1 char)
     if (NOT char MATCHES "[_A-Z]")
       message(FATAL_ERROR "Invalid configuration name: `${config_name}`")
@@ -829,7 +829,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
   set(config_name_to_filter "${config_name_upper}")
 
-  if (arch_name STREQUAL "" AND NOT is_in_script_mode)
+  if ("${arch_name}" STREQUAL "" AND NOT is_in_script_mode)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(arch_name_to_filter X64)
     elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -948,7 +948,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR)
 
   foreach (injected_var_name IN LISTS injected_vars_list)
-    if (injected_var_name STREQUAL "")
+    if ("${injected_var_name}" STREQUAL "")
       message(FATAL_ERROR "must be a builtin variable name")
     endif()
 
@@ -1001,7 +1001,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   foreach (make_var_name IN LISTS make_vars_names)
     math(EXPR make_var_name_index ${make_var_name_index}+1)
 
-    if (make_var_name STREQUAL "")
+    if ("${make_var_name}" STREQUAL "")
       message(FATAL_ERROR "--make_vars must not use empty variable names")
     endif()
 
@@ -1092,7 +1092,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   foreach (file_path IN LISTS file_paths)
     math(EXPR file_path_index ${file_path_index}+1)
 
-    if (file_path STREQUAL "")
+    if ("${file_path}" STREQUAL "")
       message(FATAL_ERROR "file_paths contains an empty path: file_paths=`${file_paths}`")
     endif()
 
@@ -1153,7 +1153,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       #message("[${var_file_content_line}] {${is_continue_parse_var_value}}  => `${var_line}`")
 
       # skip empty lines
-      if (var_line STREQUAL "" OR var_line MATCHES "^[ \t]*\$")
+      if ("${var_line}" STREQUAL "" OR var_line MATCHES "^[ \t]*\$")
         continue()
       endif()
 
@@ -1212,7 +1212,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         string(REGEX REPLACE "[_a-zA-Z0-9]" "" var_name_valid_chars_filtered "${var_name}")
 
-        if (var_name STREQUAL "" OR (NOT var_name_valid_chars_filtered STREQUAL ""))
+        if ("${var_name}" STREQUAL "" OR (NOT "${var_name_valid_chars_filtered}" STREQUAL ""))
           message(FATAL_ERROR "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
@@ -1388,7 +1388,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             # unset + <any type attribute>
-            if (NOT var_type STREQUAL "")
+            if (NOT "${var_type}" STREQUAL "")
               message(FATAL_ERROR "The variable UNSET and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
 
@@ -1398,10 +1398,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             # unset + <specialization>
-            if ((NOT var_os_name STREQUAL "") OR
-                (NOT var_compiler_name STREQUAL "") OR
-                (NOT var_config_name STREQUAL "") OR
-                (NOT var_arch_name STREQUAL ""))
+            if ((NOT "${var_os_name}" STREQUAL "") OR
+                (NOT "${var_compiler_name}" STREQUAL "") OR
+                (NOT "${var_config_name}" STREQUAL "") OR
+                (NOT "${var_arch_name}" STREQUAL ""))
               message(FATAL_ERROR "The variable UNSET must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
           elseif (use_hide_var OR use_unhide_var)
@@ -1423,7 +1423,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             # hide/unhide + <any type attribute>
-            if (NOT var_type STREQUAL "")
+            if (NOT "${var_type}" STREQUAL "")
               message(FATAL_ERROR "The variable HIDE/UNHIDE and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
 
@@ -1433,10 +1433,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             # hide/unhide + <specialization>
-            if ((NOT var_os_name STREQUAL "") OR
-                (NOT var_compiler_name STREQUAL "") OR
-                (NOT var_config_name STREQUAL "") OR
-                (NOT var_arch_name STREQUAL ""))
+            if ((NOT "${var_os_name}" STREQUAL "") OR
+                (NOT "${var_compiler_name}" STREQUAL "") OR
+                (NOT "${var_config_name}" STREQUAL "") OR
+                (NOT "${var_arch_name}" STREQUAL ""))
               message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
           endif()
@@ -1487,11 +1487,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           message(FATAL_ERROR "The variable PACKAGE attribute is not supported with the UNHIDE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        if (NOT var_type STREQUAL "path" AND use_existed_value)
+        if (NOT "${var_type}" STREQUAL "path" AND use_existed_value)
           message(FATAL_ERROR "Only the PATH variable supports the EXIST attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        if (NOT var_type STREQUAL "path" AND use_canonical_value)
+        if (NOT "${var_type}" STREQUAL "path" AND use_canonical_value)
           message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
@@ -1506,7 +1506,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # not silent variable name ignore checks...
 
         # check variable token consistency
-        if (var_name STREQUAL "")
+        if ("${var_name}" STREQUAL "")
           message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           continue()
         endif()
@@ -1809,30 +1809,30 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # check variable on a collision with builtin variable
         foreach (injected_var_name IN LISTS injected_vars_list)
-          if (var_name STREQUAL injected_var_name)
+          if ("${var_name}" STREQUAL "${injected_var_name}")
             message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
           endif()
         endforeach()
 
         # other not silent ignore checks...
 
-        if (var_os_name STREQUAL "")
+        if ("${var_os_name}" STREQUAL "")
           set(var_os_name_to_process "${os_name_to_filter}")
-        elseif ((var_os_name_upper STREQUAL "WIN") OR
-                (var_os_name_upper STREQUAL "UNIX") OR
-                (var_os_name_upper STREQUAL "APPLE"))
+        elseif (("${var_os_name_upper}" STREQUAL "WIN") OR
+                ("${var_os_name_upper}" STREQUAL "UNIX") OR
+                ("${var_os_name_upper}" STREQUAL "APPLE"))
           set(var_os_name_to_process "${var_os_name_upper}")
         else()
           message("warning: unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           continue()
         endif()
 
-        if (var_compiler_name_upper STREQUAL "")
+        if ("${var_compiler_name_upper}" STREQUAL "")
           set(var_compiler_name_to_process "${compiler_name_to_filter}")
         elseif (var_compiler_name_upper MATCHES "([_A-Z]+)([0-9]+)?\\.?([0-9]+)?")
-          if ((CMAKE_MATCH_1 STREQUAL "MSVC") OR
-              (CMAKE_MATCH_1 STREQUAL "GCC") OR
-              (CMAKE_MATCH_1 STREQUAL "CLANG"))
+          if (("${CMAKE_MATCH_1}" STREQUAL "MSVC") OR
+              ("${CMAKE_MATCH_1}" STREQUAL "GCC") OR
+              ("${CMAKE_MATCH_1}" STREQUAL "CLANG"))
             set(var_compiler_name_to_process "${var_compiler_name_upper}")
           else()
             message(WARNING "unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
@@ -1843,7 +1843,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           continue()
         endif()
 
-        if (var_config_name STREQUAL "")
+        if ("${var_config_name}" STREQUAL "")
           set(var_config_name_to_process "${config_name_to_filter}")
         else()
           string(SUBSTRING "${var_config_name_upper}" 0 1 char)
@@ -1860,10 +1860,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(var_config_name_to_process "${var_config_name_upper}")
         endif()
 
-        if (var_arch_name STREQUAL "")
+        if ("${var_arch_name}" STREQUAL "")
           set(var_arch_name_to_process "${arch_name_to_filter}")
-        elseif ((var_arch_name_upper STREQUAL "X86") OR
-                (var_arch_name_upper STREQUAL "X64"))
+        elseif (("${var_arch_name_upper}" STREQUAL "X86") OR
+                ("${var_arch_name_upper}" STREQUAL "X64"))
           set(var_arch_name_to_process "${var_arch_name_upper}")
         else()
           message("warning: unsupported variable token: [${var_file_content_line}] `${arch_token}`")
@@ -1873,9 +1873,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # other silent ignore checks...
 
         # os name filter is always defined even if was empty
-        if (NOT var_os_name_to_process STREQUAL "")
-          if (NOT os_name_to_filter STREQUAL "")
-            if(NOT var_os_name_to_process STREQUAL os_name_to_filter)
+        if (NOT "${var_os_name_to_process}" STREQUAL "")
+          if (NOT "${os_name_to_filter}" STREQUAL "")
+            if(NOT "${var_os_name_to_process}" STREQUAL "${os_name_to_filter}")
               # silently ignore valid tokens that didn't pass the filter
               continue()
             endif()
@@ -1885,8 +1885,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
         endif()
 
-        if (NOT var_compiler_name_to_process STREQUAL "")
-          if (NOT compiler_name_to_filter STREQUAL "")
+        if (NOT "${var_compiler_name_to_process}" STREQUAL "")
+          if (NOT "${compiler_name_to_filter}" STREQUAL "")
             tkl_compare_compiler_tokens("${compiler_name_to_filter}" = "${var_compiler_name_to_process}" is_equal_config_compilers)
             if (NOT is_equal_config_compilers)
               # silently ignore valid tokens that didn't pass the filter
@@ -1899,9 +1899,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         if (NOT is_config_name_value_can_late_expand)
-          if (NOT var_config_name_to_process STREQUAL "")
-            if (NOT config_name_to_filter STREQUAL "")
-              if (NOT var_config_name_to_process STREQUAL config_name_to_filter)
+          if (NOT "${var_config_name_to_process}" STREQUAL "")
+            if (NOT "${config_name_to_filter}" STREQUAL "")
+              if (NOT "${var_config_name_to_process}" STREQUAL "${config_name_to_filter}")
                 # silently ignore valid tokens that didn't pass the filter
                 continue()
               endif()
@@ -1910,14 +1910,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               continue()
             endif()
           endif()
-        elseif (NOT var_config_name_to_process STREQUAL "" AND ignore_late_expansion_statements)
+        elseif (NOT "${var_config_name_to_process}" STREQUAL "" AND ignore_late_expansion_statements)
           # ignore tokens with late expansion
           continue()
         endif()
 
-        if (NOT var_arch_name_to_process STREQUAL "")
-          if (NOT arch_name_to_filter STREQUAL "")
-            if (NOT var_arch_name_to_process STREQUAL arch_name_to_filter)
+        if (NOT "${var_arch_name_to_process}" STREQUAL "")
+          if (NOT "${arch_name_to_filter}" STREQUAL "")
+            if (NOT "${var_arch_name_to_process}" STREQUAL "${arch_name_to_filter}")
               # silently ignore valid tokens that didn't pass the filter
               continue()
             endif()
@@ -1938,7 +1938,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (grant_assign_for_vars_list)
           foreach(grant_var_name IN LISTS grant_assign_for_vars_list)
-            if (grant_var_name STREQUAL var_name)
+            if ("${grant_var_name}" STREQUAL "${var_name}")
               set(do_spec_collision_check 0)
               break()
             endif()
@@ -1970,7 +1970,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
             #message("${onchange_var_name} => `${onchange_var_prev_value}` -> `${onchange_var_value}`")
 
-            if (NOT onchange_var_value STREQUAL onchange_var_prev_value)
+            if (NOT "${onchange_var_value}" STREQUAL "${onchange_var_prev_value}")
               set(do_spec_collision_check 0) # has changed
               break()
             endif()
@@ -1984,22 +1984,22 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             # A variable is already assigned, but we have to check whether we can allow to specialize a variable.
             if (NOT use_force_var)
               # ignore a variable in case of not equal and not empty specializations
-              if ((NOT config_${var_name}_os_name STREQUAL "" AND NOT var_os_name STREQUAL "" AND NOT config_${var_name}_os_name STREQUAL var_os_name) OR
-                  (NOT config_${var_name}_compiler_name STREQUAL "" AND NOT var_compiler_name STREQUAL "" AND NOT config_${var_name}_compiler_name STREQUAL var_compiler_name) OR
-                  (NOT config_${var_name}_config_name STREQUAL "" AND NOT var_config_name STREQUAL "" AND NOT config_${var_name}_config_name STREQUAL var_config_name) OR
-                  (NOT config_${var_name}_arch_name STREQUAL "" AND NOT var_arch_name STREQUAL "" AND NOT config_${var_name}_arch_name STREQUAL var_arch_name))
+              if ((NOT "${config_${var_name}_os_name}" STREQUAL "" AND NOT "${var_os_name}" STREQUAL "" AND NOT "${config_${var_name}_os_name}" STREQUAL "${var_os_name}") OR
+                  (NOT "${config_${var_name}_compiler_name}" STREQUAL "" AND NOT "${var_compiler_name}" STREQUAL "" AND NOT "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}") OR
+                  (NOT "${config_${var_name}_config_name}" STREQUAL "" AND NOT "${var_config_name}" STREQUAL "" AND NOT "${config_${var_name}_config_name}" STREQUAL "${var_config_name}") OR
+                  (NOT "${config_${var_name}_arch_name}" STREQUAL "" AND NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}"))
                 continue()
               endif()
 
-              if (((config_${var_name}_os_name STREQUAL "") OR (NOT var_os_name STREQUAL "" AND config_${var_name}_os_name STREQUAL var_os_name)) AND
-                  ((config_${var_name}_compiler_name STREQUAL "") OR (NOT var_compiler_name STREQUAL "" AND config_${var_name}_compiler_name STREQUAL var_compiler_name)) AND
-                  ((config_${var_name}_config_name STREQUAL "") OR (NOT var_config_name STREQUAL "" AND config_${var_name}_config_name STREQUAL var_config_name)) AND
-                  ((config_${var_name}_arch_name STREQUAL "") OR (NOT var_arch_name STREQUAL "" AND config_${var_name}_arch_name STREQUAL var_arch_name)) AND
+              if ((("${config_${var_name}_os_name}" STREQUAL "") OR (NOT "${var_os_name}" STREQUAL "" AND "${config_${var_name}_os_name}" STREQUAL "${var_os_name}")) AND
+                  (("${config_${var_name}_compiler_name}" STREQUAL "") OR (NOT "${var_compiler_name}" STREQUAL "" AND "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}")) AND
+                  (("${config_${var_name}_config_name}" STREQUAL "") OR (NOT "${var_config_name}" STREQUAL "" AND "${config_${var_name}_config_name}" STREQUAL "${var_config_name}")) AND
+                  (("${config_${var_name}_arch_name}" STREQUAL "") OR (NOT "${var_arch_name}" STREQUAL "" AND "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")) AND
                   # but in case of specialization something must be set to not empty and not equal with the previous
-                  ((NOT var_os_name STREQUAL "" AND NOT config_${var_name}_os_name STREQUAL var_os_name) OR
-                   (NOT var_compiler_name STREQUAL "" AND NOT config_${var_name}_compiler_name STREQUAL var_compiler_name) OR
-                   (NOT var_config_name STREQUAL "" AND NOT config_${var_name}_config_name STREQUAL var_config_name) OR
-                   (NOT var_arch_name STREQUAL "" AND NOT config_${var_name}_arch_name STREQUAL var_arch_name)))
+                  ((NOT "${var_os_name}" STREQUAL "" AND NOT "${config_${var_name}_os_name}" STREQUAL "${var_os_name}") OR
+                   (NOT "${var_compiler_name}" STREQUAL "" AND NOT "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}") OR
+                   (NOT "${var_config_name}" STREQUAL "" AND NOT "${config_${var_name}_config_name}" STREQUAL "${var_config_name}") OR
+                   (NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")))
                 # is specialization, allow to change
               else()
                 # is not specialization, deny change
@@ -2168,7 +2168,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(prev_char_escaped 1)
 
           if (NOT is_str_quote_open)
-            if (NOT var_values_list STREQUAL "")
+            if (NOT "${var_values_list}" STREQUAL "")
               set(is_next_list_value 1)
             endif()
           endif()
@@ -2206,16 +2206,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             # special cases, must be processed separately
             if (NOT is_str_quote_open)
               # register not white space character sequence begin
-              if ((NOT char STREQUAL " " AND NOT char STREQUAL "\t") AND
-                  (prev_char STREQUAL "" OR prev_char STREQUAL " " OR prev_char STREQUAL "\t" OR prev_char STREQUAL "\n"))
-                if (NOT var_values_list STREQUAL "")
+              if ((NOT "${char}" STREQUAL " " AND NOT "${char}" STREQUAL "\t") AND
+                  ("${prev_char}" STREQUAL "" OR "${prev_char}" STREQUAL " " OR "${prev_char}" STREQUAL "\t" OR "${prev_char}" STREQUAL "\n"))
+                if (NOT "${var_values_list}" STREQUAL "")
                   set(is_next_list_value 1)
                 endif()
                 set(value_from_index ${index})
               endif()
             endif()
 
-            if ((char STREQUAL " ") OR (char STREQUAL "\t")) # not quoted separator characters
+            if (("${char}" STREQUAL " ") OR ("${char}" STREQUAL "\t")) # not quoted separator characters
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2225,8 +2225,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
               if (NOT is_str_quote_open)
                 # make a record after first a white space character after a not white character
-                if ((char STREQUAL " " OR char STREQUAL "\t") AND
-                    (NOT prev_char STREQUAL "" AND NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t" AND NOT prev_char STREQUAL "\n"))
+                if (("${char}" STREQUAL " " OR "${char}" STREQUAL "\t") AND
+                    (NOT "${prev_char}" STREQUAL "" AND NOT "${prev_char}" STREQUAL " " AND NOT "${prev_char}" STREQUAL "\t" AND NOT "${prev_char}" STREQUAL "\n"))
                   if (is_next_list_value)
                     set(var_values_list "${var_values_list};")
                     set(is_next_list_value 0)
@@ -2243,14 +2243,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   math(EXPR value_from_index ${index}+1) # next value begin index
                 endif()
               endif()
-            elseif (char STREQUAL "\$")
+            elseif ("${char}" STREQUAL "\$")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
                 set(is_invalid_open_sequence 1)
                 break()
               endif()
-            elseif (char STREQUAL "/")
+            elseif ("${char}" STREQUAL "/")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2258,7 +2258,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 break()
               endif()
 
-              if (NOT prev_char_escaped AND prev_char STREQUAL "\$")
+              if (NOT prev_char_escaped AND "${prev_char}" STREQUAL "\$")
                 set(is_next_char_to_escape 1)
 
                 # push open sequence context
@@ -2267,7 +2267,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_var_line "${var_line}")
                 tkl_pushset_var_to_stack("tkl::set_vars_from_files" open_sequence_this_file_line "${CMAKE_CURRENT_LIST_LINE}")
               endif()
-            elseif (char STREQUAL "}")
+            elseif ("${char}" STREQUAL "}")
               if (is_subst_open)
                 # pop open sequence context
                 tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
@@ -2304,7 +2304,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                 math(EXPR value_from_index ${index}+1)
               endif()
-            elseif (char STREQUAL "\"")
+            elseif ("${char}" STREQUAL "\"")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2350,7 +2350,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
 
               math(EXPR value_from_index ${index}+1) # next value begin index
-            elseif (char STREQUAL "#")  # comment
+            elseif ("${char}" STREQUAL "#")  # comment
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2364,7 +2364,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_value_len ${index})
                 break()
               endif()
-            elseif (char STREQUAL "(")
+            elseif ("${char}" STREQUAL "(")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2397,7 +2397,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   break()
                 endif()
               endif()
-            elseif (char STREQUAL ")")
+            elseif ("${char}" STREQUAL ")")
               if (is_subst_open)
                 set(this_file_line "${CMAKE_CURRENT_LIST_LINE}")
                 set(is_invalid_var_line 1)
@@ -2420,7 +2420,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   set(is_list_bracket_closed 1)
 
                   # make a record after a close bracket after a not white character
-                  if (NOT prev_char STREQUAL "" AND NOT prev_char STREQUAL " " AND NOT prev_char STREQUAL "\t" AND NOT prev_char STREQUAL "\n")
+                  if (NOT "${prev_char}" STREQUAL "" AND NOT "${prev_char}" STREQUAL " " AND NOT "${prev_char}" STREQUAL "\t" AND NOT "${prev_char}" STREQUAL "\n")
                     if (is_next_list_value)
                       set(var_values_list "${var_values_list};")
                       set(is_next_list_value 0)
@@ -2465,7 +2465,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(var_values_list "${var_values_list}${value}")
             endif()
 
-            if (NOT char STREQUAL "{")
+            if (NOT "${char}" STREQUAL "{")
               # pop open sequence context
               tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
               tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_token_suffix_to_process )
@@ -2473,14 +2473,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
 
               # insert escaped character
-              if (NOT char STREQUAL ";")
-                if (char STREQUAL "n")
+              if (NOT "${char}" STREQUAL ";")
+                if ("${char}" STREQUAL "n")
                   set(var_values_list "${var_values_list}\n")
-                elseif (char STREQUAL "r")
+                elseif ("${char}" STREQUAL "r")
                   set(var_values_list "${var_values_list}\r")
-                elseif (char STREQUAL "t")
+                elseif ("${char}" STREQUAL "t")
                   set(var_values_list "${var_values_list}\t")
-                elseif (char STREQUAL "b")
+                elseif ("${char}" STREQUAL "b")
                   set(var_values_list "${var_values_list}\b")
                 else()
                   set(var_values_list "${var_values_list}${char}")
@@ -2589,7 +2589,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           tkl_list_join(var_values_joined_list var_values_list "${list_separator_char}")
 
           set(set_vars_to_files -1) # unknown or not need to know
-          if ((NOT is_config_name_value_can_late_expand) OR (var_config_name STREQUAL ""))
+          if ((NOT is_config_name_value_can_late_expand) OR ("${var_config_name}" STREQUAL ""))
             if (NOT DEFINED var_names_file_path AND NOT DEFINED var_values_file_path)
               set(set_vars_to_files 0)
             else()
@@ -2601,9 +2601,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(is_path_var_value -1) # unknown or not need to know
 
           if (is_var_in_ODR_check_list OR ((set_vars_to_files LESS 1) AND set_vars))
-            if (var_type STREQUAL "bool")
+            if ("${var_type}" STREQUAL "bool")
               set(is_bool_var_value 1)
-            elseif (var_type STREQUAL "path")
+            elseif ("${var_type}" STREQUAL "path")
               set(is_path_var_value 1)
             elseif (NOT compare_var_paths_as_case_sensitive)
               # detect variable type by variable name variants
@@ -2615,7 +2615,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           set(var_parsed_value "${var_values_joined_list}")
           # escape all `\;` sequences to iterate it as a path list through the `foreach`
-          if (var_type STREQUAL "path")
+          if ("${var_type}" STREQUAL "path")
             string(REGEX REPLACE "([^\\\\])\\\\;" "\\1/;" var_parsed_value "${var_parsed_value}")
           endif()
 
@@ -2645,7 +2645,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(is_vars_equal 0)
             if (NOT is_path_var_value GREATER 0)
               if ((is_bool_var_value AND (previous_var_value_boolean EQUAL var_parsed_value_boolean)) OR
-                  (NOT is_bool_var_value AND (previous_var_value STREQUAL var_parsed_value)))
+                  (NOT is_bool_var_value AND ("${previous_var_value}" STREQUAL "${var_parsed_value}")))
                 set(is_vars_equal 1)
               endif()
             else()
@@ -2658,7 +2658,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                 tkl_make_comparable_path(previous_var_value_item "${previous_var_value_item}" . compare_var_paths_as_case_sensitive 1)
 
-                if (NOT previous_var_value_list STREQUAL "")
+                if (NOT "${previous_var_value_list}" STREQUAL "")
                   set(previous_var_value_list "${previous_var_value_list};${previous_var_value_item}")
                 else()
                   set(previous_var_value_list "${previous_var_value_item}")
@@ -2671,7 +2671,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                 tkl_make_comparable_path(var_parsed_value_item "${var_parsed_value_item}" . compare_var_paths_as_case_sensitive 1)
 
-                if (NOT var_parsed_value_list STREQUAL "")
+                if (NOT "${var_parsed_value_list}" STREQUAL "")
                   set(var_parsed_value_list "${var_parsed_value_list};${var_parsed_value_item}")
                 else()
                   set(var_parsed_value_list "${var_parsed_value_item}")
@@ -2691,19 +2691,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           # convert to the canonical
           if (use_canonical_value)
-            if (var_type STREQUAL "path")
+            if ("${var_type}" STREQUAL "path")
               string(REPLACE "\\" "/" var_parsed_value "${var_parsed_value}")
             endif()
           endif()
 
           # check variable's value on existence
-          if (var_type STREQUAL "path" AND use_existed_value)
+          if ("${var_type}" STREQUAL "path" AND use_existed_value)
             foreach(path_var_value IN LISTS var_parsed_value)
               # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
               tkl_escape_string_after_list_get(path_var_value "${path_var_value}")
 
               if (NOT EXISTS "${path_var_value}")
-                if (var_parsed_value STREQUAL path_var_value)
+                if ("${var_parsed_value}" STREQUAL "${path_var_value}")
                   message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${path_var_value}`")
                 else()
                   message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${var_parsed_value}` => `${path_var_value}`")
@@ -2713,7 +2713,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
 
           # A variable with not late expansion expression or a variable with configuration specialized late expansion (generator) expression (`var_config_name` is empty)
-          if ((NOT is_config_name_value_can_late_expand) OR (var_config_name STREQUAL ""))
+          if ((NOT is_config_name_value_can_late_expand) OR ("${var_config_name}" STREQUAL ""))
             if (set_vars_to_files LESS 1)
               if (set_vars)
                 # cache always must be set at first
@@ -2800,7 +2800,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 set(var_token_suffix_note "")
               endif()
 
-              if (config_${var_name} STREQUAL var_parsed_value)
+              if ("${config_${var_name}}" STREQUAL "${var_parsed_value}")
                 set(var_set_msg_suffix_str "")
               else()
                 set(var_set_msg_suffix_str " (`${var_parsed_value}`)")
@@ -2895,7 +2895,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             # save variable's value as a generator expression
-            if (var_config_name STREQUAL "")
+            if ("${var_config_name}" STREQUAL "")
               # special syntax to hold an unescaped value for "all others" configurations
               set(config_gen_forall_${var_name} "${var_parsed_value}")
               set(config_gen_defined_forall_${var_name} 1)
@@ -3248,7 +3248,7 @@ make_vars\;.\;.\;."
 
       list(GET var_values ${var_config_name_index} var_value) # discardes ;-escaping
 
-      if (NOT var_config_name STREQUAL "*")
+      if (NOT "${var_config_name}" STREQUAL "*")
         string(REGEX REPLACE "([;\\$\"])" "\\\\\\1" var_escaped_value "${var_value}")
 
         #message("[${var_config_name}] `${var_value}` -> `${var_escaped_value}`")

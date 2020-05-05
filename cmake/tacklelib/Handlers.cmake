@@ -69,7 +69,7 @@ function(tkl_enable_handlers scope_type keyword_declarator func_name)
     macro(tkl_generate_call_handler gen_func_name ${ARGN})
       tkl_get_global_prop(TACKLELIB_TESTLIB_TESTPROC_INDEX "tkl::testlib::testproc::index" 1)
 
-      if (NOT TACKLELIB_TESTLIB_TESTPROC_INDEX STREQUAL "")
+      if (NOT "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" STREQUAL "")
         # running under TestLib, the macro can call under different cmake processe when the inner timestamp is not yet changed (timestamp has seconds resolution)
         tkl_make_temp_dir(_3528D0E3_handlers_temp_dir_path "CMake.EnableHandlers.${gen_func_name}." "%Y'%m'%d''%H'%M'%SZ" "${TACKLELIB_TESTLIB_TESTPROC_INDEX}" 8)
       else()
@@ -104,7 +104,7 @@ macro(tkl_add_first_handler handler_type func_name handler_func_name)
 
   tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
 
-  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+  if (\"\${TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name}}\" STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
       message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()
@@ -145,7 +145,7 @@ macro(tkl_add_last_handler handler_type func_name handler_func_name)
 
   tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
 
-  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+  if (\"\${TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name}}\" STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
       message(FATAL_ERROR \"`\${handler_func_name}` function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()
@@ -186,7 +186,7 @@ macro(tkl_remove_first_handler handler_type func_name)
 
   tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
 
-  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+  if (\"\${TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name}}\" STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
       message(FATAL_ERROR \"function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()
@@ -227,7 +227,7 @@ macro(tkl_remove_last_handler handler_type func_name)
 
   tkl_get_global_prop(TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} \"tkl::handlers::scope_type[\${func_name}]\" 1)
 
-  if (TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name} STREQUAL \"PRE_ONLY\")
+  if (\"\${TACKLELIB_HANDLERS_SCOPE_TYPE_FOR_\${func_name}}\" STREQUAL \"PRE_ONLY\")
     if (NOT \"\${handler_type}\" STREQUAL \"PRE\")
       message(FATAL_ERROR \"function enabled only for the `PRE` handler type: handler_type=`\${handler_type}`\")
     endif()

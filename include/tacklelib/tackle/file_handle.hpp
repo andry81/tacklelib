@@ -17,11 +17,15 @@
 #include <cstdio>
 #include <utility>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 namespace tackle
 {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    class basic_file_handle : public smart_handle<FILE>
+    class LIBRARY_API_DECL basic_file_handle : public smart_handle<FILE>
     {
         using base_type = smart_handle<FILE>;
 

@@ -39,7 +39,7 @@
 #endif
 
 // lookup compile time size value
-#define UTILITY_SIZE_LOOKUP_BY_ERROR(size)              char * __integral_lookup[size] = 1
+#define UTILITY_SIZE_LOOKUP_BY_ERROR(size)                          char * __integral_lookup[size] = 1
 
 // static asserts to use in an constexpr expression
 

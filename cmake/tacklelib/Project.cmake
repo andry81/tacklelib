@@ -54,7 +54,7 @@ function(tkl_discover_env_var_to flag_var out_var var_name cache_type desc)
 
   tkl_get_var(uncached_var cached_var ${var_name})
 
-  if (desc STREQUAL ".")
+  if ("${desc}" STREQUAL ".")
     # reuse default description
     get_property(desc CACHE "${var_name}" PROPERTY HELPSTRING)
   endif()
@@ -124,7 +124,7 @@ function(tkl_discover_builtin_env_vars prefix_list cache_type desc)
           # update cache with FORCE only if alreaady exists
           get_property(var_cache_value_is_set CACHE "${var}" PROPERTY VALUE SET)
           if (var_cache_value_is_set)
-            if (desc STREQUAL ".")
+            if ("${desc}" STREQUAL ".")
               # reuse default description
               get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
             else()
@@ -151,7 +151,7 @@ function(tkl_discover_builtin_env_vars prefix_list cache_type desc)
         # update cache with FORCE only if alreaady exists
         get_property(var_cache_value_is_set CACHE "${var}" PROPERTY VALUE SET)
         if (var_cache_value_is_set)
-          if (desc STREQUAL ".")
+          if ("${desc}" STREQUAL ".")
             # reuse default description
             get_property(var_cache_desc CACHE "${var}" PROPERTY HELPSTRING)
           else()
@@ -401,11 +401,11 @@ macro(tkl_preload_variables) # WITH OUT ARGUMENTS!
 
   set(_DDDE2B35_default_external_vars "CMAKE_INSTALL_PREFIX;CMAKE_GENERATOR;CMAKE_GENERATOR_TOOLSET;CMAKE_GENERATOR_PLATFORM")
   set(_DDDE2B35_external_vars "${_DDDE2B35_default_external_vars}")
-  if (NOT _DDDE2B35_external_vars_list STREQUAL "" AND NOT _DDDE2B35_external_vars_list STREQUAL ".")
+  if (NOT "${_DDDE2B35_external_vars_list}" STREQUAL "" AND NOT "${_DDDE2B35_external_vars_list}" STREQUAL ".")
     tkl_set_append(_DDDE2B35_external_vars "${_DDDE2B35_external_vars_list}" ";")
   endif()
 
-  if (NOT _DDDE2B35_preload_only_vars_list STREQUAL "" AND NOT _DDDE2B35_preload_only_vars_list STREQUAL ".")
+  if (NOT "${_DDDE2B35_preload_only_vars_list}" STREQUAL "" AND NOT "${_DDDE2B35_preload_only_vars_list}" STREQUAL ".")
     function(tkl_load_vars_from_files_lambda_C71CE541)
       tkl_load_vars_from_files(${_DDDE2B35_print_vars_flag} ${_DDDE2B35_script_flag} ${_DDDE2B35_silent_flag}
         --grant_external_vars_for_assign "${_DDDE2B35_external_vars}"
@@ -614,10 +614,10 @@ function(tkl_exclude_paths_from_path_list exclude_list_var include_list_var path
     message(STATUS "(**) tkl_exclude_paths_from_path_list: exclude list: `${exclude_path_list}`")
   endif()
 
-  if(NOT include_list_var STREQUAL "" AND NOT include_list_var STREQUAL ".")
+  if(NOT "${include_list_var}" STREQUAL "" AND NOT "${include_list_var}" STREQUAL ".")
     set(include_list_var_defined 1)
   endif()
-  if(NOT exclude_list_var STREQUAL "" AND NOT exclude_list_var STREQUAL ".")
+  if(NOT "${exclude_list_var}" STREQUAL "" AND NOT "${exclude_list_var}" STREQUAL ".")
     set(exclude_list_var_defined 1)
   endif()
 
@@ -663,10 +663,10 @@ function(tkl_exclude_file_paths_from_path_list exclude_list_var include_list_var
     message(STATUS "(**) tkl_exclude_file_paths_from_path_list: exclude list: `${exclude_file_path_list}`")
   endif()
 
-  if(NOT include_list_var STREQUAL "" AND NOT include_list_var STREQUAL ".")
+  if(NOT "${include_list_var}" STREQUAL "" AND NOT "${include_list_var}" STREQUAL ".")
     set(include_list_var_defined 1)
   endif()
-  if(NOT exclude_list_var STREQUAL "" AND NOT exclude_list_var STREQUAL ".")
+  if(NOT "${exclude_list_var}" STREQUAL "" AND NOT "${exclude_list_var}" STREQUAL ".")
     set(exclude_list_var_defined 1)
   endif()
 
@@ -835,7 +835,7 @@ function(tkl_declare_target_builtin_properties target)
   get_target_property(target_type ${target} TYPE)
 
   # avoid error: INTERFACE_LIBRARY targets may only have whitelisted properties.
-  if(NOT target_type STREQUAL "INTERFACE_LIBRARY")
+  if(NOT "${target_type}" STREQUAL "INTERFACE_LIBRARY")
     set_property(GLOBAL APPEND PROPERTY "tkl::GLOBAL_TARGET_LIST" ${target})
 
     get_property(is_global_CMAKE_CURRENT_PACKAGE_NAME_set GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME" SET)
@@ -885,7 +885,7 @@ function(tkl_get_target_alias_from_command_line target_alias_var)
   set(arg_alias_index -1)
   foreach(arg IN LISTS ARGN)
     if(arg_alias_index EQUAL -1)
-      if(arg STREQUAL "ALIAS")
+      if("${arg}" STREQUAL "ALIAS")
         set(arg_alias_index ${arg_index})
       endif()
     else()
@@ -993,57 +993,91 @@ function(tkl_unregister_directory_scope_targets)
   tkl_set_global_targets_list(${targets_list})
 endfunction()
 
+function(tkl_project_begin project_name)
+  message("entering project: `${project_name}`...")
+
+  # use project name as package name
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" "${project_name}")
+
+  # use current cmake list directory as package source directory
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
+
+  # use additional stack to detect pop
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package" "${CMAKE_CURRENT_LIST_DIR}")
+
+  if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
+    math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
+  else()
+    set(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL 1 PARENT_SCOPE)
+  endif()
+
+  get_property(global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  if (NOT "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" STREQUAL "")
+    # reset not inheritable context variables
+    tkl_pushreset_not_inheritable_context_vars_macro("tkl_register_package_var" "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
+  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${CMAKE_CURRENT_LIST_DIR})
+
+  get_property(global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  # push all context variables
+  tkl_push_all_context_vars_macro("tkl_register_package_var" "${global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+endfunction()
+
+function(tkl_project_end)
+  tkl_unregister_directory_scope_targets()
+
+  get_property(global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  # pop all context variables
+  tkl_pop_all_context_vars_macro("tkl_register_package_var" "${global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+
+  tkl_pop_prop_from_stack(global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
+
+  if (NOT "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" STREQUAL "")
+    # restore not inheritable context variables
+    tkl_poprestore_not_inheritable_context_vars_macro("tkl_register_package_var" "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
+  # use project name as package name
+  get_property(project_name GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_NAME")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
+
+  # package source directory
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
+
+  # use additional stack to detect pop
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package")
+
+  message("leaving project: `${project_name}`...")
+endfunction()
+
 function(tkl_add_subdirectory_begin target_src_dir)
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
   if ("${target_src_dir}" STREQUAL "")
-    message(FATAL_ERROR "Subdirectory path is empty.")
+    message(FATAL_ERROR "Target source directory is empty")
   endif()
-
-  math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
   # must be always canonical and absolute
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
 
   tkl_add_subdirectory_begin_message("${target_src_dir}" ${ARGN})
-
-  # push-unset not inheritable context variables
-  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-  tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-
-  tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" ${target_src_dir_abs})
 endfunction()
 
 function(tkl_add_subdirectory_end target_src_dir)
-  if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
-    message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
-  endif()
-
   # must be always canonical and absolute
   get_filename_component(target_src_dir_abs ${target_src_dir} ABSOLUTE)
 
   get_property(global_CMAKE_CURRENT_PROJECT_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR")
-  if (target_src_dir_abs STREQUAL global_CMAKE_CURRENT_PROJECT_SOURCE_DIR)
-    # project name
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
 
-    # package source directory
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
-
-    # use additional stack to detect pop
-    tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PROJECT_SOURCE_DIR" "tkl::package")
+  if ("${target_src_dir_abs}" STREQUAL "${global_CMAKE_CURRENT_PROJECT_SOURCE_DIR}")
+    tkl_project_end()
   endif()
-
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
-  tkl_unregister_directory_scope_targets()
-
-  # pop not inheritable context variables
-  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-  tkl_pop_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
 
   tkl_add_subdirectory_end_message(${target_src_dir} ${ARGN})
 
@@ -1055,7 +1089,7 @@ macro(tkl_add_subdirectory_prepare_message)
   set(arg_index 0)
   foreach(arg IN LISTS ARGN)
     if(arg_index EQUAL 0)
-      if(NOT arg STREQUAL "EXCLUDE_FROM_ALL")
+      if(NOT "${arg}" STREQUAL "EXCLUDE_FROM_ALL")
         set(target_bin_dir ${arg})
       endif()
     endif()
@@ -1066,7 +1100,7 @@ macro(tkl_add_subdirectory_prepare_message)
   #message(PROJECT_SOURCE_DIR=`${PROJECT_SOURCE_DIR}`)
   #message(target_src_dir_abs=`${target_src_dir_abs}`)
   file(RELATIVE_PATH target_src_dir_path ${PROJECT_SOURCE_DIR} ${target_src_dir_abs})
-  if((target_src_dir_path STREQUAL ".") OR (target_src_dir_path STREQUAL ""))
+  if(("${target_src_dir_path}" STREQUAL ".") OR ("${target_src_dir_path}" STREQUAL ""))
     set(target_src_dir_path ${target_src_dir})
   endif()
 
@@ -1074,7 +1108,7 @@ macro(tkl_add_subdirectory_prepare_message)
   if(target_bin_dir)
     get_filename_component(target_bin_dir_abs ${target_bin_dir} ABSOLUTE)
     file(RELATIVE_PATH target_bin_dir_path ${PROJECT_SOURCE_DIR} ${target_bin_dir_abs})
-    if((target_bin_dir_path STREQUAL ".") OR (target_src_dir_path STREQUAL ""))
+    if(("${target_bin_dir_path}" STREQUAL ".") OR ("${target_src_dir_path}" STREQUAL ""))
       set(target_bin_dir_path "${target_bin_dir}")
     endif()
 
@@ -1102,28 +1136,32 @@ function(tkl_find_package_begin package_root_dir_var package)
   math(EXPR TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}+1")
 
   tkl_find_package_begin_message(${package_root_dir_var} ${package} ${ARGN})
+
+  get_property(global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+  if (NOT "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" STREQUAL "")
+    # reset not inheritable context variables
+    tkl_pushreset_not_inheritable_context_vars_macro("tkl_register_package_var" "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
   tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package" ${package})
-  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+
+  if (NOT "${package_root_dir_var}" STREQUAL "" AND NOT "${package_root_dir_var}" STREQUAL ".")
     set(package_root_dir "${${package_root_dir_var}}")
     if ("${package_root_dir}" STREQUAL "")
       message(FATAL_ERROR "Package root diretory path is empty: package_root_dir_var=`${package_root_dir_var}`")
     endif()
 
-    # push-unset not inheritable context variables
-    get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-    tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-
     # must be always canonical and absolute
     get_filename_component(package_root_dir_abs ${package_root_dir} ABSOLUTE)
 
     tkl_pushset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package" "${package_root_dir_abs}")
+
+    get_property(global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+    # push all context variables
+    tkl_push_all_context_vars_macro("tkl_register_package_var" "${global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
   else()
-    # push-unset not inheritable context variables
-    get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
-
-    tkl_pushunset_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
-
     tkl_pushunset_prop_to_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
   endif()
 endfunction()
@@ -1133,14 +1171,22 @@ function(tkl_find_package_end package_root_dir_var package)
     message(FATAL_ERROR "cmake project is not properly initialized, you must call `tkl_configure_environment` before add any package")
   endif()
 
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
-  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
+  if (NOT "${package_root_dir_var}" STREQUAL "" AND NOT "${package_root_dir_var}" STREQUAL ".")
+    get_property(global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+
+    # pop all context variables
+    tkl_pop_all_context_vars_macro("tkl_register_package_var" "${global_next_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
+
   tkl_unregister_directory_scope_targets()
 
-  # pop not inheritable context variables
-  get_property(global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL PROPERTY "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR")
+  tkl_pop_prop_from_stack(global_rev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR" "tkl::package")
+  tkl_pop_prop_from_stack(. GLOBAL "tkl::CMAKE_CURRENT_PACKAGE_NAME" "tkl::package")
 
-  tkl_pop_not_inheritable_system_context_vars_macro("tkl_register_package_var" "${global_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  if (NOT "${global_prev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" STREQUAL "")
+    # restore not inheritable context variables
+    tkl_poprestore_not_inheritable_context_vars_macro("tkl_register_package_var" "${global_rev_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
+  endif()
 
   tkl_find_package_end_message(${package_root_dir_var} ${package} ${ARGN})
 
@@ -1148,7 +1194,7 @@ function(tkl_find_package_end package_root_dir_var package)
 endfunction()
 
 function(tkl_find_package_begin_message package_root_dir_var package)
-  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+  if (NOT "${package_root_dir_var}" STREQUAL "" AND NOT "${package_root_dir_var}" STREQUAL ".")
     message("entering package: `${package}`: ${package_root_dir_var}=`${${package_root_dir_var}}`...")
   else()
     message("entering package: `${package}`...")
@@ -1156,7 +1202,7 @@ function(tkl_find_package_begin_message package_root_dir_var package)
 endfunction()
 
 function(tkl_find_package_end_message package_root_dir_var package)
-  if (NOT package_root_dir_var STREQUAL "" AND NOT package_root_dir_var STREQUAL ".")
+  if (NOT "${package_root_dir_var}" STREQUAL "" AND NOT "${package_root_dir_var}" STREQUAL ".")
     message("leaving package: `${package}`: ${package_root_dir_var}=`${${package_root_dir_var}}`")
   else()
     message("leaving package: `${package}`")
@@ -1228,7 +1274,7 @@ function(tkl_parse_config_names_list_var config_names out_config_types_var out_h
 
   if(config_names)
     foreach(config_name IN LISTS config_names)
-      if(config_name STREQUAL "*")
+      if("${config_name}" STREQUAL "*")
         set(has_all_config_types 1)
 
         foreach(config_type IN LISTS cmake_config_types)
@@ -1263,7 +1309,7 @@ function(tkl_remove_global_optimization_flags)
   endif()
 
   foreach(config_type IN LISTS config_types)
-    if(config_type STREQUAL ".")
+    if("${config_type}" STREQUAL ".")
       set(config_type_suffix "")
     else()
       string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1312,7 +1358,7 @@ function(tkl_fix_global_flags)
   endif()
 
   foreach(config_type IN LISTS config_types)
-    if(config_type STREQUAL ".")
+    if("${config_type}" STREQUAL ".")
       set(config_type_suffix "")
     else()
       string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1365,12 +1411,12 @@ function(tkl_set_global_link_type type)
 
   # all flags variables here must be list representable (index queriable)
   if(MSVC)
-    if(type STREQUAL "dynamic")
+    if("${type}" STREQUAL "dynamic")
       set(cmake_compiler_flags_to_replace /MT /MTd)
       set(cmake_compiler_flags_to_replace_by /MD /MDd)
       set(cmake_linker_flags_to_replace "")
       set(cmake_linker_flags_to_replace_by "")
-    elseif(type STREQUAL "static")
+    elseif("${type}" STREQUAL "static")
       set(cmake_compiler_flags_to_replace /MD /MDd)
       set(cmake_compiler_flags_to_replace_by /MT /MTd)
       set(cmake_linker_flags_to_replace "")
@@ -1382,9 +1428,9 @@ function(tkl_set_global_link_type type)
     set(cmake_linker_flags_to_replace "")
     set(cmake_linker_flags_to_replace_by "")
 
-    if(type STREQUAL "dynamic")
+    if("${type}" STREQUAL "dynamic")
       set(CMAKE_SHARED_LIBS ON)
-    elseif(type STREQUAL "static")
+    elseif("${type}" STREQUAL "static")
       set(CMAKE_SHARED_LIBS OFF)
     endif()
   else()
@@ -1392,7 +1438,7 @@ function(tkl_set_global_link_type type)
   endif()
 
   foreach(config_type IN LISTS config_types)
-    if(config_type STREQUAL ".")
+    if("${config_type}" STREQUAL ".")
       set(config_type_suffix "")
     else()
       string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1472,14 +1518,14 @@ function(tkl_initialize_target_defaults_impl target flags_list)
       string(TOUPPER "${config_type}" config_type_upper)
 
       # definitions
-      if(config_type_upper STREQUAL "DEBUG")
+      if("${config_type_upper}" STREQUAL "DEBUG")
         tkl_add_target_compile_definitions(${target} ${config_type_upper}
           PUBLIC
             _DEBUG
         )
-      elseif((config_type_upper STREQUAL "RELEASE") OR
-             (config_type_upper STREQUAL "MINSIZEREL") OR
-             (config_type_upper STREQUAL "RELWITHDEBINFO"))
+      elseif(("${config_type_upper}" STREQUAL "RELEASE") OR
+             ("${config_type_upper}" STREQUAL "MINSIZEREL") OR
+             ("${config_type_upper}" STREQUAL "RELWITHDEBINFO"))
         tkl_add_target_compile_definitions(${target} ${config_type_upper}
           PUBLIC
             NDEBUG
@@ -1488,27 +1534,27 @@ function(tkl_initialize_target_defaults_impl target flags_list)
 
       # compilation flags
       if(MSVC)
-        if((target_type STREQUAL "EXECUTABLE") OR
-           (target_type STREQUAL "STATIC_LIBRARY") OR
-           (target_type STREQUAL "SHARED_LIBRARY") OR
-           (target_type STREQUAL "MODULE_LIBRARY"))
-          if(config_type_upper STREQUAL "DEBUG")
+        if(("${target_type}" STREQUAL "EXECUTABLE") OR
+           ("${target_type}" STREQUAL "STATIC_LIBRARY") OR
+           ("${target_type}" STREQUAL "SHARED_LIBRARY") OR
+           ("${target_type}" STREQUAL "MODULE_LIBRARY"))
+          if("${config_type_upper}" STREQUAL "DEBUG")
             tkl_add_target_compile_properties(${target} ${config_type_upper}
               /Od     # always drop optimization in debug
             )
           endif()
         endif()
       elseif(GCC)
-        if((target_type STREQUAL "EXECUTABLE") OR
-           (target_type STREQUAL "STATIC_LIBRARY") OR
-           (target_type STREQUAL "SHARED_LIBRARY") OR
-           (target_type STREQUAL "MODULE_LIBRARY"))
-          if(config_type_upper STREQUAL "DEBUG")
+        if(("${target_type}" STREQUAL "EXECUTABLE") OR
+           ("${target_type}" STREQUAL "STATIC_LIBRARY") OR
+           ("${target_type}" STREQUAL "SHARED_LIBRARY") OR
+           ("${target_type}" STREQUAL "MODULE_LIBRARY"))
+          if("${config_type_upper}" STREQUAL "DEBUG")
             tkl_add_target_compile_properties(${target} ${config_type_upper}
               -O0     # always drop optimization in debug
             )
           endif()
-          if((config_type_upper STREQUAL "DEBUG") OR (config_type_upper STREQUAL "RELWITHDEBINFO"))
+          if(("${config_type_upper}" STREQUAL "DEBUG") OR ("${config_type_upper}" STREQUAL "RELWITHDEBINFO"))
             tkl_add_target_compile_properties(${target} ${config_type_upper}
               -g
             )
@@ -1519,10 +1565,10 @@ function(tkl_initialize_target_defaults_impl target flags_list)
 
     foreach(flag IN LISTS flags_list)
       # indifferent to Windows or Linux, has meaning to console/GUI linkage.
-      if(flag STREQUAL "console")
-        if((target_type STREQUAL "EXECUTABLE") OR
-           (target_type STREQUAL "SHARED_LIBRARY") OR
-           (target_type STREQUAL "MODULE_LIBRARY"))
+      if("${flag}" STREQUAL "console")
+        if(("${target_type}" STREQUAL "EXECUTABLE") OR
+           ("${target_type}" STREQUAL "SHARED_LIBRARY") OR
+           ("${target_type}" STREQUAL "MODULE_LIBRARY"))
           tkl_add_target_compile_definitions(${target} *
             PUBLIC
               _CONSOLE
@@ -1535,10 +1581,10 @@ function(tkl_initialize_target_defaults_impl target flags_list)
           endif()
         endif()
 
-      elseif(flag STREQUAL "gui")
-        if((target_type STREQUAL "EXECUTABLE") OR
-           (target_type STREQUAL "SHARED_LIBRARY") OR
-           (target_type STREQUAL "MODULE_LIBRARY"))
+      elseif("${flag}" STREQUAL "gui")
+        if(("${target_type}" STREQUAL "EXECUTABLE") OR
+           ("${target_type}" STREQUAL "SHARED_LIBRARY") OR
+           ("${target_type}" STREQUAL "MODULE_LIBRARY"))
           tkl_add_target_compile_definitions(${target} *
             PUBLIC
               _WINDOWS
@@ -1551,7 +1597,7 @@ function(tkl_initialize_target_defaults_impl target flags_list)
           endif()
         endif()
 
-      elseif(flag STREQUAL "32bit")
+      elseif("${flag}" STREQUAL "32bit")
         if(GCC)
           tkl_add_target_compile_properties(${target} *
             -m32        # compile 32 bit target
@@ -1573,7 +1619,7 @@ function(tkl_add_target_compile_definitions targets config_names inheritance_typ
     if(has_all_config_types OR has_default_config_type)
       foreach(target IN LISTS targets)
         foreach(arg IN LISTS ARGN)
-          if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
+          if (("${arg}" STREQUAL "PRIVATE") OR ("${arg}" STREQUAL "INTERFACE") OR ("${arg}" STREQUAL "PUBLIC"))
             message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
           endif()
           # arg must be a string here
@@ -1584,7 +1630,7 @@ function(tkl_add_target_compile_definitions targets config_names inheritance_typ
       foreach(config_type IN LISTS config_types)
         foreach(target IN LISTS targets)
           foreach(arg IN LISTS ARGN)
-            if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
+            if (("${arg}" STREQUAL "PRIVATE") OR ("${arg}" STREQUAL "INTERFACE") OR ("${arg}" STREQUAL "PUBLIC"))
               message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
             endif()
             # arg must be a string here
@@ -1646,7 +1692,7 @@ function(tkl_add_target_link_directories targets config_names inheritance_type)
     if(has_all_config_types OR has_default_config_type)
       foreach(target IN LISTS targets)
         foreach(arg IN LISTS ARGN)
-          if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
+          if (("${arg}" STREQUAL "PRIVATE") OR ("${arg}" STREQUAL "INTERFACE") OR ("${arg}" STREQUAL "PUBLIC"))
             message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
           endif()
           # arg must be a string here
@@ -1661,7 +1707,7 @@ function(tkl_add_target_link_directories targets config_names inheritance_type)
       foreach(config_type IN LISTS config_types)
         foreach(target IN LISTS targets)
           foreach(arg IN LISTS ARGN)
-            if ((arg STREQUAL "PRIVATE") OR (arg STREQUAL "INTERFACE") OR (arg STREQUAL "PUBLIC"))
+            if (("${arg}" STREQUAL "PRIVATE") OR ("${arg}" STREQUAL "INTERFACE") OR ("${arg}" STREQUAL "PUBLIC"))
               message(FATAL_ERROR "PRIVATE/INTERFACE/PUBLIC types should not be in the list of targets, use another function call to declare different visibility targets")
             endif()
             # arg must be a string here
@@ -1685,11 +1731,11 @@ function(tkl_add_target_link_properties targets linker_type config_names)
   set(ignore_notstatic 0)
   set(ignore_static 0)
 
-  if ((linker_type STREQUAL "*") OR (linker_type STREQUAL "."))
+  if (("${linker_type}" STREQUAL "*") OR ("${linker_type}" STREQUAL "."))
     # use in all linker types
-  elseif (linker_type STREQUAL "STATIC")
+  elseif ("${linker_type}" STREQUAL "STATIC")
     set(ignore_notstatic 1)
-  elseif (linker_type STREQUAL "NOTSTATIC")
+  elseif ("${linker_type}" STREQUAL "NOTSTATIC")
     set(ignore_static 1)
   else()
     message(FATAL_ERROR "Unrecognized linker type: `${linker_type}`")
@@ -1698,7 +1744,7 @@ function(tkl_add_target_link_properties targets linker_type config_names)
   foreach(target IN LISTS targets)
     # static libraries has special flag variables for the linkage
     get_target_property(target_type ${target} TYPE)
-    if(target_type STREQUAL "STATIC_LIBRARY")
+    if("${target_type}" STREQUAL "STATIC_LIBRARY")
       if (ignore_static)
         continue()
       endif()
@@ -1711,7 +1757,7 @@ function(tkl_add_target_link_properties targets linker_type config_names)
     endif()
 
     foreach(config_type IN LISTS config_types)
-      if(config_type STREQUAL ".")
+      if("${config_type}" STREQUAL ".")
         set(config_type_suffix "")
       else()
         string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1762,7 +1808,7 @@ endfunction()
 
 function(tkl_get_target_compile_property out_var_name target config_type)
   get_target_property(target_type ${target} TYPE)
-  if(config_type STREQUAL ".")
+  if("${config_type}" STREQUAL ".")
     set(config_type_suffix "")
   else()
     string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1775,13 +1821,13 @@ endfunction()
 
 function(tkl_get_target_link_property out_var_name target config_type)
   get_target_property(target_type ${target} TYPE)
-  if(config_type STREQUAL ".")
+  if("${config_type}" STREQUAL ".")
     set(config_type_suffix "")
   else()
     string(TOUPPER "_${config_type}" config_type_suffix)
   endif()
 
-  if(target_type STREQUAL "STATIC_LIBRARY")
+  if("${target_type}" STREQUAL "STATIC_LIBRARY")
     get_target_property(${out_var_name} ${target} STATIC_LIBRARY_FLAGS${config_type_suffix})
   else()
     get_target_property(${out_var_name} ${target} LINK_FLAGS${config_type_suffix})
@@ -1845,7 +1891,16 @@ function(tkl_add_target_subdirectory target_root_dir_var target target_binary_ro
     return() # ignore if already added from common ancestor subdirectory
   endif()
 
+  # Now ARGx built-in variables would be related to the function parameters
+  # list instead of the upper caller context which might have has
+  # different/shifted parameters list, so now we have to propagate all
+  # changed variables (except the builtins) into upper context by ourselves!
+  tkl_track_vars_begin()
+
   tkl_add_target_subdirectory_invoker("${${target_root_dir_var}}" "${target_binary_root}")
+
+  tkl_forward_changed_vars_to_parent_scope()
+  tkl_track_vars_end()
 endfunction()
 
 function(tkl_print_flags)
@@ -1869,7 +1924,7 @@ function(tkl_print_global_flags)
           CMAKE_CXX_FLAGS CMAKE_EXE_LINKER_FLAGS CMAKE_MODULE_LINKER_FLAGS
           CMAKE_STATIC_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS)
     foreach(config_type IN LISTS config_types)
-      if(config_type STREQUAL ".")
+      if("${config_type}" STREQUAL ".")
         set(config_type_suffix "")
       else()
         string(TOUPPER "_${config_type}" config_type_suffix)
@@ -1905,7 +1960,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
     message(FATAL_ERROR "`${target_root_dir_var}` must be existing directory path variable: ${target_root_dir_var}=`${target_root_dir}`")
   endif()
 
-  if(package_target_rel_path_pattern STREQUAL "")
+  if("${package_target_rel_path_pattern}" STREQUAL "")
     message(FATAL_ERROR "package target relative path pattern must not be empty")
   endif()
 
@@ -1926,7 +1981,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
 
     # target exclude by pattern
     foreach (target_to_exclude IN LISTS target_pattern_exclude_list)
-      if (NOT target_to_exclude STREQUAL "" AND NOT target_to_exclude STREQUAL "." AND
+      if (NOT "${target_to_exclude}" STREQUAL "" AND NOT "${target_to_exclude}" STREQUAL "." AND
           ${target} MATCHES ${target_to_exclude})
         set(is_target_applied 0)
         break()
@@ -1941,11 +1996,11 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
     set(is_target_applied 0)
     foreach (target_to_include IN LISTS target_pattern_include_list)
       # check on invalid include sequences at first
-      if (target_to_include STREQUAL ".")
+      if ("${target_to_include}" STREQUAL ".")
         message(FATAL_ERROR "target include pattern should not contain sequences related ONLY to the exclude patterns: target_to_include=`${target_to_include}`")
       endif()
 
-      if (target_to_include STREQUAL "*")
+      if ("${target_to_include}" STREQUAL "*")
         set(is_target_applied 1)
         break()
       elseif(${target} MATCHES ${target_to_include}) # should not be linked by OR with previous condition, otherwise compilation error
@@ -1963,7 +2018,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
     #message("** TYPE: `${target_type}` TARGET: `${target}`")
 
     # avoid error: INTERFACE_LIBRARY targets may only have whitelisted properties.
-    if(target_type STREQUAL "INTERFACE_LIBRARY")
+    if("${target_type}" STREQUAL "INTERFACE_LIBRARY")
       continue()
     endif()
 
@@ -1971,15 +2026,15 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
 
     foreach (target_type_to_include IN LISTS target_type_include_list)
       # check on invalid include sequences at first
-      if (target_type_to_include STREQUAL ".")
+      if ("${target_type_to_include}" STREQUAL ".")
         message(FATAL_ERROR "target type include pattern should not contain sequences related ONLY to the exclude patterns: target_type_to_include=`${target_type_to_include}`")
       endif()
 
-      if ((target_type_to_include STREQUAL "*") OR (target_type_to_include STREQUAL target_type))
+      if (("${target_type_to_include}" STREQUAL "*") OR ("${target_type_to_include}" STREQUAL "${target_type}"))
         set(is_target_type_applied 1)
         foreach (target_type_to_exclude IN LISTS target_type_exclude_list)
-          if (NOT target_type_to_exclude STREQUAL "" AND NOT target_type_to_exclude STREQUAL "." AND
-              target_type_to_exclude STREQUAL target_type)
+          if (NOT "${target_type_to_exclude}" STREQUAL "" AND NOT "${target_type_to_exclude}" STREQUAL "." AND
+              "${target_type_to_exclude}" STREQUAL "${target_type}")
             set(is_target_type_applied 0)
             break()
           endif()
@@ -2001,13 +2056,13 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
       tkl_subtract_absolute_paths(${package_root_dir_lower} ${target_root_dir_path_abs_lower} package_target_rel_path_dir)
       #message("  target=`${target}`\n   package_root_dir_lower=`${package_root_dir_lower}`\n   target_root_dir_path_abs_lower=`${target_root_dir_path_abs_lower}`\n   package_target_rel_path_dir=`${package_target_rel_path_dir}`\n   package_target_rel_path_pattern=`${package_target_rel_path_pattern}`\n")
 
-      if (NOT package_target_rel_path_dir STREQUAL "")
-        if(package_target_rel_path_pattern STREQUAL ".") # special pattern means "equal to package source directory" or "not recursively from package source directory"
-          if(package_target_rel_path_dir STREQUAL package_target_rel_path_pattern)
+      if (NOT "${package_target_rel_path_dir}" STREQUAL "")
+        if("${package_target_rel_path_pattern}" STREQUAL ".") # special pattern means "equal to package source directory" or "not recursively from package source directory"
+          if("${package_target_rel_path_dir}" STREQUAL "${package_target_rel_path_pattern}")
             set_target_properties(${target} PROPERTIES ${property_type} ${property_value})
             #message("  set_target_properties(${target} PROPERTIES ${property_type} ${property_value})\n")
           endif()
-        elseif(package_target_rel_path_pattern STREQUAL "*") # special pattern means "any"
+        elseif("${package_target_rel_path_pattern}" STREQUAL "*") # special pattern means "any"
           set_target_properties(${target} PROPERTIES ${property_type} ${property_value})
           #message("  set_target_properties(${target} PROPERTIES ${property_type} ${property_value})\n")
         elseif(package_target_rel_path_dir MATCHES ${package_target_rel_path_pattern})
@@ -2020,7 +2075,7 @@ function(tkl_set_target_property target_root_dir_var package_target_rel_path_pat
 endfunction()
 
 function(tkl_make_build_output_dir_vars build_type is_multi_config)
-  if (NOT build_type STREQUAL "")
+  if (NOT "${build_type}" STREQUAL "")
     if (is_multi_config)
       set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}" PARENT_SCOPE)
     else()
@@ -2114,7 +2169,7 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
 
   if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     if (GENERATOR_IS_MULTI_CONFIG)
-      if (NOT CMAKE_CONFIG_TYPES STREQUAL CMAKE_CONFIGURATION_TYPES)
+      if (NOT "${CMAKE_CONFIG_TYPES}" STREQUAL "${CMAKE_CONFIGURATION_TYPES}")
         # override CMAKE_CONFIGURATION_TYPES
         set(CMAKE_CONFIGURATION_TYPES_OLD "${CMAKE_CONFIGURATION_TYPES}")
 
@@ -2140,14 +2195,14 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
     endif()
   else()
     if (GENERATOR_IS_MULTI_CONFIG)
-      if (NOT CMAKE_CONFIG_TYPES STREQUAL CMAKE_CONFIGURATION_TYPES)
+      if (NOT "${CMAKE_CONFIG_TYPES}" STREQUAL "${CMAKE_CONFIGURATION_TYPES}")
         message(FATAL_ERROR "Only a top level project can change project configuration list: CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}` CMAKE_CONFIG_TYPES=`${CMAKE_CONFIG_TYPES}`")
       endif()
     endif()
   endif()
 endfunction()
 
-function(tkl_register_package_var package_root_dir_var var_name var_value inheritable_var)
+function(tkl_register_package_var_set package_root_dir_var var_name var_value inheritable_var)
   tkl_is_var(is_package_root_dir_var ${package_root_dir_var})
   if (NOT is_package_root_dir_var)
     #message(FATAL_ERROR "$`{package_root_dir_var}` must be a variable")
@@ -2161,7 +2216,7 @@ function(tkl_register_package_var package_root_dir_var var_name var_value inheri
 
   get_filename_component(package_root_dir ${package_root_dir} ABSOLUTE)
 
-  tkl_register_system_context_var("tkl_register_package_var" "${package_root_dir}" "${var_name}" "${var_value}" "${inheritable_var}")
+  tkl_register_context_var_set("tkl_register_package_var" "${package_root_dir}" "${var_name}" "${var_value}" "${inheritable_var}")
 endfunction()
 
 function(tkl_unregister_package_var package_root_dir_var var_name var_value)
@@ -2178,7 +2233,7 @@ function(tkl_unregister_package_var package_root_dir_var var_name var_value)
 
   get_filename_component(package_root_dir ${package_root_dir} ABSOLUTE)
 
-  tkl_unregister_system_context_var("tkl_register_package_var" "${package_root_dir}" "${var_name}")
+  tkl_unregister_context_var("tkl_register_package_var" "${package_root_dir}" "${var_name}")
 endfunction()
 
 endif()

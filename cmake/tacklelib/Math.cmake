@@ -95,11 +95,11 @@ endfunction()
 # To workaround absence of a floating point arithmetic in the cmake.
 #
 function(tkl_uint_frac_div out_int_var out_frac_str_var max_frac_digits int_num int_frac_str int_denom)
-  if (NOT int_frac_str STREQUAL "" AND int_frac_str LESS 0)
+  if (NOT "${int_frac_str}" STREQUAL "" AND int_frac_str LESS 0)
     message(FATAL_ERROR "int_frac must be unsigned value")
   endif()
 
-  if (int_frac_str STREQUAL "")
+  if ("${int_frac_str}" STREQUAL "")
     set(int_frac_str 0)
   endif()
 
@@ -108,7 +108,7 @@ function(tkl_uint_frac_div out_int_var out_frac_str_var max_frac_digits int_num 
   if (max_frac_digits GREATER 0)
     # convert `frac_str_value` from a string into an integer without leading zeros
     string(REGEX REPLACE "^0+" "" frac_value "${frac_str_value}")
-    if (frac_value STREQUAL "")
+    if ("${frac_value}" STREQUAL "")
       set(frac_value 0)
     endif()
 
@@ -119,7 +119,7 @@ function(tkl_uint_frac_div out_int_var out_frac_str_var max_frac_digits int_num 
 
     # convert `int_frac_str` from a string into an integer without leading zeros
     string(REGEX REPLACE "^0+" "" int_frac_value "${int_frac_str}")
-    if (int_frac_value STREQUAL "")
+    if ("${int_frac_value}" STREQUAL "")
       set(int_frac_value 0)
     endif()
 

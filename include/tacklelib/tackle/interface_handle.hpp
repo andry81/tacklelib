@@ -11,12 +11,16 @@
 
 #include <utility>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 // public interface class holder of private types
 
 namespace tackle {
 
-    class interface_handle
+    class LIBRARY_API_DECL interface_handle
     {
     public:
         virtual ~interface_handle() = 0;
@@ -35,7 +39,7 @@ namespace tackle {
     // iii - interface implementation instantiator
 
     template <class TInterface, class TBase, int TypeIndex>
-    class t_interface_handle : public TInterface, public utility::type_index_identity_base<TBase, TypeIndex>::type
+    class LIBRARY_API_DECL t_interface_handle : public TInterface, public utility::type_index_identity_base<TBase, TypeIndex>::type
     {
     public:
         using base_type0 = TInterface;

@@ -75,7 +75,7 @@ tkl_file_remove_recurse(\"${eval_temp_dir_path}\")
 # evaluating...
 ")
 
-  if (NOT str STREQUAL "")
+  if (NOT "${str}" STREQUAL "")
     set(eval_include_str "${eval_include_str}${str}")
   endif()
 
@@ -93,13 +93,13 @@ function(tkl_eval_append begin_include_file_name str)
     message(FATAL_ERROR "function must have 2 arguments")
   endif()
 
-  if (str STREQUAL "")
+  if ("${str}" STREQUAL "")
     message(FATAL_ERROR "string must be not empty")
   endif()
 
   tkl_get_last_eval_include_file_name(eval_include_file_name)
 
-  if (NOT eval_include_file_name STREQUAL "${begin_include_file_name}")
+  if (NOT "${eval_include_file_name}" STREQUAL "${begin_include_file_name}")
     message(FATAL_ERROR "begin_include_file_name for the `tkl_eval_append` must be the same as for the `tkl_eval_begin*`: tkl_eval_begin*->`${eval_include_file_name}` tkl_eval_end->`${begin_include_file_name}`")
   endif()
 
@@ -125,7 +125,7 @@ function(tkl_eval_append_from_file begin_include_file_name file_path)
 
   tkl_get_last_eval_include_file_name(eval_include_file_name)
 
-  if (NOT eval_include_file_name STREQUAL "${begin_include_file_name}")
+  if (NOT "${eval_include_file_name}" STREQUAL "${begin_include_file_name}")
     message(FATAL_ERROR "begin_include_file_name for the `tkl_eval_append_from_file` must be the same as for the `tkl_eval_begin*`: tkl_eval_begin*->`${eval_include_file_name}` tkl_eval_end->`${begin_include_file_name}`")
   endif()
 
@@ -152,7 +152,7 @@ function(tkl_eval_end begin_include_file_name end_include_file_path)
 
   tkl_get_last_eval_include_file_name(eval_include_file_name)
 
-  if (NOT eval_include_file_name STREQUAL "${begin_include_file_name}")
+  if (NOT "${eval_include_file_name}" STREQUAL "${begin_include_file_name}")
     message(FATAL_ERROR "begin_include_file_name for the `tkl_eval_end` must be the same as for the `tkl_eval_begin*`: tkl_eval_begin*->`${eval_include_file_name}` tkl_eval_end->`${begin_include_file_name}`")
   endif()
 
@@ -272,7 +272,7 @@ macro(tkl_macro_eval_end begin_include_file_name end_include_file_path)
 
   tkl_get_last_eval_include_file_name(_34E75220_eval_include_file_name)
 
-  if (NOT _34E75220_eval_include_file_name STREQUAL "${begin_include_file_name}")
+  if (NOT "${_34E75220_eval_include_file_name}" STREQUAL "${begin_include_file_name}")
     message(FATAL_ERROR "begin_include_file_name for the `tkl_macro_eval_end` must be the same as for the `tkl_eval_begin*`: tkl_eval_begin*->`${_34E75220_eval_include_file_name}` tkl_macro_eval_end->`${begin_include_file_name}`")
   endif()
 

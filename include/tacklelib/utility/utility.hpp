@@ -56,6 +56,10 @@
 #   error platform is not implemented
 #endif
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 // forwards
 namespace tackle
@@ -78,18 +82,18 @@ namespace tackle
     using unc_path_u32string    = unc_basic_path_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >;
 
     template <typename t_elem>
-    struct tag_unc_path_basic_string    : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::filesystem_unc_dir_separator_char> {};
+    struct LIBRARY_API_DECL tag_unc_path_basic_string    : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::filesystem_unc_dir_separator_char> {};
 
     template <class t_elem>
-    struct tag_unc_basic_path_string    : tag_unc_path_basic_string<t_elem> {};
+    struct LIBRARY_API_DECL tag_unc_basic_path_string    : tag_unc_path_basic_string<t_elem> {};
 
-    struct tag_unc_path_string          : tag_unc_basic_path_string<char> {};
-    struct tag_unc_path_wstring         : tag_unc_basic_path_string<wchar_t> {};
-    struct tag_unc_path_u16string       : tag_unc_basic_path_string<char16_t> {};
-    struct tag_unc_path_u32string       : tag_unc_basic_path_string<char32_t> {};
+    struct LIBRARY_API_DECL tag_unc_path_string          : tag_unc_basic_path_string<char> {};
+    struct LIBRARY_API_DECL tag_unc_path_wstring         : tag_unc_basic_path_string<wchar_t> {};
+    struct LIBRARY_API_DECL tag_unc_path_u16string       : tag_unc_basic_path_string<char16_t> {};
+    struct LIBRARY_API_DECL tag_unc_path_u32string       : tag_unc_basic_path_string<char32_t> {};
 
     template <typename t_elem>
-    struct tag_unc_path_string_by_elem :
+    struct LIBRARY_API_DECL tag_unc_path_string_by_elem :
         std::conditional<std::is_same<char, t_elem>::value,
             tag_unc_path_string,
             typename std::conditional<std::is_same<wchar_t, t_elem>::value,
@@ -111,7 +115,7 @@ namespace tackle
 namespace utility
 {
 
-    enum SharedAccess
+    enum LIBRARY_API_DECL SharedAccess
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         SharedAccess_DenyRW     = _SH_DENYRW,   // deny read/write mode
@@ -128,369 +132,369 @@ namespace utility
 #endif
     };
 
-    uint64_t get_file_size(tackle::file_handle<char> file_handle);
-    uint64_t get_file_size(tackle::file_handle<wchar_t> file_handle);
+    uint64_t LIBRARY_API_DECL get_file_size(tackle::file_handle<char> file_handle);
+    uint64_t LIBRARY_API_DECL get_file_size(tackle::file_handle<wchar_t> file_handle);
 
-    bool is_files_equal(tackle::file_handle<char> left_file_handle, tackle::file_handle<char> right_file_handle, size_t read_block_size);
-    bool is_files_equal(tackle::file_handle<wchar_t> left_file_handle, tackle::file_handle<wchar_t> right_file_handle, size_t read_block_size);
+    bool LIBRARY_API_DECL is_files_equal(tackle::file_handle<char> left_file_handle, tackle::file_handle<char> right_file_handle, size_t read_block_size);
+    bool LIBRARY_API_DECL is_files_equal(tackle::file_handle<wchar_t> left_file_handle, tackle::file_handle<wchar_t> right_file_handle, size_t read_block_size);
 
 #if ERROR_IF_EMPTY_PP_DEF(USE_UTILITY_NETWORK_UNC)
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
-    bool convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 
-    bool convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
-    bool convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 
-    tackle::unc_path_string convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
-    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+    tackle::unc_path_string LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
 
-    tackle::unc_path_string convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
-    tackle::unc_path_wstring convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+    tackle::unc_path_string LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring LIBRARY_API_DECL convert_local_to_network_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
 
-    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error);
-    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path, bool throw_on_error);
 
-    bool convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error);
-    bool convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path, bool throw_on_error);
 
-    tackle::generic_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error);
-    tackle::generic_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring, bool throw_on_error);
+    tackle::generic_path_string LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string, bool throw_on_error);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring, bool throw_on_error);
 
-    tackle::native_path_string convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error);
-    tackle::native_path_wstring convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_network_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring, bool throw_on_error);
 #endif
 
 #endif
 
-    bool convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
-    bool convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
-    bool convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::unc_path_string & to_path, bool throw_on_error);
+    bool LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::unc_path_wstring & to_path, bool throw_on_error);
 #endif
 
-    tackle::unc_path_string convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
-    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+    tackle::unc_path_string LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::generic_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::generic_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::unc_path_string convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
-    tackle::unc_path_wstring convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
+    tackle::unc_path_string LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::native_path_string from_path, tackle::tag_unc_path_string, bool throw_on_error);
+    tackle::unc_path_wstring LIBRARY_API_DECL convert_local_to_local_unc_path(tackle::native_path_wstring from_path, tackle::tag_unc_path_wstring, bool throw_on_error);
 #endif
 
-    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path);
-    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path);
+    bool LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::generic_path_string & to_path);
+    bool LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::generic_path_wstring & to_path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path);
-    bool convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path);
+    bool LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::native_path_string & to_path);
+    bool LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::native_path_wstring & to_path);
 #endif
 
-    tackle::generic_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string);
-    tackle::generic_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring);
+    tackle::generic_path_string LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_generic_path_string);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_generic_path_wstring);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string);
-    tackle::native_path_wstring convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring);
+    tackle::native_path_string LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_string from_path, tackle::tag_native_path_string);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_local_unc_to_local_path(tackle::unc_path_wstring from_path, tackle::tag_native_path_wstring);
 #endif
 
-    tackle::native_path_string fix_long_path(tackle::generic_path_string file_path, bool throw_on_error);
-    tackle::native_path_wstring fix_long_path(tackle::generic_path_wstring file_path, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL fix_long_path(tackle::generic_path_string file_path, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL fix_long_path(tackle::generic_path_wstring file_path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string fix_long_path(tackle::native_path_string file_path, bool throw_on_error);
-    tackle::native_path_wstring fix_long_path(tackle::native_path_wstring file_path, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL fix_long_path(tackle::native_path_string file_path, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL fix_long_path(tackle::native_path_wstring file_path, bool throw_on_error);
 #endif
 
-    tackle::generic_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_generic_path_string, bool throw_on_error);
-    tackle::generic_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_generic_path_wstring, bool throw_on_error);
+    tackle::generic_path_string LIBRARY_API_DECL unfix_long_path(tackle::native_path_string file_path, tackle::tag_generic_path_string, bool throw_on_error);
+    tackle::generic_path_wstring LIBRARY_API_DECL unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_generic_path_wstring, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string unfix_long_path(tackle::native_path_string file_path, tackle::tag_native_path_string, bool throw_on_error);
-        tackle::native_path_wstring unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_native_path_wstring, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL unfix_long_path(tackle::native_path_string file_path, tackle::tag_native_path_string, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_native_path_wstring, bool throw_on_error);
 #endif
 
-    tackle::generic_file_handle<char> recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-
-#if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-#endif
-
-    tackle::generic_file_handle<char> create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 #endif
 
-    tackle::generic_file_handle<char> open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> LIBRARY_API_DECL create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_file_handle<char> LIBRARY_API_DECL create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+#endif
+
+    tackle::generic_file_handle<char> LIBRARY_API_DECL open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> LIBRARY_API_DECL open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 #endif
 
-    bool is_directory_path(tackle::generic_path_string path, bool throw_on_error);
-    bool is_directory_path(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_directory_path(tackle::native_path_string path, bool throw_on_error);
-    bool is_directory_path(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool is_regular_file(tackle::generic_path_string path, bool throw_on_error);
-    bool is_regular_file(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_regular_file(tackle::native_path_string path, bool throw_on_error);
-    bool is_regular_file(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool is_symlink_path(tackle::generic_path_string path, bool throw_on_error);
-    bool is_symlink_path(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_symlink_path(tackle::native_path_string path, bool throw_on_error);
-    bool is_symlink_path(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool is_path_exists(tackle::generic_path_string path, bool throw_on_error);
-    bool is_path_exists(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_path_exists(tackle::native_path_string path, bool throw_on_error);
-    bool is_path_exists(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool create_directory(tackle::generic_path_string path, bool throw_on_error);
-    bool create_directory(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool create_directory(tackle::native_path_string path, bool throw_on_error);
-    bool create_directory(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool create_directory_if_not_exist(tackle::generic_path_string path, bool throw_on_error); // no exception if directory already exists
-    bool create_directory_if_not_exist(tackle::generic_path_wstring path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_string path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_wstring path, bool throw_on_error); // no exception if directory already exists
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool create_directory_if_not_exist(tackle::native_path_string path, bool throw_on_error); // no exception if directory already exists
-    bool create_directory_if_not_exist(tackle::native_path_wstring path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_string path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_wstring path, bool throw_on_error); // no exception if directory already exists
 #endif
 
-    void create_directory_symlink(tackle::generic_path_string to, tackle::generic_path_string from, bool throw_on_error);
-    void create_directory_symlink(tackle::generic_path_wstring to, tackle::generic_path_wstring from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_string to, tackle::generic_path_string from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_wstring to, tackle::generic_path_wstring from, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    void create_directory_symlink(tackle::native_path_string to, tackle::native_path_string from, bool throw_on_error);
-    void create_directory_symlink(tackle::native_path_wstring to, tackle::native_path_wstring from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_string to, tackle::native_path_string from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_wstring to, tackle::native_path_wstring from, bool throw_on_error);
 #endif
 
-    bool create_directories(tackle::generic_path_string path, bool throw_on_error);
-    bool create_directories(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool create_directories(tackle::native_path_string path, bool throw_on_error);
-    bool create_directories(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool remove_directory(tackle::generic_path_string path, bool recursively, bool throw_on_error);
-    bool remove_directory(tackle::generic_path_wstring path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_string path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_wstring path, bool recursively, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool remove_directory(tackle::native_path_string path, bool recursively, bool throw_on_error);
-    bool remove_directory(tackle::native_path_wstring path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::native_path_string path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::native_path_wstring path, bool recursively, bool throw_on_error);
 #endif
 
-    bool remove_file(tackle::generic_path_string path, bool throw_on_error);
-    bool remove_file(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool remove_file(tackle::native_path_string path, bool throw_on_error);
-    bool remove_file(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool remove_symlink(tackle::generic_path_string path, bool throw_on_error);
-    bool remove_symlink(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool remove_symlink(tackle::native_path_string path, bool throw_on_error);
-    bool remove_symlink(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_string path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    bool is_relative_path(tackle::generic_path_string path);
-    bool is_relative_path(tackle::generic_path_wstring path);
+    bool LIBRARY_API_DECL is_relative_path(tackle::generic_path_string path);
+    bool LIBRARY_API_DECL is_relative_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_relative_path(tackle::native_path_string path);
-    bool is_relative_path(tackle::native_path_wstring path);
+    bool LIBRARY_API_DECL is_relative_path(tackle::native_path_string path);
+    bool LIBRARY_API_DECL is_relative_path(tackle::native_path_wstring path);
 #endif
 
-    bool is_absolute_path(tackle::generic_path_string path);
-    bool is_absolute_path(tackle::generic_path_wstring path);
+    bool LIBRARY_API_DECL is_absolute_path(tackle::generic_path_string path);
+    bool LIBRARY_API_DECL is_absolute_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool is_absolute_path(tackle::native_path_string path);
-    bool is_absolute_path(tackle::native_path_wstring path);
+    bool LIBRARY_API_DECL is_absolute_path(tackle::native_path_string path);
+    bool LIBRARY_API_DECL is_absolute_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string get_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path, bool throw_on_error);
-    tackle::generic_path_wstring get_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path, bool throw_on_error);
+    tackle::generic_path_string LIBRARY_API_DECL get_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path, bool throw_on_error);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path, bool throw_on_error);
-    tackle::native_path_wstring get_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL get_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL get_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path, bool throw_on_error);
 #endif
 
-    tackle::generic_path_string get_absolute_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
-    tackle::generic_path_wstring get_absolute_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
+    tackle::generic_path_string LIBRARY_API_DECL get_absolute_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_absolute_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_absolute_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
-    tackle::native_path_wstring get_absolute_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
+    tackle::native_path_string LIBRARY_API_DECL get_absolute_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
+    tackle::native_path_wstring LIBRARY_API_DECL get_absolute_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
 #endif
 
-    tackle::generic_path_string get_absolute_path(tackle::generic_path_string path, bool throw_on_error);
-    tackle::generic_path_wstring get_absolute_path(tackle::generic_path_wstring path, bool throw_on_error);
+    tackle::generic_path_string LIBRARY_API_DECL get_absolute_path(tackle::generic_path_string path, bool throw_on_error);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_absolute_path(tackle::generic_path_wstring path, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_absolute_path(tackle::native_path_string path, bool throw_on_error);
-    tackle::native_path_wstring get_absolute_path(tackle::native_path_wstring path, bool throw_on_error);
+    tackle::native_path_string LIBRARY_API_DECL get_absolute_path(tackle::native_path_string path, bool throw_on_error);
+    tackle::native_path_wstring LIBRARY_API_DECL get_absolute_path(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
-    tackle::generic_path_string get_current_path(bool throw_on_error, tackle::tag_generic_path_string);
-    tackle::generic_path_wstring get_current_path(bool throw_on_error, tackle::tag_generic_path_wstring);
+    tackle::generic_path_string LIBRARY_API_DECL get_current_path(bool throw_on_error, tackle::tag_generic_path_string);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_current_path(bool throw_on_error, tackle::tag_generic_path_wstring);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_current_path(bool throw_on_error, tackle::tag_native_path_string);
-    tackle::native_path_wstring get_current_path(bool throw_on_error, tackle::tag_native_path_wstring);
+    tackle::native_path_string LIBRARY_API_DECL get_current_path(bool throw_on_error, tackle::tag_native_path_string);
+    tackle::native_path_wstring LIBRARY_API_DECL get_current_path(bool throw_on_error, tackle::tag_native_path_wstring);
 #endif
 
-    std::string get_file_name(tackle::generic_path_string path);
-    std::wstring get_file_name(tackle::generic_path_wstring path);
+    std::string LIBRARY_API_DECL get_file_name(tackle::generic_path_string path);
+    std::wstring LIBRARY_API_DECL get_file_name(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    std::string get_file_name(tackle::native_path_string path);
-    std::wstring get_file_name(tackle::native_path_wstring path);
+    std::string LIBRARY_API_DECL get_file_name(tackle::native_path_string path);
+    std::wstring LIBRARY_API_DECL get_file_name(tackle::native_path_wstring path);
 #endif
 
-    std::string get_file_name_stem(tackle::generic_path_string path);
-    std::wstring get_file_name_stem(tackle::generic_path_wstring path);
+    std::string LIBRARY_API_DECL get_file_name_stem(tackle::generic_path_string path);
+    std::wstring LIBRARY_API_DECL get_file_name_stem(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    std::string get_file_name_stem(tackle::native_path_string path);
-    std::wstring get_file_name_stem(tackle::native_path_wstring path);
+    std::string LIBRARY_API_DECL get_file_name_stem(tackle::native_path_string path);
+    std::wstring LIBRARY_API_DECL get_file_name_stem(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string get_parent_path(tackle::generic_path_string path);
-    tackle::generic_path_wstring get_parent_path(tackle::generic_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL get_parent_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_parent_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_parent_path(tackle::native_path_string path);
-    tackle::native_path_wstring get_parent_path(tackle::native_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL get_parent_path(tackle::native_path_string path);
+    tackle::native_path_wstring LIBRARY_API_DECL get_parent_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string get_module_file_path(tackle::tag_generic_path_string, bool cached);
-    tackle::generic_path_wstring get_module_file_path(tackle::tag_generic_path_wstring, bool cached);
+    tackle::generic_path_string LIBRARY_API_DECL get_module_file_path(tackle::tag_generic_path_string, bool cached);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_module_file_path(tackle::tag_generic_path_wstring, bool cached);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_module_file_path(tackle::tag_native_path_string, bool cached);
-    tackle::native_path_wstring get_module_file_path(tackle::tag_native_path_wstring, bool cached);
+    tackle::native_path_string LIBRARY_API_DECL get_module_file_path(tackle::tag_native_path_string, bool cached);
+    tackle::native_path_wstring LIBRARY_API_DECL get_module_file_path(tackle::tag_native_path_wstring, bool cached);
 #endif
 
-    tackle::generic_path_string get_module_dir_path(tackle::tag_generic_path_string, bool cached);
-    tackle::generic_path_wstring get_module_dir_path(tackle::tag_generic_path_wstring, bool cached);
+    tackle::generic_path_string LIBRARY_API_DECL get_module_dir_path(tackle::tag_generic_path_string, bool cached);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_module_dir_path(tackle::tag_generic_path_wstring, bool cached);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_module_dir_path(tackle::tag_native_path_string, bool cached);
-    tackle::native_path_wstring get_module_dir_path(tackle::tag_native_path_wstring, bool cached);
+    tackle::native_path_string LIBRARY_API_DECL get_module_dir_path(tackle::tag_native_path_string, bool cached);
+    tackle::native_path_wstring LIBRARY_API_DECL get_module_dir_path(tackle::tag_native_path_wstring, bool cached);
 #endif
 
-    tackle::generic_path_string get_lexically_normal_path(tackle::generic_path_string path);
-    tackle::generic_path_wstring get_lexically_normal_path(tackle::generic_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_lexically_normal_path(tackle::native_path_string path);
-    tackle::native_path_wstring get_lexically_normal_path(tackle::native_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_string path);
+    tackle::native_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string get_lexically_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
-    tackle::generic_path_wstring get_lexically_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
+    tackle::generic_path_string LIBRARY_API_DECL get_lexically_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_lexically_relative_path(tackle::generic_path_wstring from_path, tackle::generic_path_wstring to_path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string get_lexically_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
-    tackle::native_path_wstring get_lexically_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
+    tackle::native_path_string LIBRARY_API_DECL get_lexically_relative_path(tackle::native_path_string from_path, tackle::native_path_string to_path);
+    tackle::native_path_wstring LIBRARY_API_DECL get_lexically_relative_path(tackle::native_path_wstring from_path, tackle::native_path_wstring to_path);
 #endif
 
-    tackle::generic_path_string convert_to_generic_path(const char * path, size_t len);
-    tackle::generic_path_wstring convert_to_generic_path(const wchar_t * path, size_t len);
+    tackle::generic_path_string LIBRARY_API_DECL convert_to_generic_path(const char * path, size_t len);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_to_generic_path(const wchar_t * path, size_t len);
 
-    tackle::generic_path_string convert_to_generic_path(std::string path);
-    tackle::generic_path_wstring convert_to_generic_path(std::wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL convert_to_generic_path(std::string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_to_generic_path(std::wstring path);
 
-    tackle::generic_path_string convert_to_generic_path(tackle::generic_path_string path);
-    tackle::generic_path_wstring convert_to_generic_path(tackle::generic_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL convert_to_generic_path(tackle::generic_path_string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_to_generic_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::generic_path_string convert_to_generic_path(tackle::native_path_string path);
-    tackle::generic_path_wstring convert_to_generic_path(tackle::native_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL convert_to_generic_path(tackle::native_path_string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL convert_to_generic_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::native_path_string convert_to_native_path(const char * path, size_t len);
-    tackle::native_path_wstring convert_to_native_path(const wchar_t * path, size_t len);
+    tackle::native_path_string LIBRARY_API_DECL convert_to_native_path(const char * path, size_t len);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_to_native_path(const wchar_t * path, size_t len);
 
-    tackle::native_path_string convert_to_native_path(std::string path);
-    tackle::native_path_wstring convert_to_native_path(std::wstring path);
+    tackle::native_path_string LIBRARY_API_DECL convert_to_native_path(std::string path);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_to_native_path(std::wstring path);
 
-    tackle::native_path_string convert_to_native_path(tackle::generic_path_string path);
-    tackle::native_path_wstring convert_to_native_path(tackle::generic_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL convert_to_native_path(tackle::generic_path_string path);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_to_native_path(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string convert_to_native_path(tackle::native_path_string path);
-    tackle::native_path_wstring convert_to_native_path(tackle::native_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL convert_to_native_path(tackle::native_path_string path);
+    tackle::native_path_wstring LIBRARY_API_DECL convert_to_native_path(tackle::native_path_wstring path);
 #endif
 
-    tackle::generic_path_string truncate_path_relative_prefix(tackle::generic_path_string path);
-    tackle::generic_path_wstring truncate_path_relative_prefix(tackle::generic_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL truncate_path_relative_prefix(tackle::generic_path_string path);
+    tackle::generic_path_wstring LIBRARY_API_DECL truncate_path_relative_prefix(tackle::generic_path_wstring path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string truncate_path_relative_prefix(tackle::native_path_string path);
-    tackle::native_path_wstring truncate_path_relative_prefix(tackle::native_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL truncate_path_relative_prefix(tackle::native_path_string path);
+    tackle::native_path_wstring LIBRARY_API_DECL truncate_path_relative_prefix(tackle::native_path_wstring path);
 #endif
 
-    std::string get_host_name(utility::tag_string, bool cached);
-    std::wstring get_host_name(utility::tag_wstring, bool cached);
+    std::string LIBRARY_API_DECL get_host_name(utility::tag_string, bool cached);
+    std::wstring LIBRARY_API_DECL get_host_name(utility::tag_wstring, bool cached);
 
-    std::string get_user_name(utility::tag_string, bool cached);
-    std::wstring get_user_name(utility::tag_wstring, bool cached);
+    std::string LIBRARY_API_DECL get_user_name(utility::tag_string, bool cached);
+    std::wstring LIBRARY_API_DECL get_user_name(utility::tag_wstring, bool cached);
 
-    std::string get_module_name(utility::tag_string, bool cached);
-    std::wstring get_module_name(utility::tag_wstring, bool cached);
+    std::string LIBRARY_API_DECL get_module_name(utility::tag_string, bool cached);
+    std::wstring LIBRARY_API_DECL get_module_name(utility::tag_wstring, bool cached);
 
     template<typename T>
-    FORCE_INLINE T str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    FORCE_INLINE T LIBRARY_API_DECL str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
         T i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
 
@@ -526,7 +530,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
+    FORCE_INLINE LIBRARY_API_DECL std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
         const std::string fmt_format{ utility::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
@@ -539,7 +543,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
+    FORCE_INLINE LIBRARY_API_DECL std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
         const std::string fmt_format{ utility::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
@@ -552,7 +556,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE void int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
+    FORCE_INLINE void LIBRARY_API_DECL int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
     {
         STATIC_ASSERT_TRUE(std::is_trivially_copyable<T>::value, "T must be a trivial copy type");
 
@@ -603,14 +607,14 @@ namespace utility
     }
 
     template<typename T>
-    inline std::string int_to_bin(T i, bool first_bit_is_lowest_bit = false)
+    inline std::string LIBRARY_API_DECL int_to_bin(T i, bool first_bit_is_lowest_bit = false)
     {
         std::string res;
         int_to_bin_forceinline(res, i, first_bit_is_lowest_bit);
         return res;
     }
 
-    FORCE_INLINE_ALWAYS uint8_t reverse(uint8_t byte)
+    FORCE_INLINE_ALWAYS uint8_t LIBRARY_API_DECL reverse(uint8_t byte)
     {
         byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
         byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
@@ -619,7 +623,7 @@ namespace utility
     }
 
     template <typename T>
-    FORCE_INLINE T reverse(T value)
+    FORCE_INLINE T LIBRARY_API_DECL reverse(T value)
     {
         T res = 0;
         for (size_t i = 0; i < sizeof(value) * CHAR_BIT; i++) {
@@ -644,13 +648,13 @@ namespace utility
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR_FUNC T constexpr_reverse(T value)
+    FORCE_INLINE CONSTEXPR_FUNC T LIBRARY_API_DECL constexpr_reverse(T value)
     {
         return detail::_constexpr_reverse(0, value);
     }
 
     template<typename T>
-    FORCE_INLINE uint32_t t_rotl32(uint32_t n, unsigned int c)
+    FORCE_INLINE uint32_t LIBRARY_API_DECL t_rotl32(uint32_t n, unsigned int c)
     {
         STATIC_ASSERT_GE(sizeof(uint32_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
         const uint32_t byte_mask = uint32_t(-1) >> (CHAR_BIT * (sizeof(uint32_t) - sizeof(T)));
@@ -660,7 +664,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE uint32_t t_rotr32(uint32_t n, unsigned int c)
+    FORCE_INLINE uint32_t LIBRARY_API_DECL t_rotr32(uint32_t n, unsigned int c)
     {
         STATIC_ASSERT_GE(sizeof(uint32_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint32_t)");
         const uint32_t byte_mask = uint32_t(-1) >> (CHAR_BIT * (sizeof(uint32_t) - sizeof(T)));
@@ -670,7 +674,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE uint64_t t_rotl64(uint64_t n, unsigned int c)
+    FORCE_INLINE uint64_t LIBRARY_API_DECL t_rotl64(uint64_t n, unsigned int c)
     {
         STATIC_ASSERT_GE(sizeof(uint64_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
         const uint64_t byte_mask = uint64_t(-1) >> (CHAR_BIT * (sizeof(uint64_t) - sizeof(T)));
@@ -680,7 +684,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE uint64_t t_rotr64(uint64_t n, unsigned int c)
+    FORCE_INLINE uint64_t LIBRARY_API_DECL t_rotr64(uint64_t n, unsigned int c)
     {
         STATIC_ASSERT_GE(sizeof(uint64_t), sizeof(T), "sizeof(T) must be less or equal to the sizeof(uint64_t)");
         const uint64_t byte_mask = uint64_t(-1) >> (CHAR_BIT * (sizeof(uint64_t) - sizeof(T)));
@@ -689,7 +693,7 @@ namespace utility
         return byte_mask & (((byte_mask & n) >> c) | (n << (mask & math::negate(c))));
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotl8(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotl8(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl8(unsigned char(n), unsigned char(c));
@@ -698,7 +702,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotr8(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotr8(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr8(unsigned char(n), unsigned char(c));
@@ -707,7 +711,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotl16(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotl16(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl16(unsigned short(n), unsigned char(c));
@@ -716,7 +720,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotr16(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotr16(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr16(unsigned short(n), unsigned char(c));
@@ -725,7 +729,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotl32(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotl32(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl(unsigned int(n), int(c));
@@ -734,7 +738,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint32_t rotr32(uint32_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint32_t LIBRARY_API_DECL rotr32(uint32_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr(unsigned int(n), int(c));
@@ -743,7 +747,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint64_t rotl64(uint64_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint64_t LIBRARY_API_DECL rotl64(uint64_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotl64(unsigned long long(n), int(c));
@@ -752,7 +756,7 @@ namespace utility
 #endif
     }
 
-    FORCE_INLINE_ALWAYS uint64_t rotr64(uint64_t n, unsigned int c)
+    FORCE_INLINE_ALWAYS uint64_t LIBRARY_API_DECL rotr64(uint64_t n, unsigned int c)
     {
 #if defined(UTILITY_COMPILER_CXX_MSC) && ERROR_IF_EMPTY_PP_DEF(ENABLE_INTRINSIC)
         return _rotr64(unsigned long long(n), int(c));
@@ -762,7 +766,7 @@ namespace utility
     }
 
     // reads from keypress, doesn't echo
-    inline int getch()
+    inline int LIBRARY_API_DECL getch()
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         return ::_getch();
@@ -780,7 +784,7 @@ namespace utility
     }
 
     // reads from keypress, echoes
-    inline int getche()
+    inline int LIBRARY_API_DECL getche()
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         return ::_getche();
@@ -800,7 +804,7 @@ namespace utility
     // reset std::stringstream object
     // Based on: https://stackoverflow.com/questions/7623650/resetting-a-stringstream
     //
-    FORCE_INLINE void reset_stringstream(std::stringstream & ss)
+    FORCE_INLINE void LIBRARY_API_DECL reset_stringstream(std::stringstream & ss)
     {
         const static std::stringstream initial;
 
@@ -809,7 +813,7 @@ namespace utility
         ss.copyfmt(initial);
     }
 
-    FORCE_INLINE double modf(double d)
+    FORCE_INLINE double LIBRARY_API_DECL modf(double d)
     {
         double whole;
         return std::modf(d, &whole);
@@ -821,7 +825,7 @@ namespace utility
     // The idea all of this is to end a floating point value by a finite set of digits on an axis multiple either to power-of-10 or to `5` or to `2`.
     //
     template <typename U, typename T>
-    FORCE_INLINE U calibrate_ruler_tick_step_to_closest_power_of_10(T min, T max, size_t ticks, const U & float_point_identity = U{})
+    FORCE_INLINE U LIBRARY_API_DECL calibrate_ruler_tick_step_to_closest_power_of_10(T min, T max, size_t ticks, const U & float_point_identity = U{})
     {
         static_assert(std::is_floating_point<U>::value, "U must be a floating point type");
 

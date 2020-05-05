@@ -18,6 +18,10 @@
 #include <utility>
 #include <algorithm>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 // See details around problems related to this class implementation:
 //  https://stackoverflow.com/questions/53155089/stdstring-class-inheritance-and-tedious-c-overload-resolution
@@ -27,7 +31,7 @@
 namespace tackle
 {
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
-    class path_basic_string : public std::basic_string<t_elem, t_traits, t_alloc>
+    class LIBRARY_API_DECL path_basic_string : public std::basic_string<t_elem, t_traits, t_alloc>
     {
     public:
         using base_type = std::basic_string<t_elem, t_traits, t_alloc>;
@@ -95,28 +99,28 @@ namespace tackle
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
         template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
             std::basic_string<t_elem_, t_traits_, t_alloc_> r);
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
         template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
             std::basic_string<t_elem_, t_traits_, t_alloc_> l,
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
 
         template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
 
         template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> l,
             const t_elem_ * p);
 
         template <class t_elem_, class t_traits_, class t_alloc_, t_elem_ separator_char_>
-        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> operator+ (
+        friend path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> LIBRARY_API_DECL operator+ (
             const t_elem_ * p,
             path_basic_string<t_elem_, t_traits_, t_alloc_, separator_char_> r);
 
@@ -152,7 +156,7 @@ namespace tackle
         }
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, base_type r)
+        friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (path_basic_string l, base_type r)
         {
             path_basic_string && l_path = std::move(l);
             path_basic_string && r_path = std::move(std::forward<base_type>(r));
@@ -161,7 +165,7 @@ namespace tackle
         }
 
         // WORKAROUND: error C2556: overloaded function differs only by return type from
-        friend FORCE_INLINE path_basic_string operator/ (base_type l, path_basic_string r)
+        friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (base_type l, path_basic_string r)
         {
             path_basic_string && l_path = std::move(std::forward<base_type>(l));
             path_basic_string && r_path = std::move(r);
@@ -169,7 +173,7 @@ namespace tackle
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, path_basic_string r)
+        friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (path_basic_string l, path_basic_string r)
         {
             path_basic_string && l_path = std::move(l);
             path_basic_string && r_path = std::move(r);
@@ -177,7 +181,7 @@ namespace tackle
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator/ (path_basic_string l, const t_elem * p)
+        friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (path_basic_string l, const t_elem * p)
         {
             DEBUG_ASSERT_TRUE(p);
 
@@ -188,7 +192,7 @@ namespace tackle
             return l_path;
         }
 
-        friend FORCE_INLINE path_basic_string operator/ (const t_elem * p, path_basic_string r)
+        friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (const t_elem * p, path_basic_string r)
         {
             DEBUG_ASSERT_TRUE(p);
 
@@ -254,37 +258,37 @@ namespace tackle
     // tagging types
 
     template <typename t_elem, t_elem separator_char>
-    struct tag_path_basic_string {};
+    struct LIBRARY_API_DECL tag_path_basic_string {};
 
     template <char separator_char>
-    struct tag_basic_path_string        : tag_path_basic_string<char, separator_char> {};
+    struct LIBRARY_API_DECL tag_basic_path_string       : tag_path_basic_string<char, separator_char> {};
     template <wchar_t separator_char>
-    struct tag_basic_path_wstring       : tag_path_basic_string<wchar_t, separator_char> {};
+    struct LIBRARY_API_DECL tag_basic_path_wstring      : tag_path_basic_string<wchar_t, separator_char> {};
     template <char16_t separator_char>
-    struct tag_basic_path_u16string     : tag_path_basic_string<char16_t, separator_char> {};
+    struct LIBRARY_API_DECL tag_basic_path_u16string    : tag_path_basic_string<char16_t, separator_char> {};
     template <char32_t separator_char>
-    struct tag_basic_path_u32string     : tag_path_basic_string<char32_t, separator_char> {};
+    struct LIBRARY_API_DECL tag_basic_path_u32string    : tag_path_basic_string<char32_t, separator_char> {};
 
     template <typename t_elem>
-    struct tag_generic_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_generic_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
     template <typename t_elem>
-    struct tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::backward_slash_char> {};
+    struct LIBRARY_API_DECL tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::backward_slash_char> {};
 #else
     template <typename t_elem>
-    struct tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_native_path_basic_string : tag_path_basic_string<t_elem, utility::literal_separators<t_elem>::forward_slash_char> {};
 #endif
 
-    struct tag_path_string_fs           : tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
-    struct tag_path_wstring_fs          : tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
-    struct tag_path_u16string_fs        : tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
-    struct tag_path_u32string_fs        : tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_string_fs          : tag_basic_path_string<utility::literal_separators<char>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_wstring_fs         : tag_basic_path_wstring<utility::literal_separators<wchar_t>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_u16string_fs       : tag_basic_path_u16string<utility::literal_separators<char16_t>::forward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_u32string_fs       : tag_basic_path_u32string<utility::literal_separators<char32_t>::forward_slash_char> {};
 
-    struct tag_path_string_bs           : tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
-    struct tag_path_wstring_bs          : tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
-    struct tag_path_u16string_bs        : tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
-    struct tag_path_u32string_bs        : tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_string_bs          : tag_basic_path_string<utility::literal_separators<char>::backward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_wstring_bs         : tag_basic_path_wstring<utility::literal_separators<wchar_t>::backward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_u16string_bs       : tag_basic_path_u16string<utility::literal_separators<char16_t>::backward_slash_char> {};
+    struct LIBRARY_API_DECL tag_path_u32string_bs       : tag_basic_path_u32string<utility::literal_separators<char32_t>::backward_slash_char> {};
 
     using tag_generic_path_string       = tag_path_string_fs;
     using tag_generic_path_wstring      = tag_path_wstring_fs;
@@ -304,7 +308,7 @@ namespace tackle
 #endif
 
     template <typename t_elem, t_elem separator_char>
-    struct tag_basic_path_string_by_separator_char :
+    struct LIBRARY_API_DECL tag_basic_path_string_by_separator_char :
         std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::forward_slash_char),
             tag_generic_path_basic_string<t_elem>,
             typename std::conditional<UTILITY_CONSTEXPR(separator_char == utility::literal_separators<t_elem>::backward_slash_char),
@@ -316,7 +320,7 @@ namespace tackle
     };
 
     template <typename t_elem, t_elem separator_char>
-    struct tag_basic_path_string_by_elem :
+    struct LIBRARY_API_DECL tag_basic_path_string_by_elem :
         std::conditional<std::is_same<char, t_elem>::value,
             tag_basic_path_string<separator_char>,
             typename std::conditional<std::is_same<wchar_t, t_elem>::value,

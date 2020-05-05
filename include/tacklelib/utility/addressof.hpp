@@ -7,6 +7,7 @@
 #include <tacklelib/tacklelib.hpp>
 
 #include <tacklelib/utility/platform.hpp>
+#include <tacklelib/utility/platform_features.hpp>
 
 #include <functional>
 #include <utility>
@@ -19,7 +20,7 @@
 namespace utility
 {
     template <typename T>
-    FORCE_INLINE CONSTEXPR T * addressof(T & arg)
+    FORCE_INLINE CONSTEXPR_FUNC T * addressof(T & arg)
     {
         return
             reinterpret_cast<T *>(
@@ -28,7 +29,7 @@ namespace utility
     }
 
     template <typename T>
-    FORCE_INLINE CONSTEXPR const T * addressof(const T & arg)
+    FORCE_INLINE CONSTEXPR_FUNC const T * addressof(const T & arg)
     {
         return
             reinterpret_cast<const T *>(

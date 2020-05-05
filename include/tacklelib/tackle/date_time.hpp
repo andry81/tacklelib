@@ -28,6 +28,10 @@
 //#include <cctype>
 #include <utility>
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 // Template date and time container with these features:
 //  * arbitrary storage type with respective copy constructor
@@ -36,7 +40,7 @@
 namespace tackle
 {
     template <typename T, class t_elem, class t_traits, class t_alloc>
-    class basic_date_time
+    class LIBRARY_API_DECL basic_date_time
     {
         using uncval_type = typename utility::remove_cvref<T>::type;
 
