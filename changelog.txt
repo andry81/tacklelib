@@ -1,4 +1,7 @@
 2020.05.07:
+* new: cmake: TODO file
+
+2020.05.07:
 * fixed: cmake: SetVarsFromFiles.cmake: multiline variable expression didn't parse completely and could be interrupted by not fatal conditions like a not suitable variable specialization or an invalid/unsupported variable token
 
 2020.05.06:
