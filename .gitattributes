@@ -120,6 +120,7 @@ cmake/tacklelib/ReturnCodeFile.cmake -text
 cmake/tacklelib/SetVarsFromFiles.cmake -text
 cmake/tacklelib/Std.cmake -text
 cmake/tacklelib/String.cmake -text
+cmake/tacklelib/TODO.txt -text
 cmake/tacklelib/Time.cmake -text
 cmake/tacklelib/Utility.cmake -text
 cmake/tacklelib/Version.cmake -text

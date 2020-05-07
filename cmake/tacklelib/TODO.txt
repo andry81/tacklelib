@@ -1,0 +1,3 @@
+SetVarsFromFiles.cmake:
+
+* support a list variable expansion including expansion in a list value.
