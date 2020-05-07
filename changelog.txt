@@ -1,3 +1,6 @@
+2020.05.07:
+* fixed: cmake: SetVarsFromFiles.cmake: multiline variable expression didn't parse completely and could be interrupted by not fatal conditions like a not suitable variable specialization or an invalid/unsupported variable token
+
 2020.05.06:
 * fixed: cpp: linkage error throws `error LNK2019: unresolved external symbol "..."` in the MSVC2017 15.9.19 compiler fix by removing the `operator+` function disable (not required)
 * changed: cpp: code cleanup

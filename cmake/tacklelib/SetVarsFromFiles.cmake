@@ -1146,6 +1146,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(is_continue_parse_var_value 0)
 
     foreach (var_line IN LISTS file_content)
+      # We have to continue parse a variable expression because it can be multiline, so
+      # the flag indicates to not parse variable's value assignment while searching the end of a variable expression
+      # (just `continue()` will drop the search a variable expression end and will lead to other errors).
+      set(var_assign_ignore 0)
+
+      # other flags to ignore
+      set(var_unsupported_token_ignore 0)
+      set(var_invalid_token_ignore 0)
+      set(var_specialization_ignore 0)
+
       math(EXPR var_file_content_line ${var_file_content_line}+1)
 
       tkl_file_decode_string(var_line "${var_line}")
@@ -1790,15 +1800,15 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (include_vars_filter_list)
           if (NOT var_name IN_LIST include_vars_filter_list)
             # silent ignore not included variables
-            continue()
+            set(var_assign_ignore 1)
           endif()
         endif()
 
         # variable names exclude filter
-        if (exclude_vars_filter_list)
+        if (NOT var_assign_ignore AND exclude_vars_filter_list)
           if (var_name IN_LIST exclude_vars_filter_list)
             # silent ignore excluded variables
-            continue()
+            set(var_assign_ignore 1)
           endif()
         endif()
 
@@ -1823,8 +1833,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 ("${var_os_name_upper}" STREQUAL "APPLE"))
           set(var_os_name_to_process "${var_os_name_upper}")
         else()
-          message("warning: unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          continue()
+          set(var_unsupported_token_ignore 1)
+          set(var_assign_ignore 1)
         endif()
 
         if ("${var_compiler_name_upper}" STREQUAL "")
@@ -1835,12 +1845,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               ("${CMAKE_MATCH_1}" STREQUAL "CLANG"))
             set(var_compiler_name_to_process "${var_compiler_name_upper}")
           else()
-            message(WARNING "unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-            continue()
+            set(var_unsupported_token_ignore 1)
+            set(var_assign_ignore 1)
           endif()
         else()
-          message(WARNING "unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          continue()
+          set(var_unsupported_token_ignore 1)
+          set(var_assign_ignore 1)
         endif()
 
         if ("${var_config_name}" STREQUAL "")
@@ -1848,13 +1858,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         else()
           string(SUBSTRING "${var_config_name_upper}" 0 1 char)
           if (NOT char MATCHES "[_A-Z]")
-            message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-            continue()
-          endif()
-
-          if (var_name MATCHES "[^_A-Z0-9]")
-            message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-            continue()
+            set(var_invalid_token_ignore 1)
+            set(var_assign_ignore 1)
+          elseif (var_name MATCHES "[^_A-Z0-9]")
+            set(var_invalid_token_ignore 1)
+            set(var_assign_ignore 1)
           endif()
 
           set(var_config_name_to_process "${var_config_name_upper}")
@@ -1866,65 +1874,71 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 ("${var_arch_name_upper}" STREQUAL "X64"))
           set(var_arch_name_to_process "${var_arch_name_upper}")
         else()
-          message("warning: unsupported variable token: [${var_file_content_line}] `${arch_token}`")
-          continue()
+          set(var_unsupported_token_ignore 1)
+          set(var_assign_ignore 1)
         endif()
 
         # other silent ignore checks...
 
         # os name filter is always defined even if was empty
-        if (NOT "${var_os_name_to_process}" STREQUAL "")
+        if (NOT var_assign_ignore AND NOT "${var_os_name_to_process}" STREQUAL "")
           if (NOT "${os_name_to_filter}" STREQUAL "")
             if(NOT "${var_os_name_to_process}" STREQUAL "${os_name_to_filter}")
               # silently ignore valid tokens that didn't pass the filter
-              continue()
+              set(var_assign_ignore 1)
             endif()
           elseif (ignore_statement_if_no_filter)
             # silently ignore specialized tokens that does not have a filter specification
-            continue()
+            set(var_assign_ignore 1)
           endif()
         endif()
 
-        if (NOT "${var_compiler_name_to_process}" STREQUAL "")
+        if (NOT var_assign_ignore AND NOT "${var_compiler_name_to_process}" STREQUAL "")
           if (NOT "${compiler_name_to_filter}" STREQUAL "")
             tkl_compare_compiler_tokens("${compiler_name_to_filter}" = "${var_compiler_name_to_process}" is_equal_config_compilers)
             if (NOT is_equal_config_compilers)
               # silently ignore valid tokens that didn't pass the filter
-              continue()
+              set(var_assign_ignore 1)
             endif()
           elseif (ignore_statement_if_no_filter)
             # silently ignore specialized tokens that does not have a filter specification
-            continue()
+            set(var_assign_ignore 1)
           endif()
         endif()
 
-        if (NOT is_config_name_value_can_late_expand)
+        if (NOT var_assign_ignore AND NOT is_config_name_value_can_late_expand)
           if (NOT "${var_config_name_to_process}" STREQUAL "")
             if (NOT "${config_name_to_filter}" STREQUAL "")
               if (NOT "${var_config_name_to_process}" STREQUAL "${config_name_to_filter}")
                 # silently ignore valid tokens that didn't pass the filter
-                continue()
+                set(var_assign_ignore 1)
               endif()
             elseif (ignore_statement_if_no_filter OR ignore_statement_if_no_filter_config_name)
               # silently ignore specialized tokens that does not have a filter specification
-              continue()
+              set(var_assign_ignore 1)
             endif()
           endif()
         elseif (NOT "${var_config_name_to_process}" STREQUAL "" AND ignore_late_expansion_statements)
           # ignore tokens with late expansion
-          continue()
+          set(var_assign_ignore 1)
         endif()
 
-        if (NOT "${var_arch_name_to_process}" STREQUAL "")
+        if (NOT var_assign_ignore AND NOT "${var_arch_name_to_process}" STREQUAL "")
           if (NOT "${arch_name_to_filter}" STREQUAL "")
             if (NOT "${var_arch_name_to_process}" STREQUAL "${arch_name_to_filter}")
               # silently ignore valid tokens that didn't pass the filter
-              continue()
+              set(var_assign_ignore 1)
             endif()
           elseif (ignore_statement_if_no_filter)
             # silently ignore specialized tokens that does not have a filter specification
-            continue()
+            set(var_assign_ignore 1)
           endif()
+        endif()
+
+        if (var_invalid_token_ignore)
+          message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        elseif (var_unsupported_token_ignore)
+          message(WARNING "unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         # save current processing variable token
@@ -1988,33 +2002,34 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   (NOT "${config_${var_name}_compiler_name}" STREQUAL "" AND NOT "${var_compiler_name}" STREQUAL "" AND NOT "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}") OR
                   (NOT "${config_${var_name}_config_name}" STREQUAL "" AND NOT "${var_config_name}" STREQUAL "" AND NOT "${config_${var_name}_config_name}" STREQUAL "${var_config_name}") OR
                   (NOT "${config_${var_name}_arch_name}" STREQUAL "" AND NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}"))
-                continue()
-              endif()
-
-              if ((("${config_${var_name}_os_name}" STREQUAL "") OR (NOT "${var_os_name}" STREQUAL "" AND "${config_${var_name}_os_name}" STREQUAL "${var_os_name}")) AND
-                  (("${config_${var_name}_compiler_name}" STREQUAL "") OR (NOT "${var_compiler_name}" STREQUAL "" AND "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}")) AND
-                  (("${config_${var_name}_config_name}" STREQUAL "") OR (NOT "${var_config_name}" STREQUAL "" AND "${config_${var_name}_config_name}" STREQUAL "${var_config_name}")) AND
-                  (("${config_${var_name}_arch_name}" STREQUAL "") OR (NOT "${var_arch_name}" STREQUAL "" AND "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")) AND
-                  # but in case of specialization something must be set to not empty and not equal with the previous
-                  ((NOT "${var_os_name}" STREQUAL "" AND NOT "${config_${var_name}_os_name}" STREQUAL "${var_os_name}") OR
-                   (NOT "${var_compiler_name}" STREQUAL "" AND NOT "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}") OR
-                   (NOT "${var_config_name}" STREQUAL "" AND NOT "${config_${var_name}_config_name}" STREQUAL "${var_config_name}") OR
-                   (NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")))
-                # is specialization, allow to change
+                set(var_specialization_ignore 1)
+                set(var_assign_ignore 1)
               else()
-                # is not specialization, deny change
-                if (use_global_var OR use_top_package_var)
-                  # is a variable from the same level package?
-                  if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-                    message(FATAL_ERROR "The GLOBAL/TOP variable reassignment attempt w/o FORCE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                  endif()
+                if ((("${config_${var_name}_os_name}" STREQUAL "") OR (NOT "${var_os_name}" STREQUAL "" AND "${config_${var_name}_os_name}" STREQUAL "${var_os_name}")) AND
+                    (("${config_${var_name}_compiler_name}" STREQUAL "") OR (NOT "${var_compiler_name}" STREQUAL "" AND "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}")) AND
+                    (("${config_${var_name}_config_name}" STREQUAL "") OR (NOT "${var_config_name}" STREQUAL "" AND "${config_${var_name}_config_name}" STREQUAL "${var_config_name}")) AND
+                    (("${config_${var_name}_arch_name}" STREQUAL "") OR (NOT "${var_arch_name}" STREQUAL "" AND "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")) AND
+                    # but in case of specialization something must be set to not empty and not equal with the previous
+                    ((NOT "${var_os_name}" STREQUAL "" AND NOT "${config_${var_name}_os_name}" STREQUAL "${var_os_name}") OR
+                     (NOT "${var_compiler_name}" STREQUAL "" AND NOT "${config_${var_name}_compiler_name}" STREQUAL "${var_compiler_name}") OR
+                     (NOT "${var_config_name}" STREQUAL "" AND NOT "${config_${var_name}_config_name}" STREQUAL "${var_config_name}") OR
+                     (NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")))
+                  # is specialization, allow to change
                 else()
-                  if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR
-                      (NOT config_${var_name}_global_var AND
-                       NOT config_${var_name}_top_package_var AND
-                       NOT config_${var_name}_package_scope_var))
-                    message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                    continue()
+                  # is not specialization, deny change
+                  if (use_global_var OR use_top_package_var)
+                    # is a variable from the same level package?
+                    if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
+                      message(FATAL_ERROR "The GLOBAL/TOP variable reassignment attempt w/o FORCE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                    endif()
+                  else()
+                    if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR
+                        (NOT config_${var_name}_global_var AND
+                         NOT config_${var_name}_top_package_var AND
+                         NOT config_${var_name}_package_scope_var))
+                      message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                      set(var_assign_ignore 1)
+                    endif()
                   endif()
                 endif()
               endif()
@@ -2038,21 +2053,23 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (config_${var_name}_defined)
           # is a variable from the same level package?
           if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-            # global
-            if (config_${var_name}_global_var)
-              if (use_global_var)
-                message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            if (config_${var_name}_package_defined)
+              # global
+              if (config_${var_name}_global_var)
+                if (use_global_var)
+                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
+              elseif (use_global_var)
+                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
               endif()
-            elseif (use_global_var)
-              message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-            endif()
-            # top
-            if (config_${var_name}_top_package_var)
-              if (use_top_package_var)
-                message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              # top
+              if (config_${var_name}_top_package_var)
+                if (use_top_package_var)
+                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                endif()
+              elseif (use_top_package_var)
+                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
               endif()
-            elseif (use_top_package_var)
-              message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           else()
             # global
@@ -2087,52 +2104,54 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         # final (re)assignment with or without specialization or enable/disable
-        if (config_${var_name}_defined AND config_${var_name}_final_var)
+        if (NOT var_specialization_ignore AND config_${var_name}_defined AND config_${var_name}_final_var)
           if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR (NOT use_package_scope_var))
             message(FATAL_ERROR "The variable is a final specialization variable which can not be (re)assigned or enabled/disabled (except reenable or redisabled) anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
           endif()
         endif()
 
-        # all fatal checks has passed, continue with the non fatal
-        set(is_ignored_top_package_var 0)
-        if (config_${var_name}_defined)
-          # is a variable from a different level package?
-          if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-            if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
-              # a top level package variable in a not top level package, ignore it
-              set(is_ignored_top_package_var 1)
+        if (NOT var_assign_ignore)
+          # all fatal checks has passed, continue with the non fatal
+          set(is_ignored_top_package_var 0)
+          if (config_${var_name}_defined)
+            # is a variable from a different level package?
+            if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
+              if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
+                # a top level package variable in a not top level package, ignore it
+                set(is_ignored_top_package_var 1)
+              endif()
             endif()
           endif()
-        endif()
 
-        # ignore only after all checks
-        if (is_ignored_top_package_var)
-          # increment package definition counter
-          if (config_${var_name}_package_nest_lvl EQUAL config_package_nest_lvl)
-            math(EXPR config_${var_name}_package_defined ${config_${var_name}_package_defined}+1)
-          else()
-            math(EXPR config_${var_name}_package_defined 1)
+          # ignore only after all checks
+          if (is_ignored_top_package_var)
+            # increment package definition counter
+            if (config_${var_name}_package_nest_lvl EQUAL config_package_nest_lvl)
+              math(EXPR config_${var_name}_package_defined ${config_${var_name}_package_defined}+1)
+            else()
+              math(EXPR config_${var_name}_package_defined 1)
+            endif()
+
+            # save variable token suffix and other parameter to compare it later
+            set(config_${var_name}_load_index "${config_load_index}")
+            set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
+
+            set(config_${var_name}_file_path_c "${file_path_c}")
+            set(config_${var_name}_file_index "${file_path_index}")
+            set(config_${var_name}_line "${var_file_content_line}")
+
+            set(config_${var_name}_os_name "${var_os_name_upper}")
+            set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
+            set(config_${var_name}_config_name "${var_config_name_upper}")
+            set(config_${var_name}_arch_name "${var_arch_name_upper}")
+
+            set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
+
+            # increment global definition counter
+            math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
+
+            set(var_assign_ignore 1)
           endif()
-
-          # save variable token suffix and other parameter to compare it later
-          set(config_${var_name}_load_index "${config_load_index}")
-          set(config_${var_name}_package_nest_lvl "${config_package_nest_lvl}")
-
-          set(config_${var_name}_file_path_c "${file_path_c}")
-          set(config_${var_name}_file_index "${file_path_index}")
-          set(config_${var_name}_line "${var_file_content_line}")
-
-          set(config_${var_name}_os_name "${var_os_name_upper}")
-          set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
-          set(config_${var_name}_config_name "${var_config_name_upper}")
-          set(config_${var_name}_arch_name "${var_arch_name_upper}")
-
-          set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
-
-          # increment global definition counter
-          math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
-
-          continue()
         endif()
 
         # state machine parser flags and intermediate values
@@ -2585,7 +2604,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
       # finalization, all explicit state flags and values must be already unflagged, closed or processed
       if (NOT is_invalid_var_line)
-        if (NOT is_continue_parse_var_value)
+        if (NOT var_assign_ignore AND NOT is_continue_parse_var_value)
           tkl_list_join(var_values_joined_list var_values_list "${list_separator_char}")
 
           set(set_vars_to_files -1) # unknown or not need to know

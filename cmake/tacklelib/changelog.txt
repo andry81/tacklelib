@@ -1,3 +1,6 @@
+2020.05.07:
+* fixed: SetVarsFromFiles.cmake: multiline variable expression didn't parse completely and could be interrupted by not fatal conditions like a not suitable variable specialization or an invalid/unsupported variable token
+
 2020.05.05:
 * fixed: multiple build fixes
 * refactor: global replace of `<variable> STREQUAL <variable>` by `<string> STREQUAL <string>` because the first sometimes does not work as expected
