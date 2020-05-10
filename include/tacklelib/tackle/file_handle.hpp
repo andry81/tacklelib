@@ -45,9 +45,9 @@ namespace tackle
         {
             static const basic_file_handle s_null = basic_file_handle{ nullptr,
 #ifdef UTILITY_PLATFORM_WINDOWS
-                UTILITY_LITERAL_STRING("nul", t_elem)
+                path_string_type{ UTILITY_LITERAL_STRING("nul", t_elem) }
 #elif defined(UTILITY_PLATFORM_POSIX)
-                UTILITY_LITERAL_STRING("/dev/null", t_elem)
+                path_string_type{ UTILITY_LITERAL_STRING("/dev/null", t_elem) }
 #else
 #error platform is not implemented
 #endif

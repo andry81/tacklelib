@@ -54,12 +54,20 @@ namespace tackle
         path_basic_string & operator =(const path_basic_string<t_elem, t_traits, t_alloc, separator_char_> &) = delete;
 
     public:
-        FORCE_INLINE path_basic_string(base_type r) :
+        // CAUTION:
+        //  We should not let the constructor be called implicitly with the base class, because the reference value may hold not a path string.
+        //  Instead let the user to call it explicitly.
+        //
+        explicit FORCE_INLINE path_basic_string(base_type r) :
             base_type(std::move(r))
         {
         }
 
-        FORCE_INLINE path_basic_string(const t_elem * p) :
+        // CAUTION:
+        //  We should not let the constructor be called implicitly with the base class, because the reference value may hold not a path string.
+        //  Instead let the user to call it explicitly.
+        //
+        explicit FORCE_INLINE path_basic_string(const t_elem * p) :
             base_type(DEBUG_VERIFY_TRUE(p))
         {
         }
@@ -74,15 +82,18 @@ namespace tackle
             return *this;
         }
 
-        // to update the separator character in the path to declared one if the `base_type` was updated through the base class
+        // to update the separator character in the path to declared one if the `base_type` was updated through a pointer/reference to the base class
         FORCE_INLINE void update_separator_char()
         {
+            // NOTE: Has meaning only for the Windows implementation.
+#if defined(UTILITY_PLATFORM_WINDOWS)
             if (UTILITY_CONSTEXPR(utility::literal_separators<char>::forward_slash_char == separator_char)) {
                 std::replace(base_type::begin(), base_type::end(), utility::literal_separators<t_elem>::backward_slash_char, separator_char);
             }
             else {
                 std::replace(base_type::begin(), base_type::end(), utility::literal_separators<t_elem>::forward_slash_char, separator_char);
             }
+#endif
         }
 
         using base_type::base_type;
@@ -128,7 +139,7 @@ namespace tackle
         friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (path_basic_string l, base_type r)
         {
             path_basic_string && l_path = std::move(l);
-            path_basic_string && r_path = std::move(std::forward<base_type>(r));
+            path_basic_string && r_path = path_basic_string{ std::move(std::forward<base_type>(r)) };
             l_path /= r_path;
             return l_path;
         }
@@ -136,7 +147,7 @@ namespace tackle
         // WORKAROUND: error C2556: overloaded function differs only by return type from
         friend FORCE_INLINE LIBRARY_API_DECL path_basic_string operator/ (base_type l, path_basic_string r)
         {
-            path_basic_string && l_path = std::move(std::forward<base_type>(l));
+            path_basic_string && l_path = path_basic_string{ std::move(std::forward<base_type>(l)) };
             path_basic_string && r_path = std::move(r);
             l_path /= r_path;
             return l_path;
@@ -169,13 +180,13 @@ namespace tackle
             if (!r_path.empty()) {
                 if (*p) {
                     // call base operator instead in case if it is specialized for this
-                    return p + (UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(t_elem, separator_char).data() + r_path);
+                    return path_basic_string{ p + (UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(t_elem, separator_char).data() + r_path) };
                 }
 
-                return r_path;
+                return path_basic_string{ r_path };
             }
 
-            return p;
+            return path_basic_string{ p };
         }
     };
 
