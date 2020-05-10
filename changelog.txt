@@ -1,3 +1,8 @@
+2020.05.10:
+* fixed: cpp: path_string.hpp: minor fixup
+* new: cpp: string_identity.hpp: `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` and `UTILITY_STATIC_STRING_WITH_BEGINEND_TUPLE` macroses
+* changed: cpp: path_string.hpp: explicit constructors to avoid implicit conversion from a not path string
+
 2020.05.09:
 * changed: cmake: TODO update
 * changed: TODO update
@@ -1527,7 +1532,7 @@
 2019.01.30:
 * new: utility: uninitialized char struct to construct big std::vector arrays w/o waste on initialization time
 * new: utility: get_host_name/get_user_name/get_module_name functions
-* new: utility: locale strings convertion directly from a static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&)
+* new: utility: locale strings conversion directly from a static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&)
 * minor refactor
 
 2019.01.28:
@@ -1707,7 +1712,7 @@
 * fixed: tackle library wide strings usage in wide set of functions
 * new: tackle utility wide strings usage in filesystem calls
 * new: tackle utility lexical normalization filesystem functions
-* new: tackle utility utf16 std::*string to/from utf8 std::string convertion functions
+* new: tackle utility utf16 std::*string to/from utf8 std::string conversion functions
 * refactor: template tackle::path_basic_string usage in template functions
 * refactor: explicit instantiation of template functions with template tackle::path_basic_string
 * missed changes
