@@ -1,4 +1,7 @@
 2020.05.11:
+* changed: cpp: path_string.hpp: removed restriction for direct calls to `basic_string` operators in the `path_string` class
+
+2020.05.11:
 * fixed: cpp: string_identity.hpp: inplace use of the `tmpl_string` class to guarantee the same address of both literals in the internal expression of the `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` macros
 * fixed: cpp: string_identity.hpp: missed zero termination character cut off
 * fixed: cpp: other minor fixes

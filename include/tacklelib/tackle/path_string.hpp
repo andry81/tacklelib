@@ -99,11 +99,6 @@ namespace tackle
         using base_type::base_type;
         using base_type::operator=;
 
-        // sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
-    private:
-        path_basic_string & operator+= (base_type r) = delete;
-        path_basic_string & operator+= (const t_elem * p) = delete;
-
     public:
         FORCE_INLINE path_basic_string & operator/= (base_type r)
         {
