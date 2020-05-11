@@ -27,7 +27,7 @@
 #include <type_traits>
 
 
-// hint: operator* applies to character literals, but not to double-quoted literals
+// hint: operator* applies to character literals, but is not to double-quoted literals
 #define UTILITY_LITERAL_CHAR_(ansi_str, char_type)      ((void)((ansi_str) * 0), ::utility::literal_char_caster<typename ::utility::remove_cvref<char_type>::type>::cast_from(ansi_str, L ## ansi_str, u ## ansi_str, U ## ansi_str))
 #define UTILITY_LITERAL_CHAR(ansi_str, char_type)       UTILITY_LITERAL_CHAR_(ansi_str, char_type)
 
@@ -45,18 +45,34 @@
 #define UTILITY_IS_LITERAL_STRING(c_str)                UTILITY_CONSTEXPR_VALUE((sizeof(#c_str) > 1) ? #c_str [sizeof(#c_str) - 2] == UTILITY_LITERAL_CHAR('\"', decltype((c_str)[0])) : false)
 
 // specialized literal string checker
-#define UTILITY_IS_LITERAL_STRING_A(c_str)                      UTILITY_CONSTEXPR_VALUE((sizeof(#c_str) > 1) ? #c_str [sizeof(#c_str) - 2] == '\"' : false)
+#define UTILITY_IS_LITERAL_STRING_A(ansi_c_str)                 UTILITY_CONSTEXPR_VALUE((sizeof(#ansi_c_str) > 1) ? #ansi_c_str [sizeof(#ansi_c_str) - 2] == '\"' : false)
 #define UTILITY_IS_LITERAL_STRING_WITH_PREFIX(c_str, prefix)    UTILITY_CONSTEXPR_VALUE((sizeof(#c_str) > 1) ? #c_str [sizeof(#c_str) - 2] == prefix ## '\"' : false)
 
 #define UTILITY_IS_CONSTEXPR_STRING(c_str)              UTILITY_IS_CONSTEXPR_VALUE((c_str)[0])
 
-#define UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE(str)     str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
-#define UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(str)   str, (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
-#define UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE(str) str, (str + UTILITY_CONSTEXPR_ARRAY_SIZE(str))
+// CAUTION:
+//  ONLY for literal strings!
+//
 
-#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      str, (UTILITY_STATIC_SIZE(str))
-#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    str, (UTILITY_STATIC_SIZE(str) - 1)
-#define UTILITY_STATIC_STRING_WITH_BEGINEND_TUPLE(str)  str, (str + UTILITY_STATIC_SIZE(str))
+#define UTILITY_LITERAL_STRING_WITH_SIZE_TUPLE(str)     (STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), str), (UTILITY_CONSTEXPR_ARRAY_SIZE(str))
+#define UTILITY_LITERAL_STRING_WITH_LENGTH_TUPLE(str)   (STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), str), (UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
+
+// CAUTION:
+//  This must be used together with the `tmpl_string` to guarantee the same address for all the `str` expressions,
+//  so the `tmpl_string.hpp` must be included explicitly!
+//
+// without zero termination character
+#define UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE(str) (STATIC_ASSERT_CONSTEXPR_TRUE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), TACKLE_TMPL_STRING(0, str).data()), (TACKLE_TMPL_STRING(0, str).data() + UTILITY_CONSTEXPR_ARRAY_SIZE(str) - 1)
+
+// CAUTION:
+//  Not for literal strings!
+//
+
+#define UTILITY_STATIC_STRING_WITH_SIZE_TUPLE(str)      (STATIC_ASSERT_CONSTEXPR_FALSE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), str), (UTILITY_STATIC_SIZE(str))
+#define UTILITY_STATIC_STRING_WITH_LENGTH_TUPLE(str)    (STATIC_ASSERT_CONSTEXPR_FALSE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), str), (UTILITY_STATIC_SIZE(str) - 1)
+
+// without zero termination character
+#define UTILITY_STATIC_STRING_WITH_BEGINEND_TUPLE(str)  (STATIC_ASSERT_CONSTEXPR_FALSE(UTILITY_IS_LITERAL_STRING(str), decltype(str)), str), (str + UTILITY_STATIC_SIZE(str) - 1)
 
 // string with safe offset through the static assert on an constexpr expression
 #define UTILITY_LITERAL_STRING_WITH_LENGTH_AND_CONSTEXPR_OFFSET_TUPLE(str, constexpr_offset) \
