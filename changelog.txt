@@ -1,3 +1,8 @@
+2020.05.11:
+* fixed: cpp: string_identity.hpp: inplace use of the `tmpl_string` class to guarantee the same address of both literals in the internal expression of the `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` macros
+* fixed: cpp: string_identity.hpp: missed zero termination character cut off
+* fixed: cpp: other minor fixes
+
 2020.05.10:
 * fixed: cpp: path_string.hpp: minor fixup
 * new: cpp: string_identity.hpp: `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` and `UTILITY_STATIC_STRING_WITH_BEGINEND_TUPLE` macroses

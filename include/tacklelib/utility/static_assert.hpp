@@ -126,7 +126,7 @@ namespace utility
     void not_constexpr_context(Args &&... args)
     {
         // exception in a constexpr context is not acceptable
-        throw std::domain_error("must not be instantiated in constexpr context");
+        throw std::domain_error("must not be instantiated in a constexpr context");
     }
 
     // static assert to use in an constexpr expression
@@ -150,7 +150,11 @@ namespace utility
     template <typename T, T v>
     struct StaticAssertParam
     {
+        static CONSTEXPR const T value = v;
     };
+
+    template <typename T, T v>
+    const T StaticAssertParam<T, v>::value;
 
     template <typename T, T v, typename... Params>
     struct StaticAssertTrue;
