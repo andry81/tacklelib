@@ -1,3 +1,7 @@
+2020.05.12:
+* new: cpp: utility: str_to_* functions
+* changed: cpp: utility: str_to_* functions
+
 2020.05.11:
 * changed: cpp: path_string.hpp: removed restriction for direct calls to `basic_string` operators in the `path_string` class
 

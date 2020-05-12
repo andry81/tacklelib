@@ -232,6 +232,7 @@ namespace time {
 //#endif
     }
 
+    // analog: `std::mktime` to convert into `std::time_t`
     FORCE_INLINE time_t timegm(const std::tm & time)
     {
         tm c_tm = time; // must be not constant

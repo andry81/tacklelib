@@ -493,13 +493,12 @@ namespace utility
     std::string LIBRARY_API_DECL get_module_name(utility::tag_string, bool cached);
     std::wstring LIBRARY_API_DECL get_module_name(utility::tag_wstring, bool cached);
 
-    template<typename T>
-    FORCE_INLINE T LIBRARY_API_DECL str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    FORCE_INLINE int LIBRARY_API_DECL str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        T i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        int i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
 
         try {
-            i = static_cast<T>(std::stoi(str, pos, base));
+            i = std::stoi(str, pos, base);
         }
         // by default suppress exceptions
         catch (const std::invalid_argument & ex) {
@@ -527,6 +526,351 @@ namespace utility
         }
 
         return i;
+    }
+
+    FORCE_INLINE unsigned int LIBRARY_API_DECL str_to_uint(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    {
+        unsigned int i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = (unsigned int)(std::stoul(str, pos, base));
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+    FORCE_INLINE long LIBRARY_API_DECL str_to_long(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    {
+        long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stol(str, pos, base);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+    FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_ulong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    {
+        unsigned long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stoul(str, pos, base);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
+    FORCE_INLINE long long LIBRARY_API_DECL str_to_llong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    {
+        long long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stoll(str, pos, base);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+#endif
+
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
+    FORCE_INLINE unsigned long long LIBRARY_API_DECL str_to_ullong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    {
+        unsigned long long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stoull(str, pos, base);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+#endif
+
+    FORCE_INLINE float LIBRARY_API_DECL str_to_float(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    {
+        float i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stof(str, pos);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+    FORCE_INLINE double LIBRARY_API_DECL str_to_double(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    {
+        double i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stod(str, pos);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+    FORCE_INLINE long double LIBRARY_API_DECL str_to_ldouble(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    {
+        long double i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+
+        try {
+            i = std::stold(str, pos);
+        }
+        // by default suppress exceptions
+        catch (const std::invalid_argument & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::out_of_range & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (const std::exception & ex) {
+            UTILITY_UNUSED_STATEMENT(ex);
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+        catch (...) {
+            if (throw_on_error) {
+                DEBUG_BREAK_THROW(true);
+            }
+        }
+
+        return i;
+    }
+
+    template<typename T>
+    FORCE_INLINE T LIBRARY_API_DECL str_to_number(const std::string & str, std::size_t * pos = nullptr, int int_base = 0, bool throw_on_error = false);
+
+    template<>
+    FORCE_INLINE int LIBRARY_API_DECL str_to_number<int>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_int(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE unsigned int LIBRARY_API_DECL str_to_number<unsigned int>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_uint(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE long LIBRARY_API_DECL str_to_number<long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_long(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_number<unsigned long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_ulong(str, pos, int_base, throw_on_error);
+    }
+
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
+    template<>
+    FORCE_INLINE long long LIBRARY_API_DECL str_to_number<long long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_llong(str, pos, int_base, throw_on_error);
+    }
+#endif
+
+#ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
+    template<>
+    FORCE_INLINE unsigned long long LIBRARY_API_DECL str_to_number<unsigned long long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_ullong(str, pos, int_base, throw_on_error);
+    }
+#endif
+
+    template<>
+    FORCE_INLINE float LIBRARY_API_DECL str_to_number<float>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_float(str, pos, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE double LIBRARY_API_DECL str_to_number<double>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_double(str, pos, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE long double LIBRARY_API_DECL str_to_number<long double>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_ldouble(str, pos, throw_on_error);
     }
 
     template<typename T>
