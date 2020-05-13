@@ -1,5 +1,5 @@
 2020.05.13:
-* fixed: cmake: Project.cmake: compiler error message fix around incompitible options `/O2` and `/RTC1` in the Debug configuration, where the `tkl_remove_global_optimization_flags` function has accidently removed the `/Od` flag and the MSVC 2017 compiler has silently added `/O2` flag which is not compitible with already existed `/RTC1` flag
+* fixed: cmake: Project.cmake: compiler error message fix around incompitible options `/O2` and `/RTC1` in the Debug configuration, where the `tkl_remove_global_optimization_flags` function has accidently removed the `/Od` flag and the cmake from some version (3.14+) for the MSVC 2017 compiler has silently added `/O2` flag which is not compitible with already existed `/RTC1` flag
 
 2020.05.13:
 * fixed: cmake: Project.cmake: `tkl_print_global_flags` does not print global flags
