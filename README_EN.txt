@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.24
+* 2020.05.13
 * tacklelib
 
 1. DESCRIPTION
@@ -133,6 +133,8 @@ IDE's, applications and patches to run with or from:
 * cmake 3.15.1 (3.14+):
   https://cmake.org/download/
   - to run cmake scripts and modules
+  - 3.14+ does allow use generator expressions at install phase:
+    https://cmake.org/cmake/help/v3.14/policy/CMP0087.html
 
 4. Modules:
 
@@ -209,6 +211,16 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#deprecated-and-removed-feat
 * Support for running CMake on Windows XP and Windows Vista has been dropped.
   The precompiled Windows binaries provided on cmake.org now require Windows 7
   or higher.
+
+https://cmake.org/cmake/help/v3.14/release/3.14.html#id13
+
+* The install(CODE) and install(SCRIPT) commands learned to support generator
+  expressions. See policy CMP0087
+  (https://cmake.org/cmake/help/v3.14/policy/CMP0087.html):
+
+  In CMake 3.13 and earlier, install(CODE) and install(SCRIPT) did not evaluate
+  generator expressions. CMake 3.14 and later will evaluate generator
+  expressions for install(CODE) and install(SCRIPT).
 
 -------------------------------------------------------------------------------
 5. DEPENDENCIES

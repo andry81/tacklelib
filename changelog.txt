@@ -1,3 +1,6 @@
+2020.05.13:
+* changed: readme update
+
 2020.05.12:
 * new: cpp: utility: str_to_* functions
 * changed: cpp: utility: str_to_* functions
