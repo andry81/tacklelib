@@ -1200,5 +1200,3 @@ if (generated_headers)
       GENERATED ON
   )
 endif()
-
-tkl_print_global_flags(*)
