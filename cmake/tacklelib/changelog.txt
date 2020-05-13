@@ -1,3 +1,6 @@
+2020.05.13:
+* fixed: Project.cmake: `tkl_print_global_flags` does not print global flags
+
 2020.05.09:
 * changed: TODO update
 

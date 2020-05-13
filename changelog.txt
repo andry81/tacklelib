@@ -1,4 +1,8 @@
 2020.05.13:
+* fixed: cmake: Project.cmake: `tkl_print_global_flags` does not print global flags
+* changed: removed excessive `tkl_print_global_flags` call from the cmake list file
+
+2020.05.13:
 * changed: readme update
 
 2020.05.12:

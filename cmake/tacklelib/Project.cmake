@@ -1290,9 +1290,9 @@ function(tkl_parse_config_names_list_var config_names out_config_types_var out_h
     endforeach()
   endif()
 
-  set(out_config_types_var "${config_types}" PARENT_SCOPE)
-  set(has_all_config_types "${has_all_config_types}" PARENT_SCOPE)
-  set(has_default_config_type "${has_default_config_type}" PARENT_SCOPE)
+  set(${out_config_types_var} "${config_types}" PARENT_SCOPE)
+  set(${out_has_all_config_types_var} "${has_all_config_types}" PARENT_SCOPE)
+  set(${out_has_default_config_type_var} "${has_default_config_type}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_remove_global_optimization_flags)
