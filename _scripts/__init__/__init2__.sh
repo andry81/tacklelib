@@ -12,6 +12,6 @@ TACKLELIB_SCRIPTS_INIT2_DIR="$BASH_SOURCE_DIR" # including guard
 
 tkl_include "__init1__.sh" || return $?
 
-MakeOutputDirectories "$CMAKE_BUILD_TYPE" || return $?
+MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || return $?
 
 fi
