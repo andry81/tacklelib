@@ -56,9 +56,12 @@ tkl_include "tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || tkl_exit $?
 CMAKE_BUILD_TYPE="$1"
 CMAKE_BUILD_TYPE_WITH_FORCE=0
 
+CMAKE_IS_SINGLE_CONFIG=0
+
 if [[ -n "$CMAKE_BUILD_TYPE" && "${CMAKE_BUILD_TYPE//!/}" != "$CMAKE_BUILD_TYPE" ]]; then
   CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE//!/}"
   CMAKE_BUILD_TYPE_WITH_FORCE=1
+  CMAKE_IS_SINGLE_CONFIG=1
 fi
 
 UpdateOsName
@@ -84,6 +87,7 @@ else
     echo "$0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
     tkl_exit 128
   fi
+  CMAKE_IS_SINGLE_CONFIG=1
 fi
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then

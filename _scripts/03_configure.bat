@@ -43,12 +43,15 @@ rem
 set "CMAKE_BUILD_TYPE=%~1"
 set "CMAKE_BUILD_TYPE_WITH_FORCE=0"
 
+set CMAKE_IS_SINGLE_CONFIG=0
+
 if not defined CMAKE_BUILD_TYPE goto IGNORE_CMAKE_BUILD_TYPE
 
 if "%CMAKE_BUILD_TYPE%" == "%CMAKE_BUILD_TYPE:!=%" goto IGNORE_CMAKE_BUILD_TYPE
 
 set "CMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE:!=%"
 set CMAKE_BUILD_TYPE_WITH_FORCE=1
+set CMAKE_IS_SINGLE_CONFIG=1
 
 :IGNORE_CMAKE_BUILD_TYPE
 rem preload configuration files only to make some checks
@@ -76,6 +79,7 @@ if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
     call :EXIT_B 128
     goto EXIT
   ) >&2
+  set CMAKE_IS_SINGLE_CONFIG=1
 )
 
 :IGNORE_GENERATOR_IS_MULTI_CONFIG
@@ -119,7 +123,11 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
 
 call "%%~dp0__init__/__init2__.bat" || exit /b
 
-set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\%~nx0.in"
+if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
+  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\multiconfig\%~nx0.in"
+) else (
+  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\singleconfig\%~nx0.in"
+)
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION

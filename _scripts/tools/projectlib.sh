@@ -137,7 +137,11 @@ function Configure()
 
   tkl_include "$PROJECT_ROOT/_scripts/__init__/__init2__.sh" || return $?
 
-  local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/$BASH_SOURCE_FILE_NAME.in"
+  if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
+    local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/multiconfig/$BASH_SOURCE_FILE_NAME.in"
+  else
+    local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/singleconfig/$BASH_SOURCE_FILE_NAME.in"
+  fi
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 

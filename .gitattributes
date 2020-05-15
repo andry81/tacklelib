@@ -21,9 +21,11 @@ _config/_scripts/02/02_generate_config.system.bat.in -text
 _config/_scripts/02/02_generate_config.system.sh.in -text
 _config/_scripts/02/02_generate_config.user.bat.in -text
 _config/_scripts/02/02_generate_config.user.sh.in -text
-_config/_scripts/03/03_configure.bat.in -text
 _config/_scripts/03/03_configure.cache_cmds.in -text
-_config/_scripts/03/03_configure.sh.in -text
+_config/_scripts/03/multiconfig/03_configure.bat.in -text
+_config/_scripts/03/multiconfig/03_configure.sh.in -text
+_config/_scripts/03/singleconfig/03_configure.bat.in -text
+_config/_scripts/03/singleconfig/03_configure.sh.in -text
 _config/_scripts/04/04_build.bat.in -text
 _config/_scripts/04/04_build.cache_cmds.in -text
 _config/_scripts/04/04_build.sh.in -text
