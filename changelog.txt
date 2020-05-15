@@ -1,3 +1,27 @@
+2020.05.15:
+* new: cmake: Project.cmake: for cmake 3.15+ the `tkl_set_runtime_link_type_var` function use CMAKE_MSVC_RUNTIME_LIBRARY automatically instead of direct `CMAKE_CXX_FLAGS*` flags patching
+* new: _scripts: accept first parameter of the `*_configure.*` script with force character (`!`) in case of usage for the camke multiconfig generator
+* changed: cmake: Project.cmake: now `tkl_configure_environment` and other functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: cmake: Checks.cmake: now functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: cmake: Project.cmake: `tkl_configure_environment` now accepts a runtime link type variable name instead of a value
+* changed: cmake: Project.cmake: has made an existence of a valid runtime link type variable as a mandatory for the `tkl_configure_environment` function
+* changed: cmake: Project.cmake: has made an existence of a valid flag value as a mandatory for the `tkl_initialize_library_target_defaults` function
+* changed: cmake: minor improvement
+* changed: _scripts: pass the rest of command line of configure/build/install to the cmake command line
+* changed: _scripts: tools: make_output_directories.bat: now accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: _config: configuration files updated versus the last `SetVarsFromFiles.cmake` implementation
+
+2020.05.14:
+* fixed: cmake: SetVarsFromFiles.cmake: multiple fixup
+* fixed: cmake: Project.cmake: `CMAKE_SHARED_LIBS` not properly updated from the `tkl_set_runtime_link_type` function
+* new: cmake: SetVarsFromFiles.cmake: `local` attribute to locally override a global variable or define a local context variable
+* new: cmake: SetVarsFromFiles.cmake: `uncache` attribute to set variable together with the cache unset (instead of use `force_cache`)
+* changed: cmake: Project.cmake: `tkl_set_global_link_type` function renamed to `tkl_set_runtime_link_type_var`
+* changed: cmake: SetVarsFromFiles.cmake: now all variables declared as global/top/local must retain the same attribute in next assignments
+* changed: cmake: SetVarsFromFiles.cmake: simplified `unset` attribute to simply unset variable without special unset state
+* changed: cmake: SetVarsFromFiles.cmake: documentation update
+* changed: cmake, _config: boost library variables setup extracted from the cmake list into variables configuration file
+
 2020.05.13:
 * fixed: cmake: Project.cmake: compiler error message fix around incompitible options `/O2` and `/RTC1` in the Debug configuration, where the `tkl_remove_global_optimization_flags` function has accidently removed the `/Od` flag and the cmake from some version (3.14+) for the MSVC 2017 compiler has silently added `/O2` flag which is not compitible with already existed `/RTC1` flag
 

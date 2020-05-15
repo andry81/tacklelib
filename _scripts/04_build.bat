@@ -65,10 +65,10 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
     set "CMAKE_BUILD_TYPE=%%i"
-    call :BUILD || goto EXIT
+    call :BUILD %%* || goto EXIT
   )
 ) else (
-  call :BUILD
+  call :BUILD %%*
 )
 
 goto EXIT
@@ -125,7 +125,7 @@ for /F "eol=# tokens=* delims=" %%i in ("!CMAKE_CMD_LINE!") do (
 
 pushd "%CMAKE_BUILD_DIR%" && (
   (
-    call :CMD cmake %CMAKE_CMD_LINE%
+    call :CMD cmake %CMAKE_CMD_LINE% %%3 %%4 %%5 %%6 %%7 %%8 %%9
   ) || ( popd & goto BUILD_END )
   popd
 )

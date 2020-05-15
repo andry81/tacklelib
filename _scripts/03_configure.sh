@@ -54,6 +54,12 @@ tkl_include "tools/get_GENERATOR_IS_MULTI_CONFIG.sh" || tkl_exit $?
 # CAUTION: an empty value and `*` value has different meanings!
 #
 CMAKE_BUILD_TYPE="$1"
+CMAKE_BUILD_TYPE_WITH_FORCE=0
+
+if [[ -n "$CMAKE_BUILD_TYPE" && "${CMAKE_BUILD_TYPE//!/}" != "$CMAKE_BUILD_TYPE" ]]; then
+  CMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE//!/}"
+  CMAKE_BUILD_TYPE_WITH_FORCE=1
+fi
 
 UpdateOsName
 
@@ -68,7 +74,7 @@ tkl_call get_GENERATOR_IS_MULTI_CONFIG "$CMAKE_GENERATOR" || tkl_exit $?
 
 if (( GENERATOR_IS_MULTI_CONFIG )); then
   # CMAKE_CONFIG_TYPES must not be defined
-  if [[ -n "$CMAKE_BUILD_TYPE" ]]; then
+  if [[ CMAKE_BUILD_TYPE_WITH_FORCE -eq 0 && -n "$CMAKE_BUILD_TYPE" ]]; then
     echo "$0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
     tkl_exit 127
   fi
@@ -82,10 +88,10 @@ fi
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
   IFS=$'; \t\r\n'; for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
-    Configure || tkl_exit $?
+    Configure "${@:2}" || tkl_exit $?
   done
 else
-  Configure || tkl_exit $?
+  Configure "${@:2}" || tkl_exit $?
 fi
 
 tkl_exit

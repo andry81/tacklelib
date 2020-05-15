@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.7)
 #
 
 # at least cmake 3.3 is required for:
-# * to use IN_LIST in if command: (https://cmake.org/cmake/help/v3.3/command/if.html )
+# * to use IN_LIST in if command:
+#   (https://cmake.org/cmake/help/v3.3/command/if.html )
 #   `if(<variable|string> IN_LIST <variable>)`
 #
 
@@ -22,6 +23,25 @@ cmake_minimum_required(VERSION 3.7)
 #  cmake_policy(SET CMP00NN NEW) # cmake >= X.Y
 #endif()
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.1.0")
+  #  Policy CMP0054 is not set: Only interpret if () arguments as variables or
+  #  keywords when unquoted.  Run "cmake --help-policy CMP0054" for policy
+  #  details.  Use the cmake_policy command to set the policy and suppress this
+  #  warning.
+  #
+  #  Quoted variables like "MSVC" will no longer be dereferenced when the
+  #  policy is set to NEW.  Since the policy is not set the OLD behavior will
+  #  be used.
+  cmake_policy(SET CMP0054 NEW) # cmake >= 3.1
+endif()
+
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+  #  Policy CMP0074 is not set: find_package uses PackageName_ROOT variables.
+  #  Run "cmake --help-policy CMP0074" for policy details.  Use the
+  #  cmake_policy command to set the policy and suppress this warning.
+  cmake_policy(SET CMP0074 NEW) # cmake >= 3.12
+endif()
+
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
   #  Policy CMP0075 is not set: Include file check macros honor
   #  CMAKE_REQUIRED_LIBRARIES.  Run "cmake --help-policy CMP0075" for policy
@@ -34,9 +54,17 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
   #
   #  For compatibility with CMake 3.11 and below this check is ignoring it.
 
-  # use global override to avoid policy drop in case where a 3dparty cmake list declared cmake version requirement less than 3.12.0
+  # use global override to avoid policy drop in case where a 3dparty cmake list
+  # declared cmake version requirement less than 3.12.0
   set(CMAKE_POLICY_DEFAULT_CMP0075 NEW)
   #cmake_policy(SET CMP0075 NEW) # cmake >= 3.12
+endif()
+
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14.0")
+  # Policy CMP0087 is not set: Install CODE|SCRIPT allow the use of generator
+  # expressions.  Run "cmake --help-policy CMP0087" for policy details.  Use
+  # the cmake_policy command to set the policy and suppress this warning.
+  cmake_policy(SET CMP0087 NEW) # cmake >= 3.14
 endif()
 
 # enable project folders
@@ -66,6 +94,7 @@ include(tacklelib/_3dparty/Qt)
 ##
 #tkl_preload_variables(-S -s "${CMAKE_CURRENT_LIST_DIR}/_config/environment_system.vars" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
 
+# builtin detection runs by the `project` function
 project("tacklelib")
 
 set(PROJECT_LIB_NAME tacklelib)
@@ -73,14 +102,14 @@ set(PROJECT_LIB_NAME tacklelib)
 set(LIB_TARGET_NAME ${PROJECT_LIB_NAME})
 set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 
-tkl_configure_environment("${CMAKE_CURRENT_LIST_DIR}/_config" "${TACKLELIB_LINK_TYPE}" "MSVC;GCC")
+tkl_configure_environment("${CMAKE_CURRENT_LIST_DIR}/_config" TACKLELIB_RUNTIME_LINK_TYPE "MSVC;GCC")
 
 ###############################################################################
 ## check environment variables ################################################
 ###############################################################################
 
 tkl_check_var(REQUIRED . TACKLELIB_ADDRESS_MODEL)
-tkl_check_var(REQUIRED . TACKLELIB_LINK_TYPE)
+tkl_check_var(REQUIRED . TACKLELIB_RUNTIME_LINK_TYPE)
 tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
 
 tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
@@ -262,16 +291,6 @@ endforeach()
 ###############################################################################
 
 # boost
-
-if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-  set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_STATIC_RUNTIME OFF)
-  set(Boost_USE_MULTITHREADED ON)
-elseif (TACKLELIB_LINK_TYPE STREQUAL "static")
-  set(Boost_USE_STATIC_LIBS ON)
-  set(Boost_USE_STATIC_RUNTIME ON)
-  set(Boost_USE_MULTITHREADED ON)
-endif()
 
 find_package(BOOST_ROOT Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
@@ -485,16 +504,24 @@ endif()
 
 # we need the same Boost definitions here to maintain the link with the same libraries
 if (Boost_FOUND)
-  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
-    PRIVATE
-      BOOST_ALL_NO_LIB                    # Disable auto-linking
-      BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
-  )
+  if (BOOST_ALL_NO_LIB)
+    tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
+      PRIVATE
+        BOOST_ALL_NO_LIB
+    )
+  endif()
 
-  if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
+  if (BOOST_ALL_DYN_LINK)
     tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
       PRIVATE
         BOOST_ALL_DYN_LINK
+    )
+  endif()
+
+  if (BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS)
+    tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
+      PRIVATE
+        BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits
     )
   endif()
 endif()
@@ -651,20 +678,28 @@ if (TESTLIB_ENABLED)
   endif()
 
   # we need the same Boost definitions here to maintain the link with the same libraries
-  if (Boost_FOUND)
-    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
-      PRIVATE
-        BOOST_ALL_NO_LIB                    # Disable auto-linking
-        BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
-    )
-
-    if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-      tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
-        PRIVATE
-          BOOST_ALL_DYN_LINK
-      )
-    endif()
-  endif()
+  #if (Boost_FOUND)
+  #  if (BOOST_ALL_NO_LIB)
+  #    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+  #      PRIVATE
+  #        BOOST_ALL_NO_LIB
+  #    )
+  #  endif()
+  #
+  #  if (BOOST_ALL_DYN_LINK)
+  #    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+  #      PRIVATE
+  #        BOOST_ALL_DYN_LINK
+  #    )
+  #  endif()
+  #
+  #  if (BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS)
+  #    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+  #      PRIVATE
+  #        BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits
+  #    )
+  #  endif()
+  #endif()
 
   if (WIN32)
     tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
@@ -913,20 +948,28 @@ if (TESTS_ENABLED)
     endif()
 
     # we need the same Boost definitions here to maintain the link with the same libraries
-    if (Boost_FOUND)
-      tkl_add_target_compile_definitions(${target} *
-        PRIVATE
-          BOOST_ALL_NO_LIB                    # Disable auto-linking
-          BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits.
-      )
-
-      if (TACKLELIB_LINK_TYPE STREQUAL "dynamic")
-        tkl_add_target_compile_definitions(${target} *
-          PRIVATE
-            BOOST_ALL_DYN_LINK
-        )
-      endif()
-    endif()
+    #if (Boost_FOUND)
+    #  if (BOOST_ALL_NO_LIB)
+    #    tkl_add_target_compile_definitions(${target} *
+    #      PRIVATE
+    #        BOOST_ALL_NO_LIB
+    #    )
+    #  endif()
+    #
+    #  if (BOOST_ALL_DYN_LINK)
+    #    tkl_add_target_compile_definitions(${target} *
+    #      PRIVATE
+    #        BOOST_ALL_DYN_LINK
+    #    )
+    #  endif()
+    #
+    #  if (BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS)
+    #    tkl_add_target_compile_definitions(${target} *
+    #      PRIVATE
+    #        BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS # Force to use C++11 lambda functions to implement scope exits
+    #    )
+    #  endif()
+    #endif()
 
     if (WIN32)
       tkl_add_target_compile_definitions(${target} *

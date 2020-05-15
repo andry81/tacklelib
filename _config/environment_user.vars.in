@@ -32,7 +32,7 @@
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
 #
-# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
+# <attributes>:           Variable space separated attributes: global | top | local | bool | path | exist | canonical | uncache | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
@@ -59,30 +59,41 @@
 #
 
 # has to be here because the architecture value is not yet known in the system variables configuration file
-CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
-CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
+top CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
+top CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
+
+# tacklelib
+
+top final package TACKLELIB_RUNTIME_LINK_TYPE="dynamic"
+top final package TACKLELIB_ADDRESS_MODEL="32"
+
+#top final package TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
+top final package TACKLELIB_DEP_LIBS=(fmt pystring)
+
+top final package TACKLELIB_SKIP_TESTLIB=0
+top final package TACKLELIB_SKIP_TESTS=0
 
 # arc
 
 top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
 
-# cache is required here to override cache variables
-top bool force cache ENABLE_LZMA=1
-top bool force cache ENABLE_TAR=0
-top bool force cache ENABLE_CPIO=0
-top bool force cache ENABLE_CAT=0
-top bool force cache ENABLE_TEST=0
-top bool force cache ENABLE_COVERAGE=0
-top bool force cache ENABLE_ACL=0
-top bool force cache ENABLE_INSTALL=0
+# uncache is required here to drop the cache
+top bool uncache ENABLE_LZMA=1
+top bool uncache ENABLE_TAR=0
+top bool uncache ENABLE_CPIO=0
+top bool uncache ENABLE_CAT=0
+top bool uncache ENABLE_TEST=0
+top bool uncache ENABLE_COVERAGE=0
+top bool uncache ENABLE_ACL=0
+top bool uncache ENABLE_INSTALL=0
 
 top ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils/xzutils-5_2_4-release"
-top cache force LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
+top uncache LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
 
-top cache force LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
-top cache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
+top uncache LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
+top uncache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
 
 top bool LIBLZMA_HAS_AUTO_DECODER=1
 top bool LIBLZMA_HAS_EASY_ENCODER=1
@@ -111,11 +122,31 @@ top bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (de
 top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt/fmt-6_1_2-release"
 top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring/pystring-1_1_3-20190321"
 
-top final package TACKLELIB_LINK_TYPE="dynamic"
-top final package TACKLELIB_ADDRESS_MODEL="32"
+local Boost_USE_SHARED_LIBS=ON
+local Boost_USE_STATIC_LIBS=OFF
+local Boost_USE_STATIC_RUNTIME=OFF
+local Boost_USE_MULTITHREADED=ON
 
-#top final package TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
-top final package TACKLELIB_DEP_LIBS=(fmt pystring)
+# associated with respective preprocessor definitions (must be changed together with build variables!)
 
-top final package TACKLELIB_SKIP_TESTLIB=0
-top final package TACKLELIB_SKIP_TESTS=0
+# Tells the config system not to automatically select which libraries to link against.
+# Normally if a compiler supports #pragma lib, then the correct library build variant will be
+# automatically selected and linked against, simply by the act of including one of that library's headers.
+# This macro turns that feature off.
+#
+local BOOST_ALL_NO_LIB=ON
+
+# Forces all libraries that have separate source, to be linked as dll's rather than static libraries
+# on Microsoft Windows (this macro is used to turn on __declspec(dllimport) modifiers, so that the compiler
+# knows which symbols to look for in a dll rather than in a static library).
+# Note that there may be some libraries that can only be statically linked (Boost.Test for example) and
+# others which may only be dynamically linked (Boost.Thread for example), in these cases this macro has no effect.
+#
+local BOOST_ALL_DYN_LINK=ON
+
+# Force to use C++11 lambda functions to implement scope exits
+#
+local BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS=ON
+
+#
+#local Boost_DEBUG=ON

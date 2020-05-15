@@ -1,3 +1,8 @@
+2020.05.15:
+* new: accept first parameter of the `*_configure.*` script with force character (`!`) in case of usage for the camke multiconfig generator
+* changed: pass the rest of command line of configure/build/install to the cmake command line
+* changed: tools: make_output_directories.bat: now accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+
 2020.04.22:
 * fixed: scripts reinit by a link from different directory, must remember the initialization directory instead of just a flag
 * fixed: correct unix shell script self redirection with original handles restore (windows batch scripts can not handle redirection such way, so left as is with mixed stdout output (stderr is left redirected to stdout))

@@ -41,7 +41,16 @@ set /A NEST_LVL+=1
 rem CAUTION: an empty value and `*` value has different meanings!
 rem
 set "CMAKE_BUILD_TYPE=%~1"
+set "CMAKE_BUILD_TYPE_WITH_FORCE=0"
 
+if not defined CMAKE_BUILD_TYPE goto IGNORE_CMAKE_BUILD_TYPE
+
+if "%CMAKE_BUILD_TYPE%" == "%CMAKE_BUILD_TYPE:!=%" goto IGNORE_CMAKE_BUILD_TYPE
+
+set "CMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE:!=%"
+set CMAKE_BUILD_TYPE_WITH_FORCE=1
+
+:IGNORE_CMAKE_BUILD_TYPE
 rem preload configuration files only to make some checks
 call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
@@ -53,6 +62,8 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%
 
 if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
   rem CMAKE_CONFIG_TYPES must not be defined
+  if %CMAKE_BUILD_TYPE_WITH_FORCE% NEQ 0 goto IGNORE_GENERATOR_IS_MULTI_CONFIG
+
   if defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
     call :EXIT_B 127
@@ -67,13 +78,14 @@ if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
   ) >&2
 )
 
+:IGNORE_GENERATOR_IS_MULTI_CONFIG
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
     set "CMAKE_BUILD_TYPE=%%i"
-    call :CONFIGURE || goto EXIT
+    call :CONFIGURE %%* || goto EXIT
   )
 ) else (
-  call :CONFIGURE
+  call :CONFIGURE %%*
 )
 
 goto EXIT
@@ -143,7 +155,7 @@ for /F "eol=# tokens=* delims=" %%i in ("!CMAKE_CMD_LINE!") do (
 
 pushd "%CMAKE_BUILD_DIR%" && (
   (
-    call :CMD cmake %CMAKE_CMD_LINE%
+    call :CMD cmake %CMAKE_CMD_LINE% %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9
   ) || ( popd & goto CONFIGURE_END )
   popd
 )
