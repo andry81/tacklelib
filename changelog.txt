@@ -1,4 +1,7 @@
 2020.05.15:
+* fixed: _scripts, _config: missed multiconfig/singleconfig cmake command line
+
+2020.05.15:
 * new: cmake: Project.cmake: for cmake 3.15+ the `tkl_set_runtime_link_type_var` function use CMAKE_MSVC_RUNTIME_LIBRARY automatically instead of direct `CMAKE_CXX_FLAGS*` flags patching
 * new: _scripts: accept first parameter of the `*_configure.*` script with force character (`!`) in case of usage for the camke multiconfig generator
 * changed: cmake: Project.cmake: now `tkl_configure_environment` and other functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
