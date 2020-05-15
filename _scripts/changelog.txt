@@ -1,4 +1,8 @@
 2020.05.15:
+* fixed: single/multi config proper detection from scripts
+* fixed: minor fixup
+
+2020.05.15:
 * new: accept first parameter of the `*_configure.*` script with force character (`!`) in case of usage for the camke multiconfig generator
 * changed: pass the rest of command line of configure/build/install to the cmake command line
 * changed: tools: make_output_directories.bat: now accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)

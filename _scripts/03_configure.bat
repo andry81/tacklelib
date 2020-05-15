@@ -38,6 +38,16 @@ call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 
+call :MAIN %%*
+set LASTERROR=%ERRORLEVEL%
+
+set /A NEST_LVL-=1
+
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
+
+:MAIN
 rem CAUTION: an empty value and `*` value has different meanings!
 rem
 set "CMAKE_BUILD_TYPE=%~1"
@@ -58,43 +68,46 @@ rem preload configuration files only to make some checks
 call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
   --exclude_vars_filter "PROJECT_ROOT" ^
-  --ignore_late_expansion_statements || goto EXIT
+  --ignore_late_expansion_statements || exit /b 1
 
 rem check if selected generator is a multiconfig generator
-call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || goto EXIT
+call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 2
 
 if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
   rem CMAKE_CONFIG_TYPES must not be defined
-  if %CMAKE_BUILD_TYPE_WITH_FORCE% NEQ 0 goto IGNORE_GENERATOR_IS_MULTI_CONFIG
+  if %CMAKE_BUILD_TYPE_WITH_FORCE% NEQ 0 goto IGNORE_GENERATOR_IS_MULTI_CONFIG_CHECK
 
   if defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    call :EXIT_B 127
-    goto EXIT
+    exit /b 127
   ) >&2
 ) else (
   rem CMAKE_CONFIG_TYPES must be defined
   if not defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    call :EXIT_B 128
-    goto EXIT
+    exit /b 128
   ) >&2
   set CMAKE_IS_SINGLE_CONFIG=1
 )
 
-:IGNORE_GENERATOR_IS_MULTI_CONFIG
+:IGNORE_GENERATOR_IS_MULTI_CONFIG_CHECK
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
     set "CMAKE_BUILD_TYPE=%%i"
-    call :CONFIGURE %%* || goto EXIT
+    call :CONFIGURE %%* || exit /b
   )
 ) else (
   call :CONFIGURE %%*
 )
 
-goto EXIT
+exit /b
 
 :CONFIGURE
+call :CONFIGURE_IMPL %%*
+echo.
+exit /b
+
+:CONFIGURE_IMPL
 if not defined CMAKE_BUILD_TYPE goto INIT2
 if not defined CMAKE_CONFIG_ABBR_TYPES goto INIT2
 
@@ -121,13 +134,32 @@ call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
   --ignore_statement_if_no_filter --ignore_late_expansion_statements || exit /b
 
-call "%%~dp0__init__/__init2__.bat" || exit /b
+rem check if multiconfig.tag is already created
+if exist "%CMAKE_BUILD_ROOT%/singleconfig.tag" (
+  if %CMAKE_IS_SINGLE_CONFIG%0 EQU 0 (
+    echo.%~nx0: error: single config cmake cache already has been created, can not continue with multi config: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
+    exit /b 129
+  ) >&2
+)
+
+if exist "%CMAKE_BUILD_ROOT%/multiconfig.tag" (
+  if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
+    echo.%~nx0: error: multi config cmake cache already has been created, can not continue with single config: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
+    exit /b 130
+  ) >&2
+)
+
+if not exist "%CMAKE_BUILD_ROOT%" mkdir "%CMAKE_BUILD_ROOT%"
 
 if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
-  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\multiconfig\%~nx0.in"
-) else (
+  echo.> "%CMAKE_BUILD_ROOT%/singleconfig.tag"
   set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\singleconfig\%~nx0.in"
+) else (
+  echo.> "%CMAKE_BUILD_ROOT%/multiconfig.tag"
+  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_scripts\03\multiconfig\%~nx0.in"
 )
+
+call "%%~dp0__init__/__init2__.bat" || exit /b
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION
@@ -161,7 +193,7 @@ for /F "eol=# tokens=* delims=" %%i in ("!CMAKE_CMD_LINE!") do (
   set "CMAKE_CMD_LINE=%%i"
 )
 
-pushd "%CMAKE_BUILD_DIR%" && (
+call :CMD pushd "%%CMAKE_BUILD_DIR%%" && (
   (
     call :CMD cmake %CMAKE_CMD_LINE% %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9
   ) || ( popd & goto CONFIGURE_END )
@@ -178,18 +210,6 @@ echo.
   %*
 )
 exit /b
-
-:EXIT_B
-exit /b %~1
-
-:EXIT
-set LASTERROR=%ERRORLEVEL%
-
-set /A NEST_LVL-=1
-
-if %NEST_LVL%0 EQU 0 pause
-
-exit /b %LASTERROR%
 
 :INIT_EXIT
 set LASTERROR=%ERRORLEVEL%

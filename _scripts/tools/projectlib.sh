@@ -115,6 +115,8 @@ function UpdateBuildType()
 
 function Configure()
 {
+  tkl_push_trap "echo" RETURN
+
   UpdateOsName
   UpdateBuildType
 
@@ -137,10 +139,10 @@ function Configure()
 
   tkl_include "$PROJECT_ROOT/_scripts/__init__/__init2__.sh" || return $?
 
-  if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
-    local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/multiconfig/$BASH_SOURCE_FILE_NAME.in"
-  else
+  if [[ ! -e "$CMAKE_BUILD_ROOT/multiconfig.tag" ]]; then
     local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/singleconfig/$BASH_SOURCE_FILE_NAME.in"
+  else
+    local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/multiconfig/$BASH_SOURCE_FILE_NAME.in"
   fi
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
@@ -153,7 +155,7 @@ function Configure()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  tkl_pushd "$CMAKE_BUILD_DIR" && {
+  tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
     tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
   } || return 255
@@ -193,7 +195,7 @@ function Build()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  tkl_pushd "$CMAKE_BUILD_DIR" && {
+  tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
     tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
   } || return 255
@@ -231,7 +233,7 @@ function Install()
 
   eval "CMAKE_CMD_LINE=($RETURN_VALUE)"
 
-  tkl_pushd "$CMAKE_BUILD_DIR" && {
+  tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
     tkl_call cmake "${CMAKE_CMD_LINE[@]}" "$@" || return $?
   } || return 255
@@ -265,7 +267,7 @@ function PostInstall()
 
   #local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/05/$BASH_SOURCE_FILE_NAME.in"
 
-  tkl_pushd "$CMAKE_INSTALL_ROOT" && {
+  tkl_call tkl_pushd "$CMAKE_INSTALL_ROOT" && {
     tkl_push_trap 'tkl_popd' RETURN
     PostInstallImpl "$@" || return $?
   } || return 255
@@ -405,7 +407,7 @@ function Pack()
 
   eval "CMAKE_CMD_LINE_ARR=($CMAKE_CMD_LINE)"
 
-  tkl_pushd "$CMAKE_BUILD_DIR" && {
+  tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
     tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $?
   } || return 255
@@ -504,27 +506,35 @@ function CheckBuildType()
 function MakeOutputDirectories()
 {
   local CMAKE_BUILD_TYPE="$1"
+  local GENERATOR_IS_MULTI_CONFIG="$2"
 
-  if [[ -n "$CMAKE_BUILD_TYPE" ]]; then
-    if (( GENERATOR_IS_MULTI_CONFIG )); then
-      local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT"
-    else
-      local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT/$CMAKE_BUILD_TYPE"
+  if [[ -e "$CMAKE_BUILD_ROOT/singleonfig.tag" ]]; then
+    if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
+      echo "$0: error: CMAKE_BUILD_TYPE must be set for single config cmake cache." >&2
+      return 1
     fi
+    local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_BIN_DIR="$CMAKE_BIN_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_LIB_DIR="$CMAKE_LIB_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_PACK_DIR="$CMAKE_PACK_ROOT/$CMAKE_BUILD_TYPE"
-  else
+  elif [[ -e "$CMAKE_BUILD_ROOT/multionfig.tag" ]]; then
+    if [[ GENERATOR_IS_MULTI_CONFIG -eq 0 ]]; then
+      echo "$0: error: GENERATOR_IS_MULTI_CONFIG must be already set for multi config cmake cache." >&2
+      return 2
+    fi
     local CMAKE_BUILD_DIR="$CMAKE_BUILD_ROOT"
     local CMAKE_BIN_DIR="$CMAKE_BIN_ROOT"
     local CMAKE_LIB_DIR="$CMAKE_LIB_ROOT"
     local CMAKE_PACK_DIR="$CMAKE_PACK_ROOT"
+  else
+    echo "$0: error: cmake cache is not created as single config nor multi config." >&2
+    return 3
   fi
 
   tkl_get_native_parent_dir "$CMAKE_OUTPUT_ROOT"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_OUTPUT_ROOT does not exist \`$CMAKE_OUTPUT_ROOT\`" >&2
-    return 1
+    return 4
   fi
 
   [[ ! -d "$CMAKE_OUTPUT_ROOT" ]] && { mkdir "$CMAKE_OUTPUT_ROOT" || return $?; }
@@ -533,7 +543,7 @@ function MakeOutputDirectories()
     tkl_get_native_parent_dir "$CMAKE_OUTPUT_GENERATOR_DIR"
     if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
       echo "$0: error: parent directory of the CMAKE_OUTPUT_GENERATOR_DIR does not exist \`$CMAKE_OUTPUT_GENERATOR_DIR\`" >&2
-      return 2
+      return 5
     fi
 
     [[ ! -d "$CMAKE_OUTPUT_GENERATOR_DIR" ]] && { mkdir "$CMAKE_OUTPUT_GENERATOR_DIR" || return $?; }
@@ -542,7 +552,7 @@ function MakeOutputDirectories()
   tkl_get_native_parent_dir "$CMAKE_OUTPUT_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
     echo "$0: error: parent directory of the CMAKE_OUTPUT_DIR does not exist \`$CMAKE_OUTPUT_DIR\`" >&2
-    return 3
+    return 6
   fi
 
   [[ ! -d "$CMAKE_OUTPUT_DIR" ]] && { mkdir "$CMAKE_OUTPUT_DIR" || return $?; }

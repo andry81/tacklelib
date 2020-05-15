@@ -36,6 +36,16 @@ exit /b
 :IMPL
 set /A NEST_LVL+=1
 
+call :MAIN %%*
+set LASTERROR=%ERRORLEVEL%
+
+set /A NEST_LVL-=1
+
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
+
+:MAIN
 set "CONFIG_FILE_IN=%PROJECT_ROOT%\_config\_scripts\01\%~n0.in"
 
 rem load command line from file
@@ -54,7 +64,7 @@ for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CONFIG_FILE_IN%") do (
   call :PROCESS_SCRIPTS
 )
 
-goto EXIT
+exit /b
 
 :PROCESS_FILE_TMPLS
 echo."%PROJECT_ROOT%/%FROM_FILE%" -^> "%PROJECT_ROOT%/%TO_FILE%"
@@ -71,15 +81,6 @@ call "%%PROJECT_ROOT%%/%%SCRIPT_FILE_PATH%%" %SCRIPT_CMD_LINE% || exit /b
 echo.
 
 exit /b 0
-
-:EXIT
-set LASTERROR=%ERRORLEVEL%
-
-set /A NEST_LVL-=1
-
-if %NEST_LVL%0 EQU 0 pause
-
-exit /b %LASTERROR%
 
 :INIT_EXIT
 set LASTERROR=%ERRORLEVEL%

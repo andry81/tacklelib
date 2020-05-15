@@ -36,7 +36,16 @@ call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 
+call :MAIN %%*
+set LASTERROR=%ERRORLEVEL%
 
+set /A NEST_LVL-=1
+
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
+
+:MAIN
 rem CAUTION: an empty value and `*` value has different meanings!
 rem
 set "CMAKE_BUILD_TYPE=%~1"
@@ -45,29 +54,28 @@ set "CMAKE_BUILD_TARGET=BUNDLE"
 
 if not defined CMAKE_BUILD_TYPE (
   echo.%~nx0: error: CMAKE_BUILD_TYPE must be defined.
-  call :EXIT_B 255
-  goto EXIT
+  exit /b 255
 ) >&2
 
 rem preload configuration files only to make some checks
 call :CMD "%%PROJECT_ROOT%%/_scripts/tools/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
   --exclude_vars_filter "PROJECT_ROOT" ^
-  --ignore_late_expansion_statements || goto EXIT
+  --ignore_late_expansion_statements || exit /b 1
 
 rem check if selected generator is a multiconfig generator
-call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || goto EXIT
+call :CMD "%%PROJECT_ROOT%%/_scripts/tools/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 2
 
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
     set "CMAKE_BUILD_TYPE=%%i"
-    call :PACK || goto EXIT
+    call :PACK || exit /b
   )
 ) else (
   call :PACK
 )
 
-goto EXIT
+exit /b
 
 :PACK
 if not defined CMAKE_BUILD_TYPE goto INIT2
@@ -100,8 +108,7 @@ call "%%~dp0__init__/__init2__.bat" || exit /b
 
 if not exist "%NSIS_INSTALL_ROOT%" (
   echo.%~nx0: error: NSIS_INSTALL_ROOT directory does not exist: `%NSIS_INSTALL_ROOT%`.
-  call :EXIT_B 255
-  goto EXIT
+  exit /b 255
 ) >&2
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
@@ -127,7 +134,7 @@ for /F "eol=# tokens=* delims=" %%i in ("!CMAKE_CMD_LINE!") do (
   set "CMAKE_CMD_LINE=%%i"
 )
 
-pushd "%CMAKE_BUILD_DIR%" && (
+call :CMD pushd "%%CMAKE_BUILD_DIR%%" && (
   (
     call :CMD cmake %CMAKE_CMD_LINE%
   ) || ( popd & goto PACK_END )
@@ -144,18 +151,6 @@ echo.
   %*
 )
 exit /b
-
-:EXIT_B
-exit /b %~1
-
-:EXIT
-set LASTERROR=%ERRORLEVEL%
-
-set /A NEST_LVL-=1
-
-if %NEST_LVL%0 EQU 0 pause
-
-exit /b %LASTERROR%
 
 :INIT_EXIT
 set LASTERROR=%ERRORLEVEL%

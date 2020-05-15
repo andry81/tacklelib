@@ -40,12 +40,22 @@ call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
 
 set /A NEST_LVL+=1
 
+call :MAIN %%*
+set LASTERROR=%ERRORLEVEL%
+
+set /A NEST_LVL-=1
+
+if %NEST_LVL%0 EQU 0 pause
+
+exit /b %LASTERROR%
+
+:MAIN
 set "CMDLINE_SYSTEM_FILE_IN=%PROJECT_ROOT%\_config\_scripts\02\%~n0.system%~x0.in"
 set "CMDLINE_USER_FILE_IN=%PROJECT_ROOT%\_config\_scripts\02\%~n0.user%~x0.in"
 
 for %%i in ("%CMDLINE_SYSTEM_FILE_IN%" "%CMDLINE_USER_FILE_IN%") do (
   set "CMDLINE_FILE_IN=%%i"
-  call :GENERATE || goto EXIT
+  call :GENERATE || exit /b
 )
 
 set "CONFIG_FILE_IN=%PROJECT_ROOT%\_config\_scripts\02\%~n0.deps%~x0.in"
@@ -57,7 +67,7 @@ for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CONFIG_FILE_IN%") do (
   call :PROCESS_SCRIPTS
 )
 
-goto EXIT
+exit /b
 
 :GENERATE
 rem for safe parse
@@ -104,15 +114,6 @@ echo.
   %*
 )
 exit /b
-
-:EXIT
-set LASTERROR=%ERRORLEVEL%
-
-set /A NEST_LVL-=1
-
-if %NEST_LVL%0 EQU 0 pause
-
-exit /b %LASTERROR%
 
 :INIT_EXIT
 set LASTERROR=%ERRORLEVEL%

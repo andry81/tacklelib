@@ -90,6 +90,29 @@ else
   CMAKE_IS_SINGLE_CONFIG=1
 fi
 
+# check if multiconfig.tag is already created
+if [[ -e "$CMAKE_BUILD_ROOT/singleconfig.tag" ]]; then
+  if [[ CMAKE_IS_SINGLE_CONFIG -eq 0 ]]; then
+    echo "$0: error: single config cmake cache already has been created, can not continue with multi config: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
+    tkl_exit 129
+  fi
+fi
+
+if [[ -e "$CMAKE_BUILD_ROOT/multiconfig.tag" ]]; then
+  if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
+    echo "$0: error: multi config cmake cache already has been created, can not continue with single config: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
+    tkl_exit 130
+  fi
+fi
+
+[[ ! -e "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+
+if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
+  echo '' > "$CMAKE_BUILD_ROOT/singleconfig.tag"
+else
+  echo '' > "$CMAKE_BUILD_ROOT/multiconfig.tag"
+fi
+
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
   IFS=$'; \t\r\n'; for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
     Configure "${@:2}" || tkl_exit $?

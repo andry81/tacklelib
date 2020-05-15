@@ -1,4 +1,8 @@
 2020.05.15:
+* fixed: _scripts: single/multi config proper detection from scripts
+* fixed: _scripts: minor fixup
+
+2020.05.15:
 * fixed: _scripts, _config: missed multiconfig/singleconfig cmake command line
 
 2020.05.15:
