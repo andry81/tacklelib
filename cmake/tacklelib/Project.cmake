@@ -299,12 +299,12 @@ macro(tkl_declare_ternary_builtin_vars)
     tkl_discover_builtin_env_vars(CMAKE_SHARED_LINKER_FLAGS   STRING .)
 
     # all other variables
-    if (CMAKE_CONFIGURATION_TYPES)
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
       tkl_discover_builtin_env_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
-          STRING . ${CMAKE_CONFIGURATION_TYPES})
+          STRING . "${CMAKE_BUILD_TYPE}")
     else()
       tkl_discover_builtin_env_vars("CMAKE_CXX_FLAGS;CMAKE_EXE_LINKER_FLAGS;CMAKE_MODULE_LINKER_FLAGS;CMAKE_STATIC_LINKER_FLAGS;CMAKE_SHARED_LINKER_FLAGS"
-          STRING . ${CMAKE_BUILD_TYPE})
+          STRING . "${CMAKE_CONFIGURATION_TYPES}")
     endif()
   endif()
 endmacro()
@@ -446,7 +446,7 @@ macro(tkl_preload_variables) # WITH OUT ARGUMENTS!
   unset(_DDDE2B35_print_vars_flag)
 endmacro()
 
-macro(tkl_configure_environment env_var_files_root global_linkage_type supported_compilers)
+macro(tkl_configure_environment env_var_files_root runtime_linkage_type_var supported_compilers)
   if (NOT DEFINED PROJECT_NAME)
     message(FATAL_ERROR "The PROJECT_NAME variable is not defined. The `tkl_configure_environment` function must be called after the `project(...)` cmake function.")
   endif()
@@ -539,7 +539,7 @@ To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMA
     --save_state_into_cmake_global_properties "_4BA54FD8_"
     "${env_var_file_path_load_list}")
 
-  tkl_update_CMAKE_CONFIGURATION_TYPES_from("${CMAKE_CONFIG_TYPES}")
+  tkl_update_CMAKE_CONFIGURATION_TYPES_from("${CMAKE_CONFIG_TYPES}" 0)
 
   tkl_declare_ternary_builtin_vars()
 
@@ -547,8 +547,8 @@ To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMA
 
   ### global flag variables reconfiguration
 
-  # set global linkage type (dynamic/static)
-  tkl_set_global_link_type("${global_linkage_type}")
+  # set runtime linkage type (dynamic/static)
+  tkl_set_runtime_link_type_var("${runtime_linkage_type_var}" 0)
 
   # remove optimization parameters from global flags, do control it explicitly per source file or target basis
   tkl_remove_global_optimization_flags(*)
@@ -1262,14 +1262,13 @@ function(tkl_parse_config_names_list_var config_names out_config_types_var out_h
 
   tkl_check_global_vars_consistency()
 
-  if (CMAKE_CONFIGURATION_TYPES)
-    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
-  else()
-    # just in case
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-      message(FATAL_ERROR "CMAKE_BUILD_TYPE variable is not set")
-    endif()
+  if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(cmake_config_types "${CMAKE_BUILD_TYPE}")
+  else()
+    if (NOT GENERATOR_IS_MULTI_CONFIG)
+      message(FATAL_ERROR "CMAKE_BUILD_TYPE must be set for not multiconfig generator")
+    endif()
+    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
   endif()
 
   if(config_names)
@@ -1394,33 +1393,114 @@ function(tkl_fix_global_flags)
   endforeach()
 endfunction()
 
-function(tkl_set_global_link_type type)
+function(tkl_set_runtime_link_type_var link_type_var do_advance_out_vars)
+  if (NOT DEFINED "${link_type_var}")
+    message(FATAL_ERROR "runtime link type variable is not defined: `${link_type_var}`")
+  endif()
+
+  set(link_type "${${link_type_var}}")
+
   tkl_check_global_vars_consistency()
 
-  if (CMAKE_CONFIGURATION_TYPES)
-    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
-  else()
-    # just in case
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-      message(FATAL_ERROR "CMAKE_BUILD_TYPE variable is not set")
-    endif()
+  if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
+    set(is_single_config_type 1)
     set(cmake_config_types "${CMAKE_BUILD_TYPE}")
+  else()
+    if (NOT GENERATOR_IS_MULTI_CONFIG)
+      message(FATAL_ERROR "CMAKE_BUILD_TYPE must be set for not multiconfig generator")
+    endif()
+    set(is_single_config_type 0)
+    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
   endif()
 
   tkl_parse_config_names_list_var(".;${cmake_config_types}" config_types has_all_config_types has_default_config_type)
 
   # all flags variables here must be list representable (index queriable)
   if(MSVC)
-    if("${type}" STREQUAL "dynamic")
-      set(cmake_compiler_flags_to_replace /MT /MTd)
-      set(cmake_compiler_flags_to_replace_by /MD /MDd)
-      set(cmake_linker_flags_to_replace "")
-      set(cmake_linker_flags_to_replace_by "")
-    elseif("${type}" STREQUAL "static")
-      set(cmake_compiler_flags_to_replace /MD /MDd)
-      set(cmake_compiler_flags_to_replace_by /MT /MTd)
-      set(cmake_linker_flags_to_replace "")
-      set(cmake_linker_flags_to_replace_by "")
+    # https://cmake.org/cmake/help/v3.15/release/3.15.html#variables :
+    # The CMAKE_MSVC_RUNTIME_LIBRARY variable and MSVC_RUNTIME_LIBRARY target property
+    # (https://cmake.org/cmake/help/v3.15/variable/CMAKE_MSVC_RUNTIME_LIBRARY.html )
+    # were introduced to select the runtime library used by compilers targeting the MSVC ABI.
+    # See policy CMP0091:
+    #   https://cmake.org/cmake/help/v3.15/policy/CMP0091.html#policy:CMP0091
+    # Note:
+    #   This policy was introduced in CMake version 3.15. Use the cmake_policy() command to set it to OLD or NEW explicitly.
+    #   Unlike many policies, CMake version 3.15.7 does not warn when this policy is not set and simply uses OLD behavior.
+    #
+
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0")
+      if("${link_type}" STREQUAL "dynamic")
+        set(msvc_runtime_link_var_suffix "DLL")
+      elseif("${link_type}" STREQUAL "static")
+        set(msvc_runtime_link_var_suffix "")
+      else()
+        message(FATAL_ERROR "unknown runtime link type variable value: link_type=`${link_type}`")
+      endif()
+
+      set(is_debug_config_type 0)
+      if (NOT is_single_config_type)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "")
+      endif()
+
+      foreach(config_type IN LISTS config_types)
+        if (config_type IN_LIST CMAKE_CONFIG_DEBUG_TYPES)
+          set(is_debug_config_type 1)
+        endif()
+
+        if (NOT is_debug_config_type)
+          string(FIND "${config_type}" "Debug" config_type_debug_str_pos)
+          if (NOT config_type_debug_str_pos EQUAL -1)
+            set(is_debug_config_type 1)
+          endif()
+        endif()
+
+        if (NOT is_debug_config_type)
+          string(FIND "${config_type}" "DebInfo" config_type_debug_str_pos)
+          if (NOT config_type_debug_str_pos EQUAL -1)
+            set(is_debug_config_type 1)
+          endif()
+        endif()
+
+        if (is_single_config_type)
+          if (is_debug_config_type)
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug${msvc_runtime_link_var_suffix}" PARENT_SCOPE)
+          else()
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded${msvc_runtime_link_var_suffix}" PARENT_SCOPE)
+          endif()
+
+          break()
+        else()
+          if (is_debug_config_type)
+            list(APPEND CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:${config_type}>:MultiThreadedDebug${msvc_runtime_link_var_suffix}>")
+          else()
+            list(APPEND CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:${config_type}>:MultiThreaded${msvc_runtime_link_var_suffix}>")
+          endif()
+        endif()
+      endforeach()
+
+      if (NOT is_single_config_type)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "${CMAKE_MSVC_RUNTIME_LIBRARY}" PARENT_SCOPE)
+      endif()
+
+      if (do_advance_out_vars)
+        mark_as_advanced(CMAKE_MSVC_RUNTIME_LIBRARY)
+      endif()
+
+      return()
+    else()
+      if("${link_type}" STREQUAL "dynamic")
+        set(cmake_compiler_flags_to_replace /MT /MTd)
+        set(cmake_compiler_flags_to_replace_by /MD /MDd)
+        set(cmake_linker_flags_to_replace "")
+        set(cmake_linker_flags_to_replace_by "")
+      elseif("${link_type}" STREQUAL "static")
+        set(cmake_compiler_flags_to_replace /MD /MDd)
+        set(cmake_compiler_flags_to_replace_by /MT /MTd)
+        set(cmake_linker_flags_to_replace "")
+        set(cmake_linker_flags_to_replace_by "")
+      else()
+        message(FATAL_ERROR "unknown runtime link type variable value: link_type=`${link_type}`")
+      endif()
     endif()
   elseif(GCC)
     set(cmake_compiler_flags_to_replace "")
@@ -1429,9 +1509,23 @@ function(tkl_set_global_link_type type)
     set(cmake_linker_flags_to_replace_by "")
 
     if("${type}" STREQUAL "dynamic")
-      set(CMAKE_SHARED_LIBS ON)
+      set(CMAKE_SHARED_LIBS ON PARENT_SCOPE)
+
+      if (do_advance_out_vars)
+        mark_as_advanced(CMAKE_SHARED_LIBS)
+      endif()
+
+      return()
     elseif("${type}" STREQUAL "static")
-      set(CMAKE_SHARED_LIBS OFF)
+      set(CMAKE_SHARED_LIBS OFF PARENT_SCOPE)
+
+      if (do_advance_out_vars)
+        mark_as_advanced(CMAKE_SHARED_LIBS)
+      endif()
+
+      return()
+    else()
+      message(FATAL_ERROR "unknown runtime link type variable value: link_type=`${link_type}`")
     endif()
   else()
     message(FATAL_ERROR "platform is not implemented")
@@ -1454,6 +1548,10 @@ function(tkl_set_global_link_type type)
             tkl_generate_regex_replace_expression(flag_match_expr flag_replace_expr flag "${flag_to_replace_by}")
             string(REGEX REPLACE "${flag_match_expr}" "${flag_replace_expr}" ${flag_var}${config_type_suffix} ${${flag_var}${config_type_suffix}})
             set(${flag_var}${config_type_suffix} ${${flag_var}${config_type_suffix}} PARENT_SCOPE)
+
+            if (do_advance_out_vars)
+              mark_as_advanced(${flag_var}${config_type_suffix})
+            endif()
           endif()
 
           MATH(EXPR flag_index "${flag_index}+1")
@@ -1471,6 +1569,10 @@ function(tkl_set_global_link_type type)
             tkl_generate_regex_replace_expression(flag_match_expr flag_replace_expr flag "${flag_to_replace_by}")
             string(REGEX REPLACE "${flag_match_expr}" "${flag_replace_expr}" ${flag_var}${config_type_suffix} ${${flag_var}${config_type_suffix}})
             set(${flag_var}${config_type_suffix} ${${flag_var}${config_type_suffix}} PARENT_SCOPE)
+
+            if (do_advance_out_vars)
+              mark_as_advanced(${flag_var}${config_type_suffix})
+            endif()
           endif()
 
           MATH(EXPR flag_index "${flag_index}+1")
@@ -1501,14 +1603,13 @@ function(tkl_initialize_target_defaults_impl target flags_list)
 
   tkl_check_global_vars_consistency()
 
-  if (CMAKE_CONFIGURATION_TYPES)
-    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
-  else()
-    # just in case
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-      message(FATAL_ERROR "CMAKE_BUILD_TYPE variable is not set")
-    endif()
+  if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(cmake_config_types "${CMAKE_BUILD_TYPE}")
+  else()
+    if (NOT GENERATOR_IS_MULTI_CONFIG)
+      message(FATAL_ERROR "CMAKE_BUILD_TYPE must be set for not multiconfig generator")
+    endif()
+    set(cmake_config_types "${CMAKE_CONFIGURATION_TYPES}")
   endif()
 
   if(TARGET ${target})
@@ -1607,6 +1708,9 @@ function(tkl_initialize_target_defaults_impl target flags_list)
             -m32        # link 32 bit target
           )
         endif()
+
+      elseif("${flag}" STREQUAL "32bit")
+        message(FATAL_ERROR "unknown flag: `${flag}`")
       endif()
     endforeach()
   endif()
@@ -2076,15 +2180,14 @@ endfunction()
 
 function(tkl_make_build_output_dir_vars build_type is_multi_config)
   if (NOT "${build_type}" STREQUAL "")
-    if (is_multi_config)
-      set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}" PARENT_SCOPE)
-    else()
-      set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}/${build_type}" PARENT_SCOPE)
-    endif()
+    set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}/${build_type}" PARENT_SCOPE)
     set(CMAKE_BIN_DIR "${CMAKE_BIN_ROOT}/${build_type}" PARENT_SCOPE)
     set(CMAKE_LIB_DIR "${CMAKE_LIB_ROOT}/${build_type}" PARENT_SCOPE)
     set(CMAKE_PACK_DIR "${CMAKE_PACK_ROOT}/${build_type}" PARENT_SCOPE)
   else()
+    if (NOT is_multi_config)
+      message(FATAL_ERROR "CMAKE_BUILD_TYPE must be set for not multiconfig generator")
+    endif()
     set(CMAKE_BUILD_DIR "${CMAKE_BUILD_ROOT}" PARENT_SCOPE)
     set(CMAKE_BIN_DIR "${CMAKE_BIN_ROOT}" PARENT_SCOPE)
     set(CMAKE_LIB_DIR "${CMAKE_LIB_ROOT}" PARENT_SCOPE)
@@ -2153,7 +2256,11 @@ function(tkl_make_build_output_dirs)
   file(MAKE_DIRECTORY "${CMAKE_PACK_DIR}")
 endfunction()
 
-function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
+function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types do_advance_out_vars)
+  if ("${config_types}" STREQUAL "")
+    message(FATAL_ERROR "config_types must not be empty")
+  endif()
+
   if (NOT DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     message(FATAL_ERROR "TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL is not defined")
   endif()
@@ -2164,11 +2271,11 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
     message(FATAL_ERROR "CMAKE_CONFIG_TYPES is not set")
   endif()
 
-  # reuse default description
-  get_property(desc CACHE "CMAKE_CONFIGURATION_TYPES" PROPERTY HELPSTRING)
+  if (GENERATOR_IS_MULTI_CONFIG)
+    # reuse default description
+    get_property(desc CACHE "CMAKE_CONFIGURATION_TYPES" PROPERTY HELPSTRING)
 
-  if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
-    if (GENERATOR_IS_MULTI_CONFIG)
+    if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
       if (NOT "${CMAKE_CONFIG_TYPES}" STREQUAL "${CMAKE_CONFIGURATION_TYPES}")
         # override CMAKE_CONFIGURATION_TYPES
         set(CMAKE_CONFIGURATION_TYPES_OLD "${CMAKE_CONFIGURATION_TYPES}")
@@ -2182,7 +2289,7 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
         set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIG_TYPES}")
 
         # advance ONLY is has non standard configurations
-        if (CMAKE_CONFIGURATION_TYPES_TO_ADVANCE)
+        if (do_advance_out_vars OR CMAKE_CONFIGURATION_TYPES_TO_ADVANCE)
           mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
         endif()
 
@@ -2192,9 +2299,7 @@ function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types)
           message(STATUS "(*) variable update: CMAKE_CONFIGURATION_TYPES: `${CMAKE_CONFIGURATION_TYPES_OLD}` -> `${CMAKE_CONFIGURATION_TYPES}` (overriden)")
         endif()
       endif()
-    endif()
-  else()
-    if (GENERATOR_IS_MULTI_CONFIG)
+    else()
       if (NOT "${CMAKE_CONFIG_TYPES}" STREQUAL "${CMAKE_CONFIGURATION_TYPES}")
         message(FATAL_ERROR "Only a top level project can change project configuration list: CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}` CMAKE_CONFIG_TYPES=`${CMAKE_CONFIG_TYPES}`")
       endif()

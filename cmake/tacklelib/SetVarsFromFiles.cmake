@@ -131,7 +131,9 @@ include(tacklelib/Utility)
 #
 # `global`:
 #   Special variable class which value must stay the same between all packages, otherwise an error will be thrown.
-#   Basically used for global 3dparty variables referenced from different packages.
+#   If a variable has been assigned at least in one package with the `global` attribute, then the same variable
+#   must be assigned with the `global` attribute in all packages referenced from or to that package, otherwise an error will be thrown.
+#   Basically used for global 3dparty variables referenced from different packages with the same value.
 #   Can be declared only once per a package, can be specialized by a new assignment, but can not be reassigned by the same specialization,
 #   otherwise an error (instead of a warning) will be thrown.
 #
@@ -143,6 +145,14 @@ include(tacklelib/Utility)
 #   all not top level packages would silently ignore the assignment of the same variable.
 #   All assignments after the first assignment with the `top` attribute must use additionally the `override` attribute to declare intention to
 #   override an assignment of a top level package variable in any package, otherwise an error will be thrown.
+#
+# `local`:
+#   Defines a local context variable, which can override a global variable.
+#   If a variable has been assigned at least in one package with the `local` attribute, then the same variable
+#   must be assigned with the `local` attribute in all packages referenced from or to that package, otherwise an error will be thrown.
+#   A global variable with the same name may not exist before the assignment.
+#
+# All 3 classes excludes each other and must not be mixed.
 #
 
 # VARIABLE TYPE ATTRIBUTES:
@@ -184,7 +194,7 @@ include(tacklelib/Utility)
 #   Must be used with an assignment.
 #
 # `force`:
-#   Forces a variable assignment irrespective to the rules (described above).
+#   Forces a variable assignment where it can be assigned w/o an error (described above).
 #   Must be used with an assignment.
 #
 # `override`:
@@ -203,14 +213,14 @@ include(tacklelib/Utility)
 #   Can be used with other required attributes.
 #   Can be set later with a value, but a value is not visible until unhided back if was not finalized for the same context in the previous instruction with the variable.
 #   Must be used without an assignment.
-#   Can be applied respectively per variable storage.
+#   Can be applied respectively per variable storage (first class/cache/environment).
 #
 # `unhide`:
 #   Unhides a variable.
 #   Can be used with other required attributes.
 #   Can be hided later under the same attributes if was not finalized for the same context in the previous instruction with the variable.
 #   Must be used without an assignment.
-#   Can be applied respectively per variable storage.
+#   Can be applied respectively per variable storage (first class/cache/environment).
 #
 # `package`:
 #   Applicable only to variables with the `final` or the `hide` attribute. Declares a finalized or a hided variable in a package scope.
@@ -219,7 +229,7 @@ include(tacklelib/Utility)
 #   A variable with sealed or finalized assignment or instruction.
 #   Must be always final, otherwise an error will be thrown.
 #   Without the `package` attribute applies to a last assignment or instruction irrespective to the package.
-#   With the `package` attribute applies only to the current package, in a next level package can be reassigned, issued or finilized again.
+#   With the `package` attribute applies only to the current package, in a next level package can be reassigned, issued with unset/hided/unhided or finilized again.
 #
 # `exist`:
 #   An existed path value.
@@ -237,93 +247,140 @@ include(tacklelib/Utility)
 # Incompatible attribute compositions:
 #   * global + override
 #   * global + top
+#   * global + local
 #   * global + package
 #   * force + override
+#   * force + top
 #   * force + package (if have no `final` attribute)
 #   * unset/hide/unhide + <other modificator except `top`, `final`, `package`>
 #   * unset/hide/unhide + <any type attribute>
 #   * unset/hide/unhide + <specialization>
 #   * unset/hide/unhide + global
+#   * top + local
 #
 # Available attribute compositions:
 #   * top + override
 #   * top + unset/hide/unhide
-#   * final + <any>
+#   * global + unset/hide/unhide
+#   * local + unset/hide/unhide
+#   * final + <any except top/global>
 
 # Package entity description:
 #   Package is a virtual entity created by these set of cmake functions
 #   maintained by hooks:
 #   * `find_package`
 #   * `add_subdirectory` followed by call to the `project` function.
-#      Set of calls to the nested `add_subdirectory` function under the same
+#      Set of calls to the nested `add_subdirectory` functions under the same
 #      `project` does not create a new package!
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE IN THE SAME PACKAGE
 #
 # Legend:
-#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match, error in other cases
-#   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
+#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to rules
-#   n/a         - not applicable, may throw an error
+#   warning     - ignores with warning
+#   <empty>     - not applicable or not defined, must throw an error
 #
-# '. ASSIGN N+1|             |             |             |             |             |             |             |
-#   '-------,  |             |             |             |             |             |  top        |             |  final
-# ASSIGN N   '.|  <not set>  |  global     |  force      |  override   |  top        |  override   |  final      |  package
-# -------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>    |  OK         |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# global       |  OK,mod     |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  n/a
-# top          |  OK,mod     |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
-# final        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
-# final package|  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
-# unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# top unset    |  n/a        |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
+# '. ASSIGN N+1        |             |             |             |             |             |             |             |             
+#   '--------------,   |             |             |             |             |             |  force      |  force      |  force      
+# ASSIGN N          '. |  <not set>  |  top        |  global     |  local      |  force      |  top        |  global     |  local      
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |  warning    |             |             |             |  OK,uncond  |             |             |             
+# global               |             |             |  warning    |  OK         |             |             |  OK,uncond  |  OK,uncond  
+# top                  |             |  warning    |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |  OK,uncond  
 #
-# '. ASSIGN N+1|             |             |                           |             |             |             |  force
-#   '-------,  |             |             |                           |             |  top        |  force      |  final
-# ASSIGN N   '.|  unset      |  (un)hide   |                           |  top unset  |  (un)hide   |  final      |  package
-# -------------+-------------+-------------+                           +-------------+-------------+-------------+-------------
-# <not set>    |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
-# global       |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  n/a
-# top          |  OK         |  OK         |                           |  n/a        |  n/a        |  n/a        |  n/a
-# final        |  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
-# final package|  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
-# unset        |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
-# top unset    |  OK         |  OK         |                           |  n/a        |  n/a        |  n/a        |  n/a
+# '. ASSIGN N+1        |             |             |             |             |             |             |             |             
+#   '--------------,   |             |  override   |  override   |  override   |             |  final      |  final      |  final      
+# ASSIGN N          '. |  override   |  top        |  global     |  local      |  final      |  top        |  global     |  local      
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |  OK         |             |             |             
+# global               |             |             |             |             |             |             |             |             
+# top                  |             |             |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |  OK         
+#
+# '. ASSIGN N+1        |             |             |             |             |             |             |             |             
+#   '--------------,   |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+# ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |  warning    |  OK         
+# global               |             |             |             |             |             |             |             |             
+# top                  |             |             |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |             
+#
+# '. ASSIGN N+1        |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+#   '--------------,   |  global     |  global     |  global     |  global     |  global     |  global     |  global     |  global     
+# ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |             |             |             |             
+# global               |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |             |             
+# top                  |             |             |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |             
+#
+# '. ASSIGN N+1        |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+#   '--------------,   |  top        |  top        |  top        |  top        |  top        |  top        |  top        |  top        
+# ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |             |             |             |             
+# global               |             |             |             |             |             |             |             |             
+# top                  |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |  warning    |  OK         
+# local                |             |             |             |             |             |             |             |             
 #
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE AT DIFFERENT PACKAGE LEVELS
 #
 # Legend:
-#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match, error in other cases
-#   OK,mod      - conditionally applicable with modification to the rules: error on specialization less or equal match
-#   OK,uncond   - unconditionally applicable irrespective to the rules
-#   OK,equal    - value must stay the same (if was unset, then equal to last not empty value)
-#   n/a         - not applicable, may throw an error
-#   ignore      - silent ignore
+#   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
+#   OK,uncond   - unconditionally applicable irrespective to rules
+#   OK,equal    - value must stay the same
+#   warning     - ignores with warning
+#   ignore      - ignores w/o warning (silent ignore)
+#   <empty>     - not applicable or not defined, must throw an error
 #
-# '.  LEVEL N+K|             |             |             |             |             |             |             |
-#   '-------,  |             |             |             |             |             |  top        |             |  final
-#  LEVEL N   '.|  <not set>  |  global     |  force      |  override   |  top        |  override   |  final      |  package
-# -------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>    |  OK         |  error      |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# global       |  n/a        |  OK,equal   |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  n/a
-# top          |  n/a        |  n/a        |  n/a        |  n/a        |  ignore     |  OK,uncond  |  n/a        |  n/a
-# final        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a        |  n/a
-# final package|  OK,uncond  |  n/a        |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# unset        |  OK         |  OK         |  OK,uncond  |  n/a        |  n/a        |  n/a        |  OK,mod     |  OK,mod
-# top unset    |  OK         |  n/a        |  OK,uncond  |  n/a        |  ignore     |  OK,uncond  |  n/a        |  n/a
+# '. LEVEL N+K         |             |             |             |             |             |             |             |             
+#   '--------------,   |             |             |             |             |             |  force      |  force      |  force      
+# LEVEL N           '. |  <not set>  |  top        |  global     |  local      |  force      |  top        |  global     |  local      
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |  OK         |             |             |             |  OK,uncond  |             |             |             
+# global               |             |             |  OK,equal   |             |             |             |  OK,uncond  |             
+# top                  |             |  ignore     |             |             |             |             |             |             
+# local                |             |             |             |  OK         |             |             |             |  OK,uncond  
 #
-# '.  LEVEL N+K|             |             |                           |             |             |             |  force
-#   '-------,  |             |             |                           |             |  top        |  force      |  final
-#  LEVEL N   '.|  unset      |  (un)hide   |                           |  top unset  |  (un)hide   |  final      |  package
-# -------------+-------------+-------------+                           +-------------+-------------+-------------+-------------
-# <not set>    |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
-# global       |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  n/a
-# top          |  n/a        |  n/a        |                           |  OK         |  OK         |  n/a        |  n/a
-# final        |  n/a        |  n/a        |                           |  n/a        |  n/a        |  n/a        |  n/a
-# final package|  OK,uncond  |  OK,uncond  |                           |  n/a        |  n/a        |  n/a        |  n/a
-# unset        |  OK         |  OK         |                           |  n/a        |  n/a        |  OK,uncond  |  OK,uncond
-# top unset    |  n/a        |  n/a        |                           |  OK         |  OK         |  n/a        |  n/a
+# '. LEVEL N+K         |             |             |             |             |             |             |             |             
+#   '--------------,   |             |  override   |  override   |  override   |             |  final      |  final      |  final      
+# LEVEL N           '. |  override   |  top        |  global     |  local      |  final      |  top        |  global     |  local      
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |  OK         |             |             |             
+# global               |             |             |             |             |             |             |             |             
+# top                  |             |  OK,uncond  |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |  OK         
+#
+# '. LEVEL N+K         |             |             |             |             |             |             |             |             
+#   '--------------,   |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+# LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |  OK         |  OK         |  OK,uncond  |  OK,uncond  |             |             |  OK         |  OK         
+# global               |             |             |             |             |             |             |             |             
+# top                  |             |             |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |             
+#
+# '. LEVEL N+K         |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+#   '--------------,   |  global     |  global     |  global     |  global     |  global     |  global     |  global     |  global     
+# LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |             |             |             |             
+# global               |  OK,equal   |  OK         |  OK,uncond  |  OK,uncond  |             |             |  OK         |  OK         
+# top                  |             |             |             |             |             |             |             |             
+# local                |             |             |             |             |             |             |             |             
+#
+# '. LEVEL N+K         |             |             |  force      |  force      |  override   |  override   |  final      |  final      
+#   '--------------,   |  top        |  top        |  top        |  top        |  top        |  top        |  top        |  top        
+# LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
+# ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
+# <not set>            |             |             |             |             |             |             |             |             
+# global               |             |             |             |             |             |             |             |             
+# top                  |  OK         |  OK         |  OK,uncond  |  OK,uncond  |  OK         |  OK         |  OK         |  OK         
+# local                |             |             |             |             |             |             |             |             
 #
 
 # CAUTION:
@@ -491,7 +548,7 @@ endfunction()
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
 #
-# <attributes>:           Variable space separated attributes: global | top | bool | path | exist | canonical | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
+# <attributes>:           Variable space separated attributes: global | top | local | bool | path | exist | canonical | uncache | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
@@ -894,9 +951,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       get_property(config_${config_var_name}_arch_name
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_arch_name)
 
-      get_property(config_${config_var_name}_unset_var
-        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_unset_var)
-
       get_property(config_${config_var_name}_hidden_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_hidden_var)
       get_property(config_${config_var_name}_hidden_var_value
@@ -922,6 +976,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_global_var)
       get_property(config_${config_var_name}_top_package_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_top_package_var)
+      get_property(config_${config_var_name}_local_var
+        GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_local_var)
       get_property(config_${config_var_name}_final_var
         GLOBAL PROPERTY ${load_state_from_cmake_global_properties_prefix}config_${config_var_name}_final_var)
       get_property(config_${config_var_name}_package_scope_var
@@ -971,8 +1027,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${injected_var_name}_config_name "")
     set(config_${injected_var_name}_arch_name "")
 
-    set(config_${injected_var_name}_unset_var 0)        # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
-
     set(config_${injected_var_name}_hidden_var 0)
     unset(config_${injected_var_name}_hidden_var_value)
 
@@ -987,6 +1041,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     set(config_${injected_var_name}_global_var 1)   # always global
     set(config_${injected_var_name}_top_package_var 0)
+    set(config_${injected_var_name}_local_var 0)
     set(config_${injected_var_name}_final_var 0)
     set(config_${injected_var_name}_package_scope_var 0)
 
@@ -1037,8 +1092,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     set(config_${make_var_name}_config_name "")
     set(config_${make_var_name}_arch_name "")
 
-    set(config_${make_var_name}_unset_var 0)        # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
-
     set(config_${make_var_name}_hidden_var 0)
     unset(config_${make_var_name}_hidden_var_value)
 
@@ -1053,6 +1106,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
     set(config_${make_var_name}_global_var 0)
     set(config_${make_var_name}_top_package_var 0)
+    set(config_${make_var_name}_local_var 0)
     set(config_${make_var_name}_final_var 0)
     set(config_${make_var_name}_package_scope_var 0)
 
@@ -1239,11 +1293,17 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use top level variable
         set(use_top_package_var 0)
 
+        # use local variable
+        set(use_local_var 0)
+
         # use variable overriding
         set(use_override_var 0)
 
         # use variable unset
         set(use_unset_var 0)
+
+        # unset cache value on set not cache value
+        set(use_uncache_var 0)
 
         # non exclusive cmake cache set, not cache value does set too
         set(use_cache_var 0)
@@ -1301,6 +1361,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(use_top_package_var 1)
           endif()
 
+          if (NOT use_local_var AND "LOCAL" IN_LIST var_name_attr_list_upper)
+            set(use_local_var 1)
+          endif()
+
           if (NOT use_override_var AND "OVERRIDE" IN_LIST var_name_attr_list_upper)
             set(use_override_var 1)
           endif()
@@ -1325,6 +1389,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               message(FATAL_ERROR "A variable should have maximum one type attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
             set(var_type "path")
+          endif()
+
+          if ("UNCACHE" IN_LIST var_name_attr_list_upper)
+            set(use_uncache_var 1)
           endif()
 
           if ("CACHE_ONLY" IN_LIST var_name_attr_list_upper)
@@ -1462,9 +1530,16 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             message(FATAL_ERROR "The variable GLOBAL and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           elseif (use_top_package_var)
             message(FATAL_ERROR "The variable GLOBAL and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_local_var)
+            message(FATAL_ERROR "The variable GLOBAL and LOCAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           elseif (use_package_var)
             message(FATAL_ERROR "The variable GLOBAL and PACKAGE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           endif()
+        endif()
+
+        # uncache + cache/cache_only
+        if (use_uncache_var AND (use_cache_var OR use_only_cache_var))
+          message(FATAL_ERROR "The variable UNCACHE and CACHE* attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         # cache_only + env_only
@@ -1477,9 +1552,22 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        # force + override
-        if (use_force_var AND use_override_var)
-          message(FATAL_ERROR "The variable FORCE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        # force + override/top
+        if (use_force_var)
+          if (use_override_var)
+            message(FATAL_ERROR "The variable FORCE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_top_package_var)
+            message(FATAL_ERROR "The variable FORCE and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
+        endif()
+
+        # final + top/global
+        if (use_final_var)
+          if (use_top_var)
+            message(FATAL_ERROR "The variable FINAL and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elsif (use_global_var)
+            message(FATAL_ERROR "The variable FINAL and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
         endif()
 
         # override w/o top
@@ -1487,14 +1575,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        # package w/o final
+        # package w/o final or hide
         if (use_package_scope_var AND NOT use_final_var AND NOT use_hide_var)
           message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL or w/o the HIDE attributes: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
-        # package with unhide
+        # package + unhide
         if (use_package_scope_var AND use_unhide_var)
-          message(FATAL_ERROR "The variable PACKAGE attribute is not supported with the UNHIDE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable PACKAGE and UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
         if (NOT "${var_type}" STREQUAL "path" AND use_existed_value)
@@ -1578,12 +1666,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           if (use_unset_var)
             if (NOT use_only_cache_var AND use_only_env_var)
-              # unset hidden variable storage too
               if (config_${var_name}_hidden_var)
                 unset(config_${var_name}_hidden_var_value)
+              else()
+                unset(config_${var_name})
               endif()
-
-              unset(config_${var_name})
             endif()
 
             if (use_only_cache_var OR use_cache_var)
@@ -1599,7 +1686,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             if (use_only_env_var OR use_env_var)
-              # unset hidden variable storage too
               if (config_${var_name}_hidden_var_env)
                 unset(config_${var_name}_hidden_var_env_value)
               endif()
@@ -1616,10 +1702,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               if (config_${var_name}_hidden_var)
                 if (DEFINED config_${var_name}_hidden_var_value)
                   set(config_${var_name} "${config_${var_name}_hidden_var_value}")
+                  unset(config_${var_name}_hidden_var_value)
                 else()
                   unset(config_${var_name})
                 endif()
-                unset(config_${var_name}_hidden_var_value)
                 set(config_${var_name}_hidden_var 0)
               endif()
             endif()
@@ -1650,62 +1736,54 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             # environment variable
             if (use_only_env_var OR use_env_var)
               if (config_${var_name}_hidden_var_env)
-                if (DEFINED config_${var_name}_hidden_var_env_value AND NOT DEFINED config_${var_name})
+                if (DEFINED config_${var_name}_hidden_var_env_value)
                   set(config_${var_name} "${config_${var_name}_hidden_var_env_value}")
+                  unset(config_${var_name}_hidden_var_env_value)
+                else()
+                  # protect variable change if not only environment variable unset
+                  if (use_only_env_var)
+                    unset(config_${var_name})
+                  endif()
                 endif()
-                unset(config_${var_name}_hidden_var_env_value)
                 set(config_${var_name}_hidden_env_var 0)
               endif()
             endif()
           endif()
 
           if (config_${var_name}_defined)
-            # is a variable from the same level package?
-            if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-              # global
-              if (config_${var_name}_global_var)
-                if (use_global_var)
-                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                endif()
-              elseif (use_global_var)
-                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            # global
+            if (config_${var_name}_global_var)
+              if (use_top_package_var)
+                message(FATAL_ERROR "The GLOBAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
               endif()
-              # top
-              if (config_${var_name}_top_package_var)
-                if (use_top_package_var)
-                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                endif()
-              elseif (use_top_package_var)
-                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              if (NOT use_global_var AND NOT use_local_var)
+                message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
               endif()
-            else()
-              # global
-              if (config_${var_name}_global_var)
-                if (config_${var_name}_package_defined)
-                  if (use_global_var)
-                    message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                  endif()
-                else()
-                  if (NOT use_global_var)
-                    message(FATAL_ERROR "The GLOBAL variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                  endif()
-                endif()
-              elseif (use_global_var)
-                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            endif()
+
+            # top
+            if (config_${var_name}_top_package_var)
+              if (use_global_var)
+                message(FATAL_ERROR "The TOP variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
               endif()
-              # top
-              if (config_${var_name}_top_package_var)
-                if (config_${var_name}_package_defined)
-                  if (use_top_package_var)
-                    message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                  endif()
-                else()
-                  if (NOT use_top_package_var)
-                    message(FATAL_ERROR "The TOP variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-                  endif()
-                endif()
-              elseif (use_top_package_var)
-                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              if (use_local_var)
+                message(FATAL_ERROR "The TOP variable reassignment as LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+              if (NOT use_top_package_var)
+                message(FATAL_ERROR "The TOP variable reassignment as not TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+            endif()
+
+            # local
+            if (config_${var_name}_local_var)
+              if (use_global_var)
+                message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+              if (use_top_package_var)
+                message(FATAL_ERROR "The LOCAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              endif()
+              if (NOT use_local_var)
+                message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
               endif()
             endif()
           else()
@@ -1724,6 +1802,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
             set(config_${var_name}_global_var ${use_global_var})
             set(config_${var_name}_top_package_var ${use_top_package_var})
+            set(config_${var_name}_local_var ${use_local_var})
             set(config_${var_name}_final_var ${use_final_var})
             set(config_${var_name}_package_scope_var ${use_package_scope_var})
 
@@ -1733,7 +1812,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_has_values_onchange_list 1)
 
               foreach (onchange_var_name IN LISTS grant_assign_on_vars_change_list)
-                if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
+                if (DEFINED config_${onchange_var_name})
                   list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
                 else()
                   # use special unexisted directory value to differentiate it from the defined empty value
@@ -1758,10 +1837,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
           endif()
 
-          if (use_unset_var)
-            set(config_${var_name}_unset_var 1)   # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
-          endif()
-
           # increment global definition counter
           math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
 
@@ -1770,10 +1845,28 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           # first class storage as is
           if (NOT use_only_cache_var AND NOT use_only_env_var)
             if (set_vars)
-              if (DEFINED config_${var_name})
-                set(${var_name} "${config_${var_name}}" PARENT_SCOPE)
+              if (NOT config_${var_name}_hidden_var)
+                if (DEFINED config_${var_name})
+                  set(${var_name} "${config_${var_name}}" PARENT_SCOPE)
+                else()
+                  unset(${var_name} PARENT_SCOPE)
+                endif()
+
+                if (use_uncache_var)
+                  unset(${var_name} CACHE PARENT_SCOPE)
+                endif()
               else()
-                unset(${var_name} PARENT_SCOPE)
+                if (DEFINED config_${var_name})
+                  # set instead the hidden variable storage
+                  set(config_${var_name}_hidden_var_value "${config_${var_name}}")
+                else()
+                  unset(config_${var_name}_hidden_var_value PARENT_SCOPE)
+                endif()
+
+                if (use_uncache_var)
+                  set(config_${var_name}_hidden_var_cache 0)
+                  unset(config_${var_name}_hidden_var_cache_value)
+                endif()
               endif()
             endif()
           endif()
@@ -1973,7 +2066,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(onchange_var_prev_value "")
             endif()
 
-            if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
+            if (DEFINED config_${onchange_var_name})
               set(onchange_var_value "${config_${onchange_var_name}}")
             else()
               # CAUTION:
@@ -2016,18 +2109,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                      (NOT "${var_arch_name}" STREQUAL "" AND NOT "${config_${var_name}_arch_name}" STREQUAL "${var_arch_name}")))
                   # is specialization, allow to change
                 else()
-                  # is not specialization, deny change
-                  if (use_global_var OR use_top_package_var)
-                    # is a variable from the same level package?
-                    if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-                      message(FATAL_ERROR "The GLOBAL/TOP variable reassignment attempt w/o FORCE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                  # is not specialization, deny change in case...
+                  # is a variable from the same level package?
+                  if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
+                    if (use_global_var)
+                      message(FATAL_ERROR "The GLOBAL variable reassignment w/o FORCE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
                     endif()
-                  else()
-                    if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR
-                        (NOT config_${var_name}_global_var AND
-                         NOT config_${var_name}_top_package_var AND
-                         NOT config_${var_name}_package_scope_var))
-                      message(WARNING "The variable is already assigned and can be subsequently changed only through the specialization: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                    if (NOT config_${var_name}_global_var AND use_local_var)
+                      message(WARNING "The variable is already assigned in the same package and can be subsequently changed only through the specialization or by force: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
                       set(var_assign_ignore 1)
                     endif()
                   endif()
@@ -2051,54 +2140,39 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         if (config_${var_name}_defined)
-          # is a variable from the same level package?
-          if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
-            if (config_${var_name}_package_defined)
-              # global
-              if (config_${var_name}_global_var)
-                if (use_global_var)
-                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              elseif (use_global_var)
-                message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-              endif()
-              # top
-              if (config_${var_name}_top_package_var)
-                if (use_top_package_var)
-                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              elseif (use_top_package_var)
-                message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-              endif()
+          # global
+          if (config_${var_name}_global_var)
+            if (use_top_package_var)
+              message(FATAL_ERROR "The GLOBAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
-          else()
-            # global
-            if (config_${var_name}_global_var)
-              if (config_${var_name}_package_defined)
-                if (use_global_var)
-                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              else()
-                if (NOT use_global_var)
-                  message(FATAL_ERROR "The GLOBAL variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              endif()
-            elseif (use_global_var)
-              message(FATAL_ERROR "The variable initially has been declared as not GLOBAL is reassigned with the GLOBAL attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            if (NOT use_global_var AND NOT use_local_var)
+              message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
-            # top
-            if (config_${var_name}_top_package_var)
-              if (config_${var_name}_package_defined)
-                if (use_top_package_var)
-                  message(FATAL_ERROR "The TOP variable in a package must be issued without the attribute at second time and after in the same package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              else()
-                if (NOT use_top_package_var)
-                  message(FATAL_ERROR "The TOP variable in a package must be issued with the attribute at first time in the next package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
-                endif()
-              endif()
-            elseif (use_top_package_var)
-              message(FATAL_ERROR "The variable initially has been declared as not TOP is reassigned with the TOP attribute in a package: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+          endif()
+
+          # top
+          if (config_${var_name}_top_package_var)
+            if (use_global_var)
+              message(FATAL_ERROR "The TOP variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+            if (use_local_var)
+              message(FATAL_ERROR "The TOP variable reassignment as LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+            if (NOT use_top_package_var)
+              message(FATAL_ERROR "The TOP variable reassignment as not TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+          endif()
+
+          # local
+          if (config_${var_name}_local_var)
+            if (use_global_var)
+              message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+            if (use_top_package_var)
+              message(FATAL_ERROR "The LOCAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+            endif()
+            if (NOT use_local_var)
+              message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           endif()
         endif()
@@ -2112,19 +2186,19 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (NOT var_assign_ignore)
           # all fatal checks has passed, continue with the non fatal
-          set(is_ignored_top_package_var 0)
+          set(ignore_top_package_var 0)
           if (config_${var_name}_defined)
             # is a variable from a different level package?
             if (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
               if (config_${var_name}_top_package_var AND use_top_package_var AND config_package_nest_lvl)
                 # a top level package variable in a not top level package, ignore it
-                set(is_ignored_top_package_var 1)
+                set(ignore_top_package_var 1)
               endif()
             endif()
           endif()
 
           # ignore only after all checks
-          if (is_ignored_top_package_var)
+          if (ignore_top_package_var)
             # increment package definition counter
             if (config_${var_name}_package_nest_lvl EQUAL config_package_nest_lvl)
               math(EXPR config_${var_name}_package_defined ${config_${var_name}_package_defined}+1)
@@ -2144,8 +2218,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_compiler_name "${var_compiler_name_upper}")
             set(config_${var_name}_config_name "${var_config_name_upper}")
             set(config_${var_name}_arch_name "${var_arch_name_upper}")
-
-            set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
 
             # increment global definition counter
             math(EXPR config_${var_name}_defined ${config_${var_name}_defined}+1)
@@ -2304,7 +2376,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 # make a substitution
                 math(EXPR value_len ${index}-${value_from_index})
                 string(SUBSTRING "${var_value}" ${value_from_index} ${value_len} value)
-                if (DEFINED "config_${value}" AND NOT config_${value}_unset_var)
+                if (DEFINED "config_${value}")
                   # WORKAROUND: we have to replace because `list(APPEND` will join lists together
                   tkl_escape_string_before_list_append(value "${config_${value}}")
 
@@ -2768,9 +2840,18 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   if (NOT config_${var_name}_hidden_var)
                     # in quotes to enable a save variable's type as a list
                     set(${var_name} "${var_parsed_value}" PARENT_SCOPE)
+
+                    if (use_uncache_var)
+                      unset(${var_name} CACHE)
+                    endif()
                   else()
                     # set instead the hidden variable storage
                     set(config_${var_name}_hidden_var_value "${var_parsed_value}")
+
+                    if (use_uncache_var)
+                      set(config_${var_name}_hidden_var_cache 0)
+                      unset(config_${var_name}_hidden_var_cache_value)
+                    endif()
                   endif()
                 endif()
 
@@ -2856,12 +2937,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_config_name "${var_config_name_upper}")
             set(config_${var_name}_arch_name "${var_arch_name_upper}")
 
-            set(config_${var_name}_unset_var 0) # basically has meaning for variables with the `top` attribute to validate and ignore a variable's value in another package
-
             if ((NOT config_${var_name}_defined) OR
                 (NOT config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl))
               set(config_${var_name}_global_var ${use_global_var})
               set(config_${var_name}_top_package_var ${use_top_package_var})
+              set(config_${var_name}_local_var ${use_local_var})
               set(config_${var_name}_final_var ${use_final_var})
               set(config_${var_name}_package_scope_var ${use_package_scope_var})
             endif()
@@ -2872,7 +2952,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               set(config_${var_name}_has_values_onchange_list 1)
 
               foreach (onchange_var_name IN LISTS grant_assign_on_vars_change_list)
-                if (DEFINED config_${onchange_var_name} AND NOT config_${onchange_var_name}_unset_var)
+                if (DEFINED config_${onchange_var_name})
                   list(APPEND config_${var_name}_var_values_onchange_list "${config_${onchange_var_name}}")
                 else()
                   # use special unexisted directory value to differentiate it from the defined empty value
@@ -3023,9 +3103,6 @@ make_vars\;.\;make_vars_names\;make_vars_values"
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_arch_name
         "${config_${config_var_name}_arch_name}")
 
-      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_unset_var
-        "${config_${config_var_name}_unset_var}")
-
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var
         "${config_${config_var_name}_hidden_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_hidden_var_value
@@ -3051,6 +3128,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         "${config_${config_var_name}_global_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_top_package_var
         "${config_${config_var_name}_top_package_var}")
+      set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_local_var
+        "${config_${config_var_name}_local_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_final_var
         "${config_${config_var_name}_final_var}")
       set_property(GLOBAL PROPERTY ${save_state_into_cmake_global_properties_prefix}config_${config_var_name}_package_scope_var

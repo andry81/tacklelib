@@ -78,10 +78,10 @@ tkl_call get_GENERATOR_IS_MULTI_CONFIG "$CMAKE_GENERATOR" || tkl_exit $?
 
 if [[ "$CMAKE_BUILD_TYPE" == "*" ]]; then
   IFS=$'; \t\r\n'; for CMAKE_BUILD_TYPE in $CMAKE_CONFIG_TYPES; do
-    Build || tkl_exit $?
+    Build "${@:3}" || tkl_exit $?
   done
 else
-  Build || tkl_exit $?
+  Build "${@:3}" || tkl_exit $?
 fi
 
 tkl_exit

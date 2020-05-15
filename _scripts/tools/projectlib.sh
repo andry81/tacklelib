@@ -151,7 +151,7 @@ function Configure()
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
   } || return 255
 
   return 0
@@ -191,7 +191,7 @@ function Build()
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
   } || return 255
 
   return 0
@@ -229,7 +229,7 @@ function Install()
 
   tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE[@]}" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE[@]}" "$@" || return $?
   } || return 255
 
   return 0
