@@ -8,7 +8,7 @@ tkl_include "__init__/__init1__.sh" || exit $?
 
 (( NEST_LVL++ ))
 
-Call cmake \
+tkl_call cmake \
   "-DCMAKE_MODULE_PATH=$TESTS_ROOT;$PROJECT_ROOT/cmake" \
   "-DPROJECT_ROOT=$PROJECT_ROOT" \
   "-DTESTS_ROOT=$TESTS_ROOT" \
@@ -18,6 +18,6 @@ Call cmake \
   "$PROJECT_ROOT/cmake/tacklelib/testlib/tools/RunTestLib.cmake" \
   "$@"
 
-Exit
+tkl_exit
 
 fi

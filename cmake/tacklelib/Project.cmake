@@ -1424,11 +1424,15 @@ function(tkl_set_runtime_link_type_var link_type_var do_advance_out_vars)
     # See policy CMP0091:
     #   https://cmake.org/cmake/help/v3.15/policy/CMP0091.html#policy:CMP0091
     # Note:
+    #   The OLD behavior for this policy is to place MSVC runtime library flags in the default CMAKE_<LANG>_FLAGS_<CONFIG>
+    #   cache entries and ignore the CMAKE_MSVC_RUNTIME_LIBRARY abstraction. The NEW behavior for this policy is to not
+    #   place MSVC runtime library flags in the default cache entries and use the abstraction instead.
+    #
     #   This policy was introduced in CMake version 3.15. Use the cmake_policy() command to set it to OLD or NEW explicitly.
     #   Unlike many policies, CMake version 3.15.7 does not warn when this policy is not set and simply uses OLD behavior.
     #
 
-    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0")
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0" AND "${CMAKE_POLICY_DEFAULT_CMP0091}" STREQUAL "NEW")
       if("${link_type}" STREQUAL "dynamic")
         set(msvc_runtime_link_var_suffix "DLL")
       elseif("${link_type}" STREQUAL "static")
