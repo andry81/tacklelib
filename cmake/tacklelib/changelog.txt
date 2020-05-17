@@ -1,3 +1,6 @@
+2020.05.17:
+* fixed: Project.cmake: `tkl_set_runtime_link_type_var` function still does not switch the runtime linkage because of not enabled of a certain policy, switch to the new behaviour only when it is enabled
+
 2020.05.15:
 * new: Project.cmake: for cmake 3.15+ the `tkl_set_runtime_link_type_var` function use CMAKE_MSVC_RUNTIME_LIBRARY automatically instead of direct `CMAKE_CXX_FLAGS*` flags patching
 * changed: Project.cmake: now `tkl_configure_environment` and other functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)

@@ -1,3 +1,6 @@
+2020.05.17:
+* fixed: tests execution versus new `bash_entry` implementation
+
 2020.04.06:
 * changed: readme update
 

@@ -1,3 +1,7 @@
+2020.05.17:
+* fixed: cmake: Project.cmake: `tkl_set_runtime_link_type_var` function still does not switch the runtime linkage because of not enabled of a certain policy, switch to the new behaviour only when it is enabled
+* fixed: cmake_tests: tests execution versus new `bash_entry` implementation
+
 2020.05.15:
 * fixed: _scripts: single/multi config proper detection from scripts
 * fixed: _scripts: minor fixup
