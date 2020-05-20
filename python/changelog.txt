@@ -1,6 +1,6 @@
 2020.05.20:
-* fixed: python: cmdoplib: missed GIT_SVN_ENABLED usage
-* changed: python: cmdoplib: use global VERBOSITY_LEVEL variable by default if the verbosity per function is not set
+* fixed: cmdoplib: missed GIT_SVN_ENABLED usage
+* changed: cmdoplib: use global VERBOSITY_LEVEL variable by default if the verbosity per function is not set
 
 2020.04.26:
 * changed: tacklelib: typos
