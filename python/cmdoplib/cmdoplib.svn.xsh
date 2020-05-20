@@ -1,5 +1,7 @@
 # python module for commands with extension modules usage: tacklelib, plumbum
 
+tkl_import_module(TACKLELIB_ROOT, 'tacklelib.utils.py', 'tkl')
+
 tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.std.xsh')
 tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.csvsvn.xsh')
 tkl_source_module(CMDOPLIB_ROOT, 'cmdoplib.callsvn.xsh')
@@ -9,7 +11,7 @@ from datetime import datetime # must be the same everythere
 
 discover_executable('SVN_EXEC', 'svn', 'SVN')
 
-call_svn(['--version'], verbosity = -1)
+call_svn(['--version'])
 
 def get_svn_commit_list(svn_path, depth = 1, from_rev = None, to_rev = None):
   rev_list = []
@@ -67,164 +69,174 @@ def get_svn_commit_list(svn_path, depth = 1, from_rev = None, to_rev = None):
 
   return rev_list if len(rev_list) > 0 else None
 
-def makedirs(configure_dir, scm_token, verbosity = 0):
+def makedirs(configure_dir, scm_token, verbosity = None):
   print("makedirs: {0}".format(configure_dir))
 
-  set_verbosity_level(verbosity)
+  prev_verbosity_level = get_verbosity_level()
+  with tkl.OnExit(lambda: set_verbosity_level(prev_verbosity_level)):
+    set_verbosity_level(verbosity)
 
-  if configure_dir == '':
-    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-    return 1
+    if configure_dir == '':
+      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+      return 1
 
-  if configure_dir[-1:] in ['\\', '/']:
-    configure_dir = configure_dir[:-1]
+    if configure_dir[-1:] in ['\\', '/']:
+      configure_dir = configure_dir[:-1]
 
-  if not os.path.isdir(configure_dir):
-    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-    return 2
+    if not os.path.isdir(configure_dir):
+      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+      return 2
 
-  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-  if wcroot_dir == '': return -254
-  if WCROOT_OFFSET == '': return -253
+    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+    if wcroot_dir == '': return -254
+    if WCROOT_OFFSET == '': return -253
 
-  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  if not os.path.exists(wcroot_path):
-    print('  ' + wcroot_path)
-    os.makedirs(wcroot_path)
+    if not os.path.exists(wcroot_path):
+      print('  ' + wcroot_path)
+      os.makedirs(wcroot_path)
 
-def svn_checkout(configure_dir, scm_token, bare_args, verbosity = 0):
+def svn_checkout(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn checkout: {0}".format(configure_dir))
 
-  set_verbosity_level(verbosity)
+  prev_verbosity_level = get_verbosity_level()
+  with tkl.OnExit(lambda: set_verbosity_level(prev_verbosity_level)):
+    set_verbosity_level(verbosity)
 
-  if len(bare_args) > 0:
-    print('- args:', bare_args)
+    if len(bare_args) > 0:
+      print('- args:', bare_args)
 
-  if configure_dir == '':
-    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-    return 1
+    if configure_dir == '':
+      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+      return 1
 
-  if configure_dir[-1:] in ['\\', '/']:
-    configure_dir = configure_dir[:-1]
+    if configure_dir[-1:] in ['\\', '/']:
+      configure_dir = configure_dir[:-1]
 
-  if not os.path.isdir(configure_dir):
-    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-    return 2
+    if not os.path.isdir(configure_dir):
+      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+      return 2
 
-  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-  if wcroot_dir == '': return -254
-  if WCROOT_OFFSET == '': return -253
+    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+    if wcroot_dir == '': return -254
+    if WCROOT_OFFSET == '': return -253
 
-  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  svn_checkout_url = getglobalvar(scm_token + '.CHECKOUT_URL')
+    svn_checkout_url = getglobalvar(scm_token + '.CHECKOUT_URL')
 
-  print(' ->> wcroot: `{0}`'.format(wcroot_path))
+    print(' ->> wcroot: `{0}`'.format(wcroot_path))
 
-  if not os.path.exists(wcroot_path):
-    os.mkdir(wcroot_path)
+    if not os.path.exists(wcroot_path):
+      os.mkdir(wcroot_path)
 
-  if os.path.isdir(wcroot_path + '/.svn'):
-    return 0
+    if os.path.isdir(wcroot_path + '/.svn'):
+      return 0
 
-  call_svn(['co', svn_checkout_url, wcroot_path] + bare_args, max_stdout_lines = -1)
+    call_svn(['co', svn_checkout_url, wcroot_path] + bare_args, max_stdout_lines = -1)
 
-def svn_cleanup(configure_dir, scm_token, bare_args, verbosity = 0):
+def svn_cleanup(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn cleaup: {0}".format(configure_dir))
 
-  set_verbosity_level(verbosity)
+  prev_verbosity_level = get_verbosity_level()
+  with tkl.OnExit(lambda: set_verbosity_level(prev_verbosity_level)):
+    set_verbosity_level(verbosity)
 
-  if len(bare_args) > 0:
-    print('- args:', bare_args)
+    if len(bare_args) > 0:
+      print('- args:', bare_args)
 
-  if configure_dir == '':
-    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-    return 1
+    if configure_dir == '':
+      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+      return 1
 
-  if configure_dir[-1:] in ['\\', '/']:
-    configure_dir = configure_dir[:-1]
+    if configure_dir[-1:] in ['\\', '/']:
+      configure_dir = configure_dir[:-1]
 
-  if not os.path.isdir(configure_dir):
-    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-    return 2
+    if not os.path.isdir(configure_dir):
+      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+      return 2
 
-  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-  if wcroot_dir == '': return -254
-  if WCROOT_OFFSET == '': return -253
+    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+    if wcroot_dir == '': return -254
+    if WCROOT_OFFSET == '': return -253
 
-  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
-    call_svn(['cleanup'] + bare_args, max_stdout_lines = -1)
+    with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
+      call_svn(['cleanup'] + bare_args, max_stdout_lines = -1)
 
-def svn_update(configure_dir, scm_token, bare_args, verbosity = 0):
+def svn_update(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn update: {0}".format(configure_dir))
 
-  set_verbosity_level(verbosity)
+  prev_verbosity_level = get_verbosity_level()
+  with tkl.OnExit(lambda: set_verbosity_level(prev_verbosity_level)):
+    set_verbosity_level(verbosity)
 
-  if len(bare_args) > 0:
-    print('- args:', bare_args)
+    if len(bare_args) > 0:
+      print('- args:', bare_args)
 
-  if configure_dir == '':
-    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-    return 1
+    if configure_dir == '':
+      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+      return 1
 
-  if configure_dir[-1:] in ['\\', '/']:
-    configure_dir = configure_dir[:-1]
+    if configure_dir[-1:] in ['\\', '/']:
+      configure_dir = configure_dir[:-1]
 
-  if not os.path.isdir(configure_dir):
-    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-    return 2
+    if not os.path.isdir(configure_dir):
+      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+      return 2
 
-  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-  if wcroot_dir == '': return -254
-  if WCROOT_OFFSET == '': return -253
+    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+    if wcroot_dir == '': return -254
+    if WCROOT_OFFSET == '': return -253
 
-  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
-    call_svn(['up'] + bare_args, max_stdout_lines = -1)
+    with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
+      call_svn(['up'] + bare_args, max_stdout_lines = -1)
 
-def svn_relocate(configure_dir, scm_token, bare_args, verbosity = 0):
+def svn_relocate(configure_dir, scm_token, bare_args, verbosity = None):
   # dependent on declaration order in case of a direct usage (not through the `globals()['...']`), so must always be to avoid a dependency
   global g_registered_ignored_errors
 
   print("svn relocate: {0}".format(configure_dir))
 
-  set_verbosity_level(verbosity)
+  prev_verbosity_level = get_verbosity_level()
+  with tkl.OnExit(lambda: set_verbosity_level(prev_verbosity_level)):
+    set_verbosity_level(verbosity)
 
-  if len(bare_args) > 0:
-    print('- args:', bare_args)
+    if len(bare_args) > 0:
+      print('- args:', bare_args)
 
-  if configure_dir == '':
-    print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-    return 1
+    if configure_dir == '':
+      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
+      return 1
 
-  if configure_dir[-1:] in ['\\', '/']:
-    configure_dir = configure_dir[:-1]
+    if configure_dir[-1:] in ['\\', '/']:
+      configure_dir = configure_dir[:-1]
 
-  if not os.path.isdir(configure_dir):
-    print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-    return 2
+    if not os.path.isdir(configure_dir):
+      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
+      return 2
 
-  wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-  if wcroot_dir == '': return -254
-  if WCROOT_OFFSET == '': return -253
+    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
+    if wcroot_dir == '': return -254
+    if WCROOT_OFFSET == '': return -253
 
-  wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
 
-  with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
-    try:
-      call_svn(['relocate'] + bare_args, max_stdout_lines = -1)
-    except plumbum.ProcessExecutionError as proc_err:
-      proc_stdout = proc_err.stdout.rstrip()
-      proc_stderr = proc_err.stderr.rstrip()
+    with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
+      try:
+        call_svn(['relocate'] + bare_args, max_stdout_lines = -1)
+      except plumbum.ProcessExecutionError as proc_err:
+        proc_stdout = proc_err.stdout.rstrip()
+        proc_stderr = proc_err.stderr.rstrip()
 
-      # ignore non critical errors
+        # ignore non critical errors
 
-      # `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')
-      if proc_stderr.find('E155024: ') < 0:
-        raise
+        # `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')
+        if proc_stderr.find('E155024: ') < 0:
+          raise
 
-      g_registered_ignored_errors.append((' -> `' + configure_dir + '`', proc_stderr))
+        g_registered_ignored_errors.append((' -> `' + configure_dir + '`', proc_stderr))

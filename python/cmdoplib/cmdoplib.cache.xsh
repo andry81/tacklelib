@@ -169,7 +169,7 @@ def cache_init_service_proc(service_proc_cache):
 
   executed_procs = {}
 
-  if SVN_SSH_ENABLED or GIT_SSH_ENABLED:
+  if SVN_SSH_ENABLED and GIT_SVN_ENABLED or GIT_SSH_ENABLED:
     current_proc_id = os.getpid()
 
     print('- Starting service processes:')

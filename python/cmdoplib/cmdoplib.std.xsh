@@ -116,10 +116,19 @@ def get_default_call_cmd_expr_expander():
 def set_verbosity_level(verbosity):
   global VERBOSITY_LEVEL
 
-  if verbosity < 0:
-    verbosity = 1 # max level
+  if not verbosity is None:
+    if verbosity < 0:
+      verbosity = 1 # max level
 
-  VERBOSITY_LEVEL = verbosity
+    VERBOSITY_LEVEL = verbosity
+
+def get_verbosity_level():
+  global VERBOSITY_LEVEL
+
+  if not VERBOSITY_LEVEL is None:
+    return VERBOSITY_LEVEL
+
+  return -1 # not initialized
 
 def call(cmd_expr, args_list,
          stdin = sys.stdin, stdout = sys.stdout, stderr = sys.stderr,
