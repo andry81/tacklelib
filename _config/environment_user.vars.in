@@ -64,14 +64,14 @@ top CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
 
 # tacklelib
 
-top final package TACKLELIB_RUNTIME_LINK_TYPE="dynamic"
-top final package TACKLELIB_ADDRESS_MODEL="32"
+top final TACKLELIB_RUNTIME_LINK_TYPE="dynamic"
+top final TACKLELIB_ADDRESS_MODEL="32"
 
-#top final package TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
-top final package TACKLELIB_DEP_LIBS=(fmt pystring)
+#top final TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
+top final TACKLELIB_DEP_LIBS=(fmt pystring)
 
-top final package TACKLELIB_SKIP_TESTLIB=0
-top final package TACKLELIB_SKIP_TESTS=0
+top final TACKLELIB_SKIP_TESTLIB=0
+top final TACKLELIB_SKIP_TESTS=0
 
 # arc
 
