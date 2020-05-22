@@ -5,13 +5,16 @@ _config/*.vars
 _scripts/tools/__pycache*__
 bash_tests/01_bash_entry/01_normalize_path/.log
 bash_tests/02_traplib/01_push_trap/.log
+cmake_tests/.log
 cmake_tests/_config/*.vars
+cmake_tests/_scripts/.log
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
 include/tacklelib/setup.hpp
 python/__pycache__
 python/cmdoplib/__pycache__
 python/tacklelib/__pycache__
+python_tests/.log
 python_tests/.pytest_cache
 python_tests/02_interactive/01_fcache_workarounds/cache
 python_tests/_config/*.vars

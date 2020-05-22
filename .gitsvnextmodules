@@ -134,6 +134,14 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
+[submodule "python_tests/_scripts/tools/check_config_version.bat"]
+	path = python_tests/_scripts/tools/check_config_version.bat
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/check_config_version.bat
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
 [submodule "python_tests/_scripts/tools/funclib.sh"]
 	path = python_tests/_scripts/tools/funclib.sh
 	owner = python_tests/_scripts/tools
@@ -142,6 +150,14 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
+[submodule "python_tests/_scripts/tools/get_datetime.bat"]
+	path = python_tests/_scripts/tools/get_datetime.bat
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/get_datetime.bat
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
 [submodule "python_tests/_scripts/tools/hashlib.sh"]
 	path = python_tests/_scripts/tools/hashlib.sh
 	owner = python_tests/_scripts/tools
@@ -166,3 +182,11 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
+[submodule "python_tests/_scripts/tools/wtee.exe"]
+	path = python_tests/_scripts/tools/wtee.exe
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/wtee.exe
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir

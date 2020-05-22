@@ -450,7 +450,6 @@ python_tests/_scripts/test_all.bat -text
 python_tests/_scripts/test_all.sh -text
 python_tests/_scripts/tests_01_unit.bat -text
 python_tests/_scripts/tests_01_unit.sh -text
-python_tests/_scripts/tools/check_config_version.bat -text
 python_tests/_scripts/tools/projectlib.sh -text
 python_tests/changelog.txt -text
 python_tests/conftest.py -text
