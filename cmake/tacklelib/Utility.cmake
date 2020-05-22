@@ -127,7 +127,7 @@ endfunction()
 
 # INFO:
 #   This function is required for all other cases of a call except of a nested macro call for
-#   which the `tkl_make_macro_cmdline_from_macro_vars_list` function is designed.
+#   which the `tkl_make_vars_escaped_expansion_cmdline_from_vars_list` function is designed.
 #
 function(tkl_make_vars_unescaped_expansion_cmdline_from_vars_list out_var)
   set(eval_cmdline "")
@@ -202,6 +202,51 @@ function(tkl_escape_list_expansion out_var in_list)
   tkl_list_remove_sublist(escaped_list 0 2 escaped_list)
 
   set(${out_var} "${escaped_list}" PARENT_SCOPE)
+endfunction()
+
+# To escape characters from cmake builtin escape discarder which will discard escaping
+# from `;` and `\` characters on passing list items into macro arguments.
+function(tkl_escape_list_expansion_as_cmdline out_var in_list)
+  if (ARGC GREATER 5)
+    message(FATAL_ERROR "function must be called maximum with 3 optional arguments: `${ARGC}`")
+  endif()
+
+  if (ARGC GREATER 2)
+    set(escape_backslash ${ARGV2})
+  else()
+    set(escape_backslash 0)
+  endif()
+
+  if (ARGC GREATER 3)
+    set(escape_list_separator ${ARGV3})
+  else()
+    set(escape_list_separator 0)
+  endif()
+
+  set(eval_cmdline "")
+
+  foreach(arg IN LISTS in_list)
+    # 1. WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+    tkl_escape_string_after_list_get(escaped_arg "${arg}")
+
+    # 2. another escape sequence to retain exact values in the list after pass into a function without quotes: `foo(${mylist})`
+    if (escape_backslash)
+      string(REPLACE "\\" "\\\\" escaped_arg "${escaped_arg}")
+    endif()
+    if (escape_list_separator)
+      string(REPLACE ";" "\;" escaped_arg "${escaped_arg}")
+    endif()
+    string(REPLACE "\"" "\\\"" escaped_arg "${escaped_arg}")
+
+    #message("arg: `${arg}` -> `${escaped_arg}`")
+    if (NOT "${eval_cmdline}" STREQUAL "")
+      set(eval_cmdline "${eval_cmdline} \"${escaped_arg}\"")
+    else()
+      set(eval_cmdline "\"${escaped_arg}\"")
+    endif()
+  endforeach()
+
+  set(${out_var} "${eval_cmdline}" PARENT_SCOPE)
 endfunction()
 
 function(tkl_is_path_var_by_name out_is_var var_name)

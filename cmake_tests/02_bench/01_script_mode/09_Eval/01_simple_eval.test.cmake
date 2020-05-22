@@ -85,7 +85,23 @@ function(TestCase_tkl_macro_eval_message)
   endforeach()
 
   tkl_testmodule_time_check_point_sec(time_spent_int_sec)
-  tkl_uint_div(time_spent_per_call_int_sec time_spent_per_call_frac_sec 3 ${time_spent_int_sec} ${TestCase_tkl_eval_message_run_count})
+  tkl_uint_div(time_spent_per_call_int_sec time_spent_per_call_frac_sec 3 ${time_spent_int_sec} ${TestCase_tkl_macro_eval_message_run_count})
+
+  tkl_test_info_msg("Time spent per call: ${time_spent_per_call_int_sec}.${time_spent_per_call_frac_sec} sec")
+
+  tkl_test_assert_true(1)
+endfunction()
+
+function(TestCase_tkl_macro_fast_eval_message)
+  tkl_test_info_msg("TestCase_tkl_macro_fast_eval_message_run_count=${TestCase_tkl_macro_fast_eval_message_run_count}")
+
+  math(EXPR TestCase_tkl_macro_fast_eval_message_run_upper_count ${TestCase_tkl_macro_fast_eval_message_run_count}-1)
+  foreach(i RANGE ${TestCase_tkl_macro_fast_eval_message_run_upper_count})
+    tkl_macro_fast_eval("message(1)")
+  endforeach()
+
+  tkl_testmodule_time_check_point_sec(time_spent_int_sec)
+  tkl_uint_div(time_spent_per_call_int_sec time_spent_per_call_frac_sec 3 ${time_spent_int_sec} ${TestCase_tkl_macro_fast_eval_message_run_count})
 
   tkl_test_info_msg("Time spent per call: ${time_spent_per_call_int_sec}.${time_spent_per_call_frac_sec} sec")
 
@@ -128,6 +144,7 @@ tkl_testmodule_run_test_cases(
   TestCase_direct_message
   TestCase_tkl_eval_message
   TestCase_tkl_macro_eval_message
+  TestCase_tkl_macro_fast_eval_message
   TestCase_cmakepp_eval_01_message
   TestCase_cmakepp_eval_02_message
 )

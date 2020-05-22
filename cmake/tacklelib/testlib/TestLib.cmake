@@ -75,6 +75,7 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "0")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_succeeded_tests" "0")
+  set_property(GLOBAL PROPERTY "tkl::testlib::num_skipped_tests" "0")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_failed_tests" "0")
 
   set_property(GLOBAL PROPERTY "tkl::testlib::test_args" "")
@@ -133,9 +134,10 @@ function(tkl_testlib_exit)
 
     tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
     tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
+    tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS "tkl::testlib::num_skipped_tests" 1)
     tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
-    tkl_testlib_msg("RESULTS: succeeded/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
+    tkl_testlib_msg("RESULTS: succeeded/skipped/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}/${TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)\n===\n")
   endif()
 endfunction()
 
@@ -295,6 +297,7 @@ function(tkl_testlib_enter_dir test_dir)
 
   tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests" "tkl::testlib" 0)
   tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests" "tkl::testlib" 0)
+  tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS GLOBAL "tkl::testlib::num_skipped_tests" "tkl::testlib" 0)
   tkl_pushset_prop_to_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests" "tkl::testlib" 0)
 
   tkl_testlib_print_enter_dir_msg("---\nEntering directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`...")
@@ -418,10 +421,12 @@ function(tkl_testlib_enter_dir test_dir)
   # reread testlib states
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN "tkl::testlib::num_overall_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN "tkl::testlib::num_succeeded_tests" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS_CHILDREN "tkl::testlib::num_skipped_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN "tkl::testlib::num_failed_tests" 1)
 
   tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS GLOBAL "tkl::testlib::num_overall_tests" "tkl::testlib")
   tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS GLOBAL "tkl::testlib::num_succeeded_tests" "tkl::testlib")
+  tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS GLOBAL "tkl::testlib::num_skipped_tests" "tkl::testlib")
   tkl_pop_prop_from_stack(TACKLELIB_TESTLIB_NUM_FAILED_TESTS GLOBAL "tkl::testlib::num_failed_tests" "tkl::testlib")
 
   # increment states
@@ -432,10 +437,11 @@ function(tkl_testlib_enter_dir test_dir)
   # write testlib states
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_succeeded_tests" "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}")
+  set_property(GLOBAL PROPERTY "tkl::testlib::num_skipped_tests" "${TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS}")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_failed_tests" "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}")
 
   if (TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN)
-    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: succeeded/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}`\n---\n")
+    tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`: succeeded/skipped/failed of overall: `${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS_CHILDREN}/${TACKLELIB_TESTLIB_NUM_FAILED_TESTS_CHILDREN} of ${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS_CHILDREN}`\n---\n")
   else()
     # tests are not found or filtered out
     tkl_testlib_print_leave_dir_msg("Leaving directory: `${TACKLELIB_TESTLIB_LAST_ENTER_DIR}`\n---\n")
@@ -557,6 +563,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_OVERALL_TESTS "tkl::testlib::num_overall_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "tkl::testlib::num_succeeded_tests" 1)
+  tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS "tkl::testlib::num_skipped_tests" 1)
   tkl_get_global_prop(TACKLELIB_TESTLIB_NUM_FAILED_TESTS "tkl::testlib::num_failed_tests" 1)
 
   tkl_testlib_get_test_args(TACKLELIB_TESTLIB_TEST_ARGS)
@@ -621,6 +628,9 @@ function(tkl_testlib_test test_dir test_file_name)
   if (TACKLELIB_TESTLIB_LAST_ERROR EQUAL 0)
     math(EXPR TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}+1")
     tkl_testlib_msg("[   OK   ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)")
+  elseif (TACKLELIB_TESTLIB_LAST_ERROR EQUAL -2) # skip
+    math(EXPR TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS "${TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS}+1")
+    tkl_testlib_msg("[ SKIPPED] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)")
   else()
     math(EXPR TACKLELIB_TESTLIB_NUM_FAILED_TESTS "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}+1")
     tkl_testlib_msg("[ FAILED ] `${TACKLELIB_TESTLIB_FILE_REL_PATH_SHORTCUT}` (${TACKLELIB_TESTLIB_RUN_TIME_SEC} sec)")
@@ -628,6 +638,7 @@ function(tkl_testlib_test test_dir test_file_name)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::num_overall_tests" "${TACKLELIB_TESTLIB_NUM_OVERALL_TESTS}")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_succeeded_tests" "${TACKLELIB_TESTLIB_NUM_SUCCEEDED_TESTS}")
+  set_property(GLOBAL PROPERTY "tkl::testlib::num_skipped_tests" "${TACKLELIB_TESTLIB_NUM_SKIPPED_TESTS}")
   set_property(GLOBAL PROPERTY "tkl::testlib::num_failed_tests" "${TACKLELIB_TESTLIB_NUM_FAILED_TESTS}")
 
   math(EXPR TACKLELIB_TESTLIB_TESTPROC_INDEX "${TACKLELIB_TESTLIB_TESTPROC_INDEX}+1")

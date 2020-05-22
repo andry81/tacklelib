@@ -157,6 +157,7 @@ cmake_tests/01_unit/01_script_mode/01_builtins/05_command_nesting/01_args_collis
 cmake_tests/01_unit/01_script_mode/01_builtins/05_command_nesting/11_expansion_inner_macro.test.cmake -text
 cmake_tests/01_unit/01_script_mode/01_builtins/05_command_nesting/12_expansion_inner_function.test.cmake -text
 cmake_tests/01_unit/01_script_mode/02_Utility/01_escape_list_expansion.test.cmake -text
+cmake_tests/01_unit/01_script_mode/02_Utility/10_escape_list_expansion_as_cmdline_with_fast_eval.test.cmake -text
 cmake_tests/01_unit/01_script_mode/03_ForwardArgs/01_after_pushset_pop_macro_ARGV0_31_no_nested_push_pop.test.cmake -text
 cmake_tests/01_unit/01_script_mode/03_ForwardArgs/02_after_pushset_pop_macro_ARGV0_31_with_nested_push_pop.test.cmake -text
 cmake_tests/01_unit/01_script_mode/03_ForwardArgs/03_pushset_macro_ARGVn.test.cmake -text
@@ -200,6 +201,8 @@ cmake_tests/01_unit/01_script_mode/09_Std/02_make_vars_from_ARGV_ARGN/12_functio
 cmake_tests/01_unit/01_script_mode/09_Std/02_make_vars_from_ARGV_ARGN/21_special_chars.test.cmake -text
 cmake_tests/01_unit/01_script_mode/09_Std/03_make_vars_from_CMAKE_ARGV_ARGC/01_common.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/01_simple_single_return.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/02_simple_single_return.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/03_simple_single_return.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/11_variable_set.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/12_variable_set.track_vars.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/13_variable_unset.test.cmake -text
@@ -207,10 +210,14 @@ cmake_tests/01_unit/01_script_mode/10_Eval/14_variable_unset.track_vars.test.cma
 cmake_tests/01_unit/01_script_mode/10_Eval/21_escaping.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/31_test_assert_eval.test.cmake -text
 cmake_tests/01_unit/01_script_mode/10_Eval/32_test_assert_eval.track_vars.test.cmake -text
-cmake_tests/01_unit/01_script_mode/10_Eval/33_test_assert_macro_eval.test.cmake -text
-cmake_tests/01_unit/01_script_mode/10_Eval/34_test_assert_macro_eval.track_vars.test.cmake -text
-cmake_tests/01_unit/01_script_mode/10_Eval/41_pushset_pop_macro_ARGVn_eval_if.test.cmake -text
-cmake_tests/01_unit/01_script_mode/10_Eval/42_pushset_pop_macro_ARGVn_eval_test_assert.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/41_test_assert_macro_eval.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/42_test_assert_macro_eval.track_vars.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/51_test_assert_macro_fast_eval.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/52_test_assert_macro_fast_eval.track_vars.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/61_pushset_pop_macro_ARGVn_eval_if.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/62_pushset_pop_macro_ARGVn_eval_test_assert.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/71_pushset_pop_macro_ARGVn_macro_eval_if.test.cmake -text
+cmake_tests/01_unit/01_script_mode/10_Eval/81_pushset_pop_macro_ARGVn_macro_fast_eval_if.test.cmake -text
 cmake_tests/01_unit/01_script_mode/11_Handlers/01_return_macro_with_1_macro_pre_handler.test.cmake -text
 cmake_tests/01_unit/01_script_mode/11_Handlers/02_return_macro_with_2_macro_pre_handlers.test.cmake -text
 cmake_tests/01_unit/01_script_mode/11_Handlers/03_return_macro_with_1_function_pre_handler.test.cmake -text
@@ -271,7 +278,6 @@ cmake_tests/_scripts/tests_01_unit.bat -text
 cmake_tests/_scripts/tests_01_unit.sh -text
 cmake_tests/_scripts/tests_02_bench.bat -text
 cmake_tests/_scripts/tests_02_bench.sh -text
-cmake_tests/_scripts/tools/check_config_version.bat -text
 cmake_tests/_scripts/tools/projectlib.sh -text
 cmake_tests/changelog.txt -text
 cmake_tests/test_all.cmake -text

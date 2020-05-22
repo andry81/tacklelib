@@ -1,3 +1,16 @@
+2020.05.22:
+* fixed: cmake_tests: bench: bench tests count fix
+* changed: _scripts: tools: made user script optional in the `check_config_version.bat` script
+* new: cmake: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness
+* new: cmake: Utility.cmake: `tkl_escape_list_expansion_as_cmdline` function to convert a list into a command line with escape support
+* new: cmake: testlib: implemented test case skip support
+* new: cmake_tests: bench: `tkl_macro_fast_eval` test
+* new: cmake_tests: unit: tests over `tkl_escape_list_expansion_as_cmdline` function with `tkl_macro_fast_eval` macro usage
+* new: cmake_tests: unit: tests over `tkl_macro_fast_eval`
+* new: cmake_tests: unit: more tests over `tkl_macro_eval`
+* new: cmake_tests: tests auto logging
+* changed: cmake: TODO file update
+
 2020.05.21:
 * changed: _config: minor config change
 

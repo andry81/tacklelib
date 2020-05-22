@@ -2,3 +2,16 @@ SetVarsFromFiles.cmake:
 
 * tests!
 * support a list variable expansion including expansion in a list value.
+
+testlib:
+
+* implement search for a test case function/macro directly in an inclusion file
+  before include it to filter out test cases by a test case filter before
+  run a cmake process with inclusion file.
+  Leave the `tkl_testmodule_run_test_cases` function as an optional to
+  explicitly declare test case list to enable/disable tests.
+
+File.cmake
+
+* remove `file` function override present as a workaround (may be not required
+  anymore) to remove x16 slowdown.

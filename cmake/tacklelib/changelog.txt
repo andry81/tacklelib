@@ -1,3 +1,9 @@
+2020.05.22:
+* new: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness
+* new: Utility.cmake: `tkl_escape_list_expansion_as_cmdline` function to convert a list into a command line with escape support
+* new: testlib: implemented test case skip support
+* changed: TODO file update
+
 2020.05.17:
 * fixed: Project.cmake: `tkl_set_runtime_link_type_var` function still does not switch the runtime linkage because of not enabled of a certain policy, switch to the new behaviour only when it is enabled
 

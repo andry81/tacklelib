@@ -1,3 +1,11 @@
+2020.05.22:
+* fixed: bench: bench tests count fix
+* new: bench: `tkl_macro_fast_eval` test
+* new: unit: tests over `tkl_escape_list_expansion_as_cmdline` function with `tkl_macro_fast_eval` macro usage
+* new: unit: tests over `tkl_macro_fast_eval`
+* new: unit: more tests over `tkl_macro_eval`
+* new: tests auto logging
+
 2020.05.17:
 * fixed: tests execution versus new `bash_entry` implementation
 

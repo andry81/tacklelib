@@ -37,6 +37,7 @@ include(tacklelib/Std)
 include(tacklelib/Checks)
 include(tacklelib/ForwardVariables)
 include(tacklelib/ForwardArgs)
+include(tacklelib/Eval)
 include(tacklelib/Version)
 include(tacklelib/String)
 include(tacklelib/Utility)
@@ -250,7 +251,7 @@ include(tacklelib/Utility)
 #   * global + local
 #   * global + package
 #   * force + override
-#   * force + top
+#   * force + top (limitly applicable)
 #   * force + package (if have no `final` attribute)
 #   * unset/hide/unhide + <other modificator except `top`, `final`, `package`>
 #   * unset/hide/unhide + <any type attribute>
@@ -278,6 +279,7 @@ include(tacklelib/Utility)
 # Legend:
 #   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to rules
+#   OK,cond1    - conditionally applicable in case if a variable was not defined before (useful to bypass ODR violation)
 #   warning     - ignores with warning
 #   <empty>     - not applicable or not defined, must throw an error
 #
@@ -287,7 +289,7 @@ include(tacklelib/Utility)
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
 # <not set>            |  warning    |             |             |             |  OK,uncond  |             |             |             
 # global               |             |             |  warning    |  OK         |             |             |  OK,uncond  |  OK,uncond  
-# top                  |             |  warning    |             |             |             |             |             |             
+# top                  |             |  warning    |             |             |             |  OK*cond1   |             |             
 # local                |             |             |             |             |             |             |             |  OK,uncond  
 #
 # '. ASSIGN N+1        |             |             |             |             |             |             |             |             
@@ -332,6 +334,7 @@ include(tacklelib/Utility)
 # Legend:
 #   OK          - conditionally applicable respective to the rules: warning on specialization less or equal match
 #   OK,uncond   - unconditionally applicable irrespective to rules
+#   OK,cond1    - conditionally applicable in case if a variable was not defined before (useful to bypass ODR violation)
 #   OK,equal    - value must stay the same
 #   warning     - ignores with warning
 #   ignore      - ignores w/o warning (silent ignore)
@@ -343,7 +346,7 @@ include(tacklelib/Utility)
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
 # <not set>            |  OK         |             |             |             |  OK,uncond  |             |             |             
 # global               |             |             |  OK,equal   |             |             |             |  OK,uncond  |             
-# top                  |             |  ignore     |             |             |             |             |             |             
+# top                  |             |  ignore     |             |             |             |  OK*cond1   |             |             
 # local                |             |             |             |  OK         |             |             |             |  OK,uncond  
 #
 # '. LEVEL N+K         |             |             |             |             |             |             |             |             
@@ -496,7 +499,13 @@ make_vars\;.\;.\;."
   endif()
   list(APPEND flag_vars "--ignore_late_expansion_statements")
 
-  tkl_set_vars_from_files_impl_with_args(${flag_args} "${file_paths}" "" "" "${CMAKE_BUILD_TYPE}" "" "")
+  tkl_escape_list_expansion_as_cmdline(flag_args_cmdline "${flag_args}")
+
+  # Note:
+  #   Make fast evaluation here
+  #
+
+  tkl_macro_fast_eval("tkl_set_vars_from_files_impl_with_args(${flag_args_cmdline} \"${file_paths}\" \"\" \"\" \"${CMAKE_BUILD_TYPE}\" \"\" \"\")")
 endfunction()
 
 # CAUTION:
@@ -1556,8 +1565,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (use_force_var)
           if (use_override_var)
             message(FATAL_ERROR "The variable FORCE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
-          elseif (use_top_package_var)
-            message(FATAL_ERROR "The variable FORCE and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif (use_top_package_var AND config_${make_var_name}_defined)
+            message(FATAL_ERROR "The variable FORCE attribute at first time must be used without the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
           endif()
         endif()
 
@@ -1571,8 +1580,12 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         # override w/o top
-        if (use_override_var AND NOT use_top_package_var)
-          message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        if (use_override_var)
+          if (NOT use_top_package_var)
+            message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          elseif(NOT config_${make_var_name}_defined)
+            message(FATAL_ERROR "The variable TOP attribute at first time must be used without the OVERRIDE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          endif()
         endif()
 
         # package w/o final or hide
@@ -2742,7 +2755,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             else()
               set(previous_var_value_list "")
               set(var_parsed_value_list "")
-              
+
               foreach(previous_var_value_item IN LISTS previous_var_value)
                 # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
                 tkl_escape_string_after_list_get(previous_var_value_item "${previous_var_value_item}")

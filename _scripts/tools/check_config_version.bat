@@ -15,20 +15,28 @@ if not exist "%VARS_SYSTEM_FILE_IN%" (
   exit /b 1
 ) >&2
 
-if %OPTIONAL_COMPARE% EQU 0 if not exist "%VARS_SYSTEM_FILE%" (
-  echo.%~nx0: error: VARS_SYSTEM_FILE does not exist: "%VARS_SYSTEM_FILE%".
-  exit /b 2
-) >&2
+if %OPTIONAL_COMPARE% EQU 0 (
+  if not exist "%VARS_SYSTEM_FILE%" (
+    echo.%~nx0: error: VARS_SYSTEM_FILE does not exist: "%VARS_SYSTEM_FILE%".
+    exit /b 2
+  ) >&2
+)
 
-if not exist "%VARS_USER_FILE_IN%" (
-  echo.%~nx0: error: VARS_USER_FILE_IN does not exist: "%VARS_USER_FILE_IN%".
-  exit /b 3
-) >&2
+if defined VARS_USER_FILE_IN (
+  if not exist "%VARS_USER_FILE_IN%" (
+    echo.%~nx0: error: VARS_USER_FILE_IN does not exist: "%VARS_USER_FILE_IN%".
+    exit /b 3
+  ) >&2
+)
 
-if %OPTIONAL_COMPARE% EQU 0 if not exist "%VARS_USER_FILE%" (
-  echo.%~nx0: error: VARS_USER_FILE does not exist: "%VARS_USER_FILE%".
-  exit /b 4
-) >&2
+if %OPTIONAL_COMPARE% EQU 0 (
+  if defined VARS_USER_FILE_IN (
+    if not exist "%VARS_USER_FILE%" (
+      echo.%~nx0: error: VARS_USER_FILE does not exist: "%VARS_USER_FILE%".
+      exit /b 4
+    ) >&2
+  )
+)
 
 rem must be not empty to avoid bug in the parser of the if expression around `<var>:~` expression
 set "VARS_SYSTEM_FILE_IN_VER_LINE=."
@@ -49,6 +57,8 @@ if exist "%VARS_SYSTEM_FILE_IN%" if exist "%VARS_SYSTEM_FILE%" (
   )
 )
 
+if not defined VARS_USER_FILE_IN goto IGNORE_VARS_USER_FILE_IN
+
 rem must be not empty to avoid bug in the parser of the if expression around `<var>:~` expression
 set "VARS_USER_FILE_IN_VER_LINE=."
 set "VARS_USER_FILE_VER_LINE=."
@@ -67,5 +77,7 @@ if exist "%VARS_USER_FILE_IN%" if exist "%VARS_USER_FILE%" (
     ) >&2
   )
 )
+
+:IGNORE_VARS_USER_FILE_IN
 
 exit /b 0
