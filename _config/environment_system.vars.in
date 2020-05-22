@@ -101,7 +101,7 @@ final package CMAKE_PACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
 #top NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
 
-top CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}"
+top force CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}" # with force to bypass ODR violation
 top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_PACK_ROOT}"
 
 final package PROJECT_NAME=tacklelib

@@ -349,15 +349,15 @@ tkl_register_implementation(macro tkl_macro_eval_end)
 #   Must be a function to:
 #   1. Avoid double expansion of the arguments.
 #
-function(tkl_eval str)
+function(tkl_eval _34A70340_str)
   if (NOT ${ARGC} EQUAL 1)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
 
-  tkl_eval_begin("include.cmake" "${str}")
+  tkl_eval_begin("include.cmake" "${_34A70340_str}")
 
   # unset the function parameters too
-  unset(str)
+  unset(_34A70340_str)
 
   tkl_track_vars_begin()
 
@@ -372,20 +372,54 @@ tkl_register_implementation(function tkl_eval)
 # CAUTION:
 #   Beware of arguments double expansion here.
 #
-macro(tkl_macro_eval str)
+macro(tkl_macro_eval _AAC50723_str)
   if (NOT ${ARGC} EQUAL 1)
     message(FATAL_ERROR "function must have 1 argument")
   endif()
 
-  tkl_eval_begin("include.cmake" "${str}")
+  tkl_eval_begin("include.cmake" "${_AAC50723_str}")
 
   # unset the function parameters too
-  unset(str)
+  unset(_AAC50723_str)
 
   tkl_macro_eval_end("include.cmake" .)
 endmacro()
 
 tkl_register_implementation(macro tkl_macro_eval)
+
+# CAUTION:
+#   Beware of arguments double expansion here.
+#
+macro(tkl_macro_fast_eval _06D2A306_str)
+  if (NOT ${ARGC} EQUAL 1)
+    message(FATAL_ERROR "function must have 1 argument")
+  endif()
+
+  # CAUTION:
+  #   Fast evaluation inplace w/o complete and safe evaluation as implemented for the `tkl_eval` or `tkl_macro_eval`.
+  #   Beware of side effects in the evaluation process because all the builtin arguments like ARGC/ARGV/ARGN/ARGV0..N
+  #   will be passed inside and reused.
+  #
+
+  tkl_make_basic_timestamp_temp_dir(_06D2A306_eval_temp_dir_path "CMake.eval" 8)
+  set(_06D2A306_eval_temp_file_path "${_06D2A306_eval_temp_dir_path}/eval_temp.cmake")
+
+  tkl_file_write("${_06D2A306_eval_temp_file_path}" "
+unset(_06D2A306_eval_temp_file_path)
+
+${_06D2A306_str}
+
+tkl_file_remove_recurse(\"${_06D2A306_eval_temp_file_path}\")
+  ")
+
+  # unset the function parameters too
+  unset(_06D2A306_str)
+  unset(_06D2A306_eval_temp_dir_path)
+
+  include("${_06D2A306_eval_temp_file_path}")
+endmacro()
+
+tkl_register_implementation(macro tkl_macro_fast_eval)
 
 # CAUTION:
 #   Must be a function to:

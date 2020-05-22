@@ -62,10 +62,26 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
+[submodule "cmake_tests/_scripts/tools/check_config_version.bat"]
+	path = cmake_tests/_scripts/tools/check_config_version.bat
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/check_config_version.bat
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
 [submodule "cmake_tests/_scripts/tools/funclib.sh"]
 	path = cmake_tests/_scripts/tools/funclib.sh
 	owner = cmake_tests/_scripts/tools
 	url = ^/trunk/bash/tacklelib/funclib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/get_datetime.bat"]
+	path = cmake_tests/_scripts/tools/get_datetime.bat
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/get_datetime.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
@@ -90,6 +106,14 @@
 	path = cmake_tests/_scripts/tools/traplib.sh
 	owner = cmake_tests/_scripts/tools
 	url = ^/trunk/bash/tacklelib/traplib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "cmake_tests/_scripts/tools/wtee.exe"]
+	path = cmake_tests/_scripts/tools/wtee.exe
+	owner = cmake_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/wtee.exe
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn

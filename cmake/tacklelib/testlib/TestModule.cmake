@@ -157,7 +157,7 @@ unset(last_eval_temp_dir_path)
 unset(TACKLELIB_TESTLIB_TESTCASE_FUNC)
 
 if (NOT \"@TACKLELIB_TESTLIB_TESTCASE_FUNC@\" STREQUAL \"\")
-  tkl_test_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@...\")
+  tkl_test_msg(\"[RUNNING ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: `@TACKLELIB_TESTLIB_TESTCASE_FUNC@`...\")
 endif()
 
 tkl_set_global_prop(. \"tkl::testlib::testcase::retcode\" -1) # empty test cases always fail
@@ -177,9 +177,9 @@ tkl_get_global_prop(TACKLELIB_TESTLIB_TESTCASE_RETCODE \"tkl::testlib::testcase:
 math(EXPR TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC \${TACKLELIB_TESTLIB_TESTMODULE_END_TIME_SEC}-\${TACKLELIB_TESTLIB_TESTMODULE_BEGIN_TIME_SEC})
 
 if (NOT TACKLELIB_TESTLIB_TESTCASE_RETCODE)
-  tkl_test_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
+  tkl_test_msg(\"[   OK   ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: `@TACKLELIB_TESTLIB_TESTCASE_FUNC@` (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
 else()
-  tkl_test_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: @TACKLELIB_TESTLIB_TESTCASE_FUNC@ (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
+  tkl_test_msg(\"[ FAILED ] `${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}`: `@TACKLELIB_TESTLIB_TESTCASE_FUNC@` (\${TACKLELIB_TESTLIB_TESTMODULE_RUN_TIME_SEC} sec)\")
 endif()
 
 unset(TACKLELIB_TESTLIB_TESTCASE_RETCODE)
@@ -203,8 +203,10 @@ tkl_testmodule_update_status()
       tkl_eval_end("include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake")
     endforeach()
   else()
+    set(is_skipped 1)
+
     foreach(test_case_func ${ARGN})
-      set(is_exclusively_included 0)
+      set(is_included 0)
       set(is_excluded 0)
 
       string(TOLOWER "${test_case_func}" test_case_func_c)
@@ -223,8 +225,8 @@ tkl_testmodule_update_status()
           endif()
         endif()
 
-        if (NOT is_exclusively_included AND is_include_filter AND "${test_case_func_c}" MATCHES "${test_case_match_filter_c}")
-          set(is_exclusively_included 1)
+        if (NOT is_included AND is_include_filter AND "${test_case_func_c}" MATCHES "${test_case_match_filter_c}")
+          set(is_included 1)
         endif()
 
         if (NOT is_include_filter AND "${test_case_func_c}" MATCHES "${test_case_match_filter_c}")
@@ -233,7 +235,8 @@ tkl_testmodule_update_status()
         endif()
       endforeach()
 
-      if (is_exclusively_included AND (NOT is_excluded))
+      if (is_included AND NOT is_excluded)
+        set(is_skipped 0)
         tkl_get_global_prop(test_case_eval_str "tkl::testlib::testmodule::test_case_eval_str" 1)
         tkl_eval_begin("include.tmpl.cmake" "${test_case_eval_str}")
         unset(test_case_eval_str)
@@ -244,6 +247,11 @@ tkl_testmodule_update_status()
         tkl_eval_end("include.tmpl.cmake" "${last_eval_temp_dir_path}/include.cmake")
       endif()
     endforeach()
+
+    if (is_skipped)
+      tkl_set_global_prop(. \"tkl::testlib::testcase::retcode\" -2) # skip return code
+      tkl_testmodule_update_status()
+    endif()
   endif()
 endfunction()
 
