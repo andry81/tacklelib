@@ -1,3 +1,6 @@
+2020.05.23:
+* new: python_tests: tests auto logging
+
 2020.05.22:
 * fixed: cmake_tests: bench: bench tests count fix
 * changed: _scripts: tools: made user script optional in the `check_config_version.bat` script

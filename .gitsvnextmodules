@@ -134,10 +134,26 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
+[submodule "python_tests/_scripts/tools/check_config_version.bat"]
+	path = python_tests/_scripts/tools/check_config_version.bat
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/check_config_version.bat
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
 [submodule "python_tests/_scripts/tools/funclib.sh"]
 	path = python_tests/_scripts/tools/funclib.sh
 	owner = python_tests/_scripts/tools
 	url = ^/trunk/bash/tacklelib/funclib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/get_datetime.bat"]
+	path = python_tests/_scripts/tools/get_datetime.bat
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/get_datetime.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
@@ -162,6 +178,14 @@
 	path = python_tests/_scripts/tools/traplib.sh
 	owner = python_tests/_scripts/tools
 	url = ^/trunk/bash/tacklelib/traplib.sh
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = file
+[submodule "python_tests/_scripts/tools/wtee.exe"]
+	path = python_tests/_scripts/tools/wtee.exe
+	owner = python_tests/_scripts/tools
+	url = ^/trunk/_scripts/tools/wtee.exe
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
