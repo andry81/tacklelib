@@ -1,3 +1,6 @@
+2020.05.25:
+* fixed: Linux multiple build fixes
+
 2020.05.22:
 * new: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness
 * new: Utility.cmake: `tkl_escape_list_expansion_as_cmdline` function to convert a list into a command line with escape support

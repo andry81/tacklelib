@@ -1512,7 +1512,7 @@ function(tkl_set_runtime_link_type_var link_type_var do_advance_out_vars)
     set(cmake_linker_flags_to_replace "")
     set(cmake_linker_flags_to_replace_by "")
 
-    if("${type}" STREQUAL "dynamic")
+    if("${link_type}" STREQUAL "dynamic")
       set(CMAKE_SHARED_LIBS ON PARENT_SCOPE)
 
       if (do_advance_out_vars)
@@ -1520,7 +1520,7 @@ function(tkl_set_runtime_link_type_var link_type_var do_advance_out_vars)
       endif()
 
       return()
-    elseif("${type}" STREQUAL "static")
+    elseif("${link_type}" STREQUAL "static")
       set(CMAKE_SHARED_LIBS OFF PARENT_SCOPE)
 
       if (do_advance_out_vars)

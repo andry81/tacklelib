@@ -114,7 +114,7 @@ tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
 
 tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
-tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH)
+#tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH) # CAUTION: `/usr/lib/i386-linux-gnu` on Linux by default!
 tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
 
 # multi

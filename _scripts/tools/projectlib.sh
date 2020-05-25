@@ -120,7 +120,7 @@ function Configure()
   UpdateOsName
   UpdateBuildType
 
-  if (( ! GENERATOR_IS_MULTI_CONFIG )); then
+  if (( CMAKE_IS_SINGLE_CONFIG )); then
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
   fi
 
@@ -137,13 +137,32 @@ function Configure()
     "0;00;$PROJECT_NAME;${PROJECT_ROOT//;/\\;};$PROJECT_NAME;${PROJECT_ROOT//;/\\;}" \
     --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
 
-  tkl_include "$PROJECT_ROOT/_scripts/__init__/__init2__.sh" || return $?
+  # check if multiconfig.tag is already created
+  if [[ -e "$CMAKE_BUILD_ROOT/singleconfig.tag" ]]; then
+    if [[ CMAKE_IS_SINGLE_CONFIG -eq 0 ]]; then
+      echo "$0: error: single config cmake cache already has been created, can not continue with multi config: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
+      tkl_exit 129
+    fi
+  fi
 
-  if [[ ! -e "$CMAKE_BUILD_ROOT/multiconfig.tag" ]]; then
+  if [[ -e "$CMAKE_BUILD_ROOT/multiconfig.tag" ]]; then
+    if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
+      echo "$0: error: multi config cmake cache already has been created, can not continue with single config: CMAKE_GENERATOR=\`$CMAKE_GENERATOR\` CMAKE_BUILD_TYPE=\`$CMAKE_BUILD_TYPE\`." >&2
+      tkl_exit 130
+    fi
+  fi
+
+  [[ ! -e "$CMAKE_BUILD_ROOT" ]] && mkdir -p "$CMAKE_BUILD_ROOT"
+
+  if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
+    echo '' > "$CMAKE_BUILD_ROOT/singleconfig.tag"
     local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/singleconfig/$BASH_SOURCE_FILE_NAME.in"
   else
+    echo '' > "$CMAKE_BUILD_ROOT/multiconfig.tag"
     local CMDLINE_FILE_IN="$PROJECT_ROOT/_config/_scripts/03/multiconfig/$BASH_SOURCE_FILE_NAME.in"
   fi
+
+  tkl_include "$PROJECT_ROOT/_scripts/__init__/__init2__.sh" || return $?
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
@@ -508,7 +527,7 @@ function MakeOutputDirectories()
   local CMAKE_BUILD_TYPE="$1"
   local GENERATOR_IS_MULTI_CONFIG="$2"
 
-  if [[ -e "$CMAKE_BUILD_ROOT/singleonfig.tag" ]]; then
+  if [[ -e "$CMAKE_BUILD_ROOT/singleconfig.tag" ]]; then
     if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
       echo "$0: error: CMAKE_BUILD_TYPE must be set for single config cmake cache." >&2
       return 1
@@ -517,7 +536,7 @@ function MakeOutputDirectories()
     local CMAKE_BIN_DIR="$CMAKE_BIN_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_LIB_DIR="$CMAKE_LIB_ROOT/$CMAKE_BUILD_TYPE"
     local CMAKE_PACK_DIR="$CMAKE_PACK_ROOT/$CMAKE_BUILD_TYPE"
-  elif [[ -e "$CMAKE_BUILD_ROOT/multionfig.tag" ]]; then
+  elif [[ -e "$CMAKE_BUILD_ROOT/multiconfig.tag" ]]; then
     if [[ GENERATOR_IS_MULTI_CONFIG -eq 0 ]]; then
       echo "$0: error: GENERATOR_IS_MULTI_CONFIG must be already set for multi config cmake cache." >&2
       return 2
