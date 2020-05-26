@@ -151,7 +151,7 @@ namespace utility
             check_buffer_guards();
 
             // minimum 16 bytes or 1% of allocation size for guard sections on the left and right, but not greater than `s_guard_max_len`
-            const size_t offset = (std::min)((std::max)(size / 100, 16U), _guard_max_len());
+            const size_t offset = (std::min)((std::max)(size / 100, size_t(16U)), _guard_max_len());
             const size_t size_extra = size ? (size + offset * 2) : 0;
 #else
             const size_t offset = 0;

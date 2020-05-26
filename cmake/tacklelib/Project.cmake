@@ -529,6 +529,14 @@ To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMA
   set(env_var_file_path_load_list "${sys_env_var_file_path_load_list};${user_env_var_file_path_load_list}")
   if (global_vars_file_path_list)
     set(env_var_file_path_load_list "${global_vars_file_path_list};${env_var_file_path_load_list}")
+  else()
+    # check construction at least one valid file path
+    if (DEFINED _3DPARTY_GLOBAL_ROOTS_LIST AND DEFINED _3DPARTY_GLOBAL_ROOTS_FILE_LIST)
+      message(FATAL_ERROR
+        "_3DPARTY_GLOBAL_ROOTS_LIST and _3DPARTY_GLOBAL_ROOTS_FILE_LIST does not construct at least one valid file path: "
+        "_3DPARTY_GLOBAL_ROOTS_LIST=`${_3DPARTY_GLOBAL_ROOTS_LIST}` "
+        "_3DPARTY_GLOBAL_ROOTS_FILE_LIST=`${_3DPARTY_GLOBAL_ROOTS_FILE_LIST}`")
+    endif()
   endif()
 
   # Load all configuration files to ordered set of all variables except variables from the preload section.
@@ -1713,7 +1721,19 @@ function(tkl_initialize_target_defaults_impl target flags_list)
           )
         endif()
 
-      elseif("${flag}" STREQUAL "32bit")
+      elseif("${flag}" STREQUAL "64bit")
+        if(GCC)
+          tkl_add_target_compile_properties(${target} *
+            -m64        # compile 64 bit target
+          )
+
+          tkl_add_target_link_properties(${target} NOTSTATIC *
+            -m64        # link 64 bit target
+          )
+        endif()
+
+      elseif("${flag}" STREQUAL "anybit")
+      else()
         message(FATAL_ERROR "unknown flag: `${flag}`")
       endif()
     endforeach()

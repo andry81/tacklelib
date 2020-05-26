@@ -1,5 +1,6 @@
 2020.05.25:
 * fixed: Linux multiple build fixes
+* changed: Project.cmake: check construction at least one valid file path from `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variables
 
 2020.05.22:
 * new: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness

@@ -499,7 +499,7 @@ namespace {
         bool throw_on_error)
     {
         using path_basic_string_t = tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char>;
-        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
+        using unc_basic_path_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -778,7 +778,7 @@ namespace {
         tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> & to_path)
     {
         using basic_string_t = std::basic_string<t_elem, t_traits, t_alloc>;
-        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
+        using unc_basic_path_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && from_path_rref = std::move(from_path);
 
@@ -793,7 +793,7 @@ namespace {
             to_path = from_path_rref.substr(4);
         }
         else {
-            to_path = _convert_from_unc_path(std::forward<unc_path_basic_string_t>(from_path_rref), tackle::tag_basic_path_string_by_separator_char<t_elem, separator_char>{});
+            to_path = _convert_from_unc_path(std::forward<unc_basic_path_string_t>(from_path_rref), tackle::tag_basic_path_string_by_separator_char<t_elem, separator_char>{});
         }
 
         return true;
@@ -818,12 +818,12 @@ namespace {
         _fix_long_path(
             tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> path, bool throw_on_error)
     {
-        using unc_path_basic_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
+        using unc_basic_path_string_t = tackle::unc_basic_path_string<t_elem, t_traits, t_alloc>;
 
         auto && path_rref = std::move(path);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        unc_path_basic_string_t unc_path;
+        unc_basic_path_string_t unc_path;
 
         if (!_convert_local_to_local_unc_path(path_rref, unc_path, throw_on_error)) {
             if (throw_on_error) {
@@ -834,6 +834,9 @@ namespace {
 
         return unc_path;
 #else
+        // CAUTION:
+        //  No actual conversion from the UNC path, just path separators fix.
+        //
         return _convert_to_native_path(path_rref);
 #endif
     }
@@ -850,7 +853,10 @@ namespace {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         return _convert_local_unc_to_local_path(path_rref, tackle::tag_path_basic_string<t_elem, separator_char>{});
 #else
-        return _convert_from_unc_path(std::forward<unc_path_basic_string_t>(path_rref), tackle::tag_basic_path_string_by_separator_char<t_elem, separator_char>{});
+        // CAUTION:
+        //  No actual conversion from the UNC path, just path separators fix.
+        //
+        return _convert_to_generic_path(path_rref);
 #endif
     }
 

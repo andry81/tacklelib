@@ -12,7 +12,7 @@
 #include <tacklelib/utility/string_identity.hpp>
 
 #include <cwchar>
-#ifndef UTILITY_PLATFORM_MINGW
+#if !defined(UTILITY_PLATFORM_MINGW) && !defined(UTILITY_COMPILER_CXX_GCC)
 #   include <uchar.h> // in GCC `cuchar` header might not exist
 #endif
 

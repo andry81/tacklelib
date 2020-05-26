@@ -60,8 +60,11 @@ if [[ -z "$CMAKE_BUILD_TYPE" ]]; then
 fi
 
 # CAUTION:
-#   This declares only most probable variant (guess) respective to the script extension.
-#   If not then the user have to explicitly pass the target name.
+#   1. This declares only most probable variant (guess) respective to the script extension.
+#      If not then the user have to explicitly pass the target name.
+#   2. Sometimes throws a cmake error: `No rule to make target 'foo.dir/all', needed by 'boo.dir/all'`
+#      Solution #1:
+#         Use a correct relative path in the `add_subdirectory` function in the `binary_dir` parameter.
 #
 [[ -z "$CMAKE_BUILD_TARGET" ]] && CMAKE_BUILD_TARGET="all"
 

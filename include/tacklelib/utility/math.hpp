@@ -371,10 +371,12 @@ FORCE_INLINE long to_double(long i)
     return i;
 }
 
+#ifndef UTILITY_PLATFORM_FEATURE_INT64_IS_LONG
 FORCE_INLINE int64_t to_double(int64_t i)
 {
     return i;
 }
+#endif
 
 FORCE_INLINE double to_double(double d)
 {
@@ -794,6 +796,7 @@ namespace math
     }
 #endif
 
+#ifndef UTILITY_PLATFORM_FEATURE_INT64_IS_LONG
     FORCE_INLINE_ALWAYS CONSTEXPR_FUNC int64_t negate(int64_t i)
     {
         return -i;
@@ -803,6 +806,7 @@ namespace math
     {
         return static_cast<uint64_t>(-static_cast<int64_t>(i));
     }
+#endif
 
     FORCE_INLINE_ALWAYS CONSTEXPR_FUNC float negate(float v)
     {

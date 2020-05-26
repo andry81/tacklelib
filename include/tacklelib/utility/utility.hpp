@@ -49,9 +49,9 @@
 #if defined(UTILITY_PLATFORM_WINDOWS)
 #   include <conio.h>
 #elif defined(UTILITY_PLATFORM_POSIX)
-#   if !defined(UTILITY_PLATFORM_MINGW)
-#       include <share.h>
-#   endif
+//#   if !defined(UTILITY_PLATFORM_MINGW)
+//#       include <share.h> # might exist only on Linux in core headers
+//#   endif
 #else
 #   error platform is not implemented
 #endif
@@ -902,7 +902,7 @@ namespace utility
     template<typename T>
     FORCE_INLINE void LIBRARY_API_DECL int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
     {
-        STATIC_ASSERT_TRUE(std::is_trivially_copyable<T>::value, "T must be a trivial copy type");
+        STATIC_ASSERT_TRUE(utility::is_trivially_copyable<T>::value, "T must be a trivial copy type");
 
         CONSTEXPR const size_t num_bytes = sizeof(T);
 

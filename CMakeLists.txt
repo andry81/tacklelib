@@ -114,7 +114,7 @@ tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
 
 tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
-#tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH) # CAUTION: `/usr/lib/i386-linux-gnu` on Linux by default!
+tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH)
 tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
 
 # multi
@@ -347,7 +347,7 @@ if (GTEST_ROOT AND NOT (TACKLELIB_SKIP_TESTLIB AND TACKLELIB_SKIP_TESTS))
     if (tests_sources_common_filtered)
       list(FILTER tests_sources_common_filtered EXCLUDE REGEX "(.*)/test_main.cpp")
       if (NOT "${tests_sources_common_filtered}" EQUAL "${tests_sources_common}")
-        tkl_add_target_subdirectory(GTEST_ROOT gtest ${CMAKE_BUILD_ROOT}/_3dparty/test/googletest)
+        tkl_add_target_subdirectory(GTEST_ROOT gtest _3dparty/test/googletest)
         set(TESTS_ENABLED 1)
       endif()
     endif()
@@ -356,18 +356,18 @@ endif()
 
 # fmt
 
-tkl_add_target_subdirectory(UTILITY_FMT_ROOT fmt ${CMAKE_BUILD_ROOT}/_3dparty/utility/fmt)
+tkl_add_target_subdirectory(UTILITY_FMT_ROOT fmt _3dparty/utility/fmt)
 
 # fmt has it's own cmake list, so we have to call it from here
 tkl_initialize_library_target_defaults(fmt "${TACKLELIB_ADDRESS_MODEL}bit")
 
 # pystring
 
-tkl_add_target_subdirectory(UTILITY_PYSTRING_ROOT pystring ${CMAKE_BUILD_ROOT}/_3dparty/utility/pystring)
+tkl_add_target_subdirectory(UTILITY_PYSTRING_ROOT pystring _3dparty/utility/pystring)
 
 # p7 logger
 
-tkl_add_target_subdirectory(LOG_P7_CLIENT_ROOT p7client ${CMAKE_BUILD_ROOT}/_3dparty/log/p7client)
+tkl_add_target_subdirectory(LOG_P7_CLIENT_ROOT p7client _3dparty/log/p7client)
 
 if (TARGET p7client)
   get_target_property(INCLUDE_DIRS_p7client p7client INCLUDE_DIRECTORIES)
@@ -376,7 +376,7 @@ endif()
 
 # 7zip
 
-tkl_add_target_subdirectory(ARC_7ZIP_ROOT 7zip ${CMAKE_BUILD_ROOT}/_3dparty/arc/7zip)
+tkl_add_target_subdirectory(ARC_7ZIP_ROOT 7zip _3dparty/arc/7zip)
 
 if (TARGET 7zip)
   get_target_property(INCLUDE_DIRS_7zip 7zip INCLUDE_DIRECTORIES)
@@ -385,7 +385,7 @@ endif()
 
 # libarchive
 
-tkl_add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive ${CMAKE_BUILD_ROOT}/_3dparty/arc/libarchive)
+tkl_add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive _3dparty/arc/libarchive)
 
 tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
 tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
@@ -544,6 +544,33 @@ if (WIN32)
   tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+  )
+endif()
+
+# CAUTION:
+#   The `-lpthread` flag MUST BE after local linking objects and libraries
+#   dependent on it!
+#   Either move it to the end of linker command line or use flag `-pthread`
+#   both for compiler and linker instead the `-lpthread` flag.
+#   See details here:
+#     https://stackoverflow.com/questions/19901934/strange-linking-error-dso-missing-from-command-line/19905704#19905704
+#     https://stackoverflow.com/questions/24814698/how-can-i-add-a-flag-at-the-end-of-the-linking-command-line-using-cmake
+#
+
+# CAUTION:
+#   C++11 is required for at least these:
+#   * tacklelib/utility/time.hpp: `error: ‘get_time’ is not a member of ‘std’`
+#     https://stackoverflow.com/questions/46456606/stdget-time-has-not-been-declared/46459130#46459130
+#
+
+if (GCC)
+  tkl_add_target_compile_properties(${LIB_TARGET_NAME} *
+    #--std=c++11 # minimal required standard
+    -pthread    # compile dependency for `tacklelib/utility/time.hpp` to use `pthread_time.h`
+  )
+
+  tkl_add_target_link_properties(${LIB_TARGET_NAME} NOTSTATIC *
+    -pthread    # compile dependency for `tacklelib/utility/time.hpp` to use `pthread_time.h`
   )
 endif()
 

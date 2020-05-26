@@ -111,24 +111,61 @@
 #endif
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CONSTEXPR_FUNC
-#define CONSTEXPR_FUNC constexpr
+#   define CONSTEXPR_FUNC constexpr
 #else
-#define CONSTEXPR_FUNC
+#   define CONSTEXPR_FUNC
 #endif
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_CONSTEXPR
-#define CONSTEXPR constexpr
+#   define CONSTEXPR constexpr
 #else
-#define CONSTEXPR
+#   define CONSTEXPR
 #endif
 
 #ifdef UTILITY_COMPILER_CXX_CLANG
-#define UTILITY_COMPILER_CXX_CLANG_CONSTEXPR_FUNC       CONSTEXPR_FUNC
-#define UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC
+#   define UTILITY_COMPILER_CXX_CLANG_CONSTEXPR_FUNC       CONSTEXPR_FUNC
+#   define UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC
 #else
-#define UTILITY_COMPILER_CXX_CLANG_CONSTEXPR_FUNC
-#define UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC   CONSTEXPR_FUNC
+#   define UTILITY_COMPILER_CXX_CLANG_CONSTEXPR_FUNC
+#   define UTILITY_COMPILER_CXX_NOT_CLANG_CONSTEXPR_FUNC   CONSTEXPR_FUNC
 #endif
 
+// long <=> int64_t <=> long long
+//    `long long int vs. long int vs. int64_t in C++`:
+//    https://stackoverflow.com/questions/4160945/long-long-int-vs-long-int-vs-int64-t-in-c
+//
+
+#if !defined(UTILITY_COMPILER_CXX_GCC) || __WORDSIZE < 64
+#   define UTILITY_PLATFORM_FEATURE_INT64_IS_LLONG
+#else
+#   define UTILITY_PLATFORM_FEATURE_INT64_IS_LONG
+#endif
+
+//  For the `std::get_time` function enable at least GCC 5.x is required:
+//    `TODO extended iomanip manipulators std::get_time and std::put_time (C++11, section 27.7.5)`:
+//    https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54354#c9
+//
+
+#if !defined(UTILITY_COMPILER_CXX_GCC) || UTILITY_COMPILER_CXX_VERSION >= 5
+#   define UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
+#endif
+
+// For the `std::is_trivially_copyable` function enable at least GCC 5.x is required:
+//    `‘is_trivially_copyable’ is not a member of ‘std’`:
+//    https://stackoverflow.com/questions/25123458/is-trivially-copyable-is-not-a-member-of-std
+//
+
+#if !defined(UTILITY_COMPILER_CXX_GCC) || UTILITY_COMPILER_CXX_VERSION >= 5
+#   define UTILITY_PLATFORM_FEATURE_STD_HAS_IS_TRIVIALLY_COPYABLE
+#endif
+
+// For the `codecvt` header at least GCC 5.x is required:
+//    `Is codecvt not a std header?`:
+//    https://stackoverflow.com/questions/15615136/is-codecvt-not-a-std-header
+//
+
+#if !defined(UTILITY_COMPILER_CXX_GCC) || UTILITY_COMPILER_CXX_VERSION >= 5
+#   define UTILITY_PLATFORM_FEATURE_STD_HAS_CODECVT_HEADER
+#endif
 
 #endif
