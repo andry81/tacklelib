@@ -1,4 +1,7 @@
 2020.05.26:
+* fixed: cpp: gcc 4.9.x tail recursion optimization issue
+
+2020.05.26:
 * fixed: cpp: Linux x86_64 build fixes
 
 2020.05.25:
