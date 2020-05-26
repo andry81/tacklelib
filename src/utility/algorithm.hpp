@@ -66,7 +66,7 @@ namespace utility
                 default: DEBUG_ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONSTEXPR(std::is_trivially_copyable<T>::value)) {
+        else if (UTILITY_CONSTEXPR(utility::is_trivially_copyable<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {
@@ -88,7 +88,7 @@ namespace utility
                 default: DEBUG_ASSERT_TRUE(false);
             }
         }
-        else if (UTILITY_CONSTEXPR(std::is_trivially_copyable<T>::value)) {
+        else if (UTILITY_CONSTEXPR(utility::is_trivially_copyable<T>::value)) {
             memcpy(to, from, sizeof(T) * size);
         }
         else {

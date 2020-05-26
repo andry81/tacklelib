@@ -8,9 +8,18 @@
 #include <tacklelib/tackle/string.hpp>
 
 #include <locale>
-#include <codecvt>
+#ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_CODECVT_HEADER
+#   include <codecvt>
+#else
+#   include <boost/locale/encoding_utf.hpp>
+#endif
+#include <string>
 #include <utility>
 
+// CAUTION:
+//  In case of GCC < 5, then workaround through the boost is used.
+//  Based on: https://stackoverflow.com/questions/15615136/is-codecvt-not-a-std-header/28875347#28875347
+//
 
 namespace utility {
 
@@ -46,6 +55,7 @@ namespace utility {
         return std::string{ astr, astr_last };
     }
 
+#ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_CODECVT_HEADER
     template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(std::wstring && wstr, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && wstr_converter)
     {
@@ -98,6 +108,8 @@ namespace utility {
 
         return convert_utf16_to_utf8_string(wstr, wstr_last, wstring_convert_t{});
     }
+
+    //
 
     template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(std::u16string && u16str, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && u16str_converter)
@@ -152,6 +164,8 @@ namespace utility {
         return convert_utf16_to_utf8_string(u16str, u16str_last, wstring_convert_t{});
     }
 
+    //
+
     template <class Codecvt, class Elem, class Walloc = std::allocator<Elem>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::string convert_utf16_to_utf8_string(std::u32string && u32str, std::wstring_convert<Codecvt, Elem, Walloc, Balloc> && u32str_converter)
     {
@@ -205,6 +219,8 @@ namespace utility {
         return convert_utf16_to_utf8_string(u32str, u32str_last, wstring_convert_t{});
     }
 
+    //
+
     template <class Codecvt, class Walloc = std::allocator<wchar_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::wstring convert_utf8_to_utf16_string(std::string && astr, std::wstring_convert<Codecvt, wchar_t, Walloc, Balloc> && wstr_converter)
     {
@@ -251,6 +267,8 @@ namespace utility {
         return convert_utf8_to_utf16_string(astr, astr_last, wstring_convert_t{});
     }
 
+    //
+
     template <class Codecvt, class Walloc = std::allocator<char16_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::u16string convert_utf8_to_utf16_string(std::string && astr, std::wstring_convert<Codecvt, char16_t, Walloc, Balloc> && wstr_converter)
     {
@@ -275,14 +293,14 @@ namespace utility {
         return wstr_converter.from_bytes(astr, astr_last);
     }
 
-    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(std::string && astr, utility::tag_u16string)
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(std::string && astr, utility::u16string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
         return convert_utf8_to_utf16_string(std::move(astr), wstring_convert_t{});
     }
 
-    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const std::string & astr, utility::tag_u16string)
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const std::string & astr, utility::u16string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
@@ -290,19 +308,21 @@ namespace utility {
     }
 
     template <size_t S>
-    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char (& astr)[S], utility::tag_u16string)
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char (& astr)[S], utility::u16string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
         return convert_utf8_to_utf16_string(astr, wstring_convert_t{});
     }
 
-    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::tag_u16string)
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::u16string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
         return convert_utf8_to_utf16_string(astr, astr_last, wstring_convert_t{});
     }
+
+    //
 
     template <class Codecvt, class Walloc = std::allocator<char32_t>, class Balloc = std::allocator<char> >
     FORCE_INLINE std::u32string convert_utf8_to_utf16_string(std::string && astr, std::wstring_convert<Codecvt, char32_t, Walloc, Balloc> && wstr_converter)
@@ -328,14 +348,14 @@ namespace utility {
         return wstr_converter.from_bytes(astr, astr_last);
     }
 
-    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(std::string && astr, utility::tag_u32string)
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(std::string && astr, utility::u32string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>;
 
         return convert_utf8_to_utf16_string(std::move(astr), wstring_convert_t{});
     }
 
-    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const std::string & astr, utility::tag_u32string)
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const std::string & astr, utility::u32string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>;
 
@@ -343,19 +363,162 @@ namespace utility {
     }
 
     template <size_t S>
-    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char (& astr)[S], utility::tag_u32string)
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char (& astr)[S], utility::u32string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>;
 
         return convert_utf8_to_utf16_string(astr, wstring_convert_t{});
     }
 
-    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::tag_u32string)
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::u32string_identity)
     {
         using wstring_convert_t = std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>;
 
         return convert_utf8_to_utf16_string(astr, astr_last, wstring_convert_t{});
     }
+#else
+    // CAUTION:
+    //   Limited workaround ONLY for GCC < 5.
+    //
+
+    namespace boost_locale = boost::locale::conv;
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(std::wstring && wstr)
+    {
+        return boost_locale::utf_to_utf<char>(std::move(wstr));
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::wstring & wstr)
+    {
+        return boost_locale::utf_to_utf<char>(wstr);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const wchar_t (& wstr)[S])
+    {
+        return boost_locale::utf_to_utf<char>(wstr, wstr + S);
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const wchar_t * wstr, const wchar_t * wstr_last)
+    {
+        return boost_locale::utf_to_utf<char>(wstr, wstr_last);
+    }
+
+    //
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(std::u16string && u16str)
+    {
+        return boost_locale::utf_to_utf<char>(std::move(u16str));
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::u16string & u16str)
+    {
+        return boost_locale::utf_to_utf<char>(u16str);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const char16_t (& u16str)[S])
+    {
+        return boost_locale::utf_to_utf<char>(u16str, u16str + S);
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const char16_t * u16str, const char16_t * u16str_last)
+    {
+        return boost_locale::utf_to_utf<char>(u16str, u16str_last);
+    }
+
+    //
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(std::u32string && u32str)
+    {
+        return boost_locale::utf_to_utf<char>(std::move(u32str));
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const std::u32string & u32str)
+    {
+        return boost_locale::utf_to_utf<char>(u32str);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const char32_t (& u32str)[S])
+    {
+        return boost_locale::utf_to_utf<char>(u32str, u32str + S);
+    }
+
+    FORCE_INLINE std::string convert_utf16_to_utf8_string(const char32_t * u32str, const char32_t * u32str_last)
+    {
+        return boost_locale::utf_to_utf<char>(u32str, u32str_last);
+    }
+
+    //
+
+    FORCE_INLINE std::wstring convert_utf8_to_utf16_string(std::string && astr, utility::wstring_identity)
+    {
+        return boost_locale::utf_to_utf<wchar_t>(std::move(astr));
+    }
+
+    FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const std::string & astr, utility::wstring_identity)
+    {
+        return boost_locale::utf_to_utf<wchar_t>(astr);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const char (& astr)[S], utility::wstring_identity)
+    {
+        return boost_locale::utf_to_utf<wchar_t>(astr, astr + S);
+    }
+
+    FORCE_INLINE std::wstring convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::wstring_identity)
+    {
+        return boost_locale::utf_to_utf<wchar_t>(astr, astr_last);
+    }
+
+    //
+
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(std::string && astr, utility::u16string_identity)
+    {
+        return boost_locale::utf_to_utf<char16_t>(std::move(astr));
+    }
+
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const std::string & astr, utility::u16string_identity)
+    {
+        return boost_locale::utf_to_utf<char16_t>(astr);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char (& astr)[S], utility::u16string_identity)
+    {
+        return boost_locale::utf_to_utf<char16_t>(astr, astr + S);
+    }
+
+    FORCE_INLINE std::u16string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::u16string_identity)
+    {
+        return boost_locale::utf_to_utf<char16_t>(astr, astr_last);
+    }
+
+    //
+
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(std::string && astr, utility::u32string_identity)
+    {
+        return boost_locale::utf_to_utf<char32_t>(std::move(astr));
+    }
+
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const std::string & astr, utility::u32string_identity)
+    {
+        return boost_locale::utf_to_utf<char32_t>(astr);
+    }
+
+    template <size_t S>
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char (& astr)[S], utility::u32string_identity)
+    {
+        return boost_locale::utf_to_utf<char32_t>(astr, astr + S);
+    }
+
+    FORCE_INLINE std::u32string convert_utf8_to_utf16_string(const char * astr, const char * astr_last, utility::u32string_identity)
+    {
+        return boost_locale::utf_to_utf<char32_t>(astr, astr_last);
+    }
+#endif
 
     // tagged functions
 
@@ -379,6 +542,8 @@ namespace utility {
 //    {
 //        to_path.assign(from_str, from_str_last);
 //    }
+
+    //
 
     FORCE_INLINE void convert_string_to_string(std::string && from_str, std::wstring & to_path, utility::int_identity<StringConv_utf8_to_utf16>)
     {
@@ -443,6 +608,8 @@ namespace utility {
 //        to_path.assign(from_str, from_str_last);
 //    }
 
+    //
+
     FORCE_INLINE void convert_string_to_string(std::wstring && from_str, std::string & to_path, utility::int_identity<StringConv_utf16_to_utf8>)
     {
         to_path = convert_utf16_to_utf8_string(std::move(from_str));
@@ -506,6 +673,8 @@ namespace utility {
 //        return std::string{ from_str, from_str_last };
 //    }
 
+    //
+
     FORCE_INLINE std::wstring convert_string_to_string(std::string && from_str, utility::wstring_identity, utility::int_identity<StringConv_utf8_to_utf16>)
     {
         return convert_utf8_to_utf16_string(std::move(from_str), utility::tag_wstring{});
@@ -568,6 +737,8 @@ namespace utility {
 //    {
 //        return std::wstring{ from_str, from_str_last };
 //    }
+
+    //
 
     FORCE_INLINE std::string convert_string_to_string(std::wstring && from_str, utility::string_identity, utility::int_identity<StringConv_utf16_to_utf8>)
     {

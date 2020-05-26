@@ -38,8 +38,8 @@
 #   ifdef UTILITY_PLATFORM_MINGW
 #       include <cygwin/time.h>
 #       include <sysinfoapi.h>
-#   else
-#       include <pthread_time.h>
+//#   else
+//#       include <pthread_time.h> # does not exist on some Linuxes
 #   endif
 #else
 #   error platform is not implemented
@@ -91,7 +91,7 @@ namespace time {
         wintime -= from_1_jan1601_to_1_jan1970_100nsecs;
         spec->tv_sec = wintime / 10000000;
         spec->tv_nsec = wintime % 10000000 * 100;
-#elif defined(UTILITY_PLATFORM_MINGW)
+#elif defined(UTILITY_PLATFORM_POSIX) || defined(UTILITY_PLATFORM_MINGW)
         struct timeval tv; 
         gettimeofday(&tv, NULL);
         spec->tv_sec = tv.tv_sec;
@@ -180,6 +180,7 @@ namespace time {
 #endif
     }
 
+#ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
     // Uses `std::get_time` to read the formatted time string into calendar time (not including milliseconds and days since 1 January).
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE bool get_time(std::tm & time, const std::string & locale,
@@ -231,6 +232,7 @@ namespace time {
         return !ss.fail();
 //#endif
     }
+#endif
 
     // analog: `std::mktime` to convert into `std::time_t`
     FORCE_INLINE time_t timegm(const std::tm & time)

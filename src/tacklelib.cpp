@@ -8,4 +8,4 @@
 #if defined(BUILD_VERSION_DATE_TIME_TOKEN)
   // to make the unique link with a library headers
   LIBRARY_API_IMPLEMENT_LIB_GLOBAL_BUILD_VERSION_DATE_TIME_TOKEN(tacklelib)
-#endif()
+#endif

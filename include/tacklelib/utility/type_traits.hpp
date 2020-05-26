@@ -26,6 +26,23 @@ namespace utility
     template <typename T>
     struct function_traits;
 
+#ifndef UTILITY_PLATFORM_FEATURE_STD_HAS_IS_TRIVIALLY_COPYABLE
+    // workaround for the GCC < 5
+    // Based on: https://stackoverflow.com/questions/25123458/is-trivially-copyable-is-not-a-member-of-std/31798726#31798726
+
+    template <typename T>
+    struct is_trivially_copyable
+    {
+        static CONSTEXPR const bool value = UTILITY_CONSTEXPR_VALUE(__has_trivial_copy(T));
+    };
+#else
+    template <typename T>
+    struct is_trivially_copyable
+    {
+        static CONSTEXPR const bool value = std::is_trivially_copyable<T>::value;
+    };
+#endif
+
     // tuple from array C++11 implementation
     // Based on: https://stackoverflow.com/questions/37029886/how-to-construct-a-tuple-from-an-array/37031202#37031202
     //
@@ -1122,7 +1139,7 @@ namespace utility
 
     // invoke_dispatcher
 
-    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled, bool IsExtractable>
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> class TypeFind, typename EndIt, bool IsEnabled, bool IsExtractable>
     struct invoke_dispatcher
     {
         template <typename Functor, typename Ref>
@@ -1156,7 +1173,7 @@ namespace utility
         }
     };
 
-    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt>
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> class TypeFind, typename EndIt>
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, true, false>
     {
         template <typename Functor, typename Ref>
@@ -1174,7 +1191,7 @@ namespace utility
         }
     };
 
-    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsExtractable>
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> class TypeFind, typename EndIt, bool IsExtractable>
     struct invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, false, IsExtractable>
     {
         template <typename Functor, typename Ref>
@@ -1194,7 +1211,7 @@ namespace utility
 
     // invoke_if_returnable_dispatcher
 
-    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> typename TypeFind, typename EndIt, bool IsEnabled, bool IsConvertiable>
+    template <int TypeIndex, typename Ret, typename TypeList, template <typename, typename> class TypeFind, typename EndIt, bool IsEnabled, bool IsConvertiable>
     struct invoke_if_returnable_dispatcher : invoke_dispatcher<TypeIndex, Ret, TypeList, TypeFind, EndIt, IsEnabled && IsConvertiable, false>
     {
     };

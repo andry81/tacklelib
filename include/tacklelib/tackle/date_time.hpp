@@ -126,6 +126,7 @@ namespace tackle
         {
             reset(fmt, std::move(time_str), locale, throw_on_error);
 
+//#ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
 //            const size_t time_fmt_len = time_fmt.length();
 //
 //            string_type regex_time_fmt_str;
@@ -184,6 +185,9 @@ namespace tackle
 //                std::tm time;
 //                std::get_time(&time, time_str);
 //            }
+//#else
+//            throw std::runtime_error("std::get_time is not implemented");
+//#endif
         }
 
         FORCE_INLINE basic_date_time(const basic_date_time & r) :
@@ -306,6 +310,7 @@ namespace tackle
         // store with convertion into custom type, format string is partially compatible with the std::strftime
         FORCE_INLINE void reset(const string_type & fmt, string_type time_str, const std::string & locale = "C", bool throw_on_error = true)
         {
+#ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
             string_type && time_str_rref = std::move(time_str);
 
             std::tm time{};
@@ -322,6 +327,9 @@ namespace tackle
 
             storage_type_ = StorageType_Custom;
             custom = static_cast<T>(utility::time::timegm(time));
+#else
+            throw std::runtime_error("std::get_time is not implemented");
+#endif
         }
 
         FORCE_INLINE void reset(basic_date_time r)

@@ -58,7 +58,7 @@ namespace utility {
             else {
                 buf = "/proc/self/status";
             }
-            const tackle::FileHandleA proc_file_handle = utility::open_file(tackle::generic_path_string{ buf }, "r", utility::SharedAccess_DenyNone);
+            const tackle::generic_file_handle<char> proc_file_handle = utility::open_file(tackle::generic_path_string{ buf }, "r", utility::SharedAccess_DenyNone);
 
             size_t mem_size = 0;
 
