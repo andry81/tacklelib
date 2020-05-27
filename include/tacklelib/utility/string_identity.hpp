@@ -306,6 +306,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
+            UTILITY_UNUSED_STATEMENT3(wch, char16ch, char32ch);
             return ach;
         }
     };
@@ -320,6 +321,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
+            UTILITY_UNUSED_STATEMENT3(ach, char16ch, char32ch);
             return wch;
         }
     };
@@ -334,6 +336,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
+            UTILITY_UNUSED_STATEMENT3(ach, wch, char32ch);
             return char16ch;
         }
     };
@@ -348,6 +351,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
+            UTILITY_UNUSED_STATEMENT3(ach, wch, char16ch);
             return char32ch;
         }
     };
@@ -400,6 +404,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
+            UTILITY_UNUSED_STATEMENT3(wstr, char16str, char32str);
             return astr;
         }
     };
@@ -415,6 +420,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
+            UTILITY_UNUSED_STATEMENT3(astr, char16str, char32str);
             return wstr;
         }
     };
@@ -430,6 +436,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
+            UTILITY_UNUSED_STATEMENT3(astr, wstr, char32str);
             return char16str;
         }
     };
@@ -445,6 +452,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
+            UTILITY_UNUSED_STATEMENT3(astr, wstr, char16str);
             return char32str;
         }
     };

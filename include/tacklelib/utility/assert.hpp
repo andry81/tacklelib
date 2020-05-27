@@ -387,6 +387,8 @@ namespace utility
         template<typename T>
         FORCE_INLINE const T & verify(const T & exp_var, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (exp_var ? true : false);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -412,6 +414,8 @@ namespace utility
         template<typename T>
         FORCE_INLINE const T & verify(const T & exp_var, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (exp_var ? false : true);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -437,6 +441,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 == v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -462,6 +468,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 != v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -487,6 +495,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 <= v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -512,6 +522,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 < v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -537,6 +549,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 >= v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
@@ -562,6 +576,8 @@ namespace utility
         template<typename T1, typename T2>
         FORCE_INLINE const T1 & verify(const T1 & v1, const T2 & v2, const char * exp_str, const wchar_t * exp_str_w)
         {
+            UTILITY_UNUSED_STATEMENT6(exp_str, exp_str_w, file, file_w, line, funcsig);
+
             if (v1 > v2);
             else {
                 DEBUG_BREAK_IN_DEBUGGER(true);
