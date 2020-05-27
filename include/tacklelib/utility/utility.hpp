@@ -858,18 +858,21 @@ namespace utility
     template<>
     FORCE_INLINE float LIBRARY_API_DECL str_to_number<float>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
+        UTILITY_UNUSED_STATEMENT(int_base);
         return str_to_float(str, pos, throw_on_error);
     }
 
     template<>
     FORCE_INLINE double LIBRARY_API_DECL str_to_number<double>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
+        UTILITY_UNUSED_STATEMENT(int_base);
         return str_to_double(str, pos, throw_on_error);
     }
 
     template<>
     FORCE_INLINE long double LIBRARY_API_DECL str_to_number<long double>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
+        UTILITY_UNUSED_STATEMENT(int_base);
         return str_to_ldouble(str, pos, throw_on_error);
     }
 
