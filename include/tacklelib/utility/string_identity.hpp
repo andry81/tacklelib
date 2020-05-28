@@ -306,8 +306,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
-            UTILITY_UNUSED_STATEMENT3(wch, char16ch, char32ch);
-            return ach;
+            return UTILITY_UNUSED_EXPR3(wch, char16ch, char32ch), ach;
         }
     };
 
@@ -321,8 +320,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
-            UTILITY_UNUSED_STATEMENT3(ach, char16ch, char32ch);
-            return wch;
+            return UTILITY_UNUSED_EXPR3(ach, char16ch, char32ch), wch;
         }
     };
 
@@ -336,8 +334,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
-            UTILITY_UNUSED_STATEMENT3(ach, wch, char32ch);
-            return char16ch;
+            return UTILITY_UNUSED_EXPR3(ach, wch, char32ch), char16ch;
         }
     };
 
@@ -351,8 +348,7 @@ namespace utility {
                 char16_t char16ch,
                 char32_t char32ch)
         {
-            UTILITY_UNUSED_STATEMENT3(ach, wch, char16ch);
-            return char32ch;
+            return UTILITY_UNUSED_EXPR3(ach, wch, char16ch), char32ch;
         }
     };
 
@@ -404,8 +400,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
-            UTILITY_UNUSED_STATEMENT3(wstr, char16str, char32str);
-            return astr;
+            return UTILITY_UNUSED_EXPR3(wstr, char16str, char32str), astr;
         }
     };
 
@@ -420,8 +415,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
-            UTILITY_UNUSED_STATEMENT3(astr, char16str, char32str);
-            return wstr;
+            return UTILITY_UNUSED_EXPR3(astr, char16str, char32str), wstr;
         }
     };
 
@@ -436,8 +430,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
-            UTILITY_UNUSED_STATEMENT3(astr, wstr, char32str);
-            return char16str;
+            return UTILITY_UNUSED_EXPR3(astr, wstr, char32str), char16str;
         }
     };
 
@@ -452,8 +445,7 @@ namespace utility {
                 literal_u16string_const_reference_arr<S> char16str,
                 literal_u32string_const_reference_arr<S> char32str)
         {
-            UTILITY_UNUSED_STATEMENT3(astr, wstr, char16str);
-            return char32str;
+            return UTILITY_UNUSED_EXPR3(astr, wstr, char16str), char32str;
         }
     };
 
