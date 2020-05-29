@@ -320,12 +320,13 @@ macro(tkl_detect_environment)
     set(CYGWIN ON)
   endif()
 
-  # CAUTION:
-  #   We have to detect the executor to ignore a build directory change under particular executors.
-  #
-  if (COMMAND detect_qt_creator)
-    detect_qt_creator()
-  endif()
+  # WARNING: is not needed anymore as long as the Qt Creator is not uniformally or portibly detectable from cmake under any OS
+  ## CAUTION:
+  ##   We have to detect the executor to ignore a build directory change under particular executors.
+  ##
+  #if (COMMAND detect_qt_creator)
+  #  detect_qt_creator()
+  #endif()
 endmacro()
 
 # CAUTION:
@@ -498,26 +499,27 @@ macro(tkl_configure_environment env_var_files_root runtime_linkage_type_var supp
   # Preload local configuration files to set only predefined set of variables.
   tkl_preload_variables("${sys_env_var_file_path_load_list}" . .)
 
+  # some variables must exist after a preload
+  tkl_check_existence_of_preloaded_system_vars()
+
   # build output directory variables
   tkl_make_build_output_dir_vars("${CMAKE_BUILD_TYPE}" ${GENERATOR_IS_MULTI_CONFIG})
 
-  # can check only in the root project
-  if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
-    # check system variables existence
-    tkl_check_existence_of_system_vars()
+  # if CMAKE_BUILD_ROOT directory already was created externally and contains some predefined tags, then it already must be in a consistent state
+  tkl_check_build_root_tags("${CMAKE_BUILD_TYPE}" ${GENERATOR_IS_MULTI_CONFIG})
 
-    if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
-      tkl_is_equal_paths(_BA96124E_cmake_cachefile_dir_is_build_dir REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" . .)
-      if (NOT _BA96124E_cmake_cachefile_dir_is_build_dir)
-        message(FATAL_ERROR "Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory. \
-To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMAKE_BUILD_DIR}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
-      endif()
-      unset(_BA96124E_cmake_cachefile_dir_is_build_dir)
-    endif()
-  else()
-    # must create predefined set of output directories because the external script has created directories only for the top level project
-    tkl_make_build_output_dirs()
-  endif()
+  # must always create predefined set of output directories because the camke can be called directly and/or from a nested project out of an external script
+  tkl_make_build_output_dirs("${CMAKE_BUILD_TYPE}" ${GENERATOR_IS_MULTI_CONFIG})
+
+  # WARNING: is not needed anymore as long as the Qt Creator is not uniformally or portibly detectable from cmake under any OS
+  #if (DEFINED CMAKE_CACHEFILE_DIR AND NOT IS_EXECUTED_BY_QT_CREATOR)
+  #  tkl_is_equal_paths(_BA96124E_cmake_cachefile_dir_is_build_dir REALPATH "${CMAKE_CACHEFILE_DIR}" "${CMAKE_BUILD_DIR}" . .)
+  #  if (NOT _BA96124E_cmake_cachefile_dir_is_build_dir)
+  #    message(FATAL_ERROR "Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory. "
+  #                        "To continue do remove manually the external cache file:\n CMAKE_BUILD_DIR=`${CMAKE_BUILD_DIR}`\n CMAKE_CACHEFILE_DIR=`${CMAKE_CACHEFILE_DIR}`")
+  #  endif()
+  #  unset(_BA96124E_cmake_cachefile_dir_is_build_dir)
+  #endif()
 
   # Find environment variable files through the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variables
   # to load them before the local environment variable files.
@@ -2219,7 +2221,7 @@ function(tkl_make_build_output_dir_vars build_type is_multi_config)
   endif()
 endfunction()
 
-function(tkl_make_build_output_dirs)
+function(tkl_make_build_output_dirs build_type is_multi_config)
   get_filename_component(CMAKE_OUTPUT_ROOT_DIR ${CMAKE_OUTPUT_ROOT} DIRECTORY)
   if (NOT EXISTS "${CMAKE_OUTPUT_ROOT_DIR}")
     message(FATAL_ERROR "parent directory of the CMAKE_OUTPUT_ROOT does not exist `${CMAKE_OUTPUT_ROOT}`")
@@ -2278,6 +2280,12 @@ function(tkl_make_build_output_dirs)
   file(MAKE_DIRECTORY "${CMAKE_BIN_DIR}")
   file(MAKE_DIRECTORY "${CMAKE_LIB_DIR}")
   file(MAKE_DIRECTORY "${CMAKE_PACK_DIR}")
+
+  if (NOT "${build_type}" STREQUAL "")
+    file(WRITE "${CMAKE_BUILD_ROOT}/singleconfig.tag" "")
+  elseif (is_multi_config)
+    file(WRITE "${CMAKE_BUILD_ROOT}/multiconfig.tag" "")
+  endif()
 endfunction()
 
 function(tkl_update_CMAKE_CONFIGURATION_TYPES_from config_types do_advance_out_vars)
