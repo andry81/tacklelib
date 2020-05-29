@@ -1,4 +1,11 @@
 2020.05.29:
+* changed: cmake: code cleanup
+
+2020.05.29:
+* new: cmake: now read and write `singleconfig.tag` and `multiconfig.tag` files directly from a cmake list file to detect inconsistency state in the cmake output build directories at any project nest level
+* fixed: cmake: cmake execution from the Qt Creator is fixed, Qt Creatore detection is removed, now at any project nest level cmake does check consistency in the cmake output build directories or create them if all checks has passed
+
+2020.05.29:
 * fixed: cpp: an unused macro in a constexpr function fix
 
 2020.05.28:
