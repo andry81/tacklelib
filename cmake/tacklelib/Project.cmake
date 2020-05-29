@@ -288,6 +288,16 @@ macro(tkl_declare_ternary_builtin_vars)
     message(FATAL_ERROR "TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL is not defined")
   endif()
 
+  if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_PACK_ROOT}/${CMAKE_BUILD_TYPE}")
+  else()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_PACK_ROOT}")
+  endif()
+
   # only top level project can discovery or change global cmake flags
   if (NOT TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
     tkl_discover_builtin_env_vars(CMAKE_INSTALL_PREFIX        PATH .)
