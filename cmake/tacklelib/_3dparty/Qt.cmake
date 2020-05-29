@@ -1,11 +1,12 @@
 include(tacklelib/Project)
 
-function(detect_qt_creator)
-  string(REGEX MATCH "[^a-zA-Z]?(QtCreator|qtc)[^a-zA-Z]?" QT_CREATOR_MATCH_STR "${CMAKE_CURRENT_BINARY_DIR}")
-  if (QT_CREATOR_MATCH_STR)
-    set(IS_EXECUTED_BY_QT_CREATOR 1 PARENT_SCOPE)
-  endif()
-endfunction()
+# WARNING: is not needed anymore as long as the Qt Creator is not uniformally or portibly detectable from cmake under any OS
+#function(detect_qt_creator)
+#  string(REGEX MATCH "[^a-zA-Z]?(QtCreator|qtc)[^a-zA-Z]?" QT_CREATOR_MATCH_STR "${CMAKE_CURRENT_BINARY_DIR}")
+#  if (QT_CREATOR_MATCH_STR)
+#    set(IS_EXECUTED_BY_QT_CREATOR 1 PARENT_SCOPE)
+#  endif()
+#endfunction()
 
 # MUST BE A MACRO, OTHERWISE THE INNER find_package PARAMETERS WOULD STAY IN THE FUNCTION SCOPE!
 macro(find_qt_component package_src_dir_var name is_required)

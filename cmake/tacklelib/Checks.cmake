@@ -52,7 +52,17 @@ function(tkl_check_global_vars_consistency)
   endif()
 endfunction()
 
-function(tkl_check_existence_of_system_vars)
+function(tkl_check_existence_of_preloaded_system_vars)
+  # these must exist after a very first variable's preload
+  if (NOT DEFINED CMAKE_OUTPUT_ROOT)
+    message(FATAL_ERROR "CMAKE_OUTPUT_ROOT variable must be defined")
+  endif()
+  if (NOT DEFINED CMAKE_BUILD_ROOT)
+    message(FATAL_ERROR "CMAKE_BUILD_ROOT variable must be defined")
+  endif()
+endfunction()
+
+function(tkl_check_existence_of_loaded_system_vars)
   # these must always exist at any stage
   if (NOT EXISTS "${CMAKE_OUTPUT_ROOT}")
     message(FATAL_ERROR "CMAKE_OUTPUT_ROOT directory must be existed: `${CMAKE_OUTPUT_ROOT}`")
@@ -105,7 +115,7 @@ function(tkl_check_existence_of_system_vars)
 endfunction()
 
 macro(tkl_check_existence_of_required_vars)
-  tkl_check_existence_of_system_vars()
+  tkl_check_existence_of_loaded_system_vars()
 
   if(NOT DEFINED GENERATOR_IS_MULTI_CONFIG)
     message(FATAL_ERROR "GENERATOR_IS_MULTI_CONFIG must be defined")
@@ -126,6 +136,24 @@ macro(tkl_check_existence_of_required_vars)
     message(FATAL_ERROR "CMAKE_LIBRARY_OUTPUT_DIRECTORY directory must be existed: `${CMAKE_LIBRARY_OUTPUT_DIRECTORY}`")
   endif()
 endmacro()
+
+function(tkl_check_build_root_tags build_type is_multi_config)
+  # check if multiconfig.tag is already created
+  if (EXISTS "${CMAKE_BUILD_ROOT}/singleconfig.tag")
+    if ("${build_type}" STREQUAL "")
+      message(FATAL_ERROR "single config cmake cache already has been created, but variable CMAKE_BUILT_TYPE is not set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}`")
+    endif()
+  endif()
+
+  if (EXISTS "${CMAKE_BUILD_ROOT}/multiconfig.tag")
+    if (NOT "${build_type}" STREQUAL "")
+      message(FATAL_ERROR "multi config cmake cache already has been created, but variable CMAKE_BUILD_TYPE is set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`")
+    endif()
+    if (NOT is_multi_config)
+      message(FATAL_ERROR "multi config cmake cache already has been created, but cmake was not run under a multiconfig generator: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`")
+    endif()
+  endif()
+endfunction()
 
 function(tkl_check_var var_opt var_type var_name)
   if ("${var_opt}" STREQUAL "")
