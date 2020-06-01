@@ -291,11 +291,11 @@ macro(tkl_declare_ternary_builtin_vars)
   if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}/${CMAKE_BUILD_TYPE}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}/${CMAKE_BUILD_TYPE}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_PACK_ROOT}/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}/${CMAKE_BUILD_TYPE}") # `*.lib` files on Windows and `*.a` files on Linux
   else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BIN_ROOT}")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_PACK_ROOT}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_LIB_ROOT}")  # `*.lib` files on Windows and `*.a` files on Linux
   endif()
 
   # only top level project can discovery or change global cmake flags
