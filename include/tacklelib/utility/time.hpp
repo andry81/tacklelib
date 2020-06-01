@@ -169,6 +169,33 @@ namespace time {
         return t;
     }
 
+    // analog: `std::mktime` to convert into `std::time_t`
+    FORCE_INLINE std::time_t timegm(const std::tm & time)
+    {
+        std::tm c_tm = time; // must be not constant
+
+#if defined(UTILITY_COMPILER_CXX_MSC)
+        return ::_mkgmtime(&c_tm);
+#elif defined(UTILITY_COMPILER_CXX_GCC)
+        return ::timegm(&c_tm);
+#else
+#   error platform is not implemented
+#endif
+    }
+
+    FORCE_INLINE std::tm get_calendar_time_from_utc_time_sec(double utc_time_sec, double * utc_time_sec_fract = nullptr)
+    {
+        // convert UTC time to time_t structure
+        const std::time_t track_time = std::time_t(uint64_t(utc_time_sec)); // seconds since 00:00 hours 1 Jan 1970 (unix epoch)
+
+        if (utc_time_sec_fract) {
+            double whole;
+            *utc_time_sec_fract = std::modf(utc_time_sec, &whole);
+        }
+
+        return utility::time::gmtime(track_time);
+    }
+
     FORCE_INLINE bool get_time(std::string & time_str, const std::string & fmt, const std::tm & time, std::exception * exception_ptr = nullptr)
     {
         if (exception_ptr) {
@@ -287,33 +314,6 @@ namespace time {
 //#endif
     }
 #endif
-
-    // analog: `std::mktime` to convert into `std::time_t`
-    FORCE_INLINE time_t timegm(const std::tm & time)
-    {
-        tm c_tm = time; // must be not constant
-
-#if defined(UTILITY_COMPILER_CXX_MSC)
-        return ::_mkgmtime(&c_tm);
-#elif defined(UTILITY_COMPILER_CXX_GCC)
-        return ::timegm(&c_tm);
-#else
-#   error platform is not implemented
-#endif
-    }
-
-    FORCE_INLINE std::tm get_calendar_time_from_utc_time_sec(double utc_time_sec, double * utc_time_sec_fract = nullptr)
-    {
-        // convert UTC time to time_t structure
-        const time_t track_time = time_t(uint64_t(utc_time_sec)); // seconds since 00:00 hours 1 Jan 1970 (unix epoch)
-
-        if (utc_time_sec_fract) {
-            double whole;
-            *utc_time_sec_fract = std::modf(utc_time_sec, &whole);
-        }
-
-        return utility::time::gmtime(track_time);
-    }
 
 }
 }
