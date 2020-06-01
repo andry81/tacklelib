@@ -26,6 +26,7 @@
 #include <sstream>
 #include <iomanip>
 #include <utility>
+#include <exception>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!
@@ -168,28 +169,64 @@ namespace time {
         return t;
     }
 
-    FORCE_INLINE std::string strftime(const std::string & fmt, const std::tm & time)
+    FORCE_INLINE bool get_time(std::string & time_str, const std::string & fmt, const std::tm & time, std::exception * exception_ptr = nullptr)
     {
+        if (exception_ptr) {
+            *exception_ptr = std::exception{};
+        }
+
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
         const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
-        return fmt::format(fmt_format, time);
+        try
+        {
+            time_str = fmt::format(fmt_format, time);
+            return true;
+        }
+        catch (const fmt::format_error & ex)
+        {
+            if (exception_ptr) {
+                *exception_ptr = ex;
+            }
+        }
 #else
         std::stringstream buffer;
         buffer << std::put_time(&time, fmt.c_str());
-        return buffer.str();
+        if (!buffer.fail()) {
+            time_str = buffer.str();
+            return true;
+        }
 #endif
+
+        return false;
     }
 
 #ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
     // Uses `std::get_time` to read the formatted time string into calendar time (not including milliseconds and days since 1 January).
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE bool get_time(std::tm & time, const std::string & locale,
-        const std::basic_string<t_elem, t_traits, t_alloc> & fmt, const std::basic_string<t_elem, t_traits, t_alloc> & date_time_str)
+                               const std::basic_string<t_elem, t_traits, t_alloc> & fmt, const std::basic_string<t_elem, t_traits, t_alloc> & date_time_str,
+                               std::exception * exception_ptr = nullptr)
     {
+        if (exception_ptr) {
+            *exception_ptr = std::exception{};
+        }
+
 // not implemented
 //#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
 //        const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
-//        return fmt::get_time(fmt_format, date_time_str);
+//        try
+//        {
+//            time = fmt::get_time(fmt_format, date_time_str);
+//            return true;
+//        }
+//        catch (const fmt::format_error & ex)
+//        {
+//            if (exception_ptr) {
+//                *exception_ptr = ex;
+//            }
+//        }
+//
+//        return false;
 //#else
         time = std::tm{};
 
@@ -210,12 +247,29 @@ namespace time {
     // Uses `std::get_time` to read the formatted time string into calendar time (not including milliseconds and days since 1 January).
     template <class t_elem, class t_traits, class t_alloc>
     FORCE_INLINE bool get_time(std::tm & time, const std::string & locale,
-        const std::basic_string<t_elem, t_traits, t_alloc> & fmt, std::basic_string<t_elem, t_traits, t_alloc> && date_time_str)
+                               const std::basic_string<t_elem, t_traits, t_alloc> & fmt, std::basic_string<t_elem, t_traits, t_alloc> && date_time_str,
+                               std::exception * exception_ptr = nullptr)
     {
+        if (exception_ptr) {
+            *exception_ptr = std::exception{};
+        }
+
 // not implemented
 //#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
 //        const std::string fmt_format{ utility::string_format(256, "{:%s}", fmt.c_str()) }; // faster than fmt format
-//        return fmt::get_time(fmt_format, date_time_str);
+//        try
+//        {
+//            time = fmt::get_time(fmt_format, std::move(date_time_str));
+//            return true;
+//        }
+//        catch (const fmt::format_error & ex)
+//        {
+//            if (exception_ptr) {
+//                *exception_ptr = ex;
+//            }
+//        }
+//
+//        return false;
 //#else
         time = std::tm{};
 
@@ -240,9 +294,9 @@ namespace time {
         tm c_tm = time; // must be not constant
 
 #if defined(UTILITY_COMPILER_CXX_MSC)
-        return _mkgmtime(&c_tm);
+        return ::_mkgmtime(&c_tm);
 #elif defined(UTILITY_COMPILER_CXX_GCC)
-        return timegm(&c_tm);
+        return ::timegm(&c_tm);
 #else
 #   error platform is not implemented
 #endif
