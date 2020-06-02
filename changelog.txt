@@ -1,3 +1,6 @@
+2020.06.02:
+* fixed: cpp: gcc 4.9.3 warnings fixup
+
 2020.06.01:
 * changed: cpp: time functions code cleanup
 
