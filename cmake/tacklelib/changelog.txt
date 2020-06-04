@@ -1,3 +1,6 @@
+2020.06.04:
+* fixed: removed implicit usage of internal `.*` sequences in a pattern matching to be able to use by user external sequences like `^` and `$`
+
 2020.06.01:
 * changed: CMAKE_ARCHIVE_OUTPUT_DIRECTORY variable default location change to the `/lib` subdirectory
 
