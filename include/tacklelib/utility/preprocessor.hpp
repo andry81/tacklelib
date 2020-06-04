@@ -45,12 +45,24 @@
 
 #define UTILITY_PP_CONCAT_(v1, v2) v1 ## v2
 #define UTILITY_PP_CONCAT(v1, v2) UTILITY_PP_CONCAT_(v1, v2)
-#define UTILITY_PP_CONCAT3(v1, v2, v3) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT(v2, v3))
-#define UTILITY_PP_CONCAT4(v1, v2, v3, v4) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT3(v2, v3, v4))
-#define UTILITY_PP_CONCAT5(v1, v2, v3, v4, v5) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT4(v2, v3, v4, v5))
-#define UTILITY_PP_CONCAT6(v1, v2, v3, v4, v5, v6) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT5(v2, v3, v4, v5, v6))
-#define UTILITY_PP_CONCAT7(v1, v2, v3, v4, v5, v6, v7) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT6(v2, v3, v4, v5, v6, v7))
-#define UTILITY_PP_CONCAT8(v1, v2, v3, v4, v5, v6, v7, v8) UTILITY_PP_CONCAT(v1, UTILITY_PP_CONCAT7(v2, v3, v4, v5, v6, v7, v8))
+
+#define UTILITY_PP_CONCAT3_(v1, v2, v3) v1 ## v2 ## v3
+#define UTILITY_PP_CONCAT3(v1, v2, v3) UTILITY_PP_CONCAT3_(v1, v2, v3))
+
+#define UTILITY_PP_CONCAT4_(v1, v2, v3, v4) v1 ## v2 ## v3 ## v4
+#define UTILITY_PP_CONCAT4(v1, v2, v3, v4) UTILITY_PP_CONCAT4_(v1, v2, v3, v4)
+
+#define UTILITY_PP_CONCAT5_(v1, v2, v3, v4, v5) v1 ## v2 ## v3 ## v4 ## v5
+#define UTILITY_PP_CONCAT5(v1, v2, v3, v4, v5) UTILITY_PP_CONCAT5_(v1, v2, v3, v4, v5)
+
+#define UTILITY_PP_CONCAT6_(v1, v2, v3, v4, v5, v6) v1 ## v2 ## v3 ## v4 ## v5 ## v6
+#define UTILITY_PP_CONCAT6(v1, v2, v3, v4, v5, v6) UTILITY_PP_CONCAT6_(v1, v2, v3, v4, v5, v6)
+
+#define UTILITY_PP_CONCAT7_(v1, v2, v3, v4, v5, v6, v7) v1 ## v2 ## v3 ## v4 ## v5 ## v6 ## v7
+#define UTILITY_PP_CONCAT7(v1, v2, v3, v4, v5, v6, v7) UTILITY_PP_CONCAT7_(v1, v2, v3, v4, v5, v6, v7)
+
+#define UTILITY_PP_CONCAT8_(v1, v2, v3, v4, v5, v6, v7, v8) v1 ## v2 ## v3 ## v4 ## v5 ## v6 ## v7 ## v8
+#define UTILITY_PP_CONCAT8(v1, v2, v3, v4, v5, v6, v7, v8) UTILITY_PP_CONCAT8_(v1, v2, v3, v4, v5, v6, v7, v8)
 
 #define UTILITY_PP_FILE_ __FILE__
 #define UTILITY_PP_FILE UTILITY_PP_FILE_
@@ -83,9 +95,47 @@
 #define UTILITY_PP_IDENTITY8_(v1, v2, v3, v4, v5, v6, v7, v8) v1, v2, v3, v4, v5, v6, v7, v8
 #define UTILITY_PP_IDENTITY8(v1, v2, v3, v4, v5, v6, v7, v8) UTILITY_PP_IDENTITY8_(v1, v2, v3, v4, v5, v6, v7, v8)
 
+#define UTILITY_PP_VA_ARGS_(...)    __VA_ARGS__
+#define UTILITY_PP_VA_ARGS(...)     UTILITY_PP_VA_ARGS_(__VA_ARGS__)
+
+#define UTILITY_PP_IDENTITY_VA_ARGS_(x, ...)    x, ## __VA_ARGS__
+#define UTILITY_PP_IDENTITY_VA_ARGS(x, ...)     UTILITY_PP_IDENTITY_VA_ARGS_(x, ## __VA_ARGS__)
+
+#define UTILITY_PP_IIF_0(x, ...) __VA_ARGS__
+#define UTILITY_PP_IIF_1(x, ...) x
+#define UTILITY_PP_IIF(c) UTILITY_PP_CONCAT_(UTILITY_PP_IIF_, c)
+
+#define UTILITY_PP_IIF_NOT_0(x, ...) x
+#define UTILITY_PP_IIF_NOT_1(x, ...) __VA_ARGS__
+#define UTILITY_PP_IIF_NOT_(c) UTILITY_PP_CONCAT_(UTILITY_PP_IIF_NOT_, c)
+
+#define UTILITY_PP_HAS_COMMA(...) UTILITY_PP_IDENTITY(UTILITY_PP_VA_ARGS_TAIL(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0))
+#define UTILITY_PP_IS_EMPTY_TRIGGER_PARENTHESIS_(...) ,
+
+#define UTILITY_PP_IS_EMPTY(...) UTILITY_PP_IS_EMPTY_(                                      \
+    /* test if there is just one argument, eventually an empty one */                       \
+    UTILITY_PP_HAS_COMMA(__VA_ARGS__),                                                      \
+    /* test if _TRIGGER_PARENTHESIS_ together with the argument adds a comma */             \
+    UTILITY_PP_HAS_COMMA(UTILITY_PP_IS_EMPTY_TRIGGER_PARENTHESIS_ __VA_ARGS__),             \
+    /* test if the argument together with a parenthesis adds a comma */                     \
+    UTILITY_PP_HAS_COMMA(__VA_ARGS__ ()),                                                   \
+    /* test if placing it between _TRIGGER_PARENTHESIS_ and the parenthesis adds a comma */ \
+    UTILITY_PP_HAS_COMMA(UTILITY_PP_IS_EMPTY_TRIGGER_PARENTHESIS_ __VA_ARGS__ ()))
+
+#define UTILITY_PP_IS_EMPTY_(_0, _1, _2, _3) UTILITY_PP_HAS_COMMA(UTILITY_PP_CONCAT5_(UTILITY_PP_IS_EMPTY_IS_EMPTY_CASE_, _0, _1, _2, _3))
+#define UTILITY_PP_IS_EMPTY_IS_EMPTY_CASE_0001 ,
+
+#define UTILITY_PP_VA_ARGS_SIZE(...) UTILITY_PP_IIF(UTILITY_PP_IS_EMPTY(__VA_ARGS__))(0, UTILITY_PP_VA_ARGS_SIZE_(__VA_ARGS__, UTILITY_PP_VA_ARGS_SEQ64()))
+#define UTILITY_PP_VA_ARGS_SIZE_(...) UTILITY_PP_IDENTITY(UTILITY_PP_VA_ARGS_TAIL(__VA_ARGS__))
+
+#define UTILITY_PP_VA_ARGS_TAIL(_0,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14, x, ...) x
+#define UTILITY_PP_VA_ARGS_SEQ64() 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
+
 #define UTILITY_PP_LINE_TERMINATOR
 
+// breakable if
 #define if_break(x) switch(0) case 0: default: if(x)
+// breakable if with repeat label
 #define if_break2(label, x) switch(0) case 0: default: if(false) label:; else if(x)
 
 #define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { using type = type_; }

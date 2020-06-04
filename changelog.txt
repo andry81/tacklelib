@@ -1,3 +1,8 @@
+2020.06.04:
+* new: cpp: preprocessor UTILITY_PP_IS_EMPTY macro to detection empty preprocessor tokens
+* new: cpp: preprocessor UTILITY_PP_VA_ARGS_SIZE macro to extract a macro arguments quantity
+* new: cpp: UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG and others macroses to define a tag type and a tag type constant variable
+
 2020.06.02:
 * fixed: cpp: gcc 4.9.3 warnings fixup
 

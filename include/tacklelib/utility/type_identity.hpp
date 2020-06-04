@@ -74,6 +74,26 @@
 
 #define UTILITY_GET(value, constexpr_index)             (::utility::get<constexpr_index>(value))
 
+
+// define a tag type using int_identity class (through the using keyword)
+#define UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG(tag_token, ...) \
+    using tag_ ## tag_token ## _t = ::utility::int_identity<UTILITY_PP_IIF(UTILITY_PP_IS_EMPTY(__VA_ARGS__))(tag_token, (__VA_ARGS__))>
+
+// define a tag type and a constant using int_identity class (through the using keyword)
+#define UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG_AND_CONSTEXPR_CONSTANT(tag_token, ...) \
+    UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG(tag_token, __VA_ARGS__); \
+    const CONSTEXPR tag_ ## tag_token ## _t tag_ ## tag_token{}
+
+// define a tag type using int_identity class (through a derived struct)
+#define UTILITY_DEFINE_INT_IDENTITY_AS_DERIVED_STRUCT_TAG(tag_token, ...) \
+    struct tag_ ## tag_token ## _t : ::utility::int_identity<UTILITY_PP_IIF(UTILITY_PP_IS_EMPTY(__VA_ARGS__))(tag_token, (__VA_ARGS__))> {}
+
+// define a tag type and a constant using int_identity class (through a derived struct)
+#define UTILITY_DEFINE_INT_IDENTITY_AS_DERIVED_STRUCT_TAG_AND_CONSTEXPR_CONSTANT(tag_token, ...) \
+    UTILITY_DEFINE_INT_IDENTITY_AS_DERIVED_STRUCT_TAG(tag_token, __VA_ARGS__); \
+    const CONSTEXPR tag_ ## tag_token ## _t tag_ ## tag_token{}
+
+
 // Checks existence of member function.
 // Based on: https://stackoverflow.com/questions/257288/is-it-possible-to-write-a-template-to-check-for-a-functions-existence/264088#264088
 //
