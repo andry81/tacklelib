@@ -651,7 +651,7 @@ function(tkl_exclude_paths_from_path_list exclude_list_var include_list_var path
   foreach(path IN LISTS path_list)
     set(_excluded 0)
     foreach(exclude_path IN LISTS exclude_path_list)
-      if("${path}" MATCHES "(.*)${exclude_path}(.*)")
+      if("${path}" MATCHES "${exclude_path}")
         if(verbose_flag)
           message(STATUS "(**) tkl_exclude_paths_from_path_list: excluded: `${path}`")
         endif()
@@ -700,7 +700,7 @@ function(tkl_exclude_file_paths_from_path_list exclude_list_var include_list_var
   foreach(path IN LISTS path_list)
     set(_excluded 0)
     foreach(exclude_file_path IN LISTS exclude_file_path_list)
-      if("${path}|" MATCHES "(.*)${exclude_file_path}\\|")
+      if("${path}|" MATCHES "${exclude_file_path}\\|")
         if(verbose_flag)
           message(STATUS "(**) tkl_exclude_file_paths_from_path_list: excluded: `${path}`")
         endif()
@@ -736,7 +736,7 @@ function(tkl_include_paths_from_path_list include_list_var path_list include_pat
 
   foreach(path IN LISTS path_list)
     foreach(include_path IN LISTS include_path_list)
-      if("${path}" MATCHES "(.*)${include_path}(.*)")
+      if("${path}" MATCHES "${include_path}")
         if(verbose_flag)
           message(STATUS "(**) tkl_include_paths_from_path_list: included: `${path}`")
         endif()
@@ -757,7 +757,7 @@ function(tkl_include_file_paths_from_path_list include_list_var path_list includ
 
   foreach(path IN LISTS path_list)
     foreach(include_file_path IN LISTS include_file_path_list)
-      if("${path}|" MATCHES "(.*)${include_file_path}\\|")
+      if("${path}|" MATCHES "${include_file_path}\\|")
         if(verbose_flag)
           message(STATUS "(**) tkl_include_file_paths_from_path_list: included: `${path}`")
         endif()
@@ -774,7 +774,7 @@ function(tkl_source_group_by_path_list group_path type path_list include_path_li
 
   foreach(path IN LISTS path_list)
     foreach(include_path IN LISTS include_path_list)
-      if("${path}" MATCHES "(.*)${include_path}(.*)")
+      if("${path}" MATCHES "${include_path}")
         if(verbose_flag)
           message(STATUS "(**) tkl_source_group_by_path_list: `${group_path}` -> (${type}) `${path}`")
         endif()
@@ -793,7 +793,7 @@ function(tkl_source_group_by_file_path_list group_path type path_list include_fi
 
   foreach(path IN LISTS path_list)
     foreach(include_file_path IN LISTS include_file_path_list)
-      if("${path}|" MATCHES "(.*)${include_file_path}\\|")
+      if("${path}|" MATCHES "${include_file_path}\\|")
         if(verbose_flag)
           message(STATUS "(**) tkl_source_group_by_file_path_list: `${group_path}` -> (${type}) `${path}`")
         endif()
