@@ -1,3 +1,16 @@
+2020.06.12:
+* fixed: bash: bash_entry: rewriten `tkl_include` implementation to fix case with the `BASH_SOURCE_*` globals generation at first time call function level context
+* fixed: bash: bash_entry: `tkl_declare_local_array` has no effect as declares always a current function local array variable instead of an upper function call context array variable
+* fixed: bash: bash_entry: other bug fixes
+* fixed: bash: traplib.sh: specific bash 4.4.x version feature-bug issue where a first call to the `tkl_push_trap` function does not setup a trap handler
+* fixed: bash: traplib.sh: other bug fixes
+* new: bash: bash_entry: `BASH_SOURCE_CMD_LINE` variable to store a last `tkl_include` arguments as serialized array
+* new: bash: baselib.sh: `tkl_get_current_function_names_stack_trace` function to directly extract current function stack trace as names '|'-separated list
+* new: bash: traplib.sh: `RELEASE` signal trap handler for the `tkl_push_trap`/`tkl_pop_trap` functions to use as a RAII pattern in a Bash script instead of a RETURN trap handler which is limited for the sake of back compatability
+* changed: bash_tests: 02_traplib/01_push_trap/test_1.sh: double execution instead of a single to catch an error after a first call to the `tkl_push_trap`
+* refactor: bash: traplib.sh: global refactor
+* refactor: bash: buildlib.sh: minor refactor
+
 2020.06.04:
 * fixed: cmake: removed implicit usage of internal `.*` sequences in a pattern matching to be able to use by user external sequences like `^` and `$`
 

@@ -1,3 +1,6 @@
+2020.06.12:
+* changed: 02_traplib/01_push_trap/test_1.sh: double execution instead of a single to catch an error after a first call to the `tkl_push_trap`
+
 2020.04.06:
 * changed: readme update
 

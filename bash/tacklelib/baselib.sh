@@ -883,4 +883,12 @@ function tkl_join_array()
   return 0
 }
 
+function tkl_get_current_function_names_stack_trace()
+{
+  local out_var="${1:-RETURN_VALUE}"
+
+  tkl_join_array FUNCNAME '|' 2
+  tkl_declare_local "$out_var" "${RETURN_VALUES[1]}"
+}
+
 fi

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BUILDLIB_SH" || SOURCE_TACKLELIB_BUILDLIB_SH -eq 0) ]]; then 
+if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BUILDLIB_SH" || SOURCE_TACKLELIB_BUILDLIB_SH -eq 0) ]]; then
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
@@ -46,11 +46,12 @@ function tkl_exit()
 #
 function tkl_call()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   echo
-  tkl_pushset_source_file_components_from_file_path "$1"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$1" "${@:2}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "$@"
   tkl__last_error=$?
   return $tkl__last_error
@@ -61,13 +62,14 @@ function tkl_call()
 #
 function tkl_call_and_print_if()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
     echo ">$RETURN_VALUE"
     echo
   }
-  tkl_pushset_source_file_components_from_file_path "$2"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error
@@ -78,11 +80,12 @@ function tkl_call_and_print_if()
 #
 function tkl_call_inproc()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   echo
-  tkl_pushset_source_file_components_from_file_path "$1"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$1" "${@:2}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "$@"
   tkl__last_error=$?
   return $tkl__last_error
@@ -93,13 +96,14 @@ function tkl_call_inproc()
 #
 function tkl_call_inproc_and_print_if()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
     echo ">$RETURN_VALUE"
     echo
   }
-  tkl_pushset_source_file_components_from_file_path "$2"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error
@@ -110,11 +114,12 @@ function tkl_call_inproc_and_print_if()
 #
 function tkl_call_inproc_entry()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:3}"
   echo ">$2: $1 $RETURN_VALUE"
   echo
-  tkl_pushset_source_file_components_from_file_path "$2"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc_entry "$@"
   tkl__last_error=$?
   return $tkl__last_error
@@ -125,13 +130,14 @@ function tkl_call_inproc_entry()
 #
 function tkl_call_inproc_entry_and_print_if()
 {
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:4}"
   eval "$1" && {
     echo ">$3: $2 $RETURN_VALUE"
     echo
   }
-  tkl_pushset_source_file_components_from_file_path "$3"
-  tkl_push_trap "tkl_pop_source_file_components" RETURN
+  tkl_pushset_source_file_components_from_args "$3" "${@:4}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
   tkl__last_error=$?
   return $tkl__last_error
@@ -310,7 +316,7 @@ function tkl_load_command_line_from_file()
 
   local Flags="$1"
   local FilePath="$2"
-  
+
   local DoEval=0
   local AlwaysQuoting=0
 

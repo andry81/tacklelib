@@ -49,10 +49,15 @@ function tkl_return_local()
   tkl_declare_global "$@"
 }
 
+function tkl_declare_local()
+{
+  eval "$1=\"\$2\"" # must be defined externally as local
+}
+
 function tkl_declare_local_array()
 {
   local IFS=$' \t\r\n' # just in case, workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
-  eval declare "$1=(\"\${@:2}\")"
+  eval "$1=(\"\${@:2}\")" # must be defined externally as local
 }
 
 # CAUTION:
@@ -62,7 +67,7 @@ function tkl_declare_local_array()
 function tkl_declare_global()
 {
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
-  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then 
+  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then
     declare -g $1="$2"
   else
     ## Tricky implementation to set global variable from a function w/o:
@@ -86,7 +91,7 @@ function tkl_declare_global()
 function tkl_declare_global_array()
 {
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
-  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then 
+  if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then
     local IFS=$' \t\r\n' # just in case, workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
     eval declare -g "$1=(\"\${@:2}\")"
   else
@@ -216,6 +221,11 @@ function tkl_pushunset_var_to_stack()
   unset $2
 }
 
+function tkl_push_var_to_stack()
+{
+  tkl_push_var_to_stack_impl "$@"
+}
+
 function tkl_pop_var_from_stack()
 {
   # INFO:
@@ -328,25 +338,90 @@ function tkl_get_source_file_path()
 
 function tkl_make_source_file_components()
 {
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+
+  local RETURN_VALUE
   tkl_get_source_file_path || return $?
 
   tkl_export BASH_SOURCE_FILE "$RETURN_VALUE"
-  tkl_export BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
+  [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+  tkl_export BASH_SOURCE_FILE_NAME "$bash_source_file_name"
   tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+
+  tkl_declare_global_array BASH_SOURCE_CMD_LINE_ARR "$BASH_SOURCE_FILE" "$@"
+
+  tkl_export BASH_SOURCE_CMD_LINE ''
+
+  tkl_serialize_array BASH_SOURCE_CMD_LINE_ARR BASH_SOURCE_CMD_LINE
 }
 
-function tkl_pushset_source_file_components_from_file_path()
+function tkl_declare_source_file_components_from_args()
 {
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+
+  tkl_export BASH_SOURCE_FILE "$1"
+  local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
+  [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+  tkl_export BASH_SOURCE_FILE_NAME "$bash_source_file_name"
+  tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+
+  tkl_declare_global_array BASH_SOURCE_CMD_LINE_ARR "$@"
+
+  tkl_export BASH_SOURCE_CMD_LINE ''
+
+  tkl_serialize_array BASH_SOURCE_CMD_LINE_ARR BASH_SOURCE_CMD_LINE
+}
+
+function tkl_pushset_source_file_components_from_args()
+{
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+  (( BASH_SOURCE_NEST_LVL++ ))
+
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$1"
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "${BASH_SOURCE_FILE##*[/]}"
+  local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
+  [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "$bash_source_file_name"
   tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
+
+  tkl_push_var_to_stack global BASH_SOURCE_CMD_LINE
+
+  tkl_declare_global_array BASH_SOURCE_CMD_LINE_ARR "$@"
+
+  tkl_export BASH_SOURCE_CMD_LINE ''
+
+  tkl_serialize_array BASH_SOURCE_CMD_LINE_ARR BASH_SOURCE_CMD_LINE
+}
+
+function tkl_pushset_source_file_components()
+{
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+  (( BASH_SOURCE_NEST_LVL++ ))
+
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$BASH_SOURCE_FILE"
+  local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
+  [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "$bash_source_file_name"
+  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "$BASH_SOURCE_DIR"
+  tkl_pushset_var_to_stack global BASH_SOURCE_CMD_LINE "$BASH_SOURCE_CMD_LINE"
 }
 
 function tkl_pop_source_file_components()
 {
+  (( BASH_SOURCE_NEST_LVL-- ))
+
   tkl_pop_var_from_stack global BASH_SOURCE_FILE
   tkl_pop_var_from_stack global BASH_SOURCE_FILE_NAME
   tkl_pop_var_from_stack global BASH_SOURCE_DIR
+  tkl_pop_var_from_stack global BASH_SOURCE_CMD_LINE
+
+  if [[ BASH_SOURCE_NEST_LVL -eq 0 ]]; then
+    tkl_make_source_file_components "${BASH_ARGV[@]}"
+  fi
+
+  tkl_deserialize_array "$BASH_SOURCE_CMD_LINE" BASH_SOURCE_CMD_LINE_ARR
+
+  [[ BASH_SOURCE_NEST_LVL -eq 0 ]] && unset BASH_SOURCE_NEST_LVL
 }
 
 function tkl_set_show_includes()
@@ -364,16 +439,46 @@ function tkl_include()
 {
   local LastError=$?
 
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+
   # CAUTION:
   #   1. All variables here must be unique irrespective to the function scope,
   #      because `source "..."` still can remove or change a local variable!
 
-  [[ -z "$BASH_SOURCE_DIR" ]] && tkl_make_source_file_components
+  #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
+  #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
+  #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
+  #echo " -> BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}"
+
+  local is_bash_source_dir_empty=0
+  [[ -z "$BASH_SOURCE_DIR" ]] && is_bash_source_dir_empty=1
+
+  tkl_pushset_source_file_components
+
+  # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
+  #    in nested contexts.
+  # 2. The trap call is a mandatory, otherwise the inner source command can fail without a pop and leave the `BASH_SOURCE_*`
+  #    variables as not restored.
+  #
+  eval "function tkl_local_return_${#FUNCNAME[@]}()
+  {
+    tkl_pop_source_file_components
+
+    #echo \"---\"
+    #echo \" <- BASH_SOURCE_FILE=\${BASH_SOURCE_FILE}\"
+    #echo \" <- BASH_SOURCE_DIR=\${BASH_SOURCE_DIR}\"
+    #echo \" <- BASH_SOURCE_FILE_NAME=\${BASH_SOURCE_FILE_NAME}\"
+    #echo \" <- BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}\"
+
+    unset -f \"\${FUNCNAME[0]}\" # drop function after execution
+  }"
+
+  builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return $LastError
 
   if tkl_is_abs_path "$1"; then
     if tkl_get_abs_path_from_dir "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
       tkl_set_return $LastError
-      tkl_include_local_impl "${@:2}"
+      tkl_include_local_impl "$RETURN_VALUE" "${@:2}"
       LastError=$?
     fi
   else
@@ -394,7 +499,7 @@ function tkl_include()
           if [[ -f "$RETURN_VALUE" ]]; then
             _84CB4B34_included=1
             tkl_set_return $LastError
-            tkl_include_local_impl "${@:2}"
+            tkl_include_local_impl "$RETURN_VALUE" "${@:2}"
             LastError=$?
             break
           fi
@@ -403,9 +508,11 @@ function tkl_include()
     fi
 
     if (( ! _84CB4B34_included )); then
+      [[ is_bash_source_dir_empty -ne 0 ]] && tkl_make_source_file_components "${@:2}"
+
       if tkl_get_abs_path_from_dir "$BASH_SOURCE_DIR" "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
         tkl_set_return $LastError
-        tkl_include_local_impl "${@:2}"
+        tkl_include_local_impl "$RETURN_VALUE" "${@:2}"
         LastError=$?
       fi
     fi
@@ -418,36 +525,32 @@ function tkl_include_local_impl()
 {
   local LastError=$?
 
-  # CAUTION:
-  #   DO NOT USE `trap` command here and anythere else to pop the variables, because the `source` command would trigger it TOO!
-  #
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+
+  tkl_declare_source_file_components_from_args "$1" "${@:2}"
 
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
-
-  tkl_pushset_source_file_components_from_file_path "$RETURN_VALUE"
 
   #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
   #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
+  #echo " -> BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}"
+  #echo "==="
 
   if (( tkl__include__show_includes )); then
     local source_prefix
     local nest_level=$(( ${#BASH_LINENO[@]} / 3 - 1 ))
     (( nest_level )) && printf -v source_prefix "%*s" ${nest_level} ''
-    echo "${source_prefix// /| }source: \`${BASH_SOURCE_FILE}\`"
+    echo "${source_prefix// /| }source: \`$BASH_SOURCE_CMD_LINE\`"
   fi
-  tkl_set_return $LastError
-  source "${BASH_SOURCE_FILE}" "$@"
-  LastError=$?
 
-  # manually restore the stack, avoid usage of the `trap` command, because of side effect around the `source` command!
-  tkl_pop_source_file_components
+  tkl_declare_global tkl__last_error $LastError
 
-  #echo " <- BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
-  #echo " <- BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
-  #echo " <- BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
+  builtin trap 'builtin trap - RETURN' RETURN
+  source "${BASH_SOURCE_CMD_LINE_ARR[@]}"
+  tkl__last_error=$?
 
-  return $LastError
+  return $tkl__last_error
 }
 
 function tkl_get_native_parent_dir()
@@ -478,8 +581,8 @@ function tkl_get_abs_path_from_dir()
   local RelativePath="$2"
 
   # drop line returns
-  DirPath="${DirPath//[$'\r\n']}" 
-  RelativePath="${RelativePath//[$'\r\n']}" 
+  DirPath="${DirPath//[$'\r\n']}"
+  RelativePath="${RelativePath//[$'\r\n']}"
 
   if [[ -n "$DirPath" ]]; then
     if [[ "${RelativePath:0:1}" != '/' ]]; then
@@ -1044,13 +1147,17 @@ function tkl_exctract_path_ignoring_user_mount_points()
 
   # enable nocase match
   local oldShopt=''
-  function tkl_local_return_impl()
-  {
-    [[ -n "$oldShopt" ]] && eval $oldShopt
-    unset -f "${FUNCNAME[0]}" # drop function after execution
-  }
 
-  builtin trap "tkl_local_return_impl; builtin trap - RETURN" RETURN || return 253
+  # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
+  #    in nested contexts.
+  #
+  eval "function tkl_local_return_${#FUNCNAME[@]}()
+  {
+    [[ -n \"\$oldShopt\" ]] && eval \$oldShopt
+    unset -f \"\${FUNCNAME[0]}\" # drop function after execution
+  }"
+
+  builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return 253
 
   oldShopt=$(shopt -p nocasematch) # Read state before change
   if [[ "$oldShopt" != 'shopt -s nocasematch' ]]; then
@@ -1197,8 +1304,6 @@ function tkl_bash_entry()
 {
   local BashEntryPath="$1"
   [[ -z "$BashEntryPath" ]] && return 1
-
-  builtin trap ':' RETURN # set to empty command to avoid reset from child function calls
 
   tkl_exctract_path_ignoring_user_mount_points -b "$BashEntryPath" || return 2
   export BASH_ENTRY_FILE="$RETURN_VALUE"
