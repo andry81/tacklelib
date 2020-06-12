@@ -69,7 +69,7 @@
 #          boo
 #          2
 #        > builtin trap -p RETURN
-#          
+#
 #
 #   2. Examples with RETURN signal handlers nesting:
 #   2.1. without the library:
@@ -80,7 +80,7 @@
 #          2
 #          1
 #        > builtin trap -p RETURN
-#          
+#
 #   2.2. with the library:
 #        > . traplib.sh
 #        > foo() { tkl_push_trap 'echo 1' RETURN; echo foo; boo() { tkl_push_trap 'echo 2' RETURN; echo boo; }; boo; }
@@ -90,7 +90,7 @@
 #          2
 #          1
 #        > builtin trap -p RETURN
-#          
+#
 #
 #   3. Examples with RETURN signal handlers usage from not a function context:
 #   3.1. without the library:
@@ -147,7 +147,7 @@
 #          *CTRL-C*
 #          2
 #          *press any key to exit*
-#          
+#
 #        > echo $?
 #          0
 #   5.2. with the library:
@@ -162,7 +162,7 @@
 #          2
 #          1
 #          *press any key to exit*
-#          
+#
 #        > echo $?
 #          0
 #
@@ -231,6 +231,8 @@ function tkl_has_trap_cmd_line()
   local stack_var
   local stack_arr_size
 
+  local RETURN_VALUE
+
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
@@ -246,7 +248,7 @@ function tkl_has_trap_cmd_line()
       fi
     else
       # must be to avoid miscount in `for in ...`
-      RETURN_VALUE[i++]=''
+      RETURN_VALUES[i++]=''
     fi
   done
 }
@@ -261,6 +263,8 @@ function tkl_get_last_trap_cmd_line()
   local stack_arr_size
   local trap_prev_cmdline
 
+  local RETURN_VALUE
+
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
@@ -270,14 +274,14 @@ function tkl_get_last_trap_cmd_line()
       stack_var="tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}"
       eval "stack_arr_size=\${#$stack_var[@]}"
       if (( stack_arr_size )); then
-        eval "RETURN_VALUE[i++]=\"\${$stack_var[@]: -1}\""
+        eval "RETURN_VALUES[i++]=\"\${$stack_var[@]: -1}\""
       else
         # must be to avoid miscount in `for in ...`
-        RETURN_VALUE[i++]=''
+        RETURN_VALUES[i++]=''
       fi
     else
       # must be to avoid miscount in `for in ...`
-      RETURN_VALUE[i++]=''
+      RETURN_VALUES[i++]=''
     fi
   done
 }
@@ -288,11 +292,14 @@ function tkl_set_trap_postponed_exit()
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
   tkl_declare_global tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed 1
-  eval "(( ! \${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed_code} ))" && tkl_declare_global tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed_code $1
+  eval "(( ! \${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed_code} ))" && \
+  tkl_declare_global tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed_code $1
 }
 
 function tkl_unset_trap_postponed_exit()
 {
+  local RETURN_VALUE
+
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
@@ -304,37 +311,44 @@ function tkl_set_trap_handler_pop_on_exec()
 {
   local trap_sig="$1"
 
+  local RETURN_VALUE
+
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
-  tkl_join_array FUNCNAME '|' 2
-  local func_names_stack="${RETURN_VALUES[1]}"
-
   tkl_declare_global tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}_pop_on_exec 1
-
-  unset RETURN_VALUES
 }
 
 function tkl_unset_trap_handler_pop_on_exec()
 {
   local trap_sig="$1"
 
+  local RETURN_VALUE
+
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
 
-  tkl_join_array FUNCNAME '|' 2
-  local func_names_stack="${RETURN_VALUES[1]}"
-
   unset tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}_pop_on_exec
-  unset RETURN_VALUES
 }
 
 function tkl_declare_global_trap_handler()
 {
   local trap_sig="$1"
   local shell_pid="$2"
-  local func_names_stack="$3"
-  local auto_pop_on_exec="${4:-0}" # has meaning only for not RETURN and not EXIT signals
+  local stack_var="$3"
+  local return_stack_var="$4"
+  local auto_pop_on_exec="${5:-0}" # has meaning only for not RETURN and not EXIT signals
+
+  # CAUTION:
+  #   Has been found a feature-bug in the Bash versions 4.3 and lower when a variable has
+  #   declared in a function through the `tkl_declare_global` function (`declare -g` command)
+  #   has being accessed from a trap code as a variable in a stack instead as a true global
+  #   variable.
+  #
+  #   In the Bash 4.4.x it has been fixed, so the `func_names_stack` variable now must
+  #   not be passed externally to this function and instead has to be calculated each time
+  #   dynamically in a trap handler code.
+  #
 
   if [[ "$trap_sig" == "RETURN" ]]; then
     # CAUTION:
@@ -346,14 +360,18 @@ if (( \${#FUNCNAME[@]} )); then
     ${stack_var}_handling=1
     builtin trap '' RETURN
 
-    local ${stack_var}_cmdline
+    declare ${stack_var}_func_names_stack
+    tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
+
+    declare ${stack_var}_cmdline
 
     declare tkl__stack_arr_size=\${#$stack_var[@]}
     while (( tkl__stack_arr_size )); do
-      [[ \"\${$stack_var[tkl__stack_arr_size-2]}\" != \"$func_names_stack\" ]] && break
-      ${stack_var}_cmdline=\${$stack_var[tkl__stack_arr_size-1]}
+      [[ \"\${$stack_var[tkl__stack_arr_size-3]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      ${stack_var}_cmdline=\${$stack_var[tkl__stack_arr_size-2]}
       unset $stack_var[tkl__stack_arr_size-1]
       unset $stack_var[tkl__stack_arr_size-2]
+      unset $stack_var[tkl__stack_arr_size-3]
       {
         tkl_set_return \$tkl__last_error
         eval \"\$${stack_var}_cmdline\"
@@ -361,13 +379,33 @@ if (( \${#FUNCNAME[@]} )); then
       tkl__stack_arr_size=\${#$stack_var[@]}
     done
 
-    if (( ! tkl__stack_arr_size )); then
-      unset $stack_var
-    fi
+    unset ${stack_var}_func_names_stack
     unset ${stack_var}_cmdline
 
     if (( ! tkl__traplib_cmdline_stack__EXIT_${shell_pid}_handling && tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed )); then
-      local tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline
+      declare ${return_stack_var}_trap_type
+      declare ${return_stack_var}_cmdline
+      tkl__stack_arr_size=\${#$return_stack_var[@]}
+
+      # call all RELEASE handlers
+      while (( tkl__stack_arr_size )); do
+        ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-1]}
+        ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-2]}
+        unset $return_stack_var[tkl__stack_arr_size-1]
+        unset $return_stack_var[tkl__stack_arr_size-2]
+        unset $return_stack_var[tkl__stack_arr_size-3]
+        tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
+        {
+          tkl_set_return \$tkl__last_error
+          eval \"\$${return_stack_var}_cmdline\"
+        }
+        tkl__stack_arr_size=\${#$return_stack_var[@]}
+      done
+
+      unset ${return_stack_var}_trap_type
+      unset ${return_stack_var}_cmdline
+
+      declare tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline
 
       declare tkl__stack_arr_size=\${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}[@]}
       while (( tkl__stack_arr_size )); do
@@ -393,6 +431,8 @@ if (( \${#FUNCNAME[@]} )); then
       builtin trap \"\$tkl__traplib_cmdline_stack__RETURN_handler\" RETURN
     else
       builtin trap - RETURN
+
+      unset $stack_var
     fi
 
     unset tkl__stack_arr_size
@@ -405,22 +445,51 @@ if (( ! ${stack_var}_handling )); then
   ${stack_var}_handling=1
   builtin trap '' EXIT
 
+  declare ${stack_var}_func_names_stack
+  tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
+
   if (( ! tkl__traplib_cmdline_stack__RETURN_${shell_pid}_handling )); then
-    declare tkl__stack_arr_size=\${#tkl__traplib_cmdline_stack__RETURN_${shell_pid}[@]}
+    declare ${return_stack_var}_trap_type
+    declare ${return_stack_var}_cmdline
+    tkl__stack_arr_size=\${#$return_stack_var[@]}
+
+    # call the same function context RETURN handlers at first
     while (( tkl__stack_arr_size )); do
-      declare tkl__traplib_cmdline_stack__RETURN_${shell_pid}_cmdline=\"\${tkl__traplib_cmdline_stack__RETURN_${shell_pid}[tkl__stack_arr_size-1]}\"
-      unset tkl__traplib_cmdline_stack__RETURN_${shell_pid}[tkl__stack_arr_size-1]
-      unset tkl__traplib_cmdline_stack__RETURN_${shell_pid}[tkl__stack_arr_size-2]
+      [[ \"\${$return_stack_var[tkl__stack_arr_size-3]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      declare ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-1]}
+      declare ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-2]}
+      unset $return_stack_var[tkl__stack_arr_size-1]
+      unset $return_stack_var[tkl__stack_arr_size-2]
+      unset $return_stack_var[tkl__stack_arr_size-3]
       {
         tkl_set_return \$tkl__last_error
-        eval \"\$tkl__traplib_cmdline_stack__RETURN_${shell_pid}_cmdline\"
+        eval \"\$${return_stack_var}_cmdline\"
       }
-      tkl__stack_arr_size=\${#tkl__traplib_cmdline_stack__RETURN_${shell_pid}[@]}
+      tkl__stack_arr_size=\${#$return_stack_var[@]}
     done
 
-    unset tkl__traplib_cmdline_stack__RETURN_${shell_pid}
-    unset tkl__traplib_cmdline_stack__RETURN_${shell_pid}_cmdline
+    # call all RELEASE handlers
+    while (( tkl__stack_arr_size )); do
+      ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-1]}
+      ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-2]}
+      unset $return_stack_var[tkl__stack_arr_size-1]
+      unset $return_stack_var[tkl__stack_arr_size-2]
+      unset $return_stack_var[tkl__stack_arr_size-3]
+      tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
+      {
+        tkl_set_return \$tkl__last_error
+        eval \"\$${return_stack_var}_cmdline\"
+      }
+      tkl__stack_arr_size=\${#$return_stack_var[@]}
+    done
+
+    unset ${return_stack_var}_trap_type
+    unset ${return_stack_var}_cmdline
+
+    unset $return_stack_var
   fi
+
+  unset ${stack_var}_func_names_stack
 
   declare tkl__stack_arr_size=\${#$stack_var[@]}
   while (( tkl__stack_arr_size )); do
@@ -434,20 +503,28 @@ if (( ! ${stack_var}_handling )); then
     tkl__stack_arr_size=\${#$stack_var[@]}
   done
 
-  unset $stack_var
-  unset ${stack_var}_cmdline
   unset tkl__stack_arr_size
+
+  unset ${stack_var}_cmdline
   unset ${stack_var}_handling
 
   builtin trap - EXIT
 
-  (( \${#${stack_var}_postponed_code} )) && exit \${${stack_var}_postponed_code}
+  unset $stack_var
+
+  (( \${#${stack_var}_postponed_code} )) && {
+    unset ${stack_var}_postponed_code
+    exit \${${stack_var}_postponed_code}
+  }
 fi"
   else
     tkl_declare_global tkl__traplib_cmdline_stack__${trap_sig}_handler "declare tkl__last_error=\$?
 if (( ! ${stack_var}_handling )); then
   ${stack_var}_handling=1
   builtin trap '' $trap_sig
+
+  declare ${stack_var}_func_names_stack
+  tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
 
   declare tkl__stack_arr_size=\${#$stack_var[@]}
   if (( tkl__traplib_cmdline_stack__${trap_sig}_${shell_pid}_pop_on_exec )); then
@@ -468,10 +545,46 @@ if (( ! ${stack_var}_handling )); then
     tkl__stack_arr_size=\${#$stack_var[@]}
   fi
 
-  unset $stack_var
   unset ${stack_var}_cmdline
 
   if (( ! tkl__traplib_cmdline_stack__EXIT_${shell_pid}_handling && tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed )); then
+    declare ${return_stack_var}_trap_type
+    declare ${return_stack_var}_cmdline
+    tkl__stack_arr_size=\${#$return_stack_var[@]}
+
+    # call the same function context RETURN handlers at first
+    while (( tkl__stack_arr_size )); do
+      [[ \"\${$return_stack_var[tkl__stack_arr_size-2]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      declare ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-3]}
+      declare ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-1]}
+      unset $return_stack_var[tkl__stack_arr_size-1]
+      unset $return_stack_var[tkl__stack_arr_size-2]
+      unset $return_stack_var[tkl__stack_arr_size-3]
+      {
+        tkl_set_return \$tkl__last_error
+        eval \"\$${return_stack_var}_cmdline\"
+      }
+      tkl__stack_arr_size=\${#$return_stack_var[@]}
+    done
+
+    # call all RELEASE handlers
+    while (( tkl__stack_arr_size )); do
+      ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-3]}
+      ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-1]}
+      unset $return_stack_var[tkl__stack_arr_size-1]
+      unset $return_stack_var[tkl__stack_arr_size-2]
+      unset $return_stack_var[tkl__stack_arr_size-3]
+      tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
+      {
+        tkl_set_return \$tkl__last_error
+        eval \"\$${return_stack_var}_cmdline\"
+      }
+      tkl__stack_arr_size=\${#$return_stack_var[@]}
+    done
+
+    unset ${return_stack_var}_trap_type
+    unset ${return_stack_var}_cmdline
+
     declare tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline
 
     tkl__stack_arr_size=\${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}[@]}
@@ -486,8 +599,11 @@ if (( ! ${stack_var}_handling )); then
       tkl__stack_arr_size=\${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}[@]}
     done
 
-    unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}
     unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline
+
+    unset ${stack_var}_handling
+    unset $stack_var
+    unset tkl__stack_arr_size
 
     exit \${tkl__traplib_cmdline_stack__EXIT_${shell_pid}_postponed_code:-\$tkl__last_error}
   fi
@@ -498,10 +614,13 @@ if (( ! ${stack_var}_handling )); then
     builtin trap \"\$tkl__traplib_cmdline_stack__${trap_sig}_handler\" $trap_sig
   else
     builtin trap - $trap_sig
+
+    unset $stack_var
   fi
 
   unset tkl__stack_arr_size
 fi
+
 tkl_set_return \$tkl__last_error"
   fi
 }
@@ -520,8 +639,11 @@ function tkl_push_trap()
 
   local trap_sig
   local stack_var
+  local return_stack_var
   local stack_arr_size
   local trap_prev_cmdline
+
+  local RETURN_VALUE
 
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
@@ -536,6 +658,8 @@ function tkl_push_trap()
 
   local is_processed
 
+  return_stack_var="tkl__traplib_cmdline_stack__RETURN_${shell_pid}"
+
   local i=0
   for trap_sig in "$@"; do
     is_processed=0
@@ -545,20 +669,31 @@ function tkl_push_trap()
 
       # ignore if already at handling
       if (( ! ${stack_var}_handling )); then
-        eval "stack_arr_size=\${#$stack_var[@]}"
-        if (( stack_arr_size )); then
-          # CAUTION:
-          #   To avoid call not in a function.
-          if [[ "$trap_sig" != "RETURN" || -n "$func_names_stack" ]]; then
+        # CAUTION:
+        #   To avoid call not in a function.
+        if [[ ( "$trap_sig" != "RETURN" && "$trap_sig" != "RELEASE" ) || -n "$func_names_stack" ]]; then
+          eval "stack_arr_size=\${#$stack_var[@]}"
+          if (( stack_arr_size )); then
             # append to the end is equal to push trap onto stack
             eval "$stack_var[stack_arr_size]=\"\$func_names_stack\""
             eval "$stack_var[stack_arr_size+1]=\"\$trap_cmdline\""
+            if [[ "$trap_sig" == "RETURN" ]]; then
+              eval "$stack_var[stack_arr_size+2]=RETURN" # must be
+            elif [[ "$trap_sig" == "RELEASE" ]]; then
+              eval "$stack_var[stack_arr_size+2]=RELEASE"
+            fi
+          else
+            if [[ "$trap_sig" == "RETURN" ]]; then
+              eval "$stack_var=(\"\$func_names_stack\" \"\$trap_cmdline\" RETURN)"
+            elif [[ "$trap_sig" == "RELEASE" ]]; then
+              eval "$stack_var=(\"\$func_names_stack\" \"\$trap_cmdline\" RELEASE)"
+            else
+              eval "$stack_var=(\"\$func_names_stack\" \"\$trap_cmdline\")"
+            fi
           fi
-        else
-          eval "$stack_var=(\"\$func_names_stack\" \"\$trap_cmdline\")"
         fi
 
-        if [[ "$trap_sig" == "RETURN" ]]; then
+        if [[ "$trap_sig" == "RETURN" || "$trap_sig" == "RELEASE" ]]; then
           # CAUTION:
           #   To avoid call not in a function.
           if [[ -n "$func_names_stack" ]]; then
@@ -567,7 +702,7 @@ function tkl_push_trap()
             #   1. Avoid handling return in this function.
             #
             is_RETURN_trap_set=1
-            tkl_declare_global_trap_handler RETURN "$shell_pid" "$func_names_stack"
+            tkl_declare_global_trap_handler RETURN "$shell_pid" "$stack_var" "$return_stack_var"
             tkl_escape_string "$tkl__traplib_cmdline_stack__RETURN_handler" '\$"' 0
             builtin trap "builtin trap \"$RETURN_VALUE\" RETURN" RETURN
             last_error=$?
@@ -577,13 +712,13 @@ function tkl_push_trap()
           fi
         elif [[ "$trap_sig" == "EXIT" ]]; then
           is_EXIT_trap_set=1
-          tkl_declare_global_trap_handler EXIT "$shell_pid" "$func_names_stack"
+          tkl_declare_global_trap_handler EXIT "$shell_pid" "$stack_var" "$return_stack_var"
           eval "builtin trap \"\$tkl__traplib_cmdline_stack__EXIT_handler\" EXIT"
           last_error=$?
           EXIT_CODES[i++]=$last_error
           is_processed=1
         else
-          tkl_declare_global_trap_handler "$trap_sig" "$shell_pid" "$func_names_stack"
+          tkl_declare_global_trap_handler "$trap_sig" "$shell_pid" "$stack_var" "$return_stack_var"
           eval "builtin trap \"\${tkl__traplib_cmdline_stack__${trap_sig}_handler}\" \"\$trap_sig\""
           last_error=$?
           EXIT_CODES[i++]=$last_error
@@ -618,8 +753,11 @@ function tkl_pop_trap()
 
   local trap_sig
   local stack_var
+  local return_stack_var
   local stack_arr_size
   local trap_cmdline
+
+  local RETURN_VALUE
 
   tkl_get_shell_pid
   local shell_pid="${RETURN_VALUE:-65535}" # default value if fail
@@ -630,6 +768,8 @@ function tkl_pop_trap()
   RETURN_VALUES=()
 
   local is_processed
+
+  return_stack_var="tkl__traplib_cmdline_stack__RETURN_${shell_pid}"
 
   local i=0
   for trap_sig in "$@"; do
@@ -647,16 +787,17 @@ function tkl_pop_trap()
         #
 
         # update the signal trap command line
-        if [[ "$trap_sig" == "RETURN" ]]; then
+        if [[ "$trap_sig" == "RETURN" || "$trap_sig" == "RELEASE" ]]; then
           # CAUTION:
           #   To avoid call not in a function.
           if [[ -n "$func_names_stack" ]]; then
             # can pop only from the same function
             if eval "[[ \"\${$stack_var[stack_arr_size-2]}\" == \"\$func_names_stack\" ]]"; then
-              (( stack_arr_size -= 2 ))
+              (( stack_arr_size -= 3 ))
 
               eval "RETURN_VALUES[i]=\"\${$stack_var[stack_arr_size+1]}\""
 
+              unset $stack_var[stack_arr_size+2]
               unset $stack_var[stack_arr_size+1]
               unset $stack_var[stack_arr_size]
 
@@ -665,7 +806,7 @@ function tkl_pop_trap()
                 #   In case of RETURN signal convert the trap command line into nested trap command line to:
                 #   1. Avoid handling return in this function.
                 #
-                tkl_declare_global_trap_handler "$trap_sig" "$shell_pid" "$func_names_stack"
+                tkl_declare_global_trap_handler RETURN "$shell_pid" "$stack_var" "$return_stack_var"
                 tkl_escape_string "$tkl__traplib_cmdline_stack__RETURN_handler" '\$"' 0
                 builtin trap "builtin trap \"$RETURN_VALUE\" RETURN" RETURN
                 last_error=$?
@@ -689,7 +830,7 @@ function tkl_pop_trap()
           unset $stack_var[stack_arr_size]
 
           if (( stack_arr_size )); then
-            tkl_declare_global_trap_handler "$trap_sig" "$shell_pid" "$func_names_stack"
+            tkl_declare_global_trap_handler "$trap_sig" "$shell_pid" "$func_names_stack" "$stack_var" "$return_stack_var"
             eval "builtin trap \"\${tkl__traplib_cmdline_stack__${trap_sig}_handler}\" \"\$trap_sig\""
             last_error=$?
             EXIT_CODES[i++]=$last_error

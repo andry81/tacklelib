@@ -18,6 +18,7 @@ function test_1()
     boo
   }
   foo
+  foo
   builtin trap -p RETURN >&3
 }
 
@@ -34,6 +35,7 @@ function test_2()
     }
     boo
   }
+  foo
   foo
   builtin trap -p RETURN >&3
 }
@@ -52,6 +54,7 @@ function test_3()
       )
     }
     foo
+    foo
     tkl_test_echo 3
   )
 }
@@ -61,9 +64,9 @@ if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
 
   tkl_testmodule_init
 
-  tkl_testmodule_run_test test_1 foo:boo:2
-  tkl_testmodule_run_test test_2 foo:boo:2:1
-  tkl_testmodule_run_test test_3 1:2:r2:e2:3:e1
+  tkl_testmodule_run_test test_1 foo:boo:2:foo:boo:2
+  tkl_testmodule_run_test test_2 foo:boo:2:1:foo:boo:2:1
+  tkl_testmodule_run_test test_3 1:2:r2:e2:2:r2:e2:3:e1
 fi
 
 fi
