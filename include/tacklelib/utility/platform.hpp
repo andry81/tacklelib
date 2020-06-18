@@ -76,14 +76,18 @@
 #if defined(__clang__)
 #   define UTILITY_COMPILER_CXX_CLANG
 #   define UTILITY_COMPILER_CXX "clang"
-#   define UTILITY_COMPILER_CXX_VERSION __clang_major__
+#   define UTILITY_COMPILER_CXX_VERSION             __clang_major__
+#   define UTILITY_COMPILER_CXX_VERSION_MINOR       __clang_minor__
+#   define UTILITY_COMPILER_CXX_VERSION_PATCHLEVEL  __clang_patchlevel__
 #   if __clang_major__ < 3
 #     error unsuported clang version
 #   endif
 #elif defined(__GNUC__)
 #   define UTILITY_COMPILER_CXX_GCC
 #   define UTILITY_COMPILER_CXX "gcc"
-#   define UTILITY_COMPILER_CXX_VERSION __GNUC__
+#   define UTILITY_COMPILER_CXX_VERSION             __GNUC__
+#   define UTILITY_COMPILER_CXX_VERSION_MINOR       __GNUC_MINOR__
+#   define UTILITY_COMPILER_CXX_VERSION_PATCHLEVEL  __GNUC_PATCHLEVEL__
 #   if __GNUC__ < 4
 #     error unsuported gcc version
 #   endif
