@@ -16,7 +16,9 @@
 #include <fmt/chrono.h>
 #endif
 
+
 #include <string>
+#include <vector>
 #include <ctime>
 #include <cmath>
 #include <cstdint>
@@ -27,6 +29,7 @@
 #include <iomanip>
 #include <utility>
 #include <exception>
+#include <functional>
 
 #ifdef UTILITY_PLATFORM_WINDOWS
 // windows includes must be ordered here!
@@ -46,9 +49,16 @@
 #   error platform is not implemented
 #endif
 
+#undef LIBRARY_API_NAMESPACE
+#define LIBRARY_API_NAMESPACE TACKLELIB
+#include <tacklelib/utility/library_api_define.hpp>
+
 
 namespace utility {
 namespace time {
+
+    using convert_time_string_to_std_time_error_func_t      = std::function<void(const std::string &, const std::string &, const std::exception *)>;
+    using convert_time_string_from_std_time_error_func_t    = std::function<void(const std::string &, const std::time_t &, const std::exception *)>;
 
     static CONSTEXPR const uint64_t unix_epoch_mcsecs                       =  62135596800000000ULL;
     static CONSTEXPR const uint64_t from_1_jan1601_to_1_jan1970_100nsecs    = 116444736000000000ULL;   //1.jan1601 to 1.jan1970
@@ -158,7 +168,7 @@ namespace time {
 
     FORCE_INLINE std::tm gmtime(const std::time_t & time)
     {
-        std::tm t = {};
+        std::tm t{};
 
 #ifdef UTILITY_PLATFORM_WINDOWS
         gmtime_s(&t, &time);
@@ -176,7 +186,7 @@ namespace time {
 
 #if defined(UTILITY_COMPILER_CXX_MSC)
         return ::_mkgmtime(&c_tm);
-#elif defined(UTILITY_COMPILER_CXX_GCC)
+#elif defined(UTILITY_COMPILER_CXX_CLANG) || defined(UTILITY_COMPILER_CXX_GCC)
         return ::timegm(&c_tm);
 #else
 #   error platform is not implemented
@@ -314,6 +324,12 @@ namespace time {
 //#endif
     }
 #endif
+
+    std::time_t LIBRARY_API_DECL convert_time_string_to_std_time(const std::string & time_str_format, const std::string & time_value_str,
+                                                                 convert_time_string_to_std_time_error_func_t error_func = convert_time_string_to_std_time_error_func_t{});
+
+    std::string LIBRARY_API_DECL convert_time_string_from_std_time(const std::string & time_str_format, const std::time_t & time_value,
+                                                                   convert_time_string_from_std_time_error_func_t error_func = convert_time_string_from_std_time_error_func_t{});
 
 }
 }

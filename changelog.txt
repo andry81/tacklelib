@@ -1,3 +1,7 @@
+2020.06.18:
+* fixed: cpp: time functions minor fixup
+* new: cpp: `convert_time_string_to_std_time` and `convert_time_string_from_std_time` to uniformally convert from/to standard time representation, where `time_t` origin counts from the 1970 year (including negative values) using internally the `std::get_time` or the boost posix_time
+
 2020.06.12:
 * fixed: bash: bash_entry: rewriten `tkl_include` implementation to fix case with the `BASH_SOURCE_*` globals generation at first time call function level context
 * fixed: bash: bash_entry: `tkl_declare_local_array` has no effect as declares always a current function local array variable instead of an upper function call context array variable
