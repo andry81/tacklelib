@@ -63,12 +63,13 @@
     using UTILITY_PP_CONCAT(dependent_typename_compiler_error_by_incomplete_type_t, UTILITY_PP_LINE) = typename ::utility::incomplete_dependent_type<dependent_type_name>::type
 
 #define UTILITY_CONSTEXPR_ARRAY_SIZE(c_arr)             UTILITY_CONSTEXPR_VALUE(sizeof(c_arr) / sizeof((c_arr)[0]))
+#define UTILITY_CONSTEXPR_STRING_LENGTH(c_str)          UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str) - 1)
 
-#define UTILITY_CONSTEXPR_STRING_LEN(c_str)             UTILITY_CONSTEXPR_VALUE(UTILITY_CONSTEXPR_ARRAY_SIZE(c_str) - 1)
+#define UTILITY_STATIC_SIZE(seq)                        (::utility::static_size(seq))
+#define UTILITY_STATIC_LENGTH(seq)                      (::utility::static_size(seq) - 1)
 
-#define UTILITY_CONSTEXPR_SIZE(seq)                     UTILITY_CONSTEXPR_VALUE(::utility::static_size(seq))
-
-#define UTILITY_STATIC_SIZE(seq)                        ::utility::static_size(seq)
+#define UTILITY_CONSTEXPR_SIZE(seq)                     UTILITY_CONSTEXPR_VALUE(UTILITY_STATIC_SIZE(seq))
+#define UTILITY_CONSTEXPR_LENGTH(seq)                   UTILITY_CONSTEXPR_VALUE(UTILITY_STATIC_LENGTH(seq))
 
 #define UTILITY_CONSTEXPR_GET(value, constexpr_index)   (::utility::constexpr_get<constexpr_index>(value))
 
