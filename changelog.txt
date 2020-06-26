@@ -1,3 +1,6 @@
+2020.06.26:
+* refactor: cpp: minor refactor
+
 2020.06.18:
 * fixed: cpp: time functions minor fixup
 * new: cpp: `convert_time_string_to_std_time` and `convert_time_string_from_std_time` to uniformally convert from/to standard time representation, where `time_t` origin counts from the 1970 year (including negative values) using internally the `std::get_time` or the boost posix_time
