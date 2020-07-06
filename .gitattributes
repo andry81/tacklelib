@@ -89,6 +89,7 @@ bash/tacklelib/changelog.txt -text
 bash/tacklelib/funclib.sh -text
 bash/tacklelib/hashlib.sh -text
 bash/tacklelib/license.txt -text
+bash/tacklelib/load_config.sh -text
 bash/tacklelib/stringlib.sh -text
 bash/tacklelib/testlib.sh -text
 bash/tacklelib/traplib.sh -text
