@@ -1,3 +1,6 @@
+2020.07.06:
+* changed: moved `load_config.sh` script from the contools project
+
 2020.06.12:
 * fixed: bash_entry: rewriten `tkl_include` implementation to fix case with the `BASH_SOURCE_*` globals generation at first time call function level context
 * fixed: bash_entry: `tkl_declare_local_array` has no effect as declares always a current function local array variable instead of an upper function call context array variable
