@@ -77,25 +77,30 @@ def makedirs(configure_dir, scm_token, verbosity = None):
     set_verbosity_level(verbosity)
 
     if configure_dir == '':
-      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-      return 1
+      raise Exception('configure directory is not defined.')
 
     if configure_dir[-1:] in ['\\', '/']:
       configure_dir = configure_dir[:-1]
 
     if not os.path.isdir(configure_dir):
-      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-      return 2
+      raise Exception('configure directory does not exist: `{0}`.'.format(configure_dir))
 
-    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-    if wcroot_dir == '': return -254
-    if WCROOT_OFFSET == '': return -253
+    wcroot_dir_var = scm_token + '.WCROOT_DIR'
+    wcroot_dir = getglobalvar(wcroot_dir_var)
+    if wcroot_dir is None or wcroot_dir == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format(wcroot_dir_var))
 
-    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_offset = getglobalvar('WCROOT_OFFSET')
+    if wcroot_offset is None or wcroot_offset == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format('WCROOT_OFFSET'))
+
+    wcroot_path = os.path.abspath(os.path.join(wcroot_offset, wcroot_dir)).replace('\\', '/')
 
     if not os.path.exists(wcroot_path):
       print('  ' + wcroot_path)
       os.makedirs(wcroot_path)
+
+  return 0
 
 def svn_checkout(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn checkout: {0}".format(configure_dir))
@@ -108,21 +113,24 @@ def svn_checkout(configure_dir, scm_token, bare_args, verbosity = None):
       print('- args:', bare_args)
 
     if configure_dir == '':
-      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-      return 1
+      raise Exception('configure directory is not defined.')
 
     if configure_dir[-1:] in ['\\', '/']:
       configure_dir = configure_dir[:-1]
 
     if not os.path.isdir(configure_dir):
-      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-      return 2
+      raise Exception('configure directory does not exist: `{0}`.'.format(configure_dir))
 
-    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-    if wcroot_dir == '': return -254
-    if WCROOT_OFFSET == '': return -253
+    wcroot_dir_var = scm_token + '.WCROOT_DIR'
+    wcroot_dir = getglobalvar(wcroot_dir_var)
+    if wcroot_dir is None or wcroot_dir == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format(wcroot_dir_var))
 
-    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_offset = getglobalvar('WCROOT_OFFSET')
+    if wcroot_offset is None or wcroot_offset == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format('WCROOT_OFFSET'))
+
+    wcroot_path = os.path.abspath(os.path.join(wcroot_offset, wcroot_dir)).replace('\\', '/')
 
     svn_checkout_url = getglobalvar(scm_token + '.CHECKOUT_URL')
 
@@ -136,6 +144,8 @@ def svn_checkout(configure_dir, scm_token, bare_args, verbosity = None):
 
     call_svn(['co', svn_checkout_url, wcroot_path] + bare_args, max_stdout_lines = -1)
 
+  return 0
+
 def svn_cleanup(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn cleaup: {0}".format(configure_dir))
 
@@ -147,24 +157,29 @@ def svn_cleanup(configure_dir, scm_token, bare_args, verbosity = None):
       print('- args:', bare_args)
 
     if configure_dir == '':
-      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-      return 1
+      raise Exception('configure directory is not defined.')
 
     if configure_dir[-1:] in ['\\', '/']:
       configure_dir = configure_dir[:-1]
 
     if not os.path.isdir(configure_dir):
-      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-      return 2
+      raise Exception('configure directory does not exist: `{0}`.'.format(configure_dir))
 
-    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-    if wcroot_dir == '': return -254
-    if WCROOT_OFFSET == '': return -253
+    wcroot_dir_var = scm_token + '.WCROOT_DIR'
+    wcroot_dir = getglobalvar(wcroot_dir_var)
+    if wcroot_dir is None or wcroot_dir == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format(wcroot_dir_var))
 
-    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_offset = getglobalvar('WCROOT_OFFSET')
+    if wcroot_offset is None or wcroot_offset == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format('WCROOT_OFFSET'))
+
+    wcroot_path = os.path.abspath(os.path.join(wcroot_offset, wcroot_dir)).replace('\\', '/')
 
     with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
       call_svn(['cleanup'] + bare_args, max_stdout_lines = -1)
+
+  return 0
 
 def svn_update(configure_dir, scm_token, bare_args, verbosity = None):
   print("svn update: {0}".format(configure_dir))
@@ -177,24 +192,29 @@ def svn_update(configure_dir, scm_token, bare_args, verbosity = None):
       print('- args:', bare_args)
 
     if configure_dir == '':
-      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-      return 1
+      raise Exception('configure directory is not defined.')
 
     if configure_dir[-1:] in ['\\', '/']:
       configure_dir = configure_dir[:-1]
 
     if not os.path.isdir(configure_dir):
-      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-      return 2
+      raise Exception('configure directory does not exist: `{0}`.'.format(configure_dir))
 
-    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-    if wcroot_dir == '': return -254
-    if WCROOT_OFFSET == '': return -253
+    wcroot_dir_var = scm_token + '.WCROOT_DIR'
+    wcroot_dir = getglobalvar(wcroot_dir_var)
+    if wcroot_dir is None or wcroot_dir == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format(wcroot_dir_var))
 
-    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_offset = getglobalvar('WCROOT_OFFSET')
+    if wcroot_offset is None or wcroot_offset == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format('WCROOT_OFFSET'))
+
+    wcroot_path = os.path.abspath(os.path.join(wcroot_offset, wcroot_dir)).replace('\\', '/')
 
     with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
       call_svn(['up'] + bare_args, max_stdout_lines = -1)
+
+  return 0
 
 def svn_relocate(configure_dir, scm_token, bare_args, verbosity = None):
   # dependent on declaration order in case of a direct usage (not through the `globals()['...']`), so must always be to avoid a dependency
@@ -210,21 +230,24 @@ def svn_relocate(configure_dir, scm_token, bare_args, verbosity = None):
       print('- args:', bare_args)
 
     if configure_dir == '':
-      print_err("{0}: error: configure directory is not defined.".format(sys.argv[0]))
-      return 1
+      raise Exception('configure directory is not defined.')
 
     if configure_dir[-1:] in ['\\', '/']:
       configure_dir = configure_dir[:-1]
 
     if not os.path.isdir(configure_dir):
-      print_err("{0}: error: configure directory does not exist: `{1}`.".format(sys.argv[0], configure_dir))
-      return 2
+      raise Exception('configure directory does not exist: `{0}`.'.format(configure_dir))
 
-    wcroot_dir = getglobalvar(scm_token + '.WCROOT_DIR')
-    if wcroot_dir == '': return -254
-    if WCROOT_OFFSET == '': return -253
+    wcroot_dir_var = scm_token + '.WCROOT_DIR'
+    wcroot_dir = getglobalvar(wcroot_dir_var)
+    if wcroot_dir is None or wcroot_dir == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format(wcroot_dir_var))
 
-    wcroot_path = os.path.abspath(os.path.join(WCROOT_OFFSET, wcroot_dir)).replace('\\', '/')
+    wcroot_offset = getglobalvar('WCROOT_OFFSET')
+    if wcroot_offset is None or wcroot_offset == '':
+      raise Exception('variable is not defined or empty: `{0}`'.format('WCROOT_OFFSET'))
+
+    wcroot_path = os.path.abspath(os.path.join(wcroot_offset, wcroot_dir)).replace('\\', '/')
 
     with local_cwd(' ->> cwd: `{0}`...', ' -<< cwd: `{0}`...', wcroot_path):
       try:
@@ -240,3 +263,5 @@ def svn_relocate(configure_dir, scm_token, bare_args, verbosity = None):
           raise
 
         g_registered_ignored_errors.append((' -> `' + configure_dir + '`', proc_stderr))
+
+  return 0

@@ -335,65 +335,65 @@ def tkl_merge_module(from_, to, target_module, ignore_merge_imported_modules = F
     is_to_module = False
 
   #print('mergemodule: ==', from_, to)
-  if id(to) != id(from_):
-    for from_key, from_value in vars(from_).items():
-      if not from_key.startswith('__') and from_key not in ['SOURCE_FILE', 'SOURCE_DIR', 'SOURCE_FILE_NAME', 'SOURCE_FILE_NAME_WO_EXT']:
-        if is_to_module:
-          to_value = getattr(to, from_key, None)
-        else:
-          to_value = to_dict.get(from_key)
-
-        if to_value is None or (isinstance(from_value, type) or id(from_value) != id(to_value)):
-          if not inspect.ismodule(from_value):
-            #print('mergemodule: ->', from_.__name__, '->', from_key, id(from_value), id(to_value), type(from_value), type(to_value))
-            to_value = tkl_membercopy(from_value, from_globals, to_dict)
-            if is_to_module:
-              setattr(to, from_key, to_value)
-            else:
-              to[from_key] = to_value
-          else:
-            # avoid copying builtin modules including all packaged modules
-            global_state = target_module.TackleGlobalState
-            global_cache = target_module.TackleGlobalCache
-            imported_modules_by_file_path = global_state.imported_modules_by_file_path
-            packaged_modules = global_cache.packaged_modules
-            if from_value.__name__ not in packaged_modules and \
-               (not ignore_merge_imported_modules or from_value.__file__.replace('\\', '/') not in imported_modules_by_file_path):
-              #print('mergemodule: ->', from_.__name__, '->', from_key, id(from_value), id(to_value), type(from_value), type(to_value))
-              if not inspect.ismodule(to_value):
-                # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
-                to_value = type(from_value)(from_value.__name__, from_value.__doc__)
-                to_value.__dict__.update(from_value.__dict__)
-
-                if is_to_module:
-                  setattr(to, from_key, to_value)
-                else:
-                  to_dict[from_key] = to_value
-
-                # CAUTION:
-                #   Must do explicit merge, otherwise some classes would not be merged!
-                #
-                tkl_merge_module(from_value, to_value, target_module)
-
-                # We must register being merged (new) module in the imported modules container if the source module is registered too to:
-                # 1. To expose it for the globals export function - `tkl_export_global`.
-                #
-                global_state = getattr(target_module, 'TackleGlobalState', None)
-                if not global_state is None:
-                  imported_modules = global_state.imported_modules
-                  from_module_value_in_imported_modules = imported_modules.get(from_)
-                  if not from_module_value_in_imported_modules is None:
-                    from_imported_module_file_path = from_module_value_in_imported_modules[1]
-                    imported_modules[to_value] = (from_module_value_in_imported_modules[0], from_imported_module_file_path, {})
-              else:
-                tkl_merge_module(from_value, to_value, target_module)
-            else:
-              if is_to_module:
-                setattr(to, from_key, from_value)
-              else:
-                to[from_key] = from_value
-  else:
+  if id(to) == id(from_):
     raise Exception('module merge to the same object')
+
+  for from_key, from_value in vars(from_).items():
+    if not from_key.startswith('__') and from_key not in ['SOURCE_FILE', 'SOURCE_DIR', 'SOURCE_FILE_NAME', 'SOURCE_FILE_NAME_WO_EXT']:
+      if is_to_module:
+        to_value = getattr(to, from_key, None)
+      else:
+        to_value = to_dict.get(from_key)
+
+      if to_value is None or (isinstance(from_value, type) or id(from_value) != id(to_value)):
+        if not inspect.ismodule(from_value):
+          #print('mergemodule: ->', from_.__name__, '->', from_key, id(from_value), id(to_value), type(from_value), type(to_value))
+          to_value = tkl_membercopy(from_value, from_globals, to_dict)
+          if is_to_module:
+            setattr(to, from_key, to_value)
+          else:
+            to[from_key] = to_value
+        else:
+          # avoid copying builtin modules including all packaged modules
+          global_state = target_module.TackleGlobalState
+          global_cache = target_module.TackleGlobalCache
+          imported_modules_by_file_path = global_state.imported_modules_by_file_path
+          packaged_modules = global_cache.packaged_modules
+          if from_value.__name__ not in packaged_modules and \
+             (not ignore_merge_imported_modules or from_value.__file__.replace('\\', '/') not in imported_modules_by_file_path):
+            #print('mergemodule: ->', from_.__name__, '->', from_key, id(from_value), id(to_value), type(from_value), type(to_value))
+            if not inspect.ismodule(to_value):
+              # replace by a module instance, based on: https://stackoverflow.com/questions/11170949/how-to-make-a-copy-of-a-python-module-at-runtime/11173076#11173076
+              to_value = type(from_value)(from_value.__name__, from_value.__doc__)
+              to_value.__dict__.update(from_value.__dict__)
+
+              if is_to_module:
+                setattr(to, from_key, to_value)
+              else:
+                to_dict[from_key] = to_value
+
+              # CAUTION:
+              #   Must do explicit merge, otherwise some classes would not be merged!
+              #
+              tkl_merge_module(from_value, to_value, target_module)
+
+              # We must register being merged (new) module in the imported modules container if the source module is registered too to:
+              # 1. To expose it for the globals export function - `tkl_export_global`.
+              #
+              global_state = getattr(target_module, 'TackleGlobalState', None)
+              if not global_state is None:
+                imported_modules = global_state.imported_modules
+                from_module_value_in_imported_modules = imported_modules.get(from_)
+                if not from_module_value_in_imported_modules is None:
+                  from_imported_module_file_path = from_module_value_in_imported_modules[1]
+                  imported_modules[to_value] = (from_module_value_in_imported_modules[0], from_imported_module_file_path, {})
+            else:
+              tkl_merge_module(from_value, to_value, target_module)
+          else:
+            if is_to_module:
+              setattr(to, from_key, from_value)
+            else:
+              to[from_key] = from_value
 
   return to
 

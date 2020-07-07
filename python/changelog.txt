@@ -1,3 +1,9 @@
+2020.07.05:
+* new: cmdoplib: gitsvn: added bare args parameter into all git command functions to pass user command parameters from a command script
+* changed: tacklelib: other minor changes
+* changed: cmdoplib: svn, gitsvn: replaced rest of `print_err` calls by exception throw
+* changed: cmdoplib: svn, gitsvn: other minor changes
+
 2020.05.20:
 * fixed: cmdoplib: missed GIT_SVN_ENABLED usage
 * changed: cmdoplib: use global VERBOSITY_LEVEL variable by default if the verbosity per function is not set
