@@ -1,3 +1,6 @@
+2020.07.08:
+* fixed: load_config.sh: case where `<var>="..." ...` parsed incorrectly removing the first quote character and the last not a quote character
+
 2020.07.06:
 * changed: moved `load_config.sh` script from the contools project
 
