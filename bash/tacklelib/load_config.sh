@@ -82,7 +82,7 @@ function tkl_load_config()
       continue
     fi
 
-    if [[ '"' == "${__VALUE:0:1}" ]]; then
+    if [[ ${#__VALUE} -gt 1 && '"' == "${__VALUE:0:1}" && '"' == "${__VALUE: -1}" ]]; then
       if [[ "$__ATTR" != 'export' ]]; then
         tkl_declare_global "$__VAR" "${__VALUE:1:${#__VALUE}-2}"
       else
