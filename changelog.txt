@@ -1,3 +1,11 @@
+2020.07.11:
+* changed: python: pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
+
+2020.07.10:
+* new: bash: pyxvcs scripts moved from the pyxvcs project
+* new: python: pyxvcs scripts moved from the pyxvcs project
+* refactor: bash: moved changelog and readme files to the parent directory
+
 2020.07.08:
 * fixed: bash: load_config.sh: case where `<var>="..." ...` parsed incorrectly removing the first quote character and the last not a quote character
 

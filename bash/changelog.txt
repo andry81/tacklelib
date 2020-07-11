@@ -1,3 +1,7 @@
+2020.07.10:
+* new: pyxvcs scripts moved from the pyxvcs project
+* refactor: moved changelog and readme files to the parent directory
+
 2020.07.08:
 * fixed: load_config.sh: case where `<var>="..." ...` parsed incorrectly removing the first quote character and the last not a quote character
 
