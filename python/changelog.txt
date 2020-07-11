@@ -1,3 +1,9 @@
+2020.07.11:
+* changed: pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
+
+2020.07.10:
+* new: pyxvcs scripts moved from the pyxvcs project
+
 2020.07.05:
 * new: cmdoplib: gitsvn: added bare args parameter into all git command functions to pass user command parameters from a command script
 * changed: tacklelib: other minor changes
