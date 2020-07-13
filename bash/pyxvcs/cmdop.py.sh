@@ -11,10 +11,10 @@ function pyxvcs_cmdop()
   local i
   for i in PROJECT_ROOT PYTHON_EXE_PATH PYXVCS_PYTHON_SCRIPTS_ROOT; do
     if [[ -z "$i" ]]; then
-      echo "${FUNCNAME[0]}: error: \'$i\` variable is not defined."
+      echo "${FUNCNAME[0]}: error: \'$i\` variable is not defined." >&2
       exit 255
-    ) >&2
-  )
+    fi
+  done
 
   # no local logging if nested call
   (( ! IMPL_MODE && ! NEST_LVL )) && {

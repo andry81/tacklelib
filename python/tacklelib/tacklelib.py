@@ -65,7 +65,7 @@ def tkl_init(tkl_module, import_file_exts = ['.xsh'], global_config = None, rese
         importlib.machinery.SOURCE_SUFFIXES.append(import_file_ext)
 
   # initialize both modules because, for example, in the pytest they are different in the collect phase!
-  target_module0 = tkl_module.tkl_get_stack_frame_module_by_offset(1)
+  target_module0 = tkl_module.tkl_get_stack_frame_module_by_offset(1, use_last_frame_on_out_of_stack = True)
   target_module1 = tkl_module.tkl_get_stack_frame_module_by_name()
   if id(target_module0) == id(target_module1):
     target_module1 = None
@@ -116,17 +116,23 @@ def tkl_init(tkl_module, import_file_exts = ['.xsh'], global_config = None, rese
 
   # declare the current module as an already imported module to be able to propagate a global variable to it
   #print(target_module0.__name__, target_module0.__file__.replace('\\', '/'))
-  target_module0_file_path = target_module0.__file__.replace('\\', '/')
+  if target_module0.__name__ != '__main__':
+    target_module0_file_path = target_module0.__file__.replace('\\', '/')
+  else:
+    target_module0_file_path = '.' # placeholder for the __main__ module
   target_module0_global_state.imported_modules[target_module0] = (target_module0.__name__, target_module0_file_path, {})
   target_module0_global_state.imported_modules_by_file_path[os.path.normcase(target_module0_file_path).replace('\\', '/')] = target_module0
   if target_module1 is not None:
-    target_module1_file_path = target_module1.__file__.replace('\\', '/')
+    if target_module1.__name__ != '__main__':
+      target_module1_file_path = target_module1.__file__.replace('\\', '/')
+    else:
+      target_module1_file_path = '.' # placeholder for the __main__ module
     target_module1_global_state.imported_modules[target_module1] = (target_module1.__name__, target_module1_file_path, {})
     target_module1_global_state.imported_modules_by_file_path[os.path.normcase(target_module1_file_path).replace('\\', '/')] = target_module1
 
 # basiclly required in a teardown code in tests
 def tkl_uninit():
-  target_module0 = tkl_module.tkl_get_stack_frame_module_by_offset(1)
+  target_module0 = tkl_module.tkl_get_stack_frame_module_by_offset(1, use_last_frame_on_out_of_stack = True)
   target_module1 = tkl_module.tkl_get_stack_frame_module_by_name()
   if id(target_module0) == id(target_module1):
     target_module1 = None
@@ -180,22 +186,31 @@ def tkl_get_imported_module_by_file_path(imported_module_file_path, current_glob
 
   return None
 
-def tkl_get_stack_frame_module_by_offset(skip_stack_frames = 0):
+def tkl_get_stack_frame_module_by_offset(skip_stack_frames = 0, use_last_frame_on_out_of_stack = False):
   skip_frame_index = skip_stack_frames + 1;
 
   # search for the first module in the stack
-  stack_frame = inspect.currentframe()
+  last_stack_frame = stack_frame = inspect.currentframe()
   while stack_frame and skip_frame_index > 0:
+    last_stack_frame = stack_frame
     #print('***', skip_frame_index, stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
     stack_frame = stack_frame.f_back
     skip_frame_index -= 1
 
   if stack_frame is None:
-    raise Exception('target module is not found on the stack')
+    if (use_last_frame_on_out_of_stack and last_stack_frame):
+      stack_frame = last_stack_frame
+    else:
+      raise Exception('target module is not found on the stack')
 
   #print('>>>', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
 
-  target_module = tkl_get_imported_module_by_file_path(stack_frame.f_code.co_filename, stack_frame.f_globals)
+  if stack_frame.f_code.co_filename != '<stdin>':
+    target_module = tkl_get_imported_module_by_file_path(stack_frame.f_code.co_filename, stack_frame.f_globals)
+  else:
+    # piped or interactive import
+    target_module = sys.modules['__main__']
+
   if target_module is None: # fallback to the inspect
     target_module = inspect.getmodule(stack_frame)
   if target_module is None:
@@ -211,7 +226,12 @@ def tkl_get_stack_frame_module_by_name(name = '<module>'):
   while stack_frame:
     if stack_frame.f_code.co_name == name:
       #print('>>>', stack_frame.f_code.co_name, stack_frame.f_code.co_filename, stack_frame.f_lineno)
-      target_module = tkl_get_imported_module_by_file_path(stack_frame.f_code.co_filename, stack_frame.f_globals)
+      if stack_frame.f_code.co_filename != '<stdin>':
+        target_module = tkl_get_imported_module_by_file_path(stack_frame.f_code.co_filename, stack_frame.f_globals)
+      else:
+        # piped or interactive import
+        target_module = sys.modules['__main__']
+
       if target_module is None: # fallback to the inspect
         target_module = inspect.getmodule(stack_frame)
       if target_module is None:
@@ -399,7 +419,7 @@ def tkl_merge_module(from_, to, target_module, ignore_merge_imported_modules = F
 
 # to declare globals in a current module from the stack
 def tkl_declare_global(var, value, from_globals = None):
-  target_module = tkl_get_stack_frame_module_by_offset(1)
+  target_module = tkl_get_stack_frame_module_by_offset(1, use_last_frame_on_out_of_stack = True)
 
   is_target_module_inited = tkl_is_inited(target_module)
   if not is_target_module_inited:
@@ -434,7 +454,7 @@ def tkl_declare_global(var, value, from_globals = None):
 
 # to remove globals in a current module from the stack
 def tkl_remove_global(var):
-  target_module = tkl_get_stack_frame_module_by_offset(1)
+  target_module = tkl_get_stack_frame_module_by_offset(1, use_last_frame_on_out_of_stack = True)
 
   is_target_module_inited = tkl_is_inited(target_module)
   if not is_target_module_inited:
@@ -473,7 +493,7 @@ def tkl_import_module(dir_path, module_file_name, ref_module_name = None, inject
   module_file_path = os.path.normcase(os.path.abspath(os.path.join(dir_path, module_file_name))).replace('\\', '/')
   module_name_wo_ext = os.path.splitext(module_file_name)[0]
 
-  target_module = tkl_get_stack_frame_module_by_offset(skip_stack_frames + 1)
+  target_module = tkl_get_stack_frame_module_by_offset(skip_stack_frames + 1, use_last_frame_on_out_of_stack = True)
 
   is_target_module_inited = tkl_is_inited(target_module)
   if not is_target_module_inited:
