@@ -1,3 +1,9 @@
+2020.07.13:
+* fixed: python: tacklelib: fix for case where an interactive python session is used
+
+2020.07.12:
+* fixed: bash: missed changes
+
 2020.07.11:
 * changed: python: pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
 
