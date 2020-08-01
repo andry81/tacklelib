@@ -1,5 +1,8 @@
 2020.08.01:
-* changed: bash: bash_entry.sh: implementation moved from project.sh scripts
+* refactor: bash: bash_entry: minor refactor
+
+2020.08.01:
+* changed: bash: bash_entry: implementation moved from project.sh scripts
 
 2020.07.13:
 * fixed: python: tacklelib: fix for case where an interactive python session is used
