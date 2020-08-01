@@ -5,41 +5,11 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || return $?
-tkl_include 'traplib.sh' || return $?
-tkl_include 'stringlib.sh' || return $?
-
-# Special exit code value variable has used by the specific set of functions
-# like `tkl_call` and `tkl_exit` to hold the exit code over the builtin
-# functions like `pushd` and `popd` which does change the exit code.
-tkl__last_error=0
+source '/bin/bash_entry' || exit $?
+tkl_include 'traplib.sh' || tkl_abort_include
+tkl_include 'stringlib.sh' || tkl_abort_include
 
 [[ -z "$NEST_LVL" ]] && export NEST_LVL=0
-
-function tkl_set_error()
-{
-  if [[ -n "$1" ]]; then
-    tkl__last_error=$1
-    return $tkl__last_error
-  fi
-}
-
-function tkl_pause()
-{
-  local key
-  read -n1 -r -p "Press any key to continue..."$'\n' key
-}
-
-function tkl_exit()
-{
-  (( NEST_LVL-- ))
-
-  #[[ $NEST_LVL -eq 0 ]] && tkl_pause
-
-  [[ -n "$1" ]] && exit $1
-
-  exit $tkl__last_error
-}
 
 # CAUTION:
 #   Executes an external shell process in case of a script.
@@ -53,7 +23,7 @@ function tkl_call()
   tkl_pushset_source_file_components_from_args "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "$@"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
 
@@ -71,7 +41,7 @@ function tkl_call_and_print_if()
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "${@:2}"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
 
@@ -87,7 +57,7 @@ function tkl_call_inproc()
   tkl_pushset_source_file_components_from_args "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "$@"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
 
@@ -105,7 +75,7 @@ function tkl_call_inproc_and_print_if()
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
 
@@ -121,7 +91,7 @@ function tkl_call_inproc_entry()
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc_entry "$@"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
 
@@ -139,22 +109,8 @@ function tkl_call_inproc_entry_and_print_if()
   tkl_pushset_source_file_components_from_args "$3" "${@:4}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
-  tkl__last_error=$?
+  tkl_declare_global tkl__last_error $?
   return $tkl__last_error
-}
-
-function tkl_pushd()
-{
-  if [[ -z "$@" ]]; then
-    echo "tkl_pushd: error: directory is not set." >&2
-    return 254
-  fi
-  pushd "$@" > /dev/null
-}
-
-function tkl_popd()
-{
-  popd "$@" > /dev/null
 }
 
 function tkl_read_command_line_flags()

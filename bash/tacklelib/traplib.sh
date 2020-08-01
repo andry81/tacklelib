@@ -13,42 +13,53 @@
 #      while an initialization code is executing.
 #   3. Protection from call not from a function context in case of the `RETURN` signal trap.
 #   4. The not `RETURN` signal handlers in the whole stack invokes together in a bash process from the
-#      bottom to the top and executes them in order reversed to the `tkl_push_trap` function calls
-#   5. The `RETURN` signal trap handlers invokes only for a single function from the bottom to the top in
-#      reverse order to the `tkl_push_trap` function calls.
-#   6. Because the `EXIT` signal does not trigger the `RETURN` signal trap handler, then the `EXIT` signal trap
+#      bottom to the top and executed in order reversed to the `tkl_push_trap` function calls
+#   5. The `RETURN` signal trap handlers invokes only for a single and the same function per handler call from the
+#      bottom to the top in reverse order to the `tkl_push_trap` function calls.
+#   6. Additionally to the RETURN handler the RELEASE handler is supported. The difference is in the depth of
+#      handlers unroll while the handlers is being called.
+#      In case of call the EXIT handler only for the same function RETURN trap handler would be called, when
+#      always all the RELEASE handlers does execute from the bottom to the top before the EXIT handlers itself.
+#      If the RETURN handler is being called, then it calls before the first RELEASE handler.
+#   7. Because the `EXIT` signal does not trigger the `RETURN` signal trap handler, then the `EXIT` signal trap
 #      handler does setup automatically at least once per bash process when the `RETURN` signal trap handler
-#      makes setup at first time in a bash process.
+#      (or `RELEASE`) does make a setup at first time in a bash process.
 #      That includes all bash processes, for example, represented as `(...)` or `$(...)` operators.
-#      So the `EXIT` signal trap handlers automatically handles all the `RETURN` trap handlers before to run itself.
-#   7. The `RETURN` signal trap handler still can call to `tkl_push_trap` and `tkl_pop_trap` functions to process
-#      the not `RETURN` signal traps
-#   8. The `RETURN` signal trap handler can call to `tkl_set_trap_postponed_exit` function from both the `EXIT` and
-#      `RETURN` signal trap handlers.
-#      If is called from the `RETURN` signal trap handler, then the `EXIT` trap handler will be called after all the
-#      `RETURN` signal trap handlers in the bash process.
+#      So the `EXIT` signal trap handlers automatically handles all the `RELEASE` trap handlers and the `RETURN` trap
+#      handlers from the function where the exit being called before to run itself.
+#      As said before the `RELEASE` handlers does execute before the `RETURN` handlers.
+#   8. The `RETURN` or `RELEASE` signal trap handlers still can call to `tkl_push_trap` and `tkl_pop_trap` functions
+#      to process non `RETURN` and non `RELEASE` signal traps
+#   9. The `RETURN` or `RELEASE` signal trap handlers can call to `tkl_set_trap_postponed_exit` function from both
+#      the `EXIT` and the `RETURN` or `RELEASE` signal trap handlers.
+#      If is called from the `RETURN` or `RELEASE` signal trap handler, then the `EXIT` trap handler will be setuped
+#      to call after all the `RETURN` or `RELEASE` signal trap handlers in the bash process.
 #      If is called from the `EXIT` signal trap handler, then the `EXIT` trap handler will change the exit code after
-#      the last `EXIT` signal trap handler is invoked.
-#   9. Faster access to trap stack as a global variable instead of usage the `(...)` or `$(...)` operators
+#      the last `EXIT` signal trap handler is invoked in the process.
+#   10. Faster access to trap stack as a global variable instead of usage the `(...)` or `$(...)` operators
 #      which invokes an external bash process.
-#   10. The `source` command ignores by the `RETURN` signal trap handler, so all calls to the `source` command will not
-#      invoke the `RETURN` signal trap user code (marked in the Pros, because `RETURN` signal trap handler has to be
-#      called only after return from a function in the first place and not from a script inclusion).
+#   11. The `source` command ignores by the `RETURN` signal trap handler, so all calls to the `source` command will
+#      not invoke the `RETURN` signal trap user code (marked in the Pros, because the RETURN` signal trap handler
+#      has to be called only after return from a function in the first place and not from a script inclusion).
 #
 # Cons:
-#   1. You must not use builtin `trap` command in the handler passed to the `tkl_push_trap` function as `tkl_*_trap` functions
-#      does use it internally.
+#   1. You must not use builtin `trap` command in the handler passed to the `tkl_push_trap` function as `tkl_*_trap`
+#      functions does use it internally.
 #   2. You must not use builtin `exit` command in the `EXIT` signal handlers while the `EXIT` signal trap
-#      handler is running. Otherwise that will leave the rest of the `RETURN` and `EXIT` signal trap handlers not executed.
+#      handler is running. Otherwise that will leave the rest of the `RETURN`, `RELEASE` and `EXIT` signal trap
+#      handlers not executed.
 #      To change the exit code from the `EXIT` handler you can use `tkl_set_trap_postponed_exit` function for that.
-#   3. You must not use builtin `return` command in the `RETURN` signal trap handler while the `RETURN` signal trap handler
-#      is running. Otherwise that will leave the rest of the `RETURN` and `EXIT` signal trap handlers not executed.
+#   3. You must not use builtin `return` command in the `RETURN` or `RELEASE` signal trap handlers while the `RETURN`
+#      or `RELEASE` signal trap handler is running. Otherwise that will leave the rest of the `RETURN`, `RELEASE`
+#      and `EXIT` signal trap handlers not executed.
 #   4. All calls to the `tkl_push_trap` and `tkl_pop_trap` functions has no effect if has been called from a trap
-#      handler for a signal the trap handler is handling (recursive call through the signal).
+#      handler for a signal the trap handler is handling (recursive call through the signal) except if being called
+#      from the `RETURN` or `RELEASE` signal trap handler to setup non `RETURN` or `RELEASE` signal trap handlers.
 #   5. You have to replace all builtin `trap` commands in nested or 3dparty scripts by `tkl_*_trap` functions if
 #      already using the library.
-#   6. The `source` command ignores by the `RETURN` signal trap handler, so all calls to the `source` command will not
-#      invoke the `RETURN` signal trap user code (marked in the Cons, because of losing the back compatability here).
+#   6. The `source` command ignores by the `RETURN` or `RELEASE` signal trap handler, so all calls to the `source`
+#      command will not invoke the `RETURN` or `RELEASE` signal trap handler code (marked in the Cons, because of
+#      losing the back compatability here).
 #
 #   1. Examples with RETURN signal handlers auto pop:
 #   1.1. with the library:
