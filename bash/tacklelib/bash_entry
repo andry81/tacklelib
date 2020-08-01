@@ -7,7 +7,7 @@
 #
 # Base bash shell library module with a basic set of functionality.
 # Designed to be included through the absolute path and the source command -
-# `source "/bin/bash_entry"`.
+# `source '/bin/bash_entry'`.
 # After that all other scripts can be included through the different inclusion
 # function - `tkl_include`.
 #
@@ -165,6 +165,75 @@ function tkl_false()
 function tkl_set_return()
 {
   [[ "${1#[0-9]}" != "$1" ]] && return $1
+}
+
+function tkl_set_error()
+{
+  if [[ -n "$1" ]]; then
+    tkl_declare_global tkl__last_error $1
+    return $tkl__last_error
+  fi
+}
+
+function tkl_pause()
+{
+  local key
+  read -n1 -r -p "Press any key to continue..."$'\n' key
+}
+
+# exit with optional user stdout message
+function tkl_exit()
+{
+  local LastError=${1:-$?}
+
+  [[ -n "$NEST_LVL" ]] && (( NEST_LVL-- ))
+
+  [[ -n "$2" ]] && { echo "$2"; }
+
+  tkl_declare_global tkl__last_error $LastError
+
+  exit $LastError
+}
+
+# exit with optional user stdout message
+function tkl_exit_if_error()
+{
+  local LastError=${1:-$?}
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+  (( LastError )) && tkl_exit $LastError "${@:2}"
+  return 0
+}
+
+# exit with optional user stderr message
+function tkl_abort()
+{
+  local LastError=${1:-$?}
+
+  [[ -n "$NEST_LVL" ]] && (( NEST_LVL-- ))
+
+  echo "${FUNCNAME[0]}: ${FUNCNAME[1]}: code=\`$LastError\`; line=\`${BASH_LINENO[1]}\`; source=\`${BASH_SOURCE[1]}\`" >&2
+
+  [[ -n "$2" ]] && { echo "$2" >&2; }
+
+  tkl_declare_global tkl__last_error $LastError
+
+  exit $LastError
+}
+
+function tkl_pushd()
+{
+  if [[ -z "$@" ]]; then
+    echo "${FUNCNAME[0]}: error: directory is not set." >&2
+    return 254
+  fi
+  pushd "$@" > /dev/null
+}
+
+function tkl_popd()
+{
+  local LastError=$?
+  popd "$@" > /dev/null
+  return $LastError
 }
 
 function tkl_push_var_to_stack_impl()
@@ -570,6 +639,11 @@ function tkl_get_native_parent_dir()
   esac
 
   return 0
+}
+
+function tkl_abort_include()
+{
+  tkl_abort $? "${FUNCNAME[0]}: ${FUNCNAME[1]}: code=\`$?\`; line=\`${BASH_LINENO[1]}\`; source=\`${BASH_SOURCE[1]}\`"
 }
 
 function tkl_get_abs_path_from_dir()
@@ -1311,6 +1385,11 @@ function tkl_bash_entry()
   return 0
 }
 
+# Special exit code value variable has used by the specific set of functions
+# like `tkl_call`, `tkl_exit`, `tkl_abort` to hold the exit code over the builtin
+# functions like `pushd` and `popd` which does change the exit code.
+tkl_declare_global tkl__last_error 0
+
 fi
 
 if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
@@ -1332,7 +1411,7 @@ if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
   fi
 
   # always exit with current exit code
-  exit $?
+  tkl_exit
 fi
 
 fi
