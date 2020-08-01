@@ -1,4 +1,8 @@
 2020.08.01:
+* changed: buildlib.sh: implementation moved from project.sh scripts
+* refactor: traplib.sh: header comments refactor
+
+2020.08.01:
 * refactor: bash_entry: minor refactor
 
 2020.08.01:
