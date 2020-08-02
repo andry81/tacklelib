@@ -1,3 +1,6 @@
+2020.08.02:
+* changed: cmake/tacklelib: TODO file update
+
 2020.08.01:
 * changed: bash: buildlib.sh: implementation moved from project.sh scripts
 * refactor: bash: traplib.sh: header comments refactor

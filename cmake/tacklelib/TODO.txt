@@ -2,6 +2,10 @@ SetVarsFromFiles.cmake:
 
 * tests!
 * support a list variable expansion including expansion in a list value.
+* fix variable declaration line number to the first line instead of the last
+  line
+* fix incorrect OS list variables declaration (UNIX while in WINDOWS and vice
+  versa)
 
 testlib:
 
