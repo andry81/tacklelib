@@ -1,3 +1,11 @@
+2020.08.03:
+* fixed: bash: bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
+* new: bash: bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
+* new: bash: bash_entry: `tkl_declare_array` to declare array without unset previous variable context
+* changed: bash: bash_entry: removed `tkl_declare_local` to bring new clean functionality
+* changed: bash: bash_entry, baselib.sh, buildlib.sh: replaced tkl_declare_local/tkl_declare_global/tkl_declare_global_array by tkl_declare/tkl_declare_array in certain places
+* refactor: bash: bash_entry: variable declaration functions refactor
+
 2020.08.02:
 * changed: cmake/tacklelib: TODO file update
 
