@@ -19,7 +19,6 @@ function tkl_call()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
-  echo
   tkl_pushset_source_file_components_from_args "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "$@"
@@ -36,7 +35,6 @@ function tkl_call_and_print_if()
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
     echo ">$RETURN_VALUE"
-    echo
   }
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
@@ -53,7 +51,6 @@ function tkl_call_inproc()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
-  echo
   tkl_pushset_source_file_components_from_args "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "$@"
@@ -70,7 +67,6 @@ function tkl_call_inproc_and_print_if()
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
     echo ">$RETURN_VALUE"
-    echo
   }
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
@@ -87,7 +83,6 @@ function tkl_call_inproc_entry()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:3}"
   echo ">$2: $1 $RETURN_VALUE"
-  echo
   tkl_pushset_source_file_components_from_args "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc_entry "$@"
@@ -104,7 +99,6 @@ function tkl_call_inproc_entry_and_print_if()
   tkl_make_command_line '' 1 "${@:4}"
   eval "$1" && {
     echo ">$3: $2 $RETURN_VALUE"
-    echo
   }
   tkl_pushset_source_file_components_from_args "$3" "${@:4}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN

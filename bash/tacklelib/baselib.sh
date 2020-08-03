@@ -124,7 +124,7 @@ function tkl_reverse_array()
 
   eval "InArrSize=\${#$InArrName[@]}"
 
-  tkl_declare_global_array $OutArrName # CAUTION: MUST BE after all local variables
+  tkl_declare_array $OutArrName # CAUTION: MUST BE after all local variables
   for (( i=InArrSize, j=0; --i >= 0; j++ )); do
     eval "$OutArrName[j]=\"\${$InArrName[i]}\""
   done
@@ -888,7 +888,7 @@ function tkl_get_current_function_names_stack_trace()
   local out_var="${1:-RETURN_VALUE}"
 
   tkl_join_array FUNCNAME '|' 2
-  tkl_declare_local "$out_var" "${RETURN_VALUES[1]}"
+  tkl_declare "$out_var" "${RETURN_VALUES[1]}"
 }
 
 fi
