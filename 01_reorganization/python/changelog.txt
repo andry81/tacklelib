@@ -1,0 +1,382 @@
+2020.07.13:
+* fixed: tacklelib: fix for case where an interactive python session is used
+
+2020.07.11:
+* changed: pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
+
+2020.07.10:
+* new: pyxvcs scripts moved from the pyxvcs project
+
+2020.07.05:
+* new: cmdoplib: gitsvn: added bare args parameter into all git command functions to pass user command parameters from a command script
+* changed: tacklelib: other minor changes
+* changed: cmdoplib: svn, gitsvn: replaced rest of `print_err` calls by exception throw
+* changed: cmdoplib: svn, gitsvn: other minor changes
+
+2020.05.20:
+* fixed: cmdoplib: missed GIT_SVN_ENABLED usage
+* changed: cmdoplib: use global VERBOSITY_LEVEL variable by default if the verbosity per function is not set
+
+2020.04.26:
+* changed: tacklelib: typos
+
+2020.04.21:
+* fixed: cmdoplib: callsvn, callgit: the same condition to print `<` character after a call to svn/git with the print of the command line prefixed with the `>` character
+
+2020.04.20:
+* changed: tacklelib: utils: minor `is_file_path_beginswith` and `is_file_path_endswith` functions improvement
+
+2020.04.13:
+* fixed: tacklelib: yaml: accidental conversion of integral and float types on expansion into string type
+* fixed: cmdoplib: gitsvn: fetch command call with the `-u` flag to enable HEAD creation on an empty working copy to avoid error: `fatal: Refusing to fetch into current branch refs/heads/master of non-bare repository`
+* new: cmdoplib: gitsvn: explicitly enable git-svn context usage by `GIT_SVN_ENABLED` variable
+* changed: cmdoplib: gitsvn: replaced all `print_err` calls by exception throw
+
+2020.04.11:
+* new: cmdoplib: `svn_cleanup` function
+
+2020.04.06:
+* changed: readme update
+
+2020.04.03:
+* new: tacklelib: global configuration paramaters support
+* changed: tacklelib: extracted `log_import_module` parameter into global config from the `tkl_import_module` function
+* changed: tacklelib: minor cleanup
+
+2020.03.08:
+* changed: readme update
+
+2020.02.27:
+* fixed: tacklelib: missed change in `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2020.02.24:
+* fixed: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2020.02.10:
+* changed: readme update
+
+2020.02.10:
+* fixed: cmdoplib: callsvn, callgit: avoid stdout/stderr blocking on `max_stdout_lines < 0`
+
+2020.02.04:
+* fixed: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
+* fixed: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function
+* fixed: cmdoplib: std: call to `tkl_remove_global` in the `delglobalvar` function instead of `globals` function
+* new: tacklelib: `tkl_remove_global` function to remove globals declared through the `tkl_declare_global`
+* new: cmdoplib: gitsvn, svn: `makedirs` function to create all working directories
+
+2020.01.25:
+* new: cmdoplib: std: additional `args_separators` parameter in the `call` function to protect a list command line arguments from futher splitting
+
+2020.01.19:
+* fixed: cmdoplib: gitsvn: incomplete parent/child check on ahead/behind state
+* fixed: cmdoplib: gitsvn: invalid `until_commit_commit_timestamp` in the `git_fetch_child_subtree_merge_branches` function
+* changed: cmdoplib: gitsvn: restored not pushed commits skip w/o advance on skipped push
+* changed: cmdoplib: gitsvn: moved `parent_tuple_ref` and `children_tuple_ref_list` keys initialization in a dictionary to the end to be able to observe all the rest parameters at first in the Pydev IDE watch window
+
+2020.01.18:
+* fixed: cmdoplib: gitsvn: invalid non existed branch check and author timestamp usage in the `git_fetch_child_subtree_merge_branches` function
+* fixed: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` function usage before call to `git_fetch_child_subtree_merge_branches` function
+* changed: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` changed to save a first advanced svn commit to later use it's date time for the `--since` parameter of a `git log` command
+* new: cmdoplib: gitsvn: added `since_commit_commit_timestamp` parameter to `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* new: todo list file
+* refactor: cmdoplib: gitsvn: moderate refactor
+
+2020.01.17:
+* fixed: cmdoplib: gitsvn: list index out of range on svn not pushed commits list
+* fixed: cmdoplib: gitsvn: other multiple fixups
+* refactor: cmdoplib: cache: minor refactor
+
+2020.01.17:
+* fixed: cmdoplib: gitsvn: merge and push over orphan branch
+* fixed: cmdoplib: gitsvn: repository ordinal index accidental reset
+* fixed: cmdoplib: gitsvn: other multiple fixups
+* changed: cmdoplib: gitsvn: improved parent/child check on ahead/behind state through the `git_check_if_parent_child_in_ahead_behind_state` function with recursion
+* changed: cmdoplib: gitsvn: now `git-svn-id` leaves as is if a commit was in the output merge branch
+
+2020.01.16:
+* fixed: cmdoplib: gitsvn: merge and push was broken after last changes
+* refactor: cmdoplib: cache: minor comment
+
+2020.01.15:
+* fixed: cmdoplib: gitsvn: support merge not from the head commit of git-svn remote branch (merge from a middle of git-svn remote branch which has been already fetched)
+* fixed: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` searching is corrected to search from the complete version of the `svn_path_prefix` down to the root directory
+* fixed: cmdoplib: gitsvn: fixed exception `the parent GIT repository `...` is ahead to the child GIT repository` for the case when a not pushed commit from a child repository is not actually going to be pushed (empty commit) into child repository and then be merged into parent repository which must be in that case be behind the child repository
+* fixed: cmdoplib: gitsvn: other multiple fixups
+* new: cmdoplib: gitsvn: `disable_parent_child_ahead_behind_check` flag in the `git_push_from_svn` function to disable check whether the last pushed parent/child repository commit is ahead/behind to the first not pushed child/parent repository commit
+* changed: cmdoplib: gitsvn: merge command completely replaced by `read-tree` + `write-tree` + `commit-tree` sequence of commands
+* changed: cmdoplib: gitsvn: rewrited `get_last_git_svn_commit_by_git_log` and `get_last_git_svn_rev_by_git_log` functions
+* changed: cmdoplib: gitsvn: `get_git_commit_list_from_git_log` changed to match svn path not exactly (as prefixed)
+* refactor: cmdoplib: gitsvn: move common push code into `git_merge_and_push` function
+* refactor: cmdoplib: gitsvn: code cleanup
+
+2020.01.14:
+* fixed: cmdoplib: gitsvn: `get_first_or_last_git_svn_commit_from_git_log` has to find commit svn revision separately from a git commit hash and rest of git commit parameters because a git repository can contain now git-svn commits without an svn revision in the `git-svn-to-id` parameters as a child repository merge commit with an association versus different svn repository (different revision counter)
+* fixed: cmdoplib: gitsvn: open temporary text files through the `TmpFileIO` class using `w+b` mode instead of `w+b` because of silent line returns replacement
+* changed: cmdoplib: gitsvn: reduced functionality of the `get_first_git_svn_commit_from_git_log` function to always search only for the first git-svn commit
+* changed: cmdoplib: gitsvn: improved functionality of the `get_first_or_last_git_svn_commit_from_git_log` function to return both the first git-svn commit with or without an svn revision and the first git-svn commit only with an svn revision
+* refactor: cmdoplib: gitsvn: `get_first_git_svn_commit_from_git_log2` renamed into `get_first_or_last_git_svn_commit_from_git_log`
+
+2020.01.13:
+* fixed: cmdoplib: gitsvn: in case of merge from a child repository into not yet existed parent repository branch (special case) the `merge` + `read-tree` + `commit` call sequence is replaced by the low level `read-tree` + `write-tree` + `commit-tree` call sequence as more relaible and without high level side effects around the head reference
+* fixed: cmdoplib: std: minor fix around `local_cwd` class to print a path with slashes only
+* fixed: cmdoplib: gitsvn: missed to print immediate local environment variables in the `call*` functions even if the verbosity level is minimal
+* new: cmdoplib: gitsvn: added additional `git-svn-from-id` and `git-svn-to-id` identifiers to replace the `git-svn-id` and `git-svn-to-id` identifiers in a commit message in case of a merge from child repository into parent repository w/o existence a merge commit from parent repository
+* changed: cmdoplib: gitsvn: code cleanup
+
+2020.01.11:
+* new: added license file to support the subdirectory as a standalone project
+
+2020.01.10:
+* changed: cmdoplib: gitsvn, svn: raw `plumbum.local.cwd` call replaced by a wrapper to print the current directory before respective change
+* refactor: cmdoplib: gitsvn: renamed `.git/svn2git` subdirectory into `.git/.pyxvcs`
+
+2020.01.10:
+* fixed: cmdoplib: gitsvn: multiple fixups after test runs
+* new: cmdoplib: gitsvn: added `ordinal_index` to be able identify-by-index all nodes in a repositories tree
+* changed: cmdoplib: gitsvn: added numeration to the name of a working copy directory of non root repositories
+
+2020.01.09:
+* fixed: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function now filters commits by the `git log --until=...` command to return a child repository commits relative to the timestamp of a parent repository commit
+* fixed: cmdoplib: gitsvn: other multiple fixups
+* new: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function automatically fetches/merges a child repository into a subtree branch using `git_path_prefix` and other parameters
+* changed: cmdoplib: gitsvn: improved `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* changed: cmdoplib: gitsvn: code cleanup
+* changed: cmdoplib: gitsvn: all functions now does strip surrounded non printable characters from git repos list field values to be able to compose field rows into tables with aligned columns
+* refactor: cmdoplib: gitsvn: moderate functions refactor
+
+2020.01.07:
+* new: cmdoplib: gitsvn: added `last_pushed_git_svn_commit_fetch_timestamp` and `last_notpushed_svn_commit_fetch_timestamp` parameters to be able to analyze last pushed/notpushed commit timestamp versus a child repository commit timestamp in repostiories tree
+* changed: cmdoplib: gitsvn: `update_git_svn_repo_fetch_state` function reworked, code a bit reduced and refactored
+
+2020.01.07:
+* refactor: minor refactor and cleanup
+
+2020.01.04:
+* fixed: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` invalid search logic not using `git_path_prefix` in a `git log` command as a subdirectory search context
+* new: cmdoplib: gitsvn: `git_path_prefix` parameter in `git_repos.lst.in` configuration file
+* new: cmdoplib: gitsvn: `git_log_list_child_max_depth_fetch` parameter calculation to define a dependency between git log search depth and the git-svn repositories tree structure depth
+* changed: cmdoplib: callgit: better filter of not critical warnings
+* changed: cmdoplib: callsvn: better filter of not critical warnings
+* changed: cmdoplib: gitsvn: make a git-svn fetch only on writable (not read only) repositories
+* refactor: cmdoplib: gitsvn: moderate refactor
+* refactor: cmdoplib: svn: moderate refactor
+
+2020.01.04:
+* fixed: a typo
+* changed: readme update
+
+2020.01.04:
+* changed: cmdoplib: yaml: made optional in generation a config file before load it, disable it by default
+
+2019.12.31:
+* new: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2019.12.30:
+* new: cmdoplib: added `retain_commmit_git_svn_parents` parameter to the `push_svn_to_git` function to explicitly set the `git svn fetch ...` command commits as parents to a resulted merge commit (by default is turned off to reduce quantity of commits in a repository commits graph)
+
+2019.12.29:
+* refactor: cmdoplib: minor refactor
+
+2019.12.26:
+* fixed: cmdoplib: missed local branch cleanup before `git svn fetch ...` (a local branch can contain empty commits after the last `git filter-branch --prune-empty` command)
+
+2019.12.25:
+* fixed: cmdoplib: declare a preserve empty directories in the `git_init` function, added support for respective `*GIT_SVN_REMOTE.PRESERVE_EMPTY_DIRS*` variables in yaml scripts
+* fixed: cmdoplib: in the git a child repository branch must be always merged into a parent repository even if was merged for a previous svn revision(s), otherwise a parent repository commit won't contain changes made in a child repository in previous svn revisions
+* fixed: cmdoplib: use a commit timestamp in the `--until`/`--since` argument in a  `git log ...` command, but return an author timestamp and datetime
+* fixed: cmdoplib: missed to recreate a main branch after a branch rewrite (`git filter-branch --prune-empty` command) in case when the `refs/original/refs/remotes/...` reference was deleting but the reference of a main branch was pointing to the being deleted reference
+* fixed: cmdoplib: other multiple fixups
+* new: cmdoplib: [initiated] `git_svn_compare_commits` function and respective functionality to compare a particular svn commit versus associated git commit for a particular git repository associated with a remote name
+* new: `*~compare_commits.bat` scripts to call the `git_svn_compare_commits` function
+
+2019.12.24:
+* fixed: cmdoplib: minor fixup
+
+2019.12.23:
+* fixed: cmdoplib: The `-no-ff` parameter in the `git merge ...` command should not be used in case of merge into empty head, otherwise `fatal: Non-fast-forward commit does not make sense into an empty head`
+
+2019.12.23:
+* fixed: tacklelib: minor `TmpFileIO` class fixups
+* fixed: tacklelib: minor `devnull` class fixup
+* fixed: cmdoplib: workaround for the `plumbum.local.run` function for `TmpFileIO` object as a stdin
+* fixed: cmdoplib: invalid author date/time in `git_push_from_svn` function
+* fixed: cmdoplib: other multiple fixups
+* refactor: cmdoplib: removed unnecessary default keyword parameters from `call*`/`call_svn*`/`call_git*` functions
+
+2019.12.22:
+* fixed: cmdoplib: case around the `error: Entry '<prefix>/...' overlaps with '<prefix>/...'.  Cannot bind.` message after the `git read-tree --prefix=...` command
+* fixed: cmdoplib: missed commit message `git-svn-id` field change after merge from a child repository commit to a parent repository
+* fixed: cmdoplib: missed to commit changes in a not root repository in case if a not root repository has changes for a revision together with a child repository
+* fixed: cmdoplib: other multiple fixups
+* new: cmdoplib: `stdin` parameter in `call` function
+* new: cmdoplib: `**kwargs` parameter in `call_svn`/`call_git` functions
+
+2019.12.18:
+* fixed: cmdoplib: missed git switch with checkout (not initialized HEAD) after a call to `git_pull`/`git_push_from_svn` functions
+* fixed: cmdoplib: workaround call to the `git filter-branch --prune-empty ...` without initialized HEAD reference (error message `fatal: Needed a single revision`)
+* fixed: cmdoplib: other multiple fixups
+
+2019.12.17:
+* fixed: cmdoplib: multiple fixup
+* new: cmdoplib: `set_verbosity_level` function and respective `cmdop.xpy` script parameter to reduce a verbosity level by default (hide an environment variables output attached to a being runned executable)
+* new: cmdoplib: explicit environment dictionary parameter in the `call`/`call_svn`/`call_git` functions
+* changed: cmdoplib: removed svn cache remove from all functions except in the `git_reset` function if the `--remove_svn_on_reset` flag is set
+
+2019.12.16:
+* refactor: cmdoplib: minor refactor
+
+2019.12.11:
+* fixed: cmdoplib: incorrect git-svn-trunk branch fetch from the previous revision instead of from the first revision, as a result is incorrect commit-to-commit concatenation after a criss-cross repository synchronization in another project
+
+2019.12.11:
+* fixed: cmdoplib: commit timestamp has used instead of author timestamp
+* fixed: cmdoplib: minor fixes
+
+2019.12.11:
+* changed: cmdoplib: [completed] `git_push_from_svn` function
+
+2019.12.09:
+* fixed: cmdoplib: `git pull ...` command can not handle multiple merge into the index file, throws error message `error: You have not concluded your merge (MERGE_HEAD exists).`, has replaced by the `git subtree add ...`/`git subtree merge ...` command
+* fixed: cmdoplib: `git subtree add ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has moved before a parent repository merge command
+* fixed: cmdoplib: `git subtree merge ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has replaced by the `git merge --no-commit -s ours ...` + `git read-tree ...` + `git commit -C ...`
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.08:
+* fixed: cmdoplib: `git cherry-pick ...` command can not handle a subtree prefix and merges all commits into the root directory of a commit, has replaced by the `git read-tree ...` command
+* fixed: cmdoplib: `git read-tree ...` command can not handle multiple merge into the index file, throws error message `error: Entry '...' overlaps with '...'.  Cannot bind.`, has replaced by the `git pull ...` command
+* fixed: cmdoplib: `git_push_from_svn` function error message `fatal: cannot switch branch while merging`, added `git reset --mixed` to cleanup before the switch
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.06:
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.04:
+* changed: cmdoplib: removed usage of `parent_git_subtree_cmdline` and `git_subtree_cmdline` parameters in `GitReposListReader` class
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: git functions refactor
+
+2019.11.27:
+* fixed: cmdoplib: added '--localtime' to all `git svn fetch ...` commands
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.27:
+* fixed: cmdoplib: correct `git cherry-pick ...` calls
+
+2019.11.26:
+* fixed: cmdoplib: has used git commit timestamp/datetime in comparison instead of associated svn commit timestamp/datetime
+* fixed: cmdoplib: correct skip push of empty svn commits
+* fixed: cmdoplib: stop on a not critical warning from `git svn fetch ...` command
+* fixed: cmdoplib: missed `--no-edit` in the `git commit --amend ...` command
+* fixed: cmdoplib: fetch-rebase-push into git repo in the `git_push_from_svn` function
+* fixed: cmdoplib: minor fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: minor refactor
+
+2019.11.25:
+* fixed: cmdoplib: minor fixup
+* new: cmdoplib: change author name and email before push
+
+2019.11.25:
+* fixed: cmdoplib: fixup to init/fetch/reset/pull/push over empty git repository
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.24:
+* new: tacklelib: reimport functionality in the `tkl_import_module` function to partially resolve module cross references
+* changed: cmdoplib: `yaml_expand_*` functions always searches in python global variables now
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.24:
+* fixed: cmdoplib: minor fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.23:
+* fixed: cmdoplib: git-svn branch cleanup before fetch
+* changed: cmdoplib: all branches started by `git-svn` is reserved for internal usage
+
+2019.11.22:
+* fixed: cmdoplib: not unique default fetch tip in to `config` file after the `git svn init ...` call
+* fixed: cmdoplib: incomplete `--ignore-paths` parameter in the `git svn init ...` command
+* fixed: cmdoplib: `git svn fetch ...` invalid (default is `master`) branch fetch, the `git swith ...` with explicit branch must be used always before to fix that
+* changed: tacklelib,cmdoplib: increased stdout output maximal lines for a command before cutoff from 7 up to 9
+
+2019.11.21:
+* fixed: cmdoplib: `revert_if_git_head_refs_is_not_last_pushed` function fixup
+* fixed: cmdoplib: `git_fetch`, `git_pull`, `git_push_from_svn` functions fixup
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: removed the stdout/stderr parameters from the `call_svn` and `call_git` functions as must always does intercept the output
+
+2019.11.20:
+* fixed: tacklelib,cmdoplib: missed yaml changes
+* fixed: cmdoplib: call to `git_push_from_svn` immediately after clean `git_init`
+* changed: added author and author email in `svn log ...` command output
+
+2019.11.20:
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* changed: readme update
+
+2019.11.19:
+* new: `tzlocal` python module added to python modules install script
+* changed: use local time in `svn log ...` commands
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: cmdoplib: minor refactor
+
+2019.11.18:
+* fixed: cmdoplib: [continued] `git_push_from_svn` function fixup
+* refactor: minor refactor
+
+2019.11.18:
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.17:
+* fixed: install script missed modules
+
+2019.11.15:
+* fixed: missed module to install in the install scripts
+
+2019.11.15:
+* changed: readme update for install instruction of the python version prior version 3.4
+
+2019.11.15:
+* changed: install scripts minor change in case of attempt to install packages under python prior version 3.4
+
+2019.11.14:
+* changed: cmdoplib: dropped `globals()[...]` usage to access global variables as not required anymore and is replaced by `tkl_declare_global` function usage
+
+2019.11.14:
+* fixed: tacklelib: avoid copy builtin and packaged modules
+* fixed: tacklelib: avoid copy builtin and non trivial class types
+* fixed: tacklelib: `inspect.getmodule` is replaced by `tkl_get_imported_module_by_file_path` to correctly return modules by a stack module path (unique relation) instead by a module name from `sys.modules` (not unique relation)
+* changed: python modules install script update
+* refactor: `tkl_import_module` function reduction
+* refactor: code cleanup
+
+2019.11.12:
+* changed: python modules install script update
+
+2019.11.12:
+* fixed: cmdoplib: removed `svn ...` commands stdout cutoff
+
+2019.11.12:
+* fixed: tacklelib: `tkl_merge_module` module-to-not-a-module copy
+* fixed: tacklelib: invalid execution guard in the `tkl_import_module` function for named imports
+* fixed: cmdoplib: `git svn ...` returns message affected by the `SVN_SSH` environment variable: `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': Error in child process: exec of '' failed: No such file or directory at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.` (https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014 )
+* fixed: cmdoplib: `git svn init ...` can init urls with the svn+ssh scheme (see details in the `README_EN.txt` file)
+* fixed: tests run
+* new: changelog file
+* new: tacklelib: new hierarchical print to introduce the nest level of an `tkl_import_module` call
+* new: tacklelib: new `tkl_init` function implementation to initialize the caller/current module on the stack
+* new: tacklelib: `tkl_import_module` function has been rewritten to use the stack to update globals everythere including a module from where an import being executed
+* new: tacklelib: `tkl_declare_global` function has been rewritten to use the stack to update globals everythere including a module from where a global being exported from
+* new: tacklelib: `YamlEnv` class supports hierarchical yaml configuration files to read variables with a compound nature to postpone an environment variable declaration to a moment of execution of an executable
+* new: tacklelib: `tacklelib.sig.xsh` script to suppress signals to avoid accidental signal interruption in critical code segments
+* new: tacklelib: `tacklelib.cache.xsh` script to wrap the `fcache` module to make workarounds over it (see details in the `README_EN.txt` file)
+* new: cmdoplib: `yaml_load_config` function can load environment variables for a particular context (global/environment variables)
+* new: cmdoplib: `yaml_expand_*` functions can expand for a different containers (str/list/dict/value) or use additional containers to search in for replacement values (at second in dictionary, at third in global variables)
+* new: cmdoplib: support run `ssh-pageant` as a background process to enable access svn repositories through the svn+ssh protocol from the `git svn ...` command
+* removed: tacklelib: `tkl_get_parent_imported_module_state` function is removed as not needed anymore because the search logic is based on the stack frames now
+* changed: tacklelib: always export to all imported modules in the `tkl_declare_global` function
+* changed: cmdoplib: `CONFIGURE_DIR`, `SCM_NAME` and `CMD_NAME` variables made global in all imported modules to be able to use them directly in command calls
+* changed: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: tacklelib,cmdoplib: yaml functionality
+* refactor: cmdoplib: git/svn functionality

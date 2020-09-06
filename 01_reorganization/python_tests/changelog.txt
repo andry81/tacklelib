@@ -1,0 +1,76 @@
+2020.05.23:
+* new: tests auto logging
+
+2020.04.06:
+* changed: readme update
+
+2020.03.31:
+* fixed: missed changes
+
+2020.03.30:
+* changed: svn file externals on `_scripts/tools` directory
+
+2020.03.30:
+* changed: minor cleanup
+
+2020.03.10:
+* changed: readme update
+
+2020.03.09:
+* changed: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+
+2020.03.08:
+* changed: readme update
+* refactor: _scripts/tools: minor refactor
+
+2020.03.05:
+* changed: readme update
+
+2020.03.02:
+* fixed: `02_interactive/*` tests execution under cygwin and Linux
+
+2020.02.10:
+* changed: readme update
+
+2019.11.25:
+* new: `01_unit/01_import_module/09_reimport_being_imported`, `01_unit/01_import_module/10_reimport_being_imported_from_default_lambda_arg` tests to test reimport functionality in the `tkl_import_module` function
+* changed: tests cleanup
+
+2019.11.20:
+* changed: readme update
+
+2019.11.15:
+* changed: readme update
+
+2019.11.15:
+* changed: readme update for install instruction of the python version prior version 3.4
+
+2019.11.14:
+* changed: readme update
+
+2019.11.14:
+* fixed: tests run under Linux Mint 18.3 KDE x64
+
+2019.11.14:
+* fixed: `02_interactive/*` tests
+* new: `00_empty` for a test try
+* new: `01_unit/01_import_module/04_base_import_class` test to test import module with a basic class
+* new: `01_unit/01_import_module/07_merge_2_lvl3_modules_in_1_lvl2` test to test different modules into the same name
+* new: `01_unit/01_import_module/08_specific_import_importlib_util` test to test import of a module with compound system library like `importlib.util`
+* refactor: tests refactor
+
+2019.11.12:
+* fixed: test file names must be different, otherwise only the first one would be executed (bug in the pytest plugin in the xonsh module, see details in the `README_EN.txt`)
+* new: `01_unit/01_import_module/05_merge_2_modules_in_1` to test merge of 2 modules into 1 module
+* new: `01_unit/02_declare_global/*` tests to test `tkl_declare_global` implementation (tests valid only in an isolated process environment)
+* new: `02_interactive/*` tests to test only by a user manual interaction
+* changed: readme update
+* refactor: tests global refactor, each test runs in a standalone pytest process to avoid intersection of global variables
+
+2019.10.08:
+* refactor: support scripts moved in to subdirectories
+
+2019.10.06:
+* new: changelog file
+* new: python scripts initial tests
+* new: readme file

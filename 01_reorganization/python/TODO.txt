@@ -1,0 +1,67 @@
+cmdoplib.gitsvn.xsh:
+
+*  Complete implementation of the `git_svn_compare_commits` function to compare a commit (working copy) from svn with translated
+   git commit (compare svn working copy versus git working copy in a particular svn revision).
+
+*  Need a check of read only child git repository commit content (must be a child and a repository tree leaf in a project) on
+   real existence in parent svn repository commit content in a particular revision to be able to merge child git repository commit
+   into parent git repository commit. The author time of both git commits is not enough here because, for example, in a revision 1
+   of a parent svn repository a commit N from a child git repository (a parent svn repository was translated into parent git
+   repository, a child svn repository wa translated into another child git repository, and both svn repositories are different)
+   could not yet exist and so can not be merged in yet into a parent git repository because it appeared only after revision 2 in a
+   parent svn repository or so was extracted out into a git commit after N+1 in a child git repository. So the author date time of
+   an svn commit revision 1 of a parent repository and the author date time of a git commit N of child repository is not enough to
+   deside merge a git commit N from child git repository into a parent git repository associated with the same parent svn
+   repository.
+
+   The Example.
+
+   SvnA repo is translated into GitX from the root.
+   SvnB repo is translated into GitY from the root.
+   SvnA contains SvnB in the `subdir1/subdir2` subdirectory.
+   GitX contains GitY in the `subdir1/subdir2` subdirectory.
+
+   <SvnA root>                <GitX root>
+    |                          |
+    +-- subdir1/               +-- subdir1/
+        |                          |
+        +-- subdir2/               +-- subdir2/
+             |                         |
+         <svn:external>            <subtree>
+             |                         |
+            <SvnB root>               <GitY root>
+             |                         |
+             +-- subdir3/              +-- subdir3/
+
+              Parent          |  Child
+              SvnA / GitX     |  SvnB / GitY
+    Time      ----------------+--------------------
+      .                       |
+     /|\      r2 / C2         |
+      |                       |  r103 / C204
+      |                       |
+      |                       |  r102 / C203
+      |                       |
+      |                       |   -   / C202
+      |                       |
+      |       r1 / C1         |
+      |                       |   -   / C201
+      |                       |
+      |                       |  r100 / C200
+      |                       |
+
+   Note:
+     GitX should contain more commits than C1 and C2. In real implementation each commit from GitY must be merged into GitX.
+     The example is demostrates only the logic to merge a particular GitY commit and not everyone.
+
+   Because SvnB is a different svn repository to the SvnA, then it contains a different quantity of revisions and its date times.
+   Additionally, the GitY can contain commits merged from its descedants representing subrepositories, which does not have any
+   associated commits in the SvnB.
+
+   All these means that the C201 git commit CAN NOT be merged into the C1 git commit using only the author date time filter from
+   the r1 commit. The date time filter is used to filter out all commits in the SvnB to find the C201 git commit. But because r1
+   commit is not yet contain the `svn:external` to the SvnB repository this is not enough. Only the r2 svn commit contains the
+   `svn:external` and so the found C204 git commit can be merged into the C2 git commit.
+
+   So we must check additionally something else than the author date time to find out when and what commits from the GitY can be
+   merged into GitX using SvnB and SvnA as a dependency.

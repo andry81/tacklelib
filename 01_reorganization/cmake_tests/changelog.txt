@@ -1,0 +1,217 @@
+2020.05.22:
+* fixed: bench: bench tests count fix
+* new: bench: `tkl_macro_fast_eval` test
+* new: unit: tests over `tkl_escape_list_expansion_as_cmdline` function with `tkl_macro_fast_eval` macro usage
+* new: unit: tests over `tkl_macro_fast_eval`
+* new: unit: more tests over `tkl_macro_eval`
+* new: tests auto logging
+
+2020.05.17:
+* fixed: tests execution versus new `bash_entry` implementation
+
+2020.04.06:
+* changed: readme update
+
+2020.03.31:
+* fixed: missed changes
+
+2020.03.30:
+* changed: svn file externals on `_scripts/tools` directory
+
+2020.03.30:
+* changed: minor cleanup
+
+2020.03.09:
+* changed: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+
+2020.03.08:
+* changed: readme update
+* refactor: _scripts/tools: minor refactor
+
+2020.03.05:
+* changed: readme update
+
+2020.02.10:
+* changed: readme update
+
+2019.11.14:
+* changed: readme update
+
+2019.10.08:
+* fixed: tests run
+* refactor: support scripts moved in to subdirectories
+
+2019.10.06:
+* changed: readme update
+* refactor: moderate refactor
+
+2019.08.04:
+* new: cmake 3.15.1 binaries target
+* changed: cmake 3.14.5 binaries is retargeted to cmake 3.14.6
+* changed: cmake 3.15.0-rc1 binaries is retargeted to cmake 3.15.0
+
+2019.08.04:
+* fixed: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+
+2019.06.22:
+* fixed: `tests_02_Utility` corrected
+
+2019.06.16:
+* changed: repository links in readme update
+
+2019.06.16:
+* new: scripts: config generator scripts `*_generate_config.*`
+* new: scripts: preparations to be able to load configuration files from the `_config` subdirectory
+* changed: readme update
+
+2019.06.15:
+* new: `02_bench` tests now prints floating point time spent in seconds per call
+* new: more `02_bench` tests
+* new: `07_Math` tests
+* new: more `10_Eval` tests around `tkl_macro_eval` macro (`Eval.cmake`)
+* refactor: test files order shift rename
+
+2019.06.14:
+* new: initial `02_bench` tests
+
+2019.06.14:
+* refactor: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
+
+2019.06.13:
+* new: `tests_06_List` tests
+
+2019.06.12:
+* new: more `tests_11_SetVarsFromFiles` tests
+* new: `tests_07_File` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.06.11:
+* new: `tests_11_SetVarsFromFiles` tests
+
+2019.06.08:
+* new: `tests_01_expansion` tests
+* new: `tests_02_Utility` tests
+* new: more `tests_04_ForwardVariables` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.06.06:
+* new: more `01_make_var_from_ARGV` tests
+* new: `03_make_vars_from_CMAKE_ARGV_ARGC` tests
+* changed: tests correction changes
+
+2019.06.06:
+* fixed: cmake_tests: 100% tests pass
+* fixed: `02_make_vars_from_ARGV_ARGN` tests pass (`ForwardArgs.cmake`)
+* changed: tests correction changes
+
+2019.06.06:
+* changed: some `tests_08_Eval` tests improvement
+
+2019.06.06:
+* fixed: `tests_03_ForwardArgs` tests pass (`ForwardArgs.cmake`)
+* new: `tests_03_ForwardArgs` tests
+* new: `tests_08_Eval` tests
+* changed: tests correction changes
+
+2019.06.05:
+* new: more `tests_03_ForwardArgs` tests
+* changed: `tests_03_ForwardArgs` tests correction changes
+
+2019.06.05:
+* fixed: `tests_01_script_mode/tests_02_ForwardVariables/02_tracks_vars/11_nested.test.cmake` test
+* changed: tests correction changes
+
+2019.06.05:
+* changed: tests correction changes
+
+2019.06.04:
+* changed: tests correction changes
+
+2019.06.03:
+* new: more `tests_01_script_mode/tests_09_Handlers` tests
+* changed: tests correction changes
+* changed: minor cleanup
+* refactor: test files order shift rename
+
+2019.06.02:
+* fixed: `tests_01_script_mode/tests_07_Eval` tests pass
+* fixed: overall tests fixup
+* new: more `tests_01_script_mode` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.31:
+* fixed: tests fixup
+* new: `tests_01_script_mode/tests_05_ForwardVariables` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.30:
+* new: `tests_01_script_mode/tests_03_Utility` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.30:
+* new: `tests_01_script_mode/tests_03_Std/02_track_vars` tests
+* new: `tests_01_script_mode/tests_05_Eval` tests
+* changed: tests correction changes
+* refactor: test files order shift rename
+
+2019.05.29:
+* new: readme file
+
+2019.05.28:
+* new: more `tests_01_script_mode/tests_04_Eval` tests
+* refactor: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting` renamed to ``tests_01_script_mode/tests_01_builtins/tests_03_command_nesting``
+* refactor: `tests_01_script_mode/tests_04_Eval` tests
+
+2019.05.27:
+* new: usage of new `include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative a script module directory path (incomplete)
+* changed: code cleanup
+
+2019.05.26:
+* new: `tests_01_script_mode/tests_04_Eval/03_escaping.test.cmake`
+* changed: tests correction to always fail with message if test fails
+
+2019.05.26:
+* new: `tests_01_script_mode/tests_04_Eval/01_simple_single_return.test.cmake`
+* new: `tests_01_script_mode/tests_04_Eval/02_variable_set.test.cmake`
+* refactor: tests reorder
+
+2019.05.25:
+* fixed: `tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake` test pass
+* fixed: `tests_01_script_mode/tests_03_Std/02_make_args_from_ARGV_ARGN.test.cmake` test correction
+* fixed: `tests_01_script_mode/tests_02_TestLib/01_assert_expressions.test.cmake` test correction
+* fixed: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting/02_nested_expansion.test.cmake` test correction
+
+2019.05.24:
+* new: more tests for builtins and `Handlers.cmake`
+* refactor: tests order and names refactor
+
+2019.05.22:
+* fixed: minor fixup
+
+2019.05.21:
+* new: scripts: passes all parameters from command line into back end cmake test modules
+* new: more tests
+
+2019.05.14:
+* new: more tests in `01_make_args_from_ARGV_ARGN.test.cmake`
+
+2019.05.13:
+* fixed: `01_make_args_from_ARGV_ARGN.test.cmake` tests pass
+
+2019.05.13:
+* refactor: `01_make_argv_var_from_ARGV.test.cmake` renamed to `01_make_args_from_ARGV_ARGN.test.cmake`
+
+2019.05.13:
+* changed: actual tests in `01_make_argv_var_from_ARGV.test.cmake` instead of dummies
+
+2019.05.13:
+* new: more dummy test cases
+
+2019.05.07:
+* new: changelog file
+* new: dummy cmake tests

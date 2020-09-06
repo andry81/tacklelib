@@ -1,0 +1,149 @@
+#%% version: 1
+
+# CAUTION:
+#  This configuration file is designed to be portable between 3 interpreters: cmake, unix shell scripts, windows (cmd.exe) batch scripts,
+#  so it is made up to be simple as possible but not simplier as to support a single value or a values list
+#  together with an escape sequence, where the character `\` is not an escape sequence character.
+#  Use `$/<char>` to escape a `<char>` character which is a part of a configuration file format:
+#  `"` -> `$/"` or `(` -> `$/(` or `$/` -> `$/$/`
+#  Use `$/{` as a start sequence for a variable's value substitution: `$/{<variable>}`, where `<variable>`
+#  is already parsed variable from configuration file WITHOUT condition(s) or `:` characters. Otherwise a not yet parsed variable or
+#  invalid one will be replaced by the `*:$/{<variable>}` sequence to fail the most usage cases in a file path,
+#  where `*:` - is not valid character sequence in a windows path (`:` character additionally can block a relative path *after* the variable)
+#  and `/` is a character to block a file or directory creation with such a name on a Linux system (but not a block for `mkdir -p`!).
+#  In all other cases the `$/` sequence prints as is in all contexts: in a cmake script, in a unix shell script and in a
+#  windows batch script.
+
+# CAUTION:
+#  DO NOT USE `@` character pairs unescaped as a plain value as long as it is used as a placehoder in a replacement of `@<variable>@` sequence,
+#  where the `<variable>` is a cmake variable. For that case do replace all `@` characters by this escape sequence: `$/@`.
+#  It will avoid the substitution in case of an accidental match.
+
+# NOTE:
+#  In a unix shell script a variable name with `:` character is not permitted, so variables with not allowed characters
+#  won't be visible in a windows batch script too.
+
+# FORMAT:
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
+#   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
+#
+# <attributes>:           Variable space separated attributes: global | top | local | bool | path | exist | canonical | uncache | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
+# <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
+# <os_name>:              OS variant name: WIN | UNIX | ...
+# <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
+#   <compiler_token_name>: MSVC | GCC | CLANG | ...
+#   <compiler_version>:   <major_version>[*+] | <major_version>.<minor_version>[*+]
+#     <major_version>:    an integral value corresponding to the regex: [0-9]*
+#     <minor_version>:    an integral value corresponding to the regex: [0-9]*
+# <config_name>:          Configuration name: RELEASE | DEBUG | RELWITHDEBINFO | MINSIZEREL | ...
+# <arch_name>:            Architecture variant name: X86 | X64 | ...
+#
+# <value>:                Value with escaping and substitution support: `$/<escape_char>`, `$/{<variable>}`
+#
+
+# PREDEFINED BUILTIN VARIABLES ACCESIBLE FROM THIS FILE:
+#
+# CMAKE_CURRENT_LOAD_VARS_FILE_INDEX:           Index in a file paths list from which this file have has an ordered load.
+# CMAKE_CURRENT_LOAD_VARS_FILE_DIR:             Directory path from which this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL:               Current package nest level.
+# CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX:        Current package nest level prefix string like `00` if level is `0`, or `01` if level is `1` and so on.
+# CMAKE_CURRENT_PACKAGE_NAME:                   Current package name this file being loaded from.
+# CMAKE_CURRENT_PACKAGE_SOURCE_DIR:             Current package source directory this file being loaded from.
+# CMAKE_TOP_PACKAGE_NAME:                       Top package name.
+# CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
+#
+
+# has to be here because the architecture value is not yet known in the system variables configuration file
+top CMAKE_GENERATOR_PLATFORM:WIN:::X86=Win32
+top CMAKE_GENERATOR_PLATFORM:WIN:::X64=Win64
+
+# tacklelib
+
+#top final CMAKE_CXX_STANDARD=11
+
+top final TACKLELIB_RUNTIME_LINK_TYPE="dynamic"
+top final TACKLELIB_ADDRESS_MODEL="any"
+
+#top final TACKLELIB_DEP_LIBS=(fmt pystring p7client archive_static archive)
+top final TACKLELIB_DEP_LIBS=(fmt pystring)
+
+top final TACKLELIB_SKIP_TESTLIB=0
+top final TACKLELIB_SKIP_TESTS=0
+
+# arc
+
+top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
+
+# uncache is required here to drop the cache
+top bool uncache ENABLE_LZMA=1
+top bool uncache ENABLE_TAR=0
+top bool uncache ENABLE_CPIO=0
+top bool uncache ENABLE_CAT=0
+top bool uncache ENABLE_TEST=0
+top bool uncache ENABLE_COVERAGE=0
+top bool uncache ENABLE_ACL=0
+top bool uncache ENABLE_INSTALL=0
+
+top ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils/xzutils-5_2_4-release"
+top uncache LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
+
+# FindLibLZMA implementation does not support multi target libraries
+
+top uncache LIBLZMA_LIBRARY:WIN:MSVC="$/{ARC_XZ_UTILS_ROOT}/lib/Release/Win32/liblzma/liblzma.lib"
+top uncache LIBLZMA_LIBRARY:UNIX:GCC="$/{ARC_XZ_UTILS_ROOT}/lib/x86-linux-gnu/liblzma.a"
+
+top bool LIBLZMA_HAS_AUTO_DECODER=1
+top bool LIBLZMA_HAS_EASY_ENCODER=1
+top bool LIBLZMA_HAS_LZMA_PRESET=1
+
+#top ARC_7ZIP_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/7zip"
+
+# log
+
+top LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client/p7client-5_3_0-release"
+
+# test
+
+top GOOGLETEST_VERSION="1.10.0"
+top GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest/googletest-1_10_0-release/googletest"
+
+# math
+
+top QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd/qd-2_3_22-release"
+
+top bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
+top bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
+
+# utility
+
+top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt/fmt-6_1_2-release"
+top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring/pystring-1_1_3-20190321"
+
+local Boost_USE_SHARED_LIBS=ON
+local Boost_USE_STATIC_LIBS=OFF
+local Boost_USE_STATIC_RUNTIME=OFF
+local Boost_USE_MULTITHREADED=ON
+
+# associated with respective preprocessor definitions (must be changed together with build variables!)
+
+# Tells the config system not to automatically select which libraries to link against.
+# Normally if a compiler supports #pragma lib, then the correct library build variant will be
+# automatically selected and linked against, simply by the act of including one of that library's headers.
+# This macro turns that feature off.
+#
+local BOOST_ALL_NO_LIB=ON
+
+# Forces all libraries that have separate source, to be linked as dll's rather than static libraries
+# on Microsoft Windows (this macro is used to turn on __declspec(dllimport) modifiers, so that the compiler
+# knows which symbols to look for in a dll rather than in a static library).
+# Note that there may be some libraries that can only be statically linked (Boost.Test for example) and
+# others which may only be dynamically linked (Boost.Thread for example), in these cases this macro has no effect.
+#
+local BOOST_ALL_DYN_LINK=ON
+
+# Force to use C++11 lambda functions to implement scope exits
+#
+local BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS=ON
+
+#
+#local Boost_DEBUG=ON

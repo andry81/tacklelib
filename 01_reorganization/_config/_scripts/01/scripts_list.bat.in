@@ -1,0 +1,4 @@
+#%% version: 1
+
+# scripts list to call
+# <script_file_path>|<script_cmd_line>

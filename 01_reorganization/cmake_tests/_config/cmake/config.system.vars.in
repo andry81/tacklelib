@@ -1,0 +1,14 @@
+#%% version: 1
+
+# Runs all tests under different `CMAKE_COMMAND` variable assigned from the `CMAKE_COMMAND_LIST` variable.
+#
+#bool ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST=1
+
+EXTERNAL_TOOLS_BASE_DIR="c:/build/tacklelib"
+
+CMAKE_COMMAND_LIST=(
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_14_x/kitware/win32/3.14.0/bin/cmake.exe"
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_14_x/kitware/win32/3.14.6/bin/cmake.exe"
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_15_x/kitware/win32/3.15.0/bin/cmake.exe"
+  "$/{EXTERNAL_TOOLS_BASE_DIR}/sf~svn~tacklelib--external_tools--cmake--3_15_x/kitware/win32/3.15.1/bin/cmake.exe"
+)

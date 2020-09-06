@@ -1,0 +1,6 @@
+# cache commands file
+# <user_scope>|<cache_command>|<command_scope>|<flags>|<cache_stage_index>|<in_cache_dir>|<in_cache_file>|<in_file_dir>|<in_file>
+#
+# flags: 0 - fail on any difference or not used, 1 - ignore on absence, but fail if different
+
+.|write|return_code|0|01|.|return_code.var|.|.
