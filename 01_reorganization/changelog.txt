@@ -1,0 +1,2202 @@
+2020.09.04:
+* new: bash/tacklelib/tools: git filter-branch library + readme file
+
+2020.08.03:
+* fixed: bash/tacklelib/bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
+* new: bash/tacklelib/bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
+* new: bash/tacklelib/bash_entry: `tkl_declare_array` to declare array without unset previous variable context
+* changed: bash/tacklelib/bash_entry: removed `tkl_declare_local` to bring new clean functionality
+* changed: bash/tacklelib: bash_entry, baselib.sh, buildlib.sh: replaced tkl_declare_local/tkl_declare_global/tkl_declare_global_array by tkl_declare/tkl_declare_array in certain places
+* refactor: bash/tacklelib/bash_entry: variable declaration functions refactor
+
+2020.08.02:
+* changed: cmake/tacklelib: TODO file update
+
+2020.08.01:
+* changed: bash/tacklelib/buildlib.sh: implementation moved from project.sh scripts
+* refactor: bash/tacklelib/traplib.sh: header comments refactor
+
+2020.08.01:
+* refactor: bash/tacklelib/bash_entry: minor refactor
+
+2020.08.01:
+* changed: bash/tacklelib/bash_entry: implementation moved from project.sh scripts
+
+2020.07.13:
+* fixed: python/tacklelib: fix for case where an interactive python session is used
+
+2020.07.12:
+* fixed: bash: missed changes
+
+2020.07.11:
+* changed: python/pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
+
+2020.07.10:
+* new: bash: pyxvcs scripts moved from the pyxvcs project
+* new: python: pyxvcs scripts moved from the pyxvcs project
+* refactor: bash: moved changelog and readme files to the parent directory
+
+2020.07.08:
+* fixed: bash: load_config.sh: case where `<var>="..." ...` parsed incorrectly removing the first quote character and the last not a quote character
+
+2020.07.07:
+* fixed: _scripts: the `wtee.exe` utility (is removed) has an issue over a console progress bar (`\r` (character return) is not handled properly and so the output is messed), the gnuwin32 tee utility has another issue over `Cwrite error: No such file or directroy` error message when the pipe/output handle does close by the system. To workaround those issues the UnxUtils tee utility implementation does used instead of these are because works as expected in both cases. More details: https://stackoverflow.com/questions/796476/displaying-windows-command-prompt-output-and-redirecting-it-to-a-file/62771772#62771772
+* new: _scripts: the `tee` utility implementation from the UnxUtils project: http://unxutils.sourceforge.net
+
+2020.07.06:
+* changed: bash: moved `load_config.sh` script from the contools project
+
+2020.07.05:
+* new: python: cmdoplib: gitsvn: added bare args parameter into all git command functions to pass user command parameters from a command script
+* changed: python: tacklelib: other minor changes
+* changed: python: cmdoplib: svn, gitsvn: replaced rest of `print_err` calls by exception throw
+* changed: python: cmdoplib: svn, gitsvn: other minor changes
+
+2020.06.26:
+* refactor: cpp: minor refactor
+
+2020.06.18:
+* fixed: cpp: time functions minor fixup
+* new: cpp: `convert_time_string_to_std_time` and `convert_time_string_from_std_time` to uniformally convert from/to standard time representation, where `time_t` origin counts from the 1970 year (including negative values) using internally the `std::get_time` or the boost posix_time
+
+2020.06.12:
+* fixed: bash: bash_entry: rewriten `tkl_include` implementation to fix case with the `BASH_SOURCE_*` globals generation at first time call function level context
+* fixed: bash: bash_entry: `tkl_declare_local_array` has no effect as declares always a current function local array variable instead of an upper function call context array variable
+* fixed: bash: bash_entry: other bug fixes
+* fixed: bash: traplib.sh: specific bash 4.4.x version feature-bug issue where a first call to the `tkl_push_trap` function does not setup a trap handler
+* fixed: bash: traplib.sh: other bug fixes
+* new: bash: bash_entry: `BASH_SOURCE_CMD_LINE` variable to store a last `tkl_include` arguments as serialized array
+* new: bash: baselib.sh: `tkl_get_current_function_names_stack_trace` function to directly extract current function stack trace as names '|'-separated list
+* new: bash: traplib.sh: `RELEASE` signal trap handler for the `tkl_push_trap`/`tkl_pop_trap` functions to use as a RAII pattern in a Bash script instead of a RETURN trap handler which is limited for the sake of back compatability
+* changed: bash_tests: 02_traplib/01_push_trap/test_1.sh: double execution instead of a single to catch an error after a first call to the `tkl_push_trap`
+* refactor: bash: traplib.sh: global refactor
+* refactor: bash: buildlib.sh: minor refactor
+
+2020.06.04:
+* fixed: cmake: removed implicit usage of internal `.*` sequences in a pattern matching to be able to use by user external sequences like `^` and `$`
+
+2020.06.04:
+* new: cpp: preprocessor UTILITY_PP_IS_EMPTY macro to detection empty preprocessor tokens
+* new: cpp: preprocessor UTILITY_PP_VA_ARGS_SIZE macro to extract a macro arguments quantity
+* new: cpp: UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG and others macroses to define a tag type and a tag type constant variable
+
+2020.06.02:
+* fixed: cpp: gcc 4.9.3 warnings fixup
+
+2020.06.01:
+* changed: cpp: time functions code cleanup
+
+2020.06.01:
+* changed: cmake: CMAKE_ARCHIVE_OUTPUT_DIRECTORY variable default location change to the `/lib` subdirectory
+
+2020.06.01:
+* changed: cpp: time functions improvement
+
+2020.05.29:
+* changed: cmake: code cleanup
+
+2020.05.29:
+* new: cmake: now read and write `singleconfig.tag` and `multiconfig.tag` files directly from a cmake list file to detect inconsistency state in the cmake output build directories at any project nest level
+* fixed: cmake: cmake execution from the Qt Creator is fixed, Qt Creatore detection is removed, now at any project nest level cmake does check consistency in the cmake output build directories or create them if all checks has passed
+
+2020.05.29:
+* fixed: cpp: an unused macro in a constexpr function fix
+
+2020.05.28:
+* fixed: cpp: msvc 2017 warnings level 4 fixup
+
+2020.05.26:
+* fixed: cpp: gcc 4.9.x tail recursion optimization issue
+
+2020.05.26:
+* fixed: cpp: Linux x86_64 build fixes
+
+2020.05.25:
+* fixed: cpp: Linux x86_64 build fixes
+* changed: cmake: Project.cmake: check construction at least one valid file path
+
+2020.05.25:
+* fixed: _scripts: Linux multiple build fixes
+* fixed: cmake: Linux multiple build fixes
+* fixed: Linux multiple build fixes
+
+2020.05.23:
+* new: python_tests: tests auto logging
+
+2020.05.22:
+* fixed: cmake_tests: bench: bench tests count fix
+* changed: _scripts: tools: made user script optional in the `check_config_version.bat` script
+* new: cmake: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness
+* new: cmake: Utility.cmake: `tkl_escape_list_expansion_as_cmdline` function to convert a list into a command line with escape support
+* new: cmake: testlib: implemented test case skip support
+* new: cmake_tests: bench: `tkl_macro_fast_eval` test
+* new: cmake_tests: unit: tests over `tkl_escape_list_expansion_as_cmdline` function with `tkl_macro_fast_eval` macro usage
+* new: cmake_tests: unit: tests over `tkl_macro_fast_eval`
+* new: cmake_tests: unit: more tests over `tkl_macro_eval`
+* new: cmake_tests: tests auto logging
+* changed: cmake: TODO file update
+
+2020.05.21:
+* changed: _config: minor config change
+
+2020.05.20:
+* fixed: python: cmdoplib: missed GIT_SVN_ENABLED usage
+* changed: python: cmdoplib: use global VERBOSITY_LEVEL variable by default if the verbosity per function is not set
+
+2020.05.17:
+* fixed: cmake: Project.cmake: `tkl_set_runtime_link_type_var` function still does not switch the runtime linkage because of not enabled of a certain policy, switch to the new behaviour only when it is enabled
+* fixed: cmake_tests: tests execution versus new `bash_entry` implementation
+
+2020.05.15:
+* fixed: _scripts: single/multi config proper detection from scripts
+* fixed: _scripts: minor fixup
+
+2020.05.15:
+* fixed: _scripts, _config: missed multiconfig/singleconfig cmake command line
+
+2020.05.15:
+* new: cmake: Project.cmake: for cmake 3.15+ the `tkl_set_runtime_link_type_var` function use CMAKE_MSVC_RUNTIME_LIBRARY automatically instead of direct `CMAKE_CXX_FLAGS*` flags patching
+* new: _scripts: accept first parameter of the `*_configure.*` script with force character (`!`) in case of usage for the camke multiconfig generator
+* changed: cmake: Project.cmake: now `tkl_configure_environment` and other functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: cmake: Checks.cmake: now functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: cmake: Project.cmake: `tkl_configure_environment` now accepts a runtime link type variable name instead of a value
+* changed: cmake: Project.cmake: has made an existence of a valid runtime link type variable as a mandatory for the `tkl_configure_environment` function
+* changed: cmake: Project.cmake: has made an existence of a valid flag value as a mandatory for the `tkl_initialize_library_target_defaults` function
+* changed: cmake: minor improvement
+* changed: _scripts: pass the rest of command line of configure/build/install to the cmake command line
+* changed: _scripts: tools: make_output_directories.bat: now accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: _config: configuration files updated versus the last `SetVarsFromFiles.cmake` implementation
+
+2020.05.14:
+* fixed: cmake: SetVarsFromFiles.cmake: multiple fixup
+* fixed: cmake: Project.cmake: `CMAKE_SHARED_LIBS` not properly updated from the `tkl_set_runtime_link_type` function
+* new: cmake: SetVarsFromFiles.cmake: `local` attribute to locally override a global variable or define a local context variable
+* new: cmake: SetVarsFromFiles.cmake: `uncache` attribute to set variable together with the cache unset (instead of use `force_cache`)
+* changed: cmake: Project.cmake: `tkl_set_global_link_type` function renamed to `tkl_set_runtime_link_type_var`
+* changed: cmake: SetVarsFromFiles.cmake: now all variables declared as global/top/local must retain the same attribute in next assignments
+* changed: cmake: SetVarsFromFiles.cmake: simplified `unset` attribute to simply unset variable without special unset state
+* changed: cmake: SetVarsFromFiles.cmake: documentation update
+* changed: cmake, _config: boost library variables setup extracted from the cmake list into variables configuration file
+
+2020.05.13:
+* fixed: cmake: Project.cmake: compiler error message fix around incompitible options `/O2` and `/RTC1` in the Debug configuration, where the `tkl_remove_global_optimization_flags` function has accidently removed the `/Od` flag and the cmake from some version (3.14+) for the MSVC 2017 compiler has silently added `/O2` flag which is not compitible with already existed `/RTC1` flag
+
+2020.05.13:
+* fixed: cmake: Project.cmake: `tkl_print_global_flags` does not print global flags
+* changed: removed excessive `tkl_print_global_flags` call from the cmake list file
+
+2020.05.13:
+* changed: readme update
+
+2020.05.12:
+* new: cpp: utility: str_to_* functions
+* changed: cpp: utility: str_to_* functions
+
+2020.05.11:
+* changed: cpp: path_string.hpp: removed restriction for direct calls to `basic_string` operators in the `path_string` class
+
+2020.05.11:
+* fixed: cpp: string_identity.hpp: inplace use of the `tmpl_string` class to guarantee the same address of both literals in the internal expression of the `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` macros
+* fixed: cpp: string_identity.hpp: missed zero termination character cut off
+* fixed: cpp: other minor fixes
+
+2020.05.10:
+* fixed: cpp: path_string.hpp: minor fixup
+* new: cpp: string_identity.hpp: `UTILITY_LITERAL_STRING_WITH_BEGINEND_TUPLE` and `UTILITY_STATIC_STRING_WITH_BEGINEND_TUPLE` macroses
+* changed: cpp: path_string.hpp: explicit constructors to avoid implicit conversion from a not path string
+
+2020.05.09:
+* changed: cmake: TODO update
+* changed: TODO update
+
+2020.05.07:
+* new: cmake: TODO file
+
+2020.05.07:
+* fixed: cmake: SetVarsFromFiles.cmake: multiline variable expression didn't parse completely and could be interrupted by not fatal conditions like a not suitable variable specialization or an invalid/unsupported variable token
+
+2020.05.06:
+* fixed: cpp: linkage error throws `error LNK2019: unresolved external symbol "..."` in the MSVC2017 15.9.19 compiler fix by removing the `operator+` function disable (not required)
+* changed: cpp: code cleanup
+
+2020.05.05:
+* fixed: cmake: multiple build fixes
+* refactor: cmake: global replace of `<variable> STREQUAL <variable>` by `<string> STREQUAL <string>` because the first sometimes does not work as expected
+
+2020.05.04:
+* changed: cmake: ForwardVariables.cmake: reimplemented context variable, merged system and user variables into single functions, simplfied all context variable functions
+* changed: cmake: Project.cmake: reimplemented usage of context variables in `find_package`, `add_subdirectory` and `project` hooks
+* changed: cmake: Project.cmake: `project` hook reimplemented
+* refactor: cmake: ForwardVariables.cmake: made most of function parameter names unique to reduce a probability of interference with the local variables
+
+2020.05.04:
+* fixed: cpp: minor build fixes
+* new: cpp: library modifications to enable global export/import for the public headers
+
+2020.05.04:
+* fixed: cmake: Project.cmake: reverted previous fix around `tkl::CMAKE_CURRENT_PACKAGE_NAME` as not correct and added minor changes
+* fixed: cmake: Checks.cmake: missed check in the `tkl_check_var` function
+* fixed: cmake: SetVarsFromFiles.cmake: multiple fixes around variables parser
+* new: cmake: Project.cmake, EnableTargetExtensions.cmake: use project name as a package name, detect project end in the end of the `add_subdirectory` function
+* new: cmake: SetVarsFromFiles.cmake: `hide` and `unhide` attributes to temporary hide a variable in a nested package or packages
+* new: cmake: EnableTargetExtensions.cmake: `project(...)` hook to push project name as a package name and print a being created project
+* changed: cmake: SetVarsFromFiles.cmake: in source documentation
+* changed: cmake: ForwardVariables.cmake: minor improvement in the `tkl_get_var` function
+
+2020.04.30:
+* fixed: cmake: Project.cmake: missed `tkl::CMAKE_CURRENT_PACKAGE_NAME` and `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` set in the `tkl_declare_target_builtin_properties` function
+* new: cmake: Checks.cmake: improved `tkl_check_var` function to additionally accept first argument as a user variable name
+* new: cmake: Checks.cmake: `tkl_check_var_eval` function to use first argument as a user if-expression (requireness expression)
+* refactor: cmake: global "var=${var}" and "name: ${value}" relecement by "var=`${var}`" and "name: `${value}`"
+
+2020.04.29:
+* fixed: cpp: utility: changed `base` default parameter value in the `str_to_int` function to behave the same way as the `std::stoi` does
+
+2020.04.28:
+* fixed: cpp: utility: library.hpp: code cleanup
+
+2020.04.28:
+* fixed: cpp: utility: string_identity.hpp: minor fixup
+
+2020.04.27:
+* new: cpp: utility: `unfix_log_path` function
+* changed: cpp: utility: construct `file_handle` class from not changed long path (not converted into UNC path or not fixed, because a path longer than 260 characters has an issue in old Windows and can be workarounded by the UNC path format)
+* changed: cpp: tackle: file handle and file reader global refactor, usage of the path string class inside file reader class
+* changed: cpp: utility: usage of the file handle class as a template class
+* changed: cpp: tackle: simplified `path_string` class tags
+* refactor: cpp: tackle, utility: use lower case type names in the smart handle, file handle and file reader classes
+
+2020.04.27:
+* new: cpp: tackle: path_string: `update_separator_char` function
+
+2020.04.26:
+* changed: python: tacklelib: typos
+
+2020.04.24:
+* changed: readme update
+
+2020.04.24:
+* new: cmake: SetVarsFromFiles.cmake: `unset` attribute to remove or drop variables for nested packages
+* changed: cmake: SetVarsFromFiles.cmake: code cleanup
+
+2020.04.22:
+* fixed: _config: `top final` attributes replaced by `top final package`
+
+2020.04.22:
+* fixed: _scripts: scripts reinit by a link from different directory, must remember the initialization directory instead of just a flag
+* fixed: _scripts: correct unix shell script self redirection with original handles restore (windows batch scripts can not handle redirection such way, so left as is with mixed stdout output (stderr is left redirected to stdout))
+* changed: missed change
+
+2020.04.21:
+* fixed: python: cmdoplib: callsvn, callgit: the same condition to print `<` character after a call to svn/git with the print of the command line prefixed with the `>` character
+
+2020.04.20:
+* changed: python: tacklelib: utils: minor `is_file_path_beginswith` and `is_file_path_endswith` functions improvement
+
+2020.04.13:
+* fixed: python: tacklelib: yaml: accidental conversion of integral and float types on expansion into string type
+* fixed: python: cmdoplib: gitsvn: fetch command call with the `-u` flag to enable HEAD creation on an empty working copy to avoid error: `fatal: Refusing to fetch into current branch refs/heads/master of non-bare repository`
+* new: python: cmdoplib: gitsvn: explicitly enable git-svn context usage by `GIT_SVN_ENABLED` variable
+* changed: python: cmdoplib: gitsvn: replaced all `print_err` calls by exception throw
+* changed: readme dependencies file update
+
+2020.04.12:
+* changed: readme dependencies file update
+
+2020.04.11:
+* new: readme file over python xonsh module known issues
+* changed: readme file
+
+2020.04.11:
+* changed: readme update (missed changes)
+
+2020.04.11:
+* new: python: cmdoplib: `svn_cleanup` function
+
+2020.04.07:
+* changed: readme update
+
+2020.04.06:
+* changed: readmes update
+
+2020.04.06:
+* changed: readmes update
+
+2020.04.04:
+* new: bash: bash_entry: `tkl_exec_inproc_entry` function
+* new: bash: buildlib.sh: `tkl_set_error`, `tkl_call_inproc_entry` and `tkl_call_inproc_entry_and_print_if` functions
+* changed: bash: bash_entry: `tkl_make_source_file_components_from_file_path` replaced by `tkl_pushset_source_file_components_from_file_path` and `tkl_pop_source_file_components_from_file_path` functions
+* changed: bash: buildlib.sh: `tkl_call*` functions now changes and restores source file components before the call
+
+2020.04.04:
+* new: bash: bash_entry: `tkl_is_file_os_exec` and `tkl_exec_inproc` functions to execute shell scripts in the same shell process
+* new: bash: buildlib.sh: `tkl_call_inproc` and `tkl_call_inproc_and_print_if` functions to execute shell scripts in the same shell process
+* changed: bash: code cleanup
+
+2020.04.03:
+* changed: minor cleanup
+
+2020.04.03:
+* new: python: tacklelib: global configuration paramaters support
+* changed: python: tacklelib: extracted `log_import_module` parameter into global config from the `tkl_import_module` function
+* changed: python: tacklelib: minor cleanup
+
+2020.04.03:
+* fixed: bash: bash_entry: missed change
+
+2020.04.02:
+* fixed: bash: bash_entry: we must always pass the command line from `tkl_include` into the `source` command
+
+2020.04.02:
+* fixed: bash: bash_entry: missed to pass command line into inner `source` command from the `tkl_include` function
+
+2020.04.02:
+* changed: _scripts: minor cleanup
+
+2020.03.31:
+* fixed: _scripts: scripts execution
+
+2020.03.31:
+* fixed: _scripts: missed changes
+* fixed: _scripts: unix shell scripts execution
+* fixed: _scripts: tools: replaced all `exit` commands by `return` commands in library code
+* fixed: bash: missed changes
+* fixed: cmake_tests: missed changes
+* fixed: python_tests: missed changes
+* new: bash: bash_entry: `tkl_set_show_includes` and `tkl_unset_show_includes` functions to explicitly show all `source` calls in the `tkl_include` function
+* changed: bash: bash_entry: support return code from `tkl_include` function
+* refactor: bash: `LastError` replaced by `tkl__last_error` variable
+
+2020.03.30:
+* fixed: _scripts: tools: missed changes
+* changed: _scripts: svn file externals on `tools` directory
+* changed: cmake_tests: svn file externals on `_scripts/tools` directory
+* changed: python_tests: svn file externals on `_scripts/tools` directory
+
+2020.03.30:
+* fixed: bash: `testlib.sh` multiple fixup
+* new: bash_tests: `01_bash_entry/01_normalize_path` tests
+* new: bash_tests: `02_traplib/01_push_trap` tests
+* changed: bash: `traplib.sh` minor cleanup
+* changed: cmake_tests: minor cleanup
+* changed: python_tests: minor cleanup
+* refactor: bash: minor refactor
+* refactor: bash_tests: tests refactor
+
+2020.03.27:
+* fixed: bash: traplib.sh: minor fixup
+* changed: bash: traplib.sh: description update
+
+2020.03.26:
+* fixed: bash: testlib.sh: multiple fixup
+* fixed: bash: bash_entry: `tkl_set_return` temporary workaround over not numeric argument
+* changed: bash: testlib.sh: new `traplib.sh` module usage
+* changed: bash: bash_entry: `tkl_escape_string` function speedup
+
+2020.03.19:
+* changed: bash: traplib.sh: reimplemented storage arrays for trap hendlers to store and call multiple handlers has been set for a single function and bash process
+* changed: bash: hashlib.sh: removed check on empty string in the `tkl_crc32` function
+
+2020.03.17:
+* fixed: bash: bash_entry: `tkl_declare_global` function must remove a current context local variable in case of it's presence
+* fixed: bash: traplib.sh: multiple fixes around `tkl_*_trap` functions
+* new: bash: traplib.sh: non RETURN signal traps chaining from the bottom to the top
+* changed: bash: minor other changes
+
+2020.03.16:
+* fixed: bash: testlib.sh: miscount bug in the `for in "${RETURN_VALUES[@]}"` and "\$$i" expressions
+* changed: bash: testlib.sh: replaced by all `trap` commands by `tkl_*_trap` functions
+* changed: bash: traplib.sh: improved trap functions, overrided the `trap` command in case of inclusion the `traplib.sh` module
+
+2020.03.15:
+* fixed: bash: testlib.sh: `TEST_SOURCES` incorrect parsing
+* fixed: bash: testlib.sh: `tkl_testmodule_run_test` function arrays pass into isolated bash test process
+* new: bash: testlib:.sh: `tkl_test_assert_true` and `tkl_test_assert_false` function to test separate expressions
+* changed: bash: testlib.sh: functionality has been rewriten
+* refactor: bash: testlib.sh: global refactoring
+
+2020.03.13:
+* fixed: bash: bash_entry: `tkl_is_abs_path` function
+* new: bash: bash_entry:  `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
+* changed: bash: bash_entry: improved function `tkl_get_abs_path_from_dir`
+* changed: bash: bash_entry: improved function `tkl_convert_native_path_to_backend`
+* changed: bash: bash_entry: improved function `tkl_convert_backend_path_to_native`
+* changed: bash: bash_entry: improved function `tkl_include`
+* changed: bash: bash_entry: `readlink -m` usage replaced by the `tkl_normalize_path` function
+* changed: bash: traplib.sh: trap functions from the `bash_entry` extracted back to `traplib.sh` module
+* refactor: bash: bash_entry: global `bash_entry` script refactor
+
+2020.03.11:
+* fixed: bash: `tkl_push_trap`, `tkl_pop_trap`, `tkl_get_trap_cmd_line` and `tkl_pop_exec_trap` rewrited to support RETURN signals
+
+2020.03.10:
+* changed: python_tests: readme update
+
+2020.03.09:
+* changed: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+* changed: cmake_tests: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+* changed: python_tests: _scripts/tools: `projectlib.sh` module moved to use migrated `buildlib.sh` module
+
+2020.03.08:
+* new: bash: `buildlib.sh` module migrated from the tools directory
+* changed: _scripts/tools: `buildlib.sh` module migrated into the bash directory
+* changed: bash: readme update
+* changed: bash_tests: readme update
+* changed: cmake: readme update
+* changed: cmake_tests: readme update
+* changed: python: readme update
+* changed: python_tests: readme update
+* refactor: cmake_tests: _scripts/tools: minor refactor
+* refactor: python_tests: _scripts/tools: minor refactor
+
+2020.03.05:
+* new: bash: `baselib.sh`, `funclib.sh`, `hashlib.sh`, `stringlib.sh`, `testlib.sh` modules migrated from the `contools` project
+* new: bash_tests: changelog file
+* new: bash_tests: readme file
+* new: bash_tests: 01_bash_entry/01_normalize_path tests
+* changed: cmake_tests: readme update
+* changed: python_tests: readme update
+* changed: readme update
+* refactor: bash: global shell scripts refactor
+
+2020.03.03:
+* new: bash: standalone changelog file
+* new: bash: readme file
+* new: bash: license file
+* changed: _scripts: moved not required anymore bash shell files into separate directory
+* changed: _scripts: removed `traplib.sh` module from usage because it's content is a part of the `bash_entry` module
+* changed: readme update
+* refactor: _scripts: shell scripts placement refactor, `_tools` directory must contain all required shell scripts by a copy because the `_scripts` directory must be referenced as a standalone directory without any other dependencies
+
+2020.03.02:
+* fixed: python_tests: `02_interactive/*` tests execution under cygwin and Linux
+
+2020.02.27:
+* changed: _config: configuration update
+* changed: readme update
+
+2020.02.27:
+* fixed: python: tacklelib: missed change in `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2020.02.26:
+* fixed: _scripts/tools: bash_entry: accidental `$1` argument pass into `source` statement
+* new: _scripts/tools: bash_entry: `tkl_make_source_file_components_from_file_path` function to manually update source file components from any file path
+
+2020.02.24:
+* fixed: python: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2020.02.21:
+* fixed: cpp: msys/mingw build fixup
+* fixed: cpp: utility: `constexpr_basic_string` build fix
+* fixed: cpp: utility: `debug.hpp` build fixup
+* fixed: _config: 3dparty libarchive fixup around ACL_LIBRARY macro
+* refactor: cpp: moderate refactor
+
+2020.02.20:
+* changed: _config: mingw/cygwin/msys build support
+* changed: cmake: `tkl_discover_builtin_vars` changed to discover only environment variables
+* refactor: cmake: `tkl_discover_*` functions renamed
+* refactor: cmake: minor refactor
+* refactor: _config: minor refactor
+
+2020.02.20:
+* fixed: _scripts: CMAKE_MAKE_PROGRAM variable direct use from `*configure.*` script
+* changed: _config: added `MSYS Makefiles` as an alternative to build on gcc from Windows
+
+2020.02.20:
+* fixed: cpp: utility: `UTILITY_IS_CONSTEXPR_VALUE` macro fixup in the `Visual Studio 2015 Update 3` compiler
+* fixed: cpp: utility: improved `STATIC_ASSERT_RELAXED_CONSTEXPR_*` macroses to use with lambda expressions under C++11 compiler
+* changed: cpp: tests: `TackleTmplStringTest` test cases improved
+
+2020.02.18:
+* fixed: cpp: tackle: `DEBUG_FUNC_LINE_*`/`DEBUG_FILE_LINE_*` macroses fixup
+* fixed: cpp: utility: `constexpr_crc` not constexpr asserts inside the function
+* fixed: cpp: utility: `UTILITY_IS_CONSTEXPR_VALUE` macro incorrect value in Visual Studio 2017 15.9.19
+* new: cpp: utility: `STATIC_ASSERT_RELAXED_CONSTEXPR_*` macroses to evaluate not completely compile-time expressions in a constexpr function context
+* new: cpp: tests: `constexpr_crc` function test cases
+* refactor: cpp: tests: `TackleTmplStringTest` test cases refactor
+* refactor: cpp: tackle: moderate refactor
+
+2020.02.17:
+* changed: readme file
+* refactor: minor refactor
+
+2020.02.17:
+* new: _scripts/tools: `wxFileDialog` utility to select a file/directory in GUI
+* new: _scripts/tools: `cmd_admin.lnk` shortcut file to promote privileges up to the administrator from a script in the Windows
+* new: preconfigure scripts
+
+2020.02.17:
+* fixed: _scripts/tools: bash_entry: incomplete convert backend paths to native with forward slashes for `BASH_SOURCE_*` variables
+* changed: readme update
+
+2020.02.16:
+* fixed: cmake: EnableTargetExtension: removed call to `tkl_check_global_vars_consistency` from the `add_custom_target` hook as not required
+* fixed: cmake: Project: `tkl_find_package_begin` function for always canonical and absolute path in the `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` property
+* fixed: _3dparty: `libarchive` workaround for the `CMAKE_BUILD_TYPE` variable
+* new: cmake: EnableTargetExtension: `tkl_pushset_package_vars` and `tkl_popset_package_vars` to hookup push/pop context variables for a package from a `add_subdirectory` and `find_package` hooks
+* new: cmake: ForwardVariables: `tkl_pop_var_from_stack` improvement to avoid pop into a variable or pop into another variable
+* new: cmake: ForwardVariables: `tkl_*register_*_context_var`, `tkl_has_*_context_var*`, `tkl_get_*_context_var`, `tkl_pushunset_not_inheritable_*_context_vars`, `tkl_pop_not_inheritable_*_context_vars`, `tkl_pushset_all_*_context_vars`, `tkl_popset_all_*_context_vars` to register/unregister system/user variables for a context to push/pop them by context
+* new: cmake: Project: `tkl_register_package_var` and `tkl_unregister_package_var` functions to register/unregister a package system context variables
+* refactor: cmake: minor refactor
+
+2020.02.12:
+* fixed: _config: `ARC_LIBARCHIVE_ROOT` and `LOG_P7_CLIENT_ROOT` has to be declared either with the `global` or `top` attribute
+
+2020.02.12:
+* refactor: _config: 3dparty variables moved out of the project to the `tacklelib--3dparty` project
+
+2020.02.11:
+* changed: cmake: SetVarsFromFiles: removed check on mix between `top` and `final` attributes
+
+2020.02.10:
+* fixed: back merge of the `bash_entry` script from the `contools` project
+* changed: global readme update
+
+2020.02.10:
+* fixed: python: cmdoplib: callsvn, callgit: avoid stdout/stderr blocking on `max_stdout_lines < 0`
+
+2020.02.09:
+* new: cpp: tests: added 1 overload resolution unit test for the `tmpl_string` and `constexpr_string` classes
+
+2020.02.09:
+* fixed: cpp: tests: unit tests warning about `TackleTmplStringTest` tests
+
+2020.02.09:
+* fixed: cpp: build under googletest 1.10.0
+* refactor: cpp: tests: `stdlib` renamed into `std`, `thislib` renamed into `tkl`
+
+2020.02.08:
+* fixed: cmake: unresolved external symbol linkage error `... testing::FLAGS_gtest_filter`
+
+2020.02.08:
+* changed: todo list update
+
+2020.02.08:
+* new: todo list file
+* changed: cmake: _3dparty: Global3dparty.cmake: removed case-sensitive duplicates from the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` list variables before usage
+* changed: readme file
+
+2019.02.06:
+* changed: `.svnignore` synchronized with the `.gitignore`
+* refactor: `.svnignore` files removed from all nested directories and added to the root file
+
+2019.02.06:
+* new: _scripts: bash shell scripts with buitin logging
+
+2019.02.06:
+* changed: _scripts: allocated `SCRIPTS_LOGS_ROOT` variable to address the root directory for the script's logs
+
+2020.02.05:
+* fixed: build errors
+* new: _scripts: windows batch scripts with buitin logging
+* changed: svn ignores
+
+2020.02.05:
+* fixed: _scripts: configure execution
+* fixed: _config: local 3dparty paths in the `tacklelib--3dparty` project
+* fixed: cmake: String: `tkl_string_begins_with` function
+* fixed: cmake: Version: `tkl_get_msvc_version` and `tkl_compare_compiler_tokens` functions
+* changed: _config: switched to `Visual Studio 2017` cmake generator
+* changed: readme update
+
+2020.02.04:
+* fixed: python: tacklelib: yaml: missed to deep copy a dictionary with current variables in the `YamlEnv.push_*_vars` functions
+* fixed: python: tacklelib: yaml: by default rewrite a current expanded variables dictionary intead of append in the `YamlEnv.expand` function
+* fixed: python: cmdoplib: std: call to `tkl_remove_global` in the `delglobalvar` function instead of `globals` function
+* new: python: tacklelib: `tkl_remove_global` function to remove globals declared through the `tkl_declare_global`
+* new: python: cmdoplib: gitsvn, svn: `makedirs` function to create all working directories
+* changed: readme update
+* refactor: python: _scripts: minor refactor
+
+2020.01.29:
+* fixed: cpp: utility: missed clang compiler check in the platform header
+* new: cpp: utility: added the rest built-in types `int*_identity` template classes
+* new: cpp: utility: `constexpr_reverse` constexpr function to reverse bits in multibyte compile time values in compile time
+* new: cpp: utility: implemented constexpr crc algorithms to be able to generate a crc in compile time
+* changed: cpp: utility: crc algorithms moved from private to public headers, cpp file is removed
+* changed: config: 3dparty dependencies update
+* refactor: cpp: tackle, utility: `detail::_impl` namespaces renamed into more unique
+
+2020.01.26:
+* new: cmake: String.cmake module for string operations
+* new: cmake: Version: Visual Studio 2017 detection support
+* new: cmake: Version: MSVC version year from a version
+* new: cmake: Version: additional compiler version filter format: `<major_version>[*+]` or `<major_version>.<minor_version>[*+]` to use either partial pattern matching (`14.1*` equals to `14.1` or `14.16`, but not to `14.2`) or greater or equal matching (`14.1+` equals to `14.1` and higher like `14.999` or `15.0`)
+
+2020.01.25:
+* new: python: cmdoplib: std: additional `args_separators` parameter in the `call` function to protect a list command line arguments from futher splitting
+
+2020.01.25:
+* changed: readme update
+
+2020.01.24:
+* changed: readme update
+
+2020.01.21:
+* changed: dependencies update
+
+2020.01.20:
+* changed: dependencies update
+
+2020.01.19:
+* fixed: python: cmdoplib: gitsvn: incomplete parent/child check on ahead/behind state
+* fixed: cmdoplib: gitsvn: invalid `until_commit_commit_timestamp` in the `git_fetch_child_subtree_merge_branches` function
+* changed: python: cmdoplib: gitsvn: restored not pushed commits skip w/o advance on skipped push
+* changed: python: cmdoplib: gitsvn: moved `parent_tuple_ref` and `children_tuple_ref_list` keys initialization in a dictionary to the end to be able to observe all the rest parameters at first in the Pydev IDE watch window
+
+2020.01.18:
+* fixed: python: cmdoplib: gitsvn: invalid non existed branch check and author timestamp usage in the `git_fetch_child_subtree_merge_branches` function
+* fixed: python: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` function usage before call to `git_fetch_child_subtree_merge_branches` function
+* changed: python: cmdoplib: gitsvn: `advance_svn_notpushed_commits_list` changed to save a first advanced svn commit to later use it's date time for the `--since` parameter of a `git log` command
+* new: python: cmdoplib: gitsvn: added `since_commit_commit_timestamp` parameter to `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* new: python: todo list file
+* refactor: python: cmdoplib: gitsvn: moderate refactor
+
+2020.01.17:
+* fixed: python: cmdoplib: gitsvn: list index out of range on svn not pushed commits list
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* refactor: python: cmdoplib: cache: minor refactor
+
+2020.01.17:
+* fixed: python: cmdoplib: gitsvn: merge and push over orphan branch
+* fixed: python: cmdoplib: gitsvn: repository ordinal index accidental reset
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* changed: python: cmdoplib: gitsvn: improved parent/child check on ahead/behind state through the `git_check_if_parent_child_in_ahead_behind_state` function with recursion
+* changed: python: cmdoplib: gitsvn: now `git-svn-id` leaves as is if a commit was in the output merge branch
+
+2020.01.16:
+* fixed: python: cmdoplib: gitsvn: merge and push was broken after last changes
+* refactor: python: cmdoplib: cache: minor comment
+
+2020.01.15:
+* fixed: python: cmdoplib: gitsvn: support merge not from the head commit of git-svn remote branch (merge from a middle of git-svn remote branch which has been already fetched)
+* fixed: python: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` searching is corrected to search from the complete version of the `svn_path_prefix` down to the root directory
+* fixed: python: cmdoplib: gitsvn: fixed exception `the parent GIT repository `...` is ahead to the child GIT repository` for the case when a not pushed commit from a child repository is not actually going to be pushed (empty commit) into child repository and then be merged into parent repository which must be in that case be behind the child repository
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* new: python: cmdoplib: gitsvn: `disable_parent_child_ahead_behind_check` flag in the `git_push_from_svn` function to disable check whether the last pushed parent/child repository commit is ahead/behind to the first not pushed child/parent repository commit
+* changed: python: cmdoplib: gitsvn: merge command completely replaced by `read-tree` + `write-tree` + `commit-tree` sequence of commands
+* changed: python: cmdoplib: gitsvn: rewrited `get_last_git_svn_commit_by_git_log` and `get_last_git_svn_rev_by_git_log` functions
+* changed: python: cmdoplib: gitsvn: `get_git_commit_list_from_git_log` changed to match svn path not exactly (as prefixed)
+* refactor: python: cmdoplib: gitsvn: move common push code into `git_merge_and_push` function
+* refactor: python: cmdoplib: gitsvn: code cleanup
+
+2020.01.14:
+* fixed: python: cmdoplib: gitsvn: `get_first_or_last_git_svn_commit_from_git_log` has to find commit svn revision separately from a git commit hash and rest of git commit parameters because a git repository can contain now git-svn commits without an svn revision in the `git-svn-to-id` parameters as a child repository merge commit with an association versus different svn repository (different revision counter)
+* fixed: python: cmdoplib: gitsvn: open temporary text files through the `TmpFileIO` class using `w+b` mode instead of `w+b` because of silent line returns replacement
+* changed: python: cmdoplib: gitsvn: reduced functionality of the `get_first_git_svn_commit_from_git_log` function to always search only for the first git-svn commit
+* changed: python: cmdoplib: gitsvn: improved functionality of the `get_first_or_last_git_svn_commit_from_git_log` function to return both the first git-svn commit with or without an svn revision and the first git-svn commit only with an svn revision
+* refactor: python: cmdoplib: gitsvn: `get_first_git_svn_commit_from_git_log2` renamed into `get_first_or_last_git_svn_commit_from_git_log`
+
+2020.01.13:
+* fixed: python: cmdoplib: gitsvn: in case of merge from a child repository into not yet existed parent repository branch (special case) the `merge` + `read-tree` + `commit` call sequence is replaced by the low level `read-tree` + `write-tree` + `commit-tree` call sequence as more relaible and without high level side effects around the head reference
+* fixed: python: cmdoplib: std: minor fix around `local_cwd` class to print a path with slashes only
+* fixed: python: cmdoplib: gitsvn: missed to print immediate local environment variables in the `call*` functions even if the verbosity level is minimal
+* new: python: cmdoplib: gitsvn: added additional `git-svn-from-id` and `git-svn-to-id` identifiers to replace the `git-svn-id` and `git-svn-to-id` identifiers in a commit message in case of a merge from child repository into parent repository w/o existence a merge commit from parent repository
+* changed: python: cmdoplib: gitsvn: code cleanup
+
+2020.01.11:
+* new: python: added license file to support the subdirectory as a standalone project
+
+2020.01.10:
+* changed: python: cmdoplib: gitsvn, svn: raw `plumbum.local.cwd` call replaced by a wrapper to print the current directory before respective change
+* refactor: python: cmdoplib: gitsvn: renamed `.git/svn2git` subdirectory into `.git/.pyxvcs`
+
+2020.01.10:
+* fixed: python: cmdoplib: gitsvn: multiple fixups after test runs
+* new: python: cmdoplib: gitsvn: added `ordinal_index` to be able identify-by-index all nodes in a repositories tree
+* changed: python: cmdoplib: gitsvn: added numeration to the name of a working copy directory of non root repositories
+
+2020.01.09:
+* fixed: python: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function now filters commits by the `git log --until=...` command to return a child repository commits relative to the timestamp of a parent repository commit
+* fixed: python: cmdoplib: gitsvn: other multiple fixups
+* new: python: cmdoplib: gitsvn: `git_fetch_child_subtree_merge_branches` function automatically fetches/merges a child repository into a subtree branch using `git_path_prefix` and other parameters
+* changed: python: cmdoplib: gitsvn: improved `get_last_git_svn_rev_by_git_log` and `get_last_git_svn_commit_by_git_log` functions
+* changed: python: cmdoplib: gitsvn: code cleanup
+* changed: python: cmdoplib: gitsvn: all functions now does strip surrounded non printable characters from git repos list field values to be able to compose field rows into tables with aligned columns
+* refactor: python: cmdoplib: gitsvn: moderate functions refactor
+
+2020.01.07:
+* new: python: cmdoplib: gitsvn: added `last_pushed_git_svn_commit_fetch_timestamp` and `last_notpushed_svn_commit_fetch_timestamp` parameters to be able to analyze last pushed/notpushed commit timestamp versus a child repository commit timestamp in repostiories tree
+* changed: python: cmdoplib: gitsvn: `update_git_svn_repo_fetch_state` function reworked, code a bit reduced and refactored
+
+2020.01.07:
+* refactor: python: minor refactor and cleanup
+
+2020.01.04:
+* fixed: python: cmdoplib: gitsvn: `get_last_git_svn_rev_by_git_log` invalid search logic not using `git_path_prefix` in a `git log` command as a subdirectory search context
+* new: python: cmdoplib: gitsvn: `git_path_prefix` parameter in `git_repos.lst.in` configuration file
+* new: python: cmdoplib: gitsvn: `git_log_list_child_max_depth_fetch` parameter calculation to define a dependency between git log search depth and the git-svn repositories tree structure depth
+* changed: python: cmdoplib: callgit: better filter of not critical warnings
+* changed: python: cmdoplib: callsvn: better filter of not critical warnings
+* changed: python: cmdoplib: gitsvn: make a git-svn fetch only on writable (not read only) repositories
+* refactor: python: cmdoplib: gitsvn: moderate refactor
+* refactor: python: cmdoplib: svn: moderate refactor
+
+2020.01.04:
+* fixed: python: a typo
+* changed: python: readme update
+
+2020.01.04:
+* changed: python: cmdoplib: yaml: made optional in generation a config file before load it, disable it by default
+
+2019.12.31:
+* new: python: tacklelib: `is_file_path_beginswith` and `is_file_path_endswith` functions
+
+2019.12.30:
+* new: python: cmdoplib: added `retain_commmit_git_svn_parents` parameter to the `push_svn_to_git` function to explicitly set the `git svn fetch ...` command commits as parents to a resulted merge commit (by default is turned off to reduce quantity of commits in a repository commits graph)
+
+2019.12.29:
+* refactor: python: cmdoplib: minor refactor
+
+2019.12.29:
+* changed: dependencies readme update
+
+2019.12.29:
+* refactor: minor refactor
+
+2019.12.26:
+* fixed: python: cmdoplib: missed local branch cleanup before `git svn fetch ...` (a local branch can contain empty commits after the last `git filter-branch --prune-empty` command)
+
+2019.12.25:
+* fixed: python: cmdoplib: declare a preserve empty directories in the `git_init` function, added support for respective `*GIT_SVN_REMOTE.PRESERVE_EMPTY_DIRS*` variables in yaml scripts
+* fixed: python: cmdoplib: in the git a child repository branch must be always merged into a parent repository even if was merged for a previous svn revision(s), otherwise a parent repository commit won't contain changes made in a child repository in previous svn revisions
+* fixed: python: cmdoplib: use a commit timestamp in the `--until`/`--since` argument in a  `git log ...` command, but return an author timestamp and datetime
+* fixed: python: cmdoplib: missed to recreate a main branch after a branch rewrite (`git filter-branch --prune-empty` command) in case when the `refs/original/refs/remotes/...` reference was deleting but the reference of a main branch was pointing to the being deleted reference
+* fixed: python: cmdoplib: other multiple fixups
+* new: python: cmdoplib: [initiated] `git_svn_compare_commits` function and respective functionality to compare a particular svn commit versus associated git commit for a particular git repository associated with a remote name
+* new: python: `*~compare_commits.bat` scripts to call the `git_svn_compare_commits` function
+
+2019.12.24:
+* fixed: python: cmdoplib: minor fixup
+
+2019.12.23:
+* fixed: python: cmdoplib: The `-no-ff` parameter in the `git merge ...` command should not be used in case of merge into empty head, otherwise `fatal: Non-fast-forward commit does not make sense into an empty head`
+
+2019.12.23:
+* fixed: python: tacklelib: minor `TmpFileIO` class fixups
+* fixed: python: tacklelib: minor `devnull` class fixup
+* fixed: python: cmdoplib: workaround for the `plumbum.local.run` function for `TmpFileIO` object as a stdin
+* fixed: python: cmdoplib: invalid author date/time in `git_push_from_svn` function
+* fixed: python: cmdoplib: other multiple fixups
+* refactor: python: cmdoplib: removed unnecessary default keyword parameters from `call*`/`call_svn*`/`call_git*` functions
+
+2019.12.22:
+* fixed: python: cmdoplib: case around the `error: Entry '<prefix>/...' overlaps with '<prefix>/...'.  Cannot bind.` message after the `git read-tree --prefix=...` command
+* fixed: python: cmdoplib: missed commit message `git-svn-id` field change after merge from a child repository commit to a parent repository
+* fixed: python: cmdoplib: missed to commit changes in a not root repository in case if a not root repository has changes for a revision together with a child repository
+* fixed: python: cmdoplib: other multiple fixups
+* new: python: cmdoplib: `stdin` parameter in `call` function
+* new: python: cmdoplib: `**kwargs` parameter in `call_svn`/`call_git` functions
+
+2019.12.18:
+* fixed: python: cmdoplib: missed commit message `git-svn-id` field change after merge from a child repository commit to a parent repository
+* fixed: python: cmdoplib: missed git switch with checkout (not initialized HEAD) after a call to `git_pull`/`git_push_from_svn` functions
+* fixed: python: cmdoplib: workaround call to the `git filter-branch --prune-empty ...` without initialized HEAD reference (error message `fatal: Needed a single revision`)
+* fixed: python: cmdoplib: other multiple fixups
+
+2019.12.17:
+* fixed: python: cmdoplib: multiple fixup
+* new: python: cmdoplib: `set_verbosity_level` function and respective `cmdop.xpy` script parameter to reduce a verbosity level by default (hide an environment variables output attached to a being runned executable)
+* new: python: cmdoplib: explicit environment dictionary parameter in the `call`/`call_svn`/`call_git` functions
+* changed: python: cmdoplib: removed svn cache remove from all functions except in the `git_reset` function if the `--remove_svn_on_reset` flag is set
+
+2019.12.16:
+* refactor: python: cmdoplib: minor refactor
+
+2019.12.11:
+* fixed: python: cmdoplib: incorrect git-svn-trunk branch fetch from the previous revision instead of from the first revision, as a result is incorrect commit-to-commit concatenation after a criss-cross repository synchronization in another project
+
+2019.12.11:
+* fixed: python: cmdoplib: commit timestamp has used instead of author timestamp
+* fixed: python: cmdoplib: minor fixes
+
+2019.12.11:
+* changed: python: cmdoplib: [completed] `git_push_from_svn` function
+
+2019.12.09:
+* fixed: python: cmdoplib: `git pull ...` command can not handle multiple merge into the index file, throws error message `error: You have not concluded your merge (MERGE_HEAD exists).`, has replaced by the `git subtree add ...`/`git subtree merge ...` command
+* fixed: python: cmdoplib: `git subtree add ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has moved before a parent repository merge command
+* fixed: python: cmdoplib: `git subtree merge ...` command can not handle multiple merge into the index file, throws error message `Working tree has modifications.  Cannot add.`, has replaced by the `git merge --no-commit -s ours ...` + `git read-tree ...` + `git commit -C ...`
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.08:
+* fixed: python: cmdoplib: `git cherry-pick ...` command can not handle a subtree prefix and merges all commits into the root directory of a commit, has replaced by the `git read-tree ...` command
+* fixed: python: cmdoplib: `git read-tree ...` command can not handle multiple merge into the index file, throws error message `error: Entry '...' overlaps with '...'.  Cannot bind.`, has replaced by the `git pull ...` command
+* fixed: python: cmdoplib: `git_push_from_svn` function error message `fatal: cannot switch branch while merging`, added `git reset --mixed` to cleanup before the switch
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.06:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.12.04:
+* changed: python: cmdoplib: removed usage of `parent_git_subtree_cmdline` and `git_subtree_cmdline` parameters in `GitReposListReader` class
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: git functions refactor
+
+2019.11.27:
+* fixed: python: cmdoplib: added '--localtime' to all `git svn fetch ...` commands
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.27:
+* fixed: python: cmdoplib: correct `git cherry-pick ...` calls
+
+2019.11.26:
+* fixed: python: cmdoplib: has used git commit timestamp/datetime in comparison instead of associated svn commit timestamp/datetime
+* fixed: python: cmdoplib: correct skip push of empty svn commits
+* fixed: python: cmdoplib: stop on a not critical warning from `git svn fetch ...` command
+* fixed: python: cmdoplib: missed `--no-edit` in the `git commit --amend ...` command
+* fixed: python: cmdoplib: fetch-rebase-push into git repo in the `git_push_from_svn` function
+* fixed: python: cmdoplib: minor fixup
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: minor refactor
+
+2019.11.25:
+* fixed: python: cmdoplib: minor fixup
+* new: python: cmdoplib: change author name and email before push
+
+2019.11.25:
+* fixed: python: cmdoplib: fixup to init/fetch/reset/pull/push over empty git repository
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.25:
+* new: python_tests: `01_unit/01_import_module/09_reimport_being_imported`, `01_unit/01_import_module/10_reimport_being_imported_from_default_lambda_arg` tests to test reimport functionality in the `tkl_import_module` function
+* changed: python_tests: tests cleanup
+
+2019.11.24:
+* new: python: tacklelib: reimport functionality in the `tkl_import_module` function to partially resolve module cross references
+* changed: python: cmdoplib: `yaml_expand_*` functions always searches in python global variables now
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.24:
+* fixed: python: cmdoplib: minor fixup
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.23:
+* fixed: python: cmdoplib: git-svn branch cleanup before fetch
+* changed: python: cmdoplib: all branches started by `git-svn` is reserved for internal usage
+
+2019.11.22:
+* fixed: python: cmdoplib: not unique default fetch tip in to `config` file after the `git svn init ...` call
+* fixed: python: cmdoplib: incomplete `--ignore-paths` parameter in the `git svn init ...` command
+* fixed: python: cmdoplib: `git svn fetch ...` invalid (default is `master`) branch fetch, the `git swith ...` with explicit branch must be used always before to fix that
+* changed: python: tacklelib,cmdoplib: increased stdout output maximal lines for a command before cutoff from 7 up to 9
+
+2019.11.21:
+* fixed: python: cmdoplib: `revert_if_git_head_refs_is_not_last_pushed` function fixup
+* fixed: python: cmdoplib: `git_fetch`, `git_pull`, `git_push_from_svn` functions fixup
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: removed the stdout/stderr parameters from the `call_svn` and `call_git` functions as must always does intercept the output
+
+2019.11.20:
+* fixed: python: tacklelib,cmdoplib: missed yaml changes
+* fixed: python: cmdoplib: call to `git_push_from_svn` immediately after clean `git_init`
+* changed: python: added author and author email in `svn log ...` command output
+
+2019.11.20:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: readme update
+* changed: python_tests: readme update
+
+2019.11.19:
+* new: python: `tzlocal` python module added to python modules install script
+* changed: python: use local time in `svn log ...` commands
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* refactor: python: cmdoplib: minor refactor
+
+2019.11.18:
+* fixed: python: cmdoplib: [continued] `git_push_from_svn` function fixup
+* refactor: python: minor refactor
+
+2019.11.18:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.11.17:
+* fixed: python: install script missed modules
+* changed: readme update
+
+2019.11.15:
+* changed: python: readme update
+
+2019.11.15:
+* changed: python_tests: readme update
+
+2019.11.15:
+* fixed: python: missed module to install in the install scripts
+
+2019.11.15:
+* changed: python: readme update for install instruction of the python version prior version 3.4
+* changed: python_tests: readme update for install instruction of the python version prior version 3.4
+
+2019.11.15:
+* changed: python: install scripts minor change in case of attempt to install packages under python prior version 3.4
+
+2019.11.14:
+* changed: python: cmdoplib: dropped `globals()[...]` usage to access global variables as not required anymore and is replaced by `tkl_declare_global` function usage
+
+2019.11.14:
+* changed: cmake_tests: readme update
+* changed: python_tests: readme update
+* changed: readme update
+
+2019.11.14:
+* fixed: python_tests: tests run under Linux Mint 18.3 KDE x64
+
+2019.11.14:
+* fixed: python: tacklelib: avoid copy builtin and packaged modules
+* fixed: python: tacklelib: avoid copy builtin and non trivial class types
+* fixed: python: tacklelib: `inspect.getmodule` is replaced by `tkl_get_imported_module_by_file_path` to correctly return modules by a stack module path (unique relation) instead by a module name from `sys.modules` (not unique relation)
+* fixed: python_tests: `02_interactive/*` tests
+* new: python_tests: `00_empty` for a test try
+* new: python_tests: `01_unit/01_import_module/04_base_import_class` test to test import module with a basic class
+* new: python_tests: `01_unit/01_import_module/07_merge_2_lvl3_modules_in_1_lvl2` test to test different modules into the same name
+* new: python_tests: `01_unit/01_import_module/08_specific_import_importlib_util` test to test import of a module with compound system library like `importlib.util`
+* changed: python: python modules install script update
+* refactor: python: `tkl_import_module` function reduction
+* refactor: python: code cleanup
+* refactor: python_tests: tests refactor
+
+2019.11.12:
+* fixed: python: cmdoplib: removed `svn ...` commands stdout cutoff
+
+2019.11.12:
+* fixed: python: tacklelib: `tkl_merge_module` module-to-not-a-module copy
+* fixed: python: tacklelib: invalid execution guard in the `tkl_import_module` function for named imports
+* fixed: python: cmdoplib: `git svn ...` returns message affected by the `SVN_SSH` environment variable: `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': Error in child process: exec of '' failed: No such file or directory at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.` (https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014 )
+* fixed: python: cmdoplib: `git svn init ...` can init urls with the svn+ssh scheme (see details in the `README_EN.txt` file)
+* fixed: python: tests run
+* fixed: python_tests: test file names must be different, otherwise only the first one would be executed (bug in the pytest plugin in the xonsh module, see details in the `README_EN.txt`)
+* new: python: changelog file
+* new: python: tacklelib: new hierarchical print to introduce the nest level of an `tkl_import_module` call
+* new: python: tacklelib: new `tkl_init` function implementation to initialize the caller/current module on the stack
+* new: python: tacklelib: `tkl_import_module` function has been rewritten to use the stack to update globals everythere including a module from where an import being executed
+* new: python: tacklelib: `tkl_declare_global` function has been rewritten to use the stack to update globals everythere including a module from where a global being exported from
+* new: python: tacklelib: `YamlEnv` class supports hierarchical yaml configuration files to read variables with a compound nature to postpone an environment variable declaration to a moment of execution of an executable
+* new: python: tacklelib: `tacklelib.sig.xsh` script to suppress signals to avoid accidental signal interruption in critical code segments
+* new: python: tacklelib: `tacklelib.cache.xsh` script to wrap the `fcache` module to make workarounds over it (see details in the `README_EN.txt` file)
+* new: python: cmdoplib: `yaml_load_config` function can load environment variables for a particular context (global/environment variables)
+* new: python: cmdoplib: `yaml_expand_*` functions can expand for a different containers (str/list/dict/value) or use additional containers to search in for replacement values (at second in dictionary, at third in global variables)
+* new: python: cmdoplib: support run `ssh-pageant` as a background process to enable access svn repositories through the svn+ssh protocol from the `git svn ...` command
+* new: python_tests: `05_merge_2_modules_in_1` to test merge of 2 modules into 1 module
+* new: python_tests: `02_declare_global/*` tests to test `tkl_declare_global` implementation (tests valid only in an isolated process environment)
+* removed: python: tacklelib: `tkl_get_parent_imported_module_state` function is removed as not needed anymore because the search logic is based on the stack frames now
+* changed: cmake: SetVarsFromFiles.cmake: `*$/{<undefined_variable>}` substitution sequence is replaced by `*:$/{<undefined_variable>}`
+* changed: python: tacklelib: always export to all imported modules in the `tkl_declare_global` function
+* changed: python: cmdoplib: `CONFIGURE_DIR`, `SCM_NAME` and `CMD_NAME` variables made global in all imported modules to be able to use them directly in command calls
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python_tests: readme update
+* refactor: python: tacklelib,cmdoplib: yaml functionality
+* refactor: python: cmdoplib: git/svn functionality
+
+2019.11.06:
+* changed: cmake: comments cleanup
+
+2019.10.30:
+* fixed: python: cmdoplib: environment variable accidental double declare
+* fixed: python: cmdoplib: missed `delvar` function refactor
+
+2019.10.30:
+* new: python: tacklelib: `tkl_declare_global` function can declare global in a child as a reference in the parent module/globals
+* new: python: cmdoplib: print ignored errors at the end of the `git_relocate` function call
+* new: python: `install_python_modules.bat` script to install all required python modules
+
+2019.10.29:
+* fixed: python: cmdoplib: exception from `svn_relocate` function on non critical error `svn: E155024: Invalid source URL prefix: 'https://' (does not overlap target's URL 'svn+ssh://...')`
+* fixed: python: cmdoplib: SVN_SSH usage as an environment variable from the yaml configuration file
+* fixed: python: cmdoplib: search svn url without scheme in the git-svn-id field from the git commit
+* new: python: taklelib,cmdoplib: standalone yaml load into environment variables dictionary additionally to the global variables dictionary
+* new: python: `config.env.yaml` to store environment variables, loads after global variables in the `config.yaml` but can reference the global variables for the expansion phase
+
+2019.10.29:
+* new: python: tacklelib: `OnExit` class to use as a RAII alternative in the python with the `with` statement
+* new: python: cmdoplib: bare argument support for svn scripts
+* new: python: cmdoplib: `svn_relocate` function
+
+2019.10.29:
+* new: python: readme file
+
+2019.10.28:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+
+2019.10.27:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+* refactor: python: cmdoplib: code reduction
+
+2019.10.25:
+* fixed: python: tacklelib: `tkl_classcopy` function issue around the error `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+* fixed: python: tacklelib: `tkl_merge_module` function issue around copy of a `datetime.datetime` variable from a module to a `datetime` variable
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+* changed: python: cmdoplib: other minor changes and fixes
+* refactor: python: cmdoplib: moved `import` statements after `tkl_import_module` calls
+* refactor: python: cmdoplib: replaced all `import datetime` by `from datetime import datetime` to avoid errors around `datetime.*()` calls
+
+2019.10.24:
+* fixed: python: cmdoplib: minor fix with SVN repository uuid update
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.23:
+* new: python: cmdoplib: `discover_executable` function to be able to override SVN/GIT executables either by respective environment variables (`SVN_EXEC`/`GIT_EXEC`) or by respective global variables (`SVN`/`GIT`)
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.23:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.22:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.22:
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.21:
+* fixed: python: cmdoplib: `git_push_from_svn` function execution
+* changed: python: cmdoplib: [continued] `git_push_from_svn` function
+
+2019.10.18:
+* new: python: cmdoplib: [initiated] `git_push_from_svn` function
+* refactor: python: cmdoplib: `sync_svn_to_git` scripts renamed into `push_svn_to_git` to highlight the 1-way direction process (the `sync` basically associated with 2-way direction)
+
+2019.10.17:
+* fixed: python: tacklelib: stdout/stderr mix after a `tkl_import_module` call
+* new: python: cmdoplib: complete `git_pull` function
+* refactor: python: cmdoplib: minor refactor
+
+2019.10.16:
+* fixed: python: cmdoplib: added second revert after bad `git svn fetch ...` with the HEAD checkout 
+
+2019.10.15:
+* fixed: python: cmdoplib: HEAD revert, including HEAD reassign to the FETCH_HEAD and the reference list cleanup after a bad `git svn fetch ...` call
+* fixed: python: cmdoplib: invalid remote-local reference search after the `git ls-remote ...` call
+* fixed: python: cmdoplib: other minor fixes and improvements
+* new: python: cmdoplib: `git_reset` function
+* refactor: python: cmdoplib: minor refactor
+
+2019.10.12:
+* changed: python: cmdoplib: always use SVN repository root as a fetch base path, move a subdirectory reference into a particular fetch value in the `svn-remote.svn` config section, this would let the git to generate a commit hash based on a complete path from the SVN root
+* refactor: python: cmdoplib: minor refactor
+
+2019.10.11:
+* fixed: python: cmdoplib: git config `svn-remove.svn` section records duplication on `git svn init ...` rerun
+* fixed: python: cmdoplib: minor fixup
+
+2019.10.11:
+* fixed: python: cmdoplib: `git svn init ...` rerun in case of lack of network
+* fixed: python: cmdoplib: `git svn init ...` invalid command line
+* changed: python: cmdoplib: trailing not printable characters trim from the stdout/stderr
+
+2019.10.10:
+* fixed: python: cmdoplib: `--stdlayout` usage in the `git svn init ...` command
+* changed: python: cmdoplib: `git_svn_init_cmdline` parameter moved into `git_repos.lst.in` file
+* changed: python: cmdoplib: `git_subtree_cmdline` in the `git_repos.lst.in` splitted into `git_subtree_cmdline` and `parent_git_subtree_cmdline`
+
+2019.10.10:
+* new: python: cmdoplib: `hasvar` function
+
+2019.10.08:
+* fixed: configure/build fixes
+* fixed: tests: configure/build fixes
+
+2019.10.08:
+* fixed: cmake_tests: tests run
+* changed: svn ignores
+* refactor: cmake_tests: support scripts moved in to subdirectories
+* refactor: python_tests: support scripts moved in to subdirectories
+
+2019.10.07:
+* fixed: cmake: build fix
+
+2019.10.07:
+* fixed: cmake: configure fix
+
+2019.10.06:
+* new: python: tackelib: `tacklelib.url.py` and `tacklelib.csv.py` scripts
+* new: python: cmdoplib: `cmdoplib.url.xsh`, `cmdoplib.csv.xsh`, `cmdoplib.csvgit.xsh` and `cmdoplib.gitsvn.xsh` scripts (currently only `git_init` and `git_fetch` is implemented)
+* new: python_tests: python scripts initial tests
+* fixed: python: tackelib: fixed class copy up on the `tkl_import_module` call
+* fixed: python: tackelib: `SOURCE_DIR` and `SOURCE_FILE` builtin variables complete restore between calls
+* changed: python: `exec_guards` function argument moved from the `tkl_source_module` into the `tkl_import_module` function to guard the execution on lowest level
+* changed: python: improved `list_urls_in_files.py` script to be able to output a file lines and sort the output by lines/urls in a file
+* changed: readmes update
+* refactor: moderate refactor
+
+2019.09.22:
+* new: python: tacklelib: `devnull` class
+* new: python: cmdoplib: cmdoplib.git.xsh` script (git_init)
+* changed: python: minor changes
+* refactor: `repos.lst.in` renamed to `git_repos.lst.in`
+
+2019.09.21:
+* new: python: tacklelib: `tkl_declare_global` function to export globals into all children modules automatically
+* new: python: cmdoplib: `cmdoplib` extracted as a standalone library from `tacklelib`
+* changed: python: tacklelib: improvements for `tacklelib`
+
+2019.09.19:
+* new: python: initial scripts
+* removed: python: removed python scripts from `_scripts/tools`
+* minor changes
+
+2019.08.17:
+* fixed: scripts: tools: decode errors in the `list_urls_in_files.py` script
+* fixed: scripts: tools: warning message `cmdoplib.py:10: DeprecationWarning: invalid escape sequence \(` in case of import the `cmdoplib.py` module through the `importlib` module
+
+2019.08.17:
+* fixed: scripts: traceback message in the `list_urls_in_files.py` script
+
+2019.08.06:
+* fixed: scripts: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+* fixed: cmake: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+
+2019.08.06:
+* fixed: scripts: `update_build_type.bat` script for CMAKE_BUILD_TYPE=d
+
+2019.08.06:
+* changed: minor changes
+
+2019.08.05:
+* changed: readme update
+
+2019.08.05:
+* fixed: scripts: target parameter support for install scripts
+
+2019.08.05:
+* fixed: mingw-w64 gcc 8.1 build fixes
+
+2019.08.05:
+* fixed: scripts: pause after an error in the scripts
+
+2019.08.04:
+* fixed: cmake: testlib: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+* fixed: cmake: testlib: removed trace messages instead status messages for the cmake 3.15.x and higher binaries targets
+* fixed: cmake: incomplete comments filter (`SetVarsFromFiles.cmake`)
+* fixed: cmake: other build errors
+* fixed: cmake_tests: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+* new: cmake_tests: cmake 3.15.1 binaries target
+* changed: cmake_tests: cmake 3.14.5 binaries is retargeted to cmake 3.14.6
+* changed: cmake_tests: cmake 3.15.0-rc1 binaries is retargeted to cmake 3.15.0
+
+2019.08.04:
+* fixed: cmake: [continue] other build errors
+* fixed: cmake: incorrect variables return in `tkl_detect_file_system_paths_sensitivity` function
+* fixed: cmake: accidental error message `Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory.`
+* changed: cmake: minor changes
+* changed: minor changes
+
+2019.08.03:
+* fixed: cmake: [continue] other build errors
+* fixed: cmake: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
+* changed: cmake: `tkl_discover_var_to` function is simplified
+* changed: cmake: `tkl_get_var` function is simplified
+
+2019.08.02:
+* fixed: cmake: [continue] other build errors
+* fixed: cmake: case insensitive path variables compare including back/forward slash insensitive compare in the Windows
+* fixed: cmake: path list variables compare (`SetVarsFromFiles.cmake`)
+* fixed: cmake: incorrect output variables return in `tkl_get_gcc_version` and `tkl_get_clang_version` functions (`Version.cmake`)
+* fixed: scripts: `set_vars_from_locked_file_pair.bat` script missed to print all setted variables
+* new: cmake: `tkl_detect_file_system_paths_sensitivity` function to detect file system paths sensitivity parameters (`File.cmake`)
+* refactor: cmake: minor refactor
+
+2019.07.31:
+* fixed: scripts: `set_vars_from_locked_file_pair.bat` script returns not zero error level on success
+* fixed: scripts: cmake `no cache found` message on build script run
+
+2019.07.31:
+* fixed: cmake: [continue] other build errors
+* fixed: cmake: `file` function multiple fixes (`File.cmake`)
+* fixed: cmake_tests: 02_Utility tests pass
+* new: cmake: `SetVarsFromFiles.cmake` new variable attribute support
+* changed: cmake: reduced `tkl_load_vars_from_files`/`tkl_set_vars_from_files` flags
+* changed: cmake: `SetVarsFromFiles.cmake` detailed description update
+* changed: multiple build fixes
+* refactor: cmake: reorganization over `Std.cmake`, `File.cmake` modules
+
+2019.07.22:
+* fixed: cmake: [continue] other build errors
+* fixed: cmake_tests: `tests_02_Utility` corrected
+
+
+2019.07.22:
+* fixed: cmake: error message `Invalid character escape '\0'.` around `file(WRITE ... "${ID_CONTENT_OUT}")` expression in the `share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake`, line:159 implementation
+* fixed: cmake: error message `file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead` around `file(REMOVE_RECURSE ...)` calls from the internals of the cmake modules
+* fixed: cmake: error messages `No CMAKE_C_COMPILER could be found.` or `No CMAKE_CXX_COMPILER could be found.` around `CMAKE_DETERMINE_COMPILER_ID(... src)` calls from the internals of the cmake modules (the `src` variable have has contained incorrectly escaped characters before a call to the `file(WRITE ...)` before a call to the `tkl_escape_list_expansion`)
+* fixed: cmake: missed set variables from the `tkl_copy_vars` function which are already been set to different value in a parent scope (technically very rare bug, but WTF?)
+* fixed: cmake: [initiated] other build errors
+* changed: scripts: minor changes
+* refactor: cmake: moved most of the content from the `Std.cmake` to the `ForwardArgs.cmake`, `Utility.cmake` and other standalone modules to be able use it in the `File.cmake` and other modules included from the `Std.cmake`
+
+2019.07.18:
+* fixed: typo
+
+2019.07.13:
+* fixed: incorrect urls in the readme
+* new: _scripts/tools: `cmdoplib.py`, `list_urls_in_files.py` python scripts to extract urls from files
+
+2019.07.13:
+* fixed: another multiple typos after refactor misuse
+
+2019.07.13:
+* fixed: multiple typos after refactor misuse
+
+2019.07.09:
+* changed: linux readme update
+
+2019.07.09:
+* changed: linux readme update
+
+2019.06.16:
+* changed: scripts: repository links in readme update
+* changed: cmake: repository links in readme update
+* changed: cmake_tests: repository links in readme update
+* changed: repository links in readme update
+
+2019.06.16:
+* new: cmake: testlib: enable `CMAKE_COMMAND` initialize from external list - `CMAKE_COMMAND_LIST` to run tests on specific cmake executable versions (`TestLib.cmake`, `TestModule.cmake`, `RunTestLib.cmake`)
+
+2019.06.16:
+* new: cmake_tests: scripts: config generator scripts `*_generate_config.*`
+* new: cmake_tests: scripts: preparations to be able to load configuration files from the `_config` subdirectory
+* changed: readme update
+* changed: cmake_tests: readme update
+* refactor: `config` directory renamed into `_config`
+
+2019.06.15:
+* new: cmake: specific time functions in a standalone module (`Time.cmake`)
+* new: cmake: specific math functions in a standalone module (`Math.cmake`)
+* new: cmake: ~2.6 times faster `tkl_macro_eval` macro additionally to the `tkl_eval` function (`Eval.cmake`)
+* new: cmake_tests: `02_bench` tests now prints floating point time spent in seconds per call
+* new: cmake_tests: more `02_bench` tests
+* new: cmake_tests: `07_Math` tests
+* new: cmake_tests: more `10_Eval` tests around `tkl_macro_eval` macro (`Eval.cmake`)
+* changed: cmake: testlib: split variables load from `*.test.vars` into 2 files - `*.test.vars` and `*.test.lib.vars`, because variables for the `TestLib.cmake` shall not be visible in the `TestModule.cmake` and vice versa (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: cmake: testlib: time variables minor refactor (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: cmake: testlib: print functions refactor (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: cmake_tests: test files order shift rename
+
+2019.06.14:
+* new: cmake: `*.test.vars` check and load in test environment (`TestLib.cmake`)
+* new: cmake: testlib: `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` and `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` variables to tweak a test process before call to `RunTestLib.cmake` (`TestLib.cmake`)
+* new: cmake_tests: initial `02_bench` tests
+* changed: cmake: changed test messages output in `TRACE` mode in version 3.15.x and greater and `STATUS` before the 3.15.x
+* changed: cmake: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+* refactor: cmake: testlib refactor (`TestLib.cmake`)
+
+2019.06.14:
+* refactor: cmake_tests: tests reordered, extracted unit tests into standalone `01_unit` subdirectory
+
+2019.06.14:
+* changed: cmake: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+
+2019.06.13:
+* new: cmake_tests: `tests_06_List` tests
+
+2019.06.13:
+* fixed: cmake: internal variables left out after calls to `tkl_load_vars_from_files` and `tkl_set_vars_from_files` (`SetVarsFromFile.cmake`)
+* changed: cmake: rewrited the parser core code in the `set_vars_from_file` function to a bit simplify branch conditions (`SetVarsFromFile.cmake`)
+* changed: cmake: overall code cleanup (`SetVarsFromFile.cmake`)
+
+2019.06.12:
+* fixed: cmake: accidental remove of `var_token_suffix` and `var_token_suffix_to_process` variables (`SetVarsFromFiles.cmake`)
+* fixed: cmake: not needed extra `.` character in the first argument to the `tkl_make_basic_timestamp_temp_dir` function (`MakeTemp.cmake`)
+* fixed: cmake: `tkl_file_encode_strings` implementation switched from `file(STRINGS ...)` to `file(READ ...)` with standalone character replacement to workaround the issue with trailing `\` line character (`File.cmake`)
+* new: cmake: standlone `tkl_test_dbg_message` message function is disabled by default to enable it separately by `tkl_enable_test_dbg_message` per test basis to debug a test (`TestModule.cmake`)
+* new: cmake: support parse of multiline variable values to move long variable values on next line (`SetVarsFromFiles.cmake`)
+* new: cmake: support `$/n`, `$/r`, `$/t`, `$/b` as replacement for respective character escape sequences (`SetVarsFromFiles.cmake`)
+* new: cmake: `TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX` variable to get test file name without all extensions (`TestLib.cmake`)
+* new: cmake_tests: more `tests_11_SetVarsFromFiles` tests
+* new: cmake_tests: `tests_07_File` tests
+* changed: cmake: moved `tkl_test_assert_true` expression/message string to the separate lines with `[   EXP  ]`/`[   MSG  ]` prefixes (`TestModule.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.06.11:
+* fixed: cmake: multiple fixes for simple usage of `SetVarsFromFiles.cmake` module
+* fixed: cmake: `invalid variable name token` message (`SetVarsFromFiles.cmake`)
+* new: cmake: commonly used check functions from the `Project.cmake` and the `SetVarsFromFile.cmake` modules extracted into the `Checks.cmake` module
+* new: cmake_tests: `tests_11_SetVarsFromFiles` tests
+* changed: cmake: minor `testlib` changes (`TestLib.cmake`, `TestModule.cmake`)
+
+2019.06.09:
+* fixed: scripts: `tkl_include` early variables stack pop from a random `source` command instead in the function `tkl_include_local_impl` after the `trap "..." RETURN` command (trap have to be avoided here).
+* changed: scripts:  [finished] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
+
+2019.06.08:
+* fixed: cmake: completely reverese engineered a cmake expansion rules in different contexts (macro/function/list/foreach/and so on), removed not actually needed functions
+* fixed: cmake: `tkl_track_vars_begin`/`tkl_track_vars_end` inside `tkl_eval_end` usage (`Eval.cmake`)
+* fixed: cmake: forgot to unset actually unsued ARGV0..N variables in the sensitive to it function - `tkl_copy_vars`
+* new: cmake: `tkl_escape_string_after_list_get` function to explicitly state the escape request after the `list(GET ...)` or the `foreach(... IN LISTS ...)` application
+* new: cmake_tests: `tests_01_expansion` tests
+* new: cmake_tests: `tests_02_Utility` tests
+* new: cmake_tests: more `tests_04_ForwardVariables` tests
+* removed: cmake: `tkl_escape_string_for_ARGx`
+* removed: cmake: `tkl_escape_string_for_macro_args`
+* changed: cmake: `tkl_escape_string_for_eval` converted into `tkl_escape_test_assert_string`
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.06.06:
+* fixed: cmake: `tkl_make_vars_from_ARGV_ARGN_begin`, `tkl_make_var_from_CMAKE_ARGV_ARGC` fixup (`Std.cmake`)
+* new: cmake_tests: more `01_make_var_from_ARGV` tests
+* new: cmake_tests: `03_make_vars_from_CMAKE_ARGV_ARGC` tests
+* changed: cmake_tests: tests correction changes
+* refactor: cmake: `tkl_escape_string_from_ARGx` renamed to `tkl_escape_string_for_ARGx` (`Utility.cmake`)
+
+2019.06.06:
+* fixed: cmake: `tkl_make_var_from_ARGV_begin`/`tkl_make_var_from_ARGV_end` implementation (`Std.cmake`)
+* fixed: cmake: `tkl_make_vars_from_ARGV_ARGN_begin`/`tkl_make_vars_from_ARGV_ARGN_end` implementation (`Std.cmake`)
+* fixed: cmake_tests: 100% tests pass
+* fixed: cmake_tests: `02_make_vars_from_ARGV_ARGN` tests pass (`ForwardArgs.cmake`)
+* changed: cmake_test: tests correction changes
+
+2019.06.06:
+* fixed: cmake: left behind not properly cleanuped ARGV, ARGC in a particular case (`ForwardArgs.cmake`)
+* changed: cmake: temporary disabled seems not necessary cleanup code (`ForwardArgs.cmake`)
+* changed: cmake_tests: some `tests_08_Eval` tests improvement
+
+2019.06.06:
+* fixed: cmake: ARGVn variables proper unset support (`ForwardArgs.cmake`)
+* fixed: cmake: `tkl_pop_ARGVn_from_stack` was not fully symmetric to the `tkl_puth*_ARGVn_*` (`ForwardArgs.cmake`)
+* fixed: cmake_tests: `tests_03_ForwardArgs` tests pass (`ForwardArgs.cmake`)
+* new: cmake: `tkl_eval*` ARGV, ARGC, ARGV0..N variables can restore from the top record of the special ARGVn stack (as a result the variables can be forwarded from the outter scope)
+* new: cmake_tests: `tests_03_ForwardArgs` tests
+* new: cmake_tests: `tests_08_Eval` tests
+* changed: cmake: overall code cleanup
+* changed: cmake_tests: tests correction changes
+
+2019.06.05:
+* new: cmake_tests: more `tests_03_ForwardArgs` tests
+* changed: cmake_tests: `tests_03_ForwardArgs` tests correction changes
+
+2019.06.05:
+* fixed: cmake: `tkl_restore_ARGVn_from_stack`implementation for different stack entries (`ForwardArgs.cmake`)
+* fixed: cmake: time span in tests runner for all tests (`TestLib.cmake`)
+* fixed: cmake: variables cleanup (`TestModule.cmake`, `ForwardVariables.cmake`)
+* fixed: cmake: `tkl_track_vars_begin`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_track_vars_end` implementation (`ForwardVariables.cmake`)
+* fixed: cmake_tests: `tests_01_script_mode/tests_02_ForwardVariables/02_tracks_vars/11_nested.test.cmake` test
+* new: cmake: additional `stack_entry` parameter in `tkl_push*_prop*`, `tkl_pop_prop_*` and `tkl_*_prop_*` functions to select stack entry to push/pop to/from (`ForwardVariables.cmake`)
+* new: cmake: `tkl_use_ARGVn_stack_begin`, `tkl_use_ARGVn_stack_end` functionts select stack entry to push/pop to/from (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+
+2019.06.05:
+* new: cmake: `tkl_push_ARGVn_to_stack`, `tkl_push_empty_ARGVn_to_stack` to push without set (`ForwardArgs.cmake`)
+* new: cmake: `tkl_get_ARGVn_stack_size` to request the ARGVn stack size (`ForwardArgs.cmake`)
+* new: cmake: time span in tests runner (`TestLib.cmake`)
+* changed: cmake: `tkl_restore_ARGVn_from_stack` rewrited to restore from any stack index (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake: `tkl_pushunset_ARGVn_to_stack` renamed to `tkl_pushset_empty_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_pushset_ARGVn_from_vars_to_stack` renamed to `tkl_push_ARGVn_to_stack_from_vars` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_restore_ARGVn_vars_from_stack` renamed to `tkl_restore_ARGVn_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.04:
+* new: cmake: `tkl_push_var_to_stack`, `tkl_push_prop_to_stack` to push with out side operations (`ForwardArgs.cmake`)
+* new: cmake: `tkl_get_var_stack_value_no_error`, `tkl_get_prop_stack_value_no_error` to avoid an error on empty stack (`ForwardArgs.cmake`)
+* removed: cmake: `tkl_set_ARGVn`, `tkl_unset_ARGVn`, `tkl_set_ARGVn_props_from_vars`, `tkl_pop_ARGVn_props_from_stack` as not required anymore (`ForwardArgs.cmake`)
+* changed: cmake: `tkl_pushset_ARGVn_to_stack` and `tkl_pop_ARGVn_to_stack` rewrited to make push/pop symmetric (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_pushset_ARGVn_props_from_vars` renamed to `tkl_pushset_ARGVn_from_vars_to_stack` (`ForwardArgs.cmake`)
+
+2019.06.04:
+* fixed: cmake: `tkl_pop_ARGVn_from_stack` implementation (`ForwardArgs.cmake`)
+* new: cmake: `tkl_unset_ARGVn`, `tkl_pushset_ARGVn_props_from_vars`, `tkl_pushunset_ARGVn_to_stack`, `tkl_pop_ARGVn_props_from_stack` implementation (`ForwardArgs.cmake`)
+* changed: cmake_tests: tests correction changes
+* refactor: cmake: `tkl_pushset_macro_args_ARGVn_to_stack` renamed into `tkl_pushset_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_set_func_args_ARGVn` renamed into `tkl_set_ARGVn_props_from_vars` (`ForwardArgs.cmake`)
+* refactor: cmake: `tkl_restore_vars_ARGVn_from_stack` renamed into `tkl_restore_ARGVn_vars_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.03:
+* fixed: cmake: missed `_return` call from recursion (`Handlers.cmake`)
+* fixed: cmake: invalid call to post handlers from the `tkl_handle_call_for_*` macro (`Handlers.cmake`)
+* new: cmake_tests: more `tests_01_script_mode/tests_09_Handlers` tests
+* changed: cmake: `tkl_add_handler` splitted into `tkl_add_last_handler` and `tkl_add_first_handler` (`Handlers.cmake`)
+* changed: cmake: `tkl_remove_handler` splitted into `tkl_remove_first_handler` and `tkl_remove_last_handler` (`Handlers.cmake`)
+* changed: cmake_tests: tests correction changes
+* changed: cmake_tests: minor cleanup
+* refactor: cmake_tests: test files order shift rename
+
+2019.06.03:
+* fixed: return recursion around `return` in the `Handlers.cmake`
+* fixed: cmake_tests: overall tests fixup
+* changed: cmake: improved `ForwardArgs.cmake`
+
+2019.06.02:
+* fixed: cmake: missed to unset function parameters before call to the `tkl_eval_end` (`Eval.cmake`)
+* fixed: cmake: missed ARGC variable ignore in `tkl_begin_track_vars`/`tkl_end_track_vars`
+* fixed: cmake: `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` incomplete implementation (`ForwardArgs.cmake`)
+* fixed: cmake: `tkl_restore_vars_ARGVn_from_stack` to restore builtin ARGVn variables from the stack (`ForwardArgs.cmake`)
+* fixed: cmake_tests: `tests_01_script_mode/tests_07_Eval` tests pass
+* new: cmake: tkl_make_basic_timestamp_temp_dir` function for basic temporary directory creation (`MakeTemp.cmake`)
+* new: cmake: enabled `tkl_test_assert_true` to use builtin ARGVn variables from the stack top (`ForwardArgs.cmake`)
+* changed: cmake: extracted `ForwardArgs.cmake` from `ForwardVariables.cmake`
+* changed: cmake: [finished] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* refactor: cmake: `tkl_begin_track_vars`/`tkl_end_track_vars` renamed to `tkl_track_vars_begin`/`tkl_track_vars_end`
+* refactor: cmake_tests: tests minor refator
+
+2019.06.01:
+* changed: cmake: minor cleanup (`Eval.cmake`)
+
+2019.06.01:
+* fixed: cmake: overall `EnableTargetExtension.cmake` fixup
+* fixed: cmake: [finished] overall `ForwardVariables.cmake` fixup
+* fixed: cmake: usage positive path match filter with negative match path filter in the `--path_match_filter` parameter (`TestLib.cmake`)
+* fixed: cmake: test case match filter usage in the `--test_case_match_filter` parameter (`TestModule.cmake`)
+* fixed: cmake_tests: tests fixup
+* new: cmake: `tkl_eval_append` function to append expression from explicit string to currently being evaluated (`Eval.cmake`)
+* new: cmake: `tkl_eval_append_from_file` function to append expression to currently being evaluated expression from a file (`Eval.cmake`)
+* new: cmake: `tkl_file_write`, `tkl_file_append`, `tkl_file_append_from_file`, `tkl_file_read` functions to avoid arguments escaping in case of a macro (`File.cmake`)
+* changed: cmake: [finished] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: cmake: [cancelled] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: cmake: [initiated] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_vars_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* changed: cmake: `tkl_eval_begin` function changed to use explicit string parameter instead of "${ARGN}" (`Eval.cmake`)
+* changed: cmake: `SetVarsFromFile.cmake` dependent changes
+* removed: cmake: `tkl_get_last_eval_string` function as not actual anymore (`Eval.cmake`)
+
+2019.05.31:
+* fixed: cmake: [initiated] overall `ForwardVariables.cmake` fixup
+* new: cmake_tests: `tests_01_script_mode/tests_05_ForwardVariables` tests
+* changed: cmake: [initiated] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: cmake: [in progress] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.05.30:
+* new: cmake_tests: `tests_01_script_mode/tests_03_Utility` tests
+* changed: cmake: `Utility.cmake` refactor changes
+* changed: cmake_tests: tests correction changes
+* refactor: cmake_tests: test files order shift rename
+
+2019.05.30:
+* new: cmake_tests: `tests_01_script_mode/tests_03_ForwardVariables/02_track_vars` tests
+* new: cmake_tests: `tests_01_script_mode/tests_05_Eval` tests
+* changed: cmake_tests: tests correction changes
+* changed: cmake_tests:  global tests refactor changes
+
+2019.05.29:
+* fixed: cmake: CMP0007 policy warning (`List.cmake`)
+* changed: cmake: `SetVarsFromFiles.cmake` minor changes
+* changed: minor readme update
+
+2019.05.28:
+* new: cmake: added `--test_case_match_filter` command line parameter to filter per test case basis (testlib)
+* new: cmake: splitted `tkl_eval` into 2 functions (`tkl_eval_begin` and `tkl_eval_end`) to be able to directly access the prepared for inclusion file or pre process it, for example, in tests or by the `configure_file` call
+* new: cmake: extracted workaround for the `file(STRINGS ...)` into standalone functions `tkl_file_encode_strings`/`tkl_file_decode_string` (`File.cmake`)
+* new: cmake_tests: more `tests_01_script_mode/tests_04_Eval` tests
+* changed: cmake: implemented `tkl_eval` through the `tkl_eval_begin` and `tkl_eval_end` (`Eval.cmake`)
+* changed: cmake: `Handlers.cmake` implementation (finished)
+* refactor: cmake: `Handlers.cmake`, `Eval.cmake` variables rename
+* refactor: cmake: overall code cleanup
+* refactor: cmake_tests: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting` renamed to ``tests_01_script_mode/tests_01_builtins/tests_03_command_nesting``
+* refactor: cmake_tests: `tests_01_script_mode/tests_04_Eval` tests
+
+2019.05.27:
+* new: cmake: support different stack entries for pushing and popping variables to/from a stack (`ForwardVariables.cmake`)
+* new: scripts: [initiated] usage of new `tkl_include` command to include source files relative either to the `BASH_SOURCE_PATH` environment variable search paths list or relative to a script module directory path
+* changed: cmake: minor improvements
+* changed: scripts: minor improvements
+* changed: cmake_tests: code cleanup
+* changed: scripts: code cleanup
+
+2019.05.26:
+* new: cmake: added TACKLELIB_TESTLIB_ROOT variable usage to address tacklelib testlib to customize tests entry point scripts
+* changed: scripts: minor changes for preparation to fix `source` command in shell scripts
+
+2019.05.26:
+* fixed: cmake: missed to `TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX` increment in the `MakeTemp.cmake`
+* new: cmake_tests: `tests_01_script_mode/tests_04_Eval/03_escaping.test.cmake`
+* refactor: cmake: minor functions changes and rename
+* changed: cmake_tests: tests correction to always fail with message if test fails
+* missed changes
+
+2019.05.26:
+* new: cmake_tests: `tests_01_script_mode/tests_04_Eval/01_simple_single_return.test.cmake`
+* new: cmake_tests: `tests_01_script_mode/tests_04_Eval/02_variable_set.test.cmake`
+* refactor: cmake_tests: tests reorder
+
+2019.05.25:
+* fixed: cmake: character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
+* fixed: cmake: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others
+* fixed: cmake_tests: `tests_01_script_mode/tests_04_Handlers/04_return_with_1_pre_handler_env_check.test.cmake` test pass
+* fixed: cmake_tests: `tests_01_script_mode/tests_03_Std/02_make_args_from_ARGV_ARGN.test.cmake` test correction
+* fixed: cmake_tests: `tests_01_script_mode/tests_02_TestLib/01_assert_expressions.test.cmake` test correction
+* fixed: cmake_tests: `tests_01_script_mode/tests_01_builtins/tests_03_macro_nesting/02_nested_expansion.test.cmake` test correction
+* new: cmake: standalone `tkl_encode_control_chars_for_eval` function to escape characters before pass to eval like functions
+* changed: cmake: `Handlers.cmake` variable names length reduced
+* changed: cmake: reduced test file path length (cutted off trailing `.test.cmake`) in tests output in the `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
+* fixed: cmake: `--path_match_filter` usage in `TestLib.cmake`
+* fixed: cmake: missed variable expansion in `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
+* fixed: cmake: multiple `tkl_testlib_exit` call
+* changed: cmake: removed initialization/uninitialization code from user test library/modules, make it explicit from standalone cmake scripts (`RunTestLib.cmake` and `RunTestModule.cmake`)
+
+2019.05.24:
+* fixed: cmake: `Handlers.cmake` evaluation after add/remove handlers
+* fixed: cmake: the `--path_match_filter` in the `TestLib.cmake` is not properly ignored different character case in file paths in the Windows
+* new: cmake: standalone property getter in the `Props.cmake` to explicitly state the operation details
+* new: cmake: standalone properties to set/get file system case sensitivity and back slash separator support
+* new: cmake: `tkl_get_vars_stack_size`, `tkl_get_prop_stack_size` functions in the `ForwardVariables.cmake`
+* new: cmake_tests: more tests for builtins and `Handlers.cmake`
+* changed: cmake: internal include files cleanup in the `Handlers.cmake` now handles in the begginning of the execution intead of in the end
+* changed: cmake: the `--path_match_filter` in the `TestLib.cmake` now does ignore the printing of not processed directories enter/leave
+* changed: cmake: `TestLib.cmake` improvements
+* refactor: cmake: `var_out` function arguments renamed to `out_var`
+* refactor: cmake_tests: tests order and names refactor
+
+2019.05.22:
+* fixed: cmake: `TestLib.cmake` minor fixup
+* fixed: cmake_tests: minor fixup
+
+2019.05.21:
+* fixed: cmake: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
+* fixed: cmake: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )
+* new: cmake: [initiated] Handlers.cmake` for a function/macro call handling/hooking
+* new: cmake: `Reimpl.cmake` to explicitly register and check registration of a reimplementation of functions and macroses
+* new: cmake_tests: scripts: passes all parameters from command line into back end cmake test modules
+* new: cmake_tests: more tests
+* changed: cmake: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
+* changed: cmake: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
+* changed: cmake: [initiated] `begin_emulate_shift_argn_arguments`/`end_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn`/`end_emulate_shift_ARGVn` w/o arguments
+* changed: cmake: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
+* changed: cmake: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
+* changed: cmake: `List.cmake` extracted from `Std.cmake`
+* changed: cmake: `File.cmake` extracted from `Std.cmake`
+* changed: cmake: `Props.cmake` extracted from `Std.cmake`
+* changed: cmake: `Utility.cmake` extracted from `Std.cmake`
+* changed: cmake: improved `TestLib.cmake` and `TestModule.cmake` modules
+* changed: cmake: other overall fixes and improvements
+* refactor: cmake: global directories, files, functions, macroses, global variables and properties changes:
+** all moved into `tacklelib` subdirectory to explicitly address modules with `tacklelib/` prefix in include commands and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl_` to all macroses and functions (except 3dparties, except standalone tools and hooks/handlers) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `TACKLELIB_` to all global variables (except 3dparties and standalone tools) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl::` to all properties to explicitly stand for the `tacklelib` and avoid accidental intersection with other cmake properties
+** all functions and macroses decapitalized to lower `snake_case` (except global variable names in macro/function names), all global variables capitalized to upper `SNAKE_CASE`
+** all function and macros names reworked
+** all file names in `PascalCase`
+** all directory names in lower `snake_case`
+** `Common.cmake` renamed into `Project.cmake` as related only to the project build
+** `BuildProject.cmake` merged into `Project.cmake`
+
+2019.05.14:
+* new: cmake_tests: more tests in `01_make_args_from_ARGV_ARGN.test.cmake`
+* changed: cmake: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
+* changed: cmake: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
+
+2019.05.13:
+* fixed: cmake: `Eval.cmake` after tests
+* fixed: cmake: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` after tests
+* fixed: cmake_tests: `01_make_args_from_ARGV_ARGN.test.cmake` tests pass
+* changed: cmake: `TestLib.cmake` minor improvement
+
+2019.05.13:
+* refactor: cmake_tests: minor refactor
+
+2019.05.13:
+* changed: cmake: implemented `TestAssertTrue(if_exp ...)` in the `TestModule.cmake` through the `Eval("if(${exp}) ...")` to be able to use the cmake if expressions in the first argument of the `TestAssertTrue` macro
+* changed: cmake: `Eval.cmake` minor impovement
+* changed: cmake: `TestModule.cmake` minor impovements
+
+2019.05.13:
+* changed: cmake: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
+
+2019.05.13:
+* fixed: cmake: `make_argv_var_from_ARGV_begin` and `make_argv_var_from_ARGV_end` in complex expressions
+* fixed: cmake: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` in complex expressions
+* fixed: cmake: `make_var_from_CMAKE_ARGV_ARGC` in complex expressions
+* new: cmake: `MakeTemp.cmake` script to make a temporary directory from cmake
+* new: cmake: `Eval.cmake` script to evaluate a cmake expression from cmake (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\\{...}` to escape it instead))
+* new: cmake: `CMakeEval.cmd.cmake` script to evaluate a cmake expression from cmake script mode (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\{...}` to escape it instead))
+* new: cmake: `encode_control_chars`/`decode_control_chars` (`Std.cmake`) functions to help recode characters before call to macroses or inside `Eval` function (macroses has side effects in the cmake)
+* new: cmake: `ReturnCodeFile.cmake` module to read/write return codes out of cmake process
+* new: cmake: `TestModule.cmake` module to execute test cases in a test module
+* new: cmake_tests: more dummy test cases
+* changed: cmake: `TestLib.cmake` return code read from external cmake process
+* refactor: cmake: `string(REGEX REPLACE "\;" "\\\;" ...)` replaced by `string(REPLACE ";" "\;" ...)`
+
+2019.05.07:
+* changed: scripts: readme update
+* changed: cmake: readme update
+
+2019.05.07:
+* new: cmake_tests: changelog file
+* new: cmake_tests: dummy cmake tests
+* new: cmake: `TestLib.cmake` to test cmake modules from the cmake itself
+
+2019.05.06:
+* changed: readme file
+* changed: minor changes
+
+2019.04.29:
+* fixed: cmake: configure w/o errors
+* new: cmake: SetVarsFromFiles.cmake: `final` variable attribute to seal a variable reassign with an error instead of a warning, keep usage of the `override` attribute to enable an overridable assignment
+
+2019.04.29:
+* new: deploy: application execution wrapper script
+
+2019.04.29:
+* changed: _scripts: minor update
+
+2019.04.26:
+* fixed: cmake: SetVarsFromFiles.cmake: update all case insensitive paths to correctly compare them
+* fixed: cmake: SetVarsFromFiles.cmake: `top` attributed variables usage
+* fixed: cmake: SetVarsFromFiles.cmake: not `override` attributed variables from the `environment_user.vars` configuration file now loads respective to the top level package (variable assignment does ignore in a not top level package if a variable was assigned in the top level package)
+* removed: cmake: SetVarsFromFiles.cmake: the `package` variable attribute is no longer needed, all variables must be treated as package level scoped (the `CMAKE_CURRENT_PACKAGE_NEST_LVL` variable usage now is a mandatory for that case)
+
+2019.04.25:
+* new: cmake: SetVarsFromFiles.cmake: top/package/override variable attributes to (1) ignore variables at not top level stages (both must have `top` attribute), (2) to throw an error on implicit override of a top variable (only one have `top` attribute), (3) excplicit override of any pattern matched variable (`override` attribute, where implicit override is a simple assignment) and etc and config update
+* changed: config: updated configs
+
+2019.04.19:
+* new: details rules of variables expansion for respective functions in the `SetVarsFromFiles.cmake`
+* minor refactor and fixup, preparation for the usage of the `top [package]` variable attributes
+
+2019.04.19:
+* fixed: minor fix around `force` attribute around variable name (the `force` (without `cache`) and the `cache force` has having different meanings!)
+* minor cleanup
+
+2019.04.15:
+* removed: `_3dparty` directory is removed to enable creation of a symbol link instead of the directory
+
+2019.04.15:
+* refactor: cmake: replaced a specific regex workaround to a bit faster version
+
+2019.04.12:
+* changed: Linux readme update
+
+2019.04.11:
+* fixed: set_vars_from_files issue around `file(STRINGS ...)` function reported here: https://gitlab.kitware.com/cmake/cmake/issues/19156 (`Not paired `]` or `[` characters breaks "file(STRINGS"`)
+
+2019.04.10:
+* fixed: minor configure fixes
+
+2019.04.03:
+* fixed: test_tmpl_string compilation in the msvc 2015 update 3, msvc 2017
+* changed: tests: unit: added more test_tmpl_string tests
+
+2019.04.02:
+* changed: linux/gcc compilation fixes
+
+2019.03.31:
+* new: tests: unit: test_tmpl_string compilation fixes
+
+2019.03.31:
+* changed: 3dparty: googletest: merge with the latest library changes at release 1.8.1 commit #2fe3bd994b3189899d93f1d5a881e725e046fdc2 (2018.08.31) from https://github.com/google/googletest/releases
+* changed: 3dparty: googletest: cmake: link googletest through the add_subdirectory instead of find_package
+
+2019.03.27:
+* changed: cmake: improved cmake cross generator usage on the same system by adding CMAKE_OUTPUT_GENERATOR_DIR variable between CMAKE_OUTPUT_ROOT and CMAKE_OUTPUT_DIR variables
+
+2019.03.26:
+* new: utility/log: added fmt::fmt usage into p7 logger preformat routines
+* refactor: utility/log: renamed PROJECT_ROOT macro to LOG_SRC_ROOT as more specialized version
+
+2019.03.25:
+* refactor: utility/log: p7 logger full refactored envolving usage of tmpl_basic_string and constexpr_basic_string classes
+
+2019.03.22:
+* refactor: tmpl_basic_string class refactor
+* refactor: constexpr_basic_string class refactor
+
+2019.03.20:
+* fixed: scripts/tools: fix in the `set_vars_from_locked_file_pair.sh` for the back compatability with a bash version lower than `bash-4.2-alpha`
+* fixed: scripts: fix in the `bash_entry` to run in the Cygwin 1.5.x and Linux
+
+2019.03.19:
+* fixed: scripts: fix in the `02_generate_config.sh` to run under cygwin 1.5.x in bash version 3.2.48(21)-release (i686-pc-cygwin)
+
+2019.03.19:
+* fixed: cmake: rewrited and simplified `discover_builtin_variables` function to make discovery only if all 3 or 2 storages are the same (either ENV+cache+not cache or cache+not cache), in all other casees cache and not cache variable values makes the same
+
+2019.03.14:
+* new: scripts: build scripts completely rewritered
+* new: cmake: new modules to support transparent configure and build from scripts and IDE
+* new: readme rewrited
+* new: config: all configuration files being called from scritps or cmake are moved into `config` subdirectory
+* changed: cmake,config: global redesign/refactor around cmake configuration files: all cmake (`*.cmake`) configuration failes converted into `*.vars` files and now has common format between 3 targets: cmake, unix shell scripts and windows batch scripts (has been wrote standalone cmake parser + windows/unix shell parent process variables loaders)
+
+2019.03.05:
+* changed: continue to refactor of the build system and sources
+
+2019.02.20:
+* new: cmake: `load_vars_from_file`/`set_vars_from_file`/`set_multigen_vars_from_lists` (SetVarsFromFile.cmake) functions to load configuration variables from standalone configuration file with support of single/list values, inline conditions, substitutions and character escaping
+* new: cmake: `copy_variables` (Std.cmake) function to copy parent scope variables into 2 arbitrary lists with names and values
+* refactor: utility: const_expr/CONST_EXPR renamed into constexpr_bool/CONSTEXPR
+
+2019.02.07:
+* new: tackle: constexpr_string class for compile-time string pointer and string size
+* new: tackle: tmpl_string class to store string as a template sequence of characters convertible back to character array representation with static storage duaration and much more
+* refactor: utility: global refactor
+
+2019.01.31:
+* fixed: utility: incorrect UTILITY_LITERAL_STRING_LEN macro
+* refactor: utility: added explicit function overloading for static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&) arguments
+* refactor: utility: moderate refactor
+
+2019.01.30:
+* new: utility: uninitialized char struct to construct big std::vector arrays w/o waste on initialization time
+* new: utility: get_host_name/get_user_name/get_module_name functions
+* new: utility: locale strings conversion directly from a static character array (T(&&)[S]) / constant reference (const &) / rvalue reference (&&)
+* minor refactor
+
+2019.01.28:
+* refactor: utility/log: p7 logger macroses reworked
+
+2019.01.28:
+* fixed: utility: static_if usage around an array type returning by value
+
+2019.01.28:
+* fixed: utility: UTILITY_IS_CONSTEXPR_VALUE in clang compiler
+* new: utility: UTILITY_CONSTEXPR_SIZE macro to evaluate in compile time only context, when UTILITY_STATIC_SIZE can evaluate in both compile time and runtime contexts
+* new: utility: DEBUG_FILE_NAME_* macroses to insert source file name calculated from source file path in compile time
+
+2019.01.26:
+* new: utility: string_format overloads for a reference to character array
+* minor changes, code cleanup
+
+2019.01.23:
+* new: tackle: UTILITY_IS_ARRAY_STRING/UTILITY_IS_LITERAL_STRING/UTILITY_IS_LITERAL_STRING_WITH_PREFIX/UTILITY_IS_CONSTEXPR_STRING macroses
+* new: utility: UTILITY_CONST_EXPR_VALUE macro
+* new: utility: constexpr get_file_name_offset function to truncate __FILE__ definition up to a file name at compile time
+* new: utility: trace_stack minor debug function
+* new: urility: fmt library extension by fmt::format2 function with second format string
+* minor changes
+
+2019.01.23:
+* new: utility: addressof for functions and functors
+
+2019.01.21:
+* new: utility: is_all_true/is_all_false/is_any_true/is_any_false functions to use a parameter pack inside static_assert
+* new: debug: trace_stack function to portably dump stack trace by a local function parameter
+* new: utility/fmt: fmt library extension (fmt::format2 function) to format a string with 2 format strings
+* changed: utility/log: static assert args parameter on printf compatible arguments (not class type check)
+* refactor: minor refactor
+
+2019.01.20:
+* fixed: cmake: QtCreator correct detection out of Qt.cmake module
+
+2019.01.20:
+* fixed: configure_src.bat execution
+
+2019.01.19:
+* added: cmake: msys/mingw/cygwin detection support and respective enable/disable variables
+
+2019.01.17:
+* changed: minor readme update
+
+2019.01.17:
+* new: some example for p7logger header support
+
+2019.01.14:
+* minor change
+
+2019.01.09:
+* fixed: utility/log: p7logger output empty source file paths in case of run from not origin built drive
+* new: utility/log: added PROJECT_ROOT macro to cut of source file absolute paths down to relative ones
+* refactor: utility: minor refactor
+
+2019.01.07:
+* fixed: utility: not all functions has been return generic path instead of native path
+* fixed: utility: log source file path conversion try into relative path where relative path is relative to the module directory
+* fixed: testlib: linkage error
+* refactor: utility: minor improvements
+
+2019.01.06:
+* fixed: utility/log: p7logger empty output
+
+2019.01.06:
+* fixed: cmake: missed archive_static from build
+
+2018.12.31:
+* changed: minor improvements
+
+2018.12.10:
+* new: cmake: targets install rules
+* fixed: build under linux
+* fixed: deque std::bad_alloc throw around invalid grow size expression
+
+2018.12.09:
+* fixed: msvc2015u3 ICE around statics in the vector.hpp
+
+2018.12.08:
+* new: cmake: added `add_target_link_directories` function to call to `target_link_directories` function instead of `link_directories` function in the cmake beginning from version 3.13.0
+* new: `get_target_link_libraries_recursively` function
+
+2018.12.06:
+* new: uniform pi-constant getter function - `math::pi`
+* refactor: global includes refactor
+
+2018.12.05:
+* new: cmake: root cmake list with dependencies search
+* changed: cmake: minor improvement
+* changed: minor math.hpp improvement
+* changed: moved tackle/geometry/vector.hpp into template classes to detach them from `real` type
+* refactor: renamed `includes` directory into `tacklelib` to enable the library user to use unique inclusion paths after the `#include` definitions in the user c++ sources and cmake file lists
+* refactor: extracted `configure_src.bat` and `configure_src.sh` scripts from tacklib scripts repository
+* refactor: removed `version.hpp` header usage (must be used from a target project instead)
+* refactor: `Common.cmake` and other basic modules moved from `tacklelib--cmake` repository to support calls in the root `CMakeLists.txt` file
+
+2018.12.05:
+* refactor: tacklelib scripts and template configuration files moved into standalone repository
+
+2018.11.30:
+* fixed: build under linux, use C++11 only
+* fixed: mutiple fixes for compile and link under linux
+
+2018.11.27:
+* new: tackle static_constexpr_value class to get `static constexpr` values transparently under c++11 standard limited compilers (briefly `constexpr` function body in c++11 must consist of a single return statement returning non void value: https://en.cppreference.com/w/cpp/language/constexpr (`exactly one return statement.`))
+* refactor: global tackle library refactor to build under linux
+
+2018.11.24:
+* fixed: missed date_time template class explicit instantiation
+
+2018.11.23:
+* fixed: tackle math macro fixes
+
+2018.11.22:
+* changed: p7 client log macros with simple function names w/o function signature as less long in result output
+
+2018.11.21:
+* changed: path_basic_string::operator+ replaced by operator/ as more reliable and does not intersect with std::basic_string::operator+. path_basic_string::operator+ is left declared as `= delete` to raise an error on old operator usage.
+* missed changes
+
+2018.11.21:
+* new: multiline log from p7 logger wrapper
+* fixed: sometimes the msvc compiler shows the wrong usage place of a deleted function, old style with a `private` section works better
+* fixed: utility filesystem function fixes
+* fixed: minor other fixes
+
+2018.11.20:
+* fixed: std::make_index_sequence replaced by custom implementation to avoid compilation errors in case of it's absence
+* fixed: p7client logger wrapper fix to potentially build under Linux
+* fixed: compilation w/o QD library
+* fixed: tests: compilation fixes
+* fixed: minor fixes
+* new: tackle library interface_handle and t_interface_handle classes to wrap private smart_handle classes in public headers
+* new: ENABLE_QD_INTEGRATION definition usage
+* refactor: moved `tackle/file_handle.hpp` and `tackle/smart_handle.hpp` headers from private headers into public headers
+* refactor: compilation w/o QD library
+* refactor: ENABLE_* variables usage refactor
+* refactor: removed QD_INTEGRATION_ENABLED variable usage
+
+2018.11.19:
+* new: tackle type traits `apply` function to translate arrays into variadic function arguments
+* changed: p7client wrapper functions upgraded to automatically translate string arguments including template variadic arguments from std::string into std::wstring and back (in p7client the `XCHAR` type is `wchar_t` in Windows, but in Linux `XCHAR` is `char`!).
+* refactor: minor refactor
+
+2018.11.19:
+* fixed: long path directories/files creation/open
+* refactor: tackle utility functions refactor
+
+2018.11.17:
+* refactor: more tackle path_string usage in the diagnostic
+* refactor: all *_identity class instances usage replaced by tag_* classes usage
+* refactor: DEBUG_BREAK_IN_DEBUGGER following with `throw` replaced by DEBUG_BREAK_THROW macro
+
+2018.11.15:
+* fixed: Buffer class do_read function out of minimal buffer size read issue
+* new: tackle path_string with different directory separator support
+* refactor: type identities are extracted from type_traits.hpp for usage with static_assert.hpp
+
+2018.11.13:
+* new: 3dparty: pystring library as dependency for tackle utility library functions
+* new: 3dparty: readme and changle logs for tackle library dependency projects
+* changed: improved tackle library localization functions
+* refactor: minor tackle utility functions improvements
+
+2018.11.12:
+* changed: tackle library filesystem create/open functions with `throw_on_error` parameter
+* refactor: converted all `s_null` static data members into static function members to avoid static initialization order misuse
+* other minor changes
+
+2018.11.12:
+* refactor: tests: changed testlib to enable usage testlib externally declared test group parameters like ref_in_dir_prefix path from gtest test
+
+2018.11.09:
+* fixed: tackle library wide strings usage in wide set of functions
+* new: tackle utility wide strings usage in filesystem calls
+* new: tackle utility lexical normalization filesystem functions
+* new: tackle utility utf16 std::*string to/from utf8 std::string conversion functions
+* refactor: template tackle::path_basic_string usage in template functions
+* refactor: explicit instantiation of template functions with template tackle::path_basic_string
+* missed changes
+
+2018.11.07:
+* fixed: missed check both paths on emptiness in the tackle::path_string class
+* new: more tackle filesystem functions in utility namespace
+
+2018.11.06:
+* fixed: optimized tackle::path_string operators
+* fixed: forgot to shrink the string size in the utility::string_format function
+* fixed: minor bug fix
+* new: tackle library path_string class tests
+
+2018.11.05:
+* new: tackle library aligned_storage_always_destruct_from class to enable usage aligned_storage_from with unconditional distruction in destructor
+* refactor: tackle library aligned_storage_*/max_aligned_storage_* classes refactor
+
+2018.11.02:
+* fixed: missed to enable by default has used components in the setup.hpp.in configuration file
+* new: new utility filesystem/time functions
+* new: new tackle date_time class for arbitrary storage type and construction from formatted time string
+* refactor: utility filesystem functions refactor
+
+2018.11.01:
+* refactor: partially switched from standard stringstream time formatting into fmt library time formatting
+* refactor: minor multiple refactor
+
+2018.10.30:
+* refactor: simplified aligned_storage_by_base and aligned_storage_from_base template classes into single aligned_storage_base template class
+
+2018.10.30:
+* changed: improved library api headers
+
+2018.10.26:
+* fixed: aligned_storage_by_base template class changed to reduce chances of link collision with exported variant from a shared library in case where derived template class is explicitly specialized for the export
+* refactor: completely removed boost usage from testlib library (boost::format replaced by fmt::format)
+* refactor: extracted library linkage functionality into standalone headers and LIBRARY_API* macroses, totally reworked to enable an automatic linkage declaration for export/import in headers
+
+2018.10.12:
+* new: tests: fmt::format bench tests
+
+2018.10.12:
+* refactor: partially replaced boost::format by fmt library usage
+
+2018.10.11:
+* new: tackle::string_format function for string formatting avoding boost::format (might be type unsafe but much faster as plain snprintf)
+* new: tests: bench tests for tackle::string_format function
+* new: generalized form of runtime for each via utility::for_each function
+* changed: a bit speedup of utility::Buffer by replacing std::shared_ptr by std::unique_ptr
+
+2018.10.10:
+* fixed: utility::arc::libarchive::write_archive function missed stat parameters for an archive
+* minor refactor and improvement
+
+2018.10.09:
+* fixed: tests: bench tests missed change
+* new: tests: bench test for utility::arc::libarchive::write_archive function
+
+2018.10.09:
+* fixed: utility::arc::libarchive::write_archive function requirement to create an archive with relative paths inside
+
+2018.10.08:
+* new: setup.hpp.in/setup.hpp header template/instance files to enable/disable additional header/source files from tackle/utility directories linked with 3dparty libraries
+* new: utility/arc/libarchive header/source functionality to create libarchive file from list of files
+* refactor: utility::Buffer moved from utility.hpp header into memory.hpp header
+
+2018.10.05:
+* new: 7zip lzma encoder c++ wrapper initial implementation
+* changed: replaced usage of boost::shared_ptr in all places by the std::shared_ptr
+* changed: tackle::SmartHandle now takes any deleter behaving like a function
+* changed: tackle::SmartHandle improved to take inner deleter-with-state value directly in a protected constructor or reset function
+* changed: tackle::SmartHandle improved to construct inner state through the std::make_shared to reduce memory allocation calls
+* changed: tackle::SmartHandle improved by removing redundant state by shared pointer holder
+* changed: tackle::SmartHandle improved by specializing for the void type
+
+2018.10.05:
+* changed: build scripts minor changes
+
+2018.10.02:
+* new: p7 logger c++ wrapper classes and macroses
+
+2018.10.01:
+* minor improvements
+
+2018.09.27:
+* fixed: build fix
+* fixed: points_distance_epsilon_to_radius_vector_epsilon and radius_vector_epsilon_to_points_distance_epsilon functions
+* refactor: refactored vector tolerances/epsilons usage
+
+2018.09.25:
+* new: testlib test::log_out_predicate* functions to print log with predicate call
+* new: testlib test::log_out_va function with va_list parameter
+
+2018.09.24:
+* fixed: DEG_* macros to assert an angle value type of user class, added DEG_*2 macroses to explicitly use `pi` predicate of an user class type
+* fixed: consexpr compilation in msvc 2015
+* new: some unit tests over QD recent patches
+* refactor: mediate refactor
+
+2018.09.20:
+* fixed: third type usage in the tackle::variant class
+* fixed: internal type case in the tackle::max_aligned_storage class
+* new: vector_angle function
+* refactor: global std types refactor, replaced all math/float c functions by c++ function from std namespace as more reliable
+* refactor: debug break before throw in functions of tackle types
+* other minor fixes and refactor
+
+2018.09.18:
+* new: utility::inline_stack class to light weight incode stack tracing
+* new: UTILITY_IS_TYPE_COMPLETE macro to test on type completeness
+* new: gtest extension header (gtest_ext.hpp)
+* fixed: tackle::deque capacity relocation/grow fix
+* fixed: tackle::variant refactor and fixup
+* fixed: tackle::aligned_storage_by refactor and fixup
+* refactor: UTILITY_PP_FUNC replaced by UTILITY_PP_FUNCSIG
+* other refactor, changes and fixup
+* intermediate commit
+
+2018.08.19:
+* fixed: assertion private/public headers was not properly merged
+* new: FPU precision test inside macro assertion to detect FPU precision corruption in a code
+* changed: enabled asserts in release in a sensitive calculation to show up in unit tests
+
+2018.08.18:
+* fixed: accidental debug break call inside assertion macro in release which has lead test application to abort
+* fixed: invalid non fatal failure level in unit test assertions
+* fixed: continuous loop of assertion failures instead of test case quit on first fatal failure
+* new: testlib: EXPECT_*_PRED macro extension from gtest
+* refactor: moved TEST_LOG_OUT from macro to function
+
+2018.08.16:
+* refactor: tackle aligned storage headers to detach different classes from each other and avoid inclusion of invalid headers
+* fixed: minor fixup
+
+2018.08.13:
+* fixed: minor math::reduce_float_exp_delta fix
+
+2018.08.12:
+* new: vector geometry generics and functions
+
+2018.08.10:
+* new: math::translate_angle function
+* new: unit tests for math::translate_angle function
+* refactor: minor refactor over math::normalize_angle_to_range function
+
+2018.08.10:
+* new: unit/bench tests "fmod vs math::normalize_angle"
+* refactor: math::normalize_angle_to_range function
+
+2018.08.09:
+* fixed: linux build
+
+2018.08.08:
+* fixed: missed tackle::path_string class operator+ overload
+* fixed: minor testlib fix
+* new: math::reduce_float_exp_delta, utility::create_directory_if_not_exist, utility::get_file_name, utility::get_file_name_stem functions
+
+2018.08.03:
+* new: std::make_unique if not implemented by standard headers
+* new: calibrate_tick_step_to_closest_power_of_10 function to calculate axis value label tick step in ui graph plots
+* refactor: utility/platform.hpp
+
+2018.07.23:
+* fixed: missed tackle::path_string class operator+ overload
+
+2018.07.18:
+* refactor: tacklelib math trigonometric functions converted to templated
+
+2018.07.16:
+* new: math::angle_distance function
+* new: math::angle_distance unit tests
+
+2018.07.15:
+* new: math::angle_closest_distance and math::normalize_angle_to_range functions
+* new: unit tests
+* refactor: build scripts refactor
+* minor refactor, fixup and cleanup
+
+2018.07.06:
+* fixed: math::normalize_angle test missed
+
+2018.07.05:
+* refactor: testlib refactor, moved macro code into functions
+* minor fixup and cleanup
+
+2018.07.04:
+* fixed: always use radians for internal representation (better precision)
+* minor fixup and cleanup
+
+2018.07.03:
+* new: tackle::path_string instead of std::string in the filesystem manipulation functions
+* refactor: testlib refactor
+
+2018.07.02:
+* fixed: linux build fix
+
+2018.06.25:
+* fixed: fixed not linkable destruct() function issue
+* fixed: full build fix
+* fixed: testlib inconsistent linkage under GCC
+* cleanup
+
+2018.06.22:
+* fixed: workarounded not linkable destruct() function issue
+
+2018.06.20:
+* fixed: aligned storage types compilation and cast fixes
+* fixed: build scripts init error on unexisted configuration files
+* fixed: std::identity replaced because of deprecation in the msvc2017
+* new: tackle variant class to get/set multitype container at runtime
+
+2018.06.19:
+* refactor: type traits refactor
+
+2018.06.18:
+* new: vars and cmake file generator stop with error if files already existed but input and output file versions are different
+
+2018.06.15:
+* refactor: moved gtest wrapper functions and symbols into standalone library - testlib
+
+2018.06.10:
+* refactor: math.hpp debug performance partial optimization
+
+2018.06.08:
+* refactor: replaced ASSERT_*/VERIFY_* macroses in various non test headers/translation files by the DEBUG_ASSERT_*/DEBUG_VERIFY_* macroses to reduce slowdown unit/bench tests in the release configuration
+* refactor: other minor refactor
+
+2018.05.07:
+* fixed: valgrind illegal instruction error under Linux (__builtin_trap())
+* fixed: build script minor fixes
+* fixed: unit tests
+* refactor: deque unit tests
+* refactor: type traits
+* refactor: stream storage
+
+2018.05.06:
+* fixed: deque implementation/tests bug fix
+
+2018.05.05:
+* fixed: deque implementation/tests bug fix
+* fixed: minor build fix under Visual Studio 2017 15.7.3
+* new: more deque implementation/tests
+* changed: cmake toolset switch adoptation for the Visual Studio 2017
+
+2018.05.04:
+* fixed: gcc build under linux mint
+* fixed: minor bug fix
+* new: `tackle/deque.hpp` partial implementation
+* new: tests for `tackle/deque.hpp` partial implementation
+
+2018.05.30:
+* new: `compressed_type` and `call_traits` based on `boost` library implementation
+
+2018.05.29:
+* fixed: missed implementation in the static assert header
+* fixed: invalid assert usage in math functions (`BASIC_ASSERT_*` instead of `DEBUG_ASSERT_*`)
+* new: `UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR` macros to suppress optimizations around variables or return values in the Release
+* new: unit tests under gtest
+* changed: `int_log2_floor` function loop unroll (debug builtin optimization)
+* changed: permanently enabled POF2 definitions
+* changed: `boost::aligned_storage` usage replaced by `std::aligned_storage` to detach public headers from boost headers (C++11)
+* refactor: more optimized POF2 definitions for constexpr and runtime cases
+
+2018.05.27:
+* fixed: `DEFINE_FORCE_INLINE_TO_FORCE_NO_INLINE` usage
+
+2018.05.22:
+* changed: debug.hpp/optimization.hpp definitions check changed from #ifdef/#ifndef into #if/#if! as more safe
+* changed: minor improvement
+* new: `ERROR_IF_EMPTY_PP_DEF` macro for self filter only not empty defined definitions in `#if` blocks, otherwise through an error
+
+2018.05.21:
+* fixed: private definitions interference with public headers
+* fixed: aligned_storage_by incorrect declaration header (ODR violation)
+* fixed: no case match globbing restore in the `collect_ldd_deps.sh` script
+* new: memory functions header
+
+2018.05.07:
+* fixed: postinstall fix
+* fixed: application main startup helper shell script fix
+* fixed: complete build under linux mint
+* new: traplib.sh build script
+* new: in sources changelog
+* other multiple fixes, changes and refactor

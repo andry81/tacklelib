@@ -1,0 +1,16 @@
+01_reorganization/bash_tests/01_bash_entry/01_normalize_path/.log
+01_reorganization/bash_tests/02_traplib/01_push_trap/.log
+01_reorganization/cmake_tests/_config/*.vars
+01_reorganization/cmake_tests/_scripts/.log
+01_reorganization/include/tacklelib/debug.hpp
+01_reorganization/include/tacklelib/optimization.hpp
+01_reorganization/include/tacklelib/setup.hpp
+01_reorganization/python/__pycache__
+01_reorganization/python/cmdoplib/__pycache__
+01_reorganization/python/tacklelib/__pycache__
+01_reorganization/python_tests/.pytest_cache
+01_reorganization/python_tests/02_interactive/01_fcache_workarounds/cache
+01_reorganization/python_tests/_config/*.vars
+01_reorganization/src/debug.hpp
+01_reorganization/src/optimization.hpp
+01_reorganization/src/setup.hpp

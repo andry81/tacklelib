@@ -1,0 +1,578 @@
+2020.08.02:
+* changed: TODO file update
+
+2020.06.04:
+* fixed: removed implicit usage of internal `.*` sequences in a pattern matching to be able to use by user external sequences like `^` and `$`
+
+2020.06.01:
+* changed: CMAKE_ARCHIVE_OUTPUT_DIRECTORY variable default location change to the `/lib` subdirectory
+
+2020.05.29:
+* changed: code cleanup
+
+2020.05.29:
+* new: now read and write `singleconfig.tag` and `multiconfig.tag` files directly from a cmake list file to detect inconsistency state in the cmake output build directories at any project nest level
+* fixed: cmake execution from the Qt Creator is fixed, Qt Creatore detection is removed, now at any project nest level cmake does check consistency in the cmake output build directories or create them if all checks has passed
+
+2020.05.25:
+* fixed: Linux multiple build fixes
+* changed: Project.cmake: check construction at least one valid file path from `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variables
+
+2020.05.22:
+* new: Eval.cmake: `tkl_macro_fast_eval` macro for fast evaluation with sacrifice of completeness and safeness
+* new: Utility.cmake: `tkl_escape_list_expansion_as_cmdline` function to convert a list into a command line with escape support
+* new: testlib: implemented test case skip support
+* changed: TODO file update
+
+2020.05.17:
+* fixed: Project.cmake: `tkl_set_runtime_link_type_var` function still does not switch the runtime linkage because of not enabled of a certain policy, switch to the new behaviour only when it is enabled
+
+2020.05.15:
+* new: Project.cmake: for cmake 3.15+ the `tkl_set_runtime_link_type_var` function use CMAKE_MSVC_RUNTIME_LIBRARY automatically instead of direct `CMAKE_CXX_FLAGS*` flags patching
+* changed: Project.cmake: now `tkl_configure_environment` and other functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: Checks.cmake: now functions accepts `CMAKE_BUILD_TYPE` variable for a multiconfig generator (not multiconfig environment enforcement)
+* changed: Project.cmake: `tkl_configure_environment` now accepts a runtime link type variable name instead of a value
+* changed: Project.cmake: has made an existence of a valid runtime link type variable as a mandatory for the `tkl_configure_environment` function
+* changed: Project.cmake: has made an existence of a valid flag value as a mandatory for the `tkl_initialize_library_target_defaults` function
+
+2020.05.14:
+* fixed: SetVarsFromFiles.cmake: multiple fixup
+* fixed: Project.cmake: `CMAKE_SHARED_LIBS` not properly updated from the `tkl_set_runtime_link_type` function
+* new: SetVarsFromFiles.cmake: `local` attribute to locally override a global variable or define a local context variable
+* new: SetVarsFromFiles.cmake: `uncache` attribute to set variable together with the cache unset (instead of use `force_cache`)
+* changed: Project.cmake: `tkl_set_global_link_type` function renamed to `tkl_set_runtime_link_type_var`
+* changed: SetVarsFromFiles.cmake: now all variables declared as global/top/local must retain the same attribute in next assignments
+* changed: SetVarsFromFiles.cmake: simplified `unset` attribute to simply unset variable without special unset state
+* changed: SetVarsFromFiles.cmake: documentation update
+* changed: cmake, _config: boost library variables setup extracted from the cmake list into variables configuration file
+
+2020.05.13:
+* fixed: Project.cmake: compiler error message fix around incompitible options `/O2` and `/RTC1` in the Debug configuration, where the `tkl_remove_global_optimization_flags` function has accidently removed the `/Od` flag and the MSVC 2017 compiler has silently added `/O2` flag which is not compitible with already existed `/RTC1` flag
+
+2020.05.13:
+* fixed: Project.cmake: `tkl_print_global_flags` does not print global flags
+
+2020.05.09:
+* changed: TODO update
+
+2020.05.07:
+* new: TODO file
+
+2020.05.07:
+* fixed: SetVarsFromFiles.cmake: multiline variable expression didn't parse completely and could be interrupted by not fatal conditions like a not suitable variable specialization or an invalid/unsupported variable token
+
+2020.05.05:
+* fixed: multiple build fixes
+* refactor: global replace of `<variable> STREQUAL <variable>` by `<string> STREQUAL <string>` because the first sometimes does not work as expected
+
+2020.05.04:
+* changed: ForwardVariables.cmake: reimplemented context variable, merged system and user variables into single functions, simplfied all context variable functions
+* changed: Project.cmake: reimplemented usage of context variables in `find_package`, `add_subdirectory` and `project` hooks
+* changed: Project.cmake: `project` hook reimplemented
+* refactor: ForwardVariables.cmake: made most of function parameter names unique to reduce a probability of interference with the local variables
+
+2020.05.04:
+* fixed: Project.cmake: reverted previous fix around `tkl::CMAKE_CURRENT_PACKAGE_NAME` as not correct and added minor changes
+* fixed: Checks.cmake: missed check in the `tkl_check_var` function
+* fixed: SetVarsFromFiles.cmake: multiple fixes around variables parser
+* new: Project.cmake, EnableTargetExtensions.cmake: use project name as a package name, detect project end in the end of the `add_subdirectory` function
+* new: SetVarsFromFiles.cmake: `hide` and `unhide` attributes to temporary hide a variable in a nested package or packages
+* new: EnableTargetExtensions.cmake: `project(...)` hook to push project name as a package name and print a being created project
+* changed: SetVarsFromFiles.cmake: in source documentation
+* changed: ForwardVariables.cmake: minor improvement in the `tkl_get_var` function
+
+2020.04.30:
+* fixed: Project.cmake: missed `tkl::CMAKE_CURRENT_PACKAGE_NAME` and `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` set in the `tkl_declare_target_builtin_properties` function
+* new: Checks.cmake: improved `tkl_check_var` function to additionally accept first argument as a user variable name
+* new: Checks.cmake: `tkl_check_var_eval` function to use first argument as a user if-expression (requireness expression)
+* refactor: global "var=${var}" and "name: ${value}" relecement by "var=`${var}`" and "name: `${value}`"
+
+2020.04.24:
+* new: SetVarsFromFiles.cmake: `unset` attribute to remove or drop variables for nested packages
+* changed: SetVarsFromFiles.cmake: code cleanup
+
+2020.03.08:
+* changed: readme update
+
+2020.02.20:
+* changed: `tkl_discover_builtin_vars` changed to discover only environment variables
+* refactor: `tkl_discover_*` functions renamed
+* refactor: minor refactor
+
+2020.02.16:
+* fixed: EnableTargetExtension: removed call to `tkl_check_global_vars_consistency` from the `add_custom_target` hook as not required
+* fixed: Project: `tkl_find_package_begin` function for always canonical and absolute path in the `tkl::CMAKE_CURRENT_PACKAGE_SOURCE_DIR` property
+* new: EnableTargetExtension: `tkl_pushset_package_vars` and `tkl_popset_package_vars` to hookup push/pop context variables for a package from a `add_subdirectory` and `find_package` hooks
+* new: ForwardVariables: `tkl_pop_var_from_stack` improvement to avoid pop into a variable or pop into another variable
+* new: ForwardVariables: `tkl_*register_*_context_var`, `tkl_has_*_context_var*`, `tkl_get_*_context_var`, `tkl_pushunset_not_inheritable_*_context_vars`, `tkl_pop_not_inheritable_*_context_vars`, `tkl_pushset_all_*_context_vars`, `tkl_popset_all_*_context_vars` to register/unregister system/user variables for a context to push/pop them by context
+* new: Project: `tkl_register_package_var` and `tkl_unregister_package_var` functions to register/unregister a package system context variables
+* refactor: minor refactor
+
+2020.02.11:
+* changed: SetVarsFromFiles: removed check on mix between `top` and `final` attributes
+
+2020.02.10:
+* changed: readme update
+
+2020.02.08:
+* changed: _3dparty: Global3dparty.cmake: removed case-sensitive duplicates from the `_3DPARTY_GLOBAL_ROOTS_LIST` and `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` list variables before usage
+
+2020.02.05:
+* fixed: String: `tkl_string_begins_with` function
+* fixed: Version: `tkl_get_msvc_version` and `tkl_compare_compiler_tokens` functions
+
+2020.01.26:
+* new: String.cmake module for string operations
+* new: Version: Visual Studio 2017 detection support
+* new: Version: MSVC version year from a version
+* new: Version: additional compiler version filter format: `<major_version>[*+]` or `<major_version>.<minor_version>[*+]` to use either partial pattern matching (`14.1*` equals to `14.1` or `14.16`, but not to `14.2`) or greater or equal matching (`14.1+` equals to `14.1` and higher like `14.999`, but not `15.1`)
+
+2019.11.10:
+* changed: SetVarsFromFiles.cmake: `*$/{<undefined_variable>}` substitution sequence is replaced by `*:$/{<undefined_variable>}`
+
+2019.11.06:
+* changed: comments cleanup
+
+2019.08.06:
+* fixed: invalid `CMAKE_BUILD_ROOT` variable usage (regression)
+
+2019.08.04:
+* fixed: testlib: `ENABLE_CMAKE_COMMAND_FROM_COMMAND_LIST` variable usage
+* fixed: testlib: removed trace messages instead status messages for the cmake 3.15.x and higher binaries targets
+* fixed: incomplete comments filter (`SetVarsFromFiles.cmake`)
+* fixed: [finished] other build errors
+
+2019.08.04:
+* fixed: [continue] multiple build fixes
+* fixed: incorrect variables return in `tkl_detect_file_system_paths_sensitivity` function
+* fixed: accidental error message `Cmake cache files directory is not the cmake build root directory which might means cmake was previously configured out of the build directory.`
+* changed: minor changes
+
+2019.08.03:
+* fixed: [continue] multiple build fixes
+* fixed: "discovered environment variable: MSYS=``" message when MSYS was not actually defined
+* changed: `tkl_discover_var_to` function is simplified
+* changed: `tkl_get_var` function is simplified
+
+2019.08.02:
+* fixed: [continue] multiple build fixes
+* fixed: case insensitive path variables compare including back/forward slash insensitive compare in the Windows
+* fixed: path list variables compare (`SetVarsFromFiles.cmake`)
+* fixeed: incorrect output variables return in `tkl_get_gcc_version` and `tkl_get_clang_version` functions (`Version.cmake`)
+* new: `tkl_detect_file_system_paths_sensitivity` function to detect file system paths sensitivity parameters (`File.cmake`)
+* refactor: minor refactor
+
+2019.07.31:
+* fixed: [continue] multiple build fixes
+* fixed: `file` function multiple fixes (`File.cmake`)
+* new: variable `exist` attribute support (`SetVarsFromFiles.cmake`)
+* changed: reduced `tkl_load_vars_from_files`/`tkl_set_vars_from_files` flags
+* changed: `SetVarsFromFiles.cmake` detailed description update
+* refactor: reorganization over `Std.cmake`, `File.cmake` modules
+
+2019.07.22:
+* fixed: [continue] other build errors
+
+2019.07.22:
+* fixed: error message `Invalid character escape '\0'.` around `file(WRITE ... "${ID_CONTENT_OUT}")` expression in the `share/cmake-3.14/Modules/CMakeDetermineCompilerId.cmake`, line:159 implementation
+* fixed: error message `file(REMOVE_RECURSE ...)` having issues with the removing, do use `tkl_file_remove_recurse` instead` around `file(REMOVE_RECURSE ...)` calls from the internals of the cmake modules
+* fixed: error messages `No CMAKE_C_COMPILER could be found.` or `No CMAKE_CXX_COMPILER could be found.` around `CMAKE_DETERMINE_COMPILER_ID(... src)` calls from the internals of the cmake modules (the `src` variable have has contained incorrectly escaped characters before a call to the `file(WRITE ...)` before a call to the `tkl_escape_list_expansion`)
+* fixed: missed set variables from the `tkl_copy_vars` function which are already been set to different value in a parent scope (technically very rare bug, but WTF?)
+* fixed: [initiated] other build errors
+* refactor: moved most of the content from the `Std.cmake` to the `ForwardArgs.cmake`, `Utility.cmake` and other standalone modules to be able use it in the `File.cmake` and other modules included from the `Std.cmake`
+
+2019.06.16:
+* changed: repository links in readme update
+
+2019.06.16:
+* new: testlib: enable `CMAKE_COMMAND` initialize from external list - `CMAKE_COMMAND_LIST` to run tests on specific cmake executable versions (`TestLib.cmake`, `TestModule.cmake`, `RunTestLib.cmake`)
+
+2019.06.15:
+* new: specific time functions in a standalone module (`Time.cmake`)
+* new: specific math functions in a standalone module (`Math.cmake`)
+* new: ~2.6 times faster `tkl_macro_eval` macro additionally to the `tkl_eval` function (`Eval.cmake`)
+* changed: testlib: split variables load from `*.test.vars` into 2 files - `*.test.vars` and `*.test.lib.vars`, because variables for the `TestLib.cmake` shall not be visible in the `TestModule.cmake` and vice versa (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: testlib: time variables minor refactor (`TestLib.cmake`, `TestModule.cmake`)
+* refactor: testlib: print functions refactor (`TestLib.cmake`, `TestModule.cmake`)
+
+2019.06.14:
+* new: `*.test.vars` check and load in test environment (`TestLib.cmake`)
+* new: testlib: `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` and `TACKLELIB_TESTLIB_TESTPROC_STDOUT_QUIET` variables to tweak a test process before call to `RunTestLib.cmake` (`TestLib.cmake`)
+* changed: changed test messages output in `TRACE` mode in version 3.15.x and greater and `STATUS` before the 3.15.x
+* changed: minor testlib succeeded/failed number tests output tweak (`TestLib.cmake`)
+* refactor: testlib refactor (`TestLib.cmake`)
+
+2019.06.13:
+* fixed: internal variables left out after calls to `tkl_load_vars_from_files` and `tkl_set_vars_from_files` (`SetVarsFromFile.cmake`)
+* changed: rewrited the parser core code in the `set_vars_from_file` function to a bit simplify branch conditions (`SetVarsFromFile.cmake`)
+* changed: overall code cleanup (`SetVarsFromFile.cmake`)
+
+2019.06.12:
+* fixed: accidental remove of `var_token_suffix` and `var_token_suffix_to_process` variables (`SetVarsFromFiles.cmake`)
+* fixed: not needed extra `.` character in the first argument to the `tkl_make_basic_timestamp_temp_dir` function (`MakeTemp.cmake`)
+* fixed: `tkl_file_encode_strings` implementation switched from `file(STRINGS ...)` to `file(READ ...)` with standalone character replacement to workaround the issue with trailing `\` line character (`File.cmake`)
+* new: standlone `tkl_test_dbg_message` message function is disabled by default to enable it separately by `tkl_enable_test_dbg_message` per test basis to debug a test (`TestModule.cmake`)
+* new: support parse of multiline variable values to move long variable values on next line (`SetVarsFromFiles.cmake`)
+* new: support `$/n`, `$/r`, `$/t`, `$/b` as replacement for respective character escape sequences (`SetVarsFromFiles.cmake`)
+* new: `TACKLELIB_TESTLIB_TESTMODULE_FILE_NAME_PREFIX` variable to get test file name without all extensions (`TestLib.cmake`)
+* changed: moved `tkl_test_assert_true` expression/message string to the separate lines with `[   EXP  ]`/`[   MSG  ]` prefixes (`TestModule.cmake`)
+
+2019.06.11:
+* fixed: multiple fixes for simple usage of `SetVarsFromFiles.cmake` module
+* fixed: `invalid variable name token` message (`SetVarsFromFiles.cmake`)
+* new: commonly used check functions from the `Project.cmake` and the `SetVarsFromFile.cmake` modules extracted into the `Checks.cmake` module
+* changed: minor `testlib` changes (`TestLib.cmake`, `TestModule.cmake`)
+
+2019.06.08:
+* fixed: completely reverese engineered a cmake expansion rules in different contexts (macro/function/list/foreach/and so on), removed not actually needed functions
+* fixed: `tkl_track_vars_begin`/`tkl_track_vars_end` inside `tkl_eval_end` usage (`Eval.cmake`)
+* fixed: forgot to unset actually unsued ARGV0..N variables in the sensitive to it function - `tkl_copy_vars`
+* new: `tkl_escape_string_after_list_get` function to explicitly state the escape request after the `list(GET ...)` or the `foreach(... IN LISTS ...)` application
+* removed: `tkl_escape_string_for_ARGx`
+* removed: `tkl_escape_string_for_macro_args`
+* changed: `tkl_escape_string_for_eval` converted into `tkl_escape_test_assert_string`
+
+2019.06.06:
+* fixed: `tkl_make_vars_from_ARGV_ARGN_begin`, `tkl_make_var_from_CMAKE_ARGV_ARGC` fixup (`Std.cmake`)
+* refactor: `tkl_escape_string_from_ARGx` renamed to `tkl_escape_string_for_ARGx` (`Utility.cmake`)
+
+2019.06.06:
+* fixed: `tkl_make_var_from_ARGV_begin`/`tkl_make_var_from_ARGV_end` implementation (`Std.cmake`)
+* fixed: `tkl_make_vars_from_ARGV_ARGN_begin`/`tkl_make_vars_from_ARGV_ARGN_end` implementation (`Std.cmake`)
+
+2019.06.06:
+* fixed: left behind not properly cleanuped ARGV, ARGC in a particular case (`ForwardArgs.cmake`)
+* changed: temporary disabled seems not necessary cleanup code (`ForwardArgs.cmake`)
+* changed: some `tests_08_Eval` tests improvement
+
+2019.06.06:
+* fixed: ARGVn variables proper unset support (`ForwardArgs.cmake`)
+* fixed: `tkl_pop_ARGVn_from_stack` was not fully symmetric to the `tkl_puth*_ARGVn_*` (`ForwardArgs.cmake`)
+* new: `tkl_eval*` ARGV, ARGC, ARGV0..N variables can restore from the top record of the special ARGVn stack (as a result the variables can be forwarded from the outter scope)
+* changed: overall code cleanup
+
+2019.06.05:
+* fixed: `tkl_restore_ARGVn_from_stack`implementation for different stack entries (`ForwardArgs.cmake`)
+* fixed: time span in tests runner for all tests (`TestLib.cmake`)
+* fixed: variables cleanup (`TestModule.cmake`, `ForwardVariables.cmake`)
+* fixed: `tkl_track_vars_begin`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_track_vars_end` implementation (`ForwardVariables.cmake`)
+* new: additional `stack_entry` parameter in `tkl_push*_prop*`, `tkl_pop_prop_*` and `tkl_*_prop_*` functions to select stack entry to push/pop to/from (`ForwardVariables.cmake`)
+* new: `tkl_use_ARGVn_stack_begin`, `tkl_use_ARGVn_stack_end` functionts select stack entry to push/pop to/from (`ForwardArgs.cmake`)
+
+2019.06.05:
+* new: `tkl_push_ARGVn_to_stack`, `tkl_push_empty_ARGVn_to_stack` to push without set (`ForwardArgs.cmake`)
+* new: `tkl_get_ARGVn_stack_size` to request the ARGVn stack size (`ForwardArgs.cmake`)
+* new: time span in tests runner (`TestLib.cmake`)
+* changed: `tkl_restore_ARGVn_from_stack` rewrited to restore from any stack index (`ForwardArgs.cmake`)
+* refactor: `tkl_pushunset_ARGVn_to_stack` renamed to `tkl_pushset_empty_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: `tkl_pushset_ARGVn_from_vars_to_stack` renamed to `tkl_push_ARGVn_to_stack_from_vars` (`ForwardArgs.cmake`)
+* refactor: `tkl_restore_ARGVn_vars_from_stack` renamed to `tkl_restore_ARGVn_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.04:
+* new: `tkl_push_var_to_stack`, `tkl_push_prop_to_stack` to push with out side operations (`ForwardArgs.cmake`)
+* new: `tkl_get_var_stack_value_no_error`, `tkl_get_prop_stack_value_no_error` to avoid an error on empty stack (`ForwardArgs.cmake`)
+* removed: `tkl_set_ARGVn`, `tkl_unset_ARGVn`, `tkl_set_ARGVn_props_from_vars`, `tkl_pop_ARGVn_props_from_stack` as not required anymore (`ForwardArgs.cmake`)
+* changed: `tkl_pushset_ARGVn_to_stack` and `tkl_pop_ARGVn_to_stack` rewrited to make push/pop symmetric (`ForwardArgs.cmake`)
+* refactor: `tkl_pushset_ARGVn_props_from_vars` renamed to `tkl_pushset_ARGVn_from_vars_to_stack` (`ForwardArgs.cmake`)
+
+2019.06.04:
+* fixed: `tkl_pop_ARGVn_from_stack` implementation (`ForwardArgs.cmake`)
+* new: `tkl_unset_ARGVn`, `tkl_pushset_ARGVn_props_from_vars`, `tkl_pushunset_ARGVn_to_stack`, `tkl_pop_ARGVn_props_from_stack` implementation (`ForwardArgs.cmake`)
+* refactor: `tkl_pushset_macro_args_ARGVn_to_stack` renamed into `tkl_pushset_ARGVn_to_stack` (`ForwardArgs.cmake`)
+* refactor: `tkl_set_func_args_ARGVn` renamed into `tkl_set_ARGVn_props_from_vars` (`ForwardArgs.cmake`)
+* refactor: `tkl_restore_vars_ARGVn_from_stack` renamed into `tkl_restore_ARGVn_vars_from_stack` (`ForwardArgs.cmake`)
+
+2019.06.03:
+* fixed: missed `_return` call from recursion (`Handlers.cmake`)
+* fixed: invalid call to post handlers from the `tkl_handle_call_for_*` macro (`Handlers.cmake`)
+* changed: `tkl_add_handler` splitted into `tkl_add_last_handler` and `tkl_add_first_handler` (`Handlers.cmake`)
+* changed: `tkl_remove_handler` splitted into `tkl_remove_first_handler` and `tkl_remove_last_handler` (`Handlers.cmake`)
+
+2019.06.03:
+* fixed: return recursion around `return` in the `Handlers.cmake`
+* changed: improved `ForwardArgs.cmake`
+
+2019.06.02:
+* fixed: missed to unset function parameters before call to the `tkl_eval_end` (`Eval.cmake`)
+* fixed: missed ARGC variable ignore in `tkl_begin_track_vars`/`tkl_end_track_vars`
+* fixed: `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` incomplete implementation (`ForwardArgs.cmake`)
+* fixed: `tkl_restore_vars_ARGVn_from_stack` to restore builtin ARGVn variables from the stack (`ForwardArgs.cmake`)
+* new: `tkl_make_basic_timestamp_temp_dir` function for basic temporary directory creation (`MakeTemp.cmake`)
+* new: enabled `tkl_test_assert_true` to use builtin ARGVn variables from the stack top (`ForwardArgs.cmake`)
+* changed: extracted `ForwardArgs.cmake` from `ForwardVariables.cmake`
+* changed: [finished] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_args_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* refactor: `tkl_begin_track_vars`/`tkl_end_track_vars` renamed to `tkl_track_vars_begin`/`tkl_track_vars_end`
+
+2019.06.01:
+* changed: minor cleanup (`Eval.cmake`)
+
+2019.06.01:
+* fixed: overall `EnableTargetExtension.cmake` fixup
+* fixed: [finished] overall `ForwardVariables.cmake` fixup
+* fixed: usage positive path match filter with negative match path filter in the `--path_match_filter` parameter (`TestLib.cmake`)
+* fixed: test case match filter usage in the `--test_case_match_filter` parameter (`TestModule.cmake`)
+* new: `tkl_eval_append` function to append expression from explicit string to currently being evaluated (`Eval.cmake`)
+* new: `tkl_eval_append_from_file` function to append expression to currently being evaluated expression from a file (`Eval.cmake`)
+* new: `tkl_file_write`, `tkl_file_append`, `tkl_file_append_from_file`, `tkl_file_read` functions to avoid arguments escaping in case of a macro (`File.cmake`)
+* changed: [finished] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: [cancelled] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+* changed: [initiated] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` macro reimplemention with arguments into `tkl_pushset_vars_ARGVn_to_stack`/`tkl_pop_vars_ARGVn_from_stack` functions
+* changed: `tkl_eval_begin` function changed to use explicit string parameter instead of "${ARGN}" (`Eval.cmake`)
+* changed: `SetVarsFromFile.cmake` dependent changes
+* removed: `tkl_get_last_eval_string` function as not actual anymore (`Eval.cmake`)
+
+2019.05.31:
+* fixed: [initiated] overall `ForwardVariables.cmake` fixup
+* changed: [initiated] `tkl_begin_track_vars`, `tkl_forward_changed_vars_to_parent_scope`, `tkl_end_track_vars` has been reimplemented to make variables tracker a reentrant (`ForwardVariables.cmake`)
+* changed: [in progress] `tkl_begin_emulate_shift_ARGVn`/`tkl_end_emulate_shift_ARGVn` reimplemention w/o arguments
+
+2019.05.30:
+* changed: `Utility.cmake` refactor changes
+
+2019.05.29:
+* fixed: CMP0007 policy warning (`List.cmake`)
+* new: added negative/positive (`+`/`-`) prefix into `--path_match_filter`/`--test_case_match_filter` arguments to nigate filter logic per filter value (testlib)
+* changed: `SetVarsFromFiles.cmake` minor changes
+* changed: minor readme update
+
+2019.05.28:
+* new: added `--test_case_match_filter` command line parameter to filter per test case basis (testlib)
+* new: splitted `tkl_eval` into 2 functions (`tkl_eval_begin` and `tkl_eval_end`) to be able to directly access the prepared for inclusion file or pre process it, for example, in tests or by the `configure_file` call
+* new: extracted workaround for the `file(STRINGS ...)` into standalone functions `tkl_file_encode_strings`/`tkl_file_decode_string` (`File.cmake`)
+* changed: implemented `tkl_eval` through the `tkl_eval_begin` and `tkl_eval_end` (`Eval.cmake`)
+* changed: `Handlers.cmake` implementation (finished)
+* refactor: `Handlers.cmake`, `Eval.cmake` variables rename
+* refactor: overall code cleanup
+
+2019.05.27:
+* new: support different stack entries for pushing and popping variables to/from a stack (`ForwardVariables.cmake`)
+* changed: minor improvements
+
+2019.05.26:
+* new: added TACKLELIB_TESTLIB_ROOT variable usage to address tacklelib testlib to customize tests entry point scripts
+* changed: minor changes for preparation to fix `source` command in shell scripts
+
+2019.05.26:
+* fixed: missed to `TACKLELIB_TEMP_DIR_LAST_TIMESTAMP_INDEX` increment in the `MakeTemp.cmake`
+* refactor: minor functions changes and rename
+* missed changes
+
+2019.05.25:
+* fixed: character escaping/unescaping for `Handlers.cmake`, `Eval.cmake`, `Std.cmake`
+* fixed: global variables cleanup after `TestLib.cmake`, `Handlers.cmake` and others
+* new: standalone `tkl_encode_control_chars_for_eval` function to escape characters before pass to eval like functions
+* changed: `Handlers.cmake` variable names length reduced
+* changed: reduced test file path length (cutted off trailing `.test.cmake`) in tests output in the `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
+* fixed: `--path_match_filter` usage in `TestLib.cmake`
+* fixed: missed variable expansion in `TestLib.cmake` and `TestModule.cmake`
+
+2019.05.25:
+* fixed: multiple `tkl_testlib_exit` call
+* changed: removed initialization/uninitialization code from user test library/modules, make it explicit from standalone cmake scripts (`RunTestLib.cmake` and `RunTestModule.cmake`)
+
+2019.05.24:
+* fixed: `Handlers.cmake` evaluation after add/remove handlers
+* fixed: the `--path_match_filter` in the `TestLib.cmake` is not properly ignored different character case in file paths in the Windows
+* new: standalone property getter in the `Props.cmake` to explicitly state the operation details
+* new: standalone properties to set/get file system case sensitivity and back slash separator support
+* new: `tkl_get_vars_stack_size`, `tkl_get_prop_stack_size` functions in the `ForwardVariables.cmake`
+* changed: internal include files cleanup in the `Handlers.cmake` now handles in the begginning of the execution intead of in the end
+* changed: the `--path_match_filter` in the `TestLib.cmake` now does ignore the printing of not processed directories enter/leave
+* changed: `TestLib.cmake` improvements
+* refactor: `var_out` function arguments renamed to `out_var`
+
+2019.05.22:
+* fixed: `TestLib.cmake` minor fixup
+
+2019.05.21:
+* fixed: `Eval.cmake` rewrited to enable `return()` call with cleanup (through the function hookup)
+* fixed: current working directory accidental erase issue with the `file(REMOVE_RECURSE "${empty_or_unexisted_variable}")` command (https://gitlab.kitware.com/cmake/cmake/issues/19274 )
+* new: [initiated] `Handlers.cmake` for a function/macro call handling/hooking
+* new: `Reimpl.cmake` to explicitly register and check registration of a reimplementation of functions and macroses
+* changed: `make_argn_var_from_ARGV_ARGN_*` renamed into `make_vars_from_ARGV_ARGN_*` with usage of additional explicit variable names to output
+* changed: `make_argv_var_from_ARGV_*` renamed into `make_var_from_ARGV_*` with usage of additional explicit variable name to output
+* changed: [initiated] `begin_emulate_shift_argn_arguments`/`end_emulate_shift_argn_arguments` rewrited into `begin_emulate_shift_ARGVn`/`end_emulate_shift_ARGVn` w/o arguments
+* changed: `parse_config_names_list_var` rewrited to explicitly declare input/output variables
+* changed: `tkl_pushset_*`, `tkl_pushunset_*`, `tkl_pop*` functions are rewrited to store whole stack in a global properties instead of a local variables (stack that way could be accessed anywhere from a cmake process)
+* changed: `List.cmake` extracted from `Std.cmake`
+* changed: `File.cmake` extracted from `Std.cmake`
+* changed: `Props.cmake` extracted from `Std.cmake`
+* changed: `Utility.cmake` extracted from `Std.cmake`
+* changed: improved `TestLib.cmake` and `TestModule.cmake` modules
+* changed: other overall fixes and improvements
+* refactor: global directories, files, functions, macroses, global variables and properties changes:
+** all moved into `tacklelib` subdirectory to explicitly address modules with `tacklelib/` prefix in include commands and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl_` to all macroses and functions (except 3dparties, except standalone tools and hooks/handlers) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `TACKLELIB_` to all global variables (except 3dparties and standalone tools) to explicitly stand for the `tacklelib` and avoid accidental intersection with 3dparty cmake modules
+** added prefix `tkl::` to all properties to explicitly stand for the `tacklelib` and avoid accidental intersection with other cmake properties
+** all functions and macroses decapitalized to lower `snake_case` (except global variable names in macro/function names), all global variables capitalized to upper `SNAKE_CASE`
+** all function and macros names reworked
+** all file names in `PascalCase`
+** all directory names in lower `snake_case`
+** `Common.cmake` renamed into `Project.cmake` as related only to the project build
+** `BuildProject.cmake` merged into `Project.cmake`
+
+2019.05.13:
+* fixed: `Eval.cmake` after tests
+* fixed: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` after tests
+* changed: `TestLib.cmake` minor improvement
+
+2019.05.13:
+* changed: implemented `TestAssertTrue(if_exp ...)` in the `TestModule.cmake` through the `Eval("if(${exp}) ...")` to be able to use the cmake if expressions in the first argument of the `TestAssertTrue` macro
+* changed: `Eval.cmake` minor impovement
+* changed: `TestModule.cmake` minor impovements
+
+2019.05.13:
+* changed: added timestamp format string, process index and timestamp index into `MakeTempDir` function in the `MakeTemp.cmake` to be able to arrange temporary directories in creation order
+
+2019.05.13:
+* fixed: `make_argv_var_from_ARGV_begin` and `make_argv_var_from_ARGV_end` in complex expressions
+* fixed: `make_argn_var_from_ARGV_ARGN_begin` and `make_argn_var_from_ARGV_ARGN_end` in complex expressions
+* fixed: `make_var_from_CMAKE_ARGV_ARGC` in complex expressions
+* new: `MakeTemp.cmake` script to make a temporary directory from cmake
+* new: `Eval.cmake` script to evaluate a cmake expression from cmake (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\\{...}` to escape it instead))
+* new: `CMakeEval.cmd.cmake` script to evaluate a cmake expression from cmake script mode (supported multiline separator - `\n` and internal variable evaluation - `${...}` (use `$\{...}` to escape it instead))
+* new: `encode_control_chars`/`decode_control_chars` (`Std.cmake`) functions to help recode characters before call to macroses or inside `Eval` function (macroses has side effects in the cmake)
+* new: `ReturnCodeFile.cmake` module to read/write return codes out of cmake process
+* new: `TestModule.cmake` module to execute test cases in a test module
+* changed: `TestLib.cmake` return code read from external cmake process
+* refactor: `string(REGEX REPLACE "\;" "\\\;" ...)` replaced by `string(REPLACE ";" "\;" ...)`
+
+2019.05.07:
+* changed: readme update
+
+2019.05.07:
+* new: `TestLib.cmake` to test cmake modules from the cmake itself
+
+2019.05.06:
+* changed: minor change
+
+2019.04.29:
+* fixed: configure w/o errors
+* new: SetVarsFromFiles.cmake: `final` variable attribute to seal a variable reassign with an error instead of a warning, keep usage of the `override` attribute to enable an overridable assignment
+
+2019.04.26:
+* fixed: SetVarsFromFiles.cmake: update all case insensitive paths to correctly compare them
+* fixed: SetVarsFromFiles.cmake: `top` attributed variables usage
+* fixed: SetVarsFromFiles.cmake: not `override` attributed variables from the `environment_user.vars` configuration file now loads respective to the top level package (variable assignment does ignore in a not top level package if a variable was assigned in the top level package)
+* removed: SetVarsFromFiles.cmake: the `package` variable attribute is no longer needed, all variables must be treated as package level scoped (the `CMAKE_CURRENT_PACKAGE_NEST_LVL` variable usage now is a mandatory for that case)
+
+2019.04.25:
+* new: SetVarsFromFiles.cmake: top/package/override variable attributes to (1) ignore variables at not top level stages (both must have `top` attribute), (2) to throw an error on implicit override of a top variable (only one have `top` attribute), (3) excplicit override of any pattern matched variable (`override` attribute, where implicit override is a simple assignment) and etc
+
+2019.04.15:
+* refactor: replaced a specific regex workaround to a bit faster version
+
+2019.04.11:
+* fixed: set_vars_from_files issue around `file(STRINGS ...)` function reported here: https://gitlab.kitware.com/cmake/cmake/issues/19156 (`Not paired `]` or `[` characters breaks "file(STRINGS"`)
+
+2019.03.17:
+* fixed: SetVarsFromFiles.cmake: Multiple "ODR violation" messages in case where a path is different from the cache storage only by the drive letter character case (cmake changes a path variables before write them into the cache). Read variable's ending to detect type of variable (*_ROOT, *_PATH, *_DIR, etc) to adopt a comparator code.
+
+2019.03.17:
+* fixed: operators precedence order issue after the OR operator in case of parentheses absence (added parentheses around every OR operator)
+* fixed: added most important global variables consistency check after leaving of add_subdirectory and others functions (global variables change has detected in some 3dparty libraries, so this seems is requirement now)
+
+2019.03.13:
+* changed: new implementation to load a list of files together with nested package support, builtin variables, explicit variables and other parameters in the `SetVarsFromFile.cmake`
+
+2019.03.01:
+* changed: more improvements in the `SetVarsFromFile.cmake` and `Std.cmake`
+
+2019.02.28:
+* changed: more improvements in the `SetVarsFromFile.cmake`
+
+2019.02.26:
+* changed: improved `SetVarsFromFile.cmake`
+
+2019.02.17:
+* new: `set_vars_from_file` (SetVarsFromFile.cmake) function to load configuration variables from standalone configuration file with support of single/list values, inline conditions, substitutions and character escaping
+* new: `copy_variables` (ForwardVariables.cmake) function to copy parent scope variables into 2 arbitrary lists with names and values
+
+2019.02.09:
+* refactor: restored back all moved to the tacklelib cmake subdirectory cmake module files as a better method to reference all cmake modules at once
+* refactor: new cmake modules hierarchy
+
+2019.01.17:
+* fixed: missed to retain some scripts
+
+2018.12.07:
+* changed: the include/link inheritance type is added to `link_qt_components` function
+
+2018.12.05:
+* refactor: `Common.cmake` and other basic modules moved into `tacklelib` repository to support calls in the root `CMakeLists.txt` file in the tacklelib sources
+
+2018.11.30:
+* fixed: set_target_property function
+
+2018.11.30:
+* fixed: install under linux into inner directory
+* changed: add_target_static_lib_properties function merged into add_target_link_properties function
+
+2018.11.13:
+* fixed: variables discovery ignores environment variables in case of cached one
+
+2018.10.30:
+* fixed: invalid path exclusion in case of paths begins by the "/~" in exclude_paths_from_path_list function
+* changed: disable optimization in debug by default
+
+2018.10.29:
+* fixed: missed to remove from the global list the imported not global targets which are visible only from directory target
+* new: set_target_property function with include/exclude patterns/filters to set a single property but for set of targets from a particular directory with or without recursion
+
+2018.10.26:
+* fixed: accidental invalid usage issue of add_target_compile_definitions function, added explicit check with FATAL_ERROR
+
+2018.10.22:
+* fixed: ARGV and ARGV0..N variables shift in case of overriden system functions like find_package/add_subdirectory/etc (macro contexts), fixed by replacing overriden functions from macros to functions and custom propogating variable changes to parent scope
+* new: ForwardVariables.cmake module to forward changed variables to parent scope
+* refactor: variable discovery
+
+2018.10.16:
+* new: uniform way to set FOLDER property on a target via set_target_folder function
+* changed: add_target_subdirectory_from_dir_var merged into add_target_subdirectory
+* changed: extended exclude_file_paths_from_path_list and exclude_paths_from_path_list functions by optional exclude_list output
+* refactor: replaced variable expansion by `IN LISTS` in all foreach instructions
+
+2018.10.15:
+* new: set_target_folder_by_pattern function to set target folders by package source directory pattern together with target pattern
+* new: added to builtin find_package function a custom first parameter for package source directory variable name (with back compatability to original syntaxes)
+* new: added to find_qt_component function a custom first parameter for package source directory variable name (with back compatability to original syntaxes)
+
+2018.10.12:
+* fixed: alias (read only) targets change attempt
+* cmake minor improvement and cleanup
+
+2018.10.09:
+* minor refactor
+
+2018.10.08:
+* new: targets extension module
+* new: set_target_folder_from_dir function to set target folder for a target from target source directory
+
+2018.08.30:
+* new: Qwt library module
+
+2018.08.14:
+* new: FindWindowsSDK.cmake script to explicitly detect WindowsSDK headers/libraries
+
+2018.08.14:
+* new: executable/library basic initialization to add default preprocessor definition, compiler and linker keys
+
+2018.08.09:
+* refactor: cmake build scripts
+
+2018.07.15:
+* fixed: Common.cmake configure_environment script
+* new: add_target_subdirectory to ignore add already added subdirectories
+* new: ExternalProjectEx.cmake script
+
+2018.06.17:
+* fixed: escaping was not supported from a file configured by the configure_file cmake command
+
+2018.05.07:
+* new: cmake environment discovery support for builtin variables
+* new: CMAKE_CONFIG_TYPES coverts now into builtin CMAKE_CONFIGURATION_TYPES variable and vice versa (if empty)
+* new: standalone changelog file added

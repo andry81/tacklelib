@@ -1,0 +1,8 @@
+# command line for the cmake in the `_scripts/*_build.bat` script
+
+--build
+.
+--config
+"%CMAKE_BUILD_TYPE%"
+--target
+"%CMAKE_BUILD_TARGET%"

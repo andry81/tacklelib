@@ -1,0 +1,135 @@
+2020.09.04:
+* new: tacklelib/tools: git filter-branch library + readme file
+
+2020.08.03:
+* fixed: tacklelib/bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
+* new: tacklelib/bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
+* new: tacklelib/bash_entry: `tkl_declare_array` to declare array without unset previous variable context
+* changed: tacklelib/bash_entry: removed `tkl_declare_local` to bring new clean functionality
+* changed: tacklelib: bash_entry, baselib.sh, buildlib.sh: replaced tkl_declare_local/tkl_declare_global/tkl_declare_global_array by tkl_declare/tkl_declare_array in certain places
+* refactor: tacklelib/bash_entry: variable declaration functions refactor
+
+2020.08.01:
+* changed: tacklelib/buildlib.sh: implementation moved from project.sh scripts
+* refactor: tacklelib/traplib.sh: header comments refactor
+
+2020.08.01:
+* refactor: tacklelib/bash_entry: minor refactor
+
+2020.08.01:
+* changed: tacklelib/bash_entry: implementation moved from project.sh scripts
+
+2020.07.12:
+* fixed: missed changes
+
+2020.07.10:
+* new: pyxvcs scripts moved from the pyxvcs project
+* refactor: moved changelog and readme files to the parent directory
+
+2020.07.08:
+* fixed: load_config.sh: case where `<var>="..." ...` parsed incorrectly removing the first quote character and the last not a quote character
+
+2020.07.06:
+* changed: moved `load_config.sh` script from the contools project
+
+2020.06.12:
+* fixed: bash_entry: rewriten `tkl_include` implementation to fix case with the `BASH_SOURCE_*` globals generation at first time call function level context
+* fixed: bash_entry: `tkl_declare_local_array` has no effect as declares always a current function local array variable instead of an upper function call context array variable
+* fixed: bash_entry: other bug fixes
+* fixed: traplib.sh: specific bash 4.4.x version feature-bug issue where a first call to the `tkl_push_trap` function does not setup a trap handler
+* fixed: traplib.sh: other bug fixes
+* new: bash_entry: `BASH_SOURCE_CMD_LINE` variable to store a last `tkl_include` arguments as serialized array
+* new: baselib.sh: `tkl_get_current_function_names_stack_trace` function to directly extract current function stack trace as names '|'-separated list
+* new: traplib.sh: `RELEASE` signal trap handler for the `tkl_push_trap`/`tkl_pop_trap` functions to use as a RAII pattern in a Bash script instead of a RETURN trap handler which is limited for the sake of back compatability
+* refactor: traplib.sh: global refactor
+* refactor: buildlib.sh: minor refactor
+
+2020.04.04:
+* new: bash_entry: `tkl_exec_inproc_entry` function
+* new: buildlib.sh: `tkl_set_error`, `tkl_call_inproc_entry` and `tkl_call_inproc_entry_and_print_if` functions
+* changed: bash_entry: `tkl_make_source_file_components_from_file_path` replaced by `tkl_pushset_source_file_components_from_file_path` and `tkl_pop_source_file_components_from_file_path` functions
+* changed: buildlib.sh: `tkl_call*` functions now changes and restores source file components before the call
+
+2020.04.04:
+* new: bash_entry: `tkl_is_file_os_exec` and `tkl_exec_inproc` functions to execute shell scripts in the same shell process
+* new: buildlib.sh: `tkl_call_inproc` and `tkl_call_inproc_and_print_if` functions to execute shell scripts in the same shell process
+* changed: code cleanup
+
+2020.04.03:
+* fixed: bash_entry: missed change
+
+2020.04.02:
+* fixed: bash_entry: we must always pass the command line from `tkl_include` into the `source` command
+
+2020.04.02:
+* fixed: bash_entry: missed to pass command line into inner `source` command from the `tkl_include` function
+
+2020.03.31:
+* new: bash_entry: `tkl_set_show_includes` and `tkl_unset_show_includes` functions to explicitly show all `source` calls in the `tkl_include` function
+* changed: bash_entry: support return code from `tkl_include` function
+* refactor: `LastError` replaced by `tkl__last_error` variable
+
+2020.03.30:
+* fixed: `testlib.sh` multiple fixup
+* changed: `traplib.sh` minor cleanup
+* refactor: minor refactor
+
+2020.03.27:
+* fixed: traplib.sh: minor fixup
+* changed: traplib.sh: description update
+
+2020.03.26:
+* fixed: testlib.sh: multiple fixup
+* fixed: bash_entry: `tkl_set_return` temporary workaround over not numeric argument
+* changed: testlib.sh: new `traplib.sh` module usage
+* changed: bash_entry: `tkl_escape_string` function speedup
+
+2020.03.19:
+* changed: traplib.sh: reimplemented storage arrays for trap hendlers to store and call multiple handlers has been set for a single function and bash process
+* changed: hashlib.sh: removed check on empty string in the `tkl_crc32` function
+
+2020.03.17:
+* fixed: `tkl_declare_global` function must remove a current context local variable in case of it's presence
+* fixed: traplib.sh: multiple fixes around `tkl_*_trap` functions
+* new: traplib.sh: non RETURN signal traps chaining from the bottom to the top
+* changed: minor other changes
+
+2020.03.16:
+* fixed: testlib.sh: miscount bug in the `for in "${RETURN_VALUES[@]}"` and "\$$i" expressions
+* changed: testlib.sh: replaced by all `trap` commands by `tkl_*_trap` functions
+* changed: traplib.sh: improved trap functions, overrided the `trap` command in case of inclusion the `traplib.sh` module
+
+2020.03.15:
+* fixed: testlib.sh: `TEST_SOURCES` incorrect parsing
+* fixed: testlib.sh: `tkl_testmodule_run_test` function arrays pass into isolated bash test process
+* new: testlib:.sh: `tkl_test_assert_true` and `tkl_test_assert_false` function to test separate expressions
+* changed: testlib.sh: functionality has been rewriten
+* refactor: testlib.sh: global refactoring
+
+2020.03.13:
+* fixed: bash_entry: `tkl_is_abs_path` function
+* new: bash_entry:  `tkl_normalize_path` function for paths normalization without call to external utilities for speedup reason
+* changed: bash_entry: improved function `tkl_get_abs_path_from_dir`
+* changed: bash_entry: improved function `tkl_convert_native_path_to_backend`
+* changed: bash_entry: improved function `tkl_convert_backend_path_to_native`
+* changed: bash_entry: improved function `tkl_include`
+* changed: bash_entry: `readlink -m` usage replaced by the `tkl_normalize_path` function
+* changed: traplib.sh: trap functions from the `bash_entry` extracted back to `traplib.sh` module
+* refactor: bash_entry: global `bash_entry` script refactor
+
+2020.03.11:
+* fixed: `tkl_push_trap`, `tkl_pop_trap`, `tkl_get_trap_cmd_line` and `tkl_pop_exec_trap` rewrited to support RETURN signals
+
+2020.03.08:
+* new: `buildlib.sh` module migrated from the tools directory
+* changed: readme update
+
+2020.03.05:
+* new: `baselib.sh`, `funclib.sh`, `hashlib.sh`, `stringlib.sh`, `testlib.sh` modules migrated from the `contools` project
+* refactor: global shell scripts refactor
+
+2020.03.03:
+* new: standalone changelog file
+* new: readme file
+* new: license file
+* new: `bash_entry`, `traplib.sh` modules migrated from the tools directory

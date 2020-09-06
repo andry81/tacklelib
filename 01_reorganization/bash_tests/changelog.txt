@@ -1,0 +1,17 @@
+2020.06.12:
+* changed: 02_traplib/01_push_trap/test_1.sh: double execution instead of a single to catch an error after a first call to the `tkl_push_trap`
+
+2020.04.06:
+* changed: readme update
+
+2020.03.30:
+* new: `01_bash_entry/01_normalize_path` tests
+* new: `02_traplib/01_push_trap` tests
+* refactor: tests refactor
+
+2020.03.08:
+* changed: readme update
+
+2020.03.05:
+* new: changelog file
+* new: readme file
