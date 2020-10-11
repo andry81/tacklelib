@@ -10,7 +10,7 @@ source '/bin/bash_entry' || exit $?
 function main()
 {
   local i
-  for i in PROJECT_ROOT PROJECT_LOG_ROOT PROJECT_SCRIPTS_ROOT; do
+  for i in PROJECT_ROOT PROJECT_LOG_ROOT PROJECT_CONFIG_ROOT PROJECT_SCRIPTS_ROOT; do
     if [[ -z "$i" ]]; then
       echo "${FUNCNAME[0]}: error: \'$i\` variable is not defined." >&2
       exit 255
@@ -24,8 +24,6 @@ function main()
     export IMPL_MODE=1
     exec 3>&1 4>&2
     tkl_push_trap 'exec 2>&4 1>&3' EXIT
-
-    [[ ! -e "$PROJECT_LOG_ROOT" ]] && { mkdir "$PROJECT_LOG_ROOT" || tkl_abort; }
 
     # date time request base on: https://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script/1401495#1401495
     #
@@ -42,13 +40,18 @@ function main()
         ;;
     esac
 
+    tkl_export PROJECT_LOG_DIR  "$PROJECT_LOG_ROOT/${LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}"
+    rkl_export PROJECT_LOG_FILE "$PROJECT_LOG_DIR/${LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
+
+    [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort }
+
     # stdout+stderr redirection into the same log file with handles restore
     {
     {
     {
       exec $0 "$@" 2>&1 1>&8
-    } | tee -a "${SCRIPTS_LOGS_ROOT}/.log/${LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log" 1>&9
-    } 8>&1 | tee -a "${SCRIPTS_LOGS_ROOT}/.log/${LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
+    } | tee -a "$PROJECT_LOG_FILE" 1>&9
+    } 8>&1 | tee -a "$PROJECT_LOG_FILE"
     } 9>&2
 
     tkl_exit

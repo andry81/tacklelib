@@ -1,47 +1,55 @@
-[submodule "01_reorganization/_libs/contools/Tools/ToolAdaptors/lnk"]
-	path = 01_reorganization/_libs/contools/Tools/ToolAdaptors/lnk
-	owner = 01_reorganization/_libs
+[submodule "01_reorganization/_externals/contools/Scripts/Tools/ToolAdaptors/lnk"]
+	path = 01_reorganization/_externals/contools/Scripts/Tools/ToolAdaptors/lnk
+	owner = 01_reorganization/_externals
 	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/ToolAdaptors/lnk
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "01_reorganization/_libs/contools/Tools/cmake"]
-	path = 01_reorganization/_libs/contools/Tools/cmake
-	owner = 01_reorganization/_libs
+[submodule "01_reorganization/_externals/contools/Scripts/Tools/cmake"]
+	path = 01_reorganization/_externals/contools/Scripts/Tools/cmake
+	owner = 01_reorganization/_externals
 	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/cmake
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "01_reorganization/_libs/contools/Tools/std"]
-	path = 01_reorganization/_libs/contools/Tools/std
-	owner = 01_reorganization/_libs
+[submodule "01_reorganization/_externals/contools/Scripts/Tools/std"]
+	path = 01_reorganization/_externals/contools/Scripts/Tools/std
+	owner = 01_reorganization/_externals
 	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/std
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "01_reorganization/_libs/contools/Tools/unxutils"]
-	path = 01_reorganization/_libs/contools/Tools/unxutils
-	owner = 01_reorganization/_libs
-	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/unxutils
-	branch = /
-	fetch = :refs/remotes/git-svn
-	remote = svn
-	type = dir
-[submodule "01_reorganization/_libs/contools/Tools/xcopy"]
-	path = 01_reorganization/_libs/contools/Tools/xcopy
-	owner = 01_reorganization/_libs
+[submodule "01_reorganization/_externals/contools/Scripts/Tools/xcopy"]
+	path = 01_reorganization/_externals/contools/Scripts/Tools/xcopy
+	owner = 01_reorganization/_externals
 	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/xcopy
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "01_reorganization/_libs/contools/Utilities/bin"]
-	path = 01_reorganization/_libs/contools/Utilities/bin
-	owner = 01_reorganization/_libs
+[submodule "01_reorganization/_externals/contools/Scripts/__init__"]
+	path = 01_reorganization/_externals/contools/Scripts/__init__
+	owner = 01_reorganization/_externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/__init__
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "01_reorganization/_externals/contools/Utilities/bin"]
+	path = 01_reorganization/_externals/contools/Utilities/bin
+	owner = 01_reorganization/_externals
 	url = svn://svn.code.sf.net/p/contools/contools/trunk/Utilities/bin
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "01_reorganization/_externals/contools/__init__"]
+	path = 01_reorganization/_externals/contools/__init__
+	owner = 01_reorganization/_externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/__init__
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn

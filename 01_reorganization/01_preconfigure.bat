@@ -17,22 +17,22 @@ echo.3. Press any key to continue and select the `_src` subdirectory in the `tac
 
 pause
 
-for /F "usebackq eol=	 tokens=* delims=" %%i in (`@"%UTILITIES_BIN_ROOT%\wxFileDialog.exe" "" "%CONFIGURE_ROOT%" "Select the third party catalog to link with..." -de`) do set "_3DPARTY_ROOT=%%i"
+for /F "usebackq eol=	 tokens=* delims=" %%i in (`@"%CONTOOLS_UTILITIES_BIN_ROOT%\wxFileDialog.exe" "" "%TACKLELIB_PROJECT_ROOT%" "Select the third party catalog to link with..." -de`) do set "TACKLELIB_3DPARTY_ROOT=%%i"
 
-if not exist "%_3DPARTY_ROOT%" (
-  if not defined _3DPARTY_ROOT (
+if not exist "%TACKLELIB_3DPARTY_ROOT%" (
+  if not defined TACKLELIB_3DPARTY_ROOT (
     echo.error: %~nx0: third party catalog is not selected.
   ) else (
-    echo.error: %~nx0: third party catalog does not exist: "%_3DPARTY_ROOT%".
+    echo.error: %~nx0: third party catalog does not exist: "%TACKLELIB_3DPARTY_ROOT%".
   )
   pause
   exit /b 255
 ) >&2
 
-call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\_3dparty" "%%_3DPARTY_ROOT%%"
+call :CREATE_DIR_LINK "%%TACKLELIB_PROJECT_ROOT%%\_3dparty" "%%TACKLELIB_3DPARTY_ROOT%%"
 
-rem call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\_scripts" "%%CONFIGURE_ROOT%%\_3dparty\utility\tacklelib\tacklelib\_scripts"
-rem call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\cmake" "%%CONFIGURE_ROOT%%\_3dparty\utility\tacklelib\tacklelib\cmake"
+rem call :CREATE_DIR_LINK "%%TACKLELIB_PROJECT_ROOT%%\_scripts" "%%TACKLELIB_PROJECT_ROOT%%\_3dparty\utility\tacklelib\tacklelib\_scripts"
+rem call :CREATE_DIR_LINK "%%TACKLELIB_PROJECT_ROOT%%\cmake" "%%TACKLELIB_PROJECT_ROOT%%\_3dparty\utility\tacklelib\tacklelib\cmake"
 
 pause
 
