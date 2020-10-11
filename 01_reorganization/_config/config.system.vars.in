@@ -28,28 +28,30 @@
 #                         Can start by the `"` quote character, but two quotes does remove only when exist on both ends of a value.
 #
 
-export PROJECT_CACHE_ROOT                 ="$/{PROJECT_ROOT}/_cache"
-export PROJECT_LOG_ROOT                   ="$/{PROJECT_ROOT}/.log"
-export PROJECT_CONFIG_SCRIPTS_ROOT        ="$/{PROJECT_CONFIG_ROOT}/_scripts"
-export PROJECT_SCRIPTS_ROOT               ="$/{PROJECT_ROOT}/_scripts"
-export PROJECT_SCRIPTS_TOOLS_ROOT         ="$/{PROJECT_SCRIPTS_ROOT}/tools"
-export PROJECT_CMAKE_ROOT                 ="$/{PROJECT_ROOT}/cmake"
+export once PROJECT_ROOT                  =$/{TACKLELIB_PROJECT_ROOT}
+export once PROJECT_CACHE_ROOT            =$/{TACKLELIB_PROJECT_ROOT}/_cache
+export once PROJECT_LOG_ROOT              =$/{TACKLELIB_PROJECT_ROOT}/.log
+export once PROJECT_CONFIG_ROOT           =$/{TACKLELIB_PROJECT_CONFIG_ROOT}
+export once PROJECT_CONFIG_SCRIPTS_ROOT   =$/{TACKLELIB_PROJECT_CONFIG_ROOT}/_scripts
+export once PROJECT_SCRIPTS_ROOT          =$/{TACKLELIB_PROJECT_ROOT}/_scripts
+export PROJECT_SCRIPTS_TOOLS_ROOT         =$/{PROJECT_SCRIPTS_ROOT}/tools
+export PROJECT_CMAKE_ROOT                 =$/{TACKLELIB_PROJECT_ROOT}/cmake
 
-export UTILITIES_ROOT                     ="$/{CONTOOLS_ROOT}/Utilities"
-export UTILITIES_BIN_ROOT                 ="$/{UTILITIES_ROOT}/bin"
+export CONTOOLS_UTILITIES_ROOT            =$/{TACKLELIB_PROJECT_EXTERNALS_ROOT}/contools/Utilities
+export CONTOOLS_UTILITIES_BIN_ROOT        =$/{CONTOOLS_UTILITIES_ROOT}/bin
 
-export PROJECT_OUTPUT_CMAKE_CACHE_ROOT    ="$/{PROJECT_OUTPUT_ROOT}/cmake"
+export PROJECT_OUTPUT_CMAKE_CACHE_ROOT    =$/{PROJECT_OUTPUT_ROOT}/cmake
 
-export TACKLELIB_CMAKE_CONFIG_ROOT        ="$/{PROJECT_CONFIG_ROOT}/cmake"
-export TACKLELIB_CMAKE_OUTPUT_CONFIG_ROOT ="$/{PROJECT_OUTPUT_CONFIG_ROOT}/cmake"
+export PROJECT_CMAKE_CONFIG_ROOT          =$/{PROJECT_CONFIG_ROOT}/cmake
+export PROJECT_OUTPUT_CMAKE_CONFIG_ROOT   =$/{PROJECT_OUTPUT_CONFIG_ROOT}/cmake
 
-export TACKLELIB_CMAKE_SCRIPTS_ROOT       ="$/{PROJECT_ROOT}/cmake/tacklelib"
-export TACKLELIB_PYTHON_SCRIPTS_ROOT      ="$/{PROJECT_ROOT}/python/tacklelib"
-export CMDOPLIB_PYTHON_SCRIPTS_ROOT       ="$/{PROJECT_ROOT}/python/cmdoplib"
+export TACKLELIB_CMAKE_SCRIPTS_ROOT       =$/{PROJECT_ROOT}/cmake/tacklelib
+export TACKLELIB_PYTHON_SCRIPTS_ROOT      =$/{PROJECT_ROOT}/python/tacklelib
+export CMDOPLIB_PYTHON_SCRIPTS_ROOT       =$/{PROJECT_ROOT}/python/cmdoplib
 
-export PYXVCS_BASH_SCRIPTS_ROOT           ="$/{PROJECT_ROOT}/bash/pyxvcs"
-export PYXVCS_PYTHON_SCRIPTS_ROOT         ="$/{PROJECT_ROOT}/python/pyxvcs"
-export PYXVCS_BATCH_SCRIPTS_ROOT          ="$/{CONTOOLS_ROOT}/pyxvcs"
+export PYXVCS_BASH_SCRIPTS_ROOT           =$/{PROJECT_ROOT}/bash/pyxvcs
+export PYXVCS_PYTHON_SCRIPTS_ROOT         =$/{PROJECT_ROOT}/python/pyxvcs
+export PYXVCS_BATCH_SCRIPTS_ROOT          =$/{CONTOOLS_ROOT}/pyxvcs
 
 INIT_VERBOSE                              =0
 TOOLS_VERBOSE                             =0

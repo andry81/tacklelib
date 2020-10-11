@@ -1,3 +1,6 @@
+01_reorganization/.log
+01_reorganization/_3dparty
+01_reorganization/_out
 01_reorganization/bash_tests/01_bash_entry/01_normalize_path/.log
 01_reorganization/bash_tests/02_traplib/01_push_trap/.log
 01_reorganization/cmake_tests/_config/*.vars

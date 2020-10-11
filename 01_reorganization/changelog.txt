@@ -1,3 +1,17 @@
+2020.10.11:
+* changed: _config: config reorganization
+* changed: _scripts: scripts reorganization
+* changed: bash_tests: scripts reorganization
+* changed: cmake_tests: scripts reorganization
+* changed: python: minor change
+* changed: python_tests: scripts reorganization
+* changed: scripts reorganization
+* changed: intermediate changes
+* refactor: `_libs` directory with externals renamed into `_externals` to avoid interference with library components in the future
+
+2020.09.24:
+* changed: include/tacklelib: is_equal_c_str compilation error workaround in case when force online optimization evently fails
+
 2020.09.04:
 * new: bash/tacklelib/tools: git filter-branch library + readme file
 
