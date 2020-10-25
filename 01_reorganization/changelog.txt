@@ -1,3 +1,6 @@
+2020.10.25:
+* changed: scripts switched to ritchielawrence tee implementation (mtee)
+
 2020.10.11:
 * changed: _config: config reorganization
 * changed: _scripts: scripts reorganization
