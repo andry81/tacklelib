@@ -1,4 +1,5 @@
 * text=auto !eol
+01_reorganization/.github/FUNDING.yml -text
 01_reorganization/.svnignore -text
 01_reorganization/01_preconfigure.bat -text
 01_reorganization/01_preconfigure.sh -text
