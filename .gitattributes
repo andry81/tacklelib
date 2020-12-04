@@ -510,3 +510,11 @@ src/utility/optimization.cpp -text
 src/utility/time.cpp -text
 src/utility/utility.cpp -text
 src/utility/utility/fmt/format.hpp -text
+vbs/tacklelib/README_EN.txt -text
+vbs/tacklelib/changelog.txt -text
+vbs/tacklelib/license.txt -text
+vbs/tacklelib/tacklelib.vbs -text
+vbs/tacklelib/tools/totalcmd/__init__.vbs -text
+vbs/tacklelib/tools/totalcmd/get_inifile_key.vbs -text
+vbs/tacklelib/tools/totalcmd/update_totalcmd_usercmd.vbs -text
+vbs/tacklelib/tools/totalcmd/update_totalcmd_wincmd.vbs -text

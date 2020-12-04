@@ -1,3 +1,10 @@
+2020.12.04:
+* new: vbs: tacklelib vbs script library
+* new: vbs: tacklelib vbs tool scripts for the Total Commander application
+* new: vbs: readme file
+* new: vbs: license file
+* new: vbs: changelog file
+
 2020.08.03:
 * fixed: bash: bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
 * new: bash: bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
