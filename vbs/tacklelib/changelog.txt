@@ -1,0 +1,6 @@
+2020.12.04:
+* new: tacklelib vbs script library
+* new: tacklelib vbs tool scripts for the Total Commander application
+* new: readme file
+* new: license file
+* new: changelog file
