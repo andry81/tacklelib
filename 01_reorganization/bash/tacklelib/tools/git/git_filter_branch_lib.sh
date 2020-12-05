@@ -23,8 +23,8 @@ function git_filter_branch_committer_user()
   local update_committer_name=0
   local update_committer_email=0
 
-  [[ -n "$GIT_COMMITTER_NAME" && -n "$USER_OLD_NAME" && ( "$USER_OLD_NAME" == "*" || "$GIT_COMMITTER_NAME" == "$USER_OLD_NAME" ) ]] &&      update_committer_name=1
-  [[ -n "$GIT_COMMITTER_EMAIL" && -n "$USER_OLD_EMAIL" && ( "$USER_OLD_EMAIL" == "*" || "$GIT_COMMITTER_EMAIL" == "$USER_OLD_EMAIL" ) ]] &&  update_committer_email=1
+  [[ -n "$GIT_COMMITTER_NAME" && -n "$USER_OLD_NAME" && ( "$USER_OLD_NAME" == "*" || "$GIT_COMMITTER_NAME" == "$USER_OLD_NAME" ) ]] &&        update_committer_name=1
+  [[ -n "$GIT_COMMITTER_EMAIL" && -n "$USER_OLD_EMAIL" && ( "$USER_OLD_EMAIL" == "*" || "$GIT_COMMITTER_EMAIL" == "$USER_OLD_EMAIL" ) ]] &&   update_committer_email=1
 
   (( update_committer_name )) && export GIT_COMMITTER_NAME="$USER_NEW_NAME"
   (( update_committer_email )) && export GIT_COMMITTER_EMAIL="$USER_NEW_EMAIL"
@@ -55,8 +55,8 @@ function git_filter_branch_author_user()
   local update_author_name=0
   local update_author_email=0
 
-  [[ -n "$GIT_AUTHOR_NAME" && -n "$USER_OLD_NAME" && ( "$USER_OLD_NAME" == "*" || "$GIT_AUTHOR_NAME" == "$USER_OLD_NAME" ) ]] &&      update_author_name=1
-  [[ -n "$GIT_AUTHOR_EMAIL" && -n "$USER_OLD_EMAIL" && ( "$USER_OLD_EMAIL" == "*" || "$GIT_AUTHOR_EMAIL" == "$USER_OLD_EMAIL" ) ]] &&  update_author_email=1
+  [[ -n "$GIT_AUTHOR_NAME" && -n "$USER_OLD_NAME" && ( "$USER_OLD_NAME" == "*" || "$GIT_AUTHOR_NAME" == "$USER_OLD_NAME" ) ]] &&        update_author_name=1
+  [[ -n "$GIT_AUTHOR_EMAIL" && -n "$USER_OLD_EMAIL" && ( "$USER_OLD_EMAIL" == "*" || "$GIT_AUTHOR_EMAIL" == "$USER_OLD_EMAIL" ) ]] &&   update_author_email=1
 
   (( update_author_name )) && export GIT_AUTHOR_NAME="$USER_NEW_NAME"
   (( update_author_email )) && export GIT_AUTHOR_EMAIL="$USER_NEW_EMAIL"
