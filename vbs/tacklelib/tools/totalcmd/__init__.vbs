@@ -1,1 +1,1 @@
-IncludeFile(GetScriptDir() & "/../../tacklelib.vbs")
+Import("/../../tacklelib.vbs")

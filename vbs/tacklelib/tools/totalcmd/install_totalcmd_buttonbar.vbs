@@ -30,6 +30,6 @@ Dim Import : Set Import = New ImportFunction
 
 Import("/__init__.vbs")
 
-' PrintIniFileDict(ReadIniFileAsDict(WScript.Arguments(0)), -1)
+Import("/libs/totalcmdlib.vbs")
 
-PrintLine(GetIniFileKey_NoExcept(WScript.Arguments(0), WScript.Arguments(1), WScript.Arguments(2)))
+' PrintIniFileDict(ReadIniFileAsDict(WScript.Arguments(0)), -1)

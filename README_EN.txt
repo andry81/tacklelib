@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.05.13
+* 2020.12.05
 * tacklelib
 
 1. DESCRIPTION
@@ -60,9 +60,11 @@ languages:
   CMake modules to support and extend a build of a c++ project under cmake
   environment.
 * Python.
-  Various extension modules for the python.
+  Various extension scritps/modules for the python.
 * Bash.
-  Various extension modules for the bash shell.
+  Various extension scritps/modules for the bash shell.
+* VBS.
+  Various extension scritps/modules for the Visual Basic Script interpreter.
 
 In next sections will be introduced common steps to build the project under
 the Windows AND the Linux like platform together.
@@ -135,6 +137,8 @@ IDE's, applications and patches to run with or from:
   - to run cmake scripts and modules
   - 3.14+ does allow use generator expressions at install phase:
     https://cmake.org/cmake/help/v3.14/policy/CMP0087.html
+* Windows Script Host 5.8+
+  - standard implementation to run vbs scripts
 
 4. Modules:
 
