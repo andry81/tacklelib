@@ -1,3 +1,10 @@
+Function GetScriptDir()
+    script_file_path_str = WScript.ScriptFullName
+    Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
+    Dim script_file_obj : Set script_file_obj = fs_obj.GetFile(script_file_path_str)
+    GetScriptDir = fs_obj.GetParentFolderName(script_file_obj)
+End Function
+
 Sub PrintLine(str)
     Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
     Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
@@ -16,7 +23,7 @@ Sub Print(str)
     On Error Goto 0
 End Sub
 
-Sub PrintLineArr(arr, is_trim_empty)
+Sub PrintLineArr(arr, do_trim_lines)
     Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
     Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
 
@@ -24,19 +31,17 @@ Sub PrintLineArr(arr, is_trim_empty)
     Dim i
     Dim line_str
     For i = 0 to Ubound(arr)
-        If is_trim_empty Then
+        If do_trim_lines Then
           line_str = Trim(arr(i))
         Else
           line_str = arr(i)
         End If
-        If Not is_trim_empty Or line_str <> "" Then
-            stdout_obj.WriteLine arr(i)
-        End If
+        stdout_obj.WriteLine arr(i)
     Next
     On Error Goto 0
 End Sub
 
-Sub PrintArr(arr, separator_str, is_trim_empty)
+Sub PrintArr(arr, separator_str, do_trim_lines)
     Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
     Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
 
@@ -44,17 +49,15 @@ Sub PrintArr(arr, separator_str, is_trim_empty)
     Dim i
     Dim line_str
     For i = 0 to Ubound(arr)
-        If is_trim_empty Then
+        If do_trim_lines Then
           line_str = Trim(arr(i))
         Else
           line_str = arr(i)
         End If
-        If Not is_trim_empty Or line_str <> "" Then
-          If separator_str <> "" And i > 0 Then
-            stdout_obj.Write separator_str
-          End If
-          stdout_obj.Write arr(i)
+        If separator_str <> "" And i > 0 Then
+          stdout_obj.Write separator_str
         End If
+        stdout_obj.Write arr(i)
     Next
     On Error Goto 0
 End Sub
@@ -116,11 +119,11 @@ Function ReadIniFileAsStr(file_path_str)
     End If
 End Function
 
-Function ReadIniFileAsDict(file_path_str)
-    Set ReadIniFileAsDict = ReadIniFileLineArrAsDict(ReadFileLinesAsArr(file_path_str))
+Function ReadIniFileAsDict(file_path_str, key_suffix_from_index)
+    Set ReadIniFileAsDict = ReadIniFileLineArrAsDict(ReadFileLinesAsArr(file_path_str), key_suffix_from_index)
 End Function
 
-Function ReadIniFileLineArrAsDict(ini_line_arr)
+Function ReadIniFileLineArrAsDict(ini_line_arr, key_suffix_from_index)
     Set ReadIniFileLineArrAsDict = Nothing
 
     Dim dict_obj : Set dict_obj = CreateObject("Scripting.Dictionary")
@@ -128,7 +131,9 @@ Function ReadIniFileLineArrAsDict(ini_line_arr)
     Dim i
     Dim ini_line_str
     Dim section_str : section_str = ""
+    Dim key_
     Dim key_value_arr
+    Dim key_suffix_index : key_suffix_index = key_suffix_from_index
 
     Set dict_obj("") = CreateObject("Scripting.Dictionary")
 
@@ -140,10 +145,17 @@ Function ReadIniFileLineArrAsDict(ini_line_arr)
                 If section_str <> "" Then
                     Set dict_obj(section_str) = CreateObject("Scripting.Dictionary")
                 End If
+                key_suffix_index = key_suffix_from_index
             ElseIf ";" <> Left(ini_line_str, 1) Then
                 key_value_arr = Split(ini_line_str, "=", 2)
                 If 1 = UBound(key_value_arr) Then
-                    dict_obj(section_str)(Trim(key_value_arr(0))) = Trim(key_value_arr(1))
+                    key_ = Trim(key_value_arr(0))
+                    If key_suffix_from_index = -1 Then
+                        dict_obj(section_str)(key_) = Trim(key_value_arr(1))
+                    Else
+                        dict_obj(section_str)(key_ & CStr(key_suffix_index)) = Trim(key_value_arr(1))
+                        key_suffix_index = key_suffix_index + 1
+                    End If
                 End If
             End If
         End If
@@ -172,12 +184,12 @@ Function PrintIniFileSectionDict(section_dict_obj)
 End Function
 
 Function GetIniFileKey(file_path_str, section_str, key_)
-    Dim dict_obj : Set dict_obj = ReadIniFileAsDict(file_path_str)
+    Dim dict_obj : Set dict_obj = ReadIniFileAsDict(file_path_str, -1)
     GetIniFileKey = dict_obj(section_str)(key_)
 End Function
 
 Function GetIniFileKey_NoExcept(file_path_str, section_str, key_)
-    Dim dict_obj : Set dict_obj = ReadIniFileAsDict(file_path_str)
+    Dim dict_obj : Set dict_obj = ReadIniFileAsDict(file_path_str, -1)
     On Error Resume Next
     GetIniFileKey_NoExcept = dict_obj(section_str)(key_)
     On Error Goto 0
@@ -203,6 +215,27 @@ Function GetDictCount(dict_obj, key_)
     GetDictCount = dict_obj(key_).Count
     On Error Goto 0
 End Function
+
+Sub GrowArr(arr, size)
+    Dim reserve : reserve = UBound(arr) + 1
+    If size = reserve Then
+        If reserve <> 0 Then
+            reserve = reserve * 2
+        Else
+            reserve = 16
+        End If
+        ReDim Preserve arr(reserve - 1) ' upper bound instead of reserve size
+    ElseIf reserve < size Then
+        Do
+            If reserve <> 0 Then
+                reserve = reserve * 2
+            Else
+                reserve = 16
+            End If
+        Loop While reserve < size
+        ReDim Preserve arr(reserve - 1) ' upper bound instead of reserve size
+    End If
+End Sub
 
 Function PrintFileLines(file_path_str)
     PrintFileLines = 0
@@ -238,7 +271,7 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
     Dim is_section_to_cleanup : is_section_to_cleanup = False
     Dim do_ignore_blank_lines_after_removed_key : do_ignore_blank_lines_after_removed_key = False
 
-    Dim ini_file_cleanup_dict_obj : Set ini_file_cleanup_dict_obj = ReadIniFileLineArrAsDict(ini_file_cleanup_arr)
+    Dim ini_file_cleanup_dict_obj : Set ini_file_cleanup_dict_obj = ReadIniFileLineArrAsDict(ini_file_cleanup_arr, -1)
 
     For i = 0 to ini_file_arr_ubound
         ini_line_str = Trim(ini_file_arr(i))
@@ -323,7 +356,7 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
         End If
     End If
 
-    ReDim Preserve ini_file_out_arr(j)
+    If j > 0 Then ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
 
     DeleteIniFileArr = ini_file_out_arr
 End Function
@@ -341,7 +374,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
     Dim from_dict_key0, from_dict_key1
     Dim tmp_dict_obj
 
-    Dim ini_file_from_dict_obj : Set ini_file_from_dict_obj = ReadIniFileLineArrAsDict(ini_file_from_arr)
+    Dim ini_file_from_dict_obj : Set ini_file_from_dict_obj = ReadIniFileLineArrAsDict(ini_file_from_arr, -1)
 
     Dim is_section_to_merge
 
@@ -364,7 +397,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
 
             If ini_file_from_dict_obj.Exists(section_str) Then
                 Set tmp_dict_obj = ini_file_from_dict_obj(section_str)
-                If tmp_dict_obj.Count <> 0 Then
+                If tmp_dict_obj.Count > 0 Then
                     If do_append_empty_line_before_append_to_section Then
                         ' append trailing empty line
                         If j > 0 Then
@@ -492,7 +525,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
         End If
     End If
 
-    ReDim Preserve ini_file_out_arr(j)
+    If j > 0 Then ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
 
     MergeIniFileArr = ini_file_out_arr
 End Function

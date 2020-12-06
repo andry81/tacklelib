@@ -1,3 +1,13 @@
+2020.12.06:
+* new: vbs: tools/totalcmd: uninstall_totalcmd_buttonbar.vbs script to uninstall a button bar from the Total Commander main button bar
+* changed: vbs: readme update
+* refactor: vbs: tools/totalcmd: scripts refactor
+
+2020.12.05:
+* new: vbs: tools/totalcmd: standalone totalcmd vbs library to implement a functionality specific to the totalcmd
+* new: vbs: tools/totalcmd: `update_totalcmd_buttonbar.vbs` script to update totalcmd button bar configuration files from an external script
+* changed: vbs: import function is rewritten to implement inclusion guard and script directory relative paths as a builtin
+
 2020.12.04:
 * new: vbs: tacklelib vbs script library
 * new: vbs: tacklelib vbs tool scripts for the Total Commander application

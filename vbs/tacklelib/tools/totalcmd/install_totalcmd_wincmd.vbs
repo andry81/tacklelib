@@ -1,17 +1,36 @@
-Sub IncludeFile(file_path_str)
-    executeGlobal CreateObject("Scripting.FileSystemObject").OpenTextFile(file_path_str).ReadAll()
-End Sub
+' Features:
+'   * Builtin of inclusion guard
+'   * Inclusion path can be relative to the script directory
+Class ImportFunction
+    Private imports_dict_obj_
+    Private fs_obj_
 
-Function GetScriptDir()
-    script_file_path_str = WScript.ScriptFullName
-    Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
-    Dim script_file_obj : Set script_file_obj = fs_obj.GetFile(script_file_path_str)
-    GetScriptDir = fs_obj.GetParentFolderName(script_file_obj)
-End Function
+    Private Sub CLASS_INITIALIZE
+        set imports_dict_obj_ = WScript.createObject("Scripting.Dictionary")
+        set fs_obj_ = WScript.createObject("Scripting.FileSystemObject")
+    End Sub
 
-IncludeFile(GetScriptDir() & "/__init__.vbs")
+    Public Default Property Get func(file_path_str)
+        If "/" = Left(file_path_str, 1) Then
+            ' is relative to the script directory
+            script_file_path_str = WScript.ScriptFullName
+            Dim script_file_obj : Set script_file_obj = fs_obj_.GetFile(script_file_path_str)
+            file_path_str = fs_obj_.GetParentFolderName(script_file_obj) & file_path_str
+        End If
+        file_path_str = fs_obj_.GetAbsolutePathName(file_path_str)
 
-' PrintIniFileDict(ReadIniFileAsDict(WScript.Arguments(0)))
+        If Not imports_dict_obj_.Exists(file_path_str) Then
+            ExecuteGlobal fs_obj_.OpenTextFile(file_path_str).ReadAll()
+            imports_dict_obj_.Add file_path_str, Null
+        End If
+    End Property
+End Class
+
+Dim Import : Set Import = New ImportFunction
+
+Import("/__init__.vbs")
+
+' PrintIniFileDict(ReadIniFileAsDict(WScript.Arguments(0)), -1)
 
 Dim ini_file_path_in_str : ini_file_path_in_str = WScript.Arguments(0)
 Dim ini_file_path_out_str : ini_file_path_out_str = WScript.Arguments(1)
@@ -30,6 +49,16 @@ Dim ini_file_add_arr : ini_file_add_arr = ReadFileLinesAsArr(ini_file_path_add_s
 'On Error Resume Next
 Dim ini_file_cleanuped_arr : ini_file_cleanuped_arr = DeleteIniFileArr(ini_file_in_arr, ini_file_cleanup_arr, False, False)
 'If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+
+Dim shell_obj : Set shell_obj = WScript.CreateObject("WScript.Shell")
+Dim var0_value : var0_value = shell_obj.ExpandEnvironmentStrings("%COMMANDER_SCRIPTS_ROOT%")
+
+Dim i
+If var0_value <> "%COMMANDER_SCRIPTS_ROOT%" Then
+    For i = 0 to UBound(ini_file_add_arr)
+        ini_file_add_arr(i) = Replace(ini_file_add_arr(i), "{{COMMANDER_SCRIPTS_ROOT}}", var0_value)
+    Next
+End If
 
 'On Error Resume Next
 Dim ini_file_updated_arr : ini_file_updated_arr = MergeIniFileArr(ini_file_cleanuped_arr, ini_file_add_arr, True)

@@ -516,5 +516,9 @@ vbs/tacklelib/license.txt -text
 vbs/tacklelib/tacklelib.vbs -text
 vbs/tacklelib/tools/totalcmd/__init__.vbs -text
 vbs/tacklelib/tools/totalcmd/get_inifile_key.vbs -text
-vbs/tacklelib/tools/totalcmd/update_totalcmd_usercmd.vbs -text
-vbs/tacklelib/tools/totalcmd/update_totalcmd_wincmd.vbs -text
+vbs/tacklelib/tools/totalcmd/install_totalcmd_buttonbar.vbs -text
+vbs/tacklelib/tools/totalcmd/install_totalcmd_usercmd.vbs -text
+vbs/tacklelib/tools/totalcmd/install_totalcmd_wincmd.vbs -text
+vbs/tacklelib/tools/totalcmd/libs/__init__.vbs -text
+vbs/tacklelib/tools/totalcmd/libs/totalcmdlib.vbs -text
+vbs/tacklelib/tools/totalcmd/uninstall_totalcmd_buttonbar.vbs -text
