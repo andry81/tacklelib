@@ -63,7 +63,7 @@ Sub PrintArr(arr, separator_str, do_trim_lines)
 End Sub
 
 Function ReadFileLinesAsArr(file_path_str)
-    Set ReadFileLinesAsArr = Nothing
+    ReadFileLinesAsArr = Array()
 
     Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
 
@@ -106,7 +106,7 @@ Sub WriteFileLinesFromArr(file_path_str, line_arr, do_truncate)
 End Sub
 
 Function ReadIniFileAsStr(file_path_str)
-    Set ReadIniFileAsStr = Nothing
+    ReadIniFileAsStr = ""
 
     Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
     Dim dict_obj : Set dict_obj = CreateObject("Scripting.Dictionary")
@@ -114,8 +114,6 @@ Function ReadIniFileAsStr(file_path_str)
     Dim ini_file_obj : Set ini_file_obj = fs_obj.OpenTextFile(file_path_str)
     If Not ini_file_obj.AtEndOfStream Then
         ReadIniFileAsStr = ini_file_obj.ReadAll()
-    Else
-        ReadIniFileAsStr = ""
     End If
 End Function
 
@@ -124,7 +122,7 @@ Function ReadIniFileAsDict(file_path_str, key_suffix_from_index)
 End Function
 
 Function ReadIniFileLineArrAsDict(ini_line_arr, key_suffix_from_index)
-    Set ReadIniFileLineArrAsDict = Nothing
+    Set ReadIniFileLineArrAsDict = CreateObject("Scripting.Dictionary")
 
     Dim dict_obj : Set dict_obj = CreateObject("Scripting.Dictionary")
 
@@ -132,6 +130,7 @@ Function ReadIniFileLineArrAsDict(ini_line_arr, key_suffix_from_index)
     Dim ini_line_str
     Dim section_str : section_str = ""
     Dim key_
+    Dim key_value
     Dim key_value_arr
     Dim key_suffix_index : key_suffix_index = key_suffix_from_index
 
@@ -150,10 +149,11 @@ Function ReadIniFileLineArrAsDict(ini_line_arr, key_suffix_from_index)
                 key_value_arr = Split(ini_line_str, "=", 2)
                 If 1 = UBound(key_value_arr) Then
                     key_ = Trim(key_value_arr(0))
+                    key_value = Trim(key_value_arr(1))
                     If key_suffix_from_index = -1 Then
-                        dict_obj(section_str)(key_) = Trim(key_value_arr(1))
+                        dict_obj(section_str)(key_) = key_value
                     Else
-                        dict_obj(section_str)(key_ & CStr(key_suffix_index)) = Trim(key_value_arr(1))
+                        dict_obj(section_str)(key_ & CStr(key_suffix_index)) = key_value
                         key_suffix_index = key_suffix_index + 1
                     End If
                 End If
@@ -258,7 +258,7 @@ Function PrintFileLines(file_path_str)
 End Function
 
 Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys_instead_remove_section, do_remove_section_non_key_lines)
-    Set DeleteIniFileArr = Nothing
+    DeleteIniFileArr = Array()
 
     Dim ini_file_arr_ubound : ini_file_arr_ubound = UBound(ini_file_arr)
     Dim ini_file_out_arr
@@ -362,7 +362,7 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
 End Function
 
 Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_line_before_append_to_section)
-    Set MergeIniFileArr = Nothing
+    MergeIniFileArr = Array()
 
     Dim ini_file_to_arr_ubound : ini_file_to_arr_ubound = UBound(ini_file_to_arr)
     Dim ini_file_out_arr
