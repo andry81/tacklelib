@@ -1,4 +1,8 @@
 2020.12.07:
+* fixed: tools/totalcmd: scripts fixup
+* refactor: tools/totalcmd: scripts refactor
+
+2020.12.07:
 * new: tools/totalcmd: `install_totalcmd_buttonbar.vbs` script to (re)install a button bar from the Total Commander main button bar
 * new: tools/totalcmd: `uninstall_totalcmd_usercmd.vbs` and `uninstall_totalcmd_wincmd.vbs` scripts to uninstall respective configuration
 * refactor: tools/totalcmd: scripts refactor

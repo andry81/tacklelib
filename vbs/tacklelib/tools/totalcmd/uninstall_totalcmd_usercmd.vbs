@@ -41,7 +41,7 @@ Dim ini_file_in_arr : ini_file_in_arr = ReadFileLinesAsArr(ini_file_path_in_str)
 Dim ini_file_cleanup_arr : ini_file_cleanup_arr = ReadFileLinesAsArr(ini_file_path_cleanup_str)
 
 If ENABLE_ON_ERROR Then On Error Resume Next
-Dim ini_file_cleanuped_arr : ini_file_cleanuped_arr = DeleteIniFileArr(ini_file_in_arr, ini_file_cleanup_arr, False, False)
+Dim ini_file_cleanuped_arr : ini_file_cleanuped_arr = CleanupIniFileArr(ini_file_in_arr, ini_file_cleanup_arr, False, False)
 If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
 
 ' PrintLineArr ini_file_in_arr, False

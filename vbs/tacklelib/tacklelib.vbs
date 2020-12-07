@@ -257,12 +257,11 @@ Function PrintFileLines(file_path_str)
     PrintFileLines = num_lines
 End Function
 
-Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys_instead_remove_section, do_remove_section_non_key_lines)
-    DeleteIniFileArr = Array()
+Function CleanupIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys_instead_remove_section, do_remove_section_non_key_lines)
+    CleanupIniFileArr = Array()
 
     Dim ini_file_arr_ubound : ini_file_arr_ubound = UBound(ini_file_arr)
-    Dim ini_file_out_arr
-    ReDim ini_file_out_arr(ini_file_arr_ubound + 1)
+    Dim ini_file_out_arr : ini_file_out_arr = Array()
     Dim i, j : j = 0
     Dim ini_line_str
     Dim section_str
@@ -285,22 +284,25 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
                 is_section_to_cleanup = False
             End If
             If (Not is_section_to_cleanup) Or do_remove_all_keys_instead_remove_section Then
-                ini_file_out_arr(j) = ini_file_arr(i)
                 j = j + 1
+                GrowArr ini_file_out_arr, j
+                ini_file_out_arr(j - 1) = ini_file_arr(i)
             End If
         ElseIf Not is_section_to_cleanup Then
             If ini_line_str <> "" And ini_file_cleanup_dict_obj.Exists(section_str) And GetDictCount(ini_file_cleanup_dict_obj, section_str) <> 0 Then
                 If ";" = Left(ini_line_str, 1) Then
-                    ini_file_out_arr(j) = ini_file_arr(i)
                     j = j + 1
+                    GrowArr ini_file_out_arr, j
+                    ini_file_out_arr(j - 1) = ini_file_arr(i)
                 Else
                     key_value_arr = Split(ini_line_str, "=", 2)
                     If 1 = UBound(key_value_arr) Then
                         from_dict_key1 = Trim(key_value_arr(0))
                         If Not ini_file_cleanup_dict_obj(section_str).Exists(from_dict_key1) Then
                             do_ignore_blank_lines_after_removed_key = False
-                            ini_file_out_arr(j) = ini_file_arr(i)
                             j = j + 1
+                            GrowArr ini_file_out_arr, j
+                            ini_file_out_arr(j - 1) = ini_file_arr(i)
                         Else
                             ' remove all blank lines below if was at least one blank line above
                             If j > 0 And i < ini_file_arr_ubound Then
@@ -311,14 +313,16 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
                         End If
                     Else
                         do_ignore_blank_lines_after_removed_key = False
-                        ini_file_out_arr(j) = ini_file_arr(i)
                         j = j + 1
+                        GrowArr ini_file_out_arr, j
+                        ini_file_out_arr(j - 1) = ini_file_arr(i)
                     End If
                 End If
             Else
                 If ini_line_str <> "" Or Not do_ignore_blank_lines_after_removed_key Then
-                    ini_file_out_arr(j) = ini_file_arr(i)
                     j = j + 1
+                    GrowArr ini_file_out_arr, j
+                    ini_file_out_arr(j - 1) = ini_file_arr(i)
                 End If
                 If ini_line_str <> "" Then
                     do_ignore_blank_lines_after_removed_key = False
@@ -328,19 +332,22 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
             If Not do_remove_section_non_key_lines Then
                 If ini_line_str <> "" Then
                     If ";" = Left(ini_line_str, 1) Then
-                        ini_file_out_arr(j) = ini_file_arr(i)
                         j = j + 1
+                        GrowArr ini_file_out_arr, j
+                        ini_file_out_arr(j - 1) = ini_file_arr(i)
                     Else
                         key_value_arr = Split(ini_line_str, "=", 2)
                         If 0 = UBound(key_value_arr) Then
-                            ini_file_out_arr(j) = ini_file_arr(i)
                             j = j + 1
+                            GrowArr ini_file_out_arr, j
+                            ini_file_out_arr(j - 1) = ini_file_arr(i)
                         End If
                     End If
                 Else
                     If Not do_ignore_blank_lines_after_removed_key Then
-                        ini_file_out_arr(j) = ini_file_arr(i)
                         j = j + 1
+                        GrowArr ini_file_out_arr, j
+                        ini_file_out_arr(j - 1) = ini_file_arr(i)
                     Else
                         do_ignore_blank_lines_after_removed_key = False
                     End If
@@ -356,9 +363,9 @@ Function DeleteIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys
         End If
     End If
 
-    If j > 0 Then ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
+    ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
 
-    DeleteIniFileArr = ini_file_out_arr
+    CleanupIniFileArr = ini_file_out_arr
 End Function
 
 Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_line_before_append_to_section)
@@ -525,7 +532,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
         End If
     End If
 
-    If j > 0 Then ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
+    ReDim Preserve ini_file_out_arr(j - 1) ' upper bound instead of reserve size
 
     MergeIniFileArr = ini_file_out_arr
 End Function
