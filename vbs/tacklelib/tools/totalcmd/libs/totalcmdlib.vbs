@@ -65,7 +65,7 @@ Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
         End If
     Loop While False : Next
 
-    If button_index_arr_size > 0 Then ReDim Preserve button_index_arr(button_index_arr_size - 1) ' upper bound instead of reserve size
+    ReDim Preserve button_index_arr(button_index_arr_size - 1) ' upper bound instead of reserve size
 
     ' renumber buttons
     Dim ini_file_buttonbar_cleanuped_dict_obj : Set ini_file_buttonbar_cleanuped_dict_obj = CreateObject("Scripting.Dictionary")
@@ -126,7 +126,7 @@ Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
         End If
     Next
 
-    If i > 0 Then ReDim Preserve ini_file_cleanuped_arr(i - 1) ' upper bound instead of reserve size
+    ReDim Preserve ini_file_cleanuped_arr(i - 1) ' upper bound instead of reserve size
 
     CleanupTotalcmdButtonbar = ini_file_cleanuped_arr
 End Function
@@ -396,7 +396,7 @@ Function MergeTotalcmdButtonbar(ini_file_to_arr, ini_file_from_arr, insert_from_
         End If
     Next
 
-    If i > 0 Then ReDim Preserve ini_file_out_to_arr(i - 1) ' upper bound instead of reserve size
+    ReDim Preserve ini_file_out_to_arr(i - 1) ' upper bound instead of reserve size
 
     MergeTotalcmdButtonbar = ini_file_out_to_arr
 End Function
