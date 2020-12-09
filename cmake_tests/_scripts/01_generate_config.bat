@@ -45,7 +45,7 @@ set LASTERROR=%ERRORLEVEL%
 
 set /A NEST_LVL-=1
 
-if %NEST_LVL%0 EQU 0 pause
+if %NEST_LVL%0 EQU 0 call "%%CONTOOLS_ROOT%%/std/pause.bat"
 
 exit /b %LASTERROR%
 
@@ -110,6 +110,6 @@ exit /b
 :INIT_EXIT
 set LASTERROR=%ERRORLEVEL%
 
-if %NEST_LVL%0 EQU 0 pause
+if %NEST_LVL%0 EQU 0 call "%%CONTOOLS_ROOT%%/std/pause.bat"
 
 exit /b %LASTERROR%
