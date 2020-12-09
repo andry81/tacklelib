@@ -31,34 +31,34 @@
 * new: vbs: changelog file
 
 2020.08.03:
-* fixed: bash: bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
-* new: bash: bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
-* new: bash: bash_entry: `tkl_declare_array` to declare array without unset previous variable context
-* changed: bash: bash_entry: removed `tkl_declare_local` to bring new clean functionality
-* changed: bash: bash_entry, baselib.sh, buildlib.sh: replaced tkl_declare_local/tkl_declare_global/tkl_declare_global_array by tkl_declare/tkl_declare_array in certain places
-* refactor: bash: bash_entry: variable declaration functions refactor
+* fixed: bash/tacklelib/bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)
+* new: bash/tacklelib/bash_entry: `tkl_declare` to mix with the `local` attribute like `local myvar; tkl_declare myvar    "myvalue"` to align the value (can use both forward local and forward export)
+* new: bash/tacklelib/bash_entry: `tkl_declare_array` to declare array without unset previous variable context
+* changed: bash/tacklelib/bash_entry: removed `tkl_declare_local` to bring new clean functionality
+* changed: bash/tacklelib: bash_entry, baselib.sh, buildlib.sh: replaced tkl_declare_local/tkl_declare_global/tkl_declare_global_array by tkl_declare/tkl_declare_array in certain places
+* refactor: bash/tacklelib/bash_entry: variable declaration functions refactor
 
 2020.08.02:
 * changed: cmake/tacklelib: TODO file update
 
 2020.08.01:
-* changed: bash: buildlib.sh: implementation moved from project.sh scripts
-* refactor: bash: traplib.sh: header comments refactor
+* changed: bash/tacklelib/buildlib.sh: implementation moved from project.sh scripts
+* refactor: bash/tacklelib/traplib.sh: header comments refactor
 
 2020.08.01:
-* refactor: bash: bash_entry: minor refactor
+* refactor: bash/tacklelib/bash_entry: minor refactor
 
 2020.08.01:
-* changed: bash: bash_entry: implementation moved from project.sh scripts
+* changed: bash/tacklelib/bash_entry: implementation moved from project.sh scripts
 
 2020.07.13:
-* fixed: python: tacklelib: fix for case where an interactive python session is used
+* fixed: python/tacklelib: fix for case where an interactive python session is used
 
 2020.07.12:
 * fixed: bash: missed changes
 
 2020.07.11:
-* changed: python: pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
+* changed: python/pyxvcs scripts is redesigned to prepare for use in a new environment (explicit `CONFIGURE_ROOT` variable usage, new `CONFIGURE_OUTPUT_ROOT` variable to generate the config files or scripts outside of the `CONFIGURE_ROOT` variable, etc)
 
 2020.07.10:
 * new: bash: pyxvcs scripts moved from the pyxvcs project
