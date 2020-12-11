@@ -2247,7 +2247,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         set(is_next_list_value 0)     # to append `;` before a not empty value
         set(is_subst_open 0)          # after `$/{`
         set(prev_char "")
-        set(prev_char_escaped 0)
+        set(is_prev_char_escaped 0)
 
         # CAUTION:
         #   We DO NOT use `list(APPEND ...)` for this variable, so we don't need to make a not empty initial value for it,
@@ -2269,7 +2269,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         if (NOT is_next_char_to_escape)
           set(prev_char "\n")
-          set(prev_char_escaped 1)
+          set(is_prev_char_escaped 1)
 
           if (NOT is_str_quote_open)
             if (NOT "${var_values_list}" STREQUAL "")
@@ -2362,7 +2362,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 break()
               endif()
 
-              if (NOT prev_char_escaped AND "${prev_char}" STREQUAL "\$")
+              if (NOT is_prev_char_escaped AND "${prev_char}" STREQUAL "\$")
                 set(is_next_char_to_escape 1)
 
                 # push open sequence context
@@ -2549,7 +2549,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               endif()
             endif()
 
-            set(prev_char_escaped 0)
+            set(is_prev_char_escaped 0)
           else()
             set(is_next_char_to_escape 0)
 
@@ -2599,7 +2599,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
             math(EXPR value_from_index ${index}+1)
 
-            set(prev_char_escaped 1)
+            set(is_prev_char_escaped 1)
           endif()
 
           set(prev_char "${char}")

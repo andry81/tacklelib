@@ -28,6 +28,11 @@ if not defined PRINT_VARS_SET set PRINT_VARS_SET=0
 exit /b 0
 
 :CANONICAL_PATH
-set "%~1=%~dpf2"
-call set "%%~1=%%%~1:\=/%%"
+setlocal DISABLEDELAYEDEXPANSION
+for /F "eol= tokens=* delims=" %%i in ("%~2\.") do set "RETURN_VALUE=%%~fi"
+set "RETURN_VALUE=%RETURN_VALUE:\=/%"
+(
+  endlocal
+  set "%~1=%RETURN_VALUE%"
+)
 exit /b 0
