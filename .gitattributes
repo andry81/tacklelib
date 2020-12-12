@@ -4,6 +4,7 @@
 /01_preconfigure.bat -text
 /01_preconfigure.sh -text
 /CMakeLists.txt -text
+/README.md -text
 /README_EN.deps.txt -text
 /README_EN.linux_x86_64.txt -text
 /README_EN.python_xonsh.known_issues.txt -text
