@@ -1,4 +1,7 @@
 2020.12.14:
+* fixed: vbs/tools/shell: delete_file.vbs: missed to return an error code out of the script process
+
+2020.12.14:
 * new: vbs/tools: shell based script to be able to delete file by paths longer than 260+ characters.
 
 2020.12.12:

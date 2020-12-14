@@ -36,6 +36,7 @@ Class ImportFunction
 End Class
 
 Dim Import : Set Import = New ImportFunction
+Dim ENABLE_ON_ERROR : ENABLE_ON_ERROR = True ' CAUTION: set `False` to debug this script!
 
 Import("/__init__.vbs")
 
@@ -49,4 +50,6 @@ Dim file_path_str : file_path_str = WScript.Arguments(0)
 
 Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
 
+If ENABLE_ON_ERROR Then On Error Resume Next
 fs_obj.DeleteFile file_path_str
+If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
