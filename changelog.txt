@@ -1,3 +1,6 @@
+2020.12.14:
+* new: vbs/tools: shell based script to be able to delete file by paths longer than 260+ characters.
+
 2020.12.12:
 * new: markdown readme with links
 

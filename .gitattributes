@@ -515,6 +515,8 @@ vbs/tacklelib/README_EN.txt -text
 vbs/tacklelib/changelog.txt -text
 vbs/tacklelib/license.txt -text
 vbs/tacklelib/tacklelib.vbs -text
+vbs/tacklelib/tools/shell/__init__.vbs -text
+vbs/tacklelib/tools/shell/delete_file.vbs -text
 vbs/tacklelib/tools/totalcmd/__init__.vbs -text
 vbs/tacklelib/tools/totalcmd/get_inifile_key.vbs -text
 vbs/tacklelib/tools/totalcmd/install_totalcmd_buttonbar.vbs -text
