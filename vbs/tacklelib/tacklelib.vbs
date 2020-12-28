@@ -164,6 +164,36 @@ Function ReadIniFileLineArrAsDict(ini_line_arr, key_suffix_from_index)
     Set ReadIniFileLineArrAsDict = dict_obj
 End Function
 
+Function ReadIniFileDictAsLineArr(ini_file_dict_obj)
+    ReadIniFileDictAsLineArr = Array()
+
+    Dim ini_file_out_to_arr : ini_file_out_to_arr = Array()
+    Dim key0, key1
+
+    Dim i : i = 0
+    For Each key0 In ini_file_dict_obj.Keys()
+        If key0 <> "" Then
+            i = i + 1
+            GrowArr ini_file_out_to_arr, i
+            ini_file_out_to_arr(i - 1) = "[" & key0 & "]"
+        End If
+        If ini_file_dict_obj(key0).Count > 0 Then
+            For Each key1 In ini_file_dict_obj(key0)
+                i = i + 1
+                GrowArr ini_file_out_to_arr, i
+                ini_file_out_to_arr(i - 1) = key1 & "=" & ini_file_dict_obj(key0)(key1)
+            Next
+            i = i + 1
+            GrowArr ini_file_out_to_arr, i
+            ini_file_out_to_arr(i - 1) = ""
+        End If
+    Next
+
+    ReDim Preserve ini_file_out_to_arr(i - 1) ' upper bound instead of reserve size
+
+    ReadIniFileDictAsLineArr = ini_file_out_to_arr
+End Function
+
 Function PrintIniFileDict(dict_obj)
     Dim section_str
 
