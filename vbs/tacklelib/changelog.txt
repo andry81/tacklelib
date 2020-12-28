@@ -1,3 +1,8 @@
+2020.12.28:
+* fixed: tools/totalcmd/libs: totalcmdlib.vbs: missed buttonbar sort before cleanup
+* fixed: tools/totalcmd/libs: totalcmdlib.vbs: return input array if cleanup array is empty
+* new: tacklelib.vbs: `ReadIniFileDictAsLineArr` function
+
 2020.12.14:
 * fixed: tools/shell: delete_file.vbs: missed to return an error code out of the script process
 

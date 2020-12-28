@@ -1,18 +1,22 @@
 Import("/__init__.vbs")
 
 Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
-    CleanupTotalcmdButtonbar = Array()
+    CleanupTotalcmdButtonbar = ini_file_arr
 
     Dim ini_file_dict_obj : Set ini_file_dict_obj = ReadIniFileLineArrAsDict(ini_file_arr, -1)
     Dim ini_file_cleanup_dict_obj : Set ini_file_cleanup_dict_obj = ReadIniFileLineArrAsDict(ini_file_cleanup_arr, 0)
 
-    If Not ini_file_dict_obj.Exists("Buttonbar") Then Exit Function
-    If Not ini_file_cleanup_dict_obj.Exists("Buttonbar") Then Exit Function
+    If Not ini_file_dict_obj.Exists("Buttonbar") Or Not ini_file_cleanup_dict_obj.Exists("Buttonbar") Then
+        Exit Function
+    End If
 
     Dim button_index_arr : button_index_arr = Array()
     Dim button_index_arr_size : button_index_arr_size = 0
 
-    Dim ini_file_dict_obj1 : Set ini_file_dict_obj1 = ini_file_dict_obj("Buttonbar")
+    Dim ini_file_dict_obj1 : Set ini_file_dict_obj1 = SortTotalcmdButtonbarSection(ini_file_dict_obj("Buttonbar"))
+
+    'PrintIniFileSectionDict(ini_file_dict_obj1)
+
     Dim ini_file_cleanup_dict_obj1 : Set ini_file_cleanup_dict_obj1 = ini_file_cleanup_dict_obj("Buttonbar")
 
     Dim key0_prefix_regexp : Set key0_prefix_regexp = CreateObject("VBScript.RegExp")
@@ -27,8 +31,7 @@ Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
 
     Dim do_remove_trailing_separators_after_index : do_remove_trailing_separators_after_index = -1
 
-    ' empty `Do-Loop` to emulate `Continue`
-    For Each key0 In ini_file_dict_obj1.Keys() : Do
+    For Each key0 In ini_file_dict_obj1.Keys() : Do ' empty `Do-Loop` to emulate `Continue`
         Set key0_prefix_match = key0_prefix_regexp.Execute(key0)
         Set key0_suffix_match = key0_suffix_regexp.Execute(key0)
         If key0_prefix_match.Count + key0_suffix_match.Count < 2 Then Exit Do
@@ -73,7 +76,7 @@ Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
     Dim next_button_index : next_button_index = 0
     Dim button_index
 
-    For Each key0 In ini_file_dict_obj1.Keys() : Do
+    For Each key0 In ini_file_dict_obj1.Keys() : Do ' empty `Do-Loop` to emulate `Continue`
         Set key0_suffix_match = key0_suffix_regexp.Execute(key0)
         If key0_suffix_match.Count < 1 Then
             ini_file_buttonbar_cleanuped_dict_obj(key0) = ini_file_dict_obj1(key0)
@@ -105,30 +108,105 @@ Function CleanupTotalcmdButtonbar(ini_file_arr, ini_file_cleanup_arr)
     Next
 
     ' generate array
-    Dim ini_file_cleanuped_arr : ini_file_cleanuped_arr = Array()
+    CleanupTotalcmdButtonbar = ReadIniFileDictAsLineArr(ini_file_cleanuped_dict_obj)
+End Function
 
-    Dim i : i = 0
-    For Each key0 In ini_file_cleanuped_dict_obj.Keys()
-        If key0 <> "" Then
-            i = i + 1
-            GrowArr ini_file_cleanuped_arr, i
-            ini_file_cleanuped_arr(i - 1) = "[" & key0 & "]"
+' CAUTION:
+'   Will loose comments and other not key-value lines
+'
+Function SortTotalcmdButtonbarSection(ini_file_buttonbar_dict)
+    Set SortTotalcmdButtonbarSection = Nothing
+
+    Dim ini_file_buttonbar_sorted_dict : Set ini_file_buttonbar_sorted_dict = CreateObject("Scripting.Dictionary")
+
+    Dim key0_prefix_regexp : Set key0_prefix_regexp = CreateObject("VBScript.RegExp")
+    Dim key0_suffix_regexp : Set key0_suffix_regexp = CreateObject("VBScript.RegExp")
+    Dim key0_prefix_match, key0_suffix_match
+
+    Dim key0, key_, str_cmp
+    Dim key0_prefix, key0_suffix
+    Dim key0_last_prefixes_arr : key0_last_prefixes_arr = Array()
+    Dim key0_last_prefixes_arr_size
+    Dim key0_last_suffix : key0_last_suffix = 0
+    Dim key0_prev_suffix
+
+    key0_prefix_regexp.Pattern = "^\D+"
+    key0_suffix_regexp.Pattern = "\d+$"
+
+    Dim ini_file_buttonbar_dict_keys_arr : ini_file_buttonbar_dict_keys_arr = ini_file_buttonbar_dict.Keys()
+    Dim ini_file_buttonbar_dict_keys_arr_ubound : ini_file_buttonbar_dict_keys_arr_ubound = UBound(ini_file_buttonbar_dict_keys_arr)
+
+    Dim same_suffix_key_prefixes_arr : same_suffix_key_prefixes_arr = Array()
+    Dim same_suffix_key_prefixes_arr_size
+
+    Dim num_keys_with_suffix : num_keys_with_suffix = 0
+
+    ' copy keys w/o suffix at first
+    Dim i, j
+    For i = 0 to ini_file_buttonbar_dict_keys_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
+        key0 = ini_file_buttonbar_dict_keys_arr(i)
+
+        Set key0_suffix_match = key0_suffix_regexp.Execute(key0)
+        If key0_suffix_match.Count > 0 Then
+            num_keys_with_suffix = num_keys_with_suffix + 1
+            Exit Do
         End If
-        If ini_file_cleanuped_dict_obj(key0).Count > 0 Then
-            For Each key1 In ini_file_cleanuped_dict_obj(key0)
-                i = i + 1
-                GrowArr ini_file_cleanuped_arr, i
-                ini_file_cleanuped_arr(i - 1) = key1 & "=" & ini_file_cleanuped_dict_obj(key0)(key1)
-            Next
-            i = i + 1
-            GrowArr ini_file_cleanuped_arr, i
-            ini_file_cleanuped_arr(i - 1) = ""
-        End If
-    Next
 
-    ReDim Preserve ini_file_cleanuped_arr(i - 1) ' upper bound instead of reserve size
+        ini_file_buttonbar_sorted_dict.Add key0, ini_file_buttonbar_dict(key0)
+    Loop While False : Next
 
-    CleanupTotalcmdButtonbar = ini_file_cleanuped_arr
+    For i = 0 to num_keys_with_suffix - 1 : Do ' empty `Do-Loop` to emulate `Continue`
+        key0_prev_suffix = key0_last_suffix
+
+        ReDim same_suffix_key_prefixes_arr(-1)
+        same_suffix_key_prefixes_arr_size = 0
+
+        For j = 0 to ini_file_buttonbar_dict_keys_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
+            key0 = ini_file_buttonbar_dict_keys_arr(j)
+
+            Set key0_suffix_match = key0_suffix_regexp.Execute(key0)
+            If key0_suffix_match.Count < 1 Then Exit Do
+
+            Set key0_prefix_match = key0_prefix_regexp.Execute(key0)
+
+            If key0_prefix_match.Count > 0 Then
+                key0_prefix = CStr(key0_prefix_match.Item(0))
+            Else
+                key0_prefix = ""
+            End If
+
+            key0_suffix = CInt(key0_suffix_match.Item(0))
+
+            If key0_last_suffix < key0_suffix Then
+                If key0_prev_suffix = key0_last_suffix Then
+                    key0_prev_suffix = key0_suffix
+                End If
+
+                If key0_prev_suffix = key0_suffix Then
+                    same_suffix_key_prefixes_arr_size = same_suffix_key_prefixes_arr_size + 1
+                    GrowArr same_suffix_key_prefixes_arr, same_suffix_key_prefixes_arr_size
+                    same_suffix_key_prefixes_arr(same_suffix_key_prefixes_arr_size - 1) = key0_prefix
+                ElseIf key0_suffix < key0_prev_suffix Then
+                    key0_prev_suffix = key0_suffix
+                    same_suffix_key_prefixes_arr_size = 1
+                    ReDim same_suffix_key_prefixes_arr(0) ' upper bound instead of reserve size
+                    same_suffix_key_prefixes_arr(0) = key0_prefix
+                End If
+            End If
+        Loop While False : Next
+
+        ReDim Preserve same_suffix_key_prefixes_arr(same_suffix_key_prefixes_arr_size - 1)
+
+        key0_last_suffix = key0_prev_suffix
+
+        For j = 0 to UBound(same_suffix_key_prefixes_arr) : Do ' empty `Do-Loop` to emulate `Continue`
+            key0_prefix = same_suffix_key_prefixes_arr(j)
+            key_ = key0_prefix & CStr(key0_prev_suffix)
+            ini_file_buttonbar_sorted_dict.Add key_, ini_file_buttonbar_dict(key_)
+        Loop While False : Next
+    Loop While False : Next
+
+    Set SortTotalcmdButtonbarSection = ini_file_buttonbar_sorted_dict
 End Function
 
 Function MergeTotalcmdButtonbar(ini_file_to_arr, ini_file_from_arr, insert_from_index, do_make_margin_by_separators_if_not_present)
