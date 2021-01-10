@@ -2,7 +2,7 @@
 '   Shell based script to be able to copy directory.
 '
 ' USAGE:
-'   "%WINDIR%\System32\cscript.exe" //NOLOGO move_file.vbs "<file-path-from-dir>" "<file-path-to-dir>"
+'   "%WINDIR%\System32\cscript.exe" //NOLOGO copy_file.vbs "<file-path-from-dir>" "<file-path-to-dir>"
 '
 
 ' Features:
