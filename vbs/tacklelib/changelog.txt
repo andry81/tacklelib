@@ -1,3 +1,6 @@
+2021.01.11:
+* new: tools/registry: `post_wm_settingchange.vbs` script to trigger WM_SETTINGCHANGE message to initiate in other processes environment variables reread from the registry
+
 2021.01.10:
 * new: tools/shell: `copy_dir.vbs` and `move_dir.vbs` scripts to respectively move and copy directories. Can be used in the Windows XP, where the robocopy tool (which can move a directory) does not exist.
 
