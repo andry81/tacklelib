@@ -1,3 +1,7 @@
+2021.01.31:
+* new: tools/registry: `enum_reg_hkeys_as_list.vbs` script to enumerate registry key for subkeys with parameters as list with value separator
+* new: tacklelib.vbs: `ReplaceStringArr` function to replace array of strings
+
 2021.01.11:
 * new: tools/registry: `post_wm_settingchange.vbs` script to trigger WM_SETTINGCHANGE message to initiate in other processes environment variables reread from the registry
 
