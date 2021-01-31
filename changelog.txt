@@ -1,4 +1,8 @@
 2021.01.31:
+* new: vbs/tacklelib/tools/registry: `read_reg_hkeys_as_list.vbs` script to read registry keys with parameters as list with value separator
+* changed: vbs/tacklelib/tools/registry: enum_reg_hkeys_as_list.vbs: minor change
+
+2021.01.31:
 * new: vbs/tacklelib/tools/registry: `enum_reg_hkeys_as_list.vbs` script to enumerate registry key for subkeys with parameters as list with value separator
 * new: vbs/tacklelib/tacklelib.vbs: `ReplaceStringArr` function to replace array of strings
 

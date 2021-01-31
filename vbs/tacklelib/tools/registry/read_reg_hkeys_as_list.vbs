@@ -205,35 +205,40 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
   If hkey_suffix_str = "" Then Exit Do
 
-  StdRegProv_obj.EnumKey hkey_hive, hkey_suffix_str, subkey_arr
+  hkey_path_str = hkey_str
+  print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-  If Not IsNull(subkey_arr) Then
-    For Each subkey In subkey_arr
+  If param_arr_size > 0 Then
+    For Each param In param_arr
       If Right(hkey_str, 1) <> "\" Then
-        hkey_path_str = hkey_str & "\" & subkey
+        hkey_path_str = hkey_str & "\" & param
       Else
-        hkey_path_str = hkey_str & subkey
-      End If
-      print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-
-      If param_arr_size > 0 Then
-        For Each param In param_arr
-          hkey_path_str = hkey_str & "\" & subkey & "\" & param
-
-          value = default_value
-          On Error Resume Next
-          value = shell_obj.RegRead(hkey_path_str)
-          On Error Goto 0
-          If value = "" Then value = default_value
-
-          print_line = print_line & column_separator & ReplaceStringArr(value, Len(value), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-        Next
+        hkey_path_str = hkey_str & param
       End If
 
-      stdout_obj.WriteLine print_line
+      value = default_value
+      On Error Resume Next
+      value = shell_obj.RegRead(hkey_path_str)
+      On Error Goto 0
+      If value = "" Then value = default_value
+
+      print_line = print_line & column_separator & ReplaceStringArr(value, Len(value), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
     Next
   Else
-    print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-    stdout_obj.WriteLine print_line
+    If Right(hkey_str, 1) <> "\" Then
+      hkey_path_str = hkey_str & "\"
+    Else
+      hkey_path_str = hkey_str
+    End If
+
+    value = default_value
+    On Error Resume Next
+    value = shell_obj.RegRead(hkey_path_str)
+    On Error Goto 0
+    If value = "" Then value = default_value
+
+    print_line = print_line & column_separator & ReplaceStringArr(value, Len(value), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
   End If
+
+  stdout_obj.WriteLine print_line
 Loop While False : Next
