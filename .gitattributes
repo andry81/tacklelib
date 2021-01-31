@@ -517,6 +517,7 @@ vbs/tacklelib/license.txt -text
 vbs/tacklelib/tacklelib.vbs -text
 vbs/tacklelib/tools/registry/__init__.vbs -text
 vbs/tacklelib/tools/registry/enum_reg_hkeys_as_list.vbs -text
+vbs/tacklelib/tools/registry/enum_reg_values_as_list.vbs -text
 vbs/tacklelib/tools/registry/post_wm_settingchange.vbs -text
 vbs/tacklelib/tools/registry/read_reg_hkeys_as_list.vbs -text
 vbs/tacklelib/tools/shell/__init__.vbs -text

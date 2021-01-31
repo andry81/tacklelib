@@ -1,4 +1,8 @@
 2021.01.31:
+* new: tools/registry: `enum_reg_values_as_list.vbs` script to enum registry typed values as list with value separator
+* changed: tools/registry: code cleanup
+
+2021.01.31:
 * new: tools/registry: `read_reg_hkeys_as_list.vbs` script to read registry keys with parameters as list with value separator
 * changed: tools/registry: enum_reg_hkeys_as_list.vbs: minor change
 
