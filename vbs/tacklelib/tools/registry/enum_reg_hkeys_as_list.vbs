@@ -38,8 +38,8 @@ Dim ExpectFlags : ExpectFlags = True
 
 ReDim hkey_str_arr(WScript.Arguments.Count - 1)
 
-Dim param_arr : param_arr = Array()
-Dim param_arr_size : param_arr_size = 0
+Dim in_param_arr : in_param_arr = Array()
+Dim in_param_arr_size : in_param_arr_size = 0
 
 Dim column_separator : column_separator = "|"
 Dim default_value : default_value = "."
@@ -54,16 +54,11 @@ Dim i, j : j = 0
 For i = 0 To WScript.Arguments.Count-1
   If ExpectFlags Then
     If Mid(WScript.Arguments(i), 1, 1) = "-" Then
-      If WScript.Arguments(i) = "-hkey" Then
-        hkey_str_arr_size = hkey_str_arr_size + 1
-        GrowArr hkey_str_arr, hkey_str_arr_size
+      If WScript.Arguments(i) = "-param" Then
+        in_param_arr_size = in_param_arr_size + 1
+        GrowArr in_param_arr, in_param_arr_size
         i = i + 1
-        hkey_str_arr(hkey_str_arr_size - 1) = WScript.Arguments(i)
-      ElseIf WScript.Arguments(i) = "-param" Then
-        param_arr_size = param_arr_size + 1
-        GrowArr param_arr, param_arr_size
-        i = i + 1
-        param_arr(param_arr_size - 1) = WScript.Arguments(i)
+        in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
       ElseIf WScript.Arguments(i) = "-sep" Then
         i = i + 1
         column_separator = WScript.Arguments(i)
@@ -94,7 +89,7 @@ Next
 
 ' upper bound instead of reserve size
 ReDim Preserve hkey_str_arr(j - 1)
-ReDim Preserve param_arr(param_arr_size - 1)
+ReDim Preserve in_param_arr(in_param_arr_size - 1)
 ReDim Preserve from_str_replace_arr(from_str_replace_arr_size - 1)
 ReDim Preserve to_str_replace_arr(to_str_replace_arr_size - 1)
 
@@ -180,10 +175,8 @@ Dim hkey_str, hkey_str_len
 Dim hkey_hive
 Dim subkey, subkey_arr
 
-Dim str_to_replace, from_str_replace, from_str_replace_len, to_str_replace
+Dim paramkey, paramval
 
-Dim is_found_replace_str
-Dim param, value
 Dim hkey_path_str
 Dim print_line
 
@@ -216,17 +209,17 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
       End If
       print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-      If param_arr_size > 0 Then
-        For Each param In param_arr
-          hkey_path_str = hkey_str & "\" & subkey & "\" & param
+      If in_param_arr_size > 0 Then
+        For Each paramkey In in_param_arr
+          hkey_path_str = hkey_str & "\" & subkey & "\" & paramkey
 
-          value = default_value
+          paramval = default_value
           On Error Resume Next
-          value = shell_obj.RegRead(hkey_path_str)
+          paramval = shell_obj.RegRead(hkey_path_str)
           On Error Goto 0
-          If value = "" Then value = default_value
+          If paramval = "" Then paramval = default_value
 
-          print_line = print_line & column_separator & ReplaceStringArr(value, Len(value), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+          print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
         Next
       End If
 

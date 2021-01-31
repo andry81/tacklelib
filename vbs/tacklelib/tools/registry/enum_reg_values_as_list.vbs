@@ -42,6 +42,7 @@ Dim in_param_arr : in_param_arr = Array()
 Dim in_param_arr_size : in_param_arr_size = 0
 
 Dim column_separator : column_separator = "|"
+Dim multisz_separator : multisz_separator = "?0D?0A"
 Dim default_value : default_value = "."
 
 Dim from_str_replace_arr : from_str_replace_arr = Array()
@@ -62,6 +63,9 @@ For i = 0 To WScript.Arguments.Count-1
       ElseIf WScript.Arguments(i) = "-sep" Then
         i = i + 1
         column_separator = WScript.Arguments(i)
+      ElseIf WScript.Arguments(i) = "-multisz_sep" Then
+        i = i + 1
+        multisz_separator = WScript.Arguments(i)
       ElseIf WScript.Arguments(i) = "-defval" Then
         i = i + 1
         default_value = WScript.Arguments(i)
@@ -110,6 +114,12 @@ Const HKEY_CURRENT_USER   = &H80000001
 Const HKEY_LOCAL_MACHINE  = &H80000002
 Const HKEY_USERS          = &H80000003
 Const HKEY_CURRENT_CONFIG = &H80000005
+
+Const REG_SZ              = 1
+Const REG_EXPAND_SZ       = 2
+Const REG_BINARY          = 3
+Const REG_DWORD           = 4
+Const REG_MULTI_SZ        = 7
 
 Dim hkey_prefix_str_arr : hkey_prefix_str_arr = Array()
 ReDim hkey_prefix_str_arr(9) ' upper bound instead of reserve size
@@ -166,7 +176,7 @@ If str_replace_arr_size = 0 Then
   str_replace_arr_size = 2
 End If
 
-Dim shell_obj : Set shell_obj = WScript.CreateObject("WScript.Shell")
+' Dim shell_obj : Set shell_obj = WScript.CreateObject("WScript.Shell")
 Dim StdRegProv_obj : Set StdRegProv_obj = GetObject("winmgmts://./root/default:StdRegProv")
 
 Dim hkey_prefix_str, hkey_prefix_len
@@ -174,9 +184,10 @@ Dim hkey_suffix_str
 Dim hkey_str, hkey_str_len
 Dim hkey_hive
 
-Dim paramkey, paramval
+Dim paramkey, paramtype, paramval, parambytes, parambyte, paramstr
+Dim out_paramkey, out_paramkey_arr, out_paramtype_arr, out_paramstr_arr
 
-Dim hkey_path_str
+Dim is_found_paramkey
 Dim print_line
 
 For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
@@ -197,40 +208,111 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
   If hkey_suffix_str = "" Then Exit Do
 
-  hkey_path_str = hkey_str
-  print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+  StdRegProv_obj.EnumValues hkey_hive, hkey_suffix_str, out_paramkey_arr, out_paramtype_arr
 
-  If in_param_arr_size > 0 Then
-    For Each paramkey In in_param_arr
-      If Right(hkey_str, 1) <> "\" Then
-        hkey_path_str = hkey_str & "\" & paramkey
+  If Not IsNull(out_paramkey_arr) Then
+    j = -1
+    For Each out_paramkey In out_paramkey_arr : Do ' empty `Do-Loop` to emulate `Continue`
+      j = j + 1
+
+      If in_param_arr_size > 0 Then
+        is_found_paramkey = False
+        For Each paramkey In in_param_arr
+          If paramkey = out_paramkey Then
+            is_found_paramkey = True
+            Exit For
+          End If
+        Next
       Else
-        hkey_path_str = hkey_str & paramkey
+        is_found_paramkey = True
       End If
 
-      paramval = default_value
-      On Error Resume Next
-      paramval = shell_obj.RegRead(hkey_path_str)
-      On Error Goto 0
-      If paramval = "" Then paramval = default_value
+      If Not is_found_paramkey Then Exit Do
 
-      print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-    Next
+      If Right(hkey_str, 1) <> "\" Then
+        hkey_path_str = hkey_str & "\" & out_paramkey
+      Else
+        hkey_path_str = hkey_str & out_paramkey
+      End If
+      print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+      paramtype = out_paramtype_arr(j)
+      Select Case paramtype
+        Case REG_SZ
+          paramval = default_value
+
+          On Error Resume Next
+          StdRegProv_obj.GetStringValue hkey_hive, hkey_suffix_str, out_paramkey, paramval
+          On Error Goto 0
+
+          If paramval = "" Then paramval = default_value
+
+          print_line = print_line & column_separator & "REG_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        Case REG_EXPAND_SZ
+          paramval = default_value
+
+          On Error Resume Next
+          StdRegProv_obj.GetExpandedStringValue hkey_hive, hkey_suffix_str, out_paramkey, paramval
+          On Error Goto 0
+
+          If paramval = "" Then paramval = default_value
+
+          print_line = print_line & column_separator & "REG_EXPAND_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        Case REG_BINARY
+          parambytes = Array()
+
+          On Error Resume Next
+          StdRegProv_obj.GetBinaryValue hkey_hive, hkey_suffix_str, out_paramkey, parambytes
+          On Error Goto 0
+
+          paramval = ""
+          For Each parambyte in parambytes
+            paramval = paramval & Hex(parambyte)
+          Next
+
+          If paramval = "" Then paramval = default_value
+
+          print_line = print_line & column_separator & "REG_BINARY" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        Case REG_DWORD
+          paramval = default_value
+
+          On Error Resume Next
+          StdRegProv_obj.GetDWORDValue hkey_hive, hkey_suffix_str, out_paramkey, paramval
+          On Error Goto 0
+
+          If paramval <> default_value Then paramval = CStr(paramval)
+          If paramval = "" Then paramval = default_value
+
+          print_line = print_line & column_separator & "REG_DWORD" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        Case REG_MULTI_SZ
+          out_paramstr_arr = Array()
+
+          On Error Resume Next
+          StdRegProv_obj.GetMultiStringValue hkey_hive, hkey_suffix_str, out_paramkey, out_paramstr_arr
+          On Error Goto 0
+
+          paramval = ""
+          For Each paramstr in out_paramstr_arr
+            If paramval <> "" Then
+              paramval = paramval & multisz_separator & paramstr
+            Else
+              paramval = paramval & paramstr
+            End If
+          Next
+
+          If paramval = "" Then paramval = default_value
+
+          print_line = print_line & column_separator & "REG_MULTI_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+      End Select
+
+      stdout_obj.WriteLine print_line
+    Loop While False : Next
   Else
-    If Right(hkey_str, 1) <> "\" Then
-      hkey_path_str = hkey_str & "\"
-    Else
-      hkey_path_str = hkey_str
-    End If
-
-    paramval = default_value
-    On Error Resume Next
-    paramval = shell_obj.RegRead(hkey_path_str)
-    On Error Goto 0
-    If paramval = "" Then paramval = default_value
-
-    print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+    print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+    stdout_obj.WriteLine print_line
   End If
-
-  stdout_obj.WriteLine print_line
 Loop While False : Next
