@@ -287,6 +287,42 @@ Function PrintFileLines(file_path_str)
     PrintFileLines = num_lines
 End Function
 
+Function ReplaceStringArr(str, str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+  Dim escaped_str
+  Dim str_to_replace, from_str_replace, from_str_replace_len
+  Dim i, j, is_found_replace_str
+
+  If str_replace_arr_size > 0 Then
+    escaped_str = ""
+
+    For i = 1 To str_len
+      is_found_replace_str = False
+
+      For j = 0 To str_replace_arr_size - 1
+        from_str_replace = from_str_replace_arr(j)
+        from_str_replace_len = Len(from_str_replace)
+
+        str_to_replace = Mid(str, i, from_str_replace_len)
+
+        If from_str_replace = str_to_replace Then
+          escaped_str = escaped_str & to_str_replace_arr(j)
+          j = j + from_str_replace_len - 1
+          is_found_replace_str = True
+          Exit For
+        End If
+      Next
+
+      If Not is_found_replace_str Then
+        escaped_str = escaped_str & Mid(str, i, 1)
+      End IF
+    Next
+  Else
+    escaped_str = str
+  End If
+
+  ReplaceStringArr = escaped_str
+End Function
+
 Function CleanupIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_keys_instead_remove_section, do_remove_section_non_key_lines)
     CleanupIniFileArr = Array()
 

@@ -515,6 +515,8 @@ vbs/tacklelib/README_EN.txt -text
 vbs/tacklelib/changelog.txt -text
 vbs/tacklelib/license.txt -text
 vbs/tacklelib/tacklelib.vbs -text
+vbs/tacklelib/tools/registry/__init__.vbs -text
+vbs/tacklelib/tools/registry/enum_reg_hkeys_as_list.vbs -text
 vbs/tacklelib/tools/registry/post_wm_settingchange.vbs -text
 vbs/tacklelib/tools/shell/__init__.vbs -text
 vbs/tacklelib/tools/shell/copy_dir.vbs -text
