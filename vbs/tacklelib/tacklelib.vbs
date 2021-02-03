@@ -306,7 +306,7 @@ Function ReplaceStringArr(str, str_len, str_replace_arr_size, from_str_replace_a
 
         If from_str_replace = str_to_replace Then
           escaped_str = escaped_str & to_str_replace_arr(j)
-          j = j + from_str_replace_len - 1
+          i = i + from_str_replace_len - 1
           is_found_replace_str = True
           Exit For
         End If
