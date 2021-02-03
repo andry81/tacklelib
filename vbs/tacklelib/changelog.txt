@@ -1,4 +1,5 @@
 2021.02.03:
+* fixed: tacklelib.vbs: `ReplaceStringArr` function fixup
 * fixed: tools/registry: minor fixup
 * new: tools/totalcmd: install_totalcmd_buttonbar.vbs: `-rep` flag to replace substrings in merged ini file
 
