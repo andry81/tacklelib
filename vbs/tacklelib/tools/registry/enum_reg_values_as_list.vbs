@@ -94,8 +94,8 @@ Next
 ' upper bound instead of reserve size
 ReDim Preserve hkey_str_arr(j - 1)
 ReDim Preserve in_param_arr(in_param_arr_size - 1)
-ReDim Preserve from_str_replace_arr(from_str_replace_arr_size - 1)
-ReDim Preserve to_str_replace_arr(to_str_replace_arr_size - 1)
+ReDim Preserve from_str_replace_arr(str_replace_arr_size - 1)
+ReDim Preserve to_str_replace_arr(str_replace_arr_size - 1)
 
 Dim hkey_str_arr_ubound : hkey_str_arr_ubound = UBound(hkey_str_arr)
 

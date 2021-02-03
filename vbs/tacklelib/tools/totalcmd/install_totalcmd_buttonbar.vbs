@@ -33,14 +33,48 @@ Import("/__init__.vbs")
 
 Import("/libs/totalcmdlib.vbs")
 
+Dim ExpectFlags : ExpectFlags = True
+
+Dim from_str_replace_arr : from_str_replace_arr = Array()
+Dim to_str_replace_arr : to_str_replace_arr = Array()
+
+Dim str_replace_arr_size : str_replace_arr_size = 0
+Dim i
+
+For i = 0 To WScript.Arguments.Count-1
+  If ExpectFlags Then
+    If Mid(WScript.Arguments(i), 1, 1) = "-" Then
+      If WScript.Arguments(i) = "-rep" Then
+        str_replace_arr_size = str_replace_arr_size + 1
+
+        GrowArr from_str_replace_arr, str_replace_arr_size
+        i = i + 1
+        from_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
+
+        GrowArr to_str_replace_arr, str_replace_arr_size
+        i = i + 1
+        to_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
+      End If
+    Else
+      ExpectFlags = False
+    End If
+  End If
+
+  If Not ExpectFlags Then Exit For
+Next
+
+' upper bound instead of reserve size
+ReDim Preserve from_str_replace_arr(str_replace_arr_size - 1)
+ReDim Preserve to_str_replace_arr(str_replace_arr_size - 1)
+
 ' PrintIniFileDict(ReadIniFileAsDict(WScript.Arguments(0)), -1)
 
-Dim ini_file_path_in_str : ini_file_path_in_str = WScript.Arguments(0)
-Dim ini_file_path_out_str : ini_file_path_out_str = WScript.Arguments(1)
-Dim ini_file_path_cleanup_str : ini_file_path_cleanup_str = WScript.Arguments(2)
-Dim ini_file_path_add_str : ini_file_path_add_str = WScript.Arguments(3)
-Dim insert_buttonbar_from_index : insert_buttonbar_from_index = CInt(WScript.Arguments(4))
-Dim do_make_margin_by_separators_if_not_present : do_make_margin_by_separators_if_not_present = CBool(WScript.Arguments(5))
+Dim ini_file_path_in_str : ini_file_path_in_str = WScript.Arguments(i + 0)
+Dim ini_file_path_out_str : ini_file_path_out_str = WScript.Arguments(i + 1)
+Dim ini_file_path_cleanup_str : ini_file_path_cleanup_str = WScript.Arguments(i + 2)
+Dim ini_file_path_add_str : ini_file_path_add_str = WScript.Arguments(i + 3)
+Dim insert_buttonbar_from_index : insert_buttonbar_from_index = CInt(WScript.Arguments(i + 4))
+Dim do_make_margin_by_separators_if_not_present : do_make_margin_by_separators_if_not_present = CBool(WScript.Arguments(i + 5))
 
 Dim ini_file_in_arr : ini_file_in_arr = ReadFileLinesAsArr(ini_file_path_in_str)
 Dim ini_file_cleanup_arr
@@ -58,6 +92,16 @@ If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal e
 If ENABLE_ON_ERROR Then On Error Resume Next
 Dim ini_file_updated_arr : ini_file_updated_arr = MergeTotalcmdButtonbar(ini_file_cleanuped_arr, ini_file_add_arr, insert_buttonbar_from_index, do_make_margin_by_separators_if_not_present)
 If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+
+Dim str
+Dim ini_file_updated_arr_ubound : ini_file_updated_arr_ubound = UBound(ini_file_updated_arr)
+
+If str_replace_arr_size > 0 Then
+  For i = 0 To ini_file_updated_arr_ubound
+    str = ini_file_updated_arr(i)
+    ini_file_updated_arr(i) = ReplaceStringArr(str, Len(str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+  Next
+End If
 
 ' PrintLineArr ini_file_in_arr, False
 ' PrintLine("---")
