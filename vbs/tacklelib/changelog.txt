@@ -1,4 +1,8 @@
 2021.02.04:
+* new: tools/registry: *_reg_*_as_list.vbs: `-unesc` flag to unescape characters
+* changed: tools/registry: *_reg_*_as_list.vbs: merge functionality between scripts
+
+2021.02.04:
 * new: tools/registry: read_reg_hkeys_as_list.vbs: `-param_per_line` flag to explicitly control param-per-line output
 
 2021.02.04:

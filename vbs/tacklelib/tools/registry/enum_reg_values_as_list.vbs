@@ -35,6 +35,7 @@ Dim Import : Set Import = New ImportFunction
 Import("/__init__.vbs")
 
 Dim ExpectFlags : ExpectFlags = True
+Dim UnescapeArgs : UnescapeArgs = False
 
 ReDim hkey_str_arr(WScript.Arguments.Count - 1)
 
@@ -55,7 +56,9 @@ Dim i, j : j = 0
 For i = 0 To WScript.Arguments.Count-1
   If ExpectFlags Then
     If Mid(WScript.Arguments(i), 1, 1) = "-" Then
-      If WScript.Arguments(i) = "-param" Then
+      If WScript.Arguments(i) = "-unesc" Then ' Unescape %xx or %uxxxx
+        UnescapeArgs = True
+      ElseIf WScript.Arguments(i) = "-param" Then
         in_param_arr_size = in_param_arr_size + 1
         GrowArr in_param_arr, in_param_arr_size
         i = i + 1
@@ -309,10 +312,19 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
           print_line = print_line & column_separator & "REG_MULTI_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
       End Select
 
+      If UnescapeArgs Then
+        print_line = Unescape(print_line)
+      End If
+
       stdout_obj.WriteLine print_line
     Loop While False : Next
   Else
     print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+    If UnescapeArgs Then
+      print_line = Unescape(print_line)
+    End If
+
     stdout_obj.WriteLine print_line
   End If
 Loop While False : Next
