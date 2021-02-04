@@ -1,4 +1,7 @@
 2021.02.04:
+* new: tools/registry: read_reg_hkeys_as_list.vbs: `-param_per_line` flag to explicitly control param-per-line output
+
+2021.02.04:
 * new: tools/registry: read_reg_hkeys_as_list.vbs: `-posparam` flag to use parameter in a group over only specific set of hive keys (hkeys)
 
 2021.02.03:
