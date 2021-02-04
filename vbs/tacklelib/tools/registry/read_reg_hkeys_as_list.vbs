@@ -35,11 +35,16 @@ Dim Import : Set Import = New ImportFunction
 Import("/__init__.vbs")
 
 Dim ExpectFlags : ExpectFlags = True
+Dim ParamPerLine : ParamPerLine = False
 
 ReDim hkey_str_arr(WScript.Arguments.Count - 1)
 
 Dim in_param_arr : in_param_arr = Array()
 Dim in_param_arr_size : in_param_arr_size = 0
+
+' positional parameters, when each parameter is associated with set of hkey positional indexes
+Dim in_param_hkey_pos_arr_arr : in_param_hkey_pos_arr_arr = Array()
+Dim in_param_hkey_pos_arr_arr_size : in_param_hkey_pos_arr_arr_size = 0
 
 Dim column_separator : column_separator = "|"
 Dim default_value : default_value = "."
@@ -56,7 +61,21 @@ For i = 0 To WScript.Arguments.Count-1
     If Mid(WScript.Arguments(i), 1, 1) = "-" Then
       If WScript.Arguments(i) = "-param" Then
         in_param_arr_size = in_param_arr_size + 1
+        in_param_hkey_pos_arr_arr_size = in_param_hkey_pos_arr_arr_size + 1
         GrowArr in_param_arr, in_param_arr_size
+        GrowArr in_param_hkey_pos_arr_arr, in_param_hkey_pos_arr_arr_size
+        i = i + 1
+        in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
+        in_param_hkey_pos_arr_arr(in_param_hkey_pos_arr_arr_size - 1) = Array() ' empty array if position list is not defined, which means `for all`
+      ElseIf WScript.Arguments(i) = "-posparam" Then
+        ParamPerLine = True
+        in_param_arr_size = in_param_arr_size + 1
+        in_param_hkey_pos_arr_arr_size = in_param_hkey_pos_arr_arr_size + 1
+        GrowArr in_param_arr, in_param_arr_size
+        GrowArr in_param_hkey_pos_arr_arr, in_param_hkey_pos_arr_arr_size
+        ' position list at first
+        i = i + 1
+        in_param_hkey_pos_arr_arr(in_param_hkey_pos_arr_arr_size - 1) = Split(WScript.Arguments(i), ",", -1, vbBinaryCompare)
         i = i + 1
         in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
       ElseIf WScript.Arguments(i) = "-sep" Then
@@ -90,6 +109,7 @@ Next
 ' upper bound instead of reserve size
 ReDim Preserve hkey_str_arr(j - 1)
 ReDim Preserve in_param_arr(in_param_arr_size - 1)
+ReDim Preserve in_param_hkey_pos_arr_arr(in_param_hkey_pos_arr_arr_size - 1)
 ReDim Preserve from_str_replace_arr(str_replace_arr_size - 1)
 ReDim Preserve to_str_replace_arr(str_replace_arr_size - 1)
 
@@ -174,10 +194,12 @@ Dim hkey_suffix_str
 Dim hkey_str, hkey_str_len
 Dim hkey_hive
 
+Dim param_hkey_pos_arr, param_hkey_pos_arr_ubound
 Dim paramkey, paramval
 
 Dim hkey_path_str
 Dim print_line
+Dim k, is_param_requested_on_hkey
 
 For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   hkey_str = hkey_str_arr(i)
@@ -197,26 +219,71 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
   If hkey_suffix_str = "" Then Exit Do
 
-  hkey_path_str = hkey_str
-  print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-
   If in_param_arr_size > 0 Then
-    For Each paramkey In in_param_arr
-      If Right(hkey_str, 1) <> "\" Then
-        hkey_path_str = hkey_str & "\" & paramkey
-      Else
-        hkey_path_str = hkey_str & paramkey
-      End If
+    If ParamPerLine Then
+      For j = 0 To in_param_arr_size - 1 : Do ' empty `Do-Loop` to emulate `Continue`
+        param_hkey_pos_arr = in_param_hkey_pos_arr_arr(j)
+        param_hkey_pos_arr_ubound = UBound(param_hkey_pos_arr)
 
-      paramval = default_value
-      On Error Resume Next
-      paramval = shell_obj.RegRead(hkey_path_str)
-      On Error Goto 0
-      If paramval = "" Then paramval = default_value
+        If param_hkey_pos_arr_ubound >= 0 Then
+          is_param_requested_on_hkey = False
 
-      print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-    Next
+          For k = 0 To param_hkey_pos_arr_ubound
+            If CInt(param_hkey_pos_arr(k)) = i Then
+              is_param_requested_on_hkey = True
+              Exit For
+            End If
+          Next
+
+          If Not is_param_requested_on_hkey Then Exit Do
+        End If
+
+        print_line = ReplaceStringArr(hkey_str, hkey_str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        paramkey = in_param_arr(j)
+
+        print_line = print_line & column_separator & ReplaceStringArr(paramkey, Len(paramkey), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        If Right(hkey_str, 1) <> "\" Then
+          hkey_path_str = hkey_str & "\" & paramkey
+        Else
+          hkey_path_str = hkey_str & paramkey
+        End If
+
+        paramval = default_value
+        On Error Resume Next
+        paramval = shell_obj.RegRead(hkey_path_str)
+        On Error Goto 0
+        If paramval = "" Then paramval = default_value
+
+        print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        stdout_obj.WriteLine print_line
+      Loop While False : Next
+    Else
+      print_line = ReplaceStringArr(hkey_str, hkey_str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+      For Each paramkey In in_param_arr
+        If Right(hkey_str, 1) <> "\" Then
+          hkey_path_str = hkey_str & "\" & paramkey
+        Else
+          hkey_path_str = hkey_str & paramkey
+        End If
+
+        paramval = default_value
+        On Error Resume Next
+        paramval = shell_obj.RegRead(hkey_path_str)
+        On Error Goto 0
+        If paramval = "" Then paramval = default_value
+
+        print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+      Next
+
+      stdout_obj.WriteLine print_line
+    End If
   Else
+    print_line = ReplaceStringArr(hkey_str, hkey_str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
     If Right(hkey_str, 1) <> "\" Then
       hkey_path_str = hkey_str & "\"
     Else
@@ -230,7 +297,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
     If paramval = "" Then paramval = default_value
 
     print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-  End If
 
-  stdout_obj.WriteLine print_line
+    stdout_obj.WriteLine print_line
+  End If
 Loop While False : Next
