@@ -59,7 +59,9 @@ Dim i, j : j = 0
 For i = 0 To WScript.Arguments.Count-1
   If ExpectFlags Then
     If Mid(WScript.Arguments(i), 1, 1) = "-" Then
-      If WScript.Arguments(i) = "-param" Then
+      If WScript.Arguments(i) = "-param_per_line" Then
+        ParamPerLine = True
+      ElseIf WScript.Arguments(i) = "-param" Then
         in_param_arr_size = in_param_arr_size + 1
         in_param_hkey_pos_arr_arr_size = in_param_hkey_pos_arr_arr_size + 1
         GrowArr in_param_arr, in_param_arr_size
