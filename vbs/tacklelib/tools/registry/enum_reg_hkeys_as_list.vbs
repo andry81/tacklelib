@@ -281,9 +281,9 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
             stdout_obj.WriteLine print_line
           Loop While False : Next
         Else
-          For Each paramkey In in_param_arr
-            print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+          print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
+          For Each paramkey In in_param_arr
             If Right(hkey_path_str, 1) <> "\" Then
               paramkey_path_str = hkey_path_str & "\" & paramkey
             Else
@@ -297,13 +297,13 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
             If paramval = "" Then paramval = default_value
 
             print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-
-            If UnescapeArgs Then
-              print_line = Unescape(print_line)
-            End If
-
-            stdout_obj.WriteLine print_line
           Next
+
+          If UnescapeArgs Then
+            print_line = Unescape(print_line)
+          End If
+
+          stdout_obj.WriteLine print_line
         End If
       Else
         print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
