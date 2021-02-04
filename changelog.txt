@@ -1,3 +1,6 @@
+2021.02.04:
+* new: vbs/tacklelib/tools/registry: read_reg_hkeys_as_list.vbs: `-posparam` flag to use parameter in a group over only specific set of hive keys (hkeys)
+
 2021.02.03:
 * fixed: vbs/tacklelib: tacklelib.vbs: `ReplaceStringArr` function fixup
 * fixed: vbs/tacklelib/tools/registry: minor fixup
