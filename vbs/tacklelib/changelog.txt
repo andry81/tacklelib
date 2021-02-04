@@ -1,3 +1,6 @@
+2021.02.05:
+* fixed: tools/registry: enum_reg_hkeys_as_list.vbs: missed change
+
 2021.02.04:
 * new: tools/registry: *_reg_*_as_list.vbs: `-unesc` flag to unescape characters
 * changed: tools/registry: *_reg_*_as_list.vbs: merge functionality between scripts

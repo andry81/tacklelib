@@ -1,3 +1,6 @@
+2021.02.05:
+* fixed: vbs/tacklelib/tools/registry: enum_reg_hkeys_as_list.vbs: missed change
+
 2021.02.04:
 * new: vbs/tacklelib/tools/registry: *_reg_*_as_list.vbs: `-unesc` flag to unescape characters
 * changed: vbs/tacklelib/tools/registry: *_reg_*_as_list.vbs: merge functionality between scripts
