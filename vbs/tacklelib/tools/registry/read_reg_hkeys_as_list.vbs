@@ -35,6 +35,7 @@ Dim Import : Set Import = New ImportFunction
 Import("/__init__.vbs")
 
 Dim ExpectFlags : ExpectFlags = True
+Dim UnescapeArgs : UnescapeArgs = False
 Dim ParamPerLine : ParamPerLine = False
 
 ReDim hkey_str_arr(WScript.Arguments.Count - 1)
@@ -59,7 +60,9 @@ Dim i, j : j = 0
 For i = 0 To WScript.Arguments.Count-1
   If ExpectFlags Then
     If Mid(WScript.Arguments(i), 1, 1) = "-" Then
-      If WScript.Arguments(i) = "-param_per_line" Then
+      If WScript.Arguments(i) = "-unesc" Then ' Unescape %xx or %uxxxx
+        UnescapeArgs = True
+      ElseIf WScript.Arguments(i) = "-param_per_line" Then
         ParamPerLine = True
       ElseIf WScript.Arguments(i) = "-param" Then
         in_param_arr_size = in_param_arr_size + 1
@@ -199,7 +202,7 @@ Dim hkey_hive
 Dim param_hkey_pos_arr, param_hkey_pos_arr_ubound
 Dim paramkey, paramval
 
-Dim hkey_path_str
+Dim hkey_path_str, paramkey_path_str
 Dim print_line
 Dim k, is_param_requested_on_hkey
 
@@ -247,18 +250,22 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
         print_line = print_line & column_separator & ReplaceStringArr(paramkey, Len(paramkey), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
         If Right(hkey_str, 1) <> "\" Then
-          hkey_path_str = hkey_str & "\" & paramkey
+          paramkey_path_str = hkey_str & "\" & paramkey
         Else
-          hkey_path_str = hkey_str & paramkey
+          paramkey_path_str = hkey_str & paramkey
         End If
 
         paramval = default_value
         On Error Resume Next
-        paramval = shell_obj.RegRead(hkey_path_str)
+        paramval = shell_obj.RegRead(paramkey_path_str)
         On Error Goto 0
         If paramval = "" Then paramval = default_value
 
         print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+        If UnescapeArgs Then
+          print_line = Unescape(print_line)
+        End If
 
         stdout_obj.WriteLine print_line
       Loop While False : Next
@@ -267,19 +274,23 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
       For Each paramkey In in_param_arr
         If Right(hkey_str, 1) <> "\" Then
-          hkey_path_str = hkey_str & "\" & paramkey
+          paramkey_path_str = hkey_str & "\" & paramkey
         Else
-          hkey_path_str = hkey_str & paramkey
+          paramkey_path_str = hkey_str & paramkey
         End If
 
         paramval = default_value
         On Error Resume Next
-        paramval = shell_obj.RegRead(hkey_path_str)
+        paramval = shell_obj.RegRead(paramkey_path_str)
         On Error Goto 0
         If paramval = "" Then paramval = default_value
 
         print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
       Next
+
+      If UnescapeArgs Then
+        print_line = Unescape(print_line)
+      End If
 
       stdout_obj.WriteLine print_line
     End If
@@ -299,6 +310,10 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
     If paramval = "" Then paramval = default_value
 
     print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+
+    If UnescapeArgs Then
+      print_line = Unescape(print_line)
+    End If
 
     stdout_obj.WriteLine print_line
   End If
