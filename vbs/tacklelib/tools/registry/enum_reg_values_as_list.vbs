@@ -195,6 +195,11 @@ Dim print_line
 
 For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   hkey_str = hkey_str_arr(i)
+
+  If UnescapeArgs Then
+    hkey_str = Unescape(hkey_str)
+  End If
+
   hkey_str_len = Len(hkey_str)
   hkey_suffix_str = ""
 
@@ -312,18 +317,10 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
           print_line = print_line & column_separator & "REG_MULTI_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
       End Select
 
-      If UnescapeArgs Then
-        print_line = Unescape(print_line)
-      End If
-
       stdout_obj.WriteLine print_line
     Loop While False : Next
   Else
     print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-
-    If UnescapeArgs Then
-      print_line = Unescape(print_line)
-    End If
 
     stdout_obj.WriteLine print_line
   End If

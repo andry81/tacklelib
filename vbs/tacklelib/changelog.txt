@@ -1,3 +1,6 @@
+2021.02.07:
+* fixed: tools/registry: incorrect `-unesc` flag processing
+
 2021.02.05:
 * fixed: tools/registry: enum_reg_hkeys_as_list.vbs: missed change
 
