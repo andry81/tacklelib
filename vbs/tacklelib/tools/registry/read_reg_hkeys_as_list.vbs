@@ -208,6 +208,11 @@ Dim k, is_param_requested_on_hkey
 
 For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   hkey_str = hkey_str_arr(i)
+
+  If UnescapeArgs Then
+    hkey_str = Unescape(hkey_str)
+  End If
+
   hkey_str_len = Len(hkey_str)
   hkey_suffix_str = ""
 
@@ -247,6 +252,10 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
         paramkey = in_param_arr(j)
 
+        If UnescapeArgs Then
+          paramkey = Unescape(paramkey)
+        End If
+
         print_line = print_line & column_separator & ReplaceStringArr(paramkey, Len(paramkey), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
         If Right(hkey_str, 1) <> "\" Then
@@ -263,16 +272,16 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
         print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-        If UnescapeArgs Then
-          print_line = Unescape(print_line)
-        End If
-
         stdout_obj.WriteLine print_line
       Loop While False : Next
     Else
       print_line = ReplaceStringArr(hkey_str, hkey_str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
       For Each paramkey In in_param_arr
+        If UnescapeArgs Then
+          paramkey = Unescape(paramkey)
+        End If
+
         If Right(hkey_str, 1) <> "\" Then
           paramkey_path_str = hkey_str & "\" & paramkey
         Else
@@ -287,10 +296,6 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
         print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
       Next
-
-      If UnescapeArgs Then
-        print_line = Unescape(print_line)
-      End If
 
       stdout_obj.WriteLine print_line
     End If
@@ -310,10 +315,6 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
     If paramval = "" Then paramval = default_value
 
     print_line = print_line & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
-
-    If UnescapeArgs Then
-      print_line = Unescape(print_line)
-    End If
 
     stdout_obj.WriteLine print_line
   End If
