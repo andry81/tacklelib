@@ -248,14 +248,7 @@ End Function
 
 Sub GrowArr(arr, size)
     Dim reserve : reserve = UBound(arr) + 1
-    If size = reserve Then
-        If reserve <> 0 Then
-            reserve = reserve * 2
-        Else
-            reserve = 16
-        End If
-        ReDim Preserve arr(reserve - 1) ' upper bound instead of reserve size
-    ElseIf reserve < size Then
+    If reserve < size Then
         Do
             If reserve <> 0 Then
                 reserve = reserve * 2

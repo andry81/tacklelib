@@ -1,3 +1,7 @@
+2021.02.14:
+* changed: vbs/tacklelib/tools/registry: code improvement and cleanup
+* changed: vbs/tacklelib: tacklelib.vbs: code cleanup
+
 2021.02.07:
 * fixed: vbs/tacklelib/tools/registry: incorrect `-unesc` flag processing
 
