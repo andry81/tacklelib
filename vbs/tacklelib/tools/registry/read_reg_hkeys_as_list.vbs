@@ -35,7 +35,7 @@ Dim Import : Set Import = New ImportFunction
 Import("/__init__.vbs")
 
 Dim ExpectFlags : ExpectFlags = True
-Dim UnescapeArgs : UnescapeArgs = False
+Dim UnescapeAllArgs : UnescapeAllArgs = False
 Dim ParamPerLine : ParamPerLine = False
 
 ReDim hkey_str_arr(WScript.Arguments.Count - 1)
@@ -55,16 +55,19 @@ Dim to_str_replace_arr : to_str_replace_arr = Array()
 
 Dim str_replace_arr_size : str_replace_arr_size = 0
 
+Dim arg
 Dim i, j : j = 0
 
 For i = 0 To WScript.Arguments.Count-1
+  arg = WScript.Arguments(i)
+
   If ExpectFlags Then
-    If Mid(WScript.Arguments(i), 1, 1) = "-" Then
-      If WScript.Arguments(i) = "-unesc" Then ' Unescape %xx or %uxxxx
-        UnescapeArgs = True
-      ElseIf WScript.Arguments(i) = "-param_per_line" Then
+    If Mid(arg, 1, 1) = "-" Then
+      If arg = "-u" Then ' Unescape %xx or %uxxxx
+        UnescapeAllArgs = True
+      ElseIf arg = "-param_per_line" Then
         ParamPerLine = True
-      ElseIf WScript.Arguments(i) = "-param" Then
+      ElseIf arg = "-param" Then
         in_param_arr_size = in_param_arr_size + 1
         in_param_hkey_pos_arr_arr_size = in_param_hkey_pos_arr_arr_size + 1
         GrowArr in_param_arr, in_param_arr_size
@@ -72,7 +75,7 @@ For i = 0 To WScript.Arguments.Count-1
         i = i + 1
         in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
         in_param_hkey_pos_arr_arr(in_param_hkey_pos_arr_arr_size - 1) = Array() ' empty array if position list is not defined, which means `for all`
-      ElseIf WScript.Arguments(i) = "-posparam" Then
+      ElseIf arg = "-posparam" Then
         ParamPerLine = True
         in_param_arr_size = in_param_arr_size + 1
         in_param_hkey_pos_arr_arr_size = in_param_hkey_pos_arr_arr_size + 1
@@ -83,13 +86,13 @@ For i = 0 To WScript.Arguments.Count-1
         in_param_hkey_pos_arr_arr(in_param_hkey_pos_arr_arr_size - 1) = Split(WScript.Arguments(i), ",", -1, vbBinaryCompare)
         i = i + 1
         in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
-      ElseIf WScript.Arguments(i) = "-sep" Then
+      ElseIf arg = "-sep" Then
         i = i + 1
         column_separator = WScript.Arguments(i)
-      ElseIf WScript.Arguments(i) = "-defval" Then
+      ElseIf arg = "-defval" Then
         i = i + 1
         default_value = WScript.Arguments(i)
-      ElseIf WScript.Arguments(i) = "-rep" Then
+      ElseIf arg = "-rep" Then
         str_replace_arr_size = str_replace_arr_size + 1
 
         GrowArr from_str_replace_arr, str_replace_arr_size
@@ -106,7 +109,7 @@ For i = 0 To WScript.Arguments.Count-1
   End If
 
   If Not ExpectFlags Then
-    hkey_str_arr(j) = WScript.Arguments(i)
+    hkey_str_arr(j) = arg
     j = j + 1
   End If
 Next
@@ -179,16 +182,16 @@ Next
 
 ' default replacements
 If str_replace_arr_size = 0 Then
+  str_replace_arr_size = 2
+
   ' upper bound instead of reserve size
-  Redim from_str_replace_arr(1)
-  Redim to_str_replace_arr(1)
+  Redim from_str_replace_arr(str_replace_arr_size - 1)
+  Redim to_str_replace_arr(str_replace_arr_size - 1)
 
   from_str_replace_arr(0) = "?"
   to_str_replace_arr(0) = "?00"
   from_str_replace_arr(1) = column_separator
   to_str_replace_arr(1) = "?01"
-
-  str_replace_arr_size = 2
 End If
 
 Dim shell_obj : Set shell_obj = WScript.CreateObject("WScript.Shell")
@@ -209,7 +212,7 @@ Dim k, is_param_requested_on_hkey
 For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   hkey_str = hkey_str_arr(i)
 
-  If UnescapeArgs Then
+  If UnescapeAllArgs Then
     hkey_str = Unescape(hkey_str)
   End If
 
@@ -252,7 +255,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
         paramkey = in_param_arr(j)
 
-        If UnescapeArgs Then
+        If UnescapeAllArgs Then
           paramkey = Unescape(paramkey)
         End If
 
@@ -278,7 +281,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
       print_line = ReplaceStringArr(hkey_str, hkey_str_len, str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
       For Each paramkey In in_param_arr
-        If UnescapeArgs Then
+        If UnescapeAllArgs Then
           paramkey = Unescape(paramkey)
         End If
 

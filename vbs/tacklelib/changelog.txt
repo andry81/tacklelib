@@ -1,3 +1,7 @@
+2021.02.14:
+* changed: tools/registry: code improvement and cleanup
+* changed: tacklelib.vbs: code cleanup
+
 2021.02.07:
 * fixed: tools/registry: incorrect `-unesc` flag processing
 
