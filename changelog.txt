@@ -1,3 +1,6 @@
+2021.02.26:
+* changed: vbs/tacklelib: readme update
+
 2021.02.14:
 * changed: vbs/tacklelib/tools/registry: code improvement and cleanup
 * changed: vbs/tacklelib: tacklelib.vbs: code cleanup

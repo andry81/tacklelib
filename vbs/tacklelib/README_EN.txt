@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.12.04
+* 2021.02.26
 * tacklelib--vbs
 
 1. DESCRIPTION
@@ -7,7 +7,10 @@
 3. REPOSITORIES
 4. PREREQUISITES
 5. CATALOG CONTENT DESCRIPTION
-6. AUTHOR
+6. KNOWN ISSUES
+6.1. A Visual Basic script error message: `Microsoft VBScript runtime error: This script contains malicious content and has been blocked by your antivirus software.: 'ExecuteGlobal'`
+6.2. A Visual Basic script hangs on execution.
+7. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -46,7 +49,10 @@ IDE's, applications and patches to run with or from:
 
 1. OS platforms.
 
-* Windows 7 (`.bat` only)
+* Windows XP
+* Windows 7
+* Windows 8/8.1
+* Windows 10
 
 2. Interpreters:
 
@@ -68,6 +74,34 @@ IDE's, applications and patches to run with or from:
      # The core library.
 
 -------------------------------------------------------------------------------
-6. AUTHOR
+6. KNOWN ISSUES
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+6.1. A Visual Basic script error message: `Microsoft VBScript runtime error: This script contains malicious content and has been blocked by your antivirus software.: 'ExecuteGlobal'`
+-------------------------------------------------------------------------------
+
+Reason:
+
+  The Windows Defender generates a false positive for a vbs script.
+
+Solution:
+
+  Turn off the Windows Defender on a moment of a script execution.
+
+-------------------------------------------------------------------------------
+6.2. A Visual Basic script hangs on execution.
+-------------------------------------------------------------------------------
+
+Reason:
+
+  The Windows Defender generates a false positive for a vbs script.
+
+Solution:
+
+  Turn off the Windows Defender on a moment of a script execution.
+
+-------------------------------------------------------------------------------
+7. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)
