@@ -1,3 +1,11 @@
+Function If_(bClause, sTrue, sFalse)
+    If CBool(bClause) Then
+        If_ = sTrue
+    Else 
+        If_ = sFalse
+    End If
+End Function
+
 Function GetScriptDir()
     script_file_path_str = WScript.ScriptFullName
     Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
