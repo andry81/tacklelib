@@ -1,3 +1,6 @@
+2021.03.04:
+* new: vbs/tacklelib/tacklelib.vbs: `If_` function for use inside expressions
+
 2021.02.26:
 * changed: vbs/tacklelib: readme update
 
