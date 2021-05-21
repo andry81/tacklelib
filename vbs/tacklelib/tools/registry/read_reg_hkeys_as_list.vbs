@@ -58,11 +58,11 @@ Dim str_replace_arr_size : str_replace_arr_size = 0
 Dim arg
 Dim i, j : j = 0
 
-For i = 0 To WScript.Arguments.Count-1
+For i = 0 To WScript.Arguments.Count-1 : Do ' empty `Do-Loop` to emulate `Continue`
   arg = WScript.Arguments(i)
 
   If ExpectFlags Then
-    If Mid(arg, 1, 1) = "-" Then
+    If arg <> "--" And Mid(arg, 1, 1) = "-" Then
       If arg = "-u" Then ' Unescape %xx or %uxxxx
         UnescapeAllArgs = True
       ElseIf arg = "-param_per_line" Then
@@ -105,6 +105,8 @@ For i = 0 To WScript.Arguments.Count-1
       End If
     Else
       ExpectFlags = False
+
+      If arg = "--" Then Exit Do
     End If
   End If
 
@@ -112,7 +114,7 @@ For i = 0 To WScript.Arguments.Count-1
     hkey_str_arr(j) = arg
     j = j + 1
   End If
-Next
+Loop While False : Next
 
 ' upper bound instead of reserve size
 ReDim Preserve hkey_str_arr(j - 1)
