@@ -1,3 +1,6 @@
+2021.06.15:
+* new: include/tacklelib/utility/type_traits: `for_each_unroll` for multidimensional arrays
+
 2021.03.04:
 * new: vbs/tacklelib/tacklelib.vbs: `If_` function for use inside expressions
 
