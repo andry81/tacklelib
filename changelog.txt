@@ -1,4 +1,7 @@
 2021.07.02:
+* new: include/tacklelib/utility/type_traits.hpp: nested break fix in the `for_each_unroll` function
+
+2021.07.02:
 * fixed: include/tacklelib/utility/platform_features.hpp: `constexpr` usage in GCC 4.7.x and lower
 * fixed: include/tacklelib/utility/type_identity.hpp: potential linkage errors fixup
 * new: include/tacklelib/utility/type_traits.hpp: added functor break support in the `for_each_unroll` function
