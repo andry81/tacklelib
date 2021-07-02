@@ -442,6 +442,9 @@ namespace utility
         static CONSTEXPR const bool value = b;
     };
 
+    template <bool b>
+    CONSTEXPR const bool bool_identity<b>::value;
+
     template <bool... b>
     struct bool_identities
     {
@@ -457,6 +460,9 @@ namespace utility
         using type = int;
         static CONSTEXPR const type value = v;
     };
+
+    template <int v>
+    CONSTEXPR const int int_identity<v>::value;
 
     template <int... v>
     struct int_identities
@@ -474,6 +480,9 @@ namespace utility
         static CONSTEXPR const type value = v;
     };
 
+    template <size_t v>
+    CONSTEXPR const size_t size_identity<v>::value;
+
     template <size_t... v>
     struct size_identities
     {
@@ -489,6 +498,9 @@ namespace utility
         using type = int8_t;
         static CONSTEXPR const type value = v;
     };
+
+    template <int8_t v>
+    CONSTEXPR const int8_t int8_identity<v>::value;
 
     template <int8_t... v>
     struct int8_identities
@@ -506,6 +518,9 @@ namespace utility
         static CONSTEXPR const type value = v;
     };
 
+    template <uint8_t v>
+    CONSTEXPR const uint8_t uint8_identity<v>::value;
+
     template <uint8_t... v>
     struct uint8_identities
     {
@@ -521,6 +536,9 @@ namespace utility
         using type = int16_t;
         static CONSTEXPR const type value = v;
     };
+
+    template <int16_t v>
+    CONSTEXPR const int16_t int16_identity<v>::value;
 
     template <int16_t... v>
     struct int16_identities
@@ -538,6 +556,9 @@ namespace utility
         static CONSTEXPR const type value = v;
     };
 
+    template <uint16_t v>
+    CONSTEXPR const uint16_t uint16_identity<v>::value;
+
     template <uint16_t... v>
     struct uint16_identities
     {
@@ -553,6 +574,9 @@ namespace utility
         using type = int32_t;
         static CONSTEXPR const type value = v;
     };
+
+    template <int32_t v>
+    CONSTEXPR const int32_t int32_identity<v>::value;
 
     template <int32_t... v>
     struct int32_identities
@@ -570,6 +594,9 @@ namespace utility
         static CONSTEXPR const type value = v;
     };
 
+    template <uint32_t v>
+    CONSTEXPR const uint32_t uint32_identity<v>::value;
+
     template <uint32_t... v>
     struct uint32_identities
     {
@@ -585,6 +612,9 @@ namespace utility
         using type = int64_t;
         static CONSTEXPR const type value = v;
     };
+
+    template <int64_t v>
+    CONSTEXPR const int64_t int64_identity<v>::value;
 
     template <int64_t... v>
     struct int64_identities
@@ -602,6 +632,9 @@ namespace utility
         static CONSTEXPR const type value = v;
     };
 
+    template <uint64_t v>
+    CONSTEXPR const uint64_t uint64_identity<v>::value;
+
     template <uint64_t... v>
     struct uint64_identities
     {
@@ -617,6 +650,9 @@ namespace utility
         using type = T;
         static CONSTEXPR const int index = Index;
     };
+
+    template <typename T, int Index>
+    CONSTEXPR const int type_index_identity<T, Index>::index;
 
     template <typename T, int... Index>
     struct type_index_identities
