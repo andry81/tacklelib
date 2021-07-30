@@ -305,6 +305,7 @@ include/tacklelib/tackle/constexpr_string.hpp -text
 include/tacklelib/tackle/date_time.hpp -text
 include/tacklelib/tackle/debug.hpp -text
 include/tacklelib/tackle/deque.hpp -text
+include/tacklelib/tackle/explicit_type.hpp -text
 include/tacklelib/tackle/file_handle.hpp -text
 include/tacklelib/tackle/file_reader.hpp -text
 include/tacklelib/tackle/geometry/geometry.hpp -text
