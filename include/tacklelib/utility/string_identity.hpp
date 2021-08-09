@@ -35,6 +35,9 @@
 #define UTILITY_LITERAL_STRING_(ansi_str, char_type)    ((void)((ansi_str)[0]), ::utility::literal_string_caster<typename ::utility::remove_cvref<char_type>::type>::cast_from(ansi_str, L ## ansi_str, u ## ansi_str, U ## ansi_str))
 #define UTILITY_LITERAL_STRING(ansi_str, char_type)     UTILITY_LITERAL_STRING_(ansi_str, char_type)
 
+#define UTILITY_LITERAL_STRING_WITH_PREFIX_(ansi_str, prefix) prefix ## ansi_str
+#define UTILITY_LITERAL_STRING_WITH_PREFIX(ansi_str, prefix) UTILITY_LITERAL_STRING_WITH_PREFIX_(ansi_str, prefix)
+
 #define UTILITY_LITERAL_STRING_BY_CHAR_ARRAY(char_type, char_value) \
     ((void)((UTILITY_PP_MACRO_ARG0(char_value)) * 0), ::utility::literal_string_from_chars<typename ::utility::remove_cvref<char_type>::type>(char_value, UTILITY_LITERAL_CHAR('\0', char_type)))
 

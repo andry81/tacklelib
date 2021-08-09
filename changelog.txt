@@ -1,3 +1,6 @@
+2021.08.09:
+* new: include/tacklelib/tackle/string_identity.hpp: UTILITY_LITERAL_STRING_WITH_PREFIX macro to use literal ansi string with prefix
+
 2021.07.30:
 * new: include/tacklelib/tackle/explicit_type.hpp: safe bool and safe int idiom classes
 
