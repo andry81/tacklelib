@@ -165,7 +165,7 @@ function tkl_remove_array_from_uarray()
   done
 }
 
-function tkl_item_from_uarray()
+function tkl_remove_item_from_uarray()
 {
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
 

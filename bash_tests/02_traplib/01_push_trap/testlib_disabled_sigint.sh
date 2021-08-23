@@ -3,7 +3,7 @@
 # Script can be ONLY included by "source" command.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]]; then
 
-tkl_include "testlib.sh" || exit $?
+tkl_include "testlib.sh" || tkl_abort_include
 
 sigint_pause()
 {

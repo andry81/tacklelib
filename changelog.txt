@@ -1,3 +1,7 @@
+2021.08.23:
+* fixed: bash: minor fix
+* changed: bash_tests: minor changes
+
 2021.08.14:
 * changed: markdown readme update
 

@@ -3,7 +3,7 @@
 if [[ -n "$BASH" ]]; then
 
 source '/bin/bash_entry'
-tkl_include 'testlib.sh' || exit $?
+tkl_include 'testlib.sh' || tkl_abort_include
 
 function test_1()
 {
