@@ -1,4 +1,7 @@
 2021.08.23:
+* fixed: bash: minor fixup
+
+2021.08.23:
 * fixed: bash: minor fix
 * changed: bash_tests: minor changes
 

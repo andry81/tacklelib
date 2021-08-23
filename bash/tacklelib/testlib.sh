@@ -19,12 +19,11 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_TESTLIB_SH=1 # including guard
 
-source '/bin/bash_entry'
-
-tkl_include 'baselib.sh'
-tkl_include 'traplib.sh'
-tkl_include 'funclib.sh'
-tkl_include 'stringlib.sh'
+source '/bin/bash_entry' || exit $?
+tkl_include 'baselib.sh' || tkl_abort_include
+tkl_include 'traplib.sh' || tkl_abort_include
+tkl_include 'funclib.sh' || tkl_abort_include
+tkl_include 'stringlib.sh' || tkl_abort_include
 
 # special variable to direct inclusion in the `tkl_testmodule_run_test` function
 SOURCE_TACKLELIB_TESTLIB_FILE="$BASH_SOURCE_FILE"

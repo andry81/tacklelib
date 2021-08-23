@@ -19,7 +19,7 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_BASELIB_SH=1 # including guard
 
-source '/bin/bash_entry'
+source '/bin/bash_entry' || exit $?
 
 function tkl_enable_nocase_match()
 {

@@ -7,10 +7,9 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_FUNCLIB_SH=1 # including guard
 
-source '/bin/bash_entry'
-
-tkl_include 'baselib.sh'
-tkl_include 'hashlib.sh'
+source '/bin/bash_entry' || exit $?
+tkl_include 'baselib.sh' || tkl_abort_include
+tkl_include 'hashlib.sh' || tkl_abort_include
 
 function tkl_get_func_decl()
 {

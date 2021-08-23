@@ -228,10 +228,9 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_TRAPLIB_SH=1 # including guard
 
-source '/bin/bash_entry'
-
-tkl_include 'baselib.sh'
-tkl_include 'funclib.sh'
+source '/bin/bash_entry' || exit $?
+tkl_include 'baselib.sh' || tkl_abort_include
+tkl_include 'funclib.sh' || tkl_abort_include
 
 function tkl_has_trap_cmd_line()
 {

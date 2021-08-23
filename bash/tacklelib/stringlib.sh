@@ -7,10 +7,9 @@ if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_
 
 SOURCE_TACKLELIB_STRINGLIB_SH=1 # including guard
 
-source '/bin/bash_entry'
-
-tkl_include 'baselib.sh'
-tkl_include 'traplib.sh'
+source '/bin/bash_entry' || exit $?
+tkl_include 'baselib.sh' || tkl_abort_include
+tkl_include 'traplib.sh' || tkl_abort_include
 
 # WARNING: this implementation may be slow!
 function tkl_compare_strings()
