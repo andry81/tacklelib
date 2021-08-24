@@ -1,3 +1,8 @@
+2021.08.24:
+* changed: bash scripts speedup optimization
+* changed: readme update
+* refactor: `bash_entry` script has splitted in 2 scripts `bash_entry` and `bash_tacklelib` to improve inclusion speed
+
 2021.08.23:
 * fixed: minor fixup
 

@@ -15,11 +15,11 @@
 #  pargs  - list of not unique wildcard pattern items which passed in function arguments ($@).
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BASELIB_SH" || SOURCE_TACKLELIB_BASELIB_SH -eq 0) ]]; then
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_BASELIB_SH" && SOURCE_TACKLELIB_BASELIB_SH -ne 0) ]] && return
 
 SOURCE_TACKLELIB_BASELIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
+source '/bin/bash_tacklelib' || exit $?
 
 function tkl_enable_nocase_match()
 {
@@ -890,5 +890,3 @@ function tkl_get_current_function_names_stack_trace()
   tkl_join_array FUNCNAME '|' 2
   tkl_declare "$out_var" "${RETURN_VALUES[1]}"
 }
-
-fi

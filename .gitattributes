@@ -91,6 +91,7 @@ bash/pyxvcs/cmdop.py.sh -text
 bash/pyxvcs/configure.py.sh -text
 bash/tacklelib/baselib.sh -text
 bash/tacklelib/bash_entry -text
+bash/tacklelib/bash_tacklelib -text
 bash/tacklelib/buildlib.sh -text
 bash/tacklelib/funclib.sh -text
 bash/tacklelib/hashlib.sh -text

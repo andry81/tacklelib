@@ -3,11 +3,11 @@
 # Script library to support function object.
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_FUNCLIB_SH" || SOURCE_TACKLELIB_FUNCLIB_SH -eq 0) ]]; then
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_FUNCLIB_SH" && SOURCE_TACKLELIB_FUNCLIB_SH -ne 0) ]] && return
 
 SOURCE_TACKLELIB_FUNCLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
+source '/bin/bash_tacklelib' || exit $?
 tkl_include 'baselib.sh' || tkl_abort_include
 tkl_include 'hashlib.sh' || tkl_abort_include
 
@@ -287,5 +287,3 @@ function tkl_get_func_call_ctx()
 
   return 0
 }
-
-fi

@@ -15,11 +15,11 @@
 #
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_TESTLIB_SH" || SOURCE_TACKLELIB_TESTLIB_SH -eq 0) ]]; then
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_TESTLIB_SH" && SOURCE_TACKLELIB_TESTLIB_SH -ne 0) ]] && return
 
 SOURCE_TACKLELIB_TESTLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
+source '/bin/bash_tacklelib' || exit $?
 tkl_include 'baselib.sh' || tkl_abort_include
 tkl_include 'traplib.sh' || tkl_abort_include
 tkl_include 'funclib.sh' || tkl_abort_include
@@ -425,7 +425,7 @@ function tkl_testmodule_run_test()
   # First line in environment output is internal parameters list from
   # functions `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars`.
   local TestScript="#!/bin/bash
-source '/bin/bash_entry'
+source '/bin/bash_tacklelib'
 
 tkl_include \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
 
@@ -931,5 +931,3 @@ function tkl_read_multiline_env_string()
   local IFS=$'\n' # to join by line return
   RETURN_VALUES=("${NewArr[*]}" $EndMultilineIndex)
 }
-
-fi

@@ -3,11 +3,11 @@
 # Script library of hash functions.
 
 # Script can be ONLY included by "source" command.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_HASHLIB_SH" || SOURCE_TACKLELIB_HASHLIB_SH -eq 0) ]]; then
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_HASHLIB_SH" && SOURCE_TACKLELIB_HASHLIB_SH -ne 0) ]] && return
 
 SOURCE_TACKLELIB_HASHLIB_SH=1 # including guard
 
-source '/bin/bash_entry' || exit $?
+source '/bin/bash_tacklelib' || exit $?
 tkl_include 'baselib.sh' || tkl_abort_include
 
 function tkl_crc32_bsd()
@@ -240,5 +240,3 @@ function tkl_hash_func_as_token()
 
   return 0
 }
-
-fi

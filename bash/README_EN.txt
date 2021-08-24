@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.08
+* 2021.08.24
 * tacklelib--bash
 
 1. DESCRIPTION
@@ -81,14 +81,19 @@ IDE's, applications and patches to run with or from:
 -------------------------------------------------------------------------------
 5. DEPLOY
 -------------------------------------------------------------------------------
-To run bash shell scripts (`.sh` file extension) you should copy the
-`/bash/tacklelib/bash_entry` module into the `/bin` directory of your platform.
+To run bash shell scripts (`.sh` file extension) you should copy these scripts:
 
-In pure Linux you have additional step to make scripts executable:
+* /bash/tacklelib/bash_entry
+* /bash/tacklelib/bash_tacklelib
+
+into the `/bin` directory of your platform.
+
+In pure Linux you have additional step to make scripts executable or readable:
 
 >
 sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r /bin/bash_entry
+sudo chmod o+r  /bin/bash_entry
+sudo chmod a+r  /bin/bash_tacklelib
 
 -------------------------------------------------------------------------------
 6. TESTS
