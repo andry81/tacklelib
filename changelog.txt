@@ -1,13 +1,35 @@
+2021.08.28:
+* fixed: __init__, bash/tacklelib: missed `bash_tacklelib` usage instead of `bash_entry` script
+* new: __init__: contools-tacklelib cross initialization
+* changed: __init__, bash: bash scripts speedup optimization
+* changed: bash/tacklelib: bash shell scripts moved from `contools` project
+* changed: readme update
+* changed: cmake_tests: readme update
+* changed: python_tests: readme update
+* refactor: global refactor
+* refactor: cmake_tests: global refactor
+* refactor: python_tests: global refactor
+
+2021.08.26:
+* changed: _build/tools: all batch scripts moved into `contools` project, the bash shell scripts moved into `bash/tacklelib` subdirectory
+* refactor: _build: renamed `_scripts` into `_build` directory
+
+2021.08.25:
+* fixed: bash/pyxvcs: missed `bash_tacklelib` usage instead of `bash_entry` script
+* changed: bash/pyxvcs: bash scripts speedup optimization
+* changed: bash_tests: readme update
+* refactor: bash_tests: tests structure refactor
+
 2021.08.24:
-* changed: bash: bash scripts speedup optimization
-* changed: bash: readme update
-* refactor: bash: `bash_entry` script has splitted in 2 scripts `bash_entry` and `bash_tacklelib` to improve inclusion speed
+* changed: bash/tacklelib: bash scripts speedup optimization
+* changed: bash/tacklelib: readme update
+* refactor: bash/tacklelib: `bash_entry` script has splitted in 2 scripts `bash_entry` and `bash_tacklelib` to improve inclusion speed
 
 2021.08.23:
-* fixed: bash: minor fixup
+* fixed: bash/tacklelib: minor fixup
 
 2021.08.23:
-* fixed: bash: minor fix
+* fixed: bash/tacklelib: minor fix
 * changed: bash_tests: minor changes
 
 2021.08.14:

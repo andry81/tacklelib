@@ -1,0 +1,10 @@
+#%% version: 1
+
+# command line for the cmake
+
+--build
+.
+--config
+"$CMAKE_BUILD_TYPE"
+--target
+"$CMAKE_BUILD_TARGET"

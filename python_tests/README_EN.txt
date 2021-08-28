@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.06
+* 2021.08.28
 * tacklelib--python_tests
 
 1. DESCRIPTION
@@ -57,115 +57,31 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, compilers, interpreters, modules,
-IDE's, applications and patches to run with or from:
-
-1. OS platforms:
-
-* Windows 7 (`.bat` only, minimal version for the cmake 3.14)
-* Cygwin 1.5+ or 3.0+ (`.sh` only):
-  https://cygwin.com
-  - to run scripts under cygwin
-* Msys2 20190524+ (`.sh` only):
-  https://www.msys2.org
-  - to run scripts under msys2
-* Linux Mint 18.3 x64 (`.sh` only)
-
-2. C++11 compilers:
-
-N/A
-
-3. Interpreters:
-
-* bash shell 3.2.48+
-  - to run unix shell scripts
-* perl 5.10+
-  - to run specific bash script functions with `perl` calls
-* python 3.7.3 or 3.7.5 (3.6.2+)
-  https://python.org
-  - standard implementation to run python scripts
-  - 3.7.4 has a bug in the `pytest` module execution (see `KNOWN ISSUES`
-    section).
-  - 3.6.2+ is required due to multiple bugs in the python implementation prior
-    this version (see `KNOWN ISSUES` section).
-  - 3.5+ is required for the direct import by a file path (with any extension)
-    as noted in the documentation:
-    https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
-* cmake 3.15.1 (3.14+):
-  https://cmake.org/download/
-  - to run cmake scripts and modules
-
-4. Modules
-
-* Python site modules:
-
-**  xonsh/0.9.12
-    https://github.com/xonsh/xonsh
-    - to run python scripts and import python modules with `.xsh` file
-      extension
-**  plumbum 1.6.7
-    https://plumbum.readthedocs.io/en/latest/
-    - to run python scripts in a shell like environment
-**  win_unicode_console
-    - to enable unicode symbols support in the Windows console
-**  pyyaml 5.1.1
-    - to read yaml format files (.yaml, .yml)
-**  conditional 1.3
-    - to support conditional `with` statements
-**  fcache 0.4.7
-    - for local cache storage for python scripts
-**  psutil 5.6.7
-    - for processes list request
-**  tzlocal 2.0.0
-    - for local timezone request
-**  pytest 5.2.0
-    - to run python tests (test*.py)
-
-* Python testing modules:
-
-**  tacklelib--python :
-    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
-
-5. IDE's:
-
-N/A
-
-6. Applications:
-
-* cygwin cygpath 1.42+
-  - to run `bash_entry` script under cygwin
-* msys cygpath 3.0+
-  - to run `bash_entry` script under msys2
-* cygwin readlink 6.10+
-  - to run specific bash script functions with `readlink` calls
-
-7. Patches:
-
-* Python site modules contains patches in the `python_patches`
-  subdirectory:
-
-** fcache
-   - to fix issues from the `fcache execution issues` section.
+See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 5. DEPLOY
 -------------------------------------------------------------------------------
-You must use scripts inside the `/python_tests/_scripts` directory and prepared
+You must use scripts inside the `/python_tests/_build` directory and prepared
 configuration files in the `/python_tests/_config` subdirectory to run the
 tests.
 
 Otherwise you have to set at least all dependent variables on yourself before
 call to test scripts.
 
-To run bash shell scripts (`.sh` file extension) you should copy the
-`/bash/tacklelib/bash_entry` module into the `/bin` directory of your platform.
+To run bash shell scripts (`.sh` file extension) you should copy these scripts:
 
-In pure Linux you have additional step to make scripts executable:
+* /bash/tacklelib/bash_entry
+* /bash/tacklelib/bash_tacklelib
+
+into the `/bin` directory of your platform.
+
+In pure Linux you have additional step to make scripts executable or readable:
 
 >
 sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r /bin/bash_entry
+sudo chmod o+r  /bin/bash_entry
+sudo chmod a+r  /bin/bash_tacklelib
 
 -------------------------------------------------------------------------------
 6. CATALOG CONTENT DESCRIPTION
@@ -177,22 +93,22 @@ sudo chmod o+r /bin/bash_entry
  |  | #
  |  | # Directory with tests configuration files.
  |  |
- |  +- /`_scripts`
+ |  +- /`_build`
  |  |    #
  |  |    # Directory with text files containing command lines for scripts from
- |  |    # `/python_tests/_scripts` directory
+ |  |    # `/python_tests/_build` directory
  |  |
- |  +- `environment_system.vars.in`
+ |  +- `config.system.vars.in`
  |  |   #
  |  |   # Template file with system set of environment variables
  |  |   # designed to be stored in a version control system.
  |  |
- |  +- `environment_system.vars`
+ |  +- `config.system.vars`
  |      #
  |      # Generated temporary file with set of system customized environment
  |      # variables to set them locally.
  |
- +- /`_scripts`
+ +- /`_build`
  |  | #
  |  | # Scripts to generate configuration and run tests.
  |  | # Contains special `__init*__` script to allocate basic environment

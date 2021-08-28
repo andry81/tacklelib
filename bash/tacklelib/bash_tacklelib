@@ -19,7 +19,7 @@
 #
 
 # Script can be ONLY included by "source" command.
-[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" && SOURCE_TACKLELIB_BASH_TACKLELIB_SH -ne 0) ]] && return
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" && SOURCE_TACKLELIB_BASH_TACKLELIB_SH -ne 0) ]] && return 0
 
 if (( BASH_VERSINFO[0] < 3 )); then
   echo "$0: error: script designed only for the Bash version 3.x or higher." >&2

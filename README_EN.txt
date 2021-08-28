@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.12.05
+* 2021.08.28
 * tacklelib
 
 1. DESCRIPTION
@@ -7,46 +7,47 @@
 3. REPOSITORIES
 4. PREREQUISITES
 5. DEPENDENCIES
-6. CATALOG CONTENT DESCRIPTION
-7. PROJECT CONFIGURATION VARIABLES
-8. PRECONFIGURE
-9. CONFIGURE
-9.1. Generation step(s)
-9.2. Configuration step
-10. BUILD
-10.1. From scripts
-10.2. From `Visual Studio`
-10.3. From `Qt Creator`
-11. INSTALL
-12. POSTINSTALL
-13. THIRD PARTY SETUP
-13.1. ssh+svn/plink setup
-14. KNOWN ISSUES
-14.1. CMake execution issues
-14.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+6. DEPLOY
+7. CATALOG CONTENT DESCRIPTION
+8. PROJECT CONFIGURATION VARIABLES
+9. PRECONFIGURE
+10. CONFIGURE
+10.1. Generation step(s)
+11.2. Configuration step
+11. BUILD
+11.1. From scripts
+11.2. From `Visual Studio`
+11.3. From `Qt Creator`
+12. INSTALL
+13. POSTINSTALL
+14. THIRD PARTY SETUP
+14.1. ssh+svn/plink setup
+15. KNOWN ISSUES
+15.1. CMake execution issues
+15.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
         generator presence and must be set if not: ...` cmake configuration
         error message
-14.2. Python execution issues
-14.2.1. `OSError: [WinError 6] The handle is invalid`
-14.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
-14.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
-14.3. Python modules issues
-14.3.1. pytest execution issues
-14.3.2. fcache execution issues
-14.4. External application issues
-14.4.1. svn+ssh issues
-14.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+15.2. Python execution issues
+15.2.1. `OSError: [WinError 6] The handle is invalid`
+15.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+15.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+15.3. Python modules issues
+15.3.1. pytest execution issues
+15.3.2. fcache execution issues
+15.4. External application issues
+15.4.1. svn+ssh issues
+15.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
           `svn: E170012: Can't create tunnel`
-14.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
+15.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
           `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
           `at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.'`
-14.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
+15.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
           `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
           `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
           `svn: E210002: Network connection closed unexpectedly`
-14.5. Build issues
-14.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
-15. AUTHOR
+15.5. Build issues
+15.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
+16. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -142,6 +143,11 @@ IDE's, applications and patches to run with or from:
 
 4. Modules:
 
+* CMake testing modules:
+
+**  tacklelib--cmake:
+    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
+
 * Python site modules:
 
 **  xonsh/0.9.12
@@ -163,6 +169,13 @@ IDE's, applications and patches to run with or from:
     - for processes list request
 **  tzlocal 2.0.0
     - for local timezone request
+**  pytest 5.2.0
+    - to run python tests (test*.py)
+
+* Python testing modules:
+
+**  tacklelib--python:
+    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
 
 Temporary dropped usage:
 
@@ -188,9 +201,9 @@ Temporary dropped usage:
   https://git-scm.com
   - to run git client
 * cygwin cygpath 1.42+
-  - to run `bash_entry` script under cygwin
+  - to run `bash_tacklelib` script under cygwin
 * msys cygpath 3.0+
-  - to run `bash_entry` script under msys2
+  - to run `bash_tacklelib` script under msys2
 * cygwin readlink 6.10+
   - to run specific bash script functions with `readlink` calls
 
@@ -235,7 +248,7 @@ Windows and in the Linux like platforms.
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
-  `/bash/tacklelib/bash_entry` module into the `/bin` directory of your
+  `/bash/tacklelib/bash_tacklelib` module into the `/bin` directory of your
   platform.
 
 To prepare local third party library sources you can:
@@ -252,7 +265,24 @@ To prepare local third party library sources you can:
      (see the `PRECONFIGURE` section).
 
 -------------------------------------------------------------------------------
-6. CATALOG CONTENT DESCRIPTION
+6. DEPLOY
+-------------------------------------------------------------------------------
+To run bash shell scripts (`.sh` file extension) you should copy these scripts:
+
+* /bash/tacklelib/bash_entry
+* /bash/tacklelib/bash_tacklelib
+
+into the `/bin` directory of your platform.
+
+In pure Linux you have additional step to make scripts executable or readable:
+
+>
+sudo chmod ug+x /bin/bash_entry
+sudo chmod o+r  /bin/bash_entry
+sudo chmod a+r  /bin/bash_tacklelib
+
+-------------------------------------------------------------------------------
+7. CATALOG CONTENT DESCRIPTION
 -------------------------------------------------------------------------------
 
 <root>
@@ -269,35 +299,35 @@ To prepare local third party library sources you can:
  |  | #
  |  | # Directory with build configuration files.
  |  |
- |  +- /`_scripts`
+ |  +- /`_build`
  |  |    #
  |  |    # Directory with text files containing command lines for scripts from
- |  |    # `/_scripts` directory
+ |  |    # `/_build` directory
  |  |
- |  +- `environment_system.vars.in`
+ |  +- `config.system.vars.in`
  |  |   #
  |  |   # Template file with system set of environment variables
  |  |   # designed to be stored in a version control system.
  |  |
- |  +- `environment_system.vars`
+ |  +- `config.system.vars`
  |  |   #
  |  |   # Generated temporary file from `*.in` file with set of system
  |  |   # customized environment variables to set them locally.
  |  |   # Loads after the global/3dparty environment configuration file(s) but
  |  |   # before the user customized environment variables file.
  |  |
- |  +- `environment_user.vars.in`
+ |  +- `config.0.vars.in`
  |  |   #
  |  |   # Template file with user set of environment variables
  |  |   # designed to be stored in a version control system.
  |  |
- |  +- `environment_user.vars`
+ |  +- `config.0.vars`
  |      #
  |      # Generated temporary file with set of user customized environment
  |      # variables to set them locally.
  |      # Loads after the system customized environment variables file.
  |
- +- /`_scripts`
+ +- /`_build`
  |  | #
  |  | # Scripts to generate, configure, build, install and pack the entire
  |  | # solution.
@@ -400,11 +430,11 @@ To prepare local third party library sources you can:
      # The cmake catalog root description file.
 
 -------------------------------------------------------------------------------
-7. PROJECT CONFIGURATION VARIABLES
+8. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-1. `_config/environment_system.vars`
-   `_config/environment_user.vars`
+1. `_config/config.system.vars`
+   `_config/config.0.vars`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.
@@ -447,8 +477,8 @@ product and has used from the `find_global_3dparty_environments` function
 (`/cmake/tacklelib/_3dparty/Global3dparty.cmake`).
 Is required in case of a global or an external 3dparty project or library
 which is not a local part of the project.
-Loads at first before the `/_config/environment_system.vars` and
-the `/_config/environment_user.vars` configuration files.
+Loads at first before the `/_config/config.system.vars` and
+the `/_config/config.0.vars` configuration files.
 
 * _3DPARTY_LOCAL_ROOT
 
@@ -458,7 +488,7 @@ libraries.
 * CMAKE_CONFIG_TYPES=(<space_separated_list>)
 
 Required variable which defines predefined list of configuration names has used
-from the `/_scripts/*_configure.*` script.
+from the `/_build/*_configure.*` script.
 
 Example:
   CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel)
@@ -467,16 +497,16 @@ Example:
 
 An optional variable which defines a list of associated with the
 CMAKE_CONFIG_TYPES variable values of abbreviated configuration names has used
-from the `/_scripts/*_configure.*` script.
+from the `/_build/*_configure.*` script.
 Useful to define short names for respective complete configuration names to
-issue them in respective scripts from the `/_scripts` directory.
+issue them in respective scripts from the `/_build` directory.
 
 Example:
   CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
 
 * CMAKE_GENERATOR
 
-The cmake generator name does used from the `/_scripts/*_configure.*` script.
+The cmake generator name does used from the `/_build/*_configure.*` script.
 Can be defined multiple times for different platforms.
 
 Example(s):
@@ -490,7 +520,7 @@ the generator name.
 
 Example:
   # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture
-  # parameter does not supported in the `environment_system.vars` stage
+  # parameter does not supported in the `config.system.vars` stage
   CMAKE_GENERATOR_PLATFORM:WIN=Win32
 
   # must be at least empty to avoid generation of the
@@ -498,7 +528,7 @@ Example:
   CMAKE_GENERATOR_PLATFORM:UNIX=""
 
 -------------------------------------------------------------------------------
-8. PRECONFIGURE
+9. PRECONFIGURE
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -521,7 +551,7 @@ from the `DEPENDENCIES` section) you must run the `01_preconfigure.*` script
 to create symbol links in the project directory to the 3dparty dependencies.
 
 -------------------------------------------------------------------------------
-9. CONFIGURE
+10. CONFIGURE
 -------------------------------------------------------------------------------
 
 NOTE:
@@ -529,13 +559,13 @@ NOTE:
   `README_EN.linux_x86_64.txt` file.
 
 -------------------------------------------------------------------------------
-9.1. Generation step(s)
+10.1. Generation step(s)
 -------------------------------------------------------------------------------
 
 To generate the source files which are not included in a version control system
 do call to:
 
-`/_scripts/01_generate_src.*` script.
+`/_build/01_generate_src.*` script.
 
 If some from template instantiated source files has been changed before the
 call, then they will be overwritten upon a call by the script unconditionally.
@@ -543,7 +573,7 @@ call, then they will be overwritten upon a call by the script unconditionally.
 To generate configuration files which are not included in a version control
 system do call to:
 
-`/_scripts/02_generate_config.*` script.
+`/_build/02_generate_config.*` script.
 
 These set of files will be generated up on a call:
 
@@ -587,8 +617,8 @@ CAUTION:
 After that you should put or edit existed respective variables inside these
 generated files:
 
-* `/_config/environment_system.vars`
-* `/_config/environment_user.vars`
+* `/_config/config.system.vars`
+* `/_config/config.0.vars`
 
 The global or third party dependencies which are excluded from the source files
 distribution does load through the separate configuration files is pointed by
@@ -626,8 +656,8 @@ For the Windows platform:
 `d:/3dparty1/environment2.vars`
 `d:/3dparty2/environment1.vars`
 `d:/3dparty2/environment2.vars`
-`<root>/_config/environment_system.vars`
-`<root>/_config/environment_user.vars`
+`<root>/_config/config.system.vars`
+`<root>/_config/config.0.vars`
 
 For the Linux like platform:
 
@@ -635,19 +665,19 @@ For the Linux like platform:
 `/home/opt/3dparty1/environment2.vars`
 `/home/opt/3dparty2/environment1.vars`
 `/home/opt/3dparty2/environment2.vars`
-`<root>/_config/environment_system.vars`
-`<root>/_config/environment_user.vars`
+`<root>/_config/config.system.vars`
+`<root>/_config/config.0.vars`
 
 -------------------------------------------------------------------------------
-9.2. Configuration step
+10.2. Configuration step
 -------------------------------------------------------------------------------
 
 To make a final configuration call to:
 
-`/_scripts/03_configure.* [<ConfigName>]`, where:
+`/_build/03_configure.* [<ConfigName>]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
-  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
+  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
   file or `*` to build all configurations.
 
 NOTE:
@@ -655,20 +685,20 @@ NOTE:
   to a not multiconfig generator, otherwise it must not be used.
 
 -------------------------------------------------------------------------------
-10. BUILD
+11. BUILD
 -------------------------------------------------------------------------------
 
 Does not matter which one method below would be selected when the output would
 be in a directory pointed by the `CMAKE_BIN_DIR` configuration variable.
 
 -------------------------------------------------------------------------------
-10.1. From scripts
+11.1. From scripts
 -------------------------------------------------------------------------------
 
-1. Run `/_scripts/04_build.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `/_build/04_build.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
-  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
+  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
   file or `*` to build all configurations.
 
   <TargetName> has any valid target name to build.
@@ -678,7 +708,7 @@ NOTE:
   target - `help`.
 
 -------------------------------------------------------------------------------
-10.2. From `Visual Studio`
+11.2. From `Visual Studio`
 -------------------------------------------------------------------------------
 
 1. Open `<PROJECT_NAME>.sln` file addressed by a directory path in the
@@ -688,7 +718,7 @@ NOTE:
 3. Run build from the IDE.
 
 -------------------------------------------------------------------------------
-10.3. From `Qt Creator`
+11.3. From `Qt Creator`
 -------------------------------------------------------------------------------
 
 1. Open `CMakeLists.txt` file.
@@ -700,13 +730,13 @@ NOTE:
 4. Run build from the IDE.
 
 -------------------------------------------------------------------------------
-11. INSTALL
+12. INSTALL
 -------------------------------------------------------------------------------
 
-1. Run `/_scripts/05_install.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `/_build/05_install.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
-  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
+  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
   file or `*` to install all configurations.
 
   <TargetName> has any valid target name to install.
@@ -718,16 +748,16 @@ NOTE:
   The cmake may not support a target selection for a particular generator.
 
 -------------------------------------------------------------------------------
-12. POSTINSTALL
+13. POSTINSTALL
 -------------------------------------------------------------------------------
 
 NOTE:
   Is not required for the Windows platform.
 
-1. Run `/_scripts/06_post_install.* [<ConfigName>]`, where:
+1. Run `/_build/06_post_install.* [<ConfigName>]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
-  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `environment_system.vars`
+  the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
   file or `*` to post install all configurations.
 
 CAUTION:
@@ -736,11 +766,11 @@ CAUTION:
   gain different results!
 
 -------------------------------------------------------------------------------
-13. THIRD PARTY SETUP
+14. THIRD PARTY SETUP
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-13.1. ssh+svn/plink setup
+14.1. ssh+svn/plink setup
 -------------------------------------------------------------------------------
 Based on: https://stackoverflow.com/questions/11345868/how-to-use-git-svn-with-svnssh-url/58641860#58641860
 
@@ -815,17 +845,17 @@ NOTE:
   files.
 
 -------------------------------------------------------------------------------
-14. KNOWN ISSUES
+15. KNOWN ISSUES
 -------------------------------------------------------------------------------
 For the issues around python xonsh module see details in the
 `README_EN.python_xonsh.known_issues.txt` file.
 
 -------------------------------------------------------------------------------
-14.1. CMake execution issues
+15.1. CMake execution issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
+15.1.1. The `CMAKE_BUILD_TYPE variable must not be set in case of a multiconfig
         generator presence and must be set if not: ...` cmake configuration
         error message
 -------------------------------------------------------------------------------
@@ -835,7 +865,7 @@ a multiconfig feature but the `CMAKE_BUILT_TYPE` variable was not defined, or
 vice versa.
 
 The configuration name value either must be passed explicitly into a script
-from the `/_scripts` directory in case of not a multiconfig cmake generator or
+from the `/_build` directory in case of not a multiconfig cmake generator or
 must not in case of a multiconfig cmake generator.
 
 Solution #1:
@@ -855,11 +885,11 @@ Solution #3:
   is not applicable.
 
 -------------------------------------------------------------------------------
-14.2. Python execution issues
+15.2. Python execution issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.2.1. `OSError: [WinError 6] The handle is invalid`
+15.2.1. `OSError: [WinError 6] The handle is invalid`
 -------------------------------------------------------------------------------
 
 Issue:
@@ -875,7 +905,7 @@ Solution:
   Reinstall a different python version.
 
 -------------------------------------------------------------------------------
-14.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+15.2.2. `ValueError: 'cwd' in __slots__ conflicts with class variable`
 -------------------------------------------------------------------------------
 
 Stack trace example:
@@ -896,7 +926,7 @@ Solution:
   Upgrade python version at least up to 3.5.4 or 3.6.2.
 
 -------------------------------------------------------------------------------
-14.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+15.2.3. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
 -------------------------------------------------------------------------------
 
 Stack trace example:
@@ -915,11 +945,11 @@ Solution:
   Upgrade python version at least up to 3.6.2.
 
 -------------------------------------------------------------------------------
-14.3. Python modules issues
+15.3. Python modules issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.3.1. pytest execution issues
+15.3.1. pytest execution issues
 -------------------------------------------------------------------------------
 * `xonsh incorrectly reorders the test for the pytest` :
   https://github.com/xonsh/xonsh/issues/3380
@@ -929,7 +959,7 @@ Solution:
   https://github.com/pytest-dev/pytest/issues/6114
 
 -------------------------------------------------------------------------------
-14.3.2. fcache execution issues
+15.3.2. fcache execution issues
 -------------------------------------------------------------------------------
 * `fcache is not multiprocess aware on Windows` :
   https://github.com/tsroten/fcache/issues/26
@@ -939,15 +969,15 @@ Solution:
   https://github.com/tsroten/fcache/issues/28
 
 -------------------------------------------------------------------------------
-14.4. External application issues
+15.4. External application issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.4.1. svn+ssh issues
+15.4.1. svn+ssh issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
+15.4.1.1. Message `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
           `svn: E170012: Can't create tunnel`
 -------------------------------------------------------------------------------
 
@@ -979,7 +1009,7 @@ Solution:
   Manually edit variables in the file for correct values.
 
 -------------------------------------------------------------------------------
-14.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
+15.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
           `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
           `at .../Git/mingw64/share/perl5/Git/SVN.pm line 310.'`
 -------------------------------------------------------------------------------
@@ -1001,7 +1031,7 @@ NOTE:
   the respective configuration files.
 
 -------------------------------------------------------------------------------
-14.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
+15.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
           `svn: E170013: Unable to connect to a repository at URL 'svn+ssh://...'`
           `svn: E210002: To better debug SSH connection problems, remove the -q option from 'ssh' in the [tunnels] section of your Subversion configuration file.`
           `svn: E210002: Network connection closed unexpectedly`
@@ -1027,11 +1057,11 @@ Solution:
   Read the deatils in the `ssh+svn/plink setup` section.
 
 -------------------------------------------------------------------------------
-14.5. Build issues
+15.5. Build issues
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-14.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
+15.5.1. Message `fatal error C1083: Cannot open include file: '<path-to-external-header-file>': No such file or directory`
 -------------------------------------------------------------------------------
 
 Issues:
@@ -1049,6 +1079,6 @@ Solution:
   Edit respective generated files for the correct values to fix the build.
 
 -------------------------------------------------------------------------------
-15. AUTHOR
+16. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)

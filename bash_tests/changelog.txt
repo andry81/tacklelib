@@ -1,3 +1,7 @@
+2021.08.25:
+* changed: readme update
+* refactor: tests structure refactor
+
 2021.08.23:
 * changed: minor changes
 

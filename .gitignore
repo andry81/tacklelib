@@ -1,13 +1,13 @@
 /.log
 /_3dparty
+_build/tools/__pycache*__
 _config/*.vars
 /_out
-_scripts/tools/__pycache*__
-bash_tests/01_bash_entry/01_normalize_path/.log
-bash_tests/02_traplib/01_push_trap/.log
+bash_tests/unit/01_bash_entry/01_normalize_path/.log
+bash_tests/unit/02_traplib/01_push_trap/.log
 cmake_tests/.log
+cmake_tests/_build/.log
 cmake_tests/_config/*.vars
-cmake_tests/_scripts/.log
 include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
 include/tacklelib/setup.hpp

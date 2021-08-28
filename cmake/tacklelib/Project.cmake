@@ -485,11 +485,11 @@ macro(tkl_configure_environment env_var_files_root runtime_linkage_type_var supp
   # CAUTION:
   #   From now and on a predefined set of configuration files must always exist before a cmake run!
   #
-  if (NOT EXISTS "${env_var_files_root}/environment_system.vars")
-    message(FATAL_ERROR "(*) The `environment_system.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
+  if (NOT EXISTS "${env_var_files_root}/config.system.vars")
+    message(FATAL_ERROR "(*) The `config.system.vars` is not properly generated, use the `_build/*_generate_config` to generage the file and then edit values manually if required!")
   endif()
-  if (NOT EXISTS "${env_var_files_root}/environment_user.vars")
-    message(FATAL_ERROR "(*) The `environment_user.vars` is not properly generated, use the `_scripts/*_generate_config` to generage the file and then edit values manually if required!")
+  if (NOT EXISTS "${env_var_files_root}/config.0.vars")
+    message(FATAL_ERROR "(*) The `config.0.vars` is not properly generated, use the `_build/*_generate_config` to generage the file and then edit values manually if required!")
   endif()
 
   # CAUTION:
@@ -503,8 +503,8 @@ macro(tkl_configure_environment env_var_files_root runtime_linkage_type_var supp
   #   To make it changed you have to CLOSE IDE AND DELETE FILE WITH THE CACHED VARIABLES - `CMakeLists.txt.user`!
 
   # The predefined set of builtin local configuration files for load.
-  set(sys_env_var_file_path_load_list "${env_var_files_root}/environment_system.vars")
-  set(user_env_var_file_path_load_list "${env_var_files_root}/environment_user.vars")
+  set(sys_env_var_file_path_load_list "${env_var_files_root}/config.system.vars")
+  set(user_env_var_file_path_load_list "${env_var_files_root}/config.0.vars")
 
   # Preload local configuration files to set only predefined set of variables.
   tkl_preload_variables("${sys_env_var_file_path_load_list}" . .)

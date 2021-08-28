@@ -1,9 +1,0 @@
-# input for a `_scripts/*_generate_src.*` script
-# <in_file_path>|<out_file_path>
-
-include/tacklelib/setup.hpp.in|include/tacklelib/setup.hpp
-include/tacklelib/debug.hpp.in|include/tacklelib/debug.hpp
-include/tacklelib/optimization.hpp.in|include/tacklelib/optimization.hpp
-src/setup.hpp.in|src/setup.hpp
-src/debug.hpp.in|src/debug.hpp
-src/optimization.hpp.in|src/optimization.hpp

@@ -1,190 +1,270 @@
-[submodule "_scripts/tools/baselib.sh"]
-	path = _scripts/tools/baselib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/baselib.sh"]
+	path = _build/tools/baselib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/baselib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "_scripts/tools/buildlib.sh"]
-	path = _scripts/tools/buildlib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/buildlib.sh"]
+	path = _build/tools/buildlib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/buildlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "_scripts/tools/funclib.sh"]
-	path = _scripts/tools/funclib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/funclib.sh"]
+	path = _build/tools/funclib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/funclib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "_scripts/tools/hashlib.sh"]
-	path = _scripts/tools/hashlib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/hashlib.sh"]
+	path = _build/tools/hashlib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/hashlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "_scripts/tools/stringlib.sh"]
-	path = _scripts/tools/stringlib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/stringlib.sh"]
+	path = _build/tools/stringlib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/stringlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "_scripts/tools/traplib.sh"]
-	path = _scripts/tools/traplib.sh
-	owner = _scripts/tools
+[submodule "_build/tools/traplib.sh"]
+	path = _build/tools/traplib.sh
+	owner = _build/tools
 	url = ^/trunk/bash/tacklelib/traplib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/baselib.sh"]
-	path = cmake_tests/_scripts/tools/baselib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "_externals/contools/Scripts/Tools/ToolAdaptors/lnk"]
+	path = _externals/contools/Scripts/Tools/ToolAdaptors/lnk
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/ToolAdaptors/lnk
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/__init__"]
+	path = _externals/contools/Scripts/Tools/__init__
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/__init__
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/bash"]
+	path = _externals/contools/Scripts/Tools/bash
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/bash
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/cmake"]
+	path = _externals/contools/Scripts/Tools/cmake
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/cmake
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/std"]
+	path = _externals/contools/Scripts/Tools/std
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/std
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/wmi"]
+	path = _externals/contools/Scripts/Tools/wmi
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/wmi
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/Tools/xcopy"]
+	path = _externals/contools/Scripts/Tools/xcopy
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/xcopy
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Scripts/__init__"]
+	path = _externals/contools/Scripts/__init__
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/__init__
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/Utilities/bin"]
+	path = _externals/contools/Utilities/bin
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Utilities/bin
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "_externals/contools/__init__"]
+	path = _externals/contools/__init__
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/__init__
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
+[submodule "cmake_tests/_build/tools/baselib.sh"]
+	path = cmake_tests/_build/tools/baselib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/baselib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/buildlib.sh"]
-	path = cmake_tests/_scripts/tools/buildlib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/buildlib.sh"]
+	path = cmake_tests/_build/tools/buildlib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/buildlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/check_config_version.bat"]
-	path = cmake_tests/_scripts/tools/check_config_version.bat
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/check_config_version.bat"]
+	path = cmake_tests/_build/tools/check_config_version.bat
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/_scripts/tools/check_config_version.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "cmake_tests/_scripts/tools/funclib.sh"]
-	path = cmake_tests/_scripts/tools/funclib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/funclib.sh"]
+	path = cmake_tests/_build/tools/funclib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/funclib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/get_datetime.bat"]
-	path = cmake_tests/_scripts/tools/get_datetime.bat
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/get_datetime.bat"]
+	path = cmake_tests/_build/tools/get_datetime.bat
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/_scripts/tools/get_datetime.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "cmake_tests/_scripts/tools/hashlib.sh"]
-	path = cmake_tests/_scripts/tools/hashlib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/hashlib.sh"]
+	path = cmake_tests/_build/tools/hashlib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/hashlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/stringlib.sh"]
-	path = cmake_tests/_scripts/tools/stringlib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/stringlib.sh"]
+	path = cmake_tests/_build/tools/stringlib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/stringlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/traplib.sh"]
-	path = cmake_tests/_scripts/tools/traplib.sh
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/traplib.sh"]
+	path = cmake_tests/_build/tools/traplib.sh
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/traplib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "cmake_tests/_scripts/tools/wtee.exe"]
-	path = cmake_tests/_scripts/tools/wtee.exe
-	owner = cmake_tests/_scripts/tools
+[submodule "cmake_tests/_build/tools/wtee.exe"]
+	path = cmake_tests/_build/tools/wtee.exe
+	owner = cmake_tests/_build/tools
 	url = ^/trunk/_scripts/tools/wtee.exe
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "python_tests/_scripts/tools/baselib.sh"]
-	path = python_tests/_scripts/tools/baselib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/baselib.sh"]
+	path = python_tests/_build/tools/baselib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/baselib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/buildlib.sh"]
-	path = python_tests/_scripts/tools/buildlib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/buildlib.sh"]
+	path = python_tests/_build/tools/buildlib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/buildlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/check_config_version.bat"]
-	path = python_tests/_scripts/tools/check_config_version.bat
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/check_config_version.bat"]
+	path = python_tests/_build/tools/check_config_version.bat
+	owner = python_tests/_build/tools
 	url = ^/trunk/_scripts/tools/check_config_version.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "python_tests/_scripts/tools/funclib.sh"]
-	path = python_tests/_scripts/tools/funclib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/funclib.sh"]
+	path = python_tests/_build/tools/funclib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/funclib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/get_datetime.bat"]
-	path = python_tests/_scripts/tools/get_datetime.bat
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/get_datetime.bat"]
+	path = python_tests/_build/tools/get_datetime.bat
+	owner = python_tests/_build/tools
 	url = ^/trunk/_scripts/tools/get_datetime.bat
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
-[submodule "python_tests/_scripts/tools/hashlib.sh"]
-	path = python_tests/_scripts/tools/hashlib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/hashlib.sh"]
+	path = python_tests/_build/tools/hashlib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/hashlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/stringlib.sh"]
-	path = python_tests/_scripts/tools/stringlib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/stringlib.sh"]
+	path = python_tests/_build/tools/stringlib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/stringlib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/traplib.sh"]
-	path = python_tests/_scripts/tools/traplib.sh
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/traplib.sh"]
+	path = python_tests/_build/tools/traplib.sh
+	owner = python_tests/_build/tools
 	url = ^/trunk/bash/tacklelib/traplib.sh
 	branch = /
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = file
-[submodule "python_tests/_scripts/tools/wtee.exe"]
-	path = python_tests/_scripts/tools/wtee.exe
-	owner = python_tests/_scripts/tools
+[submodule "python_tests/_build/tools/wtee.exe"]
+	path = python_tests/_build/tools/wtee.exe
+	owner = python_tests/_build/tools
 	url = ^/trunk/_scripts/tools/wtee.exe
 	branch = /
 	fetch = :refs/remotes/git-svn

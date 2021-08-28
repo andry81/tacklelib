@@ -92,7 +92,7 @@ include(tacklelib/_3dparty/Qt)
 ##   `CMake Error: CMake was unable to find a build program corresponding to "MinGW Makefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.`
 ##   by declare respective variable BEFORE the project main initialization.
 ##
-#tkl_preload_variables(-S -s "${CMAKE_CURRENT_LIST_DIR}/_config/environment_system.vars" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
+#tkl_preload_variables(-S -s "${CMAKE_CURRENT_LIST_DIR}/_config/cmake/config.system.vars" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
 
 # builtin detection runs by the `project` function
 project("tacklelib")

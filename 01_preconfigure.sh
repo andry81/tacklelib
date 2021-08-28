@@ -3,8 +3,8 @@
 # Script ONLY for execution.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]]; then
 
-source "/bin/bash_entry" || exit $?
-tkl_include "__init__.sh" || exit $?
+source "/bin/bash_tacklelib" || exit $?
+tkl_include "__init__/__init__.sh" || tkl_abort_include
 
 function Call()
 {
@@ -47,7 +47,7 @@ case "$OSTYPE" in
 
     Call ln -s "$CONFIGURE_ROOT/_3dparty" "$_3DPARTY_ROOT"
 
-    #Call ln -s "$CONFIGURE_ROOT/_3dparty/utility/tacklelib/tacklelib/_scripts" "$CONFIGURE_ROOT/_scripts"
+    #Call ln -s "$CONFIGURE_ROOT/_3dparty/utility/tacklelib/tacklelib/_build" "$CONFIGURE_ROOT/_build"
     #Call ln -s "$CONFIGURE_ROOT/_3dparty/utility/tacklelib/tacklelib/cmake" "$CONFIGURE_ROOT/cmake"
     ;;
 esac

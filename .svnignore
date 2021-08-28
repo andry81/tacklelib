@@ -4,7 +4,7 @@ _out
 
 _config/*.vars
 
-_scripts/tools/__pycache*__
+_build/tools/__pycache*__
 
 cmake_tests/_config/*.vars
 

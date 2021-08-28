@@ -1,0 +1,8 @@
+#%% version: 1
+
+# command line for the cmake
+
+$TACKLELIB_PROJECT_ROOT
+-G
+$CMAKE_GENERATOR
+-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

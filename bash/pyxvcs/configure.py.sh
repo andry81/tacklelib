@@ -3,8 +3,8 @@
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
 
-source "/bin/bash_entry" || exit $?
-tkl_include "__init__.sh" || exit $?
+source "/bin/bash_tacklelib" || exit $?
+tkl_include "__init__/__init__.sh" || tkl_abort_include
 
 function pyxvcs_configure()
 {

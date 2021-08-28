@@ -1,0 +1,8 @@
+# command line for the cmake in the `_build/*_generate_config.bat` script
+
+"-DCMAKE_MODULE_PATH=%PROJECT_ROOT%/cmake"
+"-DCONFIGURE_IN_FILE=%PROJECT_ROOT%/cmake_tests/_config/config.system.vars.in"
+"-DCONFIGURE_OUT_FILE=%PROJECT_ROOT%/cmake_tests/_config/config.0.vars"
+"-DPROJECT_ROOT=%PROJECT_ROOT%"
+-P
+"%PROJECT_ROOT%/cmake/tacklelib/tools/ConfigureFile.cmake"

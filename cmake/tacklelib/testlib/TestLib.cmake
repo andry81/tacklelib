@@ -103,10 +103,10 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   # load global TestLib configuration variables
   if (NOT TACKLELIB_TESTLIB_SKIP_LOAD_VARS)
-    if (EXISTS "${TESTS_ROOT}/_config/environment_user.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/environment_user.vars")
+    if (EXISTS "${TESTS_ROOT}/_config/cmake/config.0.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/cmake/config.0.vars")
       tkl_track_vars_begin()
 
-      tkl_load_vars_from_files("${TESTS_ROOT}/_config/environment_user.vars")
+      tkl_load_vars_from_files("${TESTS_ROOT}/_config/cmake/config.0.vars")
 
       tkl_forward_changed_vars_to_parent_scope()
       tkl_track_vars_end()

@@ -2,12 +2,12 @@
 
 setlocal
 
-call "%%~dp0__init__.bat" || exit /b
+call "%%~dp0__init__/__init__.bat" || exit /b
 
 if %UAC_MODE%0 EQU 0 (
   rem request admin permissions
   set UAC_MODE=1
-  call :CMD "%%CONTOOLS_ROOT%%\cmd_admin.lnk" /c "%%~dpf0" %%*
+  call :CMD "%%CONTOOLS_ROOT%%/ToolAdaptors/lnk/cmd_admin.lnk" /c "%%~dpf0" %%*
   exit /b
 )
 
@@ -17,7 +17,7 @@ echo.3. Press any key to continue and select the `_src` subdirectory in the `tac
 
 call "%%CONTOOLS_ROOT%%/std/pause.bat"
 
-for /F "usebackq eol=	 tokens=* delims=" %%i in (`@"%UTILITY_ROOT%/contools/wxFileDialog.exe" "" "%CONFIGURE_ROOT%" "Select the third party catalog to link with..." -de`) do set "_3DPARTY_ROOT=%%i"
+for /F "usebackq eol=	 tokens=* delims=" %%i in (`@"%CONTOOLS_UTILITIES_BIN_ROOT%/contools/wxFileDialog.exe" "" "%CONFIGURE_ROOT%" "Select the third party catalog to link with..." -de`) do set "_3DPARTY_ROOT=%%i"
 
 if not exist "%_3DPARTY_ROOT%" (
   if not defined _3DPARTY_ROOT (
@@ -31,7 +31,7 @@ if not exist "%_3DPARTY_ROOT%" (
 
 call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\_3dparty" "%%_3DPARTY_ROOT%%"
 
-rem call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\_scripts" "%%CONFIGURE_ROOT%%\_3dparty\utility\tacklelib\tacklelib\_scripts"
+rem call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\_build" "%%CONFIGURE_ROOT%%\_3dparty\utility\tacklelib\tacklelib\_build"
 rem call :CREATE_DIR_LINK "%%CONFIGURE_ROOT%%\cmake" "%%CONFIGURE_ROOT%%\_3dparty\utility\tacklelib\tacklelib\cmake"
 
 call "%%CONTOOLS_ROOT%%/std/pause.bat"

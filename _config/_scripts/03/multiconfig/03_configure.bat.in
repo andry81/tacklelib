@@ -1,5 +1,0 @@
-# command line for the cmake in the `_scripts/*_configure.bat` script
-
-"%PROJECT_ROOT%"
--G
-"%CMAKE_GENERATOR%"
