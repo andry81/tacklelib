@@ -1,3 +1,9 @@
+2021.09.11:
+* fixed: include/tacklelib/utility: MSVC 2015 Update 3 compilation warning `warning C4002: too many actual parameters for macro '...'`
+* fixed: include/tacklelib/utility: use always `__PRETTY_FUNCTION__` builtin definition instead of `__FUNCSIG__` under clang compiler
+* new: include/tacklelib/utility: `UTILITY_USER_ASSERT` and `UTILITY_USER_ASSERT_EXPR` macroses to be able to invoke a not constexpr user assert function in an expression inside of a constexpr function
+* refactor: include/tacklelib/utility: code refactor
+
 2021.08.28:
 * fixed: __init__, bash/tacklelib: missed `bash_tacklelib` usage instead of `bash_entry` script
 * new: __init__: contools-tacklelib cross initialization
@@ -7,6 +13,7 @@
 * changed: cmake_tests: readme update
 * changed: python_tests: readme update
 * refactor: global refactor
+* refactor: cmake/tacklelib: code refactor
 * refactor: cmake_tests: global refactor
 * refactor: python_tests: global refactor
 
@@ -149,6 +156,9 @@
 * new: vbs: readme file
 * new: vbs: license file
 * new: vbs: changelog file
+
+2020.08.28:
+* refactor: cmake/tacklelib: code refactor
 
 2020.08.03:
 * fixed: bash/tacklelib/bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)

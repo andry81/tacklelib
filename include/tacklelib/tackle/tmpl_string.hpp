@@ -31,7 +31,7 @@
 //
 
 #define TACKLE_TMPL_STRING(id, c_str, ...) \
-    (::utility::make_tmpl_string_from_getter<(id)>(UTILITY_LITERAL_STRING_VALUE(c_str)).substr<(id), ## __VA_ARGS__>(__VA_ARGS__))
+    (::utility::make_tmpl_string_from_getter<(id)>(UTILITY_LITERAL_STRING_VALUE(c_str)).substr<UTILITY_PP_IDENTITY_VA_ARGS((id), ## __VA_ARGS__)>(__VA_ARGS__))
 
 // alternative implementation
 //#define TACKLE_TMPL_SUBSTRING(id, c_str, constexpr_offset) \

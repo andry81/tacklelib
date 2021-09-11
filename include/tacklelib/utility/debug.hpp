@@ -28,8 +28,8 @@
 #if defined(UTILITY_PLATFORM_WINDOWS)
 
 // won't require debug symbols to show the call stack, when the DebugBreak() will require system debug symbols to show the call stack correctly
-#define DEBUG_BREAK(exp) \
-    ((exp) ? false : true) ? decltype(__debugbreak())() : __debugbreak()
+#define DEBUG_BREAK(expr) \
+    ((expr) ? false : true) ? decltype(__debugbreak())() : __debugbreak()
 
 #elif defined(UTILITY_PLATFORM_POSIX)
 
@@ -38,8 +38,8 @@
 // `__builtin_trap()` leads to `vex x86->IR: unhandled instruction bytes: 0xF 0xB 0x83 0xEC` under the valgrind execution!
 // See for details: https://stackoverflow.com/questions/6859267/valgrind-unhandled-instruction-bytes-0xf-0xb-0xff-0x85
 //
-#define DEBUG_BREAK(exp) \
-    ((exp) ? false : true) ? decltype(::raise(SIGTRAP))() : ::raise(SIGTRAP) // or: __builtin_trap()
+#define DEBUG_BREAK(expr) \
+    ((expr) ? false : true) ? decltype(::raise(SIGTRAP))() : ::raise(SIGTRAP) // or: __builtin_trap()
 
 #else
 #error debug_break is not supported for this platform

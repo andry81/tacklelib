@@ -43,18 +43,18 @@
 
 // static asserts to use in an constexpr expression
 
-#define STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_exp, ...)            ((void)::utility::static_assert_constexpr<UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
-#define STATIC_ASSERT_CONSTEXPR_FALSE(constexpr_exp, ...)           ((void)::utility::static_assert_constexpr<!UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_TRUE(constexpr_expr, ...)           ((void)::utility::static_assert_constexpr<UTILITY_PP_IDENTITY_VA_ARGS(UTILITY_CONSTEXPR(constexpr_expr), ## __VA_ARGS__)>())
+#define STATIC_ASSERT_CONSTEXPR_FALSE(constexpr_expr, ...)          ((void)::utility::static_assert_constexpr<UTILITY_PP_IDENTITY_VA_ARGS(!UTILITY_CONSTEXPR(constexpr_expr), ## __VA_ARGS__)>())
 
-#define STATIC_ASSERT_CONSTEXPR_TRUE_ID(id, constexpr_exp, ...)     ((void)::utility::static_assert_constexpr_id<id, UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
-#define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, constexpr_exp, ...)    ((void)::utility::static_assert_constexpr_id<id, !UTILITY_CONSTEXPR(constexpr_exp), ## __VA_ARGS__ >())
+#define STATIC_ASSERT_CONSTEXPR_TRUE_ID(id, constexpr_expr, ...)    ((void)::utility::static_assert_constexpr_id<id, UTILITY_PP_IDENTITY_VA_ARGS(UTILITY_CONSTEXPR(constexpr_expr), ## __VA_ARGS__)>())
+#define STATIC_ASSERT_CONSTEXPR_FALSE_ID(id, constexpr_expr, ...)   ((void)::utility::static_assert_constexpr_id<id, UTILITY_PP_IDENTITY_VA_ARGS(!UTILITY_CONSTEXPR(constexpr_expr), ## __VA_ARGS__)>())
 
 // can examine non constexpr expression, throws error if false expression in a constexpr context
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(exp, ...)              ((void)((exp) ? true : ::utility::not_constexpr_context<-1>(exp, __VA_ARGS__)))
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE(exp, ...)             ((void)(!(exp) ? true : ::utility::not_constexpr_context<-1>(exp, __VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE(expr, ...)             ((void)((expr) ? true : ::utility::not_constexpr_context<-1>(UTILITY_PP_IDENTITY_VA_ARGS(expr, ## __VA_ARGS__))))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE(expr, ...)            ((void)(!(expr) ? true : ::utility::not_constexpr_context<-1>(UTILITY_PP_IDENTITY_VA_ARGS(expr, ## __VA_ARGS__))))
 
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(id, exp, ...)       ((void)((exp) ? true : ::utility::not_constexpr_context<id>(exp, __VA_ARGS__)))
-#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE_ID(id, exp, ...)      ((void)(!(exp) ? true : ::utility::not_constexpr_context<id>(exp, __VA_ARGS__)))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_TRUE_ID(id, expr, ...)      ((void)((expr) ? true : ::utility::not_constexpr_context<id>(UTILITY_PP_IDENTITY_VA_ARGS(expr, ## __VA_ARGS__))))
+#define STATIC_ASSERT_RELAXED_CONSTEXPR_FALSE_ID(id, expr, ...)     ((void)(!(expr) ? true : ::utility::not_constexpr_context<id>(UTILITY_PP_IDENTITY_VA_ARGS(expr, ## __VA_ARGS__))))
 
 // NOTE:
 //  The reason this exists is to enable print types of parameters inside an assert expression in a compiler errors output.
@@ -67,49 +67,49 @@
 #define STATIC_ASSERT_PARAM(v1)                         ::utility::StaticAssertParam<decltype(v1), (v1)>
 #define STATIC_ASSERT_VALUE(v1)                         (STATIC_ASSERT_PARAM(v1)::value)
 
-#define STATIC_ASSERT_TRUE(exp, msg) \
-    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+#define STATIC_ASSERT_TRUE(expr, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(expr), (expr)>::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
 
-#define STATIC_ASSERT_TRUE1(exp, v1, msg) \
-    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp), \
-                  STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_TRUE2(exp, v1, v2, msg) \
-    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp), \
+#define STATIC_ASSERT_TRUE1(expr, v1, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(expr), (expr), \
+                  STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_TRUE2(expr, v1, v2, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
-                  STATIC_ASSERT_PARAM(v2) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_TRUE3(exp, v1, v2, v3, msg) \
-    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp), \
+                  STATIC_ASSERT_PARAM(v2) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_TRUE3(expr, v1, v2, v3, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
                   STATIC_ASSERT_PARAM(v2), \
-                  STATIC_ASSERT_PARAM(v3) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_TRUE4(exp, v1, v2, v3, v4, msg) \
-    static_assert(::utility::StaticAssertTrue<decltype(exp), (exp), \
+                  STATIC_ASSERT_PARAM(v3) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_TRUE4(expr, v1, v2, v3, v4, msg) \
+    static_assert(::utility::StaticAssertTrue<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
                   STATIC_ASSERT_PARAM(v2), \
                   STATIC_ASSERT_PARAM(v3), \
-                  STATIC_ASSERT_PARAM(v4) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+                  STATIC_ASSERT_PARAM(v4) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
 
-#define STATIC_ASSERT_FALSE(exp, msg) \
-    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp)>::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+#define STATIC_ASSERT_FALSE(expr, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(expr), (expr)>::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
 
-#define STATIC_ASSERT_FALSE1(exp, v1, msg) \
-    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp), \
-                  STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_FALSE2(exp, v1, v2, msg) \
-    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp), \
+#define STATIC_ASSERT_FALSE1(expr, v1, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(expr), (expr), \
+                  STATIC_ASSERT_PARAM(v1) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_FALSE2(expr, v1, v2, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
-                  STATIC_ASSERT_PARAM(v2) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_FALSE3(exp, v1, v2, v3, msg) \
-    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp), \
+                  STATIC_ASSERT_PARAM(v2) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_FALSE3(expr, v1, v2, v3, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
                   STATIC_ASSERT_PARAM(v2), \
-                  STATIC_ASSERT_PARAM(v3) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
-#define STATIC_ASSERT_FALSE4(exp, v1, v2, v3, v4, msg) \
-    static_assert(::utility::StaticAssertFalse<decltype(exp), (exp), \
+                  STATIC_ASSERT_PARAM(v3) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
+#define STATIC_ASSERT_FALSE4(expr, v1, v2, v3, v4, msg) \
+    static_assert(::utility::StaticAssertFalse<decltype(expr), (expr), \
                   STATIC_ASSERT_PARAM(v1), \
                   STATIC_ASSERT_PARAM(v2), \
                   STATIC_ASSERT_PARAM(v3), \
-                  STATIC_ASSERT_PARAM(v4) >::value, "expression: \"" UTILITY_PP_STRINGIZE(exp) "\": " msg)
+                  STATIC_ASSERT_PARAM(v4) >::value, "expression: \"" UTILITY_PP_STRINGIZE(expr) "\": " msg)
 
 #define STATIC_ASSERT_EQ(v1, v2, msg)   static_assert(::utility::StaticAssertEQ<decltype(v1), decltype(v2), (v1), (v2)>::value, "expression: \"" UTILITY_PP_STRINGIZE(v1) " == " UTILITY_PP_STRINGIZE(v2) "\": " msg)
 #define STATIC_ASSERT_NE(v1, v2, msg)   static_assert(::utility::StaticAssertNE<decltype(v1), decltype(v2), (v1), (v2)>::value, "expression: \"" UTILITY_PP_STRINGIZE(v1) " != " UTILITY_PP_STRINGIZE(v2) "\": " msg)

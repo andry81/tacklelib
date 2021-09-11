@@ -11,10 +11,10 @@
 #include <tacklelib/utility/addressof.hpp>
 
 
-#define UTILITY_UNUSED(suffix, exp)                 UTILITY_UNUSED_ ## suffix(exp)
+#define UTILITY_UNUSED(suffix, expr)                UTILITY_UNUSED_ ## suffix(expr)
 
-#define UTILITY_UNUSED_EXPR(exp)                    (( (void)((void)(exp), nullptr) ))
-#define UTILITY_UNUSED_STATEMENT(exp)               do {{ (void)((void)(exp), 0); }} while(false)
+#define UTILITY_UNUSED_EXPR(expr)                   (( (void)((void)(expr), nullptr) ))
+#define UTILITY_UNUSED_STATEMENT(expr)              do {{ (void)((void)(expr), 0); }} while(false)
 
 #define UTILITY_UNUSED_EXPR2(e0, e1)                (( UTILITY_UNUSED_EXPR(e0), UTILITY_UNUSED_EXPR(e1) ))
 #define UTILITY_UNUSED_STATEMENT2(e0, e1)           do {{ UTILITY_UNUSED_STATEMENT(e0); UTILITY_UNUSED_STATEMENT(e1); }} while(false)
