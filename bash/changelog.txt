@@ -1,3 +1,13 @@
+2021.09.13:
+* fixed: tacklelib/bash_tacklelib: `tkl_normalize_path` flags correct parsing
+
+2021.09.06:
+* new: tacklelib/bash_tacklelib: `tkl_export_path*` functions to export path with builtin normalization
+* changed: tacklelib: moved some code into `bash_tacklelib` script
+* changed: tacklelib: code cleanup
+* changed: readme update
+* refactor: tacklelib: code refactor
+
 2021.08.28:
 * fixed: tacklelib: missed `bash_tacklelib` usage instead of `bash_entry` script
 * changed: tacklelib: bash shell scripts moved from `contools` project
@@ -13,6 +23,9 @@
 
 2021.08.23:
 * fixed: tacklelib: minor fixup
+
+2020.09.04:
+* new: tacklelib/tools: git filter-branch library + readme file
 
 2020.08.03:
 * fixed: tacklelib/bash_entry: `tkl_pushset_var_to_stack` has reset a variable back from export to global (unset), use `tkl_declare` function to avoid implicit unset (now can use forward export)

@@ -3,8 +3,8 @@
 # Script ONLY for execution.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]]; then
 
-source "/bin/bash_tacklelib" || exit $?
-tkl_include "__init__/__init__.sh" || tkl_abort_include
+source '/bin/bash_tacklelib' || exit $?
+tkl_include '__init__/__init__.sh' || tkl_abort_include
 
 function Call()
 {
@@ -24,7 +24,7 @@ function Pause()
 
 case "$OSTYPE" in
   mingw* | msys* | cygwin*)
-    Call "${COMSPEC//\\//}" /c "$CONFIGURE_ROOT/01_preconfigure.bat" $@
+    Call "${COMSPEC//\\//}" /c "$TACKLELIB_PROJECT_ROOT/01_preconfigure.bat" $@
     exit $?
     ;;
   *)
@@ -34,21 +34,21 @@ case "$OSTYPE" in
 
     Pause
 
-    _3DPARTY_ROOT=$("$UTILITY_ROOT/contools/wxFileDialog" "" "$CONFIGURE_ROOT" "Select the third party catalog to link with..." -de)
+    TACKLELIB_3DPARTY_ROOT=$("$CONTOOLS_UTILITIES_BIN_ROOT/contools/wxFileDialog" "" "$TACKLELIB_PROJECT_ROOT" "Select the third party catalog to link with..." -de)
 
-    if [[ ! -d "$_3DPARTY_ROOT" ]]; then
-      if [[ -z "$_3DPARTY_ROOT" ]]; then
+    if [[ ! -d "$TACKLELIB_3DPARTY_ROOT" ]]; then
+      if [[ -z "$TACKLELIB_3DPARTY_ROOT" ]]; then
         echo "error: $0: third party catalog is not selected." >&2
       else
-        echo "error: $0: third party catalog does not exist: `$_3DPARTY_ROOT`" >&2
+        echo "error: $0: third party catalog does not exist: `$TACKLELIB_3DPARTY_ROOT`" >&2
       fi
       exit 255
     fi
 
-    Call ln -s "$CONFIGURE_ROOT/_3dparty" "$_3DPARTY_ROOT"
+    Call ln -s "$TACKLELIB_PROJECT_ROOT/_3dparty" "$TACKLELIB_3DPARTY_ROOT"
 
-    #Call ln -s "$CONFIGURE_ROOT/_3dparty/utility/tacklelib/tacklelib/_build" "$CONFIGURE_ROOT/_build"
-    #Call ln -s "$CONFIGURE_ROOT/_3dparty/utility/tacklelib/tacklelib/cmake" "$CONFIGURE_ROOT/cmake"
+    #Call ln -s "$TACKLELIB_PROJECT_ROOT/_3dparty/utility/tacklelib/tacklelib/_build" "$TACKLELIB_PROJECT_ROOT/_build"
+    #Call ln -s "$TACKLELIB_PROJECT_ROOT/_3dparty/utility/tacklelib/tacklelib/cmake" "$TACKLELIB_PROJECT_ROOT/cmake"
     ;;
 esac
 

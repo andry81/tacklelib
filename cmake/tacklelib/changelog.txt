@@ -1,3 +1,14 @@
+2021.09.09:
+* refactor: removed `PROJECT_ROOT` variable as not used
+* refactor: minor refactor
+
+2021.09.06:
+* changed: readme update
+* refactor: code refactor
+
+2020.08.28:
+* refactor: code refactor
+
 2020.08.02:
 * changed: TODO file update
 

@@ -107,28 +107,6 @@ function tkl_call_inproc_entry_and_print_if()
   return $tkl__last_error
 }
 
-function tkl_read_command_line_flags()
-{
-  local out_args_list_name_var="$1"
-  shift
-
-  local args
-  args=("$@")
-  local args_len=${#@}
-
-  local i
-  local j=0
-  for (( i=0; i < $args_len; i++ )); do
-    # collect all flag arguments until first not flag
-    if [[ "${args[i]//-/}" != "" && "${args[i]#-}" != "${args[i]}" ]]; then
-      eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
-      shift
-    else
-      break # stop on empty string too
-    fi
-  done
-}
-
 function tkl_remove_empty_args()
 {
   RETURN_VALUE=()
@@ -218,7 +196,7 @@ function tkl_move_file()
   fi
 
   # normalize path
-  tkl_normalize_path "$FILE_IN" -a
+  tkl_normalize_path -a "$FILE_IN"
   local file_in="$RETURN_VALUE"
 
   # split canonical path into components

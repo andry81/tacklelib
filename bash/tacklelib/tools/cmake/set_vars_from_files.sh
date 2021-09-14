@@ -9,16 +9,19 @@
 # Script can be ONLY included by "source" command.
 [[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) ]] && return
 
-source "/bin/bash_tacklelib" || return $?
-tkl_include "$TACKLELIB_BASH_ROOT/buildlib.sh" || tkl_abort_include
-tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || tkl_abort_include
+source '/bin/bash_tacklelib' || exit $?
+tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
+tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_locked_file_pair.sh" || tkl_abort_include
 
-function set_vars_from_files()
+function tkl_set_vars_from_files()
 {
-  if [[ -z ${TACKLELIB_CMAKE_ROOT+x} ]]; then
-    echo "$0: error: TACKLELIB_CMAKE_ROOT is not defined." >&2
-    return 127
-  fi
+  local i
+  for i in TACKLELIB_CMAKE_ROOT; do
+    if [[ -z "$i" ]]; then
+      echo "${FUNCNAME[0]}: error: \'$i\` variable is not defined." >&2
+      exit 255
+    fi
+  done
 
   local TEMP_OUTPUT_DIR=`mktemp -d -t set_vars_from_files.XXXXXXXXXX`
 
@@ -28,7 +31,7 @@ function set_vars_from_files()
   fi
 
   # cleanup on return
-  tkl_push_trap "rm -rf \"$TEMP_OUTPUT_DIR\" 2> /dev/null" RETURN
+  tkl_push_trap "rm -rf \"$TEMP_OUTPUT_DIR\" 2> /dev/null" RELEASE
 
   local RETURN_VALUE
   tkl_convert_backend_path_to_native "$TEMP_OUTPUT_DIR" s
@@ -36,12 +39,12 @@ function set_vars_from_files()
 
   # arguments: <flag0>[...<flagN>] "<file0>[...\;<fileN>]" <os_name> <compiler_name> <config_name> <arch_name> <list_separator_char>
   tkl_call_and_print_if "(( TOOLS_VERBOSE ))" cmake "-DCMAKE_MODULE_PATH=$TACKLELIB_CMAKE_ROOT" \
-    -P "$TACKLELIB_CMAKE_ROOT/tools/SetVarsFromFiles.cmd.cmake" \
+    -P "$TACKLELIB_CMAKE_ROOT/tacklelib/tools/SetVarsFromFiles.cmd.cmake" \
     "${@:7}" \
     --flock "$TEMP_OUTPUT_DIR/lock" --vars "$TEMP_OUTPUT_DIR/var_names.lst" --values "$TEMP_OUTPUT_DIR/var_values.lst" \
     "${@:1:6}" || return $?
 
-  tkl_call_and_print_if "(( TOOLS_VERBOSE ))" set_vars_from_locked_file_pair \
+  tkl_call_and_print_if "(( TOOLS_VERBOSE ))" tkl_set_vars_from_locked_file_pair \
     "$TEMP_OUTPUT_DIR/lock" "$TEMP_OUTPUT_DIR/var_names.lst" "$TEMP_OUTPUT_DIR/var_values.lst" \
     "$PRINT_VARS_SET" || return $?
 

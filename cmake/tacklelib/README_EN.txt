@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.03.08
+* 2021.09.06
 * tacklelib--cmake
 
 1. DESCRIPTION
@@ -42,26 +42,7 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, compilers, interpreters, modules,
-IDE's, applications and patches to run with or from:
-
-1. OS platforms:
-
-* Windows 7 (minimal version for the cmake 3.14)
-* Cygwin 1.5+ or 3.0+
-  https://cygwin.com
-  - to run scripts under cygwin
-* Msys2 20190524+
-  https://www.msys2.org
-  - to run scripts under msys2
-* Linux Mint 18.3 x64
-
-2. Interpreters:
-
-* cmake 3.14+ :
-  https://cmake.org/download/
-  - to run cmake scripts
+See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 5. TESTS

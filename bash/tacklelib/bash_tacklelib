@@ -7,7 +7,7 @@
 #
 # Base bash shell library module with a basic set of functionality.
 # Designed to be included through the absolute path and the source command -
-# `source '/bin/bash_entry'`.
+# `source '/bin/bash_tacklelib'`.
 # After that all other scripts can be included through the alternative
 # inclusion function - `tkl_include`.
 #
@@ -146,6 +146,68 @@ function tkl_export_eval()
   unset $1 2> /dev/null
 
   eval "export $1=\"$2\"" # right argument does evaluate
+}
+
+function tkl_export_path()
+{
+  local flag_args=()
+
+  tkl_read_command_line_flags flag_args "$@"
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+  # CAUTION:
+  #   1. To unset current context local variable, but NOT the upper context local variable!
+  #   2. Additionally, unsets an exported variable, so we have to declare it with export.
+  #
+  unset $1 2> /dev/null
+
+  local flag_subst_empty_value_by_placeholder=0
+
+  local flag
+  for flag in "${flag_args[@]}"; do
+    [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
+  done
+
+  builtin trap "unset RETURN_VALUE; builtin trap - RETURN" RETURN
+
+  tkl_normalize_path "${flag_args[@]}" "$2" || return $?
+
+  if (( flag_subst_empty_value_by_placeholder )); then
+    eval "export $1=\"\${RETURN_VALUE:-\"*:\\\${\$1}\"}\"" # right argument does NOT evaluate
+  else
+    eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+  fi
+}
+
+function tkl_export_path_eval()
+{
+  local flag_args=()
+
+  tkl_read_command_line_flags flag_args "$@"
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+  # CAUTION:
+  #   1. To unset current context local variable, but NOT the upper context local variable!
+  #   2. Additionally, unsets an exported variable, so we have to declare it with export.
+  #
+  unset $1 2> /dev/null
+
+  local flag_subst_empty_value_by_placeholder=0
+
+  local flag
+  for flag in "${flag_args[@]}"; do
+    [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
+  done
+
+  builtin trap "unset RETURN_VALUE; builtin trap - RETURN" RETURN
+
+  eval "tkl_normalize_path \"\${flag_args[@]}\" \"$2\"" || return $? # not flag argument does evaluate
+
+  if (( flag_subst_empty_value_by_placeholder )); then
+    eval "export $1=\"\${RETURN_VALUE:-\"*:\\\${\$1}\"}\"" # right argument does NOT evaluate
+  else
+    eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+  fi
 }
 
 function tkl_eval_if()
@@ -666,6 +728,33 @@ function tkl_abort_include()
   tkl_abort $? "${FUNCNAME[0]}: ${FUNCNAME[1]}: code=\`$?\`; line=\`${BASH_LINENO[1]}\`; source=\`${BASH_SOURCE[1]}\`"
 }
 
+function tkl_read_command_line_flags()
+{
+  local out_args_list_name_var="$1"
+  shift
+
+  local args
+  args=("$@")
+  local args_len=${#@}
+
+  local i
+  local j=0
+  for (( i=0; i < $args_len; i++ )); do
+    # collect all flag arguments until first not flag
+    if [[ "${args[i]}" == "--" ]]; then
+      eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+      break
+    fi
+
+    if [[ -n "${args[i]}" && "${args[i]#-}" != "${args[i]}" ]]; then
+      eval "$out_args_list_name_var[j++]=\"\${args[i]}\""
+      shift
+    else
+      break # stop on empty string too
+    fi
+  done
+}
+
 function tkl_get_abs_path_from_dir()
 {
   # drop return value
@@ -680,9 +769,9 @@ function tkl_get_abs_path_from_dir()
 
   if [[ -n "$DirPath" ]]; then
     if [[ "${RelativePath:0:1}" != '/' ]]; then
-      tkl_normalize_path "$DirPath${RelativePath:+/}$RelativePath" -a || return 2
+      tkl_normalize_path -a -- "$DirPath${RelativePath:+/}$RelativePath" || return 2
     else
-      tkl_normalize_path "$RelativePath" -a || return 3
+      tkl_normalize_path -a -- "$RelativePath" || return 3
     fi
     return 0
   fi
@@ -1002,17 +1091,26 @@ function tkl_char_to_ubyte()
 function tkl_normalize_path()
 {
   #echo "FUNCNAME=${FUNCNAME[@]}"
+
+  local flag_args=()
+
+  tkl_read_command_line_flags flag_args "$@"
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+  local convert_to_abs_path=0
+
+  local flag
+  for flag in "${flag_args[@]}"; do
+    [[ "${flag//a/}" != "$flag" ]] && convert_to_abs_path=1
+  done
+
   # convert all back slashes to slashes
   local path_to_normalize="${1//\\//}"
-  local flags="$2"
 
   # set return value to input value
   RETURN_VALUE="$path_to_normalize"
 
   [[ -z "$path_to_normalize" ]] && return 1
-
-  local convert_to_abs_path=0
-  [[ "${flags/a/}" != "$flags" ]] && convert_to_abs_path=1
 
   local num_reductions
   local path_prefix
@@ -1193,21 +1291,6 @@ function tkl_convert_native_path_to_backend()
   RETURN_VALUE="$PathToConvert"
 
   return 0
-}
-
-function tkl_cygwin_path()
-{
-  local Flags="$1"
-  if [[ "${Flags:0:1}" == '-' ]]; then
-    shift
-  else
-    Flags=''
-  fi
-
-  # drop return value
-  RETURN_VALUE=''
-
-
 }
 
 function tkl_exctract_path_ignoring_user_mount_points()
@@ -1424,3 +1507,6 @@ function tkl_bash_entry()
 # like `tkl_call`, `tkl_exit`, `tkl_abort` to hold the exit code over the builtin
 # functions like `pushd` and `popd` which does change the exit code.
 tkl_declare_global tkl__last_error 0
+
+# register on first include
+[[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_make_source_file_components

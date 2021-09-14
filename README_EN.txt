@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.08.28
+* 2021.09.06
 * tacklelib
 
 1. DESCRIPTION
@@ -57,13 +57,13 @@ languages:
 * C++11.
   Represents the same ideas as introduced in Boost/STL/Loki C++ libraries and
   at first focused for extension of already existed C++ code.
+* Bash.
+  Various extension scritps/modules for the bash shell.
 * CMake.
   CMake modules to support and extend a build of a c++ project under cmake
   environment.
 * Python.
   Various extension scritps/modules for the python.
-* Bash.
-  Various extension scritps/modules for the bash shell.
 * VBS.
   Various extension scritps/modules for the Visual Basic Script interpreter.
 
@@ -102,13 +102,19 @@ IDE's, applications and patches to run with or from:
 
 1. OS platforms:
 
+* Windows XP (`.vbs` only, minimal version for the Windows Script Host)
 * Windows 7 (`.bat` only, minimal version for the cmake 3.14)
+* Windows 8/8.1
+* Windows 10
+
 * Cygwin 1.5+ or 3.0+ (`.sh` only):
   https://cygwin.com
   - to run scripts under cygwin
+
 * Msys2 20190524+ (`.sh` only):
   https://www.msys2.org
   - to run scripts under msys2
+
 * Linux Mint 18.3 x64 (`.sh` only)
 
 2. C++11 compilers:
@@ -143,7 +149,12 @@ IDE's, applications and patches to run with or from:
 
 4. Modules:
 
-* CMake testing modules:
+* Bash additional modules:
+
+**  tacklelib--bash:
+    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/bash/tacklelib/
+
+* CMake additional modules:
 
 **  tacklelib--cmake:
     https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/

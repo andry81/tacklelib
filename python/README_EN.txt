@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.04.06
+* 2021.09.06
 * tacklelib--python
 
 1. DESCRIPTION
@@ -58,84 +58,7 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, compilers, interpreters, modules,
-IDE's, applications and patches to run with or from:
-
-1. OS platforms.
-
-* Windows 7 (`.bat` only)
-* Cygwin 1.5+ or 3.0+ (`.sh` only):
-  https://cygwin.com
-  - to run scripts under cygwin
-* Msys2 20190524+ (`.sh` only):
-  https://www.msys2.org
-  - to run scripts under msys2
-* Linux Mint 18.3 x64 (`.sh` only)
-
-2. C++11 compilers:
-
-N/A
-
-3. Interpreters:
-
-* python 3.7.3 or 3.7.5 (3.6.2+)
-  https://python.org
-  - standard implementation to run python scripts
-  - 3.7.4 has a bug in the `pytest` module execution (see `KNOWN ISSUES`
-    section).
-  - 3.6.2+ is required due to multiple bugs in the python implementation prior
-    this version (see `KNOWN ISSUES` section).
-  - 3.5+ is required for the direct import by a file path (with any extension)
-    as noted in the documentation:
-    https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
-
-4. Modules
-
-* Python site modules:
-
-**  xonsh/0.9.12
-    https://github.com/xonsh/xonsh
-    - to run python scripts and import python modules with `.xsh` file
-      extension
-**  plumbum 1.6.7
-    https://plumbum.readthedocs.io/en/latest/
-    - to run python scripts in a shell like environment
-**  win_unicode_console
-    - to enable unicode symbols support in the Windows console
-**  pyyaml 5.1.1
-    - to read yaml format files (.yaml, .yml)
-**  conditional 1.3
-    - to support conditional `with` statements
-**  fcache 0.4.7
-    - for local cache storage for python scripts
-**  psutil 5.6.7
-    - for processes list request
-**  tzlocal 2.0.0
-    - for local timezone request
-**  pytest 5.2.0
-    - to run python tests (test*.py)
-
-5. IDE's:
-
-N/A
-
-6. Applications:
-
-* subversion 1.8+
-  https://tortoisesvn.net
-  - to run svn client
-* git 2.24+
-  https://git-scm.com
-  - to run git client
-
-7. Patches:
-
-* Python site modules contains patches in the `python_patches`
-  subdirectory:
-
-** fcache
-   - to fix issues from the `fcache execution issues` section.
+See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 5. CATALOG CONTENT DESCRIPTION

@@ -85,12 +85,12 @@ test_case_match_filter\;.\;test_case_match_filter_list\
   tkl_time_sec(TACKLELIB_TESTLIB_BEGIN_TIME_SEC)
   set_property(GLOBAL PROPERTY "tkl::testlib::begin_time_sec" "${TACKLELIB_TESTLIB_BEGIN_TIME_SEC}")
 
-  if (NOT DEFINED PROJECT_ROOT OR NOT IS_DIRECTORY "${PROJECT_ROOT}")
-    message(FATAL_ERROR "PROJECT_ROOT variable must be defained externally before include this module: PROJECT_ROOT=`${PROJECT_ROOT}`")
+  if (NOT DEFINED TESTS_PROJECT_ROOT OR NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}")
+    message(FATAL_ERROR "TESTS_PROJECT_ROOT variable must be defained externally before include this module: TESTS_PROJECT_ROOT=`${TESTS_PROJECT_ROOT}`")
   endif()
 
-  if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
-    message(FATAL_ERROR "TESTS_ROOT variable must be defained externally before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
+  if (NOT DEFINED TESTS_PROJECT_OUTPUT_CONFIG_ROOT OR NOT IS_DIRECTORY "${TESTS_PROJECT_OUTPUT_CONFIG_ROOT}")
+    message(FATAL_ERROR "TESTS_PROJECT_OUTPUT_CONFIG_ROOT variable must be defained externally before include this module: TESTS_PROJECT_OUTPUT_CONFIG_ROOT=`${TESTS_PROJECT_OUTPUT_CONFIG_ROOT}`")
   endif()
 
   if (NOT DEFINED TACKLELIB_TESTLIB_TESTSCRIPT_FILE OR NOT EXISTS "${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}" OR IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTSCRIPT_FILE}")
@@ -103,10 +103,10 @@ test_case_match_filter\;.\;test_case_match_filter_list\
 
   # load global TestLib configuration variables
   if (NOT TACKLELIB_TESTLIB_SKIP_LOAD_VARS)
-    if (EXISTS "${TESTS_ROOT}/_config/cmake/config.0.vars" AND NOT IS_DIRECTORY "${TESTS_ROOT}/_config/cmake/config.0.vars")
+    if (EXISTS "${TESTS_PROJECT_OUTPUT_CONFIG_ROOT}/config.0.vars" AND NOT IS_DIRECTORY "${TESTS_PROJECT_OUTPUT_CONFIG_ROOT}/config.0.vars")
       tkl_track_vars_begin()
 
-      tkl_load_vars_from_files("${TESTS_ROOT}/_config/cmake/config.0.vars")
+      tkl_load_vars_from_files("${TESTS_PROJECT_OUTPUT_CONFIG_ROOT}/config.0.vars")
 
       tkl_forward_changed_vars_to_parent_scope()
       tkl_track_vars_end()
@@ -304,8 +304,8 @@ function(tkl_testlib_enter_dir test_dir)
 
   file(GLOB include_files
     LIST_DIRECTORIES false
-    RELATIVE "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
-    "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*.include.cmake"
+    RELATIVE "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
+    "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*.include.cmake"
   )
 
   if (include_files)
@@ -315,12 +315,12 @@ function(tkl_testlib_enter_dir test_dir)
   else()
     file(GLOB all_files
       #LIST_DIRECTORIES false
-      RELATIVE "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
-      "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*"
+      RELATIVE "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
+      "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*"
     )
 
     foreach(file_name IN LISTS all_files)
-      if (NOT IS_DIRECTORY "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${file_name}")
+      if (NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/${file_name}")
         continue()
       endif()
 
@@ -329,8 +329,8 @@ function(tkl_testlib_enter_dir test_dir)
 
     file(GLOB test_files
       LIST_DIRECTORIES false
-      RELATIVE "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
-      "${TESTS_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*.test.cmake"
+      RELATIVE "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}"
+      "${TESTS_PROJECT_ROOT}/${TACKLELIB_TESTLIB_LAST_ENTER_DIR}/*.test.cmake"
     )
 
     if ("${TACKLELIB_TESTLIB_PATH_MATCH_FILTER_LIST}" STREQUAL "")
@@ -464,25 +464,25 @@ macro(tkl_testlib_include test_dir test_file_name)
 
   if (NOT "${test_dir}" STREQUAL "" AND NOT "${test_dir}" STREQUAL ".")
     # make an extension suggestion
-    if (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}" AND
-        NOT IS_DIRECTORY "${TESTS_ROOT}/${test_dir}/${test_file_name}")
-      include("${TESTS_ROOT}/${test_dir}/${test_file_name}")
-    elseif (EXISTS "${TESTS_ROOT}/${test_dir}/${test_file_name}.cmake" AND
-        NOT IS_DIRECTORY "${TESTS_ROOT}/${test_dir}/${test_file_name}.cmake")
-      include("${TESTS_ROOT}/${test_dir}/${test_file_name}.cmake")
+    if (EXISTS "${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}" AND
+        NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}")
+      include("${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}")
+    elseif (EXISTS "${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}.cmake" AND
+        NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}.cmake")
+      include("${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}.cmake")
     else()
-      message(FATAL_ERROR "failed to include file: `${TESTS_ROOT}/${test_dir}/${test_file_name}`")
+      message(FATAL_ERROR "failed to include file: `${TESTS_PROJECT_ROOT}/${test_dir}/${test_file_name}`")
     endif()
   else()
     # make an extension suggestion
-    if (EXISTS "${TESTS_ROOT}/${test_file_name}" AND
-        NOT IS_DIRECTORY "${TESTS_ROOT}/${test_file_name}")
-      include("${TESTS_ROOT}/${test_file_name}")
-    elseif (EXISTS "${TESTS_ROOT}/${test_file_name}.cmake" AND
-        NOT IS_DIRECTORY "${TESTS_ROOT}/${test_file_name}.cmake")
-      include("${TESTS_ROOT}/${test_file_name}.cmake")
+    if (EXISTS "${TESTS_PROJECT_ROOT}/${test_file_name}" AND
+        NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}/${test_file_name}")
+      include("${TESTS_PROJECT_ROOT}/${test_file_name}")
+    elseif (EXISTS "${TESTS_PROJECT_ROOT}/${test_file_name}.cmake" AND
+        NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}/${test_file_name}.cmake")
+      include("${TESTS_PROJECT_ROOT}/${test_file_name}.cmake")
     else()
-      message(FATAL_ERROR "failed to include file: `${TESTS_ROOT}/${test_file_name}`")
+      message(FATAL_ERROR "failed to include file: `${TESTS_PROJECT_ROOT}/${test_file_name}`")
     endif()
   endif()
 endmacro()
@@ -512,10 +512,10 @@ function(tkl_testlib_test test_dir test_file_name)
   set(ret_code 0)
 
   if (NOT "${test_dir}" STREQUAL "" AND NOT "${test_dir}" STREQUAL ".")
-    set(test_file_dir "${TESTS_ROOT}/${test_dir}")
+    set(test_file_dir "${TESTS_PROJECT_ROOT}/${test_dir}")
     set(test_file_dir_prefix "${test_dir}/")
   else()
-    set(test_file_dir "${TESTS_ROOT}")
+    set(test_file_dir "${TESTS_PROJECT_ROOT}")
     set(test_file_dir_prefix "")
   endif()
 
@@ -593,8 +593,7 @@ function(tkl_testlib_test test_dir test_file_name)
     COMMAND
       "${CMAKE_COMMAND}"
       "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
-      "-DPROJECT_ROOT=${PROJECT_ROOT}"
-      "-DTESTS_ROOT=${TESTS_ROOT}"
+      "-DTESTS_PROJECT_ROOT=${TESTS_PROJECT_ROOT}"
       "-DTACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR=${ret_code_dir}"
       "-DTACKLELIB_TESTLIB_TESTPROC_INDEX=${TACKLELIB_TESTLIB_TESTPROC_INDEX}"
       "-DTACKLELIB_TESTLIB_TESTMODULE_DIR=${test_file_dir}"

@@ -594,7 +594,17 @@ namespace utility {
     //  A different function name, otherwise can be ambiguous function call!
     //
     template <typename CharT>
-    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str(const CharT * a, const CharT * b)
+    FORCE_INLINE CONSTEXPR_FUNC bool is_equal_c_str_force_inline(const CharT * a, const CharT * b)
+    {
+#ifdef UTILITY_PLATFORM_FEATURE_COMPILER_ENABLED_TAIL_RECURSION_ELIMINATION
+        return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || is_equal_c_str(a + 1, b + 1));
+#else
+        return !strcmp(a, b);
+#endif
+    }
+
+    template <typename CharT>
+    inline CONSTEXPR_FUNC bool is_equal_c_str(const CharT * a, const CharT * b)
     {
 #ifdef UTILITY_PLATFORM_FEATURE_COMPILER_ENABLED_TAIL_RECURSION_ELIMINATION
         return *a == *b && (*a == UTILITY_LITERAL_CHAR('\0', CharT) || is_equal_c_str(a + 1, b + 1));

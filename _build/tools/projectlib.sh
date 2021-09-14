@@ -1,21 +1,16 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_PROJECTLIB_SH" && SOURCE_TACKLELIB_PROJECTLIB_SH -ne 0) ]] && return
+[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_BUILD_TOOLS_PROJECTLIB_SH" && SOURCE_TACKLELIB_BUILD_TOOLS_PROJECTLIB_SH -ne 0) ]] && return
 
-SOURCE_TACKLELIB_PROJECTLIB_SH=1 # including guard
+SOURCE_TACKLELIB_BUILD_TOOLS_PROJECTLIB_SH=1 # including guard
 
-# CAUTION:
-#   All includes must use local modules from the `_build` subdirectory
-#   because this is a standalone directory referenced from external projects.
-#
-
-source '/bin/bash_tacklelib' || return $?
-tkl_include "$TACKLELIB_BASH_ROOT/buildlib.sh" || tkl_abort_include
+source '/bin/bash_tacklelib' || exit $?
+tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
 
 function GenerateSrc()
 {
-  local CONFIG_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME}/gen_file_list.in"
+  local CONFIG_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/gen_file_list.in"
 
   local IFS=$'|\t\r\n'
   while read -r FromFilePath ToFilePath; do
@@ -29,15 +24,15 @@ function GenerateSrc()
     } > "$TACKLELIB_PROJECT_ROOT/$ToFilePath"
   done < "$CONFIG_FILE_IN"
 
-  local CONFIG_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmd_list.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CONFIG_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/cmd_list.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   local IFS=$'|\t\r\n'
-  while read -r ScriptFilePath ScriptCmdLine; do
-    [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
-    [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
-    ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
-    declare -a "ScriptCmdLineArr=($ScriptCmdLine)" # evaluate command line only
-    tkl_call "$TACKLELIB_PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
+  while read -r CmdPath CmdParams; do
+    [[ -z "${CmdPath//[$' \t']/}" ]] && continue
+    [[ "${CmdPath:i:1}" == "#" ]] && continue
+    CmdParams="${CmdParams//[$'\r\n']/}" # trim line returns
+    declare -a "CmdParamsArr=($CmdParams)" # evaluate command line only
+    tkl_call "$TACKLELIB_PROJECT_ROOT/$CmdPath" "${CmdParamsArr[@]}" || tkl_abort $?
   done < "$CONFIG_FILE_IN"
 
   return 0
@@ -45,8 +40,8 @@ function GenerateSrc()
 
 function GenerateConfig()
 {
-  local CMDLINE_SYSTEM_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/config.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
-  local CMDLINE_USER_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/config.0.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMDLINE_SYSTEM_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/config.system.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMDLINE_USER_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/config.0.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   tkl_load_command_line_from_file -e "$CMDLINE_SYSTEM_FILE_IN"
   eval "CMAKE_CMD_LINE_SYSTEM=($RETURN_VALUE)"
@@ -54,19 +49,19 @@ function GenerateConfig()
   tkl_load_command_line_from_file -e "$CMDLINE_USER_FILE_IN"
   eval "CMAKE_CMD_LINE_USER=($RETURN_VALUE)"
 
-  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || return $?
-  tkl_call cmake "${CMAKE_CMD_LINE_USER[@]}" || return $?
+  tkl_call cmake "${CMAKE_CMD_LINE_SYSTEM[@]}" || tkl_abort $?
+  tkl_call cmake "${CMAKE_CMD_LINE_USER[@]}" || tkl_abort $?
 
-  local CONFIG_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmd_list.${BASH_SOURCE_FILE_NAME##*[.]}.in"
+  local CMD_LIST_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/cmd_list.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   local IFS=$'|\t\r\n'
-  while read -r ScriptFilePath ScriptCmdLine; do 
-    [[ -z "${ScriptFilePath//[$' \t']/}" ]] && continue
-    [[ "${ScriptFilePath:i:1}" == "#" ]] && continue
-    ScriptCmdLine="${ScriptCmdLine//[$'\r\n']/}" # trim line returns
-    declare -a "ScriptCmdLineArr=($ScriptCmdLine)" # evaluate command line only
-    tkl_call "$TACKLELIB_PROJECT_ROOT/$ScriptFilePath" "${ScriptCmdLineArr[@]}" || return $?
-  done < "$CONFIG_FILE_IN"
+  while read -r CmdPath CmdParams; do 
+    [[ -z "${CmdPath//[$' \t']/}" ]] && continue
+    [[ "${CmdPath:i:1}" == "#" ]] && continue
+    CmdParams="${CmdParams//[$'\r\n']/}" # trim line returns
+    declare -a "CmdParamsArr=($CmdParams)" # evaluate command line only
+    tkl_call "$TACKLELIB_PROJECT_ROOT/$CmdPath" "${CmdParamsArr[@]}" || tkl_abort $?
+  done < "$CMD_LIST_FILE_IN"
 
   return 0
 }
@@ -121,11 +116,11 @@ function Configure()
   UpdateBuildType
 
   if (( CMAKE_IS_SINGLE_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_files.sh" || return $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || return $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort_include
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort_include
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -135,7 +130,7 @@ function Configure()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;};$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_abort $?
 
   # check if multiconfig.tag is already created
   if [[ -e "$CMAKE_BUILD_ROOT/singleconfig.tag" ]]; then
@@ -156,13 +151,13 @@ function Configure()
 
   if [[ CMAKE_IS_SINGLE_CONFIG -ne 0 ]]; then
     echo '' > "$CMAKE_BUILD_ROOT/singleconfig.tag"
-    local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/singleconfig/cmdline.in"
+    local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/singleconfig/cmdline.${BASH_SOURCE_FILE_NAME##*[.]}.in"
   else
     echo '' > "$CMAKE_BUILD_ROOT/multiconfig.tag"
-    local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/multiconfig/cmdline.in"
+    local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/multiconfig/cmdline.${BASH_SOURCE_FILE_NAME##*[.]}.in"
   fi
 
-  tkl_include "$TACKLELIB_PROJECT_ROOT/_build/__init__/__init2__.sh" || return $?
+  MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || tkl_abort $?
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
@@ -176,7 +171,7 @@ function Configure()
 
   tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || tkl_abort $?
   } || return 255
 
   return 0
@@ -188,11 +183,11 @@ function Build()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_files.sh" || return $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || return $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -202,11 +197,11 @@ function Build()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;};$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_abort $?
 
-  tkl_include "$TACKLELIB_PROJECT_ROOT/_build/__init__/__init2__.sh" || return $?
+  MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || tkl_abort $?
 
-  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmdline.in"
+  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/cmdline.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
@@ -216,7 +211,7 @@ function Build()
 
   tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" "$@" || tkl_abort $?
   } || return 255
 
   return 0
@@ -228,11 +223,11 @@ function Install()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_files.sh" || return $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || return $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -242,11 +237,11 @@ function Install()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;};$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_abort $?
 
-  tkl_include "$TACKLELIB_PROJECT_ROOT/_build/__init__/__init2__.sh" || return $?
+  MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || tkl_abort $?
 
-  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmdline.in"
+  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/cmdline.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
@@ -254,7 +249,7 @@ function Install()
 
   tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE[@]}" "$@" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE[@]}" "$@" || tkl_abort $?
   } || return 255
 
   return 0
@@ -266,11 +261,11 @@ function PostInstall()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_files.sh" || return $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || return $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -280,15 +275,13 @@ function PostInstall()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;};$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_abort $?
 
-  tkl_include "$TACKLELIB_PROJECT_ROOT/_build/__init__/__init2__.sh" || return $?
-
-  #local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmdline.in"
+  MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || tkl_abort $?
 
   tkl_call tkl_pushd "$CMAKE_INSTALL_ROOT" && {
     tkl_push_trap 'tkl_popd' RETURN
-    PostInstallImpl "$@" || return $?
+    PostInstallImpl "$@" || tkl_abort $?
   } || return 255
 
   return 0
@@ -320,7 +313,7 @@ function PostInstallImpl()
   declare -a "file_deps_cpdir_list=(\$FILE_DEPS_CPDIR_LIST)"
 
   # create application directories at first
-  tkl_make_dir "${file_deps_mkdir_list[@]}" || return $?
+  tkl_make_dir "${file_deps_mkdir_list[@]}" || tkl_abort $?
 
   local IFS=$':\t\r\n'
 
@@ -329,42 +322,42 @@ function PostInstallImpl()
   for dir in "${file_deps_cpdir_list[@]}"; do
     (( i == 0 )) && from_dir="$dir"
     if (( (i % 2) == 1 )); then
-      tkl_call cp -R "$from_dir" "$dir" || return $?
+      tkl_call cp -R "$from_dir" "$dir" || tkl_abort $?
     fi
     (( i++ ))
   done
 
   # collect shared object dependencies
   tkl_call "$TACKLELIB_PROJECT_ROOT/_build/deploy/collect_ldd_deps.sh" "$FILE_DEPS_LIST_TO_FIND" "$FILE_DEPS_ROOT_LIST" \
-    "$FILE_DEPS_LIST_TO_EXCLUDE" "$FILE_DEPS_LD_PATH_LIST" deps.lst . || return $?
+    "$FILE_DEPS_LIST_TO_EXCLUDE" "$FILE_DEPS_LD_PATH_LIST" deps.lst . || tkl_abort $?
 
   # create user symlinks
-  tkl_call "$TACKLELIB_PROJECT_ROOT/_build/deploy/create_links.sh" -u . || return $?
+  tkl_call "$TACKLELIB_PROJECT_ROOT/_build/deploy/create_links.sh" -u . || tkl_abort $?
 
   # generate common links file from collected and created dependencies
-  tkl_call "$TACKLELIB_PROJECT_ROOT/_build/deploy/gen_links.sh" . _build/deploy || return $?
+  tkl_call "$TACKLELIB_PROJECT_ROOT/_build/deploy/gen_links.sh" . _build/deploy || tkl_abort $?
 
   # patch executables
-  tkl_call patchelf --set-interpreter "./lib/ld-linux.so.2" --set-rpath "\$ORIGIN:\$ORIGIN/lib" "./$PROJECT_NAME" || return $?
-  tkl_call patchelf --shrink-rpath "./$PROJECT_NAME" || return $?
+  tkl_call patchelf --set-interpreter "./lib/ld-linux.so.2" --set-rpath "\$ORIGIN:\$ORIGIN/lib" "./$PROJECT_NAME" || tkl_abort $?
+  tkl_call patchelf --shrink-rpath "./$PROJECT_NAME" || tkl_abort $?
 
   local file
 
   for file in "${file_deps_root_list[@]}"; do
-    tkl_move_file -L "$file" "lib/" || return $?
+    tkl_move_file -L "$file" "lib/" || tkl_abort $?
   done
 
   # copy approot if exists
   if [[ -d "$TACKLELIB_PROJECT_ROOT/deploy/approot" ]]; then
-    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/deploy/approot/." "$PWD" || return $?
+    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/deploy/approot/." "$PWD" || tkl_abort $?
   fi
 
   # copy specific scripts if exists
   if [[ -d "$TACKLELIB_PROJECT_ROOT/_build/deploy" ]]; then
-    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/_build/deploy" "$PWD/_build" || return $?
+    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/_build/deploy" "$PWD/_build" || tkl_abort $?
   fi
   if [[ -d "$TACKLELIB_PROJECT_ROOT/_build/admin" ]]; then
-    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/_build/admin" "$PWD/_build" || return $?
+    tkl_call cp -R "$TACKLELIB_PROJECT_ROOT/_build/admin" "$PWD/_build" || tkl_abort $?
   fi
 
   local file_name
@@ -381,7 +374,7 @@ function PostInstallImpl()
     file_name_ext=$(echo "$RETURN_VALUE" | { IFS=$'.\r\n'; read -r prefix suffix; echo "$suffix"; })
     file_name_to_rename="${file_name_prefix//\$\{PROJECT_NAME\}/$PROJECT_NAME}.$file_name_ext"
 
-    tkl_call mv "$file" "$file_dir/$file_name_to_rename" || return $?
+    tkl_call mv "$file" "$file_dir/$file_name_to_rename" || tkl_abort $?
   done
 
   return 0
@@ -393,11 +386,11 @@ function Pack()
   UpdateBuildType
 
   if (( ! GENERATOR_IS_MULTI_CONFIG )); then
-    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || return $?
+    tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_files.sh" || return $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tools/cmake/set_vars_from_locked_file_pair.sh" || return $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
+  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -407,9 +400,9 @@ function Pack()
     --make_vars \
     "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" \
     "0;00;$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;};$PROJECT_NAME;${TACKLELIB_PROJECT_ROOT//;/\\;}" \
-    --ignore_statement_if_no_filter --ignore_late_expansion_statements || return $?
+    --ignore_statement_if_no_filter --ignore_late_expansion_statements || tkl_abort $?
 
-  tkl_include "$TACKLELIB_PROJECT_ROOT/_build/__init__/__init2__.sh" || return $?
+  MakeOutputDirectories "$CMAKE_BUILD_TYPE" "$GENERATOR_IS_MULTI_CONFIG" || tkl_abort $?
 
   if [[ ! -d "$NSIS_INSTALL_ROOT" ]]; then
     echo "$0: error: NSIS_INSTALL_ROOT directory does not exist: \`$NSIS_INSTALL_ROOT\`." >&2
@@ -418,7 +411,7 @@ function Pack()
 
   export PATH="$PATH%:$NSIS_INSTALL_ROOT"
 
-  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/$BASH_SOURCE_FILE_NAME/cmdline.in"
+  local CMDLINE_FILE_IN="$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT/_build/${BASH_SOURCE_FILE_NAME%[.]*}/cmdline.${BASH_SOURCE_FILE_NAME##*[.]}.in"
 
   tkl_load_command_line_from_file -e "$CMDLINE_FILE_IN"
 
@@ -428,7 +421,7 @@ function Pack()
 
   tkl_call tkl_pushd "$CMAKE_BUILD_DIR" && {
     tkl_push_trap 'tkl_popd' RETURN
-    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || return $?
+    tkl_call cmake "${CMAKE_CMD_LINE_ARR[@]}" || tkl_abort $?
   } || return 255
 
   return 0
@@ -436,30 +429,55 @@ function Pack()
 
 function CheckConfigVersion()
 {
-  local OPTIONAL_COMPARE="${1:-0}"
-  local VARS_SYSTEM_FILE_IN="$2"
-  local VARS_SYSTEM_FILE="$3"
-  local VARS_USER_FILE_IN="$4"
-  local VARS_USER_FILE="$5"
+  local flag_args=()
 
-  if [[ ! -f "$VARS_SYSTEM_FILE_IN" ]]; then
-    echo "$0: error: VARS_SYSTEM_FILE_IN does not exist: \`$VARS_SYSTEM_FILE_IN\`" >&2
+  tkl_read_command_line_flags flag_args "$@"
+  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+
+  local flag_optional_compare=0
+  local flag_optional_system_file_instance=0
+  local flag_optional_user_file_instance=0
+
+  local flag
+  for flag in "${flag_args[@]}"; do
+    [[ "$flag" == '-optional_compare' ]] && flag_optional_compare=1
+    [[ "$flag" == '-optional_system_file_instance' ]] && flag_optional_system_file_instance=1
+    [[ "$flag" == '-optional_user_file_instance' ]] && flag_optional_user_file_instance=1
+  done
+
+  local VARS_SYSTEM_FILE_IN="$1"
+  local VARS_SYSTEM_FILE="$2"
+  local VARS_USER_FILE_IN="$3"
+  local VARS_USER_FILE="$4"
+
+  if (( flag_optional_compare )); do
+    flag_optional_system_file_instance=1
+    flag_optional_user_file_instance=1
+  fi
+
+  if [[ -z "$VARS_SYSTEM_FILE_IN" && -z "$VARS_USER_FILE_IN" ]]; then
+    echo "$0: error: at least VARS_SYSTEM_FILE_IN or VARS_USER_FILE_IN must be defined." >&2
     return 1
   fi
-  if (( ! OPTIONAL_COMPARE )) && [[ ! -f "$VARS_SYSTEM_FILE" ]]; then
+
+  if [[ -n "$VARS_SYSTEM_FILE_IN" && ! -f "$VARS_SYSTEM_FILE_IN" ]]; then
+    echo "$0: error: VARS_SYSTEM_FILE_IN does not exist: \`$VARS_SYSTEM_FILE_IN\`" >&2
+    return 10
+  fi
+  if (( ! flag_optional_system_file_instance )) && [[ ! -f "$VARS_SYSTEM_FILE" ]]; then
     echo "$0: error: VARS_SYSTEM_FILE does not exist: \`$VARS_SYSTEM_FILE\`" >&2
-    return 2
+    return 11
   fi
-  if [[ ! -f "$VARS_USER_FILE_IN" ]]; then
+  if [[ -n "$VARS_USER_FILE_IN" && ! -f "$VARS_USER_FILE_IN" ]]; then
     echo "$0: error: VARS_USER_FILE_IN does not exist: \`$VARS_USER_FILE_IN\`" >&2
-    return 3
+    return 20
   fi
-  if (( ! OPTIONAL_COMPARE )) && [[ ! -f "$VARS_USER_FILE" ]]; then
+  if (( ! flag_optional_user_file_instance )) && [[ ! -f "$VARS_USER_FILE" ]]; then
     echo "$0: error: VARS_USER_FILE does not exist: \`$VARS_USER_FILE\`" >&2
-    return 4
+    return 21
   fi
 
-  if [[ -f "$VARS_SYSTEM_FILE" ]]; then
+  if [[ -n "$VARS_SYSTEM_FILE_IN" && -f "$VARS_SYSTEM_FILE" ]]; then
     # Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
     local IFS=$' \t\r\n'
     read -r VARS_FILE_IN_VER_LINE < "$VARS_SYSTEM_FILE_IN"
@@ -468,12 +486,12 @@ function CheckConfigVersion()
     if [[ "${VARS_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
       if [[ "${VARS_FILE_IN_VER_LINE:13}" == "${VARS_FILE_VER_LINE:13}" ]]; then
         echo "$0: error: version of \`$VARS_SYSTEM_FILE_IN\` is not equal to version of \`$VARS_SYSTEM_FILE\`, user must merge changes by yourself!" >&2
-        return 3
+        return 30
       fi
     fi
   fi
 
-  if [[ -f "$VARS_USER_FILE" ]]; then
+  if [[ -n "$VARS_USER_FILE_IN" && -f "$VARS_USER_FILE" ]]; then
     # Test input and output files on version equality, otherwise we must stop and warn the user to merge the changes by yourself!
     local IFS=$' \t\r\n'
     read -r CMAKE_FILE_IN_VER_LINE < "$VARS_USER_FILE_IN"
@@ -482,7 +500,7 @@ function CheckConfigVersion()
     if [[ "${CMAKE_FILE_IN_VER_LINE:0:12}" == "#%%%% version:" ]]; then
       if [[ "${CMAKE_FILE_IN_VER_LINE:13}" == "${CMAKE_FILE_VER_LINE:13}" ]]; then
         echo "$0: error: version of \`$VARS_USER_FILE_IN\` is not equal to version of \`$VARS_USER_FILE\`, user must merge changes by yourself!" >&2
-        return 4
+        return 40
       fi
     fi
   fi
@@ -556,7 +574,7 @@ function MakeOutputDirectories()
     return 4
   fi
 
-  [[ ! -d "$CMAKE_OUTPUT_ROOT" ]] && { mkdir "$CMAKE_OUTPUT_ROOT" || return $?; }
+  [[ ! -d "$CMAKE_OUTPUT_ROOT" ]] && { mkdir "$CMAKE_OUTPUT_ROOT" || tkl_abort $?; }
 
   if [[ ! -z ${CMAKE_OUTPUT_GENERATOR_DIR+x} ]]; then
     tkl_get_native_parent_dir "$CMAKE_OUTPUT_GENERATOR_DIR"
@@ -565,7 +583,7 @@ function MakeOutputDirectories()
       return 5
     fi
 
-    [[ ! -d "$CMAKE_OUTPUT_GENERATOR_DIR" ]] && { mkdir "$CMAKE_OUTPUT_GENERATOR_DIR" || return $?; }
+    [[ ! -d "$CMAKE_OUTPUT_GENERATOR_DIR" ]] && { mkdir "$CMAKE_OUTPUT_GENERATOR_DIR" || tkl_abort $?; }
   fi
 
   tkl_get_native_parent_dir "$CMAKE_OUTPUT_DIR"
@@ -574,12 +592,12 @@ function MakeOutputDirectories()
     return 6
   fi
 
-  [[ ! -d "$CMAKE_OUTPUT_DIR" ]] && { mkdir "$CMAKE_OUTPUT_DIR" || return $?; }
+  [[ ! -d "$CMAKE_OUTPUT_DIR" ]] && { mkdir "$CMAKE_OUTPUT_DIR" || tkl_abort $?; }
 
-  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && { mkdir "$CMAKE_BUILD_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_BIN_ROOT" ]] && { mkdir "$CMAKE_BIN_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_LIB_ROOT" ]] && { mkdir "$CMAKE_LIB_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_PACK_ROOT" ]] && { mkdir "$CMAKE_PACK_ROOT" || return $?; }
+  [[ ! -d "$CMAKE_BUILD_ROOT" ]] && { mkdir "$CMAKE_BUILD_ROOT" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_BIN_ROOT" ]] && { mkdir "$CMAKE_BIN_ROOT" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_LIB_ROOT" ]] && { mkdir "$CMAKE_LIB_ROOT" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_PACK_ROOT" ]] && { mkdir "$CMAKE_PACK_ROOT" || tkl_abort $?; }
 
   tkl_get_native_parent_dir "$CMAKE_BUILD_DIR"
   if [[ -z "$RETURN_VALUE" || ! -d "$RETURN_VALUE" ]]; then
@@ -611,16 +629,16 @@ function MakeOutputDirectories()
     return 14
   fi
 
-  tkl_return_local CMAKE_BUILD_DIR "$CMAKE_BUILD_DIR"
-  tkl_return_local CMAKE_BIN_DIR "$CMAKE_BIN_DIR"
-  tkl_return_local CMAKE_LIB_DIR "$CMAKE_LIB_DIR"
-  tkl_return_local CMAKE_PACK_DIR "$CMAKE_PACK_DIR"
+  tkl_return_as_global CMAKE_BUILD_DIR  "$CMAKE_BUILD_DIR"
+  tkl_return_as_global CMAKE_BIN_DIR    "$CMAKE_BIN_DIR"
+  tkl_return_as_global CMAKE_LIB_DIR    "$CMAKE_LIB_DIR"
+  tkl_return_as_global CMAKE_PACK_DIR   "$CMAKE_PACK_DIR"
 
-  [[ ! -d "$CMAKE_BUILD_DIR" ]] && { mkdir "$CMAKE_BUILD_DIR" || return $?; }
-  [[ ! -d "$CMAKE_BIN_DIR" ]] && { mkdir "$CMAKE_BIN_DIR" || return $?; }
-  [[ ! -d "$CMAKE_LIB_DIR" ]] && { mkdir "$CMAKE_LIB_DIR" || return $?; }
-  [[ ! -d "$CMAKE_INSTALL_ROOT" ]] && { mkdir "$CMAKE_INSTALL_ROOT" || return $?; }
-  [[ ! -d "$CMAKE_PACK_DIR" ]] && { mkdir "$CMAKE_PACK_DIR" || return $?; }
+  [[ ! -d "$CMAKE_BUILD_DIR" ]] && { mkdir "$CMAKE_BUILD_DIR" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_BIN_DIR" ]] && { mkdir "$CMAKE_BIN_DIR" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_LIB_DIR" ]] && { mkdir "$CMAKE_LIB_DIR" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_INSTALL_ROOT" ]] && { mkdir "$CMAKE_INSTALL_ROOT" || tkl_abort $?; }
+  [[ ! -d "$CMAKE_PACK_DIR" ]] && { mkdir "$CMAKE_PACK_DIR" || tkl_abort $?; }
 
   return 0
 }

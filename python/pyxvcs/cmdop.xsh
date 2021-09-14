@@ -2,50 +2,47 @@ import os, sys, inspect, argparse
 import collections
 #from datetime import datetime
 
-SOURCE_FILE = os.path.abspath(inspect.getsourcefile(lambda:0)).replace('\\','/')
-SOURCE_DIR = os.path.dirname(SOURCE_FILE)
+if not hasattr(globals(), 'tkl_init'):
+  # portable import to the global space
+  sys.path.append(os.environ['TACKLELIB_PYTHON_ROOT'] + '/tacklelib')
+  import tacklelib as tkl
 
-# portable import to the global space
-sys.path.append(SOURCE_DIR + '/tools/python/tacklelib')
-import tacklelib as tkl
+  tkl.tkl_init(tkl, global_config = {'log_import_module':os.environ.get('TACKLELIB_LOG_IMPORT_MODULE')})
 
-tkl.tkl_init(tkl, global_config = {'log_import_module':os.environ.get('TACKLELIB_LOG_IMPORT_MODULE')})
-
-# cleanup
-del tkl # must be instead of `tkl = None`, otherwise the variable would be still persist
-sys.path.pop()
+  # cleanup
+  del tkl # must be instead of `tkl = None`, otherwise the variable would be still persist
+  sys.path.pop()
 
 
-tkl_declare_global('CONFIGURE_ROOT', sys.argv[1].replace('\\', '/') if len(sys.argv) >= 2 else '')
-tkl_declare_global('CONFIGURE_DIR', sys.argv[2].replace('\\', '/') if len(sys.argv) >= 3 else '')
-tkl_declare_global('SCM_TOKEN', sys.argv[3] if len(sys.argv) >= 4 else '')
-tkl_declare_global('CMD_TOKEN', sys.argv[4] if len(sys.argv) >= 5 else '')
 
 # format: [(<header_str>, <stderr_str>), ...]
 tkl_declare_global('g_registered_ignored_errors', []) # must be not empty value to save the reference
 
 # basic initialization, loads `config.private.yaml`
-tkl_source_module(SOURCE_DIR, '__init__.xsh')
+tkl_source_module(SOURCE_DIR + '/__init__', '__init__.xsh')
 
-tkl_import_module(TACKLELIB_ROOT, 'tacklelib.utils.py', 'tkl')
-tkl_import_module(CMDOPLIB_ROOT, 'cmdoplib.svn.xsh', 'cmdoplib_svn')
-tkl_import_module(CMDOPLIB_ROOT, 'cmdoplib.gitsvn.xsh', 'cmdoplib_gitsvn')
+tkl_import_module(TACKLELIB_PYTHON_ROOT + '/tacklelib', 'cmdoplib.svn.xsh', 'cmdoplib_svn')
+tkl_import_module(TACKLELIB_PYTHON_ROOT + '/tacklelib', 'cmdoplib.gitsvn.xsh', 'cmdoplib_gitsvn')
 
-if not os.path.isdir(CONFIGURE_ROOT):
-  raise Exception('CONFIGURE_ROOT directory does not exist: `{0}`'.format(CONFIGURE_ROOT))
 
-if not os.path.isdir(CONFIGURE_DIR):
-  raise Exception('CONFIGURE_DIR directory does not exist: `{0}`'.format(CONFIGURE_DIR))
+# script arguments parse
+for i in [
+  ('dir', 1, 'CONFIGURE_OUTPUT_ROOT'),
+  ('dir', 2, 'CONFIGURE_ROOT'),
+  ('dir', 3, 'CONFIGURE_DIR'),
+  ('str', 4, 'SCM_TOKEN'),
+  ('str', 5, 'CMD_TOKEN')]:
+  global_var_value = sys.argv[i[1]] if len(sys.argv) >= i[1] + 1 else ''
+  if i[0] == 'dir':
+    if global_var_value != '':
+      global_var_value = os.path.abspath(global_var_value).replace('\\', '/')
+    if not os.path.isdir(global_var_value):
+      raise Exception('{0} directory does not exist: `{1}`'.format(i[2], global_var_value))
+  elif i[0] == 'str':
+    if global_var_value == '':
+      raise Exception('{0} argument must not be empty'.format(i[2]))
+  setglobalvar(i[2], global_var_value)
 
-if not SCM_TOKEN:
-  raise Exception('SCM_TOKEN name is not defined: `{0}`'.format(SCM_TOKEN))
-if not CMD_TOKEN:
-  raise Exception('CMD_TOKEN name is not defined: `{0}`'.format(CMD_TOKEN))
-
-#try:
-#  os.mkdir(os.path.join(CONFIGURE_DIR, '.log'))
-#except:
-#  pass
 
 def get_supported_scm_list():
   return ['svn', 'git']
@@ -61,10 +58,10 @@ def validate_vars(configure_dir, scm_token):
     raise Exception("configure directory does not exist: `{0}`.".format(configure_dir))
 
   hub_abbr_var = scm_token + '.HUB_ABBR'
-  if not hasglobalvar(hub_abbr_var):
+  if not cmdop.hasglobalvar(hub_abbr_var):
     raise Exception("hub abbrivation variable is not declared for the scm_token as prefix: `{0}`.".format(hub_abbr_var))
 
-  hub_abbr = getglobalvar(hub_abbr_var)
+  hub_abbr = cmdop.getglobalvar(hub_abbr_var)
   scm_type = scm_token[:3].lower()
 
   return (configure_dir, hub_abbr, scm_type)
@@ -101,10 +98,10 @@ def cmdop(configure_dir, scm_token, cmd_token, bare_args,
       if os.path.isfile(config_dir + '/config.yaml.in'):
         # save all old variable values and remember all newly added variables as a new stack record
         if not yaml_global_vars_pushed:
-          yaml_push_global_vars()
+          cmdop.yaml_push_global_vars()
           yaml_global_vars_pushed = True
-        yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
-          search_by_global_pred_at_third = lambda var_name: getglobalvar(var_name))
+        cmdop.yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
+          search_by_global_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
         break # break on success
 
     yaml_environ_vars_pushed = False
@@ -115,10 +112,10 @@ def cmdop(configure_dir, scm_token, cmd_token, bare_args,
       if os.path.isfile(config_dir + '/config.env.yaml.in'):
         # save all old variable values and remember all newly added variables as a new stack record
         if not yaml_environ_vars_pushed:
-          yaml_push_environ_vars()
+          cmdop.yaml_push_environ_vars()
           yaml_environ_vars_pushed = True
-        yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
-          search_by_environ_pred_at_third = lambda var_name: getglobalvar(var_name))
+        cmdop.yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
+          search_by_environ_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
         break # break on success
 
     # 2. Read all `*.HUB_ABBR` and `*.PROJECT_PATH_LIST` variables to collect all project paths.
@@ -159,7 +156,7 @@ def cmdop(configure_dir, scm_token, cmd_token, bare_args,
         nested_ret = 0
 
         if scm_type == 'svn':
-          if hasglobalvar(scm_token + '.WCROOT_DIR'):
+          if cmdop.hasglobalvar(scm_token + '.WCROOT_DIR'):
             if cmd_token == 'cleanup':
               nested_ret = cmdoplib_svn.svn_cleanup(configure_dir, scm_token, bare_args, verbosity = verbosity)
             elif cmd_token == 'update':
@@ -173,7 +170,7 @@ def cmdop(configure_dir, scm_token, cmd_token, bare_args,
             else:
               raise Exception('unknown command name: ' + str(cmd_token))
         elif scm_type == 'git':
-          if hasglobalvar(scm_token + '.WCROOT_DIR'):
+          if cmdop.hasglobalvar(scm_token + '.WCROOT_DIR'):
             if cmd_token == 'init':
               # CAUTION:
               #   * Bare args parameter is only for the root repostiory git init command.
@@ -288,11 +285,11 @@ def cmdop(configure_dir, scm_token, cmd_token, bare_args,
 
     if yaml_environ_vars_pushed:
       # remove previously added variables and restore previously changed variable values
-      yaml_pop_environ_vars(True)
+      cmdop.yaml_pop_environ_vars(True)
 
     if yaml_global_vars_pushed:
       # remove previously added variables and restore previously changed variable values
-      yaml_pop_global_vars(True)
+      cmdop.yaml_pop_global_vars(True)
 
   return ret
 
@@ -319,8 +316,8 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
           continue
 
         if os.path.exists(config_dir + '/config.yaml.in'):
-          yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
-            search_by_global_pred_at_third = lambda var_name: getglobalvar(var_name))
+          cmdop.yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
+            search_by_global_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
           break # break on success
 
       for i in range(configure_dir_relpath_comp_list_size-1):
@@ -331,8 +328,8 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
             continue
 
           if os.path.exists(config_dir + '/config.yaml.in'):
-            yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
-              search_by_global_pred_at_third = lambda var_name: getglobalvar(var_name))
+            cmdop.yaml_load_config(config_dir, 'config.yaml', to_globals = True, to_environ = False,
+              search_by_global_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
             break # break on success
 
     # load `config.env.yaml` from `configure_root` up to `configure_dir` (excluded) directory
@@ -342,8 +339,8 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
           continue
 
         if os.path.exists(config_dir + '/config.env.yaml.in'):
-          yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
-            search_by_environ_pred_at_third = lambda var_name: getglobalvar(var_name))
+          cmdop.yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
+            search_by_environ_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
           break # break on success
 
       for i in range(configure_dir_relpath_comp_list_size-1):
@@ -354,8 +351,8 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
             continue
 
           if os.path.exists(config_dir + '/config.env.yaml.in'):
-            yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
-              search_by_environ_pred_at_third = lambda var_name: getglobalvar(var_name))
+            cmdop.yaml_load_config(config_dir, 'config.env.yaml', to_globals = False, to_environ = True,
+              search_by_environ_pred_at_third = lambda var_name: cmdop.getglobalvar(var_name))
             break # break on success
 
     dir_files_wo_ext = [os.path.splitext(f)[0] for f in os.listdir(configure_dir) if os.path.isfile(f)]
@@ -379,7 +376,7 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
 #   Temporary disabled because of issues in the python xonsh module.
 #   See details in the `README_EN.python_xonsh.known_issues.txt` file.
 #
-#@(pcall, main, CONFIGURE_ROOT, CONFIGURE_DIR, SCM_TOKEN, CMD_TOKEN) | @(CONTOOLS_ROOT + '/unxutils/tee.exe', CONFIGURE_DIR + '/.log/' + os.path.splitext(os.path.split(__file__)[1])[0] + '.' + datetime.now().strftime("%Y'%m'%d_%H'%M'%S''%f")[:-3])
+#@(pcall, main, CONFIGURE_ROOT, CONFIGURE_DIR, SCM_TOKEN, CMD_TOKEN) | @(CONTOOLS_UTILITIES_BIN_ROOT + '/unxutils/tee.exe', CONFIGURE_DIR + '/.log/' + os.path.splitext(os.path.split(__file__)[1])[0] + '.' + datetime.now().strftime("%Y'%m'%d_%H'%M'%S''%f")[:-3])
 
 # NOTE:
 #   Logging is implemented externally to the python.

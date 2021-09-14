@@ -667,7 +667,7 @@ namespace utility
     }
 
     template <std::size_t I = 0, typename Functor, typename T, std::size_t N>
-    FORCE_INLINE typename std::enable_if<I < N, void>::type
+    FORCE_INLINE typename std::enable_if<(I < N), void>::type
         for_each_unroll(T (& arr)[N], Functor && f)
     {
         detail::_for_each_unroll<std::is_array<T>::value> nested_for_each{ nullptr, arr[I], std::forward<Functor>(f) };
@@ -677,7 +677,7 @@ namespace utility
     }
 
     template <std::size_t I = 0, typename Functor, typename T, std::size_t N>
-    FORCE_INLINE typename std::enable_if<I < N, void>::type
+    FORCE_INLINE typename std::enable_if<(I < N), void>::type
         for_each_unroll(T (&& arr)[N], Functor && f)
     {
         detail::_for_each_unroll<std::is_array<T>::value> nested_for_each{ nullptr, std::forward<T>(arr[I]), std::forward<Functor>(f) };

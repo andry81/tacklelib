@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.02.26
+* 2021.09.06
 * tacklelib--vbs
 
 1. DESCRIPTION
@@ -43,21 +43,7 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, compilers, interpreters, modules,
-IDE's, applications and patches to run with or from:
-
-1. OS platforms.
-
-* Windows XP
-* Windows 7
-* Windows 8/8.1
-* Windows 10
-
-2. Interpreters:
-
-* Windows Script Host 5.8+
-  - standard implementation to run vbs scripts
+See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 5. CATALOG CONTENT DESCRIPTION

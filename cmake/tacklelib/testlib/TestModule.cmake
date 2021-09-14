@@ -19,8 +19,8 @@ function(tkl_testmodule_init)
     return()
   endif()
 
-  if (NOT DEFINED TESTS_ROOT OR NOT IS_DIRECTORY "${TESTS_ROOT}")
-    message(FATAL_ERROR "TESTS_ROOT variable must be defained externally to an existed directory path before include this module: TESTS_ROOT=`${TESTS_ROOT}`")
+  if (NOT DEFINED TESTS_PROJECT_ROOT OR NOT IS_DIRECTORY "${TESTS_PROJECT_ROOT}")
+    message(FATAL_ERROR "TESTS_PROJECT_ROOT variable must be defained externally to an existed directory path before include this module: TESTS_PROJECT_ROOT=`${TESTS_PROJECT_ROOT}`")
   endif()
 
   if (NOT DEFINED TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR OR NOT IS_DIRECTORY "${TACKLELIB_TESTLIB_TESTPROC_RETCODE_DIR}")
@@ -56,7 +56,7 @@ function(tkl_testmodule_init)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testcase::func" "")
 
-  file(RELATIVE_PATH TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH "${TESTS_ROOT}" "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
+  file(RELATIVE_PATH TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH "${TESTS_PROJECT_ROOT}" "${TACKLELIB_TESTLIB_TESTMODULE_FILE}")
   tkl_testmodule_test_file_shortcut("${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH}" TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT)
 
   set_property(GLOBAL PROPERTY "tkl::testlib::testmodule::file_rel_path_shortcut" "${TACKLELIB_TESTLIB_TESTMODULE_FILE_REL_PATH_SHORTCUT}")

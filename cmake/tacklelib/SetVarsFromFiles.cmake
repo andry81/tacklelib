@@ -517,6 +517,11 @@ endfunction()
 #   [<flags>] <file_paths> <os_name> <compiler_name> <config_name> <arch_name> <list_separator_char> \
 #     [<out_var_config_gen_var_lines_list> <out_var_config_gen_vars_list> <out_var_config_gen_names_list> <out_var_config_gen_values_list>]
 #
+#     out_var_config_gen_var_lines_list - list of text line numbers from the source, where a variable has been declared
+#     out_var_config_gen_vars_list      - list of variable names
+#     out_var_config_gen_names_list     - list of variable configuration names (RELEASE/DEBUG/...)
+#     out_var_config_gen_values_list    - list of variable values
+#
 # flags:
 #   -p - print variables set
 #   -e - additionally export variables into environment
@@ -3205,6 +3210,11 @@ endmacro()
 # Usage:
 #   [<flags>] <file_path> <os_name> <compiler_name> <config_name> <arch_name> <list_separator_char> \
 #     [<out_var_config_gen_var_lines_list> <out_var_config_gen_vars_list> <out_var_config_gen_names_list> <out_var_config_gen_values_list>]
+#
+#     out_var_config_gen_var_lines_list - list of text line numbers from the source, where a variable has been declared
+#     out_var_config_gen_vars_list      - list of variable names
+#     out_var_config_gen_names_list     - list of variable configuration names (RELEASE/DEBUG/...)
+#     out_var_config_gen_values_list    - list of variable values
 #
 # flags:
 #   The same as in `tkl_set_vars_from_files` function plus these:

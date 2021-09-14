@@ -1,2 +1,2 @@
-tkl_testlib_include(. tests_01_unit)
-tkl_testlib_include(. tests_02_bench)
+tkl_testlib_include(. tests_unit)
+tkl_testlib_include(. tests_bench)

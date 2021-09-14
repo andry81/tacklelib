@@ -1,8 +1,29 @@
+2021.09.14:
+* fixed: include/tacklelib/tackle/explicit_type.hpp: minor fixup
+
+2021.09.13:
+* fixed: bash/tacklelib/bash_tacklelib: `tkl_normalize_path` flags correct parsing
+
 2021.09.11:
 * fixed: include/tacklelib/utility: MSVC 2015 Update 3 compilation warning `warning C4002: too many actual parameters for macro '...'`
 * fixed: include/tacklelib/utility: use always `__PRETTY_FUNCTION__` builtin definition instead of `__FUNCSIG__` under clang compiler
 * new: include/tacklelib/utility: `UTILITY_USER_ASSERT` and `UTILITY_USER_ASSERT_EXPR` macroses to be able to invoke a not constexpr user assert function in an expression inside of a constexpr function
 * refactor: include/tacklelib/utility: code refactor
+
+2021.09.09:
+* refactor: cmake/tacklelib: removed `PROJECT_ROOT` variable as not used
+* refactor: cmake/tacklelib: minor refactor
+
+2021.09.06:
+* new: bash/tacklelib/bash_tacklelib: `tkl_export_path*` functions to export path with builtin normalization
+* changed: bash/tacklelib: moved some code into `bash_tacklelib` script
+* changed: bash/tacklelib: code cleanup
+* changed: _buid, bash, bash_tests, cmake, cmake_tests, python, python_tests: readme update
+* changed: readme update
+* refactor: __init__, _buid, _config, bash/tacklelib, bash_tests, cmake/tacklelib, cmake_tests, python/tacklelib, python_tests: code refactor
+
+2020.09.04:
+* new: bash/tacklelib/tools: git filter-branch library + readme file
 
 2021.08.28:
 * fixed: __init__, bash/tacklelib: missed `bash_tacklelib` usage instead of `bash_entry` script
@@ -156,6 +177,23 @@
 * new: vbs: readme file
 * new: vbs: license file
 * new: vbs: changelog file
+
+2020.10.25:
+* changed: scripts switched to ritchielawrence tee implementation (mtee)
+
+2020.10.11:
+* changed: _config: config reorganization
+* changed: _scripts: scripts reorganization
+* changed: bash_tests: scripts reorganization
+* changed: cmake_tests: scripts reorganization
+* changed: python: minor change
+* changed: python_tests: scripts reorganization
+* changed: scripts reorganization
+* changed: intermediate changes
+* refactor: `_libs` directory with externals renamed into `_externals` to avoid interference with library components in the future
+
+2020.09.24:
+* changed: include/tacklelib: is_equal_c_str compilation error workaround in case when force online optimization evently fails
 
 2020.08.28:
 * refactor: cmake/tacklelib: code refactor

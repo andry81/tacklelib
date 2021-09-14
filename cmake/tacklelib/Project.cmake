@@ -486,10 +486,10 @@ macro(tkl_configure_environment env_var_files_root runtime_linkage_type_var supp
   #   From now and on a predefined set of configuration files must always exist before a cmake run!
   #
   if (NOT EXISTS "${env_var_files_root}/config.system.vars")
-    message(FATAL_ERROR "(*) The `config.system.vars` is not properly generated, use the `_build/*_generate_config` to generage the file and then edit values manually if required!")
+    message(FATAL_ERROR "(*) The `config.system.vars` is not properly generated, use the `*_generate_config` script to generage the file and then edit values manually if required!")
   endif()
   if (NOT EXISTS "${env_var_files_root}/config.0.vars")
-    message(FATAL_ERROR "(*) The `config.0.vars` is not properly generated, use the `_build/*_generate_config` to generage the file and then edit values manually if required!")
+    message(FATAL_ERROR "(*) The `config.0.vars` is not properly generated, use the `*_generate_config` script to generage the file and then edit values manually if required!")
   endif()
 
   # CAUTION:

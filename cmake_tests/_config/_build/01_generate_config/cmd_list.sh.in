@@ -1,2 +1,4 @@
-# input for a `_build/*_generate_config.*` script
-# <script_file_path>|<script_cmd_line>
+#%% version: 1
+
+# commands list to call
+# <cmd>|<params>

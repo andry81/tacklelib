@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.08.28
+* 2021.09.06
 * tacklelib--cmake_tests
 
 1. DESCRIPTION
@@ -46,26 +46,7 @@ See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 -------------------------------------------------------------------------------
 5. DEPLOY
 -------------------------------------------------------------------------------
-You must use scripts inside the `/cmake_tests/_build` directory and prepared
-configuration files in the `/cmake_tests/_config` subdirectory to run the
-tests.
-
-Otherwise you have to set at least all dependent variables on yourself before
-call to test scripts.
-
-To run bash shell scripts (`.sh` file extension) you should copy these scripts:
-
-* /bash/tacklelib/bash_entry
-* /bash/tacklelib/bash_tacklelib
-
-into the `/bin` directory of your platform.
-
-In pure Linux you have additional step to make scripts executable or readable:
-
->
-sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r  /bin/bash_entry
-sudo chmod a+r  /bin/bash_tacklelib
+See details in the `DEPLOY` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 6. CATALOG CONTENT DESCRIPTION

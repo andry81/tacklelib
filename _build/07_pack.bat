@@ -2,37 +2,43 @@
 
 setlocal
 
-call "%%~dp0__init__/__init0__.bat" || goto INIT_EXIT
+set "?~0=%~0"
+set "?~f0=%~f0"
+set "?~dp0=%~dp0"
+set "?~n0=%~n0"
+set "?~nx0=%~nx0"
+set "?~x0=%~x0"
+
+call "%%~dp0__init__/__init__.bat" || exit /b
+
+for %%i in (TACKLELIB_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILITIES_BIN_ROOT) do (
+  if not defined %%i (
+    echo.%~nx0: error: `%%i` variable is not defined.
+    exit /b 255
+  ) >&2
+)
 
 if %IMPL_MODE%0 NEQ 0 goto IMPL
 
-rem no local logging if nested call
-set WITH_LOGGING=0
-if %NEST_LVL%0 EQU 0 set WITH_LOGGING=1
-
-if %WITH_LOGGING% EQU 0 goto IMPL
-
-if not exist "%SCRIPTS_LOGS_ROOT%\.log" mkdir "%SCRIPTS_LOGS_ROOT%\.log"
-
 rem use stdout/stderr redirection with logging
 call "%%CONTOOLS_ROOT%%\wmi\get_wmic_local_datetime.bat"
-set "LOG_FILE_NAME_SUFFIX=%RETURN_VALUE:~0,4%'%RETURN_VALUE:~4,2%'%RETURN_VALUE:~6,2%_%RETURN_VALUE:~8,2%'%RETURN_VALUE:~10,2%'%RETURN_VALUE:~12,2%''%RETURN_VALUE:~15,3%"
+set "PROJECT_LOG_FILE_NAME_SUFFIX=%RETURN_VALUE:~0,4%'%RETURN_VALUE:~4,2%'%RETURN_VALUE:~6,2%_%RETURN_VALUE:~8,2%'%RETURN_VALUE:~10,2%'%RETURN_VALUE:~12,2%''%RETURN_VALUE:~15,3%"
 
-set IMPL_MODE=1
-rem CAUTION:
-rem   We should avoid use handles 3 and 4 while the redirection has take a place because handles does reuse
-rem   internally from left to right when being redirected externally.
-rem   Example: if `1` is redirected, then `3` is internally reused, then if `2` redirected, then `4` is internally reused and so on.
-rem   The discussion of the logic:
-rem   https://stackoverflow.com/questions/9878007/why-doesnt-my-stderr-redirection-end-after-command-finishes-and-how-do-i-fix-i/9880156#9880156
-rem   A partial analisis:
-rem   https://www.dostips.com/forum/viewtopic.php?p=14612#p14612
-rem
-"%COMSPEC%" /C call %0 %* 2>&1 | "%CONTOOLS_UTILITIES_BIN_ROOT%\ritchielawrence\mtee.exe" /E "%SCRIPTS_LOGS_ROOT%\.log\%LOG_FILE_NAME_SUFFIX%.%~n0.log"
+set "PROJECT_LOG_DIR=%PROJECT_LOG_ROOT%\%PROJECT_LOG_FILE_NAME_SUFFIX%.%?~n0%"
+set "PROJECT_LOG_FILE=%PROJECT_LOG_DIR%\%PROJECT_LOG_FILE_NAME_SUFFIX%.%?~n0%.log"
+
+if not exist "%PROJECT_LOG_DIR%" ( mkdir "%PROJECT_LOG_DIR%" || exit /b )
+
+"%CONTOOLS_UTILITIES_BIN_ROOT%/contools/callf.exe" ^
+  /ret-child-exit /pause-on-exit /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
+  /v IMPL_MODE 1 /ra "%%" "%%?01%%" /v "?01" "%%" ^
+  "${COMSPEC}" "/c \"@\"%?~f0%\" %*\""
 exit /b
 
 :IMPL
-call "%%~dp0__init__/__init1__.bat" || goto INIT_EXIT
+call :CMDINT "%%CONTOOLS_ROOT%%/cmake/check_config_version.bat" ^
+  "%%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%%" "%%CMAKE_CONFIG_VARS_SYSTEM_FILE%%" ^
+  "%%CMAKE_CONFIG_VARS_USER_FILE_IN%%" "%%CMAKE_CONFIG_VARS_USER_FILE%%" || exit /b
 
 set /A NEST_LVL+=1
 
@@ -40,8 +46,6 @@ call :MAIN %%*
 set LASTERROR=%ERRORLEVEL%
 
 set /A NEST_LVL-=1
-
-if %NEST_LVL%0 EQU 0 call "%%CONTOOLS_ROOT%%/std/pause.bat"
 
 exit /b %LASTERROR%
 
@@ -104,7 +108,7 @@ call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
   --ignore_statement_if_no_filter --ignore_late_expansion_statements || exit /b
 
-call "%%~dp0__init__/__init2__.bat" || exit /b
+call "%%CONTOOLS_ROOT%%/cmake/make_output_directories.bat" "%%CMAKE_BUILD_TYPE%%" "%%GENERATOR_IS_MULTI_CONFIG%%" || exit /b
 
 if not exist "%NSIS_INSTALL_ROOT%" (
   echo.%~nx0: error: NSIS_INSTALL_ROOT directory does not exist: `%NSIS_INSTALL_ROOT%`.
@@ -152,9 +156,12 @@ echo.
 )
 exit /b
 
-:INIT_EXIT
-set LASTERROR=%ERRORLEVEL%
-
-if %NEST_LVL%0 EQU 0 call "%%CONTOOLS_ROOT%%/std/pause.bat"
-
-exit /b %LASTERROR%
+:CMDINT
+if %INIT_VERBOSE%0 NEQ 0 (
+  echo.^>%*
+  echo.
+)
+(
+  %*
+)
+exit /b

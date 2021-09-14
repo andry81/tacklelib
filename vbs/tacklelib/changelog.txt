@@ -1,3 +1,7 @@
+2021.09.06:
+* changed: readme update
+* refactor: code refactor
+
 2021.05.21:
 * new: tools/registry: added `--` command line parameter to explicitly stop parse of flag parameters
 

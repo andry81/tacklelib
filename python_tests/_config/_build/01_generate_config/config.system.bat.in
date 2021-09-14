@@ -1,8 +1,10 @@
-# command line for the cmake in the `_build/*_generate_config.bat` script
+#%% version: 1
 
-"-DCMAKE_MODULE_PATH=%PROJECT_ROOT%/cmake"
-"-DCONFIGURE_IN_FILE=%PROJECT_ROOT%/python_tests/_config/config.system.vars.in"
-"-DCONFIGURE_OUT_FILE=%PROJECT_ROOT%/python_tests/_config/config.system.vars"
-"-DPROJECT_ROOT=%PROJECT_ROOT%"
+# command line for the cmake
+
+"-DCMAKE_MODULE_PATH=%TACKLELIB_CMAKE_ROOT%"
+"-DCONFIGURE_IN_FILE=%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%"
+"-DCONFIGURE_OUT_FILE=%CMAKE_CONFIG_VARS_SYSTEM_FILE%"
+"-DPROJECT_ROOT=%TESTS_PROJECT_ROOT%"
 -P
-"%PROJECT_ROOT%/cmake/tacklelib/tools/ConfigureFile.cmake"
+"%TACKLELIB_CMAKE_ROOT%/tacklelib/tools/ConfigureFile.cmake"

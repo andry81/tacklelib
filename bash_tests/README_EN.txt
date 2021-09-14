@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.08.25
+* 2021.09.06
 * tacklelib--bash_tests
 
 1. DESCRIPTION
@@ -46,68 +46,12 @@ Second mirror:
 -------------------------------------------------------------------------------
 4. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, compilers, interpreters, modules,
-IDE's, applications and patches to run with or from:
-
-1. OS platforms:
-
-* Windows 7 (`.bat` only)
-* Cygwin 1.5+ or 3.0+ (`.sh` only):
-  https://cygwin.com
-  - to run scripts under cygwin
-* Msys2 20190524+ (`.sh` only):
-  https://www.msys2.org
-  - to run scripts under msys2
-* Linux Mint 18.3 x64 (`.sh` only)
-
-2. C++11 compilers:
-
-N/A
-
-3. Interpreters:
-
-* bash shell 3.2.48+
-  - to run unix shell scripts
-* perl 5.10+
-  - to run specific bash script functions with `perl` calls
-
-4. Modules:
-
-* Bash testing modules:
-
-**  tacklelib--bash:
-    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/bash/tacklelib/
-
-5. IDE's:
-
-N/A
-
-6. Applications:
-
-* cygwin cygpath 1.42+
-  - to run `bash_entry` script under cygwin
-* msys cygpath 3.0+
-  - to run `bash_entry` script under msys2
-* cygwin readlink 6.10+
-  - to run specific bash script functions with `readlink` calls
+See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 5. DEPLOY
 -------------------------------------------------------------------------------
-To run bash shell scripts (`.sh` file extension) you should copy these scripts:
-
-* /_externals/tacklelib/bash/tacklelib/bash_entry
-* /_externals/tacklelib/bash/tacklelib/bash_tacklelib
-
-into the `/bin` directory of your platform.
-
-In pure Linux you have additional step to make scripts executable or readable:
-
->
-sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r  /bin/bash_entry
-sudo chmod a+r  /bin/bash_tacklelib
+See details in the `DEPLOY` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
 6. AUTHOR
