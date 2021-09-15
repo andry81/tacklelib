@@ -1,3 +1,6 @@
+2021.09.15:
+* changed: _build: admin, deploy: switched to `bash_tacklelib` library usage
+
 2021.09.14:
 * fixed: include/tacklelib/tackle/explicit_type.hpp: minor fixup
 

@@ -1,3 +1,6 @@
+2021.09.15:
+* changed: admin, deploy: switched to `bash_tacklelib` library usage
+
 2021.09.06:
 * changed: readme update
 * refactor: code refactor
