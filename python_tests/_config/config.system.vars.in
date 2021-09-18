@@ -40,11 +40,3 @@ TACKLELIB_PYTHON_TESTS_BUILD_ROOT        "$/{TESTS_PROJECT_ROOT}/_build"
 
 CMAKE_CONFIG_VARS_SYSTEM_FILE_IN        ="$/{TESTS_PROJECT_INPUT_CONFIG_ROOT}/cmake/config.system.vars.in"
 CMAKE_CONFIG_VARS_SYSTEM_FILE           ="$/{TESTS_PROJECT_OUTPUT_CONFIG_ROOT}/cmake/config.system.vars"
-
-# must points the executable directly
-PYTEST_EXE_PATH:WIN=c:/Python/x86/38/Scripts/pytest.exe
-PYTEST_EXE_PATH:UNIX=pytest
-PYTHONDONTWRITEBYTECODE=1
-
-# console codepage before start the python
-CHCP=1251

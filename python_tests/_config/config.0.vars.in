@@ -36,6 +36,10 @@
 #                         Can start by the `"` quote character, but two quotes does remove only when exist on both ends of a value.
 #
 
-INIT_VERBOSE                              =0
-TOOLS_VERBOSE                             =0
-PRINT_VARS_SET                            =0
+# must points the executable directly
+PYTEST_EXE_PATH:WIN=c:/Python/x86/38/Scripts/pytest.exe
+PYTEST_EXE_PATH:UNIX=pytest
+PYTHONDONTWRITEBYTECODE=1
+
+# console codepage before start the python
+CHCP=1251

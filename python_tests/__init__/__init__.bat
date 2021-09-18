@@ -12,7 +12,7 @@ if not defined TESTS_PROJECT_OUTPUT_CONFIG_ROOT           call :CANONICAL_PATH T
 
 if not exist "%TESTS_PROJECT_OUTPUT_CONFIG_ROOT%\" ( mkdir "%TESTS_PROJECT_OUTPUT_CONFIG_ROOT%" || exit /b 10 )
 
-call "%%CONTOOLS_ROOT%%/std/load_config_dir.bat" -full_parse -gen_config "%%TESTS_PROJECT_INPUT_CONFIG_ROOT%%" "%%TESTS_PROJECT_OUTPUT_CONFIG_ROOT%%" || exit /b
+call "%%CONTOOLS_ROOT%%/build/load_config_dir.bat" -full_parse -gen_user_config "%%TESTS_PROJECT_INPUT_CONFIG_ROOT%%" "%%TESTS_PROJECT_OUTPUT_CONFIG_ROOT%%" || exit /b
 
 if defined CHCP chcp %CHCP%
 

@@ -101,6 +101,16 @@ bash_tests/unit/02_traplib/01_push_trap/test_254.sh -text
 bash_tests/unit/02_traplib/01_push_trap/testlib.sh -text
 bash_tests/unit/02_traplib/01_push_trap/testlib_disabled_sigint.sh -text
 bash_tests/unit/02_traplib/__init__/__init__.sh -text
+bash_tests/unit/03_load_config/__init__.sh -text
+bash_tests/unit/03_load_config/data/test_1_empty.vars -text
+bash_tests/unit/03_load_config/data/test_2_conditional.vars -text
+bash_tests/unit/03_load_config/data/test_3_substitution.vars -text
+bash_tests/unit/03_load_config/data/test_4_escape.vars -text
+bash_tests/unit/03_load_config/data/test_5_commentary.vars -text
+bash_tests/unit/03_load_config/data/test_6_specific.vars -text
+bash_tests/unit/03_load_config/data/test_7_once.vars -text
+bash_tests/unit/03_load_config/test_1.sh -text
+bash_tests/unit/03_load_config/testlib.sh -text
 bash_tests/unit/__init__/__init__.sh -text
 /changelog.txt -text
 cmake/tacklelib/Checks.cmake -text
@@ -389,6 +399,7 @@ python_tests/_config/_build/01_generate_config/cmd_list.sh.in -text
 python_tests/_config/_build/01_generate_config/config.system.bat.in -text
 python_tests/_config/_build/01_generate_config/config.system.sh.in -text
 python_tests/_config/cmake/config.system.vars.in -text
+python_tests/_config/config.0.vars.in -text
 python_tests/_config/config.system.vars.in -text
 python_tests/changelog.txt -text
 python_tests/conftest.py -text
