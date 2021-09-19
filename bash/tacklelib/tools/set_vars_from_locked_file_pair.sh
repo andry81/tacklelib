@@ -27,7 +27,7 @@ function tkl_set_vars_from_locked_file_pair()
     return 3
   fi
 
-  function LocalMain()
+  function tkl_internal_read_impl()
   {
     # open file for direct reading by the `read` in the same shell process
     exec 7< "$2"
@@ -73,5 +73,5 @@ function tkl_set_vars_from_locked_file_pair()
     unset -f "${FUNCNAME[0]}" # drop function after execution
   }
 
-  LocalMain "${1//\\//}" "${2//\\//}" "${3//\\//}" "${4:-0}"
+  tkl_internal_read_impl "${1//\\//}" "${2//\\//}" "${3//\\//}" "${4:-0}"
 }

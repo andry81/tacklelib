@@ -7,7 +7,7 @@ call "%%~dp0__init__/__init__.bat" || exit /b
 if %UAC_MODE%0 EQU 0 (
   rem request admin permissions
   set UAC_MODE=1
-  call :CMD "%%CONTOOLS_ROOT%%/ToolAdaptors/lnk/cmd_admin.lnk" /c "%%~dpf0" %%*
+  call :CMD "%%CONTOOLS_ROOT%%/ToolAdaptors/lnk/cmd_admin.lnk" /c "%%~f0" %%*
   exit /b
 )
 
