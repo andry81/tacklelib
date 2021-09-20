@@ -16,14 +16,7 @@ if not defined PROJECT_LOG_ROOT                             call :CANONICAL_PATH
 if not defined TACKLELIB_PROJECT_INPUT_CONFIG_ROOT          call :CANONICAL_PATH TACKLELIB_PROJECT_INPUT_CONFIG_ROOT    "%%TACKLELIB_PROJECT_ROOT%%/_config"
 if not defined TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT         call :CANONICAL_PATH TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT   "%%PROJECT_OUTPUT_ROOT%%/config/tacklelib"
 
-if not defined TACKLELIB_PROJECT_BUILD_ROOT                 call :CANONICAL_PATH TACKLELIB_PROJECT_BUILD_ROOT           "%%TACKLELIB_PROJECT_ROOT%%/_build"
-
-if not defined TACKLELIB_BASH_ROOT                          call :CANONICAL_PATH TACKLELIB_BASH_ROOT                    "%%TACKLELIB_PROJECT_ROOT%%/bash"
-if not defined TACKLELIB_CMAKE_ROOT                         call :CANONICAL_PATH TACKLELIB_CMAKE_ROOT                   "%%TACKLELIB_PROJECT_ROOT%%/cmake"
-if not defined TACKLELIB_PYTHON_ROOT                        call :CANONICAL_PATH TACKLELIB_PYTHON_ROOT                  "%%TACKLELIB_PROJECT_ROOT%%/python"
-if not defined TACKLELIB_VBS_ROOT                           call :CANONICAL_PATH TACKLELIB_VBS_ROOT                     "%%TACKLELIB_PROJECT_ROOT%%/vbs"
-
-rem init external projects
+rem init external projects, common dependencies must be always initialized at first
 
 if exist "%TACKLELIB_PROJECT_EXTERNALS_ROOT%/contools/__init__/__init__.bat" (
   call "%%TACKLELIB_PROJECT_EXTERNALS_ROOT%%/contools/__init__/__init__.bat" || exit /b

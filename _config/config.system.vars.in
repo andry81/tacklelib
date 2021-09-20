@@ -35,3 +35,10 @@
 #                           * Winbat with fast parse:         Value without escaping and with substitution support: `%<variable>%`.
 #                         Can start by the `"` quote character, but two quotes does remove only when exist on both ends of a value.
 #
+
+once TACKLELIB_PROJECT_BUILD_ROOT           ="$/{TACKLELIB_PROJECT_ROOT}/_build"
+
+once TACKLELIB_BASH_ROOT                    ="$/{TACKLELIB_PROJECT_ROOT}/bash"
+once TACKLELIB_CMAKE_ROOT                   ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
+once TACKLELIB_PYTHON_ROOT                  ="$/{TACKLELIB_PROJECT_ROOT}/python"
+once TACKLELIB_VBS_ROOT                     ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
