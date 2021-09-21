@@ -1,4 +1,7 @@
 2021.09.21:
+* changed: _config: minor cleanup
+
+2021.09.21:
 * changed: _config: minor change
 
 2021.09.21:
