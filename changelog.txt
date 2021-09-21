@@ -1,3 +1,7 @@
+2021.09.21:
+* fixed: `%*` expansion in `callf.exe` command line
+* changed: __init__: load root directory variable before all externals
+
 2021.09.20:
 * changed: _config: moved not immediate variables from the root `__init__.*` into `config.systen.vars.in`
 

@@ -18,6 +18,10 @@ tkl_export_path TACKLELIB_PROJECT_ROOT_INIT0_DIR "$BASH_SOURCE_DIR" # including 
 [[ -z "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" ]] &&  tkl_export_path -a -s TACKLELIB_PROJECT_INPUT_CONFIG_ROOT   "$TACKLELIB_PROJECT_ROOT/_config"
 [[ -z "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] && tkl_export_path -a -s TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT  "$PROJECT_OUTPUT_ROOT/config/tacklelib"
 
+[[ ! -e "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] && { mkdir -p "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort 10; }
+
+tkl_load_config_dir "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT"
+
 # init external projects, common dependencies must be always initialized at first
 
 if [[ -f "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh" ]]; then
@@ -26,12 +30,9 @@ fi
 
 tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
 
-[[ ! -e "$PROJECT_OUTPUT_ROOT" ]] && { mkdir -p "$PROJECT_OUTPUT_ROOT" || tkl_abort 10; }
-[[ ! -e "$PROJECT_LOG_ROOT" ]] && { mkdir -p "$PROJECT_LOG_ROOT" || tkl_abort 11; }
-[[ ! -e "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] && { mkdir -p "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort 12; }
+[[ ! -e "$PROJECT_OUTPUT_ROOT" ]] && { mkdir -p "$PROJECT_OUTPUT_ROOT" || tkl_abort 11; }
+[[ ! -e "$PROJECT_LOG_ROOT" ]] && { mkdir -p "$PROJECT_LOG_ROOT" || tkl_abort 12; }
 
 tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/load_config.sh" || tkl_abort_include
-
-tkl_load_config_dir "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT"
 
 : # resets exit code to 0
