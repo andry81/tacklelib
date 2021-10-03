@@ -3,25 +3,25 @@
 <h4 align="center">A composite generic library consisted of various modules on different languages:
 
 <div align="left">
-  
+
 * <i>C++11</i><br/>
   Represents the same ideas as introduced in Boost/STL/Loki C++ libraries and
-  at first focused for extension of already existed C++ code.
-  
+  at first focused for extension of already existed C++ code.<br/>
+
 * <i>Bash</i><br/>
-  Various extension scritps/modules for the bash shell.
-  
+  Various extension scritps/modules for the bash shell.<br/>
+
 * <i>CMake</i><br/>
   CMake modules to support and extend a build of a c++ project under cmake
-  environment.
+  environment.<br/>
   
 * <i>Python</i><br/>
-  Various extension scritps/modules for the python.
+  Various extension scritps/modules for the python.<br/>
   
 * <i>VBS</i><br/>
-  Various extension scritps/modules for the Visual Basic Script interpreter.<br/><br/>
-</div>
-  
+  Various extension scritps/modules for the Visual Basic Script interpreter.<br/>
+</div><br/>
+
 The latest version is here: https://sf.net/p/tacklelib</h4>
 
 <p align="center">

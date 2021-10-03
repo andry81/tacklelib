@@ -1,4 +1,7 @@
 2021.10.04:
+* changed: README.md: markdown minor change
+
+2021.10.04:
 * changed: .github/badges/stackeverflow-tacklelib.svg: colors change
 
 2021.10.04:
