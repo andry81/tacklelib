@@ -1,5 +1,6 @@
 * text=auto !eol
 .github/FUNDING.yml -text
+.github/badges/stackoverflow-tacklelib.svg -text
 /.svnignore -text
 /01_preconfigure.bat -text
 /01_preconfigure.sh -text

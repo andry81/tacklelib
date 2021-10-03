@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.09.06
+* 2021.10.03
 * tacklelib
 
 1. DESCRIPTION
@@ -66,6 +66,12 @@ languages:
   Various extension scritps/modules for the python.
 * VBS.
   Various extension scritps/modules for the Visual Basic Script interpreter.
+
+The latest version is here: https://sf.net/p/tacklelib
+
+WARNING:
+  Use the SVN access to find out new functionality and bug fixes.
+  See the REPOSITORIES section.
 
 In next sections will be introduced common steps to build the project under
 the Windows AND the Linux like platform together.
