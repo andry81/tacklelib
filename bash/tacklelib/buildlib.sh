@@ -19,7 +19,7 @@ function tkl_call()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
-  tkl_pushset_source_file_components_from_args "$1" "${@:2}"
+  tkl_pushset_source_file_components "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "$@"
   tkl_declare_global tkl__last_error $?
@@ -36,7 +36,7 @@ function tkl_call_and_print_if()
   eval "$1" && {
     echo ">$RETURN_VALUE"
   }
-  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   "${@:2}"
   tkl_declare_global tkl__last_error $?
@@ -51,7 +51,7 @@ function tkl_call_inproc()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
-  tkl_pushset_source_file_components_from_args "$1" "${@:2}"
+  tkl_pushset_source_file_components "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "$@"
   tkl_declare_global tkl__last_error $?
@@ -68,7 +68,7 @@ function tkl_call_inproc_and_print_if()
   eval "$1" && {
     echo ">$RETURN_VALUE"
   }
-  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
   tkl_declare_global tkl__last_error $?
@@ -83,7 +83,7 @@ function tkl_call_inproc_entry()
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:3}"
   echo ">$2: $1 $RETURN_VALUE"
-  tkl_pushset_source_file_components_from_args "$2" "${@:3}"
+  tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc_entry "$@"
   tkl_declare_global tkl__last_error $?
@@ -100,7 +100,7 @@ function tkl_call_inproc_entry_and_print_if()
   eval "$1" && {
     echo ">$3: $2 $RETURN_VALUE"
   }
-  tkl_pushset_source_file_components_from_args "$3" "${@:4}"
+  tkl_pushset_source_file_components "$3" "${@:4}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
   tkl_exec_inproc "${@:2}"
   tkl_declare_global tkl__last_error $?
@@ -440,4 +440,58 @@ function tkl_make_command_line_ex()
   RETURN_VALUE="$CommandLine"
 
   return 0
+}
+
+function tkl_init_project_log()
+{
+  [[ -n "${PROJECT_LOG_ROOT+x}" ]] || tkl_abort 255 "${FUNCNAME[0]}: error: PROJECT_LOG_ROOT global variable must be defined."
+
+  # date time request base on: https://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script/1401495#1401495
+  #
+
+  tkl_declare_global PROJECT_LOG_FILE_NAME_SUFFIX
+
+  # RANDOM instead of milliseconds
+  case $BASH_VERSION in
+    # < 4.2
+    [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
+      PROJECT_LOG_FILE_NAME_SUFFIX=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
+      ;;
+    # >= 4.2
+    *)
+      printf -v PROJECT_LOG_FILE_NAME_SUFFIX "%(%Y'%m'%d_%H'%M'%S'')T$(( RANDOM % 1000 ))" -1
+      ;;
+  esac
+
+  tkl_declare_global PROJECT_LOG_DIR  "$PROJECT_LOG_ROOT/$PROJECT_LOG_FILE_NAME_SUFFIX.${BASH_SOURCE_FILE_NAME%[.]*}"
+  tkl_declare_global PROJECT_LOG_FILE "$PROJECT_LOG_DIR/${PROJECT_LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
+
+  [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 255; }
+}
+
+function tkl_exec_project_logging()
+{
+  [[ -z "$NEST_LVL" ]] && tkl_declare_global NEST_LVL 0
+
+  # no local logging if nested call
+  (( ! IMPL_MODE && ! NEST_LVL )) && {
+    tkl_init_project_log
+
+    export IMPL_MODE=1
+    exec 3>&1 4>&2
+    tkl_push_trap 'exec 2>&4 1>&3' EXIT
+
+    # stdout+stderr redirection into the same log file with handles restore
+    {
+    {
+    {
+      exec "${BASH_SOURCE_CMD_LINE_ARR[@]}" 2>&1 1>&8
+    } | tee -a "$PROJECT_LOG_FILE" 1>&9
+    } 8>&1 | tee -a "$PROJECT_LOG_FILE"
+    } 9>&2
+
+    tkl_exit
+  }
+
+  (( NEST_LVL++ ))
 }

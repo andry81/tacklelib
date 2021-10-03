@@ -514,7 +514,7 @@ function tkl_declare_source_file_components_from_args()
   tkl_serialize_array BASH_SOURCE_CMD_LINE_ARR BASH_SOURCE_CMD_LINE
 }
 
-function tkl_pushset_source_file_components_from_args()
+function tkl_pushset_source_file_components()
 {
   [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
   (( BASH_SOURCE_NEST_LVL++ ))
@@ -538,25 +538,6 @@ function tkl_pushset_source_file_components_from_args()
   tkl_serialize_array BASH_SOURCE_CMD_LINE_ARR BASH_SOURCE_CMD_LINE
 }
 
-function tkl_pushset_source_file_components()
-{
-  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
-  (( BASH_SOURCE_NEST_LVL++ ))
-
-  # forward export
-  export BASH_SOURCE_FILE
-  export BASH_SOURCE_FILE_NAME
-  export BASH_SOURCE_DIR
-  export BASH_SOURCE_CMD_LINE
-
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$BASH_SOURCE_FILE"
-  local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
-  [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
-  tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "$bash_source_file_name"
-  tkl_pushset_var_to_stack global BASH_SOURCE_DIR "$BASH_SOURCE_DIR"
-  tkl_pushset_var_to_stack global BASH_SOURCE_CMD_LINE "$BASH_SOURCE_CMD_LINE"
-}
-
 function tkl_pop_source_file_components()
 {
   (( BASH_SOURCE_NEST_LVL-- ))
@@ -566,9 +547,10 @@ function tkl_pop_source_file_components()
   tkl_pop_var_from_stack global BASH_SOURCE_DIR
   tkl_pop_var_from_stack global BASH_SOURCE_CMD_LINE
 
-  if [[ BASH_SOURCE_NEST_LVL -eq 0 ]]; then
-    tkl_make_source_file_components "${BASH_ARGV[@]}"
-  fi
+  # NOTE: disable due toa bug in the `${BASH_ARGV[@]}` expression: order is reversed
+  #if [[ BASH_SOURCE_NEST_LVL -eq 0 ]]; then
+  #  tkl_make_source_file_components "${BASH_ARGV[@]}"
+  #fi
 
   tkl_deserialize_array "$BASH_SOURCE_CMD_LINE" BASH_SOURCE_CMD_LINE_ARR
 
@@ -604,7 +586,7 @@ function tkl_include()
   local is_bash_source_dir_empty=0
   [[ -z "$BASH_SOURCE_DIR" ]] && is_bash_source_dir_empty=1
 
-  tkl_pushset_source_file_components
+  tkl_pushset_source_file_components "$@"
 
   # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
   #    in nested contexts.
@@ -620,6 +602,7 @@ function tkl_include()
     #echo \" <- BASH_SOURCE_DIR=\${BASH_SOURCE_DIR}\"
     #echo \" <- BASH_SOURCE_FILE_NAME=\${BASH_SOURCE_FILE_NAME}\"
     #echo \" <- BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}\"
+    #echo \" <- BASH_SOURCE_CMD_LINE_ARR=${BASH_SOURCE_CMD_LINE_ARR[@]}\"
 
     unset -f \"\${FUNCNAME[0]}\" # drop function after execution
   }"
@@ -678,7 +661,7 @@ function tkl_include_local_impl()
 
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
 
-  tkl_declare_source_file_components_from_args "$1" "${@:2}"
+  tkl_declare_source_file_components_from_args "$@"
 
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
 
@@ -686,6 +669,7 @@ function tkl_include_local_impl()
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
   #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
   #echo " -> BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}"
+  #echo " -> BASH_SOURCE_CMD_LINE_ARR=${BASH_SOURCE_CMD_LINE_ARR[@]}"
   #echo "==="
 
   if (( tkl__include__show_includes )); then
@@ -1509,4 +1493,4 @@ function tkl_bash_entry()
 tkl_declare_global tkl__last_error 0
 
 # register on first include
-[[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_make_source_file_components
+[[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_make_source_file_components "$@"

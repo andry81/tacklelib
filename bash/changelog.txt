@@ -1,3 +1,9 @@
+2021.10.03:
+* fixed: tacklelib/bash_tacklelib: missed `BASH_SOURCE_CMD_LINE_ARR` initialization on `tkl_make_source_file_components` call
+* fixed: tacklelib/bash_tacklelib: elements reverse in the `${BASH_SOURCE_CMD_LINE_ARR[@]}` expression due to bug in the `${BASH_ARGV[@]}` expression (bash 4.3.46(7))
+* new: tacklelib/buildlib.sh: `tkl_init_project_log`, `tkl_exec_project_logging` to support project logging
+* changed: tacklelib/bash_tacklelib: removed `tkl_pushset_source_file_components_from_args` as not needed anymore
+
 2021.09.13:
 * fixed: tacklelib/bash_tacklelib: `tkl_normalize_path` flags correct parsing
 

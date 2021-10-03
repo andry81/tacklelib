@@ -1,3 +1,11 @@
+2021.10.03:
+* fixed: bash/tacklelib/bash_tacklelib: missed `BASH_SOURCE_CMD_LINE_ARR` initialization on `tkl_make_source_file_components` call
+* fixed: bash/tacklelib/bash_tacklelib: elements reverse in the `${BASH_SOURCE_CMD_LINE_ARR[@]}` expression due to bug in the `${BASH_ARGV[@]}` expression (bash 4.3.46(7))
+* new: bash/tacklelib/buildlib.sh: `tkl_init_project_log`, `tkl_exec_project_logging` to support project logging
+* changed: bash/tacklelib/bash_tacklelib: removed `tkl_pushset_source_file_components_from_args` as not needed anymore
+* changed: _build, cmake_tests, python_tests: update to use new `callf.exe` features
+* changed: _build, cmake_tests, python_tests, deploy: code refactor
+
 2021.09.21:
 * changed: _config: minor cleanup
 

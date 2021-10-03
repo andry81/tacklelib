@@ -11,10 +11,6 @@ source '/bin/bash_tacklelib' || exit $?
 
 # no local logging if nested call
 (( ! IMPL_MODE && ! NEST_LVL )) && {
-  export IMPL_MODE=1
-  exec 3>&1 4>&2
-  trap 'exec 2>&4 1>&3' EXIT
-
   # date time request base on: https://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script/1401495#1401495
   #
 
@@ -39,6 +35,10 @@ source '/bin/bash_tacklelib' || exit $?
   PROJECT_LOG_FILE="$PROJECT_LOG_DIR/${PROJECT_LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
 
   [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 11; }
+
+  export IMPL_MODE=1
+  exec 3>&1 4>&2
+  trap 'exec 2>&4 1>&3' EXIT
 
   # stdout+stderr redirection into the same log file with handles restore
   {
