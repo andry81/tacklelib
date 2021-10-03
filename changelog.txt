@@ -1,7 +1,14 @@
+2021.10.04:
+* changed: .github/badges/stackeverflow-tacklelib.svg: colors change
+
+2021.10.04:
+* fixed: .github/badges: wrong encoding
+
 2021.10.03:
 * fixed: README.md: wrong encoding
 
 2021.10.03:
+* new: .github/badges: `stackeverflow-tacklelib.svg` badge
 * new: README.md: added dependencies section
 * changed: README_EN.txt: readme update
 * changed: README.md, .github/FUNDING.yml: added sponsor links
