@@ -1,4 +1,7 @@
 2021.10.03:
+* fixed: README.md: wrong encoding
+
+2021.10.03:
 * new: README.md: added dependencies section
 * changed: README_EN.txt: readme update
 * changed: README.md, .github/FUNDING.yml: added sponsor links
