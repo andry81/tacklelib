@@ -13,6 +13,7 @@
 /TODO.txt -text
 __init__/__init__.bat -text
 __init__/__init__.sh -text
+__init__/declare_builtins.bat -text
 _build/01_generate_src.bat -text
 _build/01_generate_src.sh -text
 _build/02_generate_config.bat -text

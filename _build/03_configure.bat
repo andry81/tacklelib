@@ -4,14 +4,9 @@ rem Configurator for cmake with generator.
 
 setlocal
 
-set "?~0=%~0"
-set "?~f0=%~f0"
-set "?~dp0=%~dp0"
-set "?~n0=%~n0"
-set "?~nx0=%~nx0"
-set "?~x0=%~x0"
-
 call "%%~dp0__init__/__init__.bat" || exit /b
+
+call "%%TACKLELIB_PROJECT_ROOT%%/__init__/declare_builtins.bat" %%0 %%*
 
 for %%i in (TACKLELIB_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILITIES_BIN_ROOT) do (
   if not defined %%i (
@@ -22,7 +17,7 @@ for %%i in (TACKLELIB_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILI
 
 if %IMPL_MODE%0 NEQ 0 goto IMPL
 
-call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~nx0%%" || exit /b
+call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 
 "%CONTOOLS_UTILITIES_BIN_ROOT%/contools/callf.exe" ^
   /ret-child-exit /pause-on-exit /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
