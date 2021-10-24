@@ -25,6 +25,10 @@
 The latest version is here: https://sf.net/p/tacklelib</h4>
 
 <p align="center">
+  <a href="https://www.codefactor.io/repository/github/andry81/tacklelib"><img src="https://www.codefactor.io/repository/github/andry81/tacklelib/badge" valign="middle" alt="codefactor.io" /></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/andry81/tacklelib/blob/trunk/changelog.txt">Changelog</a> •
   <a href="https://github.com/andry81/tacklelib/blob/trunk/README_EN.txt">Readme</a> •
   <a href="#copyright-and-license"><img src="https://github.com/andry81/andry81/raw/main/badges/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
@@ -41,7 +45,7 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 </p>
 
 <p align="center">
-   <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fandry81%2Ftacklelib&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" valign="middle" alt="hits" />
+  <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fandry81%2Ftacklelib&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" valign="middle" alt="hits" />
 </p>
   
 ---
