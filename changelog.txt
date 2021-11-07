@@ -1,4 +1,8 @@
 2021.11.08:
+* new: README.md: REQUIRED/OPTIONAL badges for dependency list items
+* changed: README.md: realign
+
+2021.11.08:
 * new: README.md: repository/code size badges
 * new: README.md: lines of code badge by `tokei.rs`
 * new: README.md: github all/unique clones badges

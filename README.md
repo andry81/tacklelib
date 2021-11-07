@@ -43,17 +43,17 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 <p align="center">
   <a href="https://github.com/andry81/tacklelib/blob/trunk/changelog.txt">Changelog</a>
 • <a href="https://github.com/andry81/tacklelib/blob/trunk/README_EN.txt">Readme</a>
+• <a href="#dependecies">Dependencies</a>
 • <a href="#copyright-and-license"><img src="https://github.com/andry81/andry81/raw/main/badges/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
 </p>
 
 <p align="center">
-  <a href="#dependecies">Dependencies</a> •
   <a href="https://stackoverflow.com/search?q=tacklelib"><img src="https://github.com/andry81/tacklelib/raw/trunk/.github/badges/stackoverflow-tacklelib.svg" valign="middle" alt="stackoverflow search" /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/sponsors/andry81"><img src="https://github.com/andry81/andry81/raw/main/badges/github-sponsor.svg" valign="middle" alt="github sponsor" /></a> •
-  <a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+tacklelib&cmd=_donations&business=andry%40inbox.ru"><img src="https://github.com/andry81/andry81/raw/main/badges/paypal-donate.svg" valign="middle" alt="paypal donate" /></a>
+  <a href="https://github.com/sponsors/andry81"><img src="https://github.com/andry81/andry81/raw/main/badges/github-sponsor.svg" valign="middle" alt="github sponsor" /></a>
+• <a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation+to+tacklelib&cmd=_donations&business=andry%40inbox.ru"><img src="https://github.com/andry81/andry81/raw/main/badges/paypal-donate.svg" valign="middle" alt="paypal donate" /></a>
 </p>
 
 <!-- -->
@@ -64,20 +64,20 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 
 ---
 
-## Dependencies<a name="dependecies"></a>
+## Dependencies<a name="dependecies"></a> (<a href="https://github.com/andry81/tacklelib/blob/trunk/README_EN.deps.txt">README_EN.deps.txt</a>)
 
-* https://github.com/andry81/tacklelib--3dparty--boost
-* https://github.com/andry81/tacklelib--3dparty--fmt
-* https://github.com/andry81/tacklelib--3dparty--googletest
-* https://github.com/andry81/tacklelib--3dparty--libarchive
-* https://github.com/andry81/tacklelib--3dparty--p7client
-* https://github.com/andry81/tacklelib--3dparty--pystring
-* https://github.com/andry81/tacklelib--3dparty--qcustomplot
-* https://github.com/andry81/tacklelib--3dparty--qwt
-* https://github.com/andry81/tacklelib--3dparty--qwtpolar
-* https://github.com/andry81/tacklelib--3dparty--rapidxml
-* https://github.com/andry81/tacklelib--3dparty--rapidyaml
-* https://github.com/andry81/tacklelib--3dparty--xzutils
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=REQUIRED&color=red" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--boost
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=REQUIRED&color=red" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--fmt
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--googletest
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--libarchive
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--p7client
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--pystring
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qcustomplot
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qwt
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qwtpolar
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--rapidxml
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--rapidyaml
+* <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--xzutils
 
 ## Copyright and License<a name="copyright-and-license"></a>
 
