@@ -22,6 +22,14 @@
 	fetch = :refs/remotes/git-svn
 	remote = svn
 	type = dir
+[submodule "_externals/contools/Scripts/Tools/build"]
+	path = _externals/contools/Scripts/Tools/build
+	owner = _externals
+	url = svn://svn.code.sf.net/p/contools/contools/trunk/Scripts/Tools/build
+	branch = /
+	fetch = :refs/remotes/git-svn
+	remote = svn
+	type = dir
 [submodule "_externals/contools/Scripts/Tools/cmake"]
 	path = _externals/contools/Scripts/Tools/cmake
 	owner = _externals

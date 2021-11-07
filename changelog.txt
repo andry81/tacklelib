@@ -1,3 +1,6 @@
+2021.11.07:
+* changed: README_EN.txt: readme update
+
 2021.10.24:
 * new: README.md: `codacy.com` link badge
 * changed: README.md: refactor

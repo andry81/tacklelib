@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.10.03
+* 2021.11.07
 * tacklelib
 
 1. DESCRIPTION
@@ -90,13 +90,13 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk
-  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk
+  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree
+  * https://svn.code.sf.net/p/tacklelib/tacklelib
 First mirror:
-  * https://github.com/andry81/tacklelib/tree/trunk
+  * https://github.com/andry81/tacklelib/branches
   * https://github.com/andry81/tacklelib.git
 Second mirror:
-  * https://bitbucket.org/andry81/tacklelib/src/trunk
+  * https://bitbucket.org/andry81/tacklelib/branches
   * https://bitbucket.org/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------
@@ -308,41 +308,40 @@ sudo chmod a+r  /bin/bash_tacklelib
  |  #
  |  # Local 3dparty dependencies catalog. Must be created by the user.
  |
- +- /`_out`
- |  #
- |  # Temporary directory with build output.
- |
  +- /`_config`
  |  | #
- |  | # Directory with build configuration files.
- |  |
- |  +- /`_build`
- |  |    #
- |  |    # Directory with text files containing command lines for scripts from
- |  |    # `/_build` directory
+ |  | # Directory with build input configuration files.
  |  |
  |  +- `config.system.vars.in`
  |  |   #
  |  |   # Template file with system set of environment variables
  |  |   # designed to be stored in a version control system.
  |  |
- |  +- `config.system.vars`
- |  |   #
- |  |   # Generated temporary file from `*.in` file with set of system
- |  |   # customized environment variables to set them locally.
- |  |   # Loads after the global/3dparty environment configuration file(s) but
- |  |   # before the user customized environment variables file.
- |  |
  |  +- `config.0.vars.in`
- |  |   #
- |  |   # Template file with user set of environment variables
- |  |   # designed to be stored in a version control system.
- |  |
- |  +- `config.0.vars`
  |      #
- |      # Generated temporary file with set of user customized environment
- |      # variables to set them locally.
- |      # Loads after the system customized environment variables file.
+ |      # Template file with user set of environment variables
+ |      # designed to be stored in a version control system.
+ |
+ +- /`_out`
+ |  | #
+ |  | # Temporary directory with build output.
+ |  |
+ |  +- /`config`
+ |     | #
+ |     | # Directory with build output configuration files.
+ |     |
+ |     +- `config.system.vars`
+ |     |   #
+ |     |   # Generated temporary file from `*.in` file with set of system
+ |     |   # customized environment variables to set them locally.
+ |     |   # Loads after the global/3dparty environment configuration file(s)
+ |     |   # but before the user customized environment variables file.
+ |     |
+ |     +- `config.0.vars`
+ |         #
+ |         # Generated temporary file with set of user customized environment
+ |         # variables to set them locally.
+ |         # Loads after the system customized environment variables file.
  |
  +- /`_build`
  |  | #
