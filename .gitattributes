@@ -1,6 +1,7 @@
 * text=auto !eol
 .github/FUNDING.yml -text
 .github/badges/stackoverflow-tacklelib.svg -text
+.github/workflows/tacklelib-gh-clone-stats.yml -text
 /.svnignore -text
 /01_preconfigure.bat -text
 /01_preconfigure.sh -text
