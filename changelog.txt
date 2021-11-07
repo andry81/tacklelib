@@ -1,4 +1,9 @@
 2021.11.08:
+* new: README.md: repository/code size badges
+* new: README.md: lines of code badge by `tokei.rs`
+* new: README.md: github all/unique clones badges
+
+2021.11.08:
 * new: .github/workflows: `tacklelib-gh-clone-stats.yml` to generate `tacklelib` repo clone stats
 
 2021.11.07:
