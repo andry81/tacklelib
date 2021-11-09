@@ -163,7 +163,7 @@ function(tkl_check_var var_opt var_type var_name)
       message(FATAL_ERROR "tkl_check_var: `${var_name}`: a variable must be defined; type: `${var_type}`")
     endif()
   elseif ("${var_opt}" STREQUAL "OPTIONAL")
-    # reserved
+    message(WARNING "tkl_check_var: OPTIONAL argument is deprecated, use `path optional` attribute sequence directly in a path variable declaration")
   # check `var_opt` as a user variable or if-expression
   elseif (DEFINED ${var_opt} AND ${var_opt})
     if (NOT DEFINED ${var_name})
@@ -173,7 +173,7 @@ function(tkl_check_var var_opt var_type var_name)
   endif()
 
   if ("${var_type}" STREQUAL "PATH")
-    if (("${var_opt}" STREQUAL "REQUIRED") OR ("${var_opt}" STREQUAL "OPTIONAL" AND DEFINED ${var_name}))
+    if ("${var_opt}" STREQUAL "REQUIRED")
       if (NOT EXISTS "${${var_name}}")
         message(FATAL_ERROR "tkl_check_var: `${var_name}`: a path variable must issue an existed path: `${${var_name}}`; type: `${var_type}`")
       endif()

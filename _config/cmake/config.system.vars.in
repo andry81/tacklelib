@@ -97,8 +97,6 @@ final package CMAKE_LIB_ROOT="$/{CMAKE_OUTPUT_DIR}/lib"
 final package CMAKE_INSTALL_ROOT="$/{CMAKE_OUTPUT_DIR}/install"   # cmake creates the build type subdirectory on itself
 final package CMAKE_PACK_ROOT="$/{CMAKE_OUTPUT_DIR}/pack"
 
-#top NSIS_INSTALL_ROOT:WIN="c:/builds/nsis3/rel1/nsis_install"
-
 top force CMAKE_INSTALL_PREFIX="$/{CMAKE_INSTALL_ROOT}" # with force to bypass ODR violation
 top CPACK_OUTPUT_FILE_PREFIX="$/{CMAKE_PACK_ROOT}"
 

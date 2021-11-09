@@ -112,56 +112,13 @@ tkl_check_var(REQUIRED . TACKLELIB_ADDRESS_MODEL)
 tkl_check_var(REQUIRED . TACKLELIB_RUNTIME_LINK_TYPE)
 tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
 
-tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH)
-tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
-
-# multi
-
-tkl_check_var(REQUIRED PATH BOOST_ROOT)
-tkl_check_var(REQUIRED . Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
-tkl_check_var(REQUIRED STRING BOOST_COMPONENTS)
-
 # utility
 
-tkl_check_var(REQUIRED PATH UTILITY_FMT_ROOT)
-tkl_check_var(OPTIONAL PATH UTILITY_PYSTRING_ROOT)
+tkl_check_var(REQUIRED PATH   BOOST_ROOT)
+tkl_check_var(REQUIRED .      Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
+tkl_check_var(REQUIRED STRING BOOST_COMPONENTS)
 
-# math
-
-tkl_check_var(OPTIONAL PATH QD_ROOT)
-tkl_check_var(OPTIONAL . ENABLE_QD_INTEGRATION)
-tkl_check_var(OPTIONAL . ENABLE_QD_QD_INTEGRATION)
-tkl_check_var(OPTIONAL . ENABLE_QD_DD_INTEGRATION)
-
-# log
-
-tkl_check_var(OPTIONAL PATH LOG_P7_CLIENT_ROOT)
-
-# arc
-
-tkl_check_var(OPTIONAL PATH ARC_LIBARCHIVE_ROOT)
-tkl_check_var(OPTIONAL . ENABLE_LZMA)
-tkl_check_var(OPTIONAL . ENABLE_TAR)
-tkl_check_var(OPTIONAL . ENABLE_CPIO)
-tkl_check_var(OPTIONAL . ENABLE_CAT)
-tkl_check_var(OPTIONAL . ENABLE_TEST)
-tkl_check_var(OPTIONAL . ENABLE_COVERAGE)
-tkl_check_var(OPTIONAL . ENABLE_INSTALL)
-
-tkl_check_var(OPTIONAL PATH ARC_XZ_UTILS_ROOT)
-tkl_check_var(OPTIONAL PATH LIBLZMA_INCLUDE_DIR)
-tkl_check_var(OPTIONAL PATH LIBLZMA_LIBRARY)
-tkl_check_var(OPTIONAL . LIBLZMA_HAS_AUTO_DECODER)
-tkl_check_var(OPTIONAL . LIBLZMA_HAS_EASY_ENCODER)
-tkl_check_var(OPTIONAL . LIBLZMA_HAS_LZMA_PRESET)
-
-#tkl_check_var(REQUIRED PATH ARC_7ZIP_ROOT)
-
-# tests
-
-tkl_check_var(OPTIONAL PATH GTEST_ROOT)
-tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTLIB)
-tkl_check_var(OPTIONAL . TACKLELIB_SKIP_TESTS)
+tkl_check_var(REQUIRED PATH   UTILITY_FMT_ROOT)
 
 # WORKAROUND:
 #   The issue:

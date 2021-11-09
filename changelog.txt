@@ -1,4 +1,9 @@
 2021.11.09:
+* changed: cmake/tacklelib/SetVarsFromFiles.cmake: `OPTIONAL` parameter in `tkl_check_var` set deprecated because by default should not have has effect now
+* changed: _config/cmake: moved all root path variables and related variables into the 3dparty `environment.vars` file because path always dependent on a library version
+* changed: CMakeLists.txt: removed `tkl_check_var` calls for optional variables as has no effect, left all required path variable checks just in case (already has a check by `path exist` attribute sequence in a variable declaration line)
+
+2021.11.09:
 * fixed: cmake/tacklelib/SetVarsFromFiles.cmake: don't print list terminator if `-p` flag (print variables set) is not issued or `-s` flag (silent mode) is issued
 * fixed: _build/03_configure.bat: execution fixup
 * new: cmake/tacklelib/SetVarsFromFiles.cmake: `--ignore_unexisted_path_vars` flag to suppress check on path existence for variables declared with `path exist` attributes
