@@ -27,7 +27,7 @@
 #define UTILITY_CONSTEXPR(expr)                         (::utility::constexpr_bool<(expr) ? true : false>::value)
 
 // to force compiler evaluate constexpr at compile time even in the debug configuration with disabled optimizations
-#define UTILITY_CONSTEXPR_VALUE(expr)                   (::utility::constexpr_value<decltype(expr), (exp)>::value)
+#define UTILITY_CONSTEXPR_VALUE(expr)                   (::utility::constexpr_value<decltype(expr), (expr)>::value)
 
 // 1. available in GCC from version 4.3, for details see: https://stackoverflow.com/questions/1625105/how-to-write-is-complete-template/1956217#1956217
 // 2. additionally using crc32 hashing to make an unique call instantiation in different translation units over the same type

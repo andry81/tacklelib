@@ -1,5 +1,9 @@
 2021.11.09:
 * fixed: _build: execution fixup
+* fixed: include/tacklelib/utility/type_identity.hpp: compilation fix
+
+2021.11.09:
+* fixed: _build: execution fixup
 
 2021.11.09:
 * new: deploy/3dparty: `environment.vars` file moved from `tacklelib--3dfparty_build_scripts` project as a 3dparty root path always dependent on a library version and so must be owned by the end project has using particular 3dparty library versions

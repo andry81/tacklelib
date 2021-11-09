@@ -110,7 +110,7 @@ exit /b
 if not defined CMAKE_BUILD_TYPE goto INIT2
 if not defined CMAKE_CONFIG_ABBR_TYPES goto INIT2
 
-call :CMD "%%CONTOOLS_ROOT%%/cmake/update_build_type.bat" || exit /b
+call :CMD "%%CONTOOLS_ROOT%%/cmake/update_build_type.bat" "%%CMAKE_BUILD_TYPE%%" "%%CMAKE_CONFIG_ABBR_TYPES%%" "%%CMAKE_CONFIG_TYPES%%" || exit /b
 
 :INIT2
 if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
