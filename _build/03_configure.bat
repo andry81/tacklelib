@@ -131,7 +131,7 @@ call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   --make_vars ^
   "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" ^
   "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
-  --ignore_statement_if_no_filter --ignore_late_expansion_statements || exit /b
+  --ignore_statement_if_no_filter --ignore_late_expansion_statements --ignore_unexisted_path_vars || exit /b
 
 rem check if multiconfig.tag is already created
 if exist "%CMAKE_BUILD_ROOT%/singleconfig.tag" (

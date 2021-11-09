@@ -1,4 +1,11 @@
 2021.11.09:
+* fixed: cmake/tacklelib/SetVarsFromFiles.cmake: don't print list terminator if `-p` flag (print variables set) is not issued or `-s` flag (silent mode) is issued
+* fixed: _build/03_configure.bat: execution fixup
+* new: cmake/tacklelib/SetVarsFromFiles.cmake: `--ignore_unexisted_path_vars` flag to suppress check on path existence for variables declared with `path exist` attributes
+* new: cmake/tacklelib/SetVarsFromFiles.cmake: `path optional` attribute sequence to auto hide a path variable if path does not exist
+* changed: _config/cmake: set all required path variables with `path exist` attributes and all optional with `path optional` attributes
+
+2021.11.09:
 * changed: cmake/tacklelib/SetVarsFromFiles.cmake: enlist loading configuration files on each line
 
 2021.11.09:

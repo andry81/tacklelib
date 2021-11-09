@@ -242,6 +242,11 @@ include(tacklelib/Utility)
 #   Must be declared together with the `path` attribute.
 #   Must be used with an assignment.
 #
+# `optional`:
+#   An optional path value, hides if does not exist.
+#   Must be declared together with the `path` attribute.
+#   Must be used with an assignment.
+#
 
 # CURRENT STATE: BETA, not all attributes are implemented properly, TODO: TESTS!
 
@@ -433,6 +438,7 @@ function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
   set(flag_args "")
 
   set(silent_mode 0)
+  set(print_vars_set 0)
   set(load_state_from_cmake_global_properties 0)
   set(save_state_into_cmake_global_properties 0)
 
@@ -442,7 +448,7 @@ function(tkl_load_vars_from_files_impl) # WITH OUT ARGUMENTS!
     _50FABB52_argn
     "p;e;E;a;S;s"
     ""
-    "s\;silent_mode"
+    "s\;silent_mode;p\;print_vars_set"
     "\
 varlines\;.\;.;\
 vars\;.\;.;\
@@ -451,6 +457,7 @@ flock\;.\;.;\
 ignore_statement_if_no_filter;\
 ignore_statement_if_no_filter_config_name;\
 ignore_late_expansion_statements;\
+ignore_unexisted_path_vars;\
 grant_external_vars_for_assign\;.\;.;\
 grant_external_vars_assign_in_files\;.\;.;\
 grant_assign_for_vars\;.\;.;\
@@ -500,8 +507,10 @@ make_vars\;.\;.\;."
     math(EXPR file_path_index "${file_path_index}+1")
   endforeach()
 
-  # end of list
-  message("<")
+  if (NOT silent_mode AND print_vars_set)
+    # end of list
+    message("<")
+  endif()
 
   if (NOT CMAKE_BUILD_TYPE)
     list(APPEND flag_args "--ignore_statement_if_no_filter_config_name")
@@ -571,7 +580,10 @@ endfunction()
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
 #
-# <attributes>:           Variable space separated attributes: global | top | local | bool | path | exist | canonical | uncache | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
+# <attributes>:           Variable space separated attributes:
+#                           global | top | local | bool | path | exist | canonical | optional |
+#                           uncache | cache_only | cache | env_only | env | force_cache | force | override |
+#                           unset | (un)hide | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[<compiler_version>]
@@ -683,6 +695,7 @@ macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
   set(ignore_statement_if_no_filter 0)              # ignore specialized statements if it does not have a configuration name filter
   set(ignore_statement_if_no_filter_config_name 0)  # ignore specialized statements if it does not have a filter specification
   set(ignore_late_expansion_statements 0)           # ignore statements with late expansion feature
+  set(ignore_unexisted_path_vars 0)                 # ignore check on path existence for variables declared with `path exist` attributes
   set(script_mode 0)
   set(silent_mode 0)
 
@@ -713,6 +726,7 @@ macro(tkl_set_vars_from_files_impl_no_args_macro) # WITH OUT ARGUMENTS!
 flock\;.\;flock_file_path;ignore_statement_if_no_filter\;ignore_statement_if_no_filter;\
 ignore_statement_if_no_filter_config_name\;ignore_statement_if_no_filter_config_name;\
 ignore_late_expansion_statements\;ignore_late_expansion_statements;\
+ignore_unexisted_path_vars\;ignore_unexisted_path_vars;\
 grant_external_vars_for_assign\;.\;grant_external_vars_for_assign_list;\
 grant_external_vars_assign_in_files\;.\;grant_external_vars_assign_in_files_list;\
 grant_assign_for_vars\;.\;grant_assign_for_vars_list;\
@@ -1364,6 +1378,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # use canonical variable's value, applicaible to the path ONLY
         set(use_canonical_value 0)
 
+        # use optional variable's value, applicaible to the path ONLY
+        set(use_optional_value 0)
+
         if (var_name_token_list_len GREATER 1)
           list(SUBLIST var_name_token_list 0 ${var_name_token_list_last_index} var_name_attr_list)
           string(TOUPPER "${var_name_attr_list}" var_name_attr_list_upper)
@@ -1453,6 +1470,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           if ("CANONICAL" IN_LIST var_name_attr_list_upper)
             set(use_canonical_value 1)
           endif()
+
+          if ("OPTIONAL" IN_LIST var_name_attr_list_upper)
+            set(use_optional_value 1)
+          endif()
         else()
           set(var_name_attr_list "")
           set(var_set_msg_name_attr_prefix_str "")
@@ -1481,6 +1502,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             elseif (use_canonical_value)
               message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_optional_value)
+              message(FATAL_ERROR "The variable UNSET and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
 
             # unset + global
@@ -1516,6 +1539,8 @@ make_vars\;.\;make_vars_names\;make_vars_values"
               message(FATAL_ERROR "The variable HIDE/UNHIDE and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             elseif (use_canonical_value)
               message(FATAL_ERROR "The variable HIDE/UNHIDE and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            elseif (use_optional_value)
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
             endif()
 
             # hide/unhide + global
@@ -1620,6 +1645,14 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
         endif()
 
+        if (NOT "${var_type}" STREQUAL "path" AND use_optional_value)
+          message(FATAL_ERROR "Only the PATH variable supports the OPTIONAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
+        if (use_existed_value AND use_optional_value)
+          message(FATAL_ERROR "The variable EXIST and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+        endif()
+
         # builtins checks...
 
         if (use_unset_var OR use_hide_var OR use_unhide_var)
@@ -1651,44 +1684,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (use_unset_var OR use_hide_var OR use_unhide_var)
           if (use_hide_var)
             # move a value to the hidden storage
-
-            # first class storage
-            if (NOT use_only_cache_var AND NOT use_only_env_var)
-              if (DEFINED config_${var_name})
-                set(config_${var_name}_hidden_var_value "${config_${var_name}}")
-              else()
-                unset(config_${var_name}_hidden_var_value)
-              endif()
-
-              if (NOT config_${var_name}_hidden_var)
-                unset(config_${var_name})
-              endif()
-
-              set(config_${var_name}_hidden_var 1)
-            endif()
-
-            # cache variable
-            if (use_only_cache_var OR use_cache_var)
-              # the same condition as for a usual cache variable
-              if (NOT config_${var_name}_hidden_var_cache OR use_force_cache_var)
-                tkl_get_var(. config_${var_name}_hidden_var_cache_value ${var_name})
-                # get the rest cache properties of a variable
-                get_property(config_${var_name}_hidden_var_cache_type CACHE "${var_name}" PROPERTY TYPE)
-                get_property(config_${var_name}_hidden_var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
-                set(config_${var_name}_hidden_var_cache_with_force ${use_force_cache_var})
-                set(config_${var_name}_hidden_var_cache 1)
-              endif()
-            endif()
-
-            # environment variable
-            if (use_only_env_var OR use_env_var)
-              if (DEFINED ENV{${var_name}})
-                set(config_${var_name}_hidden_var_env_value "$ENV{${var_name}}")
-              else()
-                unset(config_${var_name}_hidden_var_env_value)
-              endif()
-              set(config_${var_name}_hidden_var_env 1)
-            endif()
+            tkl_set_vars_from_files_impl_hide_var_macro()
           endif()
 
           if (use_unset_var)
@@ -1723,58 +1719,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
           if(use_unhide_var)
             # move a value from the hidden storage
-
-            # first class storage
-            if (NOT use_only_cache_var AND NOT use_only_env_var)
-              if (config_${var_name}_hidden_var)
-                if (DEFINED config_${var_name}_hidden_var_value)
-                  set(config_${var_name} "${config_${var_name}_hidden_var_value}")
-                  unset(config_${var_name}_hidden_var_value)
-                else()
-                  unset(config_${var_name})
-                endif()
-                set(config_${var_name}_hidden_var 0)
-              endif()
-            endif()
-
-            # cache variable
-            if (use_only_cache_var OR use_cache_var)
-              if (config_${var_name}_hidden_var_cache)
-                if (DEFINED config_${var_name}_hidden_var_cache_value)
-                  # CAUTION:
-                  #   Resets the original variable!
-                  #
-                  if (config_${var_name}_hidden_var_cache_with_force)
-                    set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}" FORCE)
-                  else()
-                    set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}")
-                  endif()
-                else()
-                  unset(${var_name} CACHE)
-                endif()
-                unset(config_${var_name}_hidden_var_cache_value)
-                unset(config_${var_name}_hidden_var_cache_type)
-                unset(config_${var_name}_hidden_var_cache_docstring)
-                unset(config_${var_name}_hidden_var_cache_with_force)
-                set(config_${var_name}_hidden_cache_var 0)
-              endif()
-            endif()
-
-            # environment variable
-            if (use_only_env_var OR use_env_var)
-              if (config_${var_name}_hidden_var_env)
-                if (DEFINED config_${var_name}_hidden_var_env_value)
-                  set(config_${var_name} "${config_${var_name}_hidden_var_env_value}")
-                  unset(config_${var_name}_hidden_var_env_value)
-                else()
-                  # protect variable change if not only environment variable unset
-                  if (use_only_env_var)
-                    unset(config_${var_name})
-                  endif()
-                endif()
-                set(config_${var_name}_hidden_env_var 0)
-              endif()
-            endif()
+            tkl_set_vars_from_files_impl_unhide_var_macro()
           endif()
 
           if (config_${var_name}_defined)
@@ -2815,19 +2760,34 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
 
           # check variable's value on existence
-          if ("${var_type}" STREQUAL "path" AND use_existed_value)
-            foreach(path_var_value IN LISTS var_parsed_value)
-              # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
-              tkl_escape_string_after_list_get(path_var_value "${path_var_value}")
+          if ("${var_type}" STREQUAL "path")
+            if (use_existed_value)
+              if (NOT ignore_unexisted_path_vars)
+                foreach(path_var_value IN LISTS var_parsed_value)
+                  # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+                  tkl_escape_string_after_list_get(path_var_value "${path_var_value}")
 
-              if (NOT EXISTS "${path_var_value}")
-                if ("${var_parsed_value}" STREQUAL "${path_var_value}")
-                  message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${path_var_value}`")
-                else()
-                  message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${var_parsed_value}` => `${path_var_value}`")
-                endif()
+                  if (NOT EXISTS "${path_var_value}")
+                    if ("${var_parsed_value}" STREQUAL "${path_var_value}")
+                      message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${path_var_value}`")
+                    else()
+                      message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${var_parsed_value}` => `${path_var_value}`")
+                    endif()
+                  endif()
+                endforeach()
               endif()
-            endforeach()
+            elseif (use_optional_value)
+              foreach(path_var_value IN LISTS var_parsed_value)
+                # WORKAROUND: we have to replace because `foreach(... IN LISTS ...)` discardes ;-escaping
+                tkl_escape_string_after_list_get(path_var_value "${path_var_value}")
+
+                if (NOT EXISTS "${path_var_value}")
+                  # move a value to the hidden storage
+                  tkl_set_vars_from_files_impl_hide_var_macro()
+                  break()
+                endif()
+              endforeach()
+            endif()
           endif()
 
           # A variable with not late expansion expression or a variable with configuration specialized late expansion (generator) expression (`var_config_name` is empty)
@@ -3091,8 +3051,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     tkl_file_remove_recurse("${flock_file_path}")
   endif()
 
-  # end of list
-  message("<")
+  if (NOT silent_mode AND print_vars_set)
+    # end of list
+    message("<")
+  endif()
 
   # save state
   if (save_state_into_cmake_global_properties_prefix)
@@ -3215,6 +3177,100 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   endif()
 endmacro()
 
+macro(tkl_set_vars_from_files_impl_hide_var_macro) # WITH OUT ARGUMENTS!
+  # first class storage
+  if (NOT use_only_cache_var AND NOT use_only_env_var)
+    if (DEFINED config_${var_name})
+      set(config_${var_name}_hidden_var_value "${config_${var_name}}")
+    else()
+      unset(config_${var_name}_hidden_var_value)
+    endif()
+
+    if (NOT config_${var_name}_hidden_var)
+      unset(config_${var_name})
+    endif()
+
+    set(config_${var_name}_hidden_var 1)
+  endif()
+
+  # cache variable
+  if (use_only_cache_var OR use_cache_var)
+    # the same condition as for a usual cache variable
+    if (NOT config_${var_name}_hidden_var_cache OR use_force_cache_var)
+      tkl_get_var(. config_${var_name}_hidden_var_cache_value ${var_name})
+      # get the rest cache properties of a variable
+      get_property(config_${var_name}_hidden_var_cache_type CACHE "${var_name}" PROPERTY TYPE)
+      get_property(config_${var_name}_hidden_var_cache_docstring CACHE "${var_name}" PROPERTY HELPSTRING)
+      set(config_${var_name}_hidden_var_cache_with_force ${use_force_cache_var})
+      set(config_${var_name}_hidden_var_cache 1)
+    endif()
+  endif()
+
+  # environment variable
+  if (use_only_env_var OR use_env_var)
+    if (DEFINED ENV{${var_name}})
+      set(config_${var_name}_hidden_var_env_value "$ENV{${var_name}}")
+    else()
+      unset(config_${var_name}_hidden_var_env_value)
+    endif()
+    set(config_${var_name}_hidden_var_env 1)
+  endif()
+endmacro()
+
+macro(tkl_set_vars_from_files_impl_unhide_var_macro) # WITH OUT ARGUMENTS!
+  # first class storage
+  if (NOT use_only_cache_var AND NOT use_only_env_var)
+    if (config_${var_name}_hidden_var)
+      if (DEFINED config_${var_name}_hidden_var_value)
+        set(config_${var_name} "${config_${var_name}_hidden_var_value}")
+        unset(config_${var_name}_hidden_var_value)
+      else()
+        unset(config_${var_name})
+      endif()
+      set(config_${var_name}_hidden_var 0)
+    endif()
+  endif()
+
+  # cache variable
+  if (use_only_cache_var OR use_cache_var)
+    if (config_${var_name}_hidden_var_cache)
+      if (DEFINED config_${var_name}_hidden_var_cache_value)
+        # CAUTION:
+        #   Resets the original variable!
+        #
+        if (config_${var_name}_hidden_var_cache_with_force)
+          set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}" FORCE)
+        else()
+          set(${var_name} "${config_${var_name}_hidden_var_cache_value}" CACHE ${config_${var_name}_hidden_var_cache_type} "${config_${var_name}_hidden_var_cache_docstring}")
+        endif()
+      else()
+        unset(${var_name} CACHE)
+      endif()
+      unset(config_${var_name}_hidden_var_cache_value)
+      unset(config_${var_name}_hidden_var_cache_type)
+      unset(config_${var_name}_hidden_var_cache_docstring)
+      unset(config_${var_name}_hidden_var_cache_with_force)
+      set(config_${var_name}_hidden_cache_var 0)
+    endif()
+  endif()
+
+  # environment variable
+  if (use_only_env_var OR use_env_var)
+    if (config_${var_name}_hidden_var_env)
+      if (DEFINED config_${var_name}_hidden_var_env_value)
+        set(config_${var_name} "${config_${var_name}_hidden_var_env_value}")
+        unset(config_${var_name}_hidden_var_env_value)
+      else()
+        # protect variable change if not only environment variable unset
+        if (use_only_env_var)
+          unset(config_${var_name})
+        endif()
+      endif()
+      set(config_${var_name}_hidden_env_var 0)
+    endif()
+  endif()
+endmacro()
+
 # CAUTION:
 #   Function must be without arguments to:
 #   1. support optional leading arguments like flags beginning by the `-` character
@@ -3271,7 +3327,7 @@ function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
     "E\;set_vars"
     "p\;print_vars_set;e\;set_env_vars;E\;set_env_vars;F\;set_on_full_complement_config;a\;append_to_files;S\;script_mode;s\;silent_mode"
     "varlines\;.\;var_lines_file_path;vars\;.\;var_names_file_path;values\;.\;var_values_file_path;flock\;.\;flock_file_path;\
-ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;\
+ignore_statement_if_no_filter;ignore_statement_if_no_filter_config_name;ignore_late_expansion_statements;ignore_unexisted_path_vars;\
 grant_external_vars_for_assign\;.\;.;\
 grant_external_vars_assign_in_files\;.\;.;\
 grant_assign_for_vars\;.\;.;\

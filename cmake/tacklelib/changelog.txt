@@ -1,4 +1,8 @@
 2021.11.09:
+* fixed: SetVarsFromFiles.cmake: don't print list terminator if `-p` flag (print variables set) is not issued or `-s` flag (silent mode) is issued
+* new: SetVarsFromFiles.cmake: `--ignore_unexisted_path_vars` flag to suppress check on path existence for variables declared with `path exist` attributes
+
+2021.11.09:
 * changed: SetVarsFromFiles.cmake: enlist loading configuration files on each line
 
 2021.11.09:
