@@ -1,4 +1,7 @@
 2021.11.09:
+* changed: SetVarsFromFiles.cmake: enlist loading configuration files on each line
+
+2021.11.09:
 * changed: Project.cmake: added `CMAKE_CONFIG_VARS_SYSTEM_FILE`, `CMAKE_CONFIG_VARS_USER_FILE` variables to directly use them as canonical path variables in cmake initialization phase
 * changed: Project.cmake: removed first argument in `tkl_configure_environment` function and directly use configuration files from `CMAKE_CONFIG_VARS_SYSTEM_FILE`, `CMAKE_CONFIG_VARS_USER_FILE` variables
 

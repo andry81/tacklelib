@@ -488,11 +488,20 @@ make_vars\;.\;.\;."
 
   if (NOT silent_mode)
     if (NOT load_state_from_cmake_global_properties OR save_state_into_cmake_global_properties)
-      message("* Loading variables from `${file_paths}`...")
+      message("* Loading variables from:")
     else()
-      message("* Preloading variables from `${file_paths}`...")
+      message("* Preloading variables from:")
     endif()
   endif()
+
+  set(file_path_index 0)
+  foreach(file_path IN LISTS file_paths)
+    message("  [${file_path_index}] `${file_path}`")
+    math(EXPR file_path_index "${file_path_index}+1")
+  endforeach()
+
+  # end of list
+  message("<")
 
   if (NOT CMAKE_BUILD_TYPE)
     list(APPEND flag_args "--ignore_statement_if_no_filter_config_name")
@@ -3081,6 +3090,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     file(LOCK "${flock_file_path}" RELEASE)
     tkl_file_remove_recurse("${flock_file_path}")
   endif()
+
+  # end of list
+  message("<")
 
   # save state
   if (save_state_into_cmake_global_properties_prefix)
