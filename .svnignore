@@ -1,5 +1,4 @@
 .log
-_3dparty
 _out
 
 include/tacklelib/setup.hpp

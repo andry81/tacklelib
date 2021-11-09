@@ -72,7 +72,7 @@ top final TACKLELIB_SKIP_TESTS=0
 
 # arc
 
-top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/libarchive/libarchive-3_4_1-release"
+top ARC_LIBARCHIVE_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/arc/libarchive/libarchive-3_4_1-release"
 
 # uncache is required here to drop the cache
 top bool uncache ENABLE_LZMA=1
@@ -84,7 +84,7 @@ top bool uncache ENABLE_COVERAGE=0
 top bool uncache ENABLE_ACL=0
 top bool uncache ENABLE_INSTALL=0
 
-top ARC_XZ_UTILS_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/xzutils/xzutils-5_2_4-release"
+top ARC_XZ_UTILS_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/arc/xzutils/xzutils-5_2_4-release"
 top uncache LIBLZMA_INCLUDE_DIR="$/{ARC_XZ_UTILS_ROOT}/src/liblzma/api"
 
 # FindLibLZMA implementation does not support multi target libraries
@@ -96,28 +96,28 @@ top bool LIBLZMA_HAS_AUTO_DECODER=1
 top bool LIBLZMA_HAS_EASY_ENCODER=1
 top bool LIBLZMA_HAS_LZMA_PRESET=1
 
-#top ARC_7ZIP_ROOT="$/{_3DPARTY_LOCAL_ROOT}/arc/7zip"
+#top ARC_7ZIP_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/arc/7zip"
 
 # log
 
-top LOG_P7_CLIENT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/log/p7client/p7client-5_3_0-release"
+top LOG_P7_CLIENT_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/log/p7client/p7client-5_3_0-release"
 
 # test
 
 top GOOGLETEST_VERSION="1.10.0"
-top GTEST_ROOT="$/{_3DPARTY_LOCAL_ROOT}/test/googletest/googletest-1_10_0-release/googletest"
+top GTEST_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/test/googletest/googletest-1_10_0-release/googletest"
 
 # math
 
-top QD_ROOT="$/{_3DPARTY_LOCAL_ROOT}/math/qd/qd-2_3_22-release"
+top QD_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/math/qd/qd-2_3_22-release"
 
 top bool ENABLE_QD_INTEGRATION=1      # to enable QD headers usage
 top bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (define) double to dd_real inside sat libraries
 
 # utility
 
-top UTILITY_FMT_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/fmt/fmt-6_1_2-release"
-top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_LOCAL_ROOT}/utility/pystring/pystring-1_1_3-20190321"
+top UTILITY_FMT_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/utility/fmt/fmt-6_1_2-release"
+top UTILITY_PYSTRING_ROOT="$/{_3DPARTY_BUILD_SOURCES_ROOT}/utility/pystring/pystring-1_1_3-20190321"
 
 local Boost_USE_SHARED_LIBS=ON
 local Boost_USE_STATIC_LIBS=OFF

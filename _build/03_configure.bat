@@ -20,8 +20,10 @@ if %IMPL_MODE%0 NEQ 0 goto IMPL
 call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 
 "%CONTOOLS_UTILITIES_BIN_ROOT%/contools/callf.exe" ^
-  /ret-child-exit /pause-on-exit /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
-  /v IMPL_MODE 1 /ra "%%" "%%?01%%" /v "?01" "%%" ^
+  /ret-child-exit /pause-on-exit ^
+  /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
+  /v IMPL_MODE 1 ^
+  /ra "%%" "%%?01%%" /v "?01" "%%" ^
   "${COMSPEC}" "/c \"@\"${?~f0}\" {*}\"" %* || exit /b
 
 exit /b 0
@@ -60,11 +62,11 @@ set CMAKE_IS_SINGLE_CONFIG=1
 rem preload configuration files only to make some checks
 call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
-  --exclude_vars_filter "PROJECT_ROOT" ^
-  --ignore_late_expansion_statements || exit /b 1
+  --exclude_vars_filter "TACKLELIB_PROJECT_ROOT" ^
+  --ignore_late_expansion_statements || exit /b 255
 
 rem check if selected generator is a multiconfig generator
-call :CMD "%%CONTOOLS_ROOT%%/cmake/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 2
+call :CMD "%%CONTOOLS_ROOT%%/cmake/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 255
 
 if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
   rem CMAKE_CONFIG_TYPES must not be defined
@@ -72,13 +74,13 @@ if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
 
   if defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is a multiconfig generator, CMAKE_BUILD_TYPE must not be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    exit /b 127
+    exit /b 255
   ) >&2
 ) else (
   rem CMAKE_CONFIG_TYPES must be defined
   if not defined CMAKE_BUILD_TYPE (
     echo.%~nx0: error: declared cmake generator is not a multiconfig generator, CMAKE_BUILD_TYPE must be defined: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    exit /b 128
+    exit /b 255
   ) >&2
   set CMAKE_IS_SINGLE_CONFIG=1
 )
@@ -118,7 +120,7 @@ rem load configuration files again unconditionally
 set "CMAKE_BUILD_TYPE_ARG=%CMAKE_BUILD_TYPE%"
 if not defined CMAKE_BUILD_TYPE_ARG set "CMAKE_BUILD_TYPE_ARG=."
 rem escape all values for `--make_vars`
-set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT:\=\\%"
+set "PROJECT_ROOT_ESCAPED=%TACKLELIB_PROJECT_ROOT:\=\\%"
 set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT_ESCAPED:;=\;%"
 call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
@@ -131,14 +133,14 @@ rem check if multiconfig.tag is already created
 if exist "%CMAKE_BUILD_ROOT%/singleconfig.tag" (
   if %CMAKE_IS_SINGLE_CONFIG%0 EQU 0 (
     echo.%~nx0: error: single config cmake cache already has been created, can not continue with multi config: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    exit /b 129
+    exit /b 255
   ) >&2
 )
 
 if exist "%CMAKE_BUILD_ROOT%/multiconfig.tag" (
   if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
     echo.%~nx0: error: multi config cmake cache already has been created, can not continue with single config: CMAKE_GENERATOR="%CMAKE_GENERATOR%" CMAKE_BUILD_TYPE="%CMAKE_BUILD_TYPE%".
-    exit /b 130
+    exit /b 255
   ) >&2
 )
 
@@ -146,10 +148,10 @@ if not exist "%CMAKE_BUILD_ROOT%" mkdir "%CMAKE_BUILD_ROOT%"
 
 if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
   echo.> "%CMAKE_BUILD_ROOT%/singleconfig.tag"
-  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_build\03\singleconfig\%~nx0.in"
+  set "CMDLINE_FILE_IN=%TACKLELIB_PROJECT_ROOT%\_config\_build\%?~n0%\singleconfig\cmdline%?~x0%.in"
 ) else (
   echo.> "%CMAKE_BUILD_ROOT%/multiconfig.tag"
-  set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_build\03\multiconfig\%~nx0.in"
+  set "CMDLINE_FILE_IN=%TACKLELIB_PROJECT_ROOT%\_config\_build\%?~n0%\multiconfig\cmdline%?~x0%.in"
 )
 
 call "%%CONTOOLS_ROOT%%/cmake/make_output_directories.bat" "%%CMAKE_BUILD_TYPE%%" "%%GENERATOR_IS_MULTI_CONFIG%%" || exit /b

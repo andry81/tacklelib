@@ -16,7 +16,7 @@
 # FORMAT:
 #   [<attributes>] <variable>[:[<class_name>]]=<value>
 #
-# <attributes>:           Variable space separated attributes: export
+# <attributes>:           Variable space separated attributes: once | export
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <class_name>:           class variant name: OSWIN | OSUNIX | BAT | SH
 #   OSWIN:                Apply on Windows system including cygwin/mingw/msys subsystems.
@@ -28,9 +28,15 @@
 #                         Can start by the `"` quote character, but two quotes does remove only when exist on both ends of a value.
 #
 
-once TACKLELIB_PROJECT_BUILD_ROOT           ="$/{TACKLELIB_PROJECT_ROOT}/_build"
+TACKLELIB_PROJECT_BUILD_ROOT                ="$/{TACKLELIB_PROJECT_ROOT}/_build"
 
-once TACKLELIB_BASH_ROOT                    ="$/{TACKLELIB_PROJECT_ROOT}/bash"
-once TACKLELIB_CMAKE_ROOT                   ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
-once TACKLELIB_PYTHON_ROOT                  ="$/{TACKLELIB_PROJECT_ROOT}/python"
-once TACKLELIB_VBS_ROOT                     ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
+TACKLELIB_BASH_ROOT                         ="$/{TACKLELIB_PROJECT_ROOT}/bash"
+TACKLELIB_CMAKE_ROOT                        ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
+TACKLELIB_PYTHON_ROOT                       ="$/{TACKLELIB_PROJECT_ROOT}/python"
+TACKLELIB_VBS_ROOT                          ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
+
+CMAKE_CONFIG_VARS_SYSTEM_FILE_IN            ="$/{TACKLELIB_PROJECT_INPUT_CONFIG_ROOT}/cmake/config.system.vars.in"
+CMAKE_CONFIG_VARS_SYSTEM_FILE               ="$/{TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT}/cmake/config.system.vars"
+
+CMAKE_CONFIG_VARS_USER_FILE_IN              ="$/{TACKLELIB_PROJECT_INPUT_CONFIG_ROOT}/cmake/config.0.vars.in"
+CMAKE_CONFIG_VARS_USER_FILE                 ="$/{TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT}/cmake/config.0.vars"

@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.11.07
+* 2021.11.08
 * tacklelib
 
 1. DESCRIPTION
@@ -7,9 +7,9 @@
 3. REPOSITORIES
 4. PREREQUISITES
 5. DEPENDENCIES
-6. DEPLOY
-7. CATALOG CONTENT DESCRIPTION
-8. PROJECT CONFIGURATION VARIABLES
+6. CATALOG CONTENT DESCRIPTION
+7. PROJECT CONFIGURATION VARIABLES
+8. DEPLOY
 9. PRECONFIGURE
 10. CONFIGURE
 10.1. Generation step(s)
@@ -72,13 +72,6 @@ The latest version is here: https://sf.net/p/tacklelib
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
   See the REPOSITORIES section.
-
-In next sections will be introduced common steps to build the project under
-the Windows AND the Linux like platform together.
-To build particularly under the Linux you have to read additionally another
-readme file:
-
-`README_EN.linux_x86_64.txt`
 
 -------------------------------------------------------------------------------
 2. LICENSE
@@ -259,54 +252,40 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#id13
 -------------------------------------------------------------------------------
 5. DEPENDENCIES
 -------------------------------------------------------------------------------
+
 Any project which is dependent on this project have has to contain the
 `README_EN.deps.txt` description file for the common dependencies in the
-Windows and in the Linux like platforms.
+Windows and in the Linux like platforms (see `PRECONFIGURE` section).
 
 NOTE:
   To run bash shell scripts (`.sh` file extension) you should copy the
   `/bash/tacklelib/bash_tacklelib` module into the `/bin` directory of your
   platform.
 
-To prepare local third party library sources you can:
-
-  1. Download the local third party project: `tacklelib--3dparty`
-     (see the `REPOSITORIES` section).
-  2. Read the instructions in the project readme to checkout and build
-     third party libraries.
-  3. Link the checkouted library sources as a directory using the `mklink`
-     command:
-     `mklink /D _3dparty <path-to-project-root>/_src`
-     or
-     Run the `01_preconfigure.*` script to make all links together
-     (see the `PRECONFIGURE` section).
-
 -------------------------------------------------------------------------------
-6. DEPLOY
--------------------------------------------------------------------------------
-To run bash shell scripts (`.sh` file extension) you should copy these scripts:
-
-* /bash/tacklelib/bash_entry
-* /bash/tacklelib/bash_tacklelib
-
-into the `/bin` directory of your platform.
-
-In pure Linux you have additional step to make scripts executable or readable:
-
->
-sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r  /bin/bash_entry
-sudo chmod a+r  /bin/bash_tacklelib
-
--------------------------------------------------------------------------------
-7. CATALOG CONTENT DESCRIPTION
+6. CATALOG CONTENT DESCRIPTION
 -------------------------------------------------------------------------------
 
 <root>
  |
+ +- /`.log`
+ |  #
+ |  # Log files directory, where does store all log files from all scripts
+ |  # including all nested projects.
+ |
+ +- /`_externals`
+ |  #
+ |  # Immediate external projects catalog could not be moved into the 3dparty
+ |  # dependencies catalog.
+ |
  +- /`_3dparty`
  |  #
- |  # Local 3dparty dependencies catalog. Must be created by the user.
+ |  # Hard directory link to the 3dparty dependencies catalog.
+ |  # Must be created by the user.
+ |  # Read the `3DPARTY DIRECTORY CONTENT DESCRIPTION` section in the
+ |  # root `README_EN.txt` file from the `tacklelib--3dparty_build_scripts`
+ |  # project for the directory structure and organization.
+ |  # Read the `README_EN.deps.txt` for particular dependecies list.
  |
  +- /`_config`
  |  | #
@@ -352,34 +331,35 @@ sudo chmod a+r  /bin/bash_tacklelib
  |  |
  |  +-/`01_generate_src.*`
  |  |   #
- |  |   # Script to generate source files in the root project and local 3dparty
- |  |   # subprojects and libraries which are should not be included in a
- |  |   # version control system.
+ |  |   # Scriptw to generate source files in the root project and local
+ |  |   # 3dparty subprojects and libraries which are should not be included in
+ |  |   # a version control system.
  |  |
  |  +-/`02_generate_config.*`
  |  |   #
- |  |   # Script to generate configuration files in the `_config` subdirectory
- |  |   # which are should not be included in a version control system.
+ |  |   # Scripts to generate configuration from files in the `_config`
+ |  |   # subdirectory which are should not be included in a version control
+ |  |   # system.
  |  |
  |  +-/`03_configure.*`
  |  |   #
- |  |   # Script to call cmake configure step versus default or custom target.
+ |  |   # Scripts to call cmake configure step versus default or custom target.
  |  |
  |  +-/`04_build.*`
  |  |   #
- |  |   # Script to call cmake build step versus default or custom target.
+ |  |   # Scripts to call cmake build step versus default or custom target.
  |  |
  |  +-/`05_install.*`
  |  |   #
- |  |   # Script to call cmake install step versus default or custom target.
+ |  |   # Scripts to call cmake install step versus default or custom target.
  |  |
  |  +-/`06_post_install.*`
  |  |   #
- |  |   # Script to call not cmake post install step.
+ |  |   # Scripts to call post install step independently to the cmake.
  |  |
- |  +-/`06_pack.*`
+ |  +-/`07_pack.*`
  |      #
- |      # Script to call cmake pack step on the bundle target.
+ |      # Scripts to call cmake pack step on the bundle target.
  |
  +- /`bash`
  |    #
@@ -411,15 +391,15 @@ sudo chmod a+r  /bin/bash_tacklelib
  |  |
  |  +-/`tacklelib/debug.hpp`
  |  | #
- |  | # the library common public debug symbols
+ |  | # the library common public debug definitions
  |  |
  |  +-/`tacklelib/optimization.hpp`
  |  | #
- |  | # the library common public optimization symbols
+ |  | # the library common public optimization definitions
  |  |
  |  +-/`tacklelib/setup.hpp`
  |    #
- |    # the library common public setup symbols
+ |    # the library common public setup definitions
  |
  +- /`src`
  |  | #
@@ -427,26 +407,22 @@ sudo chmod a+r  /bin/bash_tacklelib
  |  |
  |  +-/`debug.hpp`
  |  | #
- |  | # the library common private debug symbols
+ |  | # the library common private debug definitions
  |  |
  |  +-/`optimization.hpp`
  |  | #
- |  | # the library common private optimization symbols
+ |  | # the library common private optimization definitions
  |  |
  |  +-/`setup.hpp`
  |    #
- |    # the library common private setup symbols
- |
- +- `01_preconfigure.*`
- |   #
- |   # Script to make a local preconfigure.
+ |    # the library common private setup definitions
  |
  +- `CMakeLists.txt`
      #
      # The cmake catalog root description file.
 
 -------------------------------------------------------------------------------
-8. PROJECT CONFIGURATION VARIABLES
+7. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
 1. `_config/config.system.vars`
@@ -462,15 +438,15 @@ Here is the list of a most required of them (system variables):
   CMAKE_PACK_ROOT, CMAKE_INSTALL_PREFIX, CPACK_OUTPUT_FILE_PREFIX
 
 Predefined set of basic roots and directories to point out the base
-construction of a project directories involved in a build.
+structure of a project directories involved in a build.
 
 * CMAKE_BUILD_DIR, CMAKE_BIN_DIR, CMAKE_LIB_DIR, CMAKE_INSTALL_ROOT,
   CMAKE_PACK_DIR
 
 Auto generated directory paths which does exist only after the configure step
 have has to run. Can not be predefined because dependent on the generator
-`multiconfig` functionality and an existence of (not) empty CMAKE_BUILD_TYPE
-dynamic variable.
+`multiconfig` or `singleconfig` functionality and existence of the
+`CMAKE_BUILD_TYPE` dynamic variable (empty or not).
 
 * PROJECT_NAME
 
@@ -490,16 +466,22 @@ variables which does initialize after the `tkl_configure_environment`
 
 Optional variables which does define directories and files as a Cartesian
 product and has used from the `find_global_3dparty_environments` function
-(`/cmake/tacklelib/_3dparty/Global3dparty.cmake`).
+(`/cmake/tacklelib/_3dparty/Global3dparty.cmake`) to search for the
+`environment.vars` file to load.
+
 Is required in case of a global or an external 3dparty project or library
 which is not a local part of the project.
-Loads at first before the `/_config/config.system.vars` and
-the `/_config/config.0.vars` configuration files.
 
-* _3DPARTY_LOCAL_ROOT
+Loads at first before these configuration files:
 
-Optional variable which defines a directory with local 3dparty projects or
-libraries.
+  * `/_out/config/tacklelib/cmake/config.system.vars`
+  * `/_out/config/tacklelib/cmake/config.0.vars`
+
+The `environment.vars` file may define these variables to distinguish out of
+sources build directories:
+
+  * `_3DPARTY_BUILD_SOURCES_ROOT`
+  * `_3DPARTY_BUILD_OUTPUT_ROOT`
 
 * CMAKE_CONFIG_TYPES=(<space_separated_list>)
 
@@ -544,27 +526,46 @@ Example:
   CMAKE_GENERATOR_PLATFORM:UNIX=""
 
 -------------------------------------------------------------------------------
+8. DEPLOY
+-------------------------------------------------------------------------------
+To run bash shell scripts (`.sh` file extension) you should copy these scripts:
+
+* /bash/tacklelib/bash_entry
+* /bash/tacklelib/bash_tacklelib
+
+into the `/bin` directory of your platform.
+
+In pure Linux you have additional step to make scripts executable or readable:
+
+>
+sudo chmod ug+x /bin/bash_entry
+sudo chmod o+r  /bin/bash_entry
+sudo chmod a+r  /bin/bash_tacklelib
+
+-------------------------------------------------------------------------------
 9. PRECONFIGURE
 -------------------------------------------------------------------------------
 
-NOTE:
-  Some of steps from this section and after will be applicable both for the
-  Windows platform (`.bat` file extension) and for the Linux like platform
-  (`.sh` file extension).
+Some of steps from this section and after will be applicable both for the
+Windows platform (`.bat` file extension) and for the Linux like platform
+(`.sh` file extension).
 
-NOTE:
-  To run bash shell scripts (`.sh` file extension) you should copy the
-  `/bash/tacklelib/bash_entry` module into the `/bin` directory of your
-  platform.
+To prepare 3dparty dependencies you can:
 
-CAUTION:
-  For the Linux like platform do read the `README_EN.linux_x86_64.txt` file
-  to properly set permissions on the file `/bin/bash_entry` or build the
-  project.
+  1. Read the root `README_EN.txt` file from the
+     `tacklelib--3dparty_build_scripts` project for the 3dparty directory
+     creation details:
+     * https://github.com/andry81/tacklelib--3dparty_build_scripts
+     * https://sf.net/p/tacklelib/3dparty_build_scripts
 
-To be able to configure and build the sources (after download the dependencies
-from the `DEPENDENCIES` section) you must run the `01_preconfigure.*` script
-to create symbol links in the project directory to the 3dparty dependencies.
+  2. Download required dependencies declared in the `README_EN.deps.txt`
+     file and put into the 3dparty directory as described in the previous
+     step.
+
+  3. Read nested `README_EN.txt` file from the
+     `tacklelib--3dparty_build_scripts` project for instructions to run
+     build scripts and build a library declared in the `README_EN.deps.txt`
+     file if required a library standalone build.
 
 -------------------------------------------------------------------------------
 10. CONFIGURE
@@ -609,34 +610,13 @@ CAUTION:
   You have to edit these files for correct values before continue with the
   next steps.
 
-If a version of a template file in the first line is different to the version
-in the first line of the instantiated file, then an error would be thrown
-(instantiated version change protection).
-
-If some from template instantiated configuration files has been changed before
-the script call and has the same version with the instantiated one files, then
-they will be overwritten upon a call by the script
-(another protection through the template file body hashing and caching is not
-yet implemented).
-
-If a build is stopping on errors described above, then you have to merge all
-respective instantiated configuration files manually from template files before
-continue or run the script again.
-
-CAUTION:
-  If a template file has been changed without the version line change, then the
-  script will overwrite a previously instantiated file without a warning,
-  because the script has no functionality to separately check a template file
-  body change and so there is no prevension from an accidental overwrite of a
-  previously instantiated configuration file with the user changes!
-
 After that you should put or edit existed respective variables inside these
 generated files:
 
-* `/_config/config.system.vars`
-* `/_config/config.0.vars`
+* `/_out/config/tacklelib/cmake/config.system.vars`
+* `/_out/config/tacklelib/cmake/config.0.vars`
 
-The global or third party dependencies which are excluded from the source files
+The global or 3dparty dependencies which are excluded from the source files
 distribution does load through the separate configuration files is pointed by
 the _3DPARTY_GLOBAL_ROOTS_LIST and _3DPARTY_GLOBAL_ROOTS_FILE_LIST list
 variables.
@@ -672,8 +652,8 @@ For the Windows platform:
 `d:/3dparty1/environment2.vars`
 `d:/3dparty2/environment1.vars`
 `d:/3dparty2/environment2.vars`
-`<root>/_config/config.system.vars`
-`<root>/_config/config.0.vars`
+`/_out/config/tacklelib/cmake/config.system.vars`
+`/_out/config/tacklelib/cmake/config.0.vars`
 
 For the Linux like platform:
 
@@ -681,8 +661,8 @@ For the Linux like platform:
 `/home/opt/3dparty1/environment2.vars`
 `/home/opt/3dparty2/environment1.vars`
 `/home/opt/3dparty2/environment2.vars`
-`<root>/_config/config.system.vars`
-`<root>/_config/config.0.vars`
+`/_out/config/tacklelib/cmake/config.system.vars`
+`/_out/config/tacklelib/cmake/config.0.vars`
 
 -------------------------------------------------------------------------------
 10.2. Configuration step
@@ -855,11 +835,6 @@ for example, these steps:
 These instructions should help to use `git svn` commands together with the
 `svn` commands.
 
-NOTE:
-  The scripts does all above automatically. All you have to do is to ensure
-  that you are using valid paths and keys in the respective configuration
-  files.
-
 -------------------------------------------------------------------------------
 15. KNOWN ISSUES
 -------------------------------------------------------------------------------
@@ -1015,15 +990,6 @@ Solution:
   Replace all the backslash characters by forward slash character - `/` or by
   double baskslash character - `\\`.
 
-Issue #3
-
-  The `config.private.yaml` contains invalid values or was regenerated to
-  default values.
-
-Solution:
-
-  Manually edit variables in the file for correct values.
-
 -------------------------------------------------------------------------------
 15.4.1.2. Message `Can't create session: Unable to connect to a repository at URL 'svn+ssh://...': `
           `To better debug SSH connection problems, remove the -q option from ssh' in the [tunnels] section of your Subversion configuration file. `
@@ -1040,11 +1006,6 @@ Solution:
   Read docs about the `ssh-pageant` usage from the msys tools to fix that.
 
   See details: https://stackoverflow.com/questions/31443842/svn-hangs-on-checkout-in-windows/58613014#58613014
-
-NOTE:
-  The scripts does automatic maintain of the `ssh-pageant` utility startup.
-  All you have to do is to ensure that you are using valid paths and keys in
-  the respective configuration files.
 
 -------------------------------------------------------------------------------
 15.4.1.3. Message `Keyboard-interactive authentication prompts from server:`
@@ -1070,7 +1031,7 @@ Issue #3:
 
 Solution:
 
-  Read the deatils in the `ssh+svn/plink setup` section.
+  Read the details in the `ssh+svn/plink setup` section.
 
 -------------------------------------------------------------------------------
 15.5. Build issues
@@ -1088,7 +1049,7 @@ Issues:
   headers which must be disabled separately from the cmake by a header in the
   dependentee project.
 
-  Read the `9.1. Generation step(s)` section for the details.
+  Read the `Generation step(s)` section for the details.
 
 Solution:
 

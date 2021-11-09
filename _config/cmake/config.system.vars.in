@@ -107,7 +107,6 @@ top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}"           # top parent p
 final package _3DPARTY_GLOBAL_ROOTS_LIST:WIN=("d:/_3dparty")
 final package _3DPARTY_GLOBAL_ROOTS_LIST:UNIX=(/home/opt/_3dparty)
 final package _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
-final package _3DPARTY_LOCAL_ROOT="$/{PROJECT_TOP_ROOT}/_3dparty"
 
 top CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel)  # list variable
 top CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)

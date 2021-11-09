@@ -18,8 +18,10 @@ if %IMPL_MODE%0 NEQ 0 goto IMPL
 call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 
 "%CONTOOLS_UTILITIES_BIN_ROOT%/contools/callf.exe" ^
-  /ret-child-exit /pause-on-exit /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
-  /v IMPL_MODE 1 /ra "%%" "%%?01%%" /v "?01" "%%" ^
+  /ret-child-exit /pause-on-exit ^
+  /tee-stdout "%PROJECT_LOG_FILE%" /tee-stderr-dup 1 ^
+  /v IMPL_MODE 1 ^
+  /ra "%%" "%%?01%%" /v "?01" "%%" ^
   "${COMSPEC}" "/c \"@\"${?~f0}\" {*}\"" %* || exit /b
 
 exit /b 0
@@ -53,11 +55,11 @@ if not defined CMAKE_BUILD_TYPE (
 rem preload configuration files only to make some checks
 call :CMD "%%CONTOOLS_ROOT%%/std/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
-  --exclude_vars_filter "PROJECT_ROOT" ^
-  --ignore_late_expansion_statements || exit /b 1
+  --exclude_vars_filter "TACKLELIB_PROJECT_ROOT" ^
+  --ignore_late_expansion_statements || exit /b 255
 
 rem check if selected generator is a multiconfig generator
-call :CMD "%%CONTOOLS_ROOT%%/cmake/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 2
+call :CMD "%%CONTOOLS_ROOT%%/cmake/get_GENERATOR_IS_MULTI_CONFIG.bat" "%%CMAKE_GENERATOR%%" || exit /b 255
 
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
@@ -88,7 +90,7 @@ rem load configuration files again unconditionally
 set "CMAKE_BUILD_TYPE_ARG=%CMAKE_BUILD_TYPE%"
 if not defined CMAKE_BUILD_TYPE_ARG set "CMAKE_BUILD_TYPE_ARG=."
 rem escape all values for `--make_vars`
-set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT:\=\\%"
+set "PROJECT_ROOT_ESCAPED=%TACKLELIB_PROJECT_ROOT:\=\\%"
 set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT_ESCAPED:;=\;%"
 call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
@@ -106,7 +108,7 @@ if not exist "%NSIS_INSTALL_ROOT%" (
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
 
-set "CMDLINE_FILE_IN=%PROJECT_ROOT%\_config\_build\07\%~nx0.in"
+set "CMDLINE_FILE_IN=%TACKLELIB_PROJECT_ROOT%\_config\_build\07\%~nx0.in"
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION

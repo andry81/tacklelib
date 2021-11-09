@@ -1,3 +1,9 @@
+2021.11.09:
+* changed: __init_, _build: scripts rework and cleanup
+* changed: _config: configuration files rework and cleanup
+* changed: reworked 3dparty dependencies usage, as a result `01_preconfigure.*` scripts is removed as not required anymore
+* changed: README_EN.txt: readme update
+
 2021.11.08:
 * new: README.md: REQUIRED/OPTIONAL badges for dependency list items
 * changed: README.md: realign
