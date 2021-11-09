@@ -26,7 +26,6 @@ _build/05_install.sh -text
 _build/06_post_install.sh -text
 _build/07_pack.bat -text
 _build/07_pack.sh -text
-_build/README_EN.txt -text
 _build/__init__/__init__.bat -text
 _build/__init__/__init__.sh -text
 _build/admin/chown_mod.sh -text

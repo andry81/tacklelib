@@ -16,7 +16,7 @@
 # FORMAT:
 #   [<attributes>] <variable>[:[<class_name>]]=<value>
 #
-# <attributes>:           Variable space separated attributes: once | export
+# <attributes>:           Variable space separated attributes: once | export | upath
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <class_name>:           class variant name: OSWIN | OSUNIX | BAT | SH
 #   OSWIN:                Apply on Windows system including cygwin/mingw/msys subsystems.
@@ -35,8 +35,13 @@ TACKLELIB_CMAKE_ROOT                        ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
 TACKLELIB_PYTHON_ROOT                       ="$/{TACKLELIB_PROJECT_ROOT}/python"
 TACKLELIB_VBS_ROOT                          ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
 
-CMAKE_CONFIG_VARS_SYSTEM_FILE_IN            ="$/{TACKLELIB_PROJECT_INPUT_CONFIG_ROOT}/cmake/config.system.vars.in"
-CMAKE_CONFIG_VARS_SYSTEM_FILE               ="$/{TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT}/cmake/config.system.vars"
+upath CMAKE_PROJECT_ROOT                    ="$/{TACKLELIB_PROJECT_ROOT}"
 
-CMAKE_CONFIG_VARS_USER_FILE_IN              ="$/{TACKLELIB_PROJECT_INPUT_CONFIG_ROOT}/cmake/config.0.vars.in"
-CMAKE_CONFIG_VARS_USER_FILE                 ="$/{TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT}/cmake/config.0.vars"
+upath CMAKE_PROJECT_INPUT_CONFIG_ROOT       ="$/{TACKLELIB_PROJECT_INPUT_CONFIG_ROOT}/cmake"
+upath CMAKE_PROJECT_OUTPUT_CONFIG_ROOT      ="$/{TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT}/cmake"
+
+upath CMAKE_CONFIG_VARS_SYSTEM_FILE_IN      ="$/{CMAKE_PROJECT_INPUT_CONFIG_ROOT}/config.system.vars.in"
+upath CMAKE_CONFIG_VARS_SYSTEM_FILE         ="$/{CMAKE_PROJECT_OUTPUT_CONFIG_ROOT}/config.system.vars"
+
+upath CMAKE_CONFIG_VARS_USER_FILE_IN        ="$/{CMAKE_PROJECT_INPUT_CONFIG_ROOT}/config.0.vars.in"
+upath CMAKE_CONFIG_VARS_USER_FILE           ="$/{CMAKE_PROJECT_OUTPUT_CONFIG_ROOT}/config.0.vars"

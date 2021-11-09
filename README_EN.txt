@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.11.08
+* 2021.11.09
 * tacklelib
 
 1. DESCRIPTION
@@ -425,8 +425,8 @@ NOTE:
 7. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-1. `_config/config.system.vars`
-   `_config/config.0.vars`
+1. `/_config/config.system.vars.in`
+   `/_config/config.0.vars.in`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.

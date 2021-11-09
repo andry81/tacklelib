@@ -29,6 +29,10 @@ call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 exit /b 0
 
 :IMPL
+call "%%CONTOOLS_ROOT%%/std/get_cmdline.bat" %%?0%% %%*
+call "%%CONTOOLS_ROOT%%/std/echo_var.bat" RETURN_VALUE "%%?00%%>"
+echo.
+
 call :CMDINT "%%CONTOOLS_ROOT%%/cmake/check_config_version.bat" -optional_compare ^
   "%%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%%" "%%CMAKE_CONFIG_VARS_SYSTEM_FILE%%" ^
   "%%CMAKE_CONFIG_VARS_USER_FILE_IN%%" "%%CMAKE_CONFIG_VARS_USER_FILE%%" || exit /b
@@ -43,15 +47,15 @@ set /A NEST_LVL-=1
 exit /b %LASTERROR%
 
 :MAIN
-set "CMDLINE_SYSTEM_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_config\_build\%?~n0%\config.system%?~x0%.in"
-set "CMDLINE_USER_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_config\_build\%?~n0%\config.0%?~x0%.in"
+set "CMDLINE_SYSTEM_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_build\%?~n0%\config.system%?~x0%.in"
+set "CMDLINE_USER_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_build\%?~n0%\config.0%?~x0%.in"
 
 for %%i in ("%CMDLINE_SYSTEM_FILE_IN%" "%CMDLINE_USER_FILE_IN%") do (
   set "CMDLINE_FILE_IN=%%i"
   call :GENERATE || exit /b
 )
 
-set "CMD_LIST_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_config\_build\%?~n0%\cmd_list%?~x0%.in"
+set "CMD_LIST_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_build\%?~n0%\cmd_list%?~x0%.in"
 
 rem load command line from file
 for /F "usebackq eol=# tokens=1,* delims=|" %%i in ("%CMD_LIST_FILE_IN%") do (

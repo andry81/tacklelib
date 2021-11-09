@@ -1,4 +1,11 @@
 2021.11.09:
+* fixed: _build, CMakeLists.txt: execution fixup
+* changed: _config: added `CMAKE_PROJECT_ROOT`, `CMAKE_PROJECT_*PUT_CONFIG_ROOT`, `CMAKE_CONFIG_VARS_*_FILE_*` variables to use them as canonical path variables specifically for the cmake
+* changed: cmake/tacklelib/Project.cmake: added `CMAKE_CONFIG_VARS_SYSTEM_FILE`, `CMAKE_CONFIG_VARS_USER_FILE` variables to directly use them as canonical path variables in cmake initialization phase
+* changed: cmake/tacklelib/Project.cmake: removed first argument in `tkl_configure_environment` function and directly use configuration files from `CMAKE_CONFIG_VARS_SYSTEM_FILE`, `CMAKE_CONFIG_VARS_USER_FILE` variables
+* changed: _build: removed `README_EN.txt` as not standalone project anymore
+
+2021.11.09:
 * changed: __init_, _build: scripts rework and cleanup
 * changed: _config: configuration files rework and cleanup
 * changed: reworked 3dparty dependencies usage, as a result `01_preconfigure.*` scripts is removed as not required anymore

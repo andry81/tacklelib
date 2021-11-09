@@ -27,6 +27,10 @@ call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 exit /b 0
 
 :IMPL
+call "%%CONTOOLS_ROOT%%/std/get_cmdline.bat" %%?0%% %%*
+call "%%CONTOOLS_ROOT%%/std/echo_var.bat" RETURN_VALUE "%%?00%%>"
+echo.
+
 call :CMDINT "%%CONTOOLS_ROOT%%/cmake/check_config_version.bat" ^
   "%%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%%" "%%CMAKE_CONFIG_VARS_SYSTEM_FILE%%" ^
   "%%CMAKE_CONFIG_VARS_USER_FILE_IN%%" "%%CMAKE_CONFIG_VARS_USER_FILE%%" || exit /b
@@ -54,7 +58,7 @@ if not defined CMAKE_BUILD_TYPE (
 
 rem preload configuration files only to make some checks
 call :CMD "%%CONTOOLS_ROOT%%/std/set_vars_from_files.bat" ^
-  "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
+  "%%CMAKE_CONFIG_VARS_SYSTEM_FILE:;=\;%%" "WIN" . . . ";" ^
   --exclude_vars_filter "TACKLELIB_PROJECT_ROOT" ^
   --ignore_late_expansion_statements || exit /b 255
 
@@ -93,7 +97,7 @@ rem escape all values for `--make_vars`
 set "PROJECT_ROOT_ESCAPED=%TACKLELIB_PROJECT_ROOT:\=\\%"
 set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT_ESCAPED:;=\;%"
 call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
-  "%%CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
+  "%%CMAKE_CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CMAKE_CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
   --make_vars ^
   "CMAKE_CURRENT_PACKAGE_NEST_LVL;CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX;CMAKE_CURRENT_PACKAGE_NAME;CMAKE_CURRENT_PACKAGE_SOURCE_DIR;CMAKE_TOP_PACKAGE_NAME;CMAKE_TOP_PACKAGE_SOURCE_DIR" ^
   "0;00;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%;%%PROJECT_NAME%%;%%PROJECT_ROOT_ESCAPED%%" ^
@@ -108,7 +112,7 @@ if not exist "%NSIS_INSTALL_ROOT%" (
 
 set "PATH=%PATH%;%NSIS_INSTALL_ROOT%"
 
-set "CMDLINE_FILE_IN=%TACKLELIB_PROJECT_ROOT%\_config\_build\07\%~nx0.in"
+set "CMDLINE_FILE_IN=%TACKLELIB_PROJECT_INPUT_CONFIG_ROOT%\_build\%?~n0%\cmdline%?~x0%.in"
 
 rem for safe parse
 setlocal ENABLEDELAYEDEXPANSION

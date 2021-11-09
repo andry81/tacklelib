@@ -29,6 +29,10 @@ call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
 exit /b 0
 
 :IMPL
+call "%%CONTOOLS_ROOT%%/std/get_cmdline.bat" %%?0%% %%*
+call "%%CONTOOLS_ROOT%%/std/echo_var.bat" RETURN_VALUE "%%?00%%>"
+echo.
+
 set /A NEST_LVL+=1
 
 call :MAIN %%*

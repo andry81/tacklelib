@@ -92,7 +92,7 @@ include(tacklelib/_3dparty/Qt)
 ##   `CMake Error: CMake was unable to find a build program corresponding to "MinGW Makefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.`
 ##   by declare respective variable BEFORE the project main initialization.
 ##
-#tkl_preload_variables(-S -s "${CMAKE_CURRENT_LIST_DIR}/_config/cmake/config.system.vars" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
+#tkl_preload_variables(-S -s "${CMAKE_CONFIG_VARS_SYSTEM_FILE}" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
 
 # builtin detection runs by the `project` function
 project("tacklelib")
@@ -102,7 +102,7 @@ set(PROJECT_LIB_NAME tacklelib)
 set(LIB_TARGET_NAME ${PROJECT_LIB_NAME})
 set(TESTLIB_TARGET_NAME ${PROJECT_NAME}.testlib)
 
-tkl_configure_environment("${CMAKE_CURRENT_LIST_DIR}/_config" TACKLELIB_RUNTIME_LINK_TYPE "MSVC;GCC")
+tkl_configure_environment(TACKLELIB_RUNTIME_LINK_TYPE "MSVC;GCC")
 
 ###############################################################################
 ## check environment variables ################################################
@@ -111,8 +111,6 @@ tkl_configure_environment("${CMAKE_CURRENT_LIST_DIR}/_config" TACKLELIB_RUNTIME_
 tkl_check_var(REQUIRED . TACKLELIB_ADDRESS_MODEL)
 tkl_check_var(REQUIRED . TACKLELIB_RUNTIME_LINK_TYPE)
 tkl_check_var(REQUIRED . TACKLELIB_DEP_LIBS)
-
-tkl_check_var(REQUIRED PATH _3DPARTY_LOCAL_ROOT)
 
 tkl_check_var(OPTIONAL PATH CMAKE_LIBRARY_PATH)
 tkl_check_var(OPTIONAL PATH NSIS_INSTALL_ROOT)
