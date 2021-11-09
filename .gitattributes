@@ -288,6 +288,7 @@ cmake_tests/unit/01_script_mode/12_SetVarsFromFiles/01_variables_specialization/
 cmake_tests/unit/01_script_mode/12_SetVarsFromFiles/01_variables_specialization/refs/01_singleline_set.vars -text
 cmake_tests/unit/01_script_mode/12_SetVarsFromFiles/01_variables_specialization/refs/11_multiline_set.vars -text
 cmake_tests/unit/01_script_mode/12_SetVarsFromFiles/11_attributes_collision/01_basic.test.cmake -text
+deploy/3dparty/environment.vars -text
 deploy/approot/${PROJECT_NAME}.sh -text
 examples/utility/log/p7logger/p7_logger_example1.cpp -text
 include/tacklelib/debug.hpp.in -text
