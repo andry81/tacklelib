@@ -100,7 +100,7 @@ rem load configuration files again unconditionally
 set "CMAKE_BUILD_TYPE_ARG=%CMAKE_BUILD_TYPE%"
 if not defined CMAKE_BUILD_TYPE_ARG set "CMAKE_BUILD_TYPE_ARG=."
 rem escape all values for `--make_vars`
-set "PROJECT_ROOT_ESCAPED=%TACKLELIB_PROJECT_ROOT:\=\\%"
+set "PROJECT_ROOT_ESCAPED=%TACKLELIB_PROJECT_ROOT:\=/%"
 set "PROJECT_ROOT_ESCAPED=%PROJECT_ROOT_ESCAPED:;=\;%"
 call :CMD "%%CONTOOLS_ROOT%%/cmake/set_vars_from_files.bat" ^
   "%%CMAKE_CONFIG_VARS_SYSTEM_FILE:;=\;%%;%%CMAKE_CONFIG_VARS_USER_FILE:;=\;%%" "WIN" . "%%CMAKE_BUILD_TYPE_ARG%%" . ";" ^
