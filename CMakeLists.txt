@@ -118,7 +118,7 @@ tkl_check_var(REQUIRED PATH   BOOST_ROOT)
 tkl_check_var(REQUIRED .      Boost_ARCHITECTURE) # required for boost 1.66 and higher: https://gitlab.kitware.com/cmake/cmake/merge_requests/2568
 tkl_check_var(REQUIRED STRING BOOST_COMPONENTS)
 
-tkl_check_var(REQUIRED PATH   UTILITY_FMT_ROOT)
+tkl_check_var(REQUIRED PATH   FMT_ROOT)
 
 # WORKAROUND:
 #   The issue:
@@ -311,14 +311,14 @@ endif()
 
 # fmt
 
-tkl_add_target_subdirectory(UTILITY_FMT_ROOT fmt _3dparty/utility/fmt)
+tkl_add_target_subdirectory(FMT_ROOT fmt _3dparty/utility/fmt)
 
 # fmt has it's own cmake list, so we have to call it from here
 tkl_initialize_library_target_defaults(fmt "${TACKLELIB_ADDRESS_MODEL}bit")
 
 # pystring
 
-tkl_add_target_subdirectory(UTILITY_PYSTRING_ROOT pystring _3dparty/utility/pystring)
+tkl_add_target_subdirectory(PYSTRING_ROOT pystring _3dparty/utility/pystring)
 
 # p7 logger
 
@@ -388,17 +388,17 @@ target_include_directories(${LIB_TARGET_NAME}
     ${CMAKE_CURRENT_LIST_DIR}
 )
 
-if (UTILITY_FMT_ROOT)
+if (FMT_ROOT)
   target_include_directories(${LIB_TARGET_NAME}
     PUBLIC
-      ${UTILITY_FMT_ROOT}/include
+      ${FMT_ROOT}/include
   )
 endif()
 
-if (UTILITY_PYSTRING_ROOT)
+if (PYSTRING_ROOT)
   target_include_directories(${LIB_TARGET_NAME}
     PUBLIC
-      ${UTILITY_PYSTRING_ROOT}
+      ${PYSTRING_ROOT}
   )
 endif()
 
@@ -536,14 +536,14 @@ if (Boost_LIBRARY_DIRS)
     )
 endif()
 
-if (UTILITY_FMT_ROOT)
+if (FMT_ROOT)
   target_link_libraries(${LIB_TARGET_NAME}
     PUBLIC
       fmt
   )
 endif()
 
-if (UTILITY_PYSTRING_ROOT)
+if (PYSTRING_ROOT)
   target_link_libraries(${LIB_TARGET_NAME}
     PUBLIC
       pystring
@@ -618,17 +618,17 @@ if (TESTLIB_ENABLED)
       ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-  if (UTILITY_FMT_ROOT)
+  if (FMT_ROOT)
     target_include_directories(${TESTLIB_TARGET_NAME}
       PUBLIC
-        ${UTILITY_FMT_ROOT}/include
+        ${FMT_ROOT}/include
     )
   endif()
 
-  if (UTILITY_PYSTRING_ROOT)
+  if (PYSTRING_ROOT)
     target_include_directories(${TESTLIB_TARGET_NAME}
       PUBLIC
-        ${UTILITY_PYSTRING_ROOT}
+        ${PYSTRING_ROOT}
     )
   endif()
 
@@ -831,17 +831,17 @@ if (TESTS_ENABLED)
         ${CMAKE_CURRENT_LIST_DIR}/include
     )
 
-    if (UTILITY_FMT_ROOT)
+    if (FMT_ROOT)
       target_include_directories(${target}
         PUBLIC
-          ${UTILITY_FMT_ROOT}/include
+          ${FMT_ROOT}/include
       )
     endif()
 
-    if (UTILITY_PYSTRING_ROOT)
+    if (PYSTRING_ROOT)
       target_include_directories(${target}
         PUBLIC
-          ${UTILITY_PYSTRING_ROOT}
+          ${PYSTRING_ROOT}
       )
     endif()
 
@@ -1181,8 +1181,8 @@ tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_
 
 tkl_set_target_folder(BOOST_ROOT * * . * . _3dparty/utility/boost)
 
-tkl_set_target_folder(UTILITY_FMT_ROOT * * . * . _3dparty/utility/fmt)
-tkl_set_target_folder(UTILITY_PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
+tkl_set_target_folder(FMT_ROOT * * . * . _3dparty/utility/fmt)
+tkl_set_target_folder(PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
 
 # math
 
