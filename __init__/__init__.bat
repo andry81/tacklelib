@@ -6,7 +6,6 @@ set "TACKLELIB_PROJECT_ROOT_INIT0_DIR=%~dp0"
 
 if not defined NEST_LVL set NEST_LVL=0
 
-rem basic set of system variables
 if not defined TACKLELIB_PROJECT_ROOT                       call :CANONICAL_PATH TACKLELIB_PROJECT_ROOT                 "%%~dp0.."
 if not defined TACKLELIB_PROJECT_EXTERNALS_ROOT             call :CANONICAL_PATH TACKLELIB_PROJECT_EXTERNALS_ROOT       "%%TACKLELIB_PROJECT_ROOT%%/_externals"
 

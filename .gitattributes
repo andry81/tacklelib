@@ -29,12 +29,10 @@ _build/07_pack.sh -text
 _build/__init__/__init__.bat -text
 _build/__init__/__init__.sh -text
 _build/admin/chown_mod.sh -text
-_build/changelog.txt -text
 _build/deploy/collect_ldd_deps.sh -text
 _build/deploy/create_links.sh -text
 _build/deploy/gen_links.sh -text
 _build/deploy/user_links.lst -text
-_build/license.txt -text
 _build/tools/projectlib.sh -text
 _config/_build/01_generate_src/cmd_list.bat.in -text
 _config/_build/01_generate_src/cmd_list.sh.in -text
