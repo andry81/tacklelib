@@ -1,4 +1,7 @@
 2021.11.10:
+* changed: _config: external project execution fixup
+
+2021.11.10:
 * changed: _build: cleanup, removed changelog and license files as not standalone project anymore
 
 2021.11.09:

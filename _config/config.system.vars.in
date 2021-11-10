@@ -30,10 +30,10 @@
 
 TACKLELIB_PROJECT_BUILD_ROOT                ="$/{TACKLELIB_PROJECT_ROOT}/_build"
 
-TACKLELIB_BASH_ROOT                         ="$/{TACKLELIB_PROJECT_ROOT}/bash"
-TACKLELIB_CMAKE_ROOT                        ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
-TACKLELIB_PYTHON_ROOT                       ="$/{TACKLELIB_PROJECT_ROOT}/python"
-TACKLELIB_VBS_ROOT                          ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
+upath TACKLELIB_BASH_ROOT                   ="$/{TACKLELIB_PROJECT_ROOT}/bash"
+upath TACKLELIB_CMAKE_ROOT                  ="$/{TACKLELIB_PROJECT_ROOT}/cmake"
+upath TACKLELIB_PYTHON_ROOT                 ="$/{TACKLELIB_PROJECT_ROOT}/python"
+upath TACKLELIB_VBS_ROOT                    ="$/{TACKLELIB_PROJECT_ROOT}/vbs"
 
 upath CMAKE_PROJECT_ROOT                    ="$/{TACKLELIB_PROJECT_ROOT}"
 
