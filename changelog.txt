@@ -1,3 +1,6 @@
+2021.11.11:
+* new: README.md: added last `14d` traffic clones badges
+
 2021.11.10:
 * changed: _config: external project execution fixup
 
