@@ -38,7 +38,7 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 <p align="center">
   <a href="https://github.com/andry81/tacklelib--gh-stats/commits/master/traffic/clones">
     <img src="https://img.shields.io/badge/dynamic/json?color=success&label=Github%20clones|all&query=count&url=https://github.com/andry81/tacklelib--gh-stats/raw/master/traffic/clones/latest-accum.json?raw=True&logo=github" valign="middle" alt="GitHub clones|any|total" />
-    <img src="https://img.shields.io/badge/dynamic/json?color=success&label=14d&query=count&url=https://github.com/andry81/tacklelib--gh-stats/raw/master/traffic/clones/latest-accum.json?raw=True" valign="middle" alt="GitHub clones|any|14d" /></a>
+    <img src="https://img.shields.io/badge/dynamic/json?color=success&label=14d&query=count&url=https://github.com/andry81/tacklelib--gh-stats/raw/master/traffic/clones/latest.json?raw=True" valign="middle" alt="GitHub clones|any|14d" /></a>
 • <a href="https://github.com/andry81/tacklelib--gh-stats/commits/master/traffic/clones">
     <img src="https://img.shields.io/badge/dynamic/json?color=success&label=Github%20clones|unq&query=uniques&url=https://github.com/andry81/tacklelib--gh-stats/raw/master/traffic/clones/latest-accum.json?raw=True&logo=github" valign="middle" alt="GitHub clones|unique per day|total" />
     <img src="https://img.shields.io/badge/dynamic/json?color=success&label=14d&query=uniques&url=https://github.com/andry81/tacklelib--gh-stats/raw/master/traffic/clones/latest.json?raw=True" valign="middle" alt="GitHub clones|unique per day|14d" /></a>
