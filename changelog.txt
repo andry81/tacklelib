@@ -1,4 +1,7 @@
 2021.11.11:
+* changed: README.md: badge links/label changes and realign
+
+2021.11.11:
 * new: README.md: `lgtm.com` link badges
 
 2021.11.11:

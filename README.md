@@ -25,14 +25,18 @@
 The latest version is here: https://sf.net/p/tacklelib</h4>
 
 <p align="center">
-  <a href="https://www.codefactor.io/repository/github/andry81/tacklelib"><img src="https://img.shields.io/codefactor/grade/github/andry81/tacklelib?logo=codefactor" valign="middle" alt="codefactor.io|quality" /></a>
+  <a href="https://www.codefactor.io/repository/github/andry81/tacklelib"><img src="https://img.shields.io/codefactor/grade/github/andry81/tacklelib?label=quality&logo=codefactor" valign="middle" alt="codefactor.io|quality" /></a>
   <!-- <a href="https://www.codefactor.io/repository/github/andry81/tacklelib"><img src="https://www.codefactor.io/repository/github/andry81/tacklelib/badge" valign="middle" alt="codefactor.io|quality" /></a> -->
-• <a href="https://www.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/f5c4d8059c76407b80ed0618d19d944e" valign="middle" alt="codacy.com|quality" /></a>
-• <a href="https://codeclimate.com/github/andry81/tacklelib/maintainability"><img src="https://api.codeclimate.com/v1/badges/0bcbb159098bb6d824fe/maintainability?logo=codeclimate" valign="middle" alt="codeclimate.com|maintainability" /></a>
+• <a href="https://www.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade"><img src="https://img.shields.io/codacy/grade/f5c4d8059c76407b80ed0618d19d944e?label=quality&logo=codacy" valign="middle" alt="codacy.com|quality" /></a>
+<!-- • <a href="https://www.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/f5c4d8059c76407b80ed0618d19d944e" valign="middle" alt="codacy.com|quality" /></a> -->
+• <a href="https://lgtm.com/projects/g/andry81/tacklelib/context:python"><img src="https://img.shields.io/lgtm/grade/python/g/andry81/tacklelib.svg?label=quality: python&logo=lgtm" valign="middle" alt="lgtm.com|quality|python" /></a>
+  <a href="https://lgtm.com/projects/g/andry81/tacklelib/alerts"><img src="https://img.shields.io/lgtm/alerts/github/andry81/tacklelib?label=alerts&logo=lgtm" valign="middle" alt="lgtm.com|alerts" /></a>
+</p>
+
+<p align="center">
+  <a href="https://codeclimate.com/github/andry81/tacklelib/maintainability"><img src="https://api.codeclimate.com/v1/badges/0bcbb159098bb6d824fe/maintainability?logo=codeclimate" valign="middle" alt="codeclimate.com|maintainability" /></a>
   <a href="https://codeclimate.com/github/andry81/tacklelib/issues"><img src="https://img.shields.io/codeclimate/issues/andry81/tacklelib?logo=codeclimate" valign="middle" alt="codeclimate.com|issues" /></a>
   <a href="https://codeclimate.com/github/andry81/tacklelib/trends/technical_debt"><img src="https://img.shields.io/codeclimate/tech-debt/andry81/tacklelib?logo=codeclimate" valign="middle" alt="codeclimate.com|debt" /></a>
-• <a href="https://lgtm.com/projects/g/andry81/tacklelib/context:python"><img src="https://img.shields.io/lgtm/grade/python/g/andry81/tacklelib.svg?logo=lgtm" valign="middle" alt="lgtm.com|quality|python" /></a>
-  <a href="https://lgtm.com/projects/g/andry81/tacklelib/alerts"><img src="https://img.shields.io/lgtm/alerts/github/andry81/tacklelib?logo=lgtm" valign="middle" alt="lgtm.com|alerts" /></a>
 </p>
 
 <p align="center">
