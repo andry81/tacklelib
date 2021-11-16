@@ -1,3 +1,6 @@
+2021.11.16:
+* changed: include/tacklelib/tackle/file_reader.hpp: added state parameter to detect first time read and make read break
+
 2021.11.11:
 * changed: README.md: badge links/label changes and realign
 

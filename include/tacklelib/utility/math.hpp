@@ -695,7 +695,7 @@ namespace math
     const uint32_t uint32_pof2_verify<x>::value;
 
 
-    // sign convertion into -1,0,+1 integer
+    // sign conversion into -1,0,+1 integer
     template <typename T>
     FORCE_INLINE CONSTEXPR_FUNC int sign_to_int(const T & v)
     {
@@ -708,7 +708,7 @@ namespace math
         );
     }
 
-    // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> `+`
+    // sign conversion into sign character: -1 -> `-`, 0 -> ` `, +1 -> `+`
     template <typename T>
     FORCE_INLINE CONSTEXPR_FUNC char sign_to_char(const T & v)
     {
@@ -721,7 +721,7 @@ namespace math
         );
     }
 
-    // sign convertion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
+    // sign conversion into sign character: -1 -> ` `, 0 -> ` `, +1 -> `+`
     template <typename T>
     FORCE_INLINE CONSTEXPR_FUNC char sign_to_positive_char(const T & v)
     {
@@ -732,7 +732,7 @@ namespace math
         );
     }
 
-    // sign convertion into sign character: -1 -> `-`, 0 -> ` `, +1 -> ` `
+    // sign conversion into sign character: -1 -> `-`, 0 -> ` `, +1 -> ` `
     template <typename T>
     FORCE_INLINE CONSTEXPR_FUNC char sign_to_negative_char(const T & v)
     {
@@ -1926,7 +1926,7 @@ namespace math
             DEG_360_IN_RAD_IF(angle_distance_360, in_radians) + angle_distance_360;
     }
 
-    // Translates (convertes) angle to a min/max range [(min..max)] with 0 in a base angle.
+    // Translates (converts) angle to a min/max range [(min..max)] with 0 in a base angle.
     //
     // inclusion_direction if exclude_all=false:
     //  -1 - minimal is included, maximal is excluded (ex: [-180 - +180) )

@@ -22,12 +22,26 @@
 
 namespace tackle
 {
+    struct LIBRARY_API_DECL file_reader_state
+    {
+        FORCE_INLINE file_reader_state() :
+            read_index(0), break_(false)
+        {
+        }
+
+        FORCE_INLINE file_reader_state(const file_reader_state &) = default;
+        FORCE_INLINE file_reader_state(file_reader_state &&) = default;
+
+        size_t  read_index;
+        bool    break_;
+    };
+
     template <class t_elem = char>
     class LIBRARY_API_DECL file_reader
     {
     public:
         using chunk_sizes_type  = std::vector<size_t> ;
-        using read_func         = std::function<void(uint8_t * buf, size_t chunk_size, void * user_data)>;
+        using read_func         = std::function<void(uint8_t * buf, size_t chunk_size, void * user_data, file_reader_state & state)>;
 
         FORCE_INLINE file_reader(read_func read_pred = nullptr);
         FORCE_INLINE file_reader(const file_handle<t_elem> & file_handle, read_func read_pred = nullptr);
@@ -136,6 +150,8 @@ namespace tackle
             chunk_sizes_.push_back(math::uint32_max);
         }
 
+        file_reader_state state;
+
         do {
             for (auto chunk_size : chunk_sizes_) {
                 if (!chunk_size) goto exit_; // stop on 0
@@ -171,10 +187,14 @@ namespace tackle
 
                 if (read_size) {
                     if (m_read_pred) {
-                        m_read_pred(m_buf.get(), read_size, user_data);
+                        m_read_pred(m_buf.get(), read_size, user_data, state);
                     }
 
+                    state.read_index++;
+
                     overall_read_size += read_size;
+
+                    if (state.break_) goto exit_;
                 }
             }
         }
