@@ -1,5 +1,5 @@
 2021.11.19:
-* new: .github/workflows: `tacklebar-gh-view-stats.yml` to generate `tacklebar` repo view stats
+* new: .github/workflows: `tacklelib-gh-view-stats.yml` to generate `tacklelib` repo view stats
 * new: README.md: github all/unique views badges
 
 2021.11.19:
