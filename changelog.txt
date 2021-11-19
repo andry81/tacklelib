@@ -1,3 +1,6 @@
+2021.11.19:
+* changed: .github/workflows: added reference to the `github-clone-count-badge` repo
+
 2021.11.16:
 * changed: include/tacklelib/tackle/file_reader.hpp: added state parameter to detect first time read and make read break
 
