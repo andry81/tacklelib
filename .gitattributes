@@ -1,8 +1,8 @@
 * text=auto !eol
 .github/FUNDING.yml -text
 .github/badges/stackoverflow-tacklelib.svg -text
-.github/workflows/tacklelib-gh-clone-stats.yml -text
-.github/workflows/tacklelib-gh-view-stats.yml -text
+.github/workflows/accum-gh-clone-stats.yml -text
+.github/workflows/accum-gh-view-stats.yml -text
 /.svnignore -text
 /CMakeLists.txt -text
 /README.md -text
