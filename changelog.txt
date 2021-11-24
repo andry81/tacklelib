@@ -1,3 +1,7 @@
+2021.11.24:
+* fixed: .github/workflows/accum-gh-*: repo rename
+* fixed: .github/workflows/accum-gh-*: invalid token name
+
 2021.11.21:
 * new: .github/workflows: GitHub workflow switched to use GitHub composite action
 
