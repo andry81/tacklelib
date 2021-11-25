@@ -19,7 +19,11 @@
 
 SOURCE_TACKLELIB_TESTLIB_SH=1 # including guard
 
-source '/bin/bash_tacklelib' || exit $?
+if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
+  echo."$0: error: \`bash_tacklelib\` must be included explicitly."
+  exit 255
+fi >&2
+
 tkl_include 'baselib.sh' || tkl_abort_include
 tkl_include 'traplib.sh' || tkl_abort_include
 tkl_include 'funclib.sh' || tkl_abort_include
@@ -425,7 +429,10 @@ function tkl_testmodule_run_test()
   # First line in environment output is internal parameters list from
   # `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars` functions.
   local TestScript="#!/bin/bash
-source '/bin/bash_tacklelib' || exit \$?
+if [[ -z \"\$SOURCE_TACKLELIB_BASH_TACKLELIB_SH\" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
+  echo.\"\$0: error: \\\`bash_tacklelib\\\` must be included explicitly.\"
+  exit 255
+fi >&2
 
 tkl_include \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
 

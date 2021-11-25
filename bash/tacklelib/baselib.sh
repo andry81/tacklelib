@@ -19,7 +19,10 @@
 
 SOURCE_TACKLELIB_BASELIB_SH=1 # including guard
 
-source '/bin/bash_tacklelib' || exit $?
+if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
+  echo."$0: error: \`bash_tacklelib\` must be included explicitly."
+  exit 255
+fi >&2
 
 function tkl_enable_nocase_match()
 {
