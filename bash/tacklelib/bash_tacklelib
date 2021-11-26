@@ -479,14 +479,24 @@ function tkl_get_source_file_path()
 
 function tkl_make_source_file_components()
 {
-  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && {
+    tkl_export BASH_SOURCE_NEST_LVL 0
+    # cleanup before first time use
+    unset BASH_SOURCE_FILE
+    unset BASH_SOURCE_DIR
+    unset BASH_SOURCE_FILE_NAME
+    unset BASH_SOURCE_CMD_LINE
+    unset BASH_SOURCE_CMD_LINE_ARR
+  }
 
   local RETURN_VALUE
   tkl_get_source_file_path || return $?
 
   tkl_export BASH_SOURCE_FILE "$RETURN_VALUE"
+
   local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
   [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+
   tkl_export BASH_SOURCE_FILE_NAME "$bash_source_file_name"
   tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
 
@@ -502,8 +512,10 @@ function tkl_declare_source_file_components_from_args()
   [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
 
   tkl_export BASH_SOURCE_FILE "$1"
+
   local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
   [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+
   tkl_export BASH_SOURCE_FILE_NAME "$bash_source_file_name"
   tkl_export BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
 
@@ -517,6 +529,7 @@ function tkl_declare_source_file_components_from_args()
 function tkl_pushset_source_file_components()
 {
   [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+
   (( BASH_SOURCE_NEST_LVL++ ))
 
   # forward export
@@ -526,8 +539,10 @@ function tkl_pushset_source_file_components()
   export BASH_SOURCE_CMD_LINE
 
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE "$1"
+
   local bash_source_file_name="${BASH_SOURCE_FILE##*[/]}"
   [[ -z "$bash_source_file_name" ]] && bash_source_file_name="$BASH_SOURCE_FILE"
+
   tkl_pushset_var_to_stack global BASH_SOURCE_FILE_NAME "$bash_source_file_name"
   tkl_pushset_var_to_stack global BASH_SOURCE_DIR "${BASH_SOURCE_FILE%[/]*}"
 
@@ -554,7 +569,7 @@ function tkl_pop_source_file_components()
 
   tkl_deserialize_array "$BASH_SOURCE_CMD_LINE" BASH_SOURCE_CMD_LINE_ARR
 
-  [[ BASH_SOURCE_NEST_LVL -eq 0 ]] && unset BASH_SOURCE_NEST_LVL
+  (( ! BASH_SOURCE_NEST_LVL )) && unset BASH_SOURCE_NEST_LVL
 }
 
 function tkl_set_show_includes()
@@ -578,36 +593,11 @@ function tkl_include()
   #   1. All variables here must be unique irrespective to the function scope,
   #      because `source "..."` still can remove or change a local variable!
 
-  #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
-  #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
-  #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
-  #echo " -> BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}"
-
-  local is_bash_source_dir_empty=0
-  [[ -z "$BASH_SOURCE_DIR" ]] && is_bash_source_dir_empty=1
-
-  tkl_pushset_source_file_components "$@"
-
-  # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
-  #    in nested contexts.
-  # 2. The trap call is a mandatory, otherwise the inner source command can fail without a pop and leave the `BASH_SOURCE_*`
-  #    variables as not restored.
-  #
-  eval "function tkl_local_return_${#FUNCNAME[@]}()
-  {
-    tkl_pop_source_file_components
-
-    #echo \"---\"
-    #echo \" <- BASH_SOURCE_FILE=\${BASH_SOURCE_FILE}\"
-    #echo \" <- BASH_SOURCE_DIR=\${BASH_SOURCE_DIR}\"
-    #echo \" <- BASH_SOURCE_FILE_NAME=\${BASH_SOURCE_FILE_NAME}\"
-    #echo \" <- BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}\"
-    #echo \" <- BASH_SOURCE_CMD_LINE_ARR=${BASH_SOURCE_CMD_LINE_ARR[@]}\"
-
-    unset -f \"\${FUNCNAME[0]}\" # drop function after execution
-  }"
-
-  builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return $LastError
+  local is_first_time_include=0
+  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && {
+    tkl_export BASH_SOURCE_NEST_LVL 0
+    is_first_time_include=1
+  }
 
   if tkl_is_abs_path "$1"; then
     if tkl_get_abs_path_from_dir "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
@@ -642,7 +632,7 @@ function tkl_include()
     fi
 
     if (( ! _84CB4B34_included )); then
-      [[ is_bash_source_dir_empty -ne 0 ]] && tkl_make_source_file_components "${@:2}"
+      (( is_first_time_include )) && tkl_make_source_file_components "${@:2}"
 
       if tkl_get_abs_path_from_dir "$BASH_SOURCE_DIR" "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
         tkl_set_return $LastError
@@ -661,10 +651,39 @@ function tkl_include_local_impl()
 
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
 
-  tkl_declare_source_file_components_from_args "$@"
+  #echo " -> BASH_SOURCE_NEST_LVL=${BASH_SOURCE_NEST_LVL}"
+  #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
+  #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
+  #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
+  #echo " -> BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}"
+
+  tkl_pushset_source_file_components "$@"
+
+  # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
+  #    in nested contexts.
+  # 2. The trap call is a mandatory, otherwise the inner source command can fail without a pop and leave the `BASH_SOURCE_*`
+  #    variables as not restored.
+  #
+  eval "function tkl_local_return_${#FUNCNAME[@]}()
+  {
+    tkl_pop_source_file_components
+
+    #echo \"---\"
+    #echo \" <- BASH_SOURCE_NEST_LVL=\${BASH_SOURCE_NEST_LVL}\"
+    #echo \" <- BASH_SOURCE_FILE=\${BASH_SOURCE_FILE}\"
+    #echo \" <- BASH_SOURCE_DIR=\${BASH_SOURCE_DIR}\"
+    #echo \" <- BASH_SOURCE_FILE_NAME=\${BASH_SOURCE_FILE_NAME}\"
+    #echo \" <- BASH_SOURCE_CMD_LINE=${BASH_SOURCE_CMD_LINE}\"
+    #echo \" <- BASH_SOURCE_CMD_LINE_ARR=${BASH_SOURCE_CMD_LINE_ARR[@]}\"
+
+    unset -f \"\${FUNCNAME[0]}\" # drop function after execution
+  }"
+
+  builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return $LastError
 
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
 
+  #echo " -> BASH_SOURCE_NEST_LVL=${BASH_SOURCE_NEST_LVL}"
   #echo " -> BASH_SOURCE_FILE=${BASH_SOURCE_FILE}"
   #echo " -> BASH_SOURCE_DIR=${BASH_SOURCE_DIR}"
   #echo " -> BASH_SOURCE_FILE_NAME=${BASH_SOURCE_FILE_NAME}"
