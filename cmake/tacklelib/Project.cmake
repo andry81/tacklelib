@@ -810,7 +810,7 @@ function(tkl_source_group_by_file_path_list group_path type path_list include_fi
   endif()
 endfunction()
 
-function(tkl_source_groups_from_dir_list source_group_root type path_dir_list path_glob_suffix)
+function(tkl_source_groups_from_dir_list source_group_root type path_dir_list path_glob_suffix_list)
   string(REPLACE "/" "\\" source_group_root "${source_group_root}")
 
   #message("  tkl_source_groups_from_dir_list: path_dir_list=`${path_dir_list}`")
@@ -821,8 +821,17 @@ function(tkl_source_groups_from_dir_list source_group_root type path_dir_list pa
       continue()
     endif()
 
-    file(GLOB_RECURSE children_list RELATIVE ${path_dir} "${path_dir}/${path_glob_suffix}")
-    #message("  tkl_source_groups_from_dir_list: children_list=`${children_list}`")
+    set(children_list "")
+    set(children_per_prefix_list "")
+
+    foreach(path_glob_suffix IN LISTS path_glob_suffix_list)
+      file(GLOB_RECURSE children_per_prefix_list RELATIVE ${path_dir} "${path_dir}/${path_glob_suffix}")
+      #message("  tkl_source_groups_from_dir_list: ${path_glob_suffix}: children_list=`${children_per_prefix_list}`")
+
+      if (NOT "${children_per_prefix_list}" STREQUAL "")
+        list(APPEND children_list "${children_per_prefix_list}")
+      endif()
+    endforeach()
 
     set(group_path_dir_list "")
 
@@ -832,13 +841,18 @@ function(tkl_source_groups_from_dir_list source_group_root type path_dir_list pa
       get_filename_component(abs_child_path ${path_dir}/${child_path} ABSOLUTE)
 
       file(RELATIVE_PATH child_rel_path ${abs_path_dir} ${abs_child_path})
-      if(child_rel_path)
+      if (child_rel_path)
         get_filename_component(child_rel_dir ${child_rel_path} DIRECTORY)
 
         string(REPLACE "/" "\\" source_group_dir "${child_rel_dir}")
         if(source_group_root)
-          #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_root}\\${source_group_dir}` -> `${child_rel_path}`")
-          source_group("${source_group_root}\\${source_group_dir}" ${type} "${path_dir}/${child_path}")
+          if (source_group_dir)
+            #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_root}\\${source_group_dir}` -> `${child_rel_path}`")
+            source_group("${source_group_root}\\${source_group_dir}" ${type} "${path_dir}/${child_path}")
+          else()
+            #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_root}` -> `${child_rel_path}`")
+            source_group("${source_group_root}" ${type} "${path_dir}/${child_path}")
+          endif()
         else()
           #message(STATUS "tkl_source_groups_from_dir_list: `${source_group_dir}` -> `${child_rel_path}`")
           source_group("${source_group_dir}" ${type} "${path_dir}/${child_path}")

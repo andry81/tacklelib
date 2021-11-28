@@ -1,3 +1,6 @@
+2021.11.28:
+* changed: Project.cmake: path globbing suffix as list in the `tkl_source_groups_from_dir_list` function
+
 2021.11.09:
 * changed: SetVarsFromFiles.cmake: `OPTIONAL` parameter in `tkl_check_var` set deprecated because by default should not have has effect now
 
