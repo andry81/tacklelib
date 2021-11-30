@@ -197,6 +197,6 @@
 
 #define INSTANTIATE_STATIC_ARRAY(prefix, arr_scoped_name) prefix arr_scoped_name[sizeof(arr_scoped_name)]
 
-#endif
-
 #include <tacklelib/utility/platform_features.hpp>
+
+#endif

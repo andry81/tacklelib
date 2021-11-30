@@ -8,7 +8,10 @@
 
 #include <tacklelib/utility/preprocessor.hpp>
 #include <tacklelib/utility/platform.hpp>
-#include <tacklelib/utility/addressof.hpp>
+
+// CAUTION:
+//  These headers should not be included from here to avoid inclusion recursion:
+//#include <tacklelib/utility/addressof.hpp>
 
 
 #define UTILITY_UNUSED(suffix, expr)                UTILITY_UNUSED_ ## suffix(expr)
