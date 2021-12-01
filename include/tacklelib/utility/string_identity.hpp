@@ -9,6 +9,7 @@
 #include <tacklelib/utility/platform.hpp>
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/static_assert.hpp>
+#include <tacklelib/utility/optimization.hpp>
 
 #include <string>
 #include <array>

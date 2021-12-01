@@ -317,6 +317,7 @@ include/tacklelib/tackle/static_constexpr.hpp -text
 include/tacklelib/tackle/string.hpp -text
 include/tacklelib/tackle/tmpl_string.hpp -text
 include/tacklelib/tacklelib.hpp -text
+include/tacklelib/tacklelib_library.hpp -text
 include/tacklelib/utility/addressof.hpp -text
 include/tacklelib/utility/assert.hpp -text
 include/tacklelib/utility/crc.hpp -text

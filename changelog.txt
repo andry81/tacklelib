@@ -1,5 +1,9 @@
+2021.12.01:
+* fixed: include: headers inclusion recursion
+* new: include/tacklelib/utility/utility.hpp: `str_to_*` and `int_to_*` functions for the unicode variant string
+
 2021.11.30:
-* fixed: include: attempt to fix headers inclusion recusrion
+* changed: include: attempt to fix headers inclusion recursion
 
 2021.11.28:
 * changed: cmake/tacklelib/Project.cmake: path globbing suffix as list in the `tkl_source_groups_from_dir_list` function

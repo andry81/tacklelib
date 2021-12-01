@@ -493,9 +493,10 @@ namespace utility
     std::string LIBRARY_API_DECL get_module_name(utility::tag_string, bool cached);
     std::wstring LIBRARY_API_DECL get_module_name(utility::tag_wstring, bool cached);
 
-    FORCE_INLINE int LIBRARY_API_DECL str_to_int(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE int LIBRARY_API_DECL str_to_int(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        int i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        int i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stoi(str, pos, base);
@@ -528,9 +529,10 @@ namespace utility
         return i;
     }
 
-    FORCE_INLINE unsigned int LIBRARY_API_DECL str_to_uint(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE unsigned int LIBRARY_API_DECL str_to_uint(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        unsigned int i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        unsigned int i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = (unsigned int)(std::stoul(str, pos, base));
@@ -563,9 +565,10 @@ namespace utility
         return i;
     }
 
-    FORCE_INLINE long LIBRARY_API_DECL str_to_long(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE long LIBRARY_API_DECL str_to_long(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        long i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stol(str, pos, base);
@@ -598,9 +601,10 @@ namespace utility
         return i;
     }
 
-    FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_ulong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_ulong(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        unsigned long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        unsigned long i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stoul(str, pos, base);
@@ -634,9 +638,10 @@ namespace utility
     }
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_LLONG
-    FORCE_INLINE long long LIBRARY_API_DECL str_to_llong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE long long LIBRARY_API_DECL str_to_llong(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        long long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        long long i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stoll(str, pos, base);
@@ -671,9 +676,10 @@ namespace utility
 #endif
 
 #ifdef UTILITY_PLATFORM_FEATURE_CXX_STANDARD_ULLONG
-    FORCE_INLINE unsigned long long LIBRARY_API_DECL str_to_ullong(const std::string & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE unsigned long long LIBRARY_API_DECL str_to_ullong(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, int base = 0, bool throw_on_error = false)
     {
-        unsigned long long i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        unsigned long long i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stoull(str, pos, base);
@@ -707,9 +713,10 @@ namespace utility
     }
 #endif
 
-    FORCE_INLINE float LIBRARY_API_DECL str_to_float(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE float LIBRARY_API_DECL str_to_float(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, bool throw_on_error = false)
     {
-        float i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        float i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stof(str, pos);
@@ -742,9 +749,10 @@ namespace utility
         return i;
     }
 
-    FORCE_INLINE double LIBRARY_API_DECL str_to_double(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE double LIBRARY_API_DECL str_to_double(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, bool throw_on_error = false)
     {
-        double i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        double i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stod(str, pos);
@@ -777,9 +785,10 @@ namespace utility
         return i;
     }
 
-    FORCE_INLINE long double LIBRARY_API_DECL str_to_ldouble(const std::string & str, std::size_t * pos = nullptr, bool throw_on_error = false)
+    template <class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE long double LIBRARY_API_DECL str_to_ldouble(const std::basic_string<t_elem, t_traits, t_alloc> & str, std::size_t * pos = nullptr, bool throw_on_error = false)
     {
-        long double i{}; // value initialization default construction is required in case if an error has happend and throw_on_error = false
+        long double i{}; // value initialization default construction is required in case if an error has happened and throw_on_error = false
 
         try {
             i = std::stold(str, pos);
@@ -815,8 +824,17 @@ namespace utility
     template<typename T>
     FORCE_INLINE T LIBRARY_API_DECL str_to_number(const std::string & str, std::size_t * pos = nullptr, int int_base = 0, bool throw_on_error = false);
 
+    template<typename T>
+    FORCE_INLINE T LIBRARY_API_DECL str_to_number(const std::wstring & str, std::size_t * pos = nullptr, int int_base = 0, bool throw_on_error = false);
+
     template<>
     FORCE_INLINE int LIBRARY_API_DECL str_to_number<int>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_int(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE int LIBRARY_API_DECL str_to_number<int>(const std::wstring & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
         return str_to_int(str, pos, int_base, throw_on_error);
     }
@@ -828,13 +846,31 @@ namespace utility
     }
 
     template<>
+    FORCE_INLINE unsigned int LIBRARY_API_DECL str_to_number<unsigned int>(const std::wstring & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_uint(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
     FORCE_INLINE long LIBRARY_API_DECL str_to_number<long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
         return str_to_long(str, pos, int_base, throw_on_error);
     }
 
     template<>
+    FORCE_INLINE long LIBRARY_API_DECL str_to_number<long>(const std::wstring & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_long(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
     FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_number<unsigned long>(const std::string & str, std::size_t * pos, int int_base, bool throw_on_error)
+    {
+        return str_to_ulong(str, pos, int_base, throw_on_error);
+    }
+
+    template<>
+    FORCE_INLINE unsigned long LIBRARY_API_DECL str_to_number<unsigned long>(const std::wstring & str, std::size_t * pos, int int_base, bool throw_on_error)
     {
         return str_to_ulong(str, pos, int_base, throw_on_error);
     }
@@ -877,7 +913,7 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE LIBRARY_API_DECL std::string int_to_hex(T i, size_t padding = sizeof(T) * 2)
+    FORCE_INLINE LIBRARY_API_DECL std::string int_to_hex(T i, size_t padding = sizeof(T) * 2, utility::string_identity = utility::string_identity{})
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
         const std::string fmt_format{ utility::string_format(256, "{:%s%ux}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
@@ -890,7 +926,20 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE LIBRARY_API_DECL std::string int_to_dec(T i, size_t padding = sizeof(T) * 2)
+    FORCE_INLINE LIBRARY_API_DECL std::wstring int_to_hex(T i, size_t padding = sizeof(T) * 2, utility::wstring_identity = utility::wstring_identity{})
+    {
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+        const std::wstring fmt_format{ utility::string_format(256, L"{:%s%ux}", padding ? L"0" : L"", padding ? padding : 0) }; // faster than fmt format
+        return fmt::format(fmt_format, int64_t(i));
+#else
+        std::wstringstream stream;
+        stream << std::setfill('0') << std::setw(padding) << std::hex << i;
+        return stream.str();
+#endif
+    }
+
+    template<typename T>
+    FORCE_INLINE LIBRARY_API_DECL std::string int_to_dec(T i, size_t padding = sizeof(T) * 2, utility::string_identity = utility::string_identity{})
     {
 #if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
         const std::string fmt_format{ utility::string_format(256, "{:%s%ud}", padding ? "0" : "", padding ? padding : 0) }; // faster than fmt format
@@ -903,7 +952,20 @@ namespace utility
     }
 
     template<typename T>
-    FORCE_INLINE void LIBRARY_API_DECL int_to_bin_forceinline(std::string & ret, T i, bool first_bit_is_lowest_bit = false)
+    FORCE_INLINE LIBRARY_API_DECL std::wstring int_to_dec(T i, size_t padding = sizeof(T) * 2, utility::wstring_identity = utility::wstring_identity{})
+    {
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+        const std::wstring fmt_format{ utility::string_format(256, L"{:%s%ud}", padding ? L"0" : L"", padding ? padding : 0) }; // faster than fmt format
+        return fmt::format(fmt_format, int64_t(i));
+#else
+        std::wstringstream stream;
+        stream << std::setfill('0') << std::setw(padding) << std::dec << i;
+        return stream.str();
+#endif
+    }
+
+    template<typename T, class t_elem, class t_traits, class t_alloc>
+    FORCE_INLINE void LIBRARY_API_DECL int_to_bin_forceinline(std::basic_string<t_elem, t_traits, t_alloc> & ret, T i, bool first_bit_is_lowest_bit = false)
     {
         STATIC_ASSERT_TRUE(utility::is_trivially_copyable<T>::value, "T must be a trivial copy type");
 
@@ -911,7 +973,7 @@ namespace utility
 
         ret.resize(num_bytes * CHAR_BIT);
 
-        char * data_ptr = &ret[0]; // faster than for-ed operator[] in the Debug
+        t_elem * data_ptr = &ret[0]; // faster than for-ed operator[] in the Debug
 
         size_t char_offset;
         const uint32_t * chunks_ptr = (const uint32_t *)&i;
@@ -933,12 +995,12 @@ namespace utility
                 }
             }
 
-            data_ptr[char_offset] = '\0';
+            data_ptr[char_offset] = UTILITY_LITERAL_CHAR('\0', t_elem);
         }
         else {
             char_offset = num_bytes * CHAR_BIT;
 
-            data_ptr[char_offset] = '\0';
+            data_ptr[char_offset] = UTILITY_LITERAL_CHAR('\0', t_elem);
 
             for (size_t i = 0; i < num_whole_chunks; i++, chunks_ptr++) {
                 for (size_t j = 0; j < 32; j++, char_offset--) {
@@ -954,9 +1016,17 @@ namespace utility
     }
 
     template<typename T>
-    inline std::string LIBRARY_API_DECL int_to_bin(T i, bool first_bit_is_lowest_bit = false)
+    inline std::string LIBRARY_API_DECL int_to_bin(T i, utility::string_identity = utility::string_identity{}, bool first_bit_is_lowest_bit = false)
     {
         std::string res;
+        int_to_bin_forceinline(res, i, first_bit_is_lowest_bit);
+        return res;
+    }
+
+    template<typename T>
+    inline std::wstring LIBRARY_API_DECL int_to_bin(T i, utility::wstring_identity = utility::wstring_identity{}, bool first_bit_is_lowest_bit = false)
+    {
+        std::wstring res;
         int_to_bin_forceinline(res, i, first_bit_is_lowest_bit);
         return res;
     }
