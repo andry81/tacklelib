@@ -1,3 +1,6 @@
+2021.12.05:
+* changed: .github/workflows: code cleanup
+
 2021.12.01:
 * fixed: include: headers inclusion recursion
 * new: include/tacklelib/utility/utility.hpp: `str_to_*` and `int_to_*` functions for the unicode variant string
