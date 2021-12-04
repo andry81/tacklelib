@@ -1,8 +1,6 @@
 * text=auto !eol
 .github/FUNDING.yml -text
 .github/badges/stackoverflow-tacklelib.svg -text
-.github/workflows/accum-gh-clone-stats.yml -text
-.github/workflows/accum-gh-view-stats.yml -text
 /.svnignore -text
 /CMakeLists.txt -text
 /README.md -text
