@@ -1,3 +1,6 @@
+2021.12.21:
+* changed: __init__: pass all arguments into `load_config_dir.bat` call and inner `__init__.bat` calls
+
 2021.12.19:
 * changed: __init__: rolled back to lite parse configs as fast parse been slow enough in dependentee projects
 
