@@ -1,3 +1,6 @@
+2021.12.27:
+* changed: include/tacklelib/tackle/file_reader.hpp: added state parameter to get read offset from file beginning
+
 2021.12.21:
 * changed: __init__: pass all arguments into `load_config_dir.bat` call and inner `__init__.bat` calls
 

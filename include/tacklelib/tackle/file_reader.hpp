@@ -25,7 +25,7 @@ namespace tackle
     struct LIBRARY_API_DECL file_reader_state
     {
         FORCE_INLINE file_reader_state() :
-            read_index(0), break_(false)
+            read_index(0), read_offset(0), break_(false)
         {
         }
 
@@ -33,6 +33,7 @@ namespace tackle
         FORCE_INLINE file_reader_state(file_reader_state &&) = default;
 
         size_t  read_index;
+        size_t  read_offset;
         bool    break_;
     };
 
@@ -152,6 +153,8 @@ namespace tackle
 
         file_reader_state state;
 
+        state.read_offset = ftell(m_file_handle.get());
+
         do {
             for (auto chunk_size : chunk_sizes_) {
                 if (!chunk_size) goto exit_; // stop on 0
@@ -191,6 +194,7 @@ namespace tackle
                     }
 
                     state.read_index++;
+                    state.read_offset = ftell(m_file_handle.get());
 
                     overall_read_size += read_size;
 
