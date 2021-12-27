@@ -7,6 +7,11 @@
 #include <tacklelib/tacklelib.hpp>
 
 #include <tacklelib/utility/platform.hpp>
+
+#ifdef UTILITY_PLATFORM_POSIX
+#define _FILE_OFFSET_BITS 64    // for ftello/fseeko with 64-bit
+#endif
+
 #include <tacklelib/utility/memory.hpp>
 #include <tacklelib/utility/utility.hpp>
 
@@ -14,6 +19,8 @@
 
 #include <vector>
 #include <functional>
+
+#include <stdio.h>
 
 #undef LIBRARY_API_NAMESPACE
 #define LIBRARY_API_NAMESPACE TACKLELIB
@@ -32,9 +39,9 @@ namespace tackle
         FORCE_INLINE file_reader_state(const file_reader_state &) = default;
         FORCE_INLINE file_reader_state(file_reader_state &&) = default;
 
-        size_t  read_index;
-        size_t  read_offset;
-        bool    break_;
+        size_t      read_index;
+        uint64_t    read_offset;
+        bool        break_;
     };
 
     template <class t_elem = char>
@@ -153,7 +160,13 @@ namespace tackle
 
         file_reader_state state;
 
-        state.read_offset = ftell(m_file_handle.get());
+#ifdef UTILITY_COMPILER_CXX_MSC
+        state.read_offset = uint64_t(_ftelli64(m_file_handle.get()));
+#elif defined(UTILITY_PLATFORM_POSIX)
+        state.read_offset = ftello(m_file_handle.get());
+#else
+#error platform is not supported
+#endif
 
         do {
             for (auto chunk_size : chunk_sizes_) {
@@ -194,7 +207,12 @@ namespace tackle
                     }
 
                     state.read_index++;
-                    state.read_offset = ftell(m_file_handle.get());
+
+#ifdef UTILITY_COMPILER_CXX_MSC
+                    state.read_offset = uint64_t(_ftelli64(m_file_handle.get()));
+#elif defined(UTILITY_PLATFORM_POSIX)
+                    state.read_offset = uint64_t(ftello(m_file_handle.get()));
+#endif
 
                     overall_read_size += read_size;
 
