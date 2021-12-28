@@ -32,7 +32,7 @@ namespace tackle
     struct LIBRARY_API_DECL file_reader_state
     {
         FORCE_INLINE file_reader_state() :
-            read_index(0), read_offset(0), break_(false)
+            read_index(0), read_offset(0), read_chunk_index(0), break_(false)
         {
         }
 
@@ -41,6 +41,7 @@ namespace tackle
 
         size_t      read_index;
         uint64_t    read_offset;
+        uint32_t    read_chunk_index;
         bool        break_;
     };
 
@@ -163,61 +164,70 @@ namespace tackle
 #ifdef UTILITY_COMPILER_CXX_MSC
         state.read_offset = uint64_t(_ftelli64(m_file_handle.get()));
 #elif defined(UTILITY_PLATFORM_POSIX)
-        state.read_offset = ftello(m_file_handle.get());
+        state.read_offset = uint64_t(ftello(m_file_handle.get()));
 #else
 #error platform is not supported
 #endif
 
         do {
+            state.read_chunk_index = 0;
+
             for (auto chunk_size : chunk_sizes_) {
-                if (!chunk_size) goto exit_; // stop on 0
-                if (chunk_size != math::uint32_max) {
-                    next_read_size = chunk_size;
-                    buf_read_size = chunk_size < min_buf_size ? min_buf_size : chunk_size;
-                }
-                else {
-                    next_read_size = utility::get_file_size(m_file_handle);
-                    if (overall_read_size < next_read_size) {
-                        next_read_size -= overall_read_size;
-                    }
-                    else goto exit_;
-                    if (next_read_size < min_buf_size) {
-                        buf_read_size = min_buf_size;
-                    }
-                    else if (max_buf_size) {
-                        next_read_size = (std::min)(next_read_size, uint64_t(max_buf_size));
-                        buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
+                do { // fake scope to intercept any accidental continue/break and call an end action
+                    if (!chunk_size) goto exit_; // stop on 0
+
+                    if (chunk_size != math::uint32_max) {
+                        next_read_size = chunk_size;
+                        buf_read_size = chunk_size < min_buf_size ? min_buf_size : chunk_size;
                     }
                     else {
-                        if (min_buf_size < next_read_size) {
-                            next_read_size = min_buf_size;
+                        next_read_size = utility::get_file_size(m_file_handle);
+                        if (overall_read_size < next_read_size) {
+                            next_read_size -= overall_read_size;
                         }
-                        buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
+                        else goto exit_;
+
+                        if (next_read_size < min_buf_size) {
+                            buf_read_size = min_buf_size;
+                        }
+                        else if (max_buf_size) {
+                            next_read_size = (std::min)(next_read_size, uint64_t(max_buf_size));
+                            buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
+                        }
+                        else {
+                            if (min_buf_size < next_read_size) {
+                                next_read_size = min_buf_size;
+                            }
+                            buf_read_size = size_t(next_read_size); // is safe to cast to lesser size type
+                        }
                     }
-                }
 
-                read_size = fread(m_buf.realloc_get(buf_read_size), 1, size_t(next_read_size), m_file_handle.get());
-                const int file_in_read_err = ferror(m_file_handle.get());
-                is_eof = feof(m_file_handle.get());
-                DEBUG_ASSERT_TRUE(!file_in_read_err && read_size == next_read_size || is_eof);
+                    read_size = fread(m_buf.realloc_get(buf_read_size), 1, size_t(next_read_size), m_file_handle.get());
+                    const int file_in_read_err = ferror(m_file_handle.get());
+                    is_eof = feof(m_file_handle.get());
+                    DEBUG_ASSERT_TRUE(!file_in_read_err && read_size == next_read_size || is_eof);
 
-                if (read_size) {
-                    if (m_read_pred) {
-                        m_read_pred(m_buf.get(), read_size, user_data, state);
-                    }
+                    if (read_size) {
+                        if (m_read_pred) {
+                            m_read_pred(m_buf.get(), read_size, user_data, state);
+                        }
 
-                    state.read_index++;
+                        state.read_index++;
 
 #ifdef UTILITY_COMPILER_CXX_MSC
-                    state.read_offset = uint64_t(_ftelli64(m_file_handle.get()));
+                        state.read_offset = uint64_t(_ftelli64(m_file_handle.get()));
 #elif defined(UTILITY_PLATFORM_POSIX)
-                    state.read_offset = uint64_t(ftello(m_file_handle.get()));
+                        state.read_offset = uint64_t(ftello(m_file_handle.get()));
 #endif
 
-                    overall_read_size += read_size;
+                        overall_read_size += read_size;
 
-                    if (state.break_) goto exit_;
-                }
+                        if (state.break_) goto exit_;
+                    }
+                } while (false);
+
+                // end action
+                state.read_chunk_index++;
             }
         }
         while (!is_eof);
