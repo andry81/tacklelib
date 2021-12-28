@@ -272,6 +272,14 @@ namespace utility
     bool LIBRARY_API_DECL is_regular_file(tackle::native_path_wstring path, bool throw_on_error);
 #endif
 
+    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_string left_path, tackle::generic_path_string right_path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_wstring left_path, tackle::generic_path_wstring right_path, bool throw_on_error);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool LIBRARY_API_DECL is_same_file(tackle::native_path_string left_path, tackle::native_path_string right_path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::native_path_wstring left_path, tackle::native_path_wstring right_path, bool throw_on_error);
+#endif
+
     bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_string path, bool throw_on_error);
     bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_wstring path, bool throw_on_error);
 

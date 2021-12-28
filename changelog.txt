@@ -1,4 +1,7 @@
 2021.12.28:
+* new: src/utility/utility.cpp: `is_same_file` function to compare file paths on file equality as 2 file entity
+
+2021.12.28:
 * changed: include/tacklelib/tackle/file_reader.hpp: added state parameter to get read chunk index
 
 2021.12.27:

@@ -287,6 +287,9 @@ namespace {
         return size;
     }
 
+    // TODO:
+    //  Compare files internal identifiers before compare content.
+    //
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     FORCE_INLINE bool
         _is_files_equal(
@@ -1048,6 +1051,18 @@ namespace {
         auto && file_path_rref_fixed = fix_long_path(std::move(path), throw_on_error);
 
         return boost::fs::is_regular_file(file_path_rref_fixed.str());
+    }
+
+    template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
+    FORCE_INLINE bool _is_same_file(
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> left_path,
+        tackle::path_basic_string<t_elem, t_traits, t_alloc, separator_char> right_path,
+        bool throw_on_error)
+    {
+        auto && left_file_path_rref_fixed = fix_long_path(std::move(left_path), throw_on_error);
+        auto && right_file_path_rref_fixed = fix_long_path(std::move(right_path), throw_on_error);
+
+        return boost::fs::equivalent(left_file_path_rref_fixed.str(), right_file_path_rref_fixed.str());
     }
 
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
@@ -1971,6 +1986,28 @@ namespace {
     bool is_regular_file(tackle::native_path_wstring path, bool throw_on_error)
     {
         return _is_regular_file(std::move(path), throw_on_error);
+    }
+#endif
+
+    bool is_same_file(tackle::generic_path_string left_path, tackle::generic_path_string right_path, bool throw_on_error)
+    {
+        return _is_same_file(std::move(left_path), std::move(right_path), throw_on_error);
+    }
+
+    bool is_same_file(tackle::generic_path_wstring left_path, tackle::generic_path_wstring right_path, bool throw_on_error)
+    {
+        return _is_same_file(std::move(left_path), std::move(right_path), throw_on_error);
+    }
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    bool is_same_file(tackle::native_path_string left_path, tackle::native_path_string right_path, bool throw_on_error)
+    {
+        return _is_same_file(std::move(left_path), std::move(right_path), throw_on_error);
+    }
+
+    bool is_same_file(tackle::native_path_wstring left_path, tackle::native_path_wstring right_path, bool throw_on_error)
+    {
+        return _is_same_file(std::move(left_path), std::move(right_path), throw_on_error);
     }
 #endif
 
