@@ -15,7 +15,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '__init__/__init__.sh' || tkl_abort_include
+tkl_include_or_abort '__init__/__init__.sh'
 
 # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
 IFS=$' \t\r\n' \

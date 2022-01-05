@@ -9,9 +9,9 @@
 # Designed to be included through the absolute path and the source command -
 # `source '/bin/bash_tacklelib'`.
 # After that all other scripts can be included through the alternative
-# inclusion function - `tkl_include`.
+# inclusion function - `tkl_include` or `tkl_include_or_abort`.
 #
-# The `tkl_include` function does use an improved search logic and instead
+# The `tkl_include*` function does use an improved search logic and instead
 # of a current directory path a being included shell script is searched through
 # the inclusion path variable - `BASH_SOURCE_PATH` or a current script
 # directory in case if a relative inclusion path is not applicable to

@@ -24,10 +24,10 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   exit 255
 fi >&2
 
-tkl_include 'baselib.sh' || tkl_abort_include
-tkl_include 'traplib.sh' || tkl_abort_include
-tkl_include 'funclib.sh' || tkl_abort_include
-tkl_include 'stringlib.sh' || tkl_abort_include
+tkl_include_or_abort 'baselib.sh'
+tkl_include_or_abort 'traplib.sh'
+tkl_include_or_abort 'funclib.sh'
+tkl_include_or_abort 'stringlib.sh'
 
 # special variable to direct inclusion in the `tkl_testmodule_run_test` function
 SOURCE_TACKLELIB_TESTLIB_FILE="$BASH_SOURCE_FILE"
@@ -434,7 +434,7 @@ if [[ -z \"\$SOURCE_TACKLELIB_BASH_TACKLELIB_SH\" || SOURCE_TACKLELIB_BASH_TACKL
   exit 255
 fi >&2
 
-tkl_include \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
+tkl_include_or_abort \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
 
 TestModuleSessionId=\"$TestModuleSessionId\"
 TestModuleScriptOutputDirPath=\"$TestModuleScriptOutputDirPath\"
@@ -450,7 +450,7 @@ echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
 
   local arg
   for arg in "${TEST_SOURCES[@]}"; do
-    TestScript="${TestScript}tkl_include \"$arg\""$'\n'
+    TestScript="${TestScript}tkl_include_or_abort \"$arg\""$'\n'
   done
 
   TestScript="${TestScript}"$'\n'

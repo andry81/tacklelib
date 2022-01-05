@@ -13,7 +13,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '../__init__/__init__.sh' || tkl_abort_include
+tkl_include_or_abort '../__init__/__init__.sh'
 
 APP_ROOT="`readlink -f "$BASH_SOURCE_DIR/../.."`"
 APP_DIR_LIST=("$APP_ROOT" "$APP_ROOT/lib")

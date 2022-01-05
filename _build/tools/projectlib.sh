@@ -15,7 +15,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
 
 function GenerateSrc()
 {
@@ -128,8 +128,8 @@ function Configure()
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort_include
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort_include
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh"
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -195,8 +195,8 @@ function Build()
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh"
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -235,8 +235,8 @@ function Install()
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh"
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -273,8 +273,8 @@ function PostInstall()
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh"
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"
@@ -398,8 +398,8 @@ function Pack()
     tkl_call CheckBuildType "$CMAKE_BUILD_TYPE" "$CMAKE_CONFIG_TYPES" || tkl_abort $?
   fi
 
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort $?
-  tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh" || tkl_abort $?
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
+  tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/set_vars_from_locked_file_pair.sh"
 
   # load configuration files again unconditionally
   local CMAKE_BUILD_TYPE_ARG="$CMAKE_BUILD_TYPE"

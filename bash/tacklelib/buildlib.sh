@@ -10,8 +10,8 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   exit 255
 fi >&2
 
-tkl_include 'traplib.sh' || tkl_abort_include
-tkl_include 'stringlib.sh' || tkl_abort_include
+tkl_include_or_abort 'traplib.sh'
+tkl_include_or_abort 'stringlib.sh'
 
 [[ -z "$NEST_LVL" ]] && export NEST_LVL=0
 

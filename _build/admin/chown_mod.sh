@@ -13,7 +13,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '../__init__/__init__.sh' || tkl_abort_include
+tkl_include_or_abort '../__init__/__init__.sh'
 
 USER="${1:-$USER}"
 GROUP="${2:-$USER}"

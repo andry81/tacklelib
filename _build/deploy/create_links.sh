@@ -13,7 +13,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '../__init__/__init__.sh' || tkl_abort_include
+tkl_include_or_abort '../__init__/__init__.sh'
 
 if [[ ! -f "$BASH_SOURCE_DIR/user_links.lst" ]]; then
   echo "$BASH_SOURCE_FILE_NAME: error: \"user_links.lst\" must exist in the script directory: \"$BASH_SOURCE_DIR/\"" >&2

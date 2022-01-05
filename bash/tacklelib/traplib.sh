@@ -233,8 +233,8 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   exit 255
 fi >&2
 
-tkl_include 'baselib.sh' || tkl_abort_include
-tkl_include 'funclib.sh' || tkl_abort_include
+tkl_include_or_abort 'baselib.sh'
+tkl_include_or_abort 'funclib.sh'
 
 function tkl_has_trap_cmd_line()
 {

@@ -1,4 +1,7 @@
 2022.01.05:
+* refactor: replaced all `tkl_include` calls by `tkl_include_or_abort` in all bash shell scripts
+
+2022.01.05:
 * new: bash/tacklelib/bash_tacklelib: `tkl_include_or_abort` to call `tkl_include "..." || tkl_abort_include` as a single function
 
 2021.12.28:

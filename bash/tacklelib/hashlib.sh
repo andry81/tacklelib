@@ -12,7 +12,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   exit 255
 fi >&2
 
-tkl_include 'baselib.sh' || tkl_abort_include
+tkl_include_or_abort 'baselib.sh'
 
 function tkl_crc32_bsd()
 {

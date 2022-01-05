@@ -29,18 +29,18 @@ tkl_export_path TACKLELIB_PROJECT_ROOT_INIT0_DIR "$BASH_SOURCE_DIR" # including 
 # init external projects
 
 if [[ -f "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh" ]]; then
-  tkl_include "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh" || tkl_abort_include
+  tkl_include_or_abort "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh"
 fi
 
 [[ ! -e "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] && { mkdir -p "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort 10; }
 
 [[ -z "$LOAD_CONFIG_VERBOSE" ]] && (( INIT_VERBOSE )) && tkl_export_path LOAD_CONFIG_VERBOSE 1
 
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/load_config.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/load_config.sh"
 
-tkl_load_config_dir "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort_include
+tkl_load_config_dir "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT"
 
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
 
 [[ ! -e "$PROJECT_OUTPUT_ROOT" ]] && { mkdir -p "$PROJECT_OUTPUT_ROOT" || tkl_abort 11; }
 [[ ! -e "$PROJECT_LOG_ROOT" ]] && { mkdir -p "$PROJECT_LOG_ROOT" || tkl_abort 12; }

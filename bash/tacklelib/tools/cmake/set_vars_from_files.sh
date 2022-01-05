@@ -19,8 +19,8 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh" || tkl_abort_include
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_locked_file_pair.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_locked_file_pair.sh"
 
 function tkl_set_vars_from_files()
 {

@@ -12,8 +12,8 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '__init__.sh' || tkl_abort_include
-tkl_include 'testlib_disabled_sigint.sh' || tkl_abort_include
+tkl_include_or_abort '__init__.sh'
+tkl_include_or_abort 'testlib_disabled_sigint.sh'
 
 function test_1()
 {

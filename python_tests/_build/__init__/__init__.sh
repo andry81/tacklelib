@@ -3,10 +3,10 @@
 # Script can be ONLY included by "source" command.
 [[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$TACKLELIB_PYTHON_TESTS_ROOT_INIT0_DIR" && -d "$TACKLELIB_PYTHON_TESTS_ROOT_INIT0_DIR") ]] && return
 
-tkl_include "../../__init__/__init__.sh" "$@" || tkl_abort_include
+tkl_include_or_abort "../../__init__/__init__.sh" "$@"
 
 tkl_export_path TACKLELIB_PYTHON_TESTS_ROOT_INIT0_DIR "$BASH_SOURCE_DIR" # including guard
 
-tkl_include "$TACKLELIB_PYTHON_TESTS_BUILD_ROOT/tools/projectlib.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_PYTHON_TESTS_BUILD_ROOT/tools/projectlib.sh"
 
 : # resets exit code to 0

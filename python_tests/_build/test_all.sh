@@ -13,14 +13,14 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-tkl_include '__init__/__init__.sh' || tkl_abort_include
+tkl_include_or_abort '__init__/__init__.sh'
 
 tkl_exec_project_logging
 
 tkl_call_and_print_if "(( INIT_VERBOSE ))" CheckConfigVersion \
   "$CMAKE_CONFIG_VARS_SYSTEM_FILE_IN" "$CMAKE_CONFIG_VARS_SYSTEM_FILE" || tkl_exit $?
 
-tkl_include "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh" || tkl_abort_include
+tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
 
 UpdateOsName
 
