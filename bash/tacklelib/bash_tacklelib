@@ -731,6 +731,11 @@ function tkl_abort_include()
   tkl_abort $? "${FUNCNAME[0]}: ${FUNCNAME[1]}: code=\`$?\`; line=\`${BASH_LINENO[1]}\`; source=\`${BASH_SOURCE[1]}\`"
 }
 
+function tkl_include_or_abort()
+{
+  tkl_include "$@" || tkl_abort $? "${FUNCNAME[0]}: ${FUNCNAME[1]}: code=\`$?\`; line=\`${BASH_LINENO[1]}\`; source=\`${BASH_SOURCE[1]}\`"
+}
+
 function tkl_read_command_line_flags()
 {
   local out_args_list_name_var="$1"

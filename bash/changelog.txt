@@ -1,3 +1,6 @@
+2022.01.05:
+* new: tacklelib/bash_tacklelib: `tkl_include_or_abort` to call `tkl_include "..." || tkl_abort_include` as a single function
+
 2021.10.03:
 * fixed: tacklelib/bash_tacklelib: missed `BASH_SOURCE_CMD_LINE_ARR` initialization on `tkl_make_source_file_components` call
 * fixed: tacklelib/bash_tacklelib: elements reverse in the `${BASH_SOURCE_CMD_LINE_ARR[@]}` expression due to bug in the `${BASH_ARGV[@]}` expression (bash 4.3.46(7))
