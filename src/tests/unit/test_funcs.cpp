@@ -6,6 +6,9 @@
 
 #include <tacklelib/tackle/path_string.hpp>
 
+#include <stdlib.h>
+#include <time.h>
+
 namespace {
     namespace ti = utility::time;
 
@@ -36,6 +39,39 @@ namespace common
     const double angle_distance_epsilon = 0;
 }
 
+namespace {
+    template <typename T>
+    inline uint32_t _test_count_bits(const T & v)
+    {
+        uint32_t count = 0;
+        T n = v;
+        while (n > 0) {
+            if (n % 2) {
+                count += 1;
+            }
+            n /= 2;
+        }
+        return count;
+    }
+}
+
+TEST(FunctionsTest, random_count_bits_uint32_100K)
+{
+    srand(uint_t(time(NULL)));
+    for (uint32_t i = 0; i < 100000; i++) {
+        const uint32_t r = uint32_t(rand()) + (uint32_t(rand()) << 16);
+        ASSERT_EQ(_test_count_bits(r), math::count_bits(r));
+    }
+}
+
+TEST(FunctionsTest, random_count_bits_uint64_100K)
+{
+    srand(uint_t(time(NULL)));
+    for (uint32_t i = 0; i < 100000; i++) {
+        const uint64_t r = uint64_t(rand()) + (uint64_t(rand()) << 16) + (uint64_t(rand()) << 32) + (uint64_t(rand()) << 48);
+        ASSERT_EQ(_test_count_bits(r), math::count_bits(r));
+    }
+}
 
 TEST(FunctionsTest, ROTL)
 {

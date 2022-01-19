@@ -951,6 +951,87 @@ namespace math
         );
     }
 
+    // count bits
+
+    namespace detail
+    {
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_0(const T & v)
+        {
+            return v - ((v >> 1) & 0x55555555);
+        }
+
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_1(const T & v)
+        {
+            return (v & 0x33333333) + ((v >> 2) & 0x33333333);
+        }
+
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_2(const T & v)
+        {
+            return (v + (v >> 4)) & 0x0F0F0F0F;
+        }
+
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_3(const T & v)
+        {
+            return v + (v >> 8);
+        }
+
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_4(const T & v)
+        {
+            return v + (v >> 16);
+        }
+
+        template <typename T>
+        FORCE_INLINE CONSTEXPR_FUNC T _count_bits_5(const T & v)
+        {
+            return v & 0x0000003F;
+        }
+
+        template <typename T, bool greater_than_uint32>
+        struct _impl
+        {
+            static FORCE_INLINE CONSTEXPR_FUNC T _count_bits_with_shift(const T & v)
+            {
+                return
+                    detail::_count_bits_5(
+                        detail::_count_bits_4(
+                            detail::_count_bits_3(
+                                detail::_count_bits_2(
+                                    detail::_count_bits_1(
+                                        detail::_count_bits_0(v)))))) + count_bits(v >> 32);
+            }
+        };
+
+        template <typename T>
+        struct _impl<T, false>
+        {
+            static FORCE_INLINE CONSTEXPR_FUNC T _count_bits_with_shift(const T & v)
+            {
+                return 0;
+            }
+        };
+    }
+
+    template <typename T>
+    FORCE_INLINE CONSTEXPR_FUNC T count_bits(const T & v)
+    {
+        static_assert(std::is_integral<T>::value, "type T must be an integer");
+        static_assert(!std::is_signed<T>::value, "type T must be not signed");
+
+        return uint32_max >= v ?
+            detail::_count_bits_5(
+                detail::_count_bits_4(
+                    detail::_count_bits_3(
+                        detail::_count_bits_2(
+                            detail::_count_bits_1(
+                                detail::_count_bits_0(v)))))) :
+            detail::_impl<T, sizeof(uint32_t) < sizeof(v)>::_count_bits_with_shift(v);
+    }
+
     namespace detail
     {
         // use set of guesses to request type scoped pi-function implementation before call to uniform pi calculation logic

@@ -1,3 +1,6 @@
+2022.01.19:
+* new: include/tacklelib/utility/math.hpp: `count_bits` function to count bits in any unsigned integer type + tests
+
 2022.01.05:
 * refactor: replaced all `tkl_include` calls by `tkl_include_or_abort` in all bash shell scripts
 
