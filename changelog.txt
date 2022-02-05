@@ -1,3 +1,7 @@
+2022.02.05:
+* fixed: CMakeLists.txt: missed to exclude `*.bak` files
+* new: include/tacklelib/utility/memory.hpp: `memcpy_bitwise64` function to bitwise copy on 64-bit padded buffers
+
 2022.01.19:
 * new: include/tacklelib/utility/math.hpp: `count_bits` function to count bits in any unsigned integer type + tests
 

@@ -190,6 +190,9 @@ file(GLOB_RECURSE public_headers
   ${CMAKE_CURRENT_LIST_DIR}/include/*.h*
 )
 
+# exclude .bak files
+tkl_exclude_paths_from_path_list(. public_headers "${public_headers}" ".bak" 0)
+
 # library
 
 file(GLOB_RECURSE lib_headers
@@ -208,14 +211,22 @@ file(GLOB_RECURSE testlib_sources
   ${CMAKE_CURRENT_LIST_DIR}/src/testlib/*.c*
 )
 
+# exclude .bak files
+tkl_exclude_paths_from_path_list(. testlib_headers "${testlib_headers}" ".bak" 0)
+tkl_exclude_paths_from_path_list(. testlib_sources "${testlib_sources}" ".bak" 0)
+
 # tests
 
-file(GLOB tests_sources_common
-  ${CMAKE_CURRENT_LIST_DIR}/src/tests/*.c*
-)
 file(GLOB tests_headers_common
   ${CMAKE_CURRENT_LIST_DIR}/src/tests/*.h*
 )
+file(GLOB tests_sources_common
+  ${CMAKE_CURRENT_LIST_DIR}/src/tests/*.c*
+)
+
+# exclude .bak files
+tkl_exclude_paths_from_path_list(. tests_headers_common "${tests_headers_common}" ".bak" 0)
+tkl_exclude_paths_from_path_list(. tests_sources_common "${tests_sources_common}" ".bak" 0)
 
 # exclude tests
 tkl_exclude_paths_from_path_list(. lib_sources "${lib_sources}" "/tests" 0)
@@ -237,6 +248,10 @@ foreach(target IN LISTS TESTS_TARGET_NAMES)
   # exclude marked as "out of project" (/~) files/directories by pattern
   tkl_exclude_paths_from_path_list(. tests_sources_${target} "${tests_sources_${target}}" "/~" 0)
   tkl_exclude_paths_from_path_list(. tests_headers_${target} "${tests_headers_${target}}" "/~" 0)
+
+  # exclude .bak files
+  tkl_exclude_paths_from_path_list(. tests_sources_${target} "${tests_sources_${target}}" ".bak" 0)
+  tkl_exclude_paths_from_path_list(. tests_headers_${target} "${tests_headers_${target}}" ".bak" 0)
 
   MATH(EXPR target_index "${target_index}+1")
 endforeach()
