@@ -220,6 +220,7 @@ macro(tkl_declare_primary_builtin_vars)
 
   # basic input values
   message(STATUS "(*) CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}` CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_GENERATOR_TOOLSET=`${CMAKE_GENERATOR_TOOLSET}` CMAKE_GENERATOR_PLATFORM=`${CMAKE_GENERATOR_PLATFORM}`")
+  message(STATUS "(*) CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`")
 
   tkl_check_global_vars_consistency()
 

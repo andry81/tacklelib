@@ -1,3 +1,6 @@
+2022.02.20:
+* changed: cmake/tacklelib: minor improvements
+
 2022.02.05:
 * fixed: CMakeLists.txt: missed to exclude `*.bak` files
 * new: include/tacklelib/utility/memory.hpp: `memcpy_bitwise64` function to bitwise copy on 64-bit padded buffers
