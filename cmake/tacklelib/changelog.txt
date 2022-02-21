@@ -1,3 +1,9 @@
+2022.02.21:
+* changed: minor improvements
+
+2022.02.20:
+* changed: minor improvements
+
 2021.11.28:
 * changed: Project.cmake: path globbing suffix as list in the `tkl_source_groups_from_dir_list` function
 

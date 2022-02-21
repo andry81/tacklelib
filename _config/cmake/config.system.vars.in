@@ -82,14 +82,11 @@
 top CMAKE_GENERATOR:WIN="Visual Studio 15 2017"
 #top CMAKE_GENERATOR:WIN="MinGW Makefiles"
 #top CMAKE_GENERATOR:WIN="MSYS Makefiles"
-top CMAKE_GENERATOR_PLATFORM:WIN=Win32  # required for the CMAKE_OUTPUT_GENERATOR_DIR, because the architecture parameter does not supported in the `config.system.vars` stage
-#top CMAKE_GENERATOR_PLATFORM="" # must be at least empty
 
 top CMAKE_GENERATOR:UNIX="Unix Makefiles"
-top CMAKE_GENERATOR_PLATFORM:UNIX=""    # must be at least empty to avoid generation of the `*:$/{CMAKE_GENERATOR_PLATFORM}` as an replacement value
 
 top CMAKE_OUTPUT_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}/_out/cmake"
-final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}--$/{CMAKE_GENERATOR_PLATFORM}"
+final package CMAKE_OUTPUT_GENERATOR_DIR="$/{CMAKE_OUTPUT_ROOT}/$/{CMAKE_GENERATOR}"
 final package CMAKE_OUTPUT_DIR="$/{CMAKE_OUTPUT_GENERATOR_DIR}/$/{CMAKE_CURRENT_PACKAGE_NEST_LVL_PREFIX}--$/{CMAKE_CURRENT_PACKAGE_NAME}"
 final package CMAKE_BUILD_ROOT="$/{CMAKE_OUTPUT_DIR}/build"
 final package CMAKE_BIN_ROOT="$/{CMAKE_OUTPUT_DIR}/bin"

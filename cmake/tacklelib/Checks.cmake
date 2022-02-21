@@ -133,16 +133,28 @@ function(tkl_check_build_root_tags build_type is_multi_config)
   # check if multiconfig.tag is already created
   if (EXISTS "${CMAKE_BUILD_ROOT}/singleconfig.tag")
     if ("${build_type}" STREQUAL "")
-      message(FATAL_ERROR "Single config tag already has been created, but variable CMAKE_BUILT_TYPE is not set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}`.\nTag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\nEither use the variable or use a multi config generator.")
+      message(FATAL_ERROR
+        "Single config tag already has been created, but variable CMAKE_BUILT_TYPE is not set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}`.\n"
+        "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
+        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Either use the variable or use a multi config generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
   endif()
 
   if (EXISTS "${CMAKE_BUILD_ROOT}/multiconfig.tag")
     if (NOT "${build_type}" STREQUAL "")
-      message(FATAL_ERROR "Multi config tag already has been created, but variable CMAKE_BUILD_TYPE is set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\nTag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\nEither do not use the variable or use a single config generator or remove the cmake cache directory with the tag file to regenerate the cache.")
+      message(FATAL_ERROR
+        "Multi config tag already has been created, but variable CMAKE_BUILD_TYPE is set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\n"
+        "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
+        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Either do not use the variable or use a single config generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
     if (NOT is_multi_config)
-      message(FATAL_ERROR "Multi config tag already has been created, but cmake was not run under a multiconfig generator: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\nTag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\nEither do use a multiconfig generator or remove the cmake cache directory with the tag file to regenerate the cache.")
+      message(FATAL_ERROR
+        "Multi config tag already has been created, but cmake was not run under a multiconfig generator: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\n"
+        "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
+        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Either do use a multiconfig generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
   endif()
 endfunction()
