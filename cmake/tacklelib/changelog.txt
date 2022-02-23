@@ -1,3 +1,6 @@
+2022.02.24:
+* fixed: Checks.cmake: `CMAKE_CACHEFILE_DIR` usage replaced by `CMAKE_BINARY_DIR` as the latter must always be used instead
+
 2022.02.21:
 * changed: minor improvements
 

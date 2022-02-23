@@ -130,13 +130,19 @@ macro(tkl_check_existence_of_required_vars)
 endmacro()
 
 function(tkl_check_build_root_tags build_type is_multi_config)
+  # CAUTION:
+  #   `CMAKE_CACHEFILE_DIR should not be documented for public use` : https://gitlab.kitware.com/cmake/cmake/-/issues/18168
+  #
+  # The `CMAKE_CACHEFILE_DIR` variable is intended to be updated at the end of the configuration process, while the
+  # `CMAKE_BINARY_DIR` does point to the cirrent most top build directory (see `-B` parameter of the cmake command line).
+  #
   # check if multiconfig.tag is already created
   if (EXISTS "${CMAKE_BUILD_ROOT}/singleconfig.tag")
     if ("${build_type}" STREQUAL "")
       message(FATAL_ERROR
         "Single config tag already has been created, but variable CMAKE_BUILT_TYPE is not set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}`.\n"
         "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
-        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Top Binary Dir: `${CMAKE_BINARY_DIR}`.\n"
         "Either use the variable or use a multi config generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
   endif()
@@ -146,14 +152,14 @@ function(tkl_check_build_root_tags build_type is_multi_config)
       message(FATAL_ERROR
         "Multi config tag already has been created, but variable CMAKE_BUILD_TYPE is set: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\n"
         "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
-        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Top Binary Dir: `${CMAKE_BINARY_DIR}`.\n"
         "Either do not use the variable or use a single config generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
     if (NOT is_multi_config)
       message(FATAL_ERROR
         "Multi config tag already has been created, but cmake was not run under a multiconfig generator: CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}`.\n"
         "Tag: `${CMAKE_BUILD_ROOT}/singleconfig.tag`.\n"
-        "Cache Dir: `${CMAKE_CACHEFILE_DIR}`.\n"
+        "Top Binary Dir: `${CMAKE_BINARY_DIR}`.\n"
         "Either do use a multiconfig generator or remove the cmake cache directory and the tag file to regenerate the cache.")
     endif()
   endif()
