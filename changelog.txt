@@ -1,3 +1,6 @@
+2022.02.24:
+* fixed: cmake/tacklelib/Checks.cmake: `CMAKE_CACHEFILE_DIR` usage replaced by `CMAKE_BINARY_DIR` as the latter must always be used instead
+
 2022.02.21:
 * changed: _config: simplified `config.system.vars.in` config and removed `CMAKE_GENERATOR_PLATFORM` variable usage additionally to because several generators like `Ninja Multi-Config` does not accept not empty `CMAKE_GENERATOR_PLATFORM` value
 * changed: cmake/tacklelib: minor improvements
