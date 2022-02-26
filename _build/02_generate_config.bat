@@ -35,7 +35,7 @@ echo.
 
 call :CMDINT "%%CONTOOLS_ROOT%%/cmake/check_config_version.bat" -optional_compare ^
   "%%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%%" "%%CMAKE_CONFIG_VARS_SYSTEM_FILE%%" ^
-  "%%CMAKE_CONFIG_VARS_USER_FILE_IN%%" "%%CMAKE_CONFIG_VARS_USER_FILE%%" || exit /b
+  "%%CMAKE_CONFIG_VARS_USER_0_FILE_IN%%" "%%CMAKE_CONFIG_VARS_USER_0_FILE%%" || exit /b
 
 set /A NEST_LVL+=1
 

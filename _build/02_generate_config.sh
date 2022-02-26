@@ -27,7 +27,7 @@ tkl_exec_project_logging
 # optional compare in case of generator script
 tkl_call_and_print_if "(( INIT_VERBOSE ))" CheckConfigVersion 1 \
   "$CMAKE_CONFIG_VARS_SYSTEM_FILE_IN" "$CMAKE_CONFIG_VARS_SYSTEM_FILE" \
-  "$CMAKE_CONFIG_VARS_USER_FILE_IN" "$CMAKE_CONFIG_VARS_USER_FILE" || tkl_abort $?
+  "$CMAKE_CONFIG_VARS_USER_0_FILE_IN" "$CMAKE_CONFIG_VARS_USER_0_FILE" || tkl_abort $?
 
 GenerateConfig || tkl_exit $?
 

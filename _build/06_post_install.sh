@@ -24,7 +24,7 @@ tkl_exec_project_logging
 
 tkl_call_and_print_if "(( INIT_VERBOSE ))" CheckConfigVersion 0 \
   "$CMAKE_CONFIG_VARS_SYSTEM_FILE_IN" "$CMAKE_CONFIG_VARS_SYSTEM_FILE" \
-  "$CMAKE_CONFIG_VARS_USER_FILE_IN" "$CMAKE_CONFIG_VARS_USER_FILE" || tkl_abort $?
+  "$CMAKE_CONFIG_VARS_USER_0_FILE_IN" "$CMAKE_CONFIG_VARS_USER_0_FILE" || tkl_abort $?
 
 tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/set_vars_from_files.sh"
 tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/tools/cmake/get_GENERATOR_IS_MULTI_CONFIG.sh"
@@ -44,7 +44,7 @@ UpdateOsName
 # preload configuration files only to make some checks
 tkl_call set_vars_from_files \
   "${CMAKE_CONFIG_VARS_SYSTEM_FILE//;/\\;}" "$OS_NAME" . . . ";" \
-  --exclude_vars_filter "PROJECT_ROOT" \
+  --exclude_vars_filter "TACKLELIB_PROJECT_ROOT" \
   --ignore_late_expansion_statements || tkl_exit $?
 
 # check if selected generator is a multiconfig generator

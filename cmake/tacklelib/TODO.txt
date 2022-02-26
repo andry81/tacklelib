@@ -6,6 +6,18 @@ SetVarsFromFiles.cmake:
   line
 * fix incorrect OS list variables declaration (UNIX while in WINDOWS and vice
   versa)
+* better diagnostic for messages like:
+
+    ```
+    CMake Error at _externals/tacklelib/cmake/tacklelib/SetVarsFromFiles.cmake:2748 (message):
+      ODR violation, variables must declare the same value:
+      `.../_out/config/myproj/cmake/config.0.vars`(60): `top
+      CMAKE_GENERATOR_PLATFORM` => [WIN:::X86] -> [WIN:MSVC14.16::X86]: `` ->
+      `Win32` (is_path=`-1`)
+    ```
+
+    Needs to print both the next and the previous places of delaration.
+    Currently only the next does print.
 
 testlib:
 

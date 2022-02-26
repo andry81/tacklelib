@@ -6,11 +6,15 @@ cmake_minimum_required(VERSION 3.9)
 
 # at least cmake 3.9 is required for:
 #   * Multiconfig generator detection support: see the `GENERATOR_IS_MULTI_CONFIG` global property
-#     (https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html )
+#       https://cmake.org/cmake/help/v3.9/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
+#   * `CMAKE_MATCH_<n>` string regex expression support:
+#       https://cmake.org/cmake/help/v3.9/variable/CMAKE_MATCH_n.html
+#       https://cmake.org/cmake/help/latest/command/string.html
 #
 
 # at least cmake 3.7 is required for:
-# * to use GREATER_EQUAL in if command: (https://cmake.org/cmake/help/v3.7/command/if.html )
+# * to use GREATER_EQUAL in if command:
+#     https://cmake.org/cmake/help/v3.7/command/if.html
 #   `if(<variable|string> GREATER_EQUAL <variable|string>)`
 #
 
@@ -465,8 +469,8 @@ macro(tkl_configure_environment runtime_linkage_type_var supported_compilers)
   if (NOT DEFINED CMAKE_CONFIG_VARS_SYSTEM_FILE)
     message(FATAL_ERROR "CMAKE_CONFIG_VARS_SYSTEM_FILE must be defined as path to system variables file.")
   endif()
-  if (NOT DEFINED CMAKE_CONFIG_VARS_USER_FILE)
-    message(FATAL_ERROR "CMAKE_CONFIG_VARS_USER_FILE must be defined as path to user variables file.")
+  if (NOT DEFINED CMAKE_CONFIG_VARS_USER_0_FILE)
+    message(FATAL_ERROR "CMAKE_CONFIG_VARS_USER_0_FILE must be defined as path to user variables file.")
   endif()
 
   tkl_declare_primary_builtin_vars()
@@ -492,8 +496,8 @@ macro(tkl_configure_environment runtime_linkage_type_var supported_compilers)
   if (NOT EXISTS "${CMAKE_CONFIG_VARS_SYSTEM_FILE}")
     message(FATAL_ERROR "(*) The `${CMAKE_CONFIG_VARS_SYSTEM_FILE}` is not properly generated, use the `*_generate_config` script to generage the file and then edit values manually if required!")
   endif()
-  if (NOT EXISTS "${CMAKE_CONFIG_VARS_USER_FILE}")
-    message(FATAL_ERROR "(*) The `${CMAKE_CONFIG_VARS_USER_FILE}` is not properly generated, use the `*_generate_config` script to generage the file and then edit values manually if required!")
+  if (NOT EXISTS "${CMAKE_CONFIG_VARS_USER_0_FILE}")
+    message(FATAL_ERROR "(*) The `${CMAKE_CONFIG_VARS_USER_0_FILE}` is not properly generated, use the `*_generate_config` script to generage the file and then edit values manually if required!")
   endif()
 
   # CAUTION:
@@ -508,7 +512,17 @@ macro(tkl_configure_environment runtime_linkage_type_var supported_compilers)
 
   # The predefined set of builtin local configuration files for load.
   set(sys_env_var_file_path_load_list "${CMAKE_CONFIG_VARS_SYSTEM_FILE}")
-  set(user_env_var_file_path_load_list "${CMAKE_CONFIG_VARS_USER_FILE}")
+  set(user_env_var_file_path_load_list "${CMAKE_CONFIG_VARS_USER_0_FILE}")
+
+  # detect and load all the rest user local configuration files until not found
+  set(next_user_env_var_file_index 1)
+  string(REGEX REPLACE "/([^.]*).0." "/\\1.${next_user_env_var_file_index}." next_user_env_var_file ${CMAKE_CONFIG_VARS_USER_0_FILE})
+  while (EXISTS "${next_user_env_var_file}" AND NOT IS_DIRECTORY "${next_user_env_var_file}")
+    list(APPEND user_env_var_file_path_load_list "${next_user_env_var_file}")
+
+    math(EXPR next_user_env_var_file_index "${next_user_env_var_file_index}+1")
+    string(REGEX REPLACE "/([^.]*).0." "/\\1.${next_user_env_var_file_index}." next_user_env_var_file ${CMAKE_CONFIG_VARS_USER_0_FILE})
+  endwhile()
 
   # Preload local configuration files to set only predefined set of variables.
   tkl_preload_variables("${sys_env_var_file_path_load_list}" . .)

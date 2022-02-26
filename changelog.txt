@@ -1,3 +1,13 @@
+2022.02.26:
+* new: cmake/tacklelib/Projects.cmake: implement increment detection and loading of user configuration files `*.<n>.*` using the base variable - `CMAKE_CONFIG_VARS_USER_0_FILE`
+* changed: _build: removed direct usage of the `PROJECT_ROOT` variable
+* changed: _build: added usage of the `CMAKE_CONFIG_VARS_USER_0_FILE` variable
+* changed: _config/cmake/config.system.vars: removed declaration and usage of `CMAKE_GENERATOR_PLATFORM` variable
+* changed: _config/config.system.vars: added latest variables usage
+* changed: _config: cleanup
+* changed: cmake/tacklelib/Projects.cmake: replaced `CMAKE_CONFIG_VARS_USER_FILE` variable by `CMAKE_CONFIG_VARS_USER_0_FILE`
+* changed: cmake/tacklelib/TODO.txt: update
+
 2022.02.24:
 * fixed: cmake/tacklelib/Checks.cmake: `CMAKE_CACHEFILE_DIR` usage replaced by `CMAKE_BINARY_DIR` as the latter must always be used instead
 

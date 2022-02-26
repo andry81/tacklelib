@@ -1,3 +1,8 @@
+2022.02.26:
+* new: Projects.cmake: implement increment detection and loading of user configuration files `*.<n>.*` using the base variable - `CMAKE_CONFIG_VARS_USER_0_FILE`
+* changed: Projects.cmake: replaced `CMAKE_CONFIG_VARS_USER_FILE` variable by `CMAKE_CONFIG_VARS_USER_0_FILE`
+* changed: TODO.txt: update
+
 2022.02.24:
 * fixed: Checks.cmake: `CMAKE_CACHEFILE_DIR` usage replaced by `CMAKE_BINARY_DIR` as the latter must always be used instead
 

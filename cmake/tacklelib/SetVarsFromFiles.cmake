@@ -187,6 +187,10 @@ include(tacklelib/Utility)
 # `env`:
 #   Store a variable additionally in the environment.
 #
+# `option`:
+#   Store a variable through the cmake `option` command (special storage).
+#   A variable must be declared as a list: `VAR=(<value> [<help_text>])`
+#
 
 # VARIABLE MODIFICATOR ATTRIBUTES:
 #
