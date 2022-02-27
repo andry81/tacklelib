@@ -35,6 +35,16 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.1.0")
   cmake_policy(SET CMP0054 NEW) # cmake >= 3.1
 endif()
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.3.0")
+  #  Policy CMP0057 is not set: Support new IN_LIST if() operator.  Run "cmake
+  #  --help-policy CMP0057" for policy details.  Use the cmake_policy command to
+  #  set the policy and suppress this warning.
+  #
+  #  IN_LIST will be interpreted as an operator when the policy is set to NEW.
+  #  Since the policy is not set the OLD behavior will be used.
+  cmake_policy(SET CMP0057 NEW)
+endif()
+
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
   #  Policy CMP0074 is not set: find_package uses PackageName_ROOT variables.
   #  Run "cmake --help-policy CMP0074" for policy details.  Use the
@@ -74,10 +84,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ## cmake builtin search paths and includes ####################################
 ###############################################################################
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake;${CMAKE_CURRENT_LIST_DIR}/cmake/tacklelib/_3dparty/modules")
-
 # cmake extension variables, must be before the first include
 #set(TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS 1) # 0 - macro handlers, faster; 1 - function handlers, slower
+
+# low level initialization
+include(${CMAKE_CURRENT_LIST_DIR}/__init__/__init__.cmake)
 
 include(tacklelib/Project)
 include(tacklelib/EnableTargetsExtension)
@@ -92,7 +103,7 @@ include(tacklelib/_3dparty/Qt)
 ##   `CMake Error: CMake was unable to find a build program corresponding to "MinGW Makefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.`
 ##   by declare respective variable BEFORE the project main initialization.
 ##
-#tkl_preload_variables(-S -s "${CMAKE_CONFIG_VARS_SYSTEM_FILE}" "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
+#tkl_preload_variables(-S -s "CMAKE_MAKE_PROGRAM" "PATH;CMAKE_MAKE_PROGRAM")
 
 # builtin detection runs by the `project` function
 project("tacklelib")

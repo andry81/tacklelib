@@ -1,4 +1,8 @@
 2022.02.27:
+* new: __init__: added `__init__.cmake` low level initialization script to be able to configure and build from the environments where scripts from the `_build` can not be set as an entry points
+* changed: CMakeLists.txt: moved the rest of the low level initialization into `__init__.cmake` script
+
+2022.02.27:
 * new: cmake/tacklelib/Projects.cmake: `tkl_unset_empty_builtin_vars` function to unset empty builtin variables in case if they were empty
 * changed: cmake/tacklelib/Projects.cmake: check a set of builtin and system variables on undefined state and print `<undefined>` instead of an empty value
 * changed: cmake/tacklelib/Projects.cmake: unset a set of builtin and system variables if they were initially empty from the `tkl_configure_environment` function

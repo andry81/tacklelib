@@ -1,7 +1,5 @@
 @echo off
 
-rem Configurator for cmake with generator.
-
 setlocal
 
 call "%%~dp0__init__/__init__.bat" || exit /b
@@ -148,7 +146,7 @@ if exist "%CMAKE_BUILD_ROOT%/multiconfig.tag" (
   ) >&2
 )
 
-if not exist "%CMAKE_BUILD_ROOT%" mkdir "%CMAKE_BUILD_ROOT%"
+if not exist "%CMAKE_BUILD_ROOT%\" mkdir "%CMAKE_BUILD_ROOT%"
 
 if %CMAKE_IS_SINGLE_CONFIG%0 NEQ 0 (
   echo.> "%CMAKE_BUILD_ROOT%/singleconfig.tag"
