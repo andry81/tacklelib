@@ -1,3 +1,10 @@
+2022.02.27:
+* new: cmake/tacklelib/Projects.cmake: `tkl_unset_empty_builtin_vars` function to unset empty builtin variables in case if they were empty
+* changed: cmake/tacklelib/Projects.cmake: check a set of builtin and system variables on undefined state and print `<undefined>` instead of an empty value
+* changed: cmake/tacklelib/Projects.cmake: unset a set of builtin and system variables if they were initially empty from the `tkl_configure_environment` function
+* changed: cmake/tacklelib/SetVarsFromFiles.cmake: improve readability of error and warning messages by replace a space character to a line return character
+* changed: _config/config.system.vars.in: minor improvements
+
 2022.02.26:
 * new: cmake/tacklelib/Projects.cmake: implement increment detection and loading of user configuration files `*.<n>.*` using the base variable - `CMAKE_CONFIG_VARS_USER_0_FILE`
 * changed: _build: removed direct usage of the `PROJECT_ROOT` variable

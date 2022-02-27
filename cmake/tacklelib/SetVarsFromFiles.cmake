@@ -475,7 +475,7 @@ make_vars\;.\;.\;."
   )
 
   if (NOT argn_index LESS argn_len)
-    message(FATAL_ERROR "function function must be called at least with 1 variadic argument: argn_len=`${argn_len}` argn_index=`${argn_index}`")
+    message(FATAL_ERROR "function function must be called at least with 1 variadic argument:\nargn_len=`${argn_len}` argn_index=`${argn_index}`")
   endif()
 
   # Parent variable are saved, now can create local variables!
@@ -617,7 +617,7 @@ macro(tkl_set_vars_from_files) # WITH OUT ARGUMENTS!
   endif()
 
   if (NOT ${ARGC} GREATER_EQUAL 6)
-    message(FATAL_ERROR "function must be called at least with 6 not optional arguments: `${ARGC}`")
+    message(FATAL_ERROR "function must be called at least with 6 not optional arguments:\n`${ARGC}`")
   endif()
 
   #message("ARGV=`${ARGV}`")
@@ -749,35 +749,35 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     get_filename_component(var_lines_file_path_abs "${var_lines_file_path}" ABSOLUTE)
     get_filename_component(var_lines_dir_path "${var_lines_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_lines_dir_path}")
-      message(FATAL_ERROR "--varlines argument must be path to a file in existed directory: `${var_lines_file_path_abs}`")
+      message(FATAL_ERROR "--varlines argument must be path to a file in existed directory:\n`${var_lines_file_path_abs}`")
     endif()
   endif()
   if (DEFINED var_names_file_path)
     get_filename_component(var_names_file_path_abs "${var_names_file_path}" ABSOLUTE)
     get_filename_component(var_names_dir_path "${var_names_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_names_dir_path}")
-      message(FATAL_ERROR "--vars argument must be path to a file in existed directory: `${var_names_file_path_abs}`")
+      message(FATAL_ERROR "--vars argument must be path to a file in existed directory:\n`${var_names_file_path_abs}`")
     endif()
   endif()
   if (DEFINED var_values_file_path)
     get_filename_component(var_values_file_path_abs "${var_values_file_path}" ABSOLUTE)
     get_filename_component(var_values_dir_path "${var_values_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_values_dir_path}")
-      message(FATAL_ERROR "--values argument must be path to a file in existed directory: `${var_values_file_path_abs}`")
+      message(FATAL_ERROR "--values argument must be path to a file in existed directory:\n`${var_values_file_path_abs}`")
     endif()
   endif()
   if (DEFINED flock_file_path)
     get_filename_component(flock_file_path_abs "${flock_file_path}" ABSOLUTE)
     get_filename_component(flock_dir_path "${flock_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${flock_dir_path}")
-      message(FATAL_ERROR "--flock argument must be path to a file in existed directory: `${flock_file_path_abs}`")
+      message(FATAL_ERROR "--flock argument must be path to a file in existed directory:\n`${flock_file_path_abs}`")
     endif()
   endif()
 
   # always used set of arguments
   math(EXPR args_max_size ${argn_index}+6)
   if (argn_len LESS args_max_size)
-    message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments: argn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
+    message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with at least ${args_max_size} arguments:\nargn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
   endif()
 
   list(GET _50FABB52_argn ${argn_index} file_paths) # discardes ;-escaping
@@ -809,7 +809,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     math(EXPR args_max_size ${argn_index}+4)
 
     if (argn_len LESS args_max_size)
-      message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments: argn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
+      message(FATAL_ERROR "set_vars_from_files_impl_no_args function must be called with all at least ${args_max_size} arguments:\nargn_len=`${argn_len}` ARGC=`${ARGC}` argn_index=`${argn_index}`")
     endif()
 
     set(use_vars_late_expansion 1)
@@ -836,7 +836,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   # config_name consistency check
   if(use_vars_late_expansion AND is_config_name_value_can_late_expand)
     if ("${CMAKE_CONFIGURATION_TYPES}" STREQUAL "")
-      message(FATAL_ERROR "CMAKE_CONFIGURATION_TYPES variable must contain configuration names in case of empty config_name argument to construct complement generator expressions: CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}`")
+      message(FATAL_ERROR "CMAKE_CONFIGURATION_TYPES variable must contain configuration names in case of empty config_name argument to construct complement generator expressions:\nCMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}`")
     endif()
   endif()
 
@@ -917,11 +917,11 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   if (NOT "${config_name}" STREQUAL "")
     string(SUBSTRING "${config_name_upper}" 0 1 char)
     if (NOT char MATCHES "[_A-Z]")
-      message(FATAL_ERROR "Invalid configuration name: `${config_name}`")
+      message(FATAL_ERROR "Invalid configuration name:\n`${config_name}`")
     endif()
 
     if (config_name_upper MATCHES "[^_A-Z0-9]")
-      message(FATAL_ERROR "Invalid configuration name: `${config_name}`")
+      message(FATAL_ERROR "Invalid configuration name:\n`${config_name}`")
     endif()
   endif()
 
@@ -1188,7 +1188,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     math(EXPR file_path_index ${file_path_index}+1)
 
     if ("${file_path}" STREQUAL "")
-      message(FATAL_ERROR "file_paths contains an empty path: file_paths=`${file_paths}`")
+      message(FATAL_ERROR "file_paths contains an empty path:\nfile_paths=`${file_paths}`")
     endif()
 
     # reset special injected variables
@@ -1279,7 +1279,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           set(var_has_value 0)
           if(NOT var_line MATCHES "^[ \t]*([^\"=]+)[ \t]*\$")
             # empty or incomplete variable line declaration is an error
-            message(WARNING "Invalid variable line declaration: `${file_path_abs}`(${var_file_content_line}): `${CMAKE_MATCH_1}`")
+            message(WARNING "Invalid variable line declaration:\n`${file_path_abs}`(${var_file_content_line}):\n`${CMAKE_MATCH_1}`")
             continue()
           endif()
         endif()
@@ -1297,7 +1297,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # parse variable name at first
         if (NOT var_token MATCHES "([^:]+):?([^:]*)?:?([^:]*)?:?([^:]*)?:?([^:]*)?")
-          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           continue()
         endif()
 
@@ -1318,7 +1318,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         string(REGEX REPLACE "[_a-zA-Z0-9]" "" var_name_valid_chars_filtered "${var_name}")
 
         if ("${var_name}" STREQUAL "" OR (NOT "${var_name_valid_chars_filtered}" STREQUAL ""))
-          message(FATAL_ERROR "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "Invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         if (NOT DEFINED config_${var_name}_defined)
@@ -1430,7 +1430,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           endif()
           if ("PATH" IN_LIST var_name_attr_list_upper)
             if (var_type)
-              message(FATAL_ERROR "A variable should have maximum one type attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "A variable should have maximum one type attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
             set(var_type "path")
           endif()
@@ -1487,7 +1487,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # hide + unhide
         if (use_hide_var AND use_unhide_var)
-          message(FATAL_ERROR "The variable HIDE and UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable HIDE and UNHIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # 1. unset + <other modificator except `final` or `package`>
@@ -1495,34 +1495,34 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         if (use_unset_var OR use_hide_var OR use_unhide_var)
           if (use_unset_var)
             if (use_hide_var OR use_unhide_var)
-              message(FATAL_ERROR "The variable UNSET and HIDE/UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and HIDE/UNHIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_override_var)
-              message(FATAL_ERROR "The variable UNSET and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and OVERRIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_force_cache_var)
-              message(FATAL_ERROR "The variable UNSET and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and FORCE_CACHE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_force_var)
-              message(FATAL_ERROR "The variable UNSET and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and FORCE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_existed_value)
-              message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and EXIST attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_canonical_value)
-              message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and CANONICAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_optional_value)
-              message(FATAL_ERROR "The variable UNSET and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and OPTIONAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # unset + global
             if (use_global_var)
-              message(FATAL_ERROR "The variable UNSET and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and GLOBAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # unset + <any type attribute>
             if (NOT "${var_type}" STREQUAL "")
-              message(FATAL_ERROR "The variable UNSET and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET and type attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # unset in assignment
             if (var_has_value)
-              message(FATAL_ERROR "The variable UNSET must be issued without assignment: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET must be issued without assignment:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # unset + <specialization>
@@ -1530,36 +1530,36 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 (NOT "${var_compiler_name}" STREQUAL "") OR
                 (NOT "${var_config_name}" STREQUAL "") OR
                 (NOT "${var_arch_name}" STREQUAL ""))
-              message(FATAL_ERROR "The variable UNSET must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable UNSET must be issued without variable specialization:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
           elseif (use_hide_var OR use_unhide_var)
             if (use_override_var)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and OVERRIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_force_cache_var)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE_CACHE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE_CACHE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_force_var)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and FORCE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_existed_value)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and EXIST attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and EXIST attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_canonical_value)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and CANONICAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and CANONICAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             elseif (use_optional_value)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and OPTIONAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # hide/unhide + global
             if (use_global_var)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and GLOBAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # hide/unhide + <any type attribute>
             if (NOT "${var_type}" STREQUAL "")
-              message(FATAL_ERROR "The variable HIDE/UNHIDE and type attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE and type attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # hide/unhide in assingment
             if (var_has_value)
-              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without assignment: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without assignment:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
 
             # hide/unhide + <specialization>
@@ -1567,101 +1567,101 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                 (NOT "${var_compiler_name}" STREQUAL "") OR
                 (NOT "${var_config_name}" STREQUAL "") OR
                 (NOT "${var_arch_name}" STREQUAL ""))
-              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without variable specialization: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+              message(FATAL_ERROR "The variable HIDE/UNHIDE must be issued without variable specialization:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
             endif()
           endif()
         elseif (NOT var_has_value)
           # variable assignment expression without a value is an error
-          message(WARNING "Invalid variable assignment expression without a value: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable assignment expression without a value:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           continue()
         endif()
 
         # global + ...
         if (use_global_var)
           if (use_override_var)
-            message(FATAL_ERROR "The variable GLOBAL and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable GLOBAL and OVERRIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elseif (use_top_package_var)
-            message(FATAL_ERROR "The variable GLOBAL and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable GLOBAL and TOP attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elseif (use_local_var)
-            message(FATAL_ERROR "The variable GLOBAL and LOCAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable GLOBAL and LOCAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elseif (use_package_var)
-            message(FATAL_ERROR "The variable GLOBAL and PACKAGE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable GLOBAL and PACKAGE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           endif()
         endif()
 
         # uncache + cache/cache_only
         if (use_uncache_var AND (use_cache_var OR use_only_cache_var))
-          message(FATAL_ERROR "The variable UNCACHE and CACHE* attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable UNCACHE and CACHE* attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # cache_only + env_only
         if (use_only_cache_var AND use_only_env_var)
-          message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable *_ONLY attribute must be declared only in a single variant:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # force_cache without cache and cache_only
         if (use_force_cache_var AND NOT use_cache_var AND NOT use_only_cache_var)
-          message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY): `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable FORCE_CACHE attribute must be declared only together with the cache attribute (CACHE or CACHE_ONLY):\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # force + override/top
         if (use_force_var)
           if (use_override_var)
-            message(FATAL_ERROR "The variable FORCE and OVERRIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable FORCE and OVERRIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elseif (use_top_package_var AND config_${make_var_name}_defined)
-            message(FATAL_ERROR "The variable FORCE attribute at first time must be used without the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable FORCE attribute at first time must be used without the TOP attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           endif()
         endif()
 
         # final + top/global
         if (use_final_var)
           if (use_top_var)
-            message(FATAL_ERROR "The variable FINAL and TOP attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable FINAL and TOP attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elsif (use_global_var)
-            message(FATAL_ERROR "The variable FINAL and GLOBAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable FINAL and GLOBAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           endif()
         endif()
 
         # override w/o top
         if (use_override_var)
           if (NOT use_top_package_var)
-            message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable OVERRIDE attribute must be used together with the TOP attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           elseif(NOT config_${make_var_name}_defined)
-            message(FATAL_ERROR "The variable TOP attribute at first time must be used without the OVERRIDE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The variable TOP attribute at first time must be used without the OVERRIDE attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           endif()
         endif()
 
         # package w/o final or hide
         if (use_package_scope_var AND NOT use_final_var AND NOT use_hide_var)
-          message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL or w/o the HIDE attributes: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable PACKAGE attribute is not supported w/o the FINAL or w/o the HIDE attributes:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # package + unhide
         if (use_package_scope_var AND use_unhide_var)
-          message(FATAL_ERROR "The variable PACKAGE and UNHIDE attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable PACKAGE and UNHIDE attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         if (NOT "${var_type}" STREQUAL "path" AND use_existed_value)
-          message(FATAL_ERROR "Only the PATH variable supports the EXIST attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "Only the PATH variable supports the EXIST attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         if (NOT "${var_type}" STREQUAL "path" AND use_canonical_value)
-          message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "Only the PATH variable supports the CANONICAL attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         if (NOT "${var_type}" STREQUAL "path" AND use_optional_value)
-          message(FATAL_ERROR "Only the PATH variable supports the OPTIONAL attribute: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "Only the PATH variable supports the OPTIONAL attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         if (use_existed_value AND use_optional_value)
-          message(FATAL_ERROR "The variable EXIST and OPTIONAL attributes must not be used together: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(FATAL_ERROR "The variable EXIST and OPTIONAL attributes must not be used together:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # builtins checks...
 
         if (use_unset_var OR use_hide_var OR use_unhide_var)
           if ("${var_name}" IN_LIST injected_vars_list)
-            message(FATAL_ERROR "The UNSET/HIDE/UNHIDE can not be applied to the builtin variables: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+            message(FATAL_ERROR "The UNSET/HIDE/UNHIDE can not be applied to the builtin variables:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           endif()
         endif()
 
@@ -1669,18 +1669,18 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
         # check variable token consistency
         if ("${var_name}" STREQUAL "")
-          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           continue()
         endif()
 
         string(SUBSTRING "${var_name}" 0 1 char)
         if (NOT char MATCHES "[_A-Za-z]")
-          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           continue()
         endif()
 
         if (var_name MATCHES "[^_A-Za-z0-9]")
-          message(WARNING "Invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "Invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
           continue()
         endif()
 
@@ -1730,36 +1730,36 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             # global
             if (config_${var_name}_global_var)
               if (use_top_package_var)
-                message(FATAL_ERROR "The GLOBAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The GLOBAL variable reassignment as TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
               if (NOT use_global_var AND NOT use_local_var)
-                message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
             endif()
 
             # top
             if (config_${var_name}_top_package_var)
               if (use_global_var)
-                message(FATAL_ERROR "The TOP variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The TOP variable reassignment as GLOBAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
               if (use_local_var)
-                message(FATAL_ERROR "The TOP variable reassignment as LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The TOP variable reassignment as LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
               if (NOT use_top_package_var)
-                message(FATAL_ERROR "The TOP variable reassignment as not TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The TOP variable reassignment as not TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
             endif()
 
             # local
             if (config_${var_name}_local_var)
               if (use_global_var)
-                message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
               if (use_top_package_var)
-                message(FATAL_ERROR "The LOCAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The LOCAL variable reassignment as TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
               if (NOT use_local_var)
-                message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+                message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
               endif()
             endif()
           else()
@@ -1783,7 +1783,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             set(config_${var_name}_package_scope_var ${use_package_scope_var})
 
             if (grant_assign_on_vars_change_list AND NOT var_name IN_LIST grant_assign_on_vars_change_list)
-              # WORKAROUND: empty list with one empty string treats as an empty list, but not with 2 empty strings!
+              # WORKAROUND:
+              #   Empty list with one empty string treats as an empty list, but not with 2 empty strings!
+              #
               set(config_${var_name}_var_values_onchange_list ";")
               set(config_${var_name}_has_values_onchange_list 1)
 
@@ -1889,7 +1891,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # check variable on a collision with builtin variable
         foreach (injected_var_name IN LISTS injected_vars_list)
           if ("${var_name}" STREQUAL "${injected_var_name}")
-            message(FATAL_ERROR "The variable is a builtin variable which can not be changed: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+            message(FATAL_ERROR "The variable is a builtin variable which can not be changed:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
           endif()
         endforeach()
 
@@ -2005,9 +2007,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
 
         if (var_invalid_token_ignore)
-          message(WARNING "invalid variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "invalid variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         elseif (var_unsupported_token_ignore)
-          message(WARNING "unsupported variable token: `${file_path_abs}`(${var_file_content_line}): `${var_token}`")
+          message(WARNING "unsupported variable token:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_token}`")
         endif()
 
         # save current processing variable token
@@ -2089,10 +2091,10 @@ make_vars\;.\;make_vars_names\;make_vars_values"
                   # is a variable from the same level package?
                   if (config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl)
                     if (use_global_var)
-                      message(FATAL_ERROR "The GLOBAL variable reassignment w/o FORCE attribute: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                      message(FATAL_ERROR "The GLOBAL variable reassignment w/o FORCE attribute:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
                     endif()
                     if (NOT config_${var_name}_global_var AND use_local_var)
-                      message(WARNING "The variable is already assigned in the same package and can be subsequently changed only through the specialization or by force: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+                      message(WARNING "The variable is already assigned in the same package and can be subsequently changed only through the specialization or by force:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
                       set(var_assign_ignore 1)
                     endif()
                   endif()
@@ -2119,36 +2121,36 @@ make_vars\;.\;make_vars_names\;make_vars_values"
           # global
           if (config_${var_name}_global_var)
             if (use_top_package_var)
-              message(FATAL_ERROR "The GLOBAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The GLOBAL variable reassignment as TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             if (NOT use_global_var AND NOT use_local_var)
-              message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The GLOBAL variable reassignment as not GLOBAL/LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           endif()
 
           # top
           if (config_${var_name}_top_package_var)
             if (use_global_var)
-              message(FATAL_ERROR "The TOP variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The TOP variable reassignment as GLOBAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             if (use_local_var)
-              message(FATAL_ERROR "The TOP variable reassignment as LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The TOP variable reassignment as LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             if (NOT use_top_package_var)
-              message(FATAL_ERROR "The TOP variable reassignment as not TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The TOP variable reassignment as not TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           endif()
 
           # local
           if (config_${var_name}_local_var)
             if (use_global_var)
-              message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The LOCAL variable reassignment as GLOBAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             if (use_top_package_var)
-              message(FATAL_ERROR "The LOCAL variable reassignment as TOP: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The LOCAL variable reassignment as TOP:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
             if (NOT use_local_var)
-              message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
+              message(FATAL_ERROR "The LOCAL variable reassignment as not LOCAL:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${config_${var_name}_load_index}:${config_${var_name}_file_index}:${config_${var_name}_line}] `${config_${var_name}_os_name}:${config_${var_name}_compiler_name}:${config_${var_name}_config_name}:${config_${var_name}_arch_name}` -> [${config_load_index}:${file_path_index}:${var_file_content_line}] `${var_token_suffix}`")
             endif()
           endif()
         endif()
@@ -2156,7 +2158,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         # final (re)assignment with or without specialization or enable/disable
         if (NOT var_specialization_ignore AND config_${var_name}_defined AND config_${var_name}_final_var)
           if ((config_package_nest_lvl EQUAL config_${var_name}_package_nest_lvl) OR (NOT use_package_scope_var))
-            message(FATAL_ERROR "The variable is a final specialization variable which can not be (re)assigned or enabled/disabled (except reenable or redisabled) anymore: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
+            message(FATAL_ERROR "The variable is a final specialization variable which can not be (re)assigned or enabled/disabled (except reenable or redisabled) anymore:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}]")
           endif()
         endif()
 
@@ -2749,7 +2751,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             endif()
 
             if (NOT is_vars_equal)
-              message(FATAL_ERROR "ODR violation, variables must declare the same value: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]: `${previous_var_value}` -> `${var_parsed_value}` (is_path=`${is_path_var_value}`)")
+              message(FATAL_ERROR "ODR violation, variables must declare the same value:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` =>\n[${var_os_name_upper}:${var_compiler_name_upper}:${var_config_name_upper}:${var_arch_name_upper}] -> [${var_token_suffix_to_process}]:\n`${previous_var_value}` -> `${var_parsed_value}` (is_path=`${is_path_var_value}`)")
             endif()
 
             # use previous value to avoid a value change, but apply all related attributes
@@ -2773,9 +2775,9 @@ make_vars\;.\;make_vars_names\;make_vars_values"
 
                   if (NOT EXISTS "${path_var_value}")
                     if ("${var_parsed_value}" STREQUAL "${path_var_value}")
-                      message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${path_var_value}`")
+                      message(FATAL_ERROR "Path value from the variable does not exist:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]:\n`${path_var_value}`")
                     else()
-                      message(FATAL_ERROR "Path value from the variable does not exist: `${file_path_abs}`(${var_file_content_line}): `${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]: `${var_parsed_value}` => `${path_var_value}`")
+                      message(FATAL_ERROR "Path value from the variable does not exist:\n`${file_path_abs}`(${var_file_content_line}):\n`${var_set_msg_name_attr_prefix_str}${var_name}` => [${var_token_suffix_to_process}]:\n`${var_parsed_value}` => `${path_var_value}`")
                     endif()
                   endif()
                 endforeach()
@@ -3000,7 +3002,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
         endif()
       else()
         if (is_invalid_open_sequence)
-          message(WARNING "Invalid open sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
+          message(WARNING "Invalid open sequence:\n`${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}):\n`${open_sequence_var_token_suffix_to_process}`:\n`${open_sequence_var_line}`")
 
           if (is_subst_open)
             # pop open sequence context
@@ -3028,7 +3030,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
             tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_this_file_line)
           endif()
         else()
-          message(WARNING "Invalid variable line: `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+          message(WARNING "Invalid variable line:\n`${file_path_abs}`(${var_file_content_line})(${this_file_line}):\n`${var_token_suffix_to_process}`:\n`${var_line}`")
         endif()
 
         continue()
@@ -3036,7 +3038,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
     endforeach()
 
     if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
-      message(WARNING "Invalid variable line: (${is_next_char_to_escape},${is_str_quote_open},${is_list_bracket_open}) `${file_path_abs}`(${var_file_content_line})(${this_file_line}): `${var_token_suffix_to_process}`: `${var_line}`")
+      message(WARNING "Invalid variable line:\n(${is_next_char_to_escape},${is_str_quote_open},${is_list_bracket_open}) `${file_path_abs}`(${var_file_content_line})(${this_file_line}):\n`${var_token_suffix_to_process}`:\n`${var_line}`")
 
       # pop open sequence context
       tkl_pop_var_from_stack("tkl::set_vars_from_files" open_sequence_var_file_content_line)
@@ -3047,7 +3049,7 @@ make_vars\;.\;make_vars_names\;make_vars_values"
   endforeach()
 
   if (is_next_char_to_escape OR is_str_quote_open OR is_list_bracket_open)
-    message(WARNING "not closed character sequence: `${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}): `${open_sequence_var_token_suffix_to_process}`: `${open_sequence_var_line}`")
+    message(WARNING "not closed character sequence:\n`${file_path_abs}`(${open_sequence_var_file_content_line})(${open_sequence_this_file_line}):\n`${open_sequence_var_token_suffix_to_process}`:\n`${open_sequence_var_line}`")
   endif()
 
   if (DEFINED flock_file_path)
@@ -3295,7 +3297,7 @@ endmacro()
 #
 function(tkl_set_multigen_vars_from_lists) # WITH OUT ARGUMENTS!
   if (NOT ${ARGC} GREATER_EQUAL 4)
-    message(FATAL_ERROR "function must be called at least with 4 not optional arguments: `${ARGC}`")
+    message(FATAL_ERROR "function must be called at least with 4 not optional arguments:\n`${ARGC}`")
   endif()
 
   # Parent variable are saved, now can create local variables!
@@ -3347,28 +3349,28 @@ make_vars\;.\;.\;."
     get_filename_component(var_lines_file_path_abs "${var_lines_file_path}" ABSOLUTE)
     get_filename_component(var_lines_dir_path "${var_lines_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_lines_dir_path}")
-      message(FATAL_ERROR "--varlines argument must be path to a file in existed directory: `${var_lines_file_path_abs}`")
+      message(FATAL_ERROR "--varlines argument must be path to a file in existed directory:\n`${var_lines_file_path_abs}`")
     endif()
   endif()
   if (DEFINED var_names_file_path)
     get_filename_component(var_names_file_path_abs "${var_names_file_path}" ABSOLUTE)
     get_filename_component(var_names_dir_path "${var_names_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_names_dir_path}")
-      message(FATAL_ERROR "--vars argument must be path to a file in existed directory: `${var_names_file_path_abs}`")
+      message(FATAL_ERROR "--vars argument must be path to a file in existed directory:\n`${var_names_file_path_abs}`")
     endif()
   endif()
   if (DEFINED var_values_file_path)
     get_filename_component(var_values_file_path_abs "${var_values_file_path}" ABSOLUTE)
     get_filename_component(var_values_dir_path "${var_values_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${var_values_dir_path}")
-      message(FATAL_ERROR "--values argument must be path to a file in existed directory: `${var_values_file_path_abs}`")
+      message(FATAL_ERROR "--values argument must be path to a file in existed directory:\n`${var_values_file_path_abs}`")
     endif()
   endif()
   if (DEFINED flock_file_path)
     get_filename_component(flock_file_path_abs "${flock_file_path}" ABSOLUTE)
     get_filename_component(flock_dir_path "${flock_file_path_abs}" DIRECTORY)
     if (NOT IS_DIRECTORY "${flock_dir_path}")
-      message(FATAL_ERROR "--flock argument must be path to a file in existed directory: `${flock_file_path_abs}`")
+      message(FATAL_ERROR "--flock argument must be path to a file in existed directory:\n`${flock_file_path_abs}`")
     endif()
   endif()
 

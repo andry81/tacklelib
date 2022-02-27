@@ -182,6 +182,28 @@ function(tkl_generate_regex_replace_expression out_regex_match_var out_regex_rep
   set(${out_regex_replace_var} "\\1${in_replace_to_escaped}\\2" PARENT_SCOPE)
 endfunction()
 
+macro(tkl_unset_empty_builtin_vars)
+  if (DEFINED OSTYPE AND "${OSTYPE}" STREQUAL "")
+    tkl_unset_all(OSTYPE)
+  endif()
+
+  if (DEFINED CMAKE_BUILD_TYPE AND "${CMAKE_BUILD_TYPE}" STREQUAL "")
+    tkl_unset_all(CMAKE_BUILD_TYPE)
+  endif()
+  if (DEFINED CMAKE_GENERATOR AND "${CMAKE_GENERATOR}" STREQUAL "")
+    tkl_unset_all(CMAKE_GENERATOR)
+  endif()
+  if (DEFINED CMAKE_GENERATOR_INSTANCE AND "${CMAKE_GENERATOR_INSTANCE}" STREQUAL "")
+    tkl_unset_all(CMAKE_GENERATOR_INSTANCE)
+  endif()
+  if (DEFINED CMAKE_GENERATOR_TOOLSET AND "${CMAKE_GENERATOR_TOOLSET}" STREQUAL "")
+    tkl_unset_all(CMAKE_GENERATOR_TOOLSET)
+  endif()
+  if (DEFINED CMAKE_GENERATOR_PLATFORM AND "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+    tkl_unset_all(CMAKE_GENERATOR_PLATFORM)
+  endif()
+endmacro()
+
 macro(tkl_declare_primary_builtin_vars)
   tkl_get_global_prop(TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL "tkl::CMAKE_CURRENT_PACKAGE_NEST_LVL" 0)
   if (DEFINED TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL)
@@ -209,12 +231,18 @@ macro(tkl_declare_primary_builtin_vars)
     set(TACKLELIB_CMAKE_TOP_PACKAGE_SOURCE_DIR "${TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}")
   endif()
 
-  # configuration values
+  # configuration values with partial defined state check
+  if (DEFINED ENV{OSTYPE})
+    set(_8B902B3E_rvalue_of_OSTYPE "`$ENV{OSTYPE}`")
+  else()
+    set(_8B902B3E_rvalue_of_OSTYPE "<undefined>")
+  endif()
+
   message(STATUS "(*) PROJECT_NAME/TACKLELIB_CMAKE_CURRENT_PACKAGE_NAME=`${PROJECT_NAME}` TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL=`${TACKLELIB_CMAKE_CURRENT_PACKAGE_NEST_LVL}` TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR=`${TACKLELIB_CMAKE_CURRENT_PACKAGE_SOURCE_DIR}`")
 
   message(STATUS "(*) CMAKE_VERSION=`${CMAKE_VERSION}`")
   message(STATUS "(*) CMAKE_MODULE_PATH=`${CMAKE_MODULE_PATH}`")
-  message(STATUS "(*) CMAKE_C_COMPILER_ID=`${CMAKE_C_COMPILER_ID}` CMAKE_CXX_COMPILER_ID=`${CMAKE_CXX_COMPILER_ID}` OSTYPE=`$ENV{OSTYPE}`")
+  message(STATUS "(*) CMAKE_C_COMPILER_ID=`${CMAKE_C_COMPILER_ID}` CMAKE_CXX_COMPILER_ID=`${CMAKE_CXX_COMPILER_ID}` OSTYPE=${_8B902B3E_rvalue_of_OSTYPE}")
   message(STATUS "(*) CMAKE_C_COMPILER_VERSION=`${CMAKE_C_COMPILER_VERSION}` CMAKE_CXX_COMPILER_VERSION=`${CMAKE_CXX_COMPILER_VERSION}`")
   message(STATUS "(*) CMAKE_C_COMPILER_ARCHITECTURE_ID=`${CMAKE_C_COMPILER_ARCHITECTURE_ID}` CMAKE_CXX_COMPILER_ARCHITECTURE_ID=`${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}`")
 
@@ -222,9 +250,48 @@ macro(tkl_declare_primary_builtin_vars)
   get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
   message(STATUS "(*) GENERATOR_IS_MULTI_CONFIG=`${GENERATOR_IS_MULTI_CONFIG}` CMAKE_CONFIGURATION_TYPES=`${CMAKE_CONFIGURATION_TYPES}` (default)")
 
-  # basic input values
-  message(STATUS "(*) CMAKE_BUILD_TYPE=`${CMAKE_BUILD_TYPE}` CMAKE_GENERATOR=`${CMAKE_GENERATOR}` CMAKE_GENERATOR_TOOLSET=`${CMAKE_GENERATOR_TOOLSET}` CMAKE_GENERATOR_PLATFORM=`${CMAKE_GENERATOR_PLATFORM}`")
-  message(STATUS "(*) CMAKE_BUILD_ROOT=`${CMAKE_BUILD_ROOT}`")
+  # basic input values with defined state check
+  if (DEFINED CMAKE_BUILD_TYPE)
+    set(_8B902B3E_rvalue_of_CMAKE_BUILD_TYPE "`${CMAKE_BUILD_TYPE}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_BUILD_TYPE "<undefined>")
+  endif()
+  if (DEFINED CMAKE_GENERATOR)
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR "`${CMAKE_GENERATOR}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR "<undefined>")
+  endif()
+  if (DEFINED CMAKE_GENERATOR_INSTANCE)
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_INSTANCE "`${CMAKE_GENERATOR_INSTANCE}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_INSTANCE "<undefined>")
+  endif()
+  if (DEFINED CMAKE_GENERATOR_TOOLSET)
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_TOOLSET "`${CMAKE_GENERATOR_TOOLSET}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_TOOLSET "<undefined>")
+  endif()
+  if (DEFINED CMAKE_GENERATOR_PLATFORM)
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_PLATFORM "`${CMAKE_GENERATOR_PLATFORM}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_GENERATOR_PLATFORM "<undefined>")
+  endif()
+
+  if (DEFINED CMAKE_BUILD_ROOT)
+    set(_8B902B3E_rvalue_of_CMAKE_BUILD_ROOT "`${CMAKE_BUILD_ROOT}`")
+  else()
+    set(_8B902B3E_rvalue_of_CMAKE_BUILD_ROOT "<undefined>")
+  endif()
+
+  message(STATUS
+    "(*) CMAKE_BUILD_TYPE=${_8B902B3E_rvalue_of_CMAKE_BUILD_TYPE} "
+    "CMAKE_GENERATOR=${_8B902B3E_rvalue_of_CMAKE_GENERATOR} "
+    "CMAKE_GENERATOR_TOOLSET=${_8B902B3E_rvalue_of_CMAKE_GENERATOR_TOOLSET} "
+    "CMAKE_GENERATOR_PLATFORM=${_8B902B3E_rvalue_of_CMAKE_GENERATOR_PLATFORM}")
+  message(STATUS
+    "(*) CMAKE_GENERATOR_INSTANCE=${_8B902B3E_rvalue_of_CMAKE_GENERATOR_INSTANCE}")
+  message(STATUS
+    "(*) CMAKE_BUILD_ROOT=${_8B902B3E_rvalue_of_CMAKE_BUILD_ROOT}")
 
   tkl_check_global_vars_consistency()
 
@@ -473,6 +540,13 @@ macro(tkl_configure_environment runtime_linkage_type_var supported_compilers)
     message(FATAL_ERROR "CMAKE_CONFIG_VARS_USER_0_FILE must be defined as path to user variables file.")
   endif()
 
+  # WARNING:
+  #
+  #   It is required to unset a set of builtin variables if were defined empty to avoid triggering the `SetVarsFromFiles.cmake` module
+  #   on a variable value change while loading from a configuration file.
+  #
+  tkl_unset_empty_builtin_vars()
+
   tkl_declare_primary_builtin_vars()
 
   set(has_supported_compiler 0)
@@ -555,7 +629,7 @@ macro(tkl_configure_environment runtime_linkage_type_var supported_compilers)
   #
   find_global_3dparty_environments(global_vars_file_path_list)
 
-  # Prepend a global list over a local list, because a local list must alway override a global list.
+  # Prepend a global list over a local list, because a local list must always override a global list.
   set(env_var_file_path_load_list "${sys_env_var_file_path_load_list};${user_env_var_file_path_load_list}")
   if (global_vars_file_path_list)
     set(env_var_file_path_load_list "${global_vars_file_path_list};${env_var_file_path_load_list}")
