@@ -1,4 +1,9 @@
 2022.03.01:
+* fixed: _config/cmake/config.0.vars.in: x64 build fix
+* new: _build/03_configure.bat: support for cmake `-T` and `-A` options in the script command line, use `-I` option for respective `CMAKE_GENERATOR_INSTANCE` value
+* changed: deploy/3dparty/environment.vars: update for x64 build, cleanup
+
+2022.03.01:
 * fixed: _config/config.system.vars.in: minor fixup
 * changed: deploy/3dparty/environment.vars: update
 

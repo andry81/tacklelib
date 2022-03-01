@@ -45,6 +45,10 @@ set /A NEST_LVL-=1
 exit /b %LASTERROR%
 
 :MAIN
+call "%%CONTOOLS_ROOT%%/cmake/parse_flags.bat" %%* || exit /b
+
+if %__?FLAG_SHIFT% GTR 0 for /L %%i in (1,1,%__?FLAG_SHIFT%) do shift
+
 rem CAUTION: an empty value and `*` value has different meanings!
 rem
 set "CMAKE_BUILD_TYPE=%~1"
@@ -91,10 +95,10 @@ if %GENERATOR_IS_MULTI_CONFIG%0 NEQ 0 (
 if "%CMAKE_BUILD_TYPE%" == "*" (
   for %%i in (%CMAKE_CONFIG_TYPES:;= %) do (
     set "CMAKE_BUILD_TYPE=%%i"
-    call :CONFIGURE %%* || exit /b
+    call :CONFIGURE %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9 || exit /b
   )
 ) else (
-  call :CONFIGURE %%*
+  call :CONFIGURE %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9
 )
 
 exit /b
