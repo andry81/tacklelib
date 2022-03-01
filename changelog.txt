@@ -1,3 +1,7 @@
+2022.03.01:
+* fixed: _config/config.system.vars.in: minor fixup
+* changed: deploy/3dparty/environment.vars: update
+
 2022.02.27:
 * new: __init__: added `__init__.cmake` low level initialization script to be able to configure and build from the environments where scripts from the `_build` can not be set as an entry points
 * changed: CMakeLists.txt: moved the rest of the low level initialization into `__init__.cmake` script

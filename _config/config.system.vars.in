@@ -15,7 +15,7 @@
 #                         Can start by the `"` quote character, but two quotes does remove only when exist on both ends of a value.
 #
 
-upath CMAKE_SHELL:BAT                       =$/{COMSPEC}
+upath CMAKE_SHELL:BAT                       =%COMSPEC%
 upath CMAKE_SHELL:SH                        =$/{SHELL}
 
 upath TACKLELIB_PROJECT_BUILD_ROOT          ="%TACKLELIB_PROJECT_ROOT%/_build"
