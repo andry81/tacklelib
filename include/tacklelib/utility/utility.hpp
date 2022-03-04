@@ -61,6 +61,18 @@
 #include <tacklelib/utility/library_api_define.hpp>
 
 
+// CAUTION:
+//
+//  1. The `boost::filesystem::path` class constructor has a design flaw when you can unnoticiably use a constructor from a `std::string`
+//     which encoding has treated by default as ANSI and not UTF-8. This leads to the library functions which has used this class to
+//     silently fail on `std::string` with UTF-8 inside (for example, `is_path_exists` or `open_file` will fail).
+//     To avoid such case now almost all library functions which use the `boost::filesystem::path` class inside and operate on entire path string does use the
+//     `boost: :filesystem::path::codecvt_type` as a complement argument to explicitly state the encoding of a path string argument
+//     (`native_path_string`, `generic_path_string`, etc).
+//     The almost all means that not all library functions are required to know the input file path string encoding.
+//     For example, these are functions which operate on characters which has independent representation to the encoding, like the `/`, `\`, `.`, drive letter and etc.
+//
+
 // forwards
 namespace tackle
 {
@@ -216,140 +228,146 @@ namespace utility
     tackle::native_path_wstring LIBRARY_API_DECL unfix_long_path(tackle::native_path_wstring file_path, tackle::tag_native_path_wstring, bool throw_on_error);
 #endif
 
-    tackle::generic_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::generic_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-
-#if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-#endif
-
-    tackle::generic_file_handle<char> LIBRARY_API_DECL create_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
-        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::generic_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> LIBRARY_API_DECL create_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> LIBRARY_API_DECL recreate_file(tackle::native_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL recreate_file(tackle::native_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
         size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
 #endif
 
-    tackle::generic_file_handle<char> LIBRARY_API_DECL open_file(tackle::generic_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<char> LIBRARY_API_DECL create_file(tackle::generic_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::generic_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+
+#if defined(UTILITY_PLATFORM_WINDOWS)
+    tackle::native_file_handle<char> LIBRARY_API_DECL create_file(tackle::native_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL create_file(tackle::native_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
+        size_t size = 0, uint32_t fill_by = 0, bool throw_on_error = true);
+#endif
+
+    tackle::generic_file_handle<char> LIBRARY_API_DECL open_file(tackle::generic_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::generic_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::generic_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::generic_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_file_handle<char> LIBRARY_API_DECL open_file(tackle::native_path_string file_path, const char * mode, SharedAccess share_flags,
+    tackle::native_file_handle<char> LIBRARY_API_DECL open_file(tackle::native_path_string file_path, const tackle::path_string_codecvt & codecvt, const char * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
-    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::native_path_wstring file_path, const wchar_t * mode, SharedAccess share_flags,
+    tackle::native_file_handle<wchar_t> LIBRARY_API_DECL open_file(tackle::native_path_wstring file_path, const tackle::path_string_codecvt & codecvt, const wchar_t * mode, SharedAccess share_flags,
         size_t creation_size = 0, size_t resize_if_existed = -1, uint32_t fill_by_on_creation = 0,
         bool throw_on_error = true);
 #endif
 
-    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_directory_path(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_regular_file(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_string left_path, tackle::generic_path_string right_path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_wstring left_path, tackle::generic_path_wstring right_path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_string left_path, tackle::generic_path_string right_path,
+        const tackle::path_string_codecvt & left_codecvt, const tackle::path_string_codecvt & right_codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::generic_path_wstring left_path, tackle::generic_path_wstring right_path,
+        const tackle::path_string_codecvt & left_codecvt, const tackle::path_string_codecvt & right_codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL is_same_file(tackle::native_path_string left_path, tackle::native_path_string right_path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_same_file(tackle::native_path_wstring left_path, tackle::native_path_wstring right_path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::native_path_string left_path, tackle::native_path_string right_path,
+        const tackle::path_string_codecvt & left_codecvt, const tackle::path_string_codecvt & right_codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_same_file(tackle::native_path_wstring left_path, tackle::native_path_wstring right_path,
+        const tackle::path_string_codecvt & left_codecvt, const tackle::path_string_codecvt & right_codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_symlink_path(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL is_path_exists(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL create_directory(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL create_directory(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL create_directory(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL create_directory(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directory(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_string path, bool throw_on_error); // no exception if directory already exists
-    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_wstring path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error); // no exception if directory already exists
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_string path, bool throw_on_error); // no exception if directory already exists
-    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_wstring path, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error); // no exception if directory already exists
+    bool LIBRARY_API_DECL create_directory_if_not_exist(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error); // no exception if directory already exists
 #endif
 
-    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_string to, tackle::generic_path_string from, bool throw_on_error);
-    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_wstring to, tackle::generic_path_wstring from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_string to, const tackle::path_string_codecvt & codecvt, tackle::generic_path_string from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::generic_path_wstring to, const tackle::path_string_codecvt & codecvt, tackle::generic_path_wstring from, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_string to, tackle::native_path_string from, bool throw_on_error);
-    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_wstring to, tackle::native_path_wstring from, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_string to, tackle::native_path_string from,
+        const tackle::path_string_codecvt & to_codecvt, const tackle::path_string_codecvt & from_codecvt, bool throw_on_error);
+    void LIBRARY_API_DECL create_directory_symlink(tackle::native_path_wstring to, tackle::native_path_wstring from,
+        const tackle::path_string_codecvt & to_codecvt, const tackle::path_string_codecvt & from_codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL create_directories(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL create_directories(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL create_directories(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL create_directories(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL create_directories(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_string path, bool recursively, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_wstring path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool recursively, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL remove_directory(tackle::native_path_string path, bool recursively, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_directory(tackle::native_path_wstring path, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool recursively, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_directory(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool recursively, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL remove_file(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_file(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL remove_file(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_file(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_file(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
-    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_string path, bool throw_on_error);
-    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_wstring path, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
+    bool LIBRARY_API_DECL remove_symlink(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt, bool throw_on_error);
 #endif
 
     bool LIBRARY_API_DECL is_relative_path(tackle::generic_path_string path);
@@ -440,12 +458,12 @@ namespace utility
     tackle::native_path_wstring LIBRARY_API_DECL get_module_dir_path(tackle::tag_native_path_wstring, bool cached);
 #endif
 
-    tackle::generic_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_string path);
-    tackle::generic_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_wstring path);
+    tackle::generic_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_string path, const tackle::path_string_codecvt & codecvt);
+    tackle::generic_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::generic_path_wstring path, const tackle::path_string_codecvt & codecvt);
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-    tackle::native_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_string path);
-    tackle::native_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_wstring path);
+    tackle::native_path_string LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_string path, const tackle::path_string_codecvt & codecvt);
+    tackle::native_path_wstring LIBRARY_API_DECL get_lexically_normal_path(tackle::native_path_wstring path, const tackle::path_string_codecvt & codecvt);
 #endif
 
     tackle::generic_path_string LIBRARY_API_DECL get_lexically_relative_path(tackle::generic_path_string from_path, tackle::generic_path_string to_path);

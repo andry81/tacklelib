@@ -42,7 +42,7 @@ namespace utility {
             } BOOST_SCOPE_EXIT_END
 
             if (proc_id) {
-                proc_handle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, proc_id);
+                proc_handle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, DWORD(proc_id));
             }
             else {
                 proc_handle = GetCurrentProcess();

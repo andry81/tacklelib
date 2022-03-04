@@ -522,10 +522,17 @@ if (LIBLZMA_FOUND)
 endif()
 
 if (WIN32)
-  tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
-    PRIVATE
-      _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
-  )
+  if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
+    tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
+      PRIVATE
+        _AMD64_ # in case of build x64 is required from Windows SDK: `Windows Kits\8.1\Include\shared\stralign.h(120): warning C4090: 'argument': different '__unaligned' qualifiers`
+    )
+  else()
+    tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
+      PRIVATE
+        _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+    )
+  endif()
 endif()
 
 # CAUTION:
@@ -710,10 +717,17 @@ if (TESTLIB_ENABLED)
   #endif()
 
   if (WIN32)
-    tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
-      PRIVATE
-        _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
-    )
+    if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
+      tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+        PRIVATE
+          _AMD64_ # in case of build x64 is required from Windows SDK: `Windows Kits\8.1\Include\shared\stralign.h(120): warning C4090: 'argument': different '__unaligned' qualifiers`
+      )
+    else()
+      tkl_add_target_compile_definitions(${TESTLIB_TARGET_NAME} *
+        PRIVATE
+          _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+      )
+    endif()
   endif()
 
   if (Boost_LIBRARY_DIRS)
@@ -980,10 +994,17 @@ if (TESTS_ENABLED)
     #endif()
 
     if (WIN32)
-      tkl_add_target_compile_definitions(${target} *
-        PRIVATE
-          _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
-      )
+      if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
+        tkl_add_target_compile_definitions(${target} *
+          PRIVATE
+            _AMD64_ # in case of build x64 is required from Windows SDK: `Windows Kits\8.1\Include\shared\stralign.h(120): warning C4090: 'argument': different '__unaligned' qualifiers`
+        )
+      else()
+        tkl_add_target_compile_definitions(${target} *
+          PRIVATE
+            _X86_ # in case of dynamic library linkage which is required from Windows SDK: `fatal error C1189: #error:  "No Target Architecture"`
+        )
+      endif()
     endif()
 
     # local optimization per target basis

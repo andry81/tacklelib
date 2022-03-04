@@ -14,9 +14,14 @@
 #include <tacklelib/tackle/string.hpp>
 
 #include <string>
+#include <cwchar>
+#if !defined(UTILITY_PLATFORM_MINGW) && !defined(UTILITY_COMPILER_CXX_GCC)
+#   include <uchar.h> // in GCC `cuchar` header might not exist
+#endif
 #include <type_traits>
 #include <utility>
 #include <algorithm>
+#include <codecvt>
 
 #undef LIBRARY_API_NAMESPACE
 #define LIBRARY_API_NAMESPACE TACKLELIB
@@ -30,6 +35,8 @@
 
 namespace tackle
 {
+    using path_string_codecvt = std::codecvt<wchar_t, char, std::mbstate_t>;
+
     template <class t_elem, class t_traits, class t_alloc, t_elem separator_char>
     class LIBRARY_API_DECL path_basic_string : public std::basic_string<t_elem, t_traits, t_alloc>
     {

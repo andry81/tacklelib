@@ -272,7 +272,7 @@ namespace utility {
         std::string str{ std::move(string_format(string_reserve, std::move(fmt_str), vl)) };
         va_end(vl);
 
-        return std::move(str);
+        return str;
     }
 
     inline std::string string_format(size_t string_reserve, const char * fmt_str, ...)
@@ -282,7 +282,7 @@ namespace utility {
         std::string str{ std::move(string_format(string_reserve, fmt_str, vl)) };
         va_end(vl);
 
-        return std::move(str);
+        return str;
     }
 
     // CAUTION:
@@ -296,7 +296,7 @@ namespace utility {
         std::wstring str{ std::move(string_format(string_reserve, std::move(fmt_str), vl)) };
         va_end(vl);
 
-        return std::move(str);
+        return str;
     }
 
     inline std::wstring string_format(size_t string_reserve, const wchar_t * fmt_str, ...)
@@ -306,7 +306,7 @@ namespace utility {
         std::wstring str{ std::move(string_format(string_reserve, fmt_str, vl)) };
         va_end(vl);
 
-        return std::move(str);
+        return str;
     }
 
 }

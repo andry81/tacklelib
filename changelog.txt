@@ -1,3 +1,8 @@
+2022.03.04:
+* fixed: src/utility/utility.cpp: UTF-8 support in the file system functions for `std::string` based paths
+* fixed: CMakeLists.txt: x64 build fix
+* changed: src: removed `std::move` calls on a return value to avoid RVO elision
+
 2022.03.01:
 * fixed: _config/cmake/config.0.vars.in: x64 build fix
 * new: _build/03_configure.bat: support for cmake `-T` and `-A` options in the script command line, use `-I` option for respective `CMAKE_GENERATOR_INSTANCE` value

@@ -36,7 +36,7 @@ namespace utility {
 
     FORCE_INLINE std::string convert_utf16_to_utf8_string(std::string && astr)
     {
-        return std::move(astr);
+        return astr;
     }
 
     FORCE_INLINE const std::string & convert_utf16_to_utf8_string(const std::string & astr)
@@ -654,7 +654,7 @@ namespace utility {
 
 //    FORCE_INLINE std::string convert_string_to_string(std::string && from_str, utility::string_identity, ...)
 //    {
-//        return std::move(from_str);
+//        return from_str;
 //    }
 //
 //    FORCE_INLINE std::string convert_string_to_string(const std::string & from_str, utility::string_identity, ...)
@@ -719,7 +719,7 @@ namespace utility {
 
 //    FORCE_INLINE std::wstring convert_string_to_string(std::wstring && from_str, utility::wstring_identity, ...)
 //    {
-//        return std::move(from_str);
+//        return from_str;
 //    }
 //
 //    FORCE_INLINE std::wstring convert_string_to_string(const std::wstring & from_str, utility::wstring_identity, ...)
