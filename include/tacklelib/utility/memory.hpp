@@ -321,7 +321,7 @@ namespace utility
                 }
                 // optimization
                 else {
-                    *(uint64_t *)to_padded_int64_buf[to_byte_offset] = *(uint64_t *)from_padded_int64_buf[from_byte_offset];
+                    *(uint64_t *)&to_padded_int64_buf[to_byte_offset] = *(uint64_t *)&from_padded_int64_buf[from_byte_offset];
                 }
 
                 break;

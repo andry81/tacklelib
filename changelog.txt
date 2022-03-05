@@ -1,3 +1,6 @@
+2022.03.05:
+* fixed: include/tacklelib/utility/memory.hpp: access violation in `memcpy_bitwise64` function
+
 2022.03.04:
 * fixed: src/utility/utility.cpp: UTF-8 support in the file system functions for `std::string` based paths
 * fixed: CMakeLists.txt: x64 build fix
