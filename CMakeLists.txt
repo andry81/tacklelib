@@ -84,9 +84,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ## cmake builtin search paths and includes ####################################
 ###############################################################################
 
-# cmake extension variables, must be before the first include
-#set(TACKLELIB_ENABLE_TARGETS_EXTENSION_FUNCTION_HANDLERS 1) # 0 - macro handlers, faster; 1 - function handlers, slower
-
 # low level initialization
 include(${CMAKE_CURRENT_LIST_DIR}/__init__/__init__.cmake)
 

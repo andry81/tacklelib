@@ -1,3 +1,7 @@
+2022.03.07:
+* changed: CMakesLists.txt, __init__/__init__.cmake: minor change
+* changed: README.md: update
+
 2022.03.05:
 * fixed: include/tacklelib/utility/memory.hpp: access violation in `memcpy_bitwise64` function
 

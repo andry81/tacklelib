@@ -105,6 +105,10 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 * <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--rapidyaml
 * <a href="#"><img src="https://img.shields.io/static/v1?label=&message=OPTIONAL&color=blue" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--xzutils
 
+To build dependent projects:
+
+https://github.com/andry81/tacklelib--3dparty_build_scripts
+
 ## Copyright and License<a name="copyright-and-license"></a>
 
 Code and documentation copyright 2021 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/trunk/license.txt)
