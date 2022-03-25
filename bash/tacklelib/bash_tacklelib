@@ -236,7 +236,8 @@ function tkl_false()
 
 function tkl_set_return()
 {
-  [[ "${1#[0-9]}" != "$1" ]] && return $1
+  [[ -z "${1//[0-9]/}" ]] && return ${1:-0}
+  return 255
 }
 
 function tkl_set_error()
@@ -1518,3 +1519,5 @@ tkl_declare_global tkl__last_error 0
 
 # register on first include
 [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_make_source_file_components "$@"
+
+tkl_set_return

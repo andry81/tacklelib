@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2021.11.09
+* 2022.03.14
 * tacklelib
 
 1. DESCRIPTION
@@ -277,15 +277,6 @@ NOTE:
  |  #
  |  # Immediate external projects catalog could not be moved into the 3dparty
  |  # dependencies catalog.
- |
- +- /`_3dparty`
- |  #
- |  # Hard directory link to the 3dparty dependencies catalog.
- |  # Must be created by the user.
- |  # Read the `3DPARTY DIRECTORY CONTENT DESCRIPTION` section in the
- |  # root `README_EN.txt` file from the `tacklelib--3dparty_build_scripts`
- |  # project for the directory structure and organization.
- |  # Read the `README_EN.deps.txt` for particular dependecies list.
  |
  +- /`_config`
  |  | #

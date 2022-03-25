@@ -1,3 +1,6 @@
+2022.03.25:
+* fixed: tacklelib/bash_tacklelib: `tkl_set_return` empty parameter handle as 0, not integer parameters as 255
+
 2022.01.05:
 * new: tacklelib/bash_tacklelib: `tkl_include_or_abort` to call `tkl_include "..." || tkl_abort_include` as a single function
 
