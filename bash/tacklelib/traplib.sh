@@ -27,7 +27,7 @@
 #      That includes all bash processes, for example, represented as `(...)` or `$(...)` operators.
 #      So the `EXIT` signal trap handlers automatically handles all the `RELEASE` trap handlers and the `RETURN` trap
 #      handlers from the function where the exit being called before to run itself.
-#      As said before the `RELEASE` handlers does execute before the `RETURN` handlers.
+#      As said before the `RELEASE` handlers does execute after the `RETURN` handlers.
 #   8. The `RETURN` or `RELEASE` signal trap handlers still can call to `tkl_push_trap` and `tkl_pop_trap` functions
 #      to process non `RETURN` and non `RELEASE` signal traps
 #   9. The `RETURN` or `RELEASE` signal trap handlers can call to `tkl_set_trap_postponed_exit` function from both
@@ -62,7 +62,7 @@
 #      losing the back compatability here).
 #
 #   1. Examples with RETURN signal handlers auto pop:
-#   1.1. with the library:
+#   1.1. without the library:
 #        > foo() { echo foo; boo() { builtin trap 'echo 2' RETURN; echo boo; }; boo; builtin trap -p RETURN; }
 #        > foo
 #          foo
@@ -222,6 +222,19 @@
 #          3
 #          e1
 #
+#   8. Examples with RETURN vs RELEASE signal handlers execution on exit:
+#   8.1. with the library:
+#        > . traplib.sh
+#        > foo() { tkl_push_trap "echo 1" RETURN; boo() { tkl_push_trap "echo 2" RETURN; exit; }; boo; }
+#        > foo
+#          2
+#   8.2. with the library:
+#        > . traplib.sh
+#        > foo() { tkl_push_trap "echo 1" RELEASE; boo() { tkl_push_trap "echo 2" RELEASE; exit; }; boo; }
+#        > foo
+#          2
+#          1
+#
 
 # Script can be ONLY included by "source" command.
 [[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) || (-n "$SOURCE_TACKLELIB_TRAPLIB_SH" && SOURCE_TACKLELIB_TRAPLIB_SH -ne 0) ]] && return
@@ -368,11 +381,14 @@ function tkl_declare_global_trap_handler()
     # CAUTION:
     #   To avoid call not in a function.
     if [[ -n "$func_names_stack" ]]; then
-      tkl_declare_global tkl__traplib_cmdline_stack__RETURN_handler "declare tkl__last_error=\$?
+      tkl_declare_global tkl__traplib_cmdline_stack__RETURN_handler "\
+declare tkl__last_error=\$?
 if (( \${#FUNCNAME[@]} )); then
   if (( ! ${stack_var}_handling )); then
     ${stack_var}_handling=1
     builtin trap '' RETURN
+
+    tkl_push_var_to_stack ${stack_var}_vars_stack tkl__last_error
 
     declare ${stack_var}_func_names_stack
     tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
@@ -387,6 +403,7 @@ if (( \${#FUNCNAME[@]} )); then
       unset $stack_var[tkl__stack_arr_size-2]
       unset $stack_var[tkl__stack_arr_size-3]
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${stack_var}_cmdline\"
       }
@@ -410,6 +427,7 @@ if (( \${#FUNCNAME[@]} )); then
         unset $return_stack_var[tkl__stack_arr_size-3]
         tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
         {
+          tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
           tkl_set_return \$tkl__last_error
           eval \"\$${return_stack_var}_cmdline\"
         }
@@ -427,6 +445,7 @@ if (( \${#FUNCNAME[@]} )); then
         unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}[tkl__stack_arr_size-1]
         unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}[tkl__stack_arr_size-2]
         {
+          tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
           tkl_set_return \$tkl__last_error
           eval \"\$tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline\"
         }
@@ -450,14 +469,21 @@ if (( \${#FUNCNAME[@]} )); then
     fi
 
     unset tkl__stack_arr_size
+
+    tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
+    tkl_set_return \$tkl__last_error
   fi
-fi"
+fi
+"
     fi
   elif [[ "$trap_sig" == "EXIT" ]]; then
-    tkl_declare_global tkl__traplib_cmdline_stack__EXIT_handler "declare tkl__last_error=\$?
+    tkl_declare_global tkl__traplib_cmdline_stack__EXIT_handler "\
+declare tkl__last_error=\$?
 if (( ! ${stack_var}_handling )); then
   ${stack_var}_handling=1
   builtin trap '' EXIT
+
+  tkl_push_var_to_stack ${stack_var}_vars_stack tkl__last_error
 
   declare ${stack_var}_func_names_stack
   tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
@@ -476,6 +502,7 @@ if (( ! ${stack_var}_handling )); then
       unset $return_stack_var[tkl__stack_arr_size-2]
       unset $return_stack_var[tkl__stack_arr_size-3]
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${return_stack_var}_cmdline\"
       }
@@ -491,6 +518,7 @@ if (( ! ${stack_var}_handling )); then
       unset $return_stack_var[tkl__stack_arr_size-3]
       tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${return_stack_var}_cmdline\"
       }
@@ -511,6 +539,7 @@ if (( ! ${stack_var}_handling )); then
     unset $stack_var[tkl__stack_arr_size-1]
     unset $stack_var[tkl__stack_arr_size-2]
     {
+      tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
       tkl_set_return \$tkl__last_error
       eval \"\$${stack_var}_cmdline\"
     }
@@ -526,16 +555,19 @@ if (( ! ${stack_var}_handling )); then
 
   unset $stack_var
 
-  (( \${#${stack_var}_postponed_code} )) && {
-    unset ${stack_var}_postponed_code
-    exit \${${stack_var}_postponed_code}
-  }
-fi"
+  tkl_pop_var_from_stack ${stack_var}_vars_stack tkl__last_error
+
+  exit \${${stack_var}_postponed_code:-\$tkl__last_error}
+fi
+"
   else
-    tkl_declare_global tkl__traplib_cmdline_stack__${trap_sig}_handler "declare tkl__last_error=\$?
+    tkl_declare_global tkl__traplib_cmdline_stack__${trap_sig}_handler "\
+declare tkl__last_error=\$?
 if (( ! ${stack_var}_handling )); then
   ${stack_var}_handling=1
   builtin trap '' $trap_sig
+
+  tkl_push_var_to_stack ${stack_var}_vars_stack tkl__last_error
 
   declare ${stack_var}_func_names_stack
   tkl_get_current_function_names_stack_trace ${stack_var}_func_names_stack
@@ -547,6 +579,7 @@ if (( ! ${stack_var}_handling )); then
       unset $stack_var[tkl__stack_arr_size-1]
       unset $stack_var[tkl__stack_arr_size-2]
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${stack_var}_cmdline\"
       }
@@ -575,6 +608,7 @@ if (( ! ${stack_var}_handling )); then
       unset $return_stack_var[tkl__stack_arr_size-2]
       unset $return_stack_var[tkl__stack_arr_size-3]
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${return_stack_var}_cmdline\"
       }
@@ -590,6 +624,7 @@ if (( ! ${stack_var}_handling )); then
       unset $return_stack_var[tkl__stack_arr_size-3]
       tkl_eval_if '\"\$${return_stack_var}_trap_type\" == \"RELEASE\"' && \
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$${return_stack_var}_cmdline\"
       }
@@ -607,6 +642,7 @@ if (( ! ${stack_var}_handling )); then
       unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}[tkl__stack_arr_size-1]
       unset tkl__traplib_cmdline_stack__EXIT_${shell_pid}[tkl__stack_arr_size-2]
       {
+        tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
         tkl_set_return \$tkl__last_error
         eval \"\$tkl__traplib_cmdline_stack__EXIT_${shell_pid}_cmdline\"
       }
@@ -633,9 +669,11 @@ if (( ! ${stack_var}_handling )); then
   fi
 
   unset tkl__stack_arr_size
-fi
 
-tkl_set_return \$tkl__last_error"
+  tkl_set_var_from_stack_top ${stack_var}_vars_stack tkl__last_error
+  tkl_set_return \$tkl__last_error
+fi
+"
   fi
 }
 

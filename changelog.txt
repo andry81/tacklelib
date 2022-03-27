@@ -1,3 +1,9 @@
+2022.03.27:
+* fixed: bash/tacklelib/bash_tacklelib: `tkl_pop_var_from_stack` function accidental variable export instead of declare
+* fixed: bash/tacklelib/traplib.sh: handlers fixup
+* new: bash/tacklelib/bash_tacklelib: `tkl_debug_echo`, `tkl_declare_as_expr_from_args`, `tkl_declare_array_as_expr_from_args`, `tkl_echo_args_as_expr`, `tkl_set_var_from_stack_top` functions
+* refactor: bash/tacklelib/bash_tacklelib: code refactor
+
 2022.03.25:
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_set_return` empty parameter handle as 0, not integer parameters as 255
 
