@@ -315,6 +315,10 @@ include/tacklelib/tackle/path_string.hpp -text
 include/tacklelib/tackle/smart_handle.hpp -text
 include/tacklelib/tackle/static_constexpr.hpp -text
 include/tacklelib/tackle/string.hpp -text
+include/tacklelib/tackle/sync/noop.hpp -text
+include/tacklelib/tackle/sync/scopedlock.hpp -text
+include/tacklelib/tackle/sync/semaphore.hpp -text
+include/tacklelib/tackle/sync/spinlock.hpp -text
 include/tacklelib/tackle/tmpl_string.hpp -text
 include/tacklelib/tacklelib.hpp -text
 include/tacklelib/tacklelib_library.hpp -text
