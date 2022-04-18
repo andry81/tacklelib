@@ -1,6 +1,5 @@
 * text=auto !eol
 .github/FUNDING.yml -text
-.github/badges/stackoverflow-tacklelib.svg -text
 /.svnignore -text
 /CMakeLists.txt -text
 /README.md -text

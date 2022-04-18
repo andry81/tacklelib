@@ -1,3 +1,6 @@
+2022.04.18:
+* changed: .github/badges: content moved into `andry81-cache/andry81--gh-content-cache` repository
+
 2022.04.11:
 * new: include/tacklelib/tackle/sync/noop.hpp: `noop_by_rand` function
 * new: include/tacklelib/tackle/sync/spinlock.hpp: `spinlock` implementation
