@@ -25,7 +25,7 @@ function tkl_get_func_decl()
   [[ -z "$FuncName" ]] && return 1
 
   local FuncDecl
-  FuncDecl=$(declare -f "$FuncName") || return 2
+  FuncDecl="$(declare -f "$FuncName")" || return 2
   [[ -z "$FuncDecl" ]] && return 3
 
   RETURN_VALUE="$FuncDecl"
@@ -83,7 +83,7 @@ function tkl_make_func_copy_ex()
   if [[ "${Flags//f/}" == "$Flags" ]]; then
     # new function should not exist
     local NewFuncDecl
-    NewFuncDecl=$(declare -f "$NewFuncName") && return 1
+    NewFuncDecl="$(declare -f "$NewFuncName")" && return 1
     [[ -n "$NewFuncDecl" ]] && return 2
   fi
 

@@ -26,7 +26,7 @@ fi >&2
 
 function tkl_enable_nocase_match()
 {
-  RETURN_VALUE=$(shopt -p nocasematch) && # Read state before change
+  RETURN_VALUE="$(shopt -p nocasematch)" && # Read state before change
   if [[ "$RETURN_VALUE" != 'shopt -s nocasematch' ]]; then
     shopt -s nocasematch
     return 0
@@ -39,7 +39,7 @@ function tkl_enable_nocase_match()
 
 function tkl_disable_nocase_match()
 {
-  RETURN_VALUE=$(shopt -p nocasematch) && # Read state before change
+  RETURN_VALUE="$(shopt -p nocasematch)" && # Read state before change
   if [[ "$RETURN_VALUE" != 'shopt -u nocasematch' ]]; then
     shopt -u nocasematch
     return 0

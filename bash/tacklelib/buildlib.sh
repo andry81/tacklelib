@@ -459,7 +459,7 @@ function tkl_init_project_log()
   case $BASH_VERSION in
     # < 4.2
     [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
-      PROJECT_LOG_FILE_NAME_SUFFIX=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
+      PROJECT_LOG_FILE_NAME_SUFFIX="$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))"
       ;;
     # >= 4.2
     *)

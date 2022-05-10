@@ -205,7 +205,7 @@ function tkl_hash_func_body_as_token()
   local FuncDecl
   local FuncDeclSize
 
-  FuncDecl=$(declare -f "$FuncName")
+  FuncDecl="$(declare -f "$FuncName")"
   [[ -z "$FuncDecl" ]] && return 2
 
   # remove function signature
@@ -233,7 +233,7 @@ function tkl_hash_func_as_token()
   local FuncDecl
   local FuncDeclSize
 
-  FuncDecl=$(declare -f "$FuncName")
+  FuncDecl="$(declare -f "$FuncName")"
   [[ -z "$FuncDecl" ]] && return 2
 
   tkl_crc32 "$FuncDecl" tkl_crc32_gnu || return 3

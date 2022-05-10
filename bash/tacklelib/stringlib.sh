@@ -36,7 +36,7 @@ function tkl_compare_strings()
   # override RETURN with other traps restore
   tkl_push_trap "eval $RETURN_VALUE" RETURN || return 253
 
-  oldShopt=$(shopt -p nocasematch) # Read state before change it
+  oldShopt="$(shopt -p nocasematch)" # Read state before change it
 
   if [[ "${Flags//i/}" == "$Flags" ]]; then # case matching
     if [[ "$oldShopt" != 'shopt -u nocasematch' ]]; then

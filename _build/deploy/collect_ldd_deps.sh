@@ -191,9 +191,9 @@ function GetCanonicalPath()
     # Use `readlink` to convert a path from any not globbed path into canonical path, but
     # use not existed path prefix to avoid convertion from a symlink.
     if [[ "${file_in:0:1}" == "." || "${file_in:0:1}" != "/" ]]; then
-      file_in_abs=$(readlink -m "/::$(pwd)/$file_in")
+      file_in_abs="$(readlink -m "/::$(pwd)/$file_in")"
     else
-      file_in_abs=$(readlink -m "/::$file_in")
+      file_in_abs="$(readlink -m "/::$file_in")"
     fi
 
     RETURN_VALUE="${file_in_abs#/::}"
@@ -260,7 +260,7 @@ function MakeSymlink()
   if (( ignore_if_same_link_exist )); then
     # check if symlink with the same path already exist
     if [[ -f "$Name" && -L "$Name" ]]; then
-      local PrevRefPath=$(readlink -e "$Name")
+      local PrevRefPath="$(readlink -e "$Name")"
       [[ "$RefPath" == "$PrevRefPath" ]] && return 0
     fi
   fi
@@ -490,7 +490,7 @@ function CollectLddDeps()
     echo "  LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
     echo
 
-    ldd_output_file=$(mktemp /tmp/ldd_output.XXXXXX)
+    ldd_output_file="$(mktemp /tmp/ldd_output.XXXXXX)"
 
     function on_exit()
     {

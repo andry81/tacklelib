@@ -89,7 +89,7 @@ function tkl_testmodule_init()
   case $BASH_VERSION in
     # < 4.2
     [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
-      TestModuleLogFileNameDateTimeSuffix=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
+      TestModuleLogFileNameDateTimeSuffix="$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))"
       ;;
     # >= 4.2
     *)
@@ -184,7 +184,7 @@ function tkl_test_init()
   case $BASH_VERSION in
     # < 4.2
     [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
-      TestLogFileNameDateTimeSuffix=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
+      TestLogFileNameDateTimeSuffix="$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))"
       ;;
     # >= 4.2
     *)
@@ -243,9 +243,9 @@ function tkl_test_exit_handler()
 
   local Output="${TestStdoutDeclare%$'\n'}" # remove last line return as optional
   echo -n -e "$Output${Output:+$'\n'}" >"$TestStdoutDefFilePath"
-  local StdoutsDiff=$(
-    diff -c "$TestStdoutFilePath" "$TestStdoutDefFilePath" |
-    sed -e 's|--- /tmp/traplib/|--- |' -e 's|\*\*\* /tmp/traplib/|\*\*\* |')
+  local StdoutsDiff="$( \
+    diff -c "$TestStdoutFilePath" "$TestStdoutDefFilePath" | \
+    sed -e 's|--- /tmp/traplib/|--- |' -e 's|\*\*\* /tmp/traplib/|\*\*\* |')"
   if [[ -n "$StdoutsDiff" ]]; then
     echo -n "$StdoutsDiff" > "$TestStdoutsDiffFilePath"
     tkl_test_add_last_error 245 0x01
@@ -263,9 +263,9 @@ function tkl_test_exit_handler()
     # checking output from the test, slow but necessary
     local CleanEnvironment
     local TestEnvironment
-    local TestInitEnv=$(cat "$TestInitEnvFilePath")
+    local TestInitEnv="$(cat "$TestInitEnvFilePath")"
     if [[ -n "$TestInitEnv" ]]; then
-      HasVarsEnv=$(cat "$TestHasVarsEnvFilePath")
+      HasVarsEnv="$(cat "$TestHasVarsEnvFilePath")"
       if [[ -n "$HasVarsEnv" ]]; then
         tkl_compare_envs "$HasVarsEnv" "$TestInitEnv" "%%=*" "%%=*" &&
         if [[ -n "$RETURN_VALUE" ]]; then
@@ -276,7 +276,7 @@ function tkl_test_exit_handler()
           tkl_test_assert_true '(( 1 ))'
         fi
       fi
-      HasNoVarsEnv=$(cat "$TestHasNoVarsEnvFilePath")
+      HasNoVarsEnv="$(cat "$TestHasNoVarsEnvFilePath")"
       if [[ -n "$HasNoVarsEnv" ]]; then
         tkl_compare_envs "$HasNoVarsEnv" "$TestInitEnv" "%%=*" "%%=*" &&
         if [[ -n "$RETURN_VALUE" ]]; then
