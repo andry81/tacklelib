@@ -133,13 +133,6 @@
 
 #define UTILITY_PP_LINE_TERMINATOR
 
-// breakable if
-#define if_break(x) switch(0) case 0: default: if(x)
-// breakable if with continue only label
-#define if_break_continue(continue_label, x) switch(0) case 0: default: continue_label: if(x)
-// breakable if with continue and break labels
-#define if_break_continue2(continue_label, break_label, x) switch(0) case 0: default: continue_label: if(false) break_label:; else if(x)
-
 #define SCOPED_TYPEDEF(type_, typedef_) using typedef_ = struct { using type = type_; }
 
 #endif

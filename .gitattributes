@@ -335,6 +335,7 @@ include/tacklelib/utility/optimization.hpp -text
 include/tacklelib/utility/platform.hpp -text
 include/tacklelib/utility/platform_features.hpp -text
 include/tacklelib/utility/preprocessor.hpp -text
+include/tacklelib/utility/preprocessor/if_break.hpp -text
 include/tacklelib/utility/stack_trace.hpp -text
 include/tacklelib/utility/static_assert.hpp -text
 include/tacklelib/utility/static_constexpr.hpp -text

@@ -1,3 +1,7 @@
+2022.05.30:
+* fixed: include/tacklelib/utility/preprocessor/if_break.hpp: unused goto label warning
+* changed: include/tacklelib/utility/preprocessor.hpp: extracted `if_break` macroses into optional header file, renamed
+
 2022.05.26:
 * fixed: include/tacklelib/utility/preprocessor.hpp: `if_break2` macro repeat label, replaced by `if_break_continue2` macro
 * new: include/tacklelib/utility/preprocessor.hpp: `if_break_continue` and `if_break_continue2` macroses 
