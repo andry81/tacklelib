@@ -367,6 +367,7 @@ python/license.txt -text
 python/pyxvcs/__init__/__init__.xsh -text
 python/pyxvcs/cmdop.xsh -text
 python/pyxvcs/configure.xsh -text
+python/tacklelib/__init__/__init__.py -text
 python/tacklelib/tacklelib.cache.py -text
 python/tacklelib/tacklelib.csv.py -text
 python/tacklelib/tacklelib.io.py -text
