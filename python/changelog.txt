@@ -1,4 +1,7 @@
 2022.07.30:
+* new: tacklelib: added `README_EN.txt` file
+
+2022.07.30:
 * new: tacklelib: added `__init__.py` for initialization support as a module
 
 2021.09.06:

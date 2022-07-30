@@ -6,6 +6,8 @@ include/tacklelib/debug.hpp
 include/tacklelib/optimization.hpp
 
 python/__pycache*__
+python/tacklelib/__pycache*__
+python/tacklelib/__init__/__pycache*__
 
 python_tests/.pytest_cache
 

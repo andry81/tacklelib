@@ -8,6 +8,7 @@ include/tacklelib/optimization.hpp
 include/tacklelib/setup.hpp
 python/__pycache__
 python/cmdoplib/__pycache__
+python/tacklelib/__init__/__pycache__
 python/tacklelib/__pycache__
 python_tests/.pytest_cache
 python_tests/manual/01_fcache_workarounds/cache
