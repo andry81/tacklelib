@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2022.07.22
+* 2022.07.31
 * tacklelib--python--tacklelib
 
 1. DESCRIPTION
@@ -14,9 +14,42 @@
 -------------------------------------------------------------------------------
 1. DESCRIPTION
 -------------------------------------------------------------------------------
-The `tacklelib` python subproject library python support modules to run python scripts on
-Windows and Linux platforms separately without any other extra dependencies
-except those from the PREREQUISITES section below.
+The `tacklelib` python subproject to support:
+
+  * Alternative importing technique based on `importlib` module.
+  * Has alternative global variables declaration in a current module from the
+    stack.
+  * Has guard logic to avoid double import in case of nameless (local) import.
+  * Has a builtin print to trace modules import sequence.
+
+Pros:
+
+  * Can import both module as a submodule and can import content of a module to
+    a parent module (or into a globals if has no parent module).
+  * Can import modules with periods in a file name.
+  * Can import any extension module from any extension module.
+  * Can use a standalone name for a submodule instead of a file name without
+    extension which is by default (for example, testlib.std.py as testlib,
+    testlib.blabla.py as testlib_blabla and so on).
+  * Does not depend on a sys.path or on a what ever search path storage.
+  * Does not require to save/restore global variables like SOURCE_FILE and
+    SOURCE_DIR between calls to tkl_import_module.
+  * [for 3.4.x and higher] Can mix the module namespaces in nested
+    tkl_import_module calls (ex: named->local->named or local->named->local
+    and so on).
+  * [for 3.4.x and higher] Can auto export global variables/functions/classes
+    from where being declared to all children modules imported through the
+    tkl_import_module (through the tkl_declare_global function).
+
+Cons:
+
+  * Does not support complete import:
+    * Ignores enumerations and subclasses.
+    * Ignores builtins because each what type has to be copied exclusively.
+    * Ignores not trivially copiable classes.
+    * Avoids copying builtin modules including all packaged modules.
+  * [for 3.3.x and lower] Require to declare tkl_import_module in all modules
+    which calls to tkl_import_module (code duplication)
 
 WARNING:
   Use the SVN access to find out latest functionality and bug fixes.
