@@ -1,3 +1,6 @@
+2022.08.07:
+* fixed: bash/tacklelib: minor fixup
+
 2022.07.31:
 * changed: python/tacklelib: `README_EN.txt` update
 

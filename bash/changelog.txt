@@ -1,3 +1,6 @@
+2022.08.07:
+* fixed: tacklelib: minor fixup
+
 2022.03.27:
 * fixed: tacklelib/bash_tacklelib: `tkl_pop_var_from_stack` function accidental variable export instead of declare
 * fixed: tacklelib/traplib.sh: handlers fixup

@@ -163,7 +163,7 @@ function tkl_echo_args_as_expr()
   local expr="$1"
   shift
 
-  eval "unset out_var; echo $expr"
+  eval "echo $expr"
 }
 
 function tkl_export()
