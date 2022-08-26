@@ -378,6 +378,7 @@ python/tacklelib/tacklelib.url.py -text
 python/tacklelib/tacklelib.utils.py -text
 python/tacklelib/tacklelib.yaml.py -text
 python/tacklelib/tools/list_urls_in_files.py -text
+python/tacklelib/tools/pysh/cd.py -text
 python_patches/fcache/cache.py -text
 python_patches/fcache/cache.py.diff -text
 python_patches/fcache/posixemulation.py -text

@@ -1,3 +1,8 @@
+2022.08.26:
+* fixed: tacklelib/bash_tacklelib: missed to correctly unset local variables in `tkl_export*` functions
+* new: tacklelib/bash_tacklelib: added `tkl_unset_and_set_return` function to unset a variable and return it's value from a function
+* changed: tacklelib/bash_tacklelib: code improvements
+
 2022.08.07:
 * fixed: tacklelib: minor fixup
 

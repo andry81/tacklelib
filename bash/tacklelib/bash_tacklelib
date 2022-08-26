@@ -94,7 +94,7 @@ function tkl_declare_global()
   #   1. To unset current context local variable, but NOT the upper context local variable!
   #   2. Additionally, unsets an exported variable.
   #
-  unset $1 2> /dev/null
+  unset $1
 
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
   if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then
@@ -114,12 +114,13 @@ function tkl_declare_global()
 #
 function tkl_declare_global_array()
 {
-  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   # CAUTION:
   #   1. To unset current context local variable, but NOT the upper context local variable!
   #   2. Additionally, unsets an exported variable.
   #
-  unset $1 2> /dev/null
+  unset $1
+
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
 
   # The global declaration feature is enabled in Bash 4.2 but works stable only in Bash 4.3 and higher.
   if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3 )); then
@@ -135,7 +136,7 @@ function tkl_declare_global_eval()
   #   1. To unset current context local variable, but NOT the upper context local variable!
   #   2. Additionally, unsets an exported variable.
   #
-  unset $1 2> /dev/null
+  unset $1
 
   eval "$1=\"$2\"" # right argument does evaluate
 }
@@ -172,7 +173,7 @@ function tkl_export()
   #   1. To unset current context local variable, but NOT the upper context local variable!
   #   2. Additionally, unsets an exported variable, so we have to declare it with export.
   #
-  unset $1 2> /dev/null
+  unset $1
 
   eval "export $1=\"\$2\"" # right argument does NOT evaluate
 }
@@ -183,7 +184,7 @@ function tkl_export_eval()
   #   1. To unset current context local variable, but NOT the upper context local variable!
   #   2. Additionally, unsets an exported variable, so we have to declare it with export.
   #
-  unset $1 2> /dev/null
+  unset $1
 
   eval "export $1=\"$2\"" # right argument does evaluate
 }
@@ -195,12 +196,6 @@ function tkl_export_path()
   tkl_read_command_line_flags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
-  # CAUTION:
-  #   1. To unset current context local variable, but NOT the upper context local variable!
-  #   2. Additionally, unsets an exported variable, so we have to declare it with export.
-  #
-  unset $1 2> /dev/null
-
   local flag_subst_empty_value_by_placeholder=0
 
   local flag
@@ -208,14 +203,36 @@ function tkl_export_path()
     [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
   done
 
-  builtin trap "unset RETURN_VALUE; builtin trap - RETURN" RETURN
+  unset flag
+
+  builtin trap "if [[ 'RETURN_VALUE' != \"$1\" ]]; then unset RETURN_VALUE; fi; builtin trap - RETURN" RETURN
 
   tkl_normalize_path "${flag_args[@]}" "$2" || return $?
 
+  unset flag_args
+
+  # CAUTION:
+  #   Used `unset $1`:
+  #     1. To unset current context local variable, but NOT the upper context local variable!
+  #     2. Additionally, unsets an exported variable, so we have to declare it with export.
+  #
+
   if (( flag_subst_empty_value_by_placeholder )); then
+    unset flag_subst_empty_value_by_placeholder
+
+    if [[ 'RETURN_VALUE' != "$1" ]]; then 
+      unset $1
+    fi
+
     eval "export $1=\"\${RETURN_VALUE:-\"*:\\\${\$1}\"}\"" # right argument does NOT evaluate
   else
-    eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+    unset flag_subst_empty_value_by_placeholder
+
+    if [[ 'RETURN_VALUE' != "$1" ]]; then 
+      unset $1
+
+      eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+    fi
   fi
 }
 
@@ -226,12 +243,6 @@ function tkl_export_path_eval()
   tkl_read_command_line_flags flag_args "$@"
   (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
-  # CAUTION:
-  #   1. To unset current context local variable, but NOT the upper context local variable!
-  #   2. Additionally, unsets an exported variable, so we have to declare it with export.
-  #
-  unset $1 2> /dev/null
-
   local flag_subst_empty_value_by_placeholder=0
 
   local flag
@@ -239,14 +250,36 @@ function tkl_export_path_eval()
     [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
   done
 
-  builtin trap "unset RETURN_VALUE; builtin trap - RETURN" RETURN
+  unset flag
+
+  builtin trap "if [[ 'RETURN_VALUE' != \"$1\" ]]; then unset RETURN_VALUE; fi; builtin trap - RETURN" RETURN
 
   eval "tkl_normalize_path \"\${flag_args[@]}\" \"$2\"" || return $? # not flag argument does evaluate
 
+  unset flag_args
+
+  # CAUTION:
+  #   Used `unset $1`:
+  #     1. To unset current context local variable, but NOT the upper context local variable!
+  #     2. Additionally, unsets an exported variable, so we have to declare it with export.
+  #
+
   if (( flag_subst_empty_value_by_placeholder )); then
+    unset flag_subst_empty_value_by_placeholder
+
+    if [[ 'RETURN_VALUE' != "$1" ]]; then 
+      unset $1
+    fi
+
     eval "export $1=\"\${RETURN_VALUE:-\"*:\\\${\$1}\"}\"" # right argument does NOT evaluate
   else
-    eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+    unset flag_subst_empty_value_by_placeholder
+
+    if [[ 'RETURN_VALUE' != "$1" ]]; then 
+      unset $1
+
+      eval "export $1=\"\$RETURN_VALUE\"" # right argument does NOT evaluate
+    fi
   fi
 }
 
@@ -285,10 +318,22 @@ function tkl_set_return()
   return 255
 }
 
+function tkl_unset_and_set_return()
+{
+  if [[ -n "$1" ]]; then
+    builtin trap "unset \$1 2>/dev/null; builtin trap - RETURN" RETURN
+    eval "return \"\${$1}\""
+  fi
+  return 255
+}
+
 # NOTE:
 #   Can be used in a trap handler to save the $? variable to pass it to the trap handler end:
 #     >
 #     builtin trap "tkl_set_error $?; ...code changes the $? variable...; builtin trap - <TRAP>; tkl_set_return $tkl__last_error;" <TRAP>
+#   Or
+#     >
+#     builtin trap "tkl_set_error $?; ...code changes the $? variable...; builtin trap - <TRAP>; tkl_unset_and_set_return tkl__last_error;" <TRAP>
 #
 function tkl_set_error()
 {
