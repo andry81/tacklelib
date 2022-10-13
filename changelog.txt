@@ -1,3 +1,6 @@
+2022.10.13:
+* new: bash/tacklelib/bash_tacklelib: `tkl_*trim*` function to trim character sets from a string
+
 2022.08.26:
 * fixed: bash/tacklelib/bash_tacklelib: missed to correctly unset local variables in `tkl_export*` functions
 * new: bash/tacklelib/bash_tacklelib: added `tkl_unset_and_set_return` function to unset a variable and return it's value from a function

@@ -159,6 +159,49 @@ function tkl_declare_array_as_expr_from_args()
   eval "unset out_var expr; tkl_declare_array '$out_var' $expr"
 }
 
+# NOTE:
+#
+#   * `tkl_*trim*`
+#
+#   Based on: https://github.com/dylanaraps/pure-bash-bible#trim-leading-and-trailing-white-space-from-string
+
+function tkl_ltrim_char_cls()
+{
+  local str="$1"
+  local char_class="$2"
+
+  RETURN_VALUE="${str#"${str%%$char_class*}"}"
+}
+
+function tkl_rtrim_char_cls()
+{
+  local str="$1"
+  local char_class="$2"
+
+  RETURN_VALUE="${str%"${str##*$char_class}"}"
+}
+
+function tkl_trim_char_cls()
+{
+  tkl_ltrim_char_cls "$1" "$2"
+  tkl_rtrim_char_cls "$RETURN_VALUE" "$2"
+}
+
+function tkl_ltrim_chars()
+{
+  tkl_ltrim_char_cls "$1" "[^$2]"
+}
+
+function tkl_rtrim_chars()
+{
+  tkl_rtrim_char_cls "$1" "[^$2]"
+}
+
+function tkl_trim_chars()
+{
+  tkl_trim_char_cls "$1" "[^$2]"
+}
+
 function tkl_echo_args_as_expr()
 {
   local expr="$1"
