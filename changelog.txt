@@ -1,3 +1,6 @@
+2022.10.15:
+* new: __init__: added `NO_GEN` and `NO_LOG` environment variables to disable files and directories generation and logging
+
 2022.10.13:
 * new: bash/tacklelib/bash_tacklelib: `tkl_*trim*` function to trim character sets from a string
 
