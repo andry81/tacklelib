@@ -1,3 +1,7 @@
+2023.01.06:
+* new: .gitlinks: added usage of `git-links` (https://github.com/chronoxor/gil) project to port `svn:externals` dependencies from svn into git
+* changed: subgit import from svn, branches rework, cleanup of svn related files
+
 2022.10.15:
 * new: __init__: added `NO_GEN` and `NO_LOG` environment variables to disable files and directories generation and logging
 
