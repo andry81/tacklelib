@@ -8,12 +8,12 @@ function git_filter_branch_committer_user()
   local USER_NEW_EMAIL="$4"
 
   if [[ -z "$USER_OLD_NAME" && -z "$USER_OLD_EMAIL" ]]; then
-    echo "$0: error: at least USER_OLD_NAME or USER_OLD_EMAIL mu be not empty" >&2
+    echo "$0: error: at least USER_OLD_NAME or USER_OLD_EMAIL must be not empty" >&2
     return 255
   fi
 
   if [[ -z "$USER_NEW_NAME" && -z "$USER_NEW_EMAIL" ]]; then
-    echo "$0: error: at least USER_NEW_NAME or USER_NEW_EMAIL mu be not empty" >&2
+    echo "$0: error: at least USER_NEW_NAME or USER_NEW_EMAIL must be not empty" >&2
     return 255
   fi
 
@@ -40,12 +40,12 @@ function git_filter_branch_author_user()
   local USER_NEW_EMAIL="$4"
 
   if [[ -z "$USER_OLD_NAME" && -z "$USER_OLD_EMAIL" ]]; then
-    echo "$0: error: at least USER_OLD_NAME or USER_OLD_EMAIL mu be not empty" >&2
+    echo "$0: error: at least USER_OLD_NAME or USER_OLD_EMAIL must be not empty" >&2
     return 255
   fi
 
   if [[ -z "$USER_NEW_NAME" && -z "$USER_NEW_EMAIL" ]]; then
-    echo "$0: error: at least USER_NEW_NAME or USER_NEW_EMAIL mu be not empty" >&2
+    echo "$0: error: at least USER_NEW_NAME or USER_NEW_EMAIL must be not empty" >&2
     return 255
   fi
 

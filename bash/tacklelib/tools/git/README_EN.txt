@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2020.09.04
+* 2023.02.20
 * tacklelib--bash--git
 
 1. DESCRIPTION
@@ -20,11 +20,23 @@ WARNING:
 2. USAGE
 -------------------------------------------------------------------------------
 
+For single user name and email replace:
+
 >
 git filter-branch --env-filter \
   "source '...path-to-file.../git_filter_branch_lib.sh' && \
   git_filter_branch_committer_user '<USER_OLD_NAME>' '<USER_OLD_EMAIL>' '<USER_NEW_NAME>' '<USER_NEW_EMAIL>' && \
-  git_filter_branch_author_user '<USER_OLD_NAME>' '<USER_OLD_EMAIL>' '<USER_NEW_NAME>' '<USER_NEW_EMAIL>'"
+  git_filter_branch_author_user '<USER_OLD_NAME>' '<USER_OLD_EMAIL>' '<USER_NEW_NAME>' '<USER_NEW_EMAIL>'" -- --all
+
+For multiple user name and email replace:
+
+>
+git filter-branch --env-filter \
+  "source '...path-to-file.../git_filter_branch_lib.sh' && \
+  git_filter_branch_committer_user '<USER_OLD_NAME_1>' '<USER_OLD_EMAIL_1>' '<USER_NEW_NAME_1>' '<USER_NEW_EMAIL_1>' && \
+  git_filter_branch_author_user '<USER_OLD_NAME_1>' '<USER_OLD_EMAIL_1>' '<USER_NEW_NAME_1>' '<USER_NEW_EMAIL_1>' \
+  git_filter_branch_committer_user '<USER_OLD_NAME_2>' '<USER_OLD_EMAIL_2>' '<USER_NEW_NAME_2>' '<USER_NEW_EMAIL_2>' && \
+  git_filter_branch_author_user '<USER_OLD_NAME_2>' '<USER_OLD_EMAIL_2>' '<USER_NEW_NAME_2>' '<USER_NEW_EMAIL_2>'" -- --all
 
 -------------------------------------------------------------------------------
 3. AUTHOR

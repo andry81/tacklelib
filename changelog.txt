@@ -1,4 +1,8 @@
 2023.02.20:
+* fixed: bash/tacklelib/tools/git/git_filter_branch_lib.sh: minor fixup
+* changed: bash/tacklelib/tools/git/README_EN.txt: readme update
+
+2023.02.20:
 * fixed: vbs/tacklelib: tacklelib.vbs, tools/totalcmd/install_*.vbs: minor fixup
 * fixed: vbs/tacklelib/tools/totalcmd/uninstall_*.vbs: uninstall execution fixup
 

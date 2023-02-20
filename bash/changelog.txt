@@ -1,3 +1,7 @@
+2023.02.20:
+* fixed: tacklelib/tools/git/git_filter_branch_lib.sh: minor fixup
+* changed: tacklelib/tools/git/README_EN.txt: readme update
+
 2022.08.26:
 * fixed: tacklelib/bash_tacklelib: missed to correctly unset local variables in `tkl_export*` functions
 * new: tacklelib/bash_tacklelib: added `tkl_unset_and_set_return` function to unset a variable and return it's value from a function
