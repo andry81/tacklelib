@@ -87,11 +87,11 @@ Dim ini_file_add_arr : ini_file_add_arr = ReadFileLinesAsArr(ini_file_path_add_s
 
 If ENABLE_ON_ERROR Then On Error Resume Next
 Dim ini_file_cleanuped_arr : ini_file_cleanuped_arr = CleanupTotalcmdButtonbar(ini_file_in_arr, ini_file_cleanup_arr)
-If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (CleanupTotalcmdButtonbar:" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
 
 If ENABLE_ON_ERROR Then On Error Resume Next
 Dim ini_file_updated_arr : ini_file_updated_arr = MergeTotalcmdButtonbar(ini_file_cleanuped_arr, ini_file_add_arr, insert_buttonbar_from_index, do_make_margin_by_separators_if_not_present)
-If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (MergeTotalcmdButtonbar:" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
 
 Dim str
 Dim ini_file_updated_arr_ubound : ini_file_updated_arr_ubound = UBound(ini_file_updated_arr)
@@ -115,4 +115,4 @@ End If
 
 If ENABLE_ON_ERROR Then On Error Resume Next
 WriteFileLinesFromArr ini_file_path_out_str, ini_file_updated_arr, True
-If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (WriteFileLinesFromArr:" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number

@@ -250,7 +250,11 @@ End Function
 '   the `dict_obj(key_).Count` expression DOES evaluate even if the `dict_obj.Exists(key_)` expression is `False`.
 Function GetDictCount(dict_obj, key_)
     On Error Resume Next
-    GetDictCount = dict_obj(key_).Count
+    Dim DictCount : DictCount = dict_obj(key_).Count
+    If CStr(DictCount) = "" Then
+      DictCount = 0
+    End If
+    GetDictCount = DictCount
     On Error Goto 0
 End Function
 
@@ -355,6 +359,7 @@ Function CleanupIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_key
                 GrowArr ini_file_out_arr, j
                 ini_file_out_arr(j - 1) = ini_file_arr(i)
             End If
+        ' remove keys without section
         ElseIf Not is_section_to_cleanup Then
             If ini_line_str <> "" And ini_file_cleanup_dict_obj.Exists(section_str) And GetDictCount(ini_file_cleanup_dict_obj, section_str) <> 0 Then
                 If ";" = Left(ini_line_str, 1) Then
@@ -395,6 +400,7 @@ Function CleanupIniFileArr(ini_file_arr, ini_file_cleanup_arr, do_remove_all_key
                     do_ignore_blank_lines_after_removed_key = False
                 End If
             End If
+        ' remove all keys except non key values
         ElseIf do_remove_all_keys_instead_remove_section Then
             If Not do_remove_section_non_key_lines Then
                 If ini_line_str <> "" Then
@@ -440,7 +446,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
 
     Dim ini_file_to_arr_ubound : ini_file_to_arr_ubound = UBound(ini_file_to_arr)
     Dim ini_file_out_arr
-    ReDim ini_file_out_arr(ini_file_to_arr_ubound + UBound(ini_file_from_arr) * 2 + 2) ' include empty lines
+    ReDim ini_file_out_arr((ini_file_to_arr_ubound + UBound(ini_file_from_arr) + 2) * 2) ' include empty lines between sections
     Dim i, j : j = 0
     Dim ini_line_str
     Dim section_str : section_str = ""
@@ -469,7 +475,7 @@ Function MergeIniFileArr(ini_file_to_arr, ini_file_from_arr, do_append_empty_lin
                 End If
             End If
 
-            If ini_file_from_dict_obj.Exists(section_str) Then
+            If section_str <> "" And ini_file_from_dict_obj.Exists(section_str) Then
                 Set tmp_dict_obj = ini_file_from_dict_obj(section_str)
                 If tmp_dict_obj.Count > 0 Then
                     If do_append_empty_line_before_append_to_section Then

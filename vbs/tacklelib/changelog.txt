@@ -1,3 +1,7 @@
+2023.02.20:
+* fixed: tacklelib.vbs, tools/totalcmd/install_*.vbs: minor fixup
+* fixed: tools/totalcmd/uninstall_*.vbs: uninstall execution fixup
+
 2021.09.06:
 * changed: readme update
 * refactor: code refactor

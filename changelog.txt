@@ -1,3 +1,7 @@
+2023.02.20:
+* fixed: vbs/tacklelib: tacklelib.vbs, tools/totalcmd/install_*.vbs: minor fixup
+* fixed: vbs/tacklelib/tools/totalcmd/uninstall_*.vbs: uninstall execution fixup
+
 2023.02.11:
 * changed: .externals: added usage of `vcstool` fork (https://github.com/plusone-robotics/vcstool) project to port `svn:externals` dependencies from svn into git
 * changed: .gitlinks: removed usage of `git-links` (https://github.com/chronoxor/gil) project because found as not acceptable for usage: https://github.com/chronoxor/gil/issues/6, https://lore.kernel.org/git/1716310675.20230122233403@inbox.ru
