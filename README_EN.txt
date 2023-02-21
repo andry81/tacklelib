@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2022.03.14
+* 2023.02.21
 * tacklelib
 
 1. DESCRIPTION
@@ -67,12 +67,6 @@ languages:
 * VBS.
   Various extension scritps/modules for the Visual Basic Script interpreter.
 
-The latest version is here: https://sf.net/p/tacklelib
-
-WARNING:
-  Use the SVN access to find out new functionality and bug fixes.
-  See the REPOSITORIES section.
-
 -------------------------------------------------------------------------------
 2. LICENSE
 -------------------------------------------------------------------------------
@@ -83,14 +77,14 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree
-  * https://svn.code.sf.net/p/tacklelib/tacklelib
-First mirror:
   * https://github.com/andry81/tacklelib/branches
-  * https://github.com/andry81/tacklelib.git
+    https://github.com/andry81/tacklelib.git
+First mirror:
+  * https://sf.net/p/tacklelib/tacklelib/ci/master/tree
+    https://svn.code.sf.net/p/tacklelib/tacklelib
 Second mirror:
   * https://bitbucket.org/andry81/tacklelib/branches
-  * https://bitbucket.org/andry81/tacklelib.git
+    https://bitbucket.org/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------
 4. PREREQUISITES
@@ -151,12 +145,12 @@ IDE's, applications and patches to run with or from:
 * Bash additional modules:
 
 **  tacklelib--bash:
-    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/bash/tacklelib/
+    /bash/tacklelib/
 
 * CMake additional modules:
 
 **  tacklelib--cmake:
-    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/cmake/tacklelib/
+    /cmake/tacklelib/
 
 * Python site modules:
 
@@ -185,7 +179,7 @@ IDE's, applications and patches to run with or from:
 * Python testing modules:
 
 **  tacklelib--python:
-    https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib/
+    /python/tacklelib/
 
 Temporary dropped usage:
 
@@ -546,7 +540,7 @@ To prepare 3dparty dependencies you can:
   1. Read the root `README_EN.txt` file from the
      `tacklelib--3dparty_build_scripts` project for the 3dparty directory
      creation details:
-     * https://github.com/andry81/tacklelib--3dparty_build_scripts
+     * https://github.com/andry81-3dparty/tacklelib--3dparty_build_scripts
      * https://sf.net/p/tacklelib/3dparty_build_scripts
 
   2. Download required dependencies declared in the `README_EN.deps.txt`

@@ -1,3 +1,7 @@
+2023.02.21:
+* changed: doc/*: cleanup
+* changed: README_EN.txt: readme cleanup
+
 2022.02.27:
 * new: Projects.cmake: `tkl_unset_empty_builtin_vars` function to unset empty builtin variables in case if they were empty
 * changed: Projects.cmake: check a set of builtin and system variables on undefined state and print `<undefined>` instead of an empty value

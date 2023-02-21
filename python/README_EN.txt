@@ -1,29 +1,26 @@
 * README_EN.txt
-* 2021.09.06
+* 2023.02.21
 * tacklelib--python
 
 1. DESCRIPTION
-2. LICENSE
-3. REPOSITORIES
-4. PREREQUISITES
-5. CATALOG CONTENT DESCRIPTION
-6. KNOWN ISSUES
-6.1. Python installation issues prior version 3.4:
-6.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
-6.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
-6.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
+2. PREREQUISITES
+3. CATALOG CONTENT DESCRIPTION
+4. KNOWN ISSUES
+4.1. Python installation issues prior version 3.4:
+4.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
+4.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
+4.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
        `No matching distribution found for pip<8`
-6.1.4. Message `ImportError: No module named setuptools` while installing pip
+4.1.4. Message `ImportError: No module named setuptools` while installing pip
        version `7.1.2` and lower
-6.2. Python installation issues:
-6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
+4.2. Python installation issues:
+4.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
        Python 3.x Installer ended prematurely (Windows msi)
-6.3. Python execution issues:
-6.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
-6.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
-6.4. fcache execution issues
-6.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
-7. AUTHOR
+4.3. Python execution issues:
+4.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+4.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+4.4. fcache execution issues
+4.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -32,36 +29,13 @@ The `tacklelib` library python support modules to run python scripts on
 Windows and Linux platforms separately without any other extra dependencies
 except those from the PREREQUISITES section below.
 
-WARNING:
-  Use the SVN access to find out latest functionality and bug fixes.
-  See the REPOSITORIES section.
-
 -------------------------------------------------------------------------------
-2. LICENSE
--------------------------------------------------------------------------------
-The MIT license (see included text file "license.txt" or
-https://en.wikipedia.org/wiki/MIT_License)
-
--------------------------------------------------------------------------------
-3. REPOSITORIES
--------------------------------------------------------------------------------
-Primary:
-  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python
-  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/python
-First mirror:
-  * https://github.com/andry81/tacklelib/tree/trunk/python
-  * https://github.com/andry81/tacklelib.git
-Second mirror:
-  * https://bitbucket.org/andry81/tacklelib/src/trunk/python
-  * https://bitbucket.org/andry81/tacklelib.git
-
--------------------------------------------------------------------------------
-4. PREREQUISITES
+2. PREREQUISITES
 -------------------------------------------------------------------------------
 See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
-5. CATALOG CONTENT DESCRIPTION
+3. CATALOG CONTENT DESCRIPTION
 -------------------------------------------------------------------------------
 
 <root>
@@ -82,15 +56,15 @@ See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
      # The reset miscellaneous scripts.
 
 -------------------------------------------------------------------------------
-6. KNOWN ISSUES
+4. KNOWN ISSUES
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1. Python installation issues:
+4.1. Python installation issues:
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
+4.1.1. No `pip` package manager and no `Scripts` directory prior Python 3.4
 -------------------------------------------------------------------------------
 https://docs.python.org/3/installing/index.html#install-pip-in-versions-of-python-prior-to-python-3-4
 
@@ -125,7 +99,7 @@ Warning:
 ```
 
 -------------------------------------------------------------------------------
-6.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
+4.1.2. `SyntaxError: invalid syntax: return u"".join(u"\\x%x" % c for c in raw_bytes), err.end`
 -------------------------------------------------------------------------------
 
 Issues:
@@ -139,7 +113,7 @@ Solution:
   https://bootstrap.pypa.io/3.2/get-pip.py
 
 -------------------------------------------------------------------------------
-6.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
+4.1.3. `Could not find a version that satisfies the requirement pip<8 (from versions: )`
        `No matching distribution found for pip<8`
 -------------------------------------------------------------------------------
 
@@ -181,7 +155,7 @@ Solution:
   c:/python/x86/python setup.py install
 
 -------------------------------------------------------------------------------
-6.1.4. Message `ImportError: No module named setuptools` while installing pip
+4.1.4. Message `ImportError: No module named setuptools` while installing pip
        version `7.1.2` and lower
 -------------------------------------------------------------------------------
 
@@ -196,11 +170,11 @@ Solution:
   extracted package being installed.
 
 -------------------------------------------------------------------------------
-6.2. Python installation issues:
+4.2. Python installation issues:
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
+4.2.1. Python 2.x/3.x installer installation has no `Scripts` folder or
        Python 3.x Installer ended prematurely (Windows msi)
 -------------------------------------------------------------------------------
 
@@ -220,14 +194,14 @@ Solution:
 
   Or use a python script from here:
 
-  https://sf.net/p/contools/contools/HEAD/tree/trunk/Scripts/Tools/admin/scan_broken_reg_keys.py
+  /Scripts/Tools/admin/scan_broken_reg_keys.py
 
 -------------------------------------------------------------------------------
-6.3. Python execution issues:
+4.3. Python execution issues:
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-6.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
+4.3.1. `ValueError: 'cwd' in __slots__ conflicts with class variable`
 -------------------------------------------------------------------------------
 
 Stack trace example:
@@ -248,7 +222,7 @@ Solution:
   Upgrade python version at least up to 3.5.4 or 3.6.2.
 
 -------------------------------------------------------------------------------
-6.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
+4.3.2. `TypeError: descriptor 'combine' for type 'datetime.datetime' doesn't apply to type 'datetime'`
 -------------------------------------------------------------------------------
 
 Stack trace example:
@@ -267,7 +241,7 @@ Solution:
   Upgrade python version at least up to 3.6.2.
 
 -------------------------------------------------------------------------------
-6.4. fcache execution issues
+4.4. fcache execution issues
 -------------------------------------------------------------------------------
 * `fcache is not multiprocess aware on Windows` :
   https://github.com/tsroten/fcache/issues/26
@@ -277,7 +251,7 @@ Solution:
   https://github.com/tsroten/fcache/issues/28
 
 -------------------------------------------------------------------------------
-6.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
+4.4.1. fcache implementation hangs or fails in __getitem__/__setitem__
 -------------------------------------------------------------------------------
 
 Issue:
@@ -288,8 +262,3 @@ Solution:
 
   Patch python `fcache` module sources by patches from the
   `python_patches/fcache` directory.
-
--------------------------------------------------------------------------------
-7. AUTHOR
--------------------------------------------------------------------------------
-Andrey Dibrov (andry at inbox dot ru)

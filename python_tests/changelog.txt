@@ -1,3 +1,6 @@
+2023.02.21:
+* changed: README_EN.txt: readme cleanup
+
 2021.09.06:
 * changed: readme update
 * refactor: code refactor

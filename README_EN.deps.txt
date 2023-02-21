@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2020.04.12
+* 2022.02.26
 * tacklelib
 
 1. DESCRIPTION
@@ -95,8 +95,8 @@ Legend:
                 from https://github.com/fmtlib/fmt/releases/tag/6.2.0 (https://fmt.dev/6.2.0/ )
                 (https://github.com/fmtlib/fmt/commit/9bdd1596cef1b57b9556f8bef32dc4a32322ef3e )
   03 desc:      C++ string safe formatter
-  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--fmt
-                [02] https://github.com/andry81/tacklelib--3dparty--fmt.git
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--fmt.git
+                [02] https://sf.net/p/tacklelib/3dparty--fmt
   05 original:  [01] https://github.com/fmtlib/fmt
   06 build:     (default)   build from sources in a dependentee project
   07 linkage:   (default)   as a static library
@@ -118,8 +118,8 @@ Legend:
                 from https://github.com/imageworks/pystring/commits/master
                 (https://github.com/imageworks/pystring/commit/281419de2f91f9e0f2df6acddfea3b06a43436be )
   03 desc:      C++ python string functions
-  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--pystring
-                [02] https://github.com/andry81/tacklelib--3dparty--pystring.git
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--pystring.git
+                [02] https://sf.net/p/tacklelib/3dparty--pystring
   05 original:  [01] https://github.com/imageworks/pystring
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
@@ -164,8 +164,8 @@ Legend:
                 logging into text/binary file or into network and gui
                 application to open the binary log file or recieve log from
                 network
-  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--p7client
-                [02] https://github.com/andry81/tacklelib--3dparty--p7client.git
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--p7client.git
+                [02] https://sf.net/p/tacklelib/3dparty--p7client
   05 original:  [01] http://baical.net/p7.html
                 [02] http://baical.net/downloads.html
   06 build:     (default) build from sources in a dependentee project
@@ -296,8 +296,8 @@ Legend:
                 from http://crd-legacy.lbl.gov/~dhbailey/mpdist/
   03 desc:      C++ floating point high precision extension library
                 (double-double, quad-double)
-  04 forked:    [01] https://sf.net/p/orbittools/qd_
-                [02] https://github.com/andry81/orbittools--qd.git
+  04 forked:    [01] https://github.com/andry81/orbittools--qd.git
+                [02] https://sf.net/p/orbittools/qd_
   05 original:  [01] http://crd-legacy.lbl.gov/~dhbailey/mpdist/
                 [02] http://crd.lbl.gov/software/applied-mathematics-software/
   06 build:     (default) build from sources in a dependentee project
@@ -324,8 +324,8 @@ Legend:
                 from https://github.com/google/googletest/releases/tag/release-1.10.0
                 (https://github.com/google/googletest/commit/703bd9caab50b139428cea1aaff9974ebee5742e )
   03 desc:      C++ test library
-  04 forked:    [01] https://sf.net/p/tacklelib/3dparty--googletest
-                [02] https://github.com/andry81/tacklelib--3dparty--googletest.git
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--googletest.git
+                [02] https://sf.net/p/tacklelib/3dparty--googletest
   05 original:  [01] https://github.com/google/googletest
                 [02] https://github.com/abseil/googletest
   06 build:     (default)   build from sources in a dependentee project

@@ -1,15 +1,12 @@
 * README_EN.txt
-* 2022.07.31
+* 2023.02.21
 * tacklelib--python--tacklelib
 
 1. DESCRIPTION
-2. LICENSE
-3. REPOSITORIES
-4. PREREQUISITES
-5. USAGE
-5.1. Basic initialization
-5.2. Importing other modules
-6. AUTHOR
+2. PREREQUISITES
+3. USAGE
+3.1. Basic initialization
+3.2. Importing other modules
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -51,40 +48,17 @@ Cons:
   * [for 3.3.x and lower] Require to declare tkl_import_module in all modules
     which calls to tkl_import_module (code duplication)
 
-WARNING:
-  Use the SVN access to find out latest functionality and bug fixes.
-  See the REPOSITORIES section.
-
 -------------------------------------------------------------------------------
-2. LICENSE
--------------------------------------------------------------------------------
-The MIT license (see included text file "license.txt" or
-https://en.wikipedia.org/wiki/MIT_License)
-
--------------------------------------------------------------------------------
-3. REPOSITORIES
--------------------------------------------------------------------------------
-Primary:
-  * https://sf.net/p/tacklelib/tacklelib/HEAD/tree/trunk/python/tacklelib
-  * https://svn.code.sf.net/p/tacklelib/tacklelib/trunk/python/tacklelib
-First mirror:
-  * https://github.com/andry81/tacklelib/tree/trunk/python/tacklelib
-  * https://github.com/andry81/tacklelib.git
-Second mirror:
-  * https://bitbucket.org/andry81/tacklelib/src/trunk/python/tacklelib
-  * https://bitbucket.org/andry81/tacklelib.git
-
--------------------------------------------------------------------------------
-4. PREREQUISITES
+2. PREREQUISITES
 -------------------------------------------------------------------------------
 See details in the `PREREQUISITES` section in the root `README_EN.txt` file.
 
 -------------------------------------------------------------------------------
-5. USAGE
+3. USAGE
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-5.1. Basic initialization
+3.1. Basic initialization
 -------------------------------------------------------------------------------
 
 To initialize from python interactive command line using
@@ -140,7 +114,7 @@ To initialize from python interactive command line using
    'tkl_source_module', 'tkl_uninit', 'tkl_update_global_config']
 
 -------------------------------------------------------------------------------
-5.2. Importing other modules
+3.2. Importing other modules
 -------------------------------------------------------------------------------
 
 Usage:
@@ -148,8 +122,3 @@ Usage:
   tkl_import_module(<dir-path>, <file-name>[, <module-name>])
 
   tkl_source_module(<dir-path>, <file-name>)
-
--------------------------------------------------------------------------------
-6. AUTHOR
--------------------------------------------------------------------------------
-Andrey Dibrov (andry at inbox dot ru)

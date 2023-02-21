@@ -1,3 +1,7 @@
+2023.02.21:
+* changed: tacklelib/bash_tacklelib: repository details update
+* changed: README_EN.txt: readme cleanup
+
 2023.02.20:
 * fixed: tacklelib/tools/git/git_filter_branch_lib.sh: minor fixup
 * changed: tacklelib/tools/git/README_EN.txt: readme update

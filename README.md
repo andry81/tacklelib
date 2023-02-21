@@ -22,8 +22,6 @@
   Various extension scritps/modules for the Visual Basic Script interpreter.<br/>
 </div><br/>
 
-The latest version is here: https://sf.net/p/tacklelib</h4>
-
 <p align="center">
   <a href="https://www.codefactor.io/repository/github/andry81/tacklelib">
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codefactor-grade.svg" valign="middle" alt="codefactor.io|quality" /></a>
@@ -74,8 +72,8 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 </p>
 
 <p align="center">
-  <a href="https://github.com/andry81/tacklelib/blob/trunk/changelog.txt">Changelog</a>
-• <a href="https://github.com/andry81/tacklelib/blob/trunk/README_EN.txt">Readme</a>
+  <a href="https://github.com/andry81/tacklelib/blob/master/changelog.txt">Changelog</a>
+• <a href="https://github.com/andry81/tacklelib/blob/master/README_EN.txt">Readme</a>
 • <a href="#dependecies">Dependencies</a>
 • <a href="#copyright-and-license"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/license/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
 </p>
@@ -90,7 +88,7 @@ The latest version is here: https://sf.net/p/tacklelib</h4>
 
 ---
 
-## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/blob/trunk/README_EN.deps.txt">README_EN.deps.txt</a>)
+## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/blob/master/README_EN.deps.txt">README_EN.deps.txt</a>)
 
 * <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--boost
 * <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--fmt
@@ -111,4 +109,4 @@ https://github.com/andry81/tacklelib--3dparty_build_scripts
 
 ## <a name="copyright-and-license">Copyright and License</a>
 
-Code and documentation copyright 2021 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/trunk/license.txt)
+Code and documentation copyright 2021 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/master/license.txt)

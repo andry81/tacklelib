@@ -1,3 +1,6 @@
+2023.02.21:
+* changed: README_EN.txt: readme cleanup
+
 2023.02.20:
 * fixed: tacklelib.vbs, tools/totalcmd/install_*.vbs: minor fixup
 * fixed: tools/totalcmd/uninstall_*.vbs: uninstall execution fixup

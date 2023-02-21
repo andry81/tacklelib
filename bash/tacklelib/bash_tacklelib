@@ -3,7 +3,11 @@
 # Author:   Andrey Dibrov (andry at inbox dot ru)
 
 # Tacklelib project library bash shell script module
-# (https://sf.net/p/tacklelib ).
+#
+# Repositories:
+#   * https://github.com/andry81/tacklelib
+#   * https://sf.net/p/tacklelib
+#   * https://bitbucket.org/andry81/tacklelib
 #
 # Base bash shell library module with a basic set of functionality.
 # Designed to be included through the absolute path and the source command -

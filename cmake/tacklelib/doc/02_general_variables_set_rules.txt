@@ -1,12 +1,11 @@
 * 02_general_variables_set_rules.txt
-* 2019.06.15
+* 2023.02.21
 * tacklelib--cmake/doc
 
 1. DESCRIPTION
 2. CMAKE `set(... CACHE ...)`
 2. CMAKE `set(... CACHE ... FORCE)`
 4. CMAKE `set(<var> <value>)`
-5. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -42,8 +41,3 @@ been already exist, because it actually does not change the cache value but
 changes the state of the ${<var>} value. In another words if you try later to
 unset the original variable by the `unset(<var>)` then the cached value
 will be revealed and might be different than after a very first set!
-
--------------------------------------------------------------------------------
-5. AUTHOR EMAIL
--------------------------------------------------------------------------------
-andry at inbox dot ru

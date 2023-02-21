@@ -1,5 +1,5 @@
 * 01_general_expansion_rules_and_reverse_to_expansion_construction_rules.txt
-* 2019.06.08
+* 2023.02.21
 * tacklelib--cmake/doc
 
 1. DESCRIPTION
@@ -13,7 +13,6 @@
 6.3. CMAKE `list(APPEND ...)` can merge lists
 6.4. `Not paired `]` or `[` characters breaks "file(STRINGS`
 6.5. `CMAKE_CONFIGURATION_TYPES is not empty when empty`
-7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -140,8 +139,3 @@ https://gitlab.kitware.com/cmake/cmake/issues/19156
 6.5. `CMAKE_CONFIGURATION_TYPES is not empty when empty`
 -------------------------------------------------------------------------------
 https://gitlab.kitware.com/cmake/cmake/issues/19057
-
--------------------------------------------------------------------------------
-7. AUTHOR EMAIL
--------------------------------------------------------------------------------
-andry at inbox dot ru
