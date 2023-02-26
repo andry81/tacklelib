@@ -1,3 +1,8 @@
+2023.02.26:
+* new: tacklelib/tools/git/git_unmirror_refs.sh: added `git_unmirror_refs.sh` script to unmirror mirrored remote repositories (port of `git_unmirror_refs.bat` script from `contools` project)
+* changed: tacklelib/tools/git/git_filter_branch_user.sh: rewrited for more accurate user match
+* changed: tacklelib/tools/git/README_EN.txt: description and usage examples is moved into the scripts
+
 2023.02.21:
 * changed: tacklelib/bash_tacklelib: repository details update
 * changed: README_EN.txt: readme cleanup

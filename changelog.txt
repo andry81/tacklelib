@@ -1,3 +1,8 @@
+2023.02.26:
+* new: bash/tacklelib/tools/git/git_unmirror_refs.sh: added `git_unmirror_refs.sh` script to unmirror mirrored remote repositories (port of `git_unmirror_refs.bat` script from `contools` project)
+* changed: bash/tacklelib/tools/git/git_filter_branch_user.sh: rewrited for more accurate user match
+* changed: bash/tacklelib/tools/git/README_EN.txt: description and usage examples is moved into the scripts
+
 2023.02.21:
 * changed: bash/tacklelib/bash_tacklelib: repository details update
 * changed: bash, bash_tests, cmake/tacklelib, cmake_tests, python, python_tests, vbs/tacklelib: README_EN.txt: readme cleanup
