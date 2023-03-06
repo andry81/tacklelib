@@ -1,3 +1,6 @@
+2023.03.06:
+* changed: README_EN.deps.txt: dependencies update
+
 2023.02.26:
 * new: bash/tacklelib/tools/git/git_filter_branch_cleanup.sh: added `git_filter_branch_cleanup.sh` script to cleanup artefacts after branch filtering with the `git_filter_branch_user.sh` script execution
 

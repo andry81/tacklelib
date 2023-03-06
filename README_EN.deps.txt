@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2022.02.26
+* 2023.03.05
 * tacklelib
 
 1. DESCRIPTION
@@ -73,6 +73,7 @@ Legend:
   02 version:   1.62+
   03 desc:      C++ generic library
   04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--boost.git
+                [02] https://sf.net/p/tacklelib/3dparty--boost
   05 original:  [01] https://www.boost.org
                 [02] https://github.com/boostorg/boost
                 [03] https://dl.bintray.com/boostorg/release/
@@ -124,7 +125,12 @@ Legend:
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
   08 variables: UTILITY_PYSTRING_ROOT
-  09 patched:   YES
+  09 patched:   YES:
+                [01] Use std::basic_string instead of single std::string
+                (unable to use functions in unicode contexts because of that
+                reason).
+                [02] Compilation warnings in the
+                Microsoft Visual Studio 2015 Update 3.
   10 extended:  YES:
                 [01] `cmakelist.txt` file based on extensions from the
                 tacklelib library cmake modules
@@ -171,7 +177,15 @@ Legend:
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
   08 variables: LOG_P7_CLIENT_ROOT
-  09 patched:   YES
+  09 patched:   YES:
+                [01] fixed Linux x86_64 build
+                [02] fixed msys/mingw build
+                [03] fixed asm compilation under gcc
+                `error: symbol crc32loop is already defined`
+                [04] fixed access to long UNC paths under Windows
+                (only backward slashes must be used there)
+                [05] replaced usage of -pthread by target_link_libraries as
+                more reliable
   10 extended:  YES:
                 [01] `cmakelist.txt` file based on extensions from the
                 tacklelib library cmake modules
@@ -195,14 +209,18 @@ Legend:
   03 desc:      C archive pipeline/filter library to organize access to
                 compress algorithms in 3dparty libraries which must be attached
                 separately
-  04 forked:    NO
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--libarchive.git
+                [02] https://sf.net/p/tacklelib/3dparty--libarchive
   05 original:  [01] https://www.libarchive.org
                 [02] https://www.libarchive.org/downloads/
                 [03] https://github.com/libarchive/libarchive
   06 build:     (default) build from sources in a dependentee project
   07 linkage:   (default) as a static library
   08 variables: ARC_LIBARCHIVE_ROOT, ENABLE_LZMA
-  09 patched:   YES, not published
+  09 patched:   YES:
+                [01] workaround for the library issue:
+                `CMakeLists.txt tries to override globally visible CMAKE_BUILD_TYPE through the cache` :
+                https://github.com/libarchive/libarchive/issues/1163
   10 extended:  YES:
                 [01] C++11 interface with auto handles in the tacklelib
                 library: `libarchive.hpp`
@@ -220,7 +238,8 @@ Legend:
                 from https://git.tukaani.org/?p=xz.git
                 (https://git.tukaani.org/?p=xz.git;a=commit;h=2327a461e1afce862c22269b80d3517801103c1b )
   03 desc:      C compress algorithms library
-  04 forked:    NO
+  04 forked:    [01] https://github.com/andry81/tacklelib--3dparty--xzutils.git
+                [02] https://sf.net/p/tacklelib/3dparty--xzutils
   05 original:  [01] https://tukaani.org/xz/
                 [02] https://git.tukaani.org/xz.git
                 [03] https://git.tukaani.org/?p=xz.git
@@ -331,7 +350,10 @@ Legend:
   06 build:     (default)   build from sources in a dependentee project
   07 linkage:   (default)   as a static library
   08 variables: GTEST_ROOT, GOOGLETEST_VERSION
-  09 patched:   YES
+  09 patched:   YES:
+                [01] Ability to add test case predicate functions to be called
+                at print results phase (currently only fail results printing is
+                implemented).
   10 extended:  YES:
                 [01] asserts replacement in the tacklelib library:
                 `src/utility/assert.hpp` (but not in the `include/`)
