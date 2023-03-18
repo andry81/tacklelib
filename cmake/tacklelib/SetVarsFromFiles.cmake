@@ -51,11 +51,12 @@ include(tacklelib/Utility)
 #    For example:
 #       The `PROJECT_NAME` variable can be created by the cmake `project(...)` command are immutable and must not change.
 #       So a variable declaration in that case can only be allowed for the same value and so the parser can allow to assign the same value
-#       (actually ignore the assignment) and all other values would be an error.
+#       (actually ignore the assignment w/o a warning) and all other values would be an error.
 # 2. If a variable being set not a first time in the load or set function, then the assignment attempt should be applied to a specialized
 #    form of a variable, otherwise the parser would throw an error and ignore a variable assignment.
 #    The meaning is that all variables in the sequence of assignments must be unique because all being assigned variables are the declarations
-#    and so must be constant. But because a variable reassignment is useful in the case of testing, then only a warning are issued.
+#    and so must be constant. But because a build interruption is an expensive operation and a variable reassignment is useful in the case of
+#    testing, then only a warning is issued and build does not interrupt.
 #
 
 # A BRIEF EXAMPLES OF RULES FOR VARIABLES TO LOAD OR TO SET:
@@ -146,6 +147,7 @@ include(tacklelib/Utility)
 #   all not top level packages would silently ignore the assignment of the same variable.
 #   All assignments after the first assignment with the `top` attribute must use additionally the `override` attribute to declare intention to
 #   override an assignment of a top level package variable in any package, otherwise an error will be thrown.
+#   A value of the top class variable can be any or different.
 #
 # `local`:
 #   Defines a local context variable, which can override a global variable.
@@ -259,8 +261,9 @@ include(tacklelib/Utility)
 #   * global + top
 #   * global + local
 #   * global + package
+#   * global + final
 #   * force + override
-#   * force + top (limitly applicable)
+#   * force + top (application is limited)
 #   * force + package (if have no `final` attribute)
 #   * unset/hide/unhide + <other modificator except `top`, `final`, `package`>
 #   * unset/hide/unhide + <any type attribute>
@@ -273,7 +276,7 @@ include(tacklelib/Utility)
 #   * top + unset/hide/unhide
 #   * global + unset/hide/unhide
 #   * local + unset/hide/unhide
-#   * final + <any except top/global>
+#   * final + <any except top/global> (`top` has special cases)
 
 # Package entity description:
 #   Package is a virtual entity created by these set of cmake functions
@@ -294,48 +297,126 @@ include(tacklelib/Utility)
 #
 # '. ASSIGN N+1        |             |             |             |             |             |             |             |             
 #   '--------------,   |             |             |             |             |             |  force      |  force      |  force      
-# ASSIGN N          '. |  <not set>  |  top        |  global     |  local      |  force      |  top        |  global     |  local      
+# ASSIGN N          '. |  <no attr>  |  global     |  top        |  local      |  force      |  global     |  top        |  local      
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |  warning    |             |             |             |  OK,uncond  |             |             |             
-# global               |             |             |  warning    |  OK         |             |             |  OK,uncond  |  OK,uncond  
-# top                  |             |  warning    |             |             |             |  OK*cond1   |             |             
+# <no attr>            |  warning    |             |             |             |  OK,uncond  |             |             |             
+# global               |             |  warning    |             |  OK         |             |  OK,uncond  |             |  OK,uncond  
+# top                  |             |             |  warning    |             |             |             |  OK,cond1   |             
 # local                |             |             |             |             |             |             |             |  OK,uncond  
+#
+# Meaning:
+#
+#   <no attr> -> <no attr>:
+#     By default all assignments are declaration of qunique values and assignment of constant values.
+#     So reassignment is treated as a constant change and ignored with a warning w/o build interruption
+#     (not an error, see details in `DEFAULT ASSIGNMENT RULES` section).
+#
+#   <no attr> -> force:
+#     Unconditional assignment, basically is left for debugging purposes.
+#
+#   global -> global:
+#   top -> top:
+#     Same meaning as for `<no attr> -> <no attr>`.
+#
+#   global -> local:
+#     A global variable reassignment in a package scope.
+#
+#   global -> force global:
+#   local -> force local:
+#     Same meaning as for `<no attr> -> force`.
+#
+#   global -> force local:
+#     Same meaning as for `global -> local`, but is not restricted or warned.
+#
+#   top -> force top:
+#     Conditional assignment over specialization rules (cond1), basically is left for debugging purposes.
 #
 # '. ASSIGN N+1        |             |             |             |             |             |             |             |             
 #   '--------------,   |             |  override   |  override   |  override   |             |  final      |  final      |  final      
-# ASSIGN N          '. |  override   |  top        |  global     |  local      |  final      |  top        |  global     |  local      
+# ASSIGN N          '. |  override   |  global     |  top        |  local      |  final      |  global     |  top        |  local      
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |  OK         |             |             |             
+# <no attr>            |             |             |             |             |  OK         |             |             |             
 # global               |             |             |             |             |             |             |             |             
 # top                  |             |             |             |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |  OK         
+#
+# Meaning:
+#
+#   <no attr> -> final:
+#     Conditional assignment over specialization rules to finalize a specialized version of a variable.
+#
+#   local -> final local:
+#     Same meaning as for `<no attr> -> final`.
 #
 # '. ASSIGN N+1        |             |             |             |             |             |             |             |             
 #   '--------------,   |             |             |  force      |  force      |  override   |  override   |  final      |  final      
 # ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |  warning    |  OK         
+# <no attr>            |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |  warning    |  OK         
 # global               |             |             |             |             |             |             |             |             
 # top                  |             |             |             |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |             
+#
+# Meaning:
+#
+#   <no attr> -> unset:
+#   <no attr> -> final unset:
+#     Same meaning as for `<no attr> -> <no attr>`.
+#
+#   <no attr> -> (un)hide:
+#   <no attr> -> final (un)hide:
+#     A variable conditional hide/unhide over specialization rules in a package scope.
+#     In case of hide/unhide a variable must be already unhidden/hidden.
+#
+#   <no attr> -> force unset:
+#   <no attr> -> force (un)hide:
+#     Same meaning as for `<no attr> -> unset`, but is not restricted or warned.
 #
 # '. ASSIGN N+1        |             |             |  force      |  force      |  override   |  override   |  final      |  final      
 #   '--------------,   |  global     |  global     |  global     |  global     |  global     |  global     |  global     |  global     
 # ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |             |             |             |             
+# <no attr>            |             |             |             |             |             |             |             |             
 # global               |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |             |             
 # top                  |             |             |             |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |             
+#
+# Meaning:
+#
+#   global -> global unset:
+#     Same meaning as for `<no attr> -> <no attr>`.
+#
+#   global -> global (un)hide:
+#     A global variable conditional hide/unhide over specialization rules in a package scope.
+#     In case of hide/unhide a variable must be already unhidden/hidden.
+#
+#   global -> force global unset:
+#   global -> force global (un)hide:
+#     Same meaning as for `global -> global unset`, but is not restricted or warned.
 #
 # '. ASSIGN N+1        |             |             |  force      |  force      |  override   |  override   |  final      |  final      
 #   '--------------,   |  top        |  top        |  top        |  top        |  top        |  top        |  top        |  top        
 # ASSIGN N          '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |             |             |             |             
+# <no attr>            |             |             |             |             |             |             |             |             
 # global               |             |             |             |             |             |             |             |             
 # top                  |  warning    |  OK         |  OK,uncond  |  OK,uncond  |             |             |  warning    |  OK         
 # local                |             |             |             |             |             |             |             |             
+#
+# Meaning:
+#
+#   top -> top unset:
+#   top -> final top unset:
+#     Same meaning as for `<no attr> -> <no attr>`.
+#
+#   top -> top (un)hide:
+#   top -> final top (un)hide:
+#     A top variable conditional hide/unhide over specialization rules in a package scope.
+#     In case of hide/unhide a variable must be already unhidden/hidden.
+#
+#   top -> force top unset:
+#   top -> force top (un)hide:
+#     Same meaning as for `top -> top unset`, but is not restricted or warned.
 #
 
 # ASSIGNMENT RULES FOR ATTRIBUTES BETWEEN CLOSEST ASSIGNMENTS OF THE SAME VARIABLE AT DIFFERENT PACKAGE LEVELS
@@ -351,27 +432,27 @@ include(tacklelib/Utility)
 #
 # '. LEVEL N+K         |             |             |             |             |             |             |             |             
 #   '--------------,   |             |             |             |             |             |  force      |  force      |  force      
-# LEVEL N           '. |  <not set>  |  top        |  global     |  local      |  force      |  top        |  global     |  local      
+# LEVEL N           '. |  <no attr>  |  global     |  top        |  local      |  force      |  global     |  top        |  local      
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |  OK         |             |             |             |  OK,uncond  |             |             |             
-# global               |             |             |  OK,equal   |             |             |             |  OK,uncond  |             
-# top                  |             |  ignore     |             |             |             |  OK*cond1   |             |             
+# <no attr>            |  OK         |             |             |             |  OK,uncond  |             |             |             
+# global               |             |  OK,equal   |             |             |             |  OK,uncond  |             |             
+# top                  |             |             |  ignore     |             |             |             |  OK*cond1   |             
 # local                |             |             |             |  OK         |             |             |             |  OK,uncond  
-#
+#                                                                                                          
 # '. LEVEL N+K         |             |             |             |             |             |             |             |             
 #   '--------------,   |             |  override   |  override   |  override   |             |  final      |  final      |  final      
-# LEVEL N           '. |  override   |  top        |  global     |  local      |  final      |  top        |  global     |  local      
+# LEVEL N           '. |  override   |  global     |  top        |  local      |  final      |  global     |  top        |  local      
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |  OK         |             |             |             
+# <no attr>            |             |             |             |             |  OK         |             |             |             
 # global               |             |             |             |             |             |             |             |             
-# top                  |             |  OK,uncond  |             |             |             |             |             |             
+# top                  |             |             |  OK,uncond  |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |  OK         
 #
 # '. LEVEL N+K         |             |             |             |             |             |             |             |             
 #   '--------------,   |             |             |  force      |  force      |  override   |  override   |  final      |  final      
 # LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |  OK         |  OK         |  OK,uncond  |  OK,uncond  |             |             |  OK         |  OK         
+# <no attr>            |  OK         |  OK         |  OK,uncond  |  OK,uncond  |             |             |  OK         |  OK         
 # global               |             |             |             |             |             |             |             |             
 # top                  |             |             |             |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |             
@@ -380,7 +461,7 @@ include(tacklelib/Utility)
 #   '--------------,   |  global     |  global     |  global     |  global     |  global     |  global     |  global     |  global     
 # LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |             |             |             |             
+# <no attr>            |             |             |             |             |             |             |             |             
 # global               |  OK,equal   |  OK         |  OK,uncond  |  OK,uncond  |             |             |  OK         |  OK         
 # top                  |             |             |             |             |             |             |             |             
 # local                |             |             |             |             |             |             |             |             
@@ -389,7 +470,7 @@ include(tacklelib/Utility)
 #   '--------------,   |  top        |  top        |  top        |  top        |  top        |  top        |  top        |  top        
 # LEVEL N           '. |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   |  unset      |  (un)hide   
 # ---------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------
-# <not set>            |             |             |             |             |             |             |             |             
+# <no attr>            |             |             |             |             |             |             |             |             
 # global               |             |             |             |             |             |             |             |             
 # top                  |  OK         |  OK         |  OK,uncond  |  OK,uncond  |  OK         |  OK         |  OK         |  OK         
 # local                |             |             |             |             |             |             |             |             
