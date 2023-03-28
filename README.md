@@ -27,10 +27,6 @@
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codefactor-grade.svg" valign="middle" alt="codefactor.io|quality" /></a>
 • <a href="https://www.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade">
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codacy-grade.svg" valign="middle" alt="codacy.com|quality" /></a>
-• <a href="https://lgtm.com/projects/g/andry81/tacklelib/context:python">
-    <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/lgtm-grade-python.svg" valign="middle" alt="lgtm.com|quality|python" /></a>
-  <a href="https://lgtm.com/projects/g/andry81/tacklelib/alerts">
-    <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/lgtm-alerts.svg" valign="middle" alt="lgtm.com|alerts" /></a>
 </p>
 
 <!-- -->
@@ -90,23 +86,18 @@
 
 ## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/blob/master/README_EN.deps.txt">README_EN.deps.txt</a>)
 
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--boost
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81/tacklelib--3dparty--fmt
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--googletest
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--libarchive
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--p7client
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--pystring
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qcustomplot
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qwt
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--qwtpolar
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--rapidxml
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--rapidyaml
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81/tacklelib--3dparty--xzutils
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/fmt
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/googletest
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/libarchive
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/p7client
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/pystring
+* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/xzutils
 
 To build dependent projects:
 
-https://github.com/andry81/tacklelib--3dparty_build_scripts
+https://github.com/andry81-3dparty/3dparty
 
 ## <a name="copyright-and-license">Copyright and License</a>
 
-Code and documentation copyright 2021 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/master/license.txt)
+Code and documentation copyright 2023 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/master/license.txt)

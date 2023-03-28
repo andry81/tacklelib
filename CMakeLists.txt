@@ -133,7 +133,7 @@ tkl_check_var(REQUIRED PATH   FMT_ROOT)
 #   `CMakeLists.txt tries to override globally visible CMAKE_BUILD_TYPE through the cache` :
 #   https://github.com/libarchive/libarchive/issues/1163
 #
-tkl_register_package_var_set(ARC_LIBARCHIVE_ROOT CMAKE_BUILD_TYPE Release 0)
+tkl_register_package_var_set(LIBARCHIVE_ROOT CMAKE_BUILD_TYPE Release 0)
 
 ###############################################################################
 ## projects description #######################################################
@@ -341,11 +341,11 @@ tkl_initialize_library_target_defaults(fmt "${TACKLELIB_ADDRESS_MODEL}bit")
 
 # pystring
 
-tkl_add_target_subdirectory(PYSTRING_ROOT pystring _3dparty/utility/pystring)
+tkl_add_target_subdirectory(PYSTRING_PROXY_ROOT pystring _3dparty/utility/pystring)
 
 # p7 logger
 
-tkl_add_target_subdirectory(LOG_P7_CLIENT_ROOT p7client _3dparty/log/p7client)
+tkl_add_target_subdirectory(P7CLIENT_PROXY_ROOT p7client _3dparty/log/p7client)
 
 if (TARGET p7client)
   get_target_property(INCLUDE_DIRS_p7client p7client INCLUDE_DIRECTORIES)
@@ -354,7 +354,7 @@ endif()
 
 # 7zip
 
-tkl_add_target_subdirectory(ARC_7ZIP_ROOT 7zip _3dparty/arc/7zip)
+tkl_add_target_subdirectory(_7ZIP_ROOT 7zip _3dparty/arc/7zip)
 
 if (TARGET 7zip)
   get_target_property(INCLUDE_DIRS_7zip 7zip INCLUDE_DIRECTORIES)
@@ -363,14 +363,14 @@ endif()
 
 # libarchive
 
-tkl_add_target_subdirectory(ARC_LIBARCHIVE_ROOT libarchive _3dparty/arc/libarchive)
+tkl_add_target_subdirectory(LIBARCHIVE_ROOT libarchive _3dparty/arc/libarchive)
 
-tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-tkl_set_target_property(ARC_LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+tkl_set_target_property(LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+tkl_set_target_property(LIBARCHIVE_ROOT * * "^archive$$|^archive_static$$" *  . EXCLUDE_FROM_ALL ON) # all except output libraries
 
 if (TARGET archive)
-  tkl_set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
-  tkl_set_target_property(ARC_LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_ALL ON) # all except output libraries
+  tkl_set_target_property(LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_DEFAULT_BUILD ON) # all except output libraries
+  tkl_set_target_property(LIBARCHIVE_ROOT * "^archive$$" . *  . EXCLUDE_FROM_ALL ON) # all except output libraries
 
   # libarchive has it's own cmake list, so we have to call it from here
   if (TACKLELIB_ADDRESS_MODEL)
@@ -446,10 +446,10 @@ if (INCLUDE_DIRS_7zip)
   )
 endif()
 
-if (ARC_LIBARCHIVE_ROOT)
+if (LIBARCHIVE_ROOT)
   target_include_directories(${LIB_TARGET_NAME}
     PUBLIC
-      ${ARC_LIBARCHIVE_ROOT}
+      ${LIBARCHIVE_ROOT}
   )
 endif()
 
@@ -504,7 +504,7 @@ if (Boost_FOUND)
   endif()
 endif()
 
-if (ARC_LIBARCHIVE_ROOT)
+if (LIBARCHIVE_ROOT)
   tkl_add_target_compile_definitions(${LIB_TARGET_NAME} *
     PRIVATE
       LIBARCHIVE_STATIC
@@ -903,10 +903,10 @@ if (TESTS_ENABLED)
       )
     endif()
 
-    if (ARC_LIBARCHIVE_ROOT)
+    if (LIBARCHIVE_ROOT)
       target_include_directories(${target}
         PRIVATE
-          ${ARC_LIBARCHIVE_ROOT}
+          ${LIBARCHIVE_ROOT}
       )
     endif()
 
@@ -944,7 +944,7 @@ if (TESTS_ENABLED)
 
     if (NOT target_is_liblinked)
       # we must include these definitions to link dependency appropriately
-      if (ARC_LIBARCHIVE_ROOT)
+      if (LIBARCHIVE_ROOT)
         tkl_add_target_compile_definitions(${target} *
           PRIVATE
             LIBARCHIVE_STATIC
@@ -1215,41 +1215,42 @@ endif()
 
 ## projects
 
-tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       UTILITY     . util)
-tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * "tests" EXECUTABLE  . exe)
-tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR  . * .       UTILITY     . util)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR  . * "tests" EXECUTABLE  . exe)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR  . * .       "SHARED_LIBRARY;STATIC_LIBRARY" . lib)
 
 ## 3dparty
 
 # utility
 
-tkl_set_target_folder(BOOST_ROOT * * . * . _3dparty/utility/boost)
+tkl_set_target_folder(BOOST_ROOT              * * . * . _3dparty/utility/boost)
 
-tkl_set_target_folder(FMT_ROOT * * . * . _3dparty/utility/fmt)
-tkl_set_target_folder(PYSTRING_ROOT * * . * . _3dparty/utility/pystring)
+tkl_set_target_folder(FMT_ROOT                * * . * . _3dparty/utility/fmt)
+tkl_set_target_folder(PYSTRING_PROXY_ROOT     * * . * . _3dparty/utility/pystring)
 
 # math
 
-tkl_set_target_folder(QD_ROOT * * . * . _3dparty/math/qd)
+tkl_set_target_folder(QD_PROXY_ROOT           * * . * . _3dparty/math/qd)
 
 # log
 
-tkl_set_target_folder(LOG_P7_CLIENT_ROOT * * . * . _3dparty/log/p7client)
+tkl_set_target_folder(P7CLIENT_PROXY_ROOT     * * . * . _3dparty/log/p7client)
 
 # arc
 
-tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . UTILITY     . _3dparty/arc/libarchive/util)
-tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . EXECUTABLE  . _3dparty/arc/libarchive/exe)
-tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . "SHARED_LIBRARY;STATIC_LIBRARY" . _3dparty/arc/libarchive/lib)
-tkl_set_target_folder(ARC_LIBARCHIVE_ROOT * * . * "UTILITY;EXECUTABLE;SHARED_LIBRARY;STATIC_LIBRARY" _3dparty/arc/libarchive)
-tkl_set_target_folder(ARC_XZ_UTILS_ROOT   * * . * . _3dparty/arc/xz)
-tkl_set_target_folder(ARC_7ZIP_ROOT       * * . * . _3dparty/arc/7zip)
+tkl_set_target_folder(LIBARCHIVE_ROOT         * * . UTILITY     . _3dparty/arc/libarchive/util)
+tkl_set_target_folder(LIBARCHIVE_ROOT         * * . EXECUTABLE  . _3dparty/arc/libarchive/exe)
+tkl_set_target_folder(LIBARCHIVE_ROOT         * * . "SHARED_LIBRARY;STATIC_LIBRARY" . _3dparty/arc/libarchive/lib)
+tkl_set_target_folder(LIBARCHIVE_ROOT         * * . * "UTILITY;EXECUTABLE;SHARED_LIBRARY;STATIC_LIBRARY" _3dparty/arc/libarchive)
+tkl_set_target_folder(XZUTILS_PROXY_ROOT      * * . * . _3dparty/arc/xz)
+tkl_set_target_folder(_7ZIP_ROOT              * * . * . _3dparty/arc/7zip)
 
 # tests
 
-tkl_set_target_folder(GTEST_ROOT * * . * . _3dparty/test/googletest)
-tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . "tests" . * . tests)
-tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR . "build_check" . * . tests)
+tkl_set_target_folder(GTEST_ROOT              * * . * . _3dparty/test/googletest)
+
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR  . "tests" . * . tests)
+tkl_set_target_folder(CMAKE_CURRENT_LIST_DIR  . "build_check" . * . tests)
 
 ###############################################################################
 ## updated global flags and post process target properties ####################
