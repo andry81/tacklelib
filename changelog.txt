@@ -1,3 +1,9 @@
+2023.04.04:
+* new: bash/tacklelib/tools/git/git_bare_config_allow_rewrite.sh: added script to allow rewrite in a git bare repository or list of repositories
+* new: bash/tacklelib/tools/git/git_bare_config_deny_rewrite.sh: added script to deny rewrite in a git bare repository or list of repositories
+* new: bash/tacklelib/tools/git/git_filter_repo_cleanup.sh: added cleanup script after the `git-filter-repo` script execution
+* new: bash/tacklelib/tools/git/git_filter_repo_remove_path.sh: added script to remove a path in a git repository using the `git-filter-repo` script
+
 2023.03.28:
 * new: deploy/3dparty/.externals: added vcstool externals
 * changed: CMakeLists.txt, deploy/3dparty/environment.vars: 3dparty global variables update
