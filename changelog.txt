@@ -1,4 +1,10 @@
 2023.04.04:
+* changed: _config: configuration files update
+* changed: deploy: deploy files update
+* changed: README_EN.txt: readme update
+* changed: obsolete files cleanup
+
+2023.04.04:
 * new: bash/tacklelib/tools/git/git_bare_config_allow_rewrite.sh: added script to allow rewrite in a git bare repository or list of repositories
 * new: bash/tacklelib/tools/git/git_bare_config_deny_rewrite.sh: added script to deny rewrite in a git bare repository or list of repositories
 * new: bash/tacklelib/tools/git/git_filter_repo_cleanup.sh: added cleanup script after the `git-filter-repo` script execution

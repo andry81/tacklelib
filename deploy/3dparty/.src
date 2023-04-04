@@ -28,11 +28,6 @@ repositories:
     url:              https://github.com/andry81-3dparty/boost
     version:          1_81_0_release
 
-  src/utility/boost/1_72_0_release:
-    type:             git
-    url:              https://github.com/andry81-3dparty/boost
-    version:          1_72_0_release
-
   ## fmt/
 
   src/utility/fmt/master:

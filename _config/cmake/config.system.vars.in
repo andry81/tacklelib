@@ -102,9 +102,10 @@ final package PROJECT_ROOT="$/{CMAKE_CURRENT_PACKAGE_SOURCE_DIR}" # current proj
 top PROJECT_TOP_ROOT="$/{CMAKE_TOP_PACKAGE_SOURCE_DIR}"           # top parent project root in context of parent build
 
 # CAUTION: SHOULD NOT BE TOP LEVEL, because each project might have has it's own 3dparty search paths
-final package _3DPARTY_GLOBAL_ROOTS_LIST:WIN=("d:/_3dparty")
-final package _3DPARTY_GLOBAL_ROOTS_LIST:UNIX=(/home/opt/_3dparty)
-final package _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("environment.vars")
+final package _3DPARTY_GLOBAL_ROOTS_LIST=("$/{CMAKE_CURRENT_LOAD_VARS_FILE_DIR}")
+
+# NOTE: Must be without `.in` suffix.
+final package _3DPARTY_GLOBAL_ROOTS_FILE_LIST=("config.3dparty.vars")
 
 top CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel)  # list variable
 top CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)

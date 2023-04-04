@@ -27,7 +27,10 @@
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=<value>]
 #   [<attributes>] <variable>[:[<os_name>][:[<compiler_name>][:[<config_name>][:[<arch_name>]]]]][=(<value0> [<value1> [... <valueN>]])]
 #
-# <attributes>:           Variable space separated attributes: global | top | local | bool | path | exist | canonical | uncache | cache_only | cache | env_only | env | force_cache | force | override | unset | (un)hide | package | final
+# <attributes>:           Variable space separated attributes:
+#                           global | top | local | bool | path | exist | canonical | optional |
+#                           uncache | cache_only | cache | env_only | env | force_cache | force | override |
+#                           unset | (un)hide | package | final
 # <variable>:             Variable name corresponding to the regex: [_a-zA-Z][_a-zA-Z0-9]*
 # <os_name>:              OS variant name: WIN | UNIX | ...
 # <compiler_name>:        Compiler variant name with version support: <compiler_token_name>[.<compiler_version>]
@@ -53,10 +56,14 @@
 # CMAKE_TOP_PACKAGE_SOURCE_DIR:                 Top package source directory.
 #
 
-# libraries with binaries built for a single platform
+# Libraries with sources or/and binaries built externally.
 
-global path exist _3DPARTY_BUILD_SOURCES_ROOT="$/{CMAKE_CURRENT_LOAD_VARS_FILE_DIR}/src"
-global path exist _3DPARTY_BUILD_OUTPUT_ROOT="$/{CMAKE_CURRENT_LOAD_VARS_FILE_DIR}/build"
+global path exist _3DPARTY_ROOT:WIN="d:/_3dparty"
+global path exist _3DPARTY_ROOT:UNIX="/home/opt/_3dparty"
+
+global path exist _3DPARTY_BUILD_SOURCES_ROOT="$/{_3DPARTY_ROOT}/src"
+global path exist _3DPARTY_BUILD_OUTPUT_ROOT="$/{_3DPARTY_ROOT}/build"
+
 
 #global CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"
 
