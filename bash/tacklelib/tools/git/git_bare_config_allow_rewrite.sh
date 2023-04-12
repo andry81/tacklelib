@@ -5,7 +5,11 @@
 #   repositories searched by the `find` pattern.
 
 # Usage:
-#   git_bare_config_allow_rewrite.sh <dir> [<name-pattern>]
+#   git_bare_config_allow_rewrite.sh <dir> [<dir-name-pattern>]
+
+# Examples:
+#   >
+#   git_bare_config_allow_rewrite.sh /home/git "*.git"
 #
 
 # Script both for execution and inclusion.

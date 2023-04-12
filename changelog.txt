@@ -1,3 +1,6 @@
+2023.04.12:
+* changed: bash/tacklelib/tools/git: examples
+
 2023.04.04:
 * changed: _config: configuration files update
 * changed: deploy: deploy files update

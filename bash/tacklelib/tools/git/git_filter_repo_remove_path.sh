@@ -13,6 +13,12 @@
 #   <cmd-line>:
 #     The rest of command line passed to `git-filter-repo` script.
 
+# Examples:
+#   >
+#   cd myrepo/path
+#   git_filter_repo_remove_path.sh _externals/ --force
+#
+
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
 
