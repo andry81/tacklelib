@@ -71,28 +71,28 @@
   <a href="https://github.com/andry81/tacklelib/blob/master/changelog.txt">Changelog</a>
 • <a href="https://github.com/andry81/tacklelib/blob/master/README_EN.txt">Readme</a>
 • <a href="#dependecies">Dependencies</a>
-• <a href="#copyright-and-license"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/license/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
+• <a href="#copyright-and-license"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/license/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
 </p>
 
 <p align="center">
-  <a href="https://stackoverflow.com/search?q=tacklelib"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/board/stackoverflow-tacklelib.svg" valign="middle" alt="stackoverflow search" /></a>
+  <a href="https://stackoverflow.com/search?q=tacklelib"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/board/stackoverflow-tacklelib.svg" valign="middle" alt="stackoverflow search" /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/andry81/donate"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/donate/donate.svg" valign="middle" alt="donate" /></a>
+  <a href="https://github.com/andry81/donate"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/donate/donate.svg" valign="middle" alt="donate" /></a>
 </p>
 
 ---
 
 ## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/blob/master/README_EN.deps.txt">README_EN.deps.txt</a>)
 
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/fmt
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/googletest
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/libarchive
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/p7client
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/pystring
-* <a href="#"><img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/xzutils
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/fmt
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/googletest
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/libarchive
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/p7client
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/pystring
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/xzutils
 
 To build dependent projects:
 
