@@ -1,5 +1,16 @@
+2023.04.20:
+* new: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: added `git_filter_repo_shrink_commit_msg_first_line_returns.sh` script to shrink first line returns (remove all line returns before the first line and shrink repeating line returns after the first line) from all commits in a repository using `git-filter-repo` script
+* new: tacklelib/tools/git/git_filter_repo_remove_path_list.sh: added script to remove path list from all commits in a repository using `git-filter-repo` script
+* changed: tacklelib/tools/git/git_filter_repo_*.sh: use `call` prefix to print resulted command line into the stdout
+
 2023.04.12:
 * changed: tacklelib/tools/git: examples
+
+2023.04.04:
+* new: tacklelib/tools/git/git_bare_config_allow_rewrite.sh: added script to allow rewrite in a git bare repository or list of repositories
+* new: tacklelib/tools/git/git_bare_config_deny_rewrite.sh: added script to deny rewrite in a git bare repository or list of repositories
+* new: tacklelib/tools/git/git_filter_repo_cleanup.sh: added cleanup script after the `git-filter-repo` script execution
+* new: tacklelib/tools/git/git_filter_repo_remove_path.sh: added script to remove a path from all commits in a repository using `git-filter-repo` script
 
 2023.02.26:
 * new: tacklelib/tools/git/git_filter_branch_cleanup.sh: added `git_filter_branch_cleanup.sh` script to cleanup artefacts after branch filtering with the `git_filter_branch_user.sh` script execution

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Description:
-#   Script to remove path from all commits in a repository using
+#   Script to remove a path from all commits in a repository using
 #   `git-filter-repo` script:
 #   https://github.com/newren/git-filter-repo
 
@@ -18,6 +18,11 @@
 #   cd myrepo/path
 #   git_filter_repo_remove_path.sh _externals/ --force
 #
+#   CAUTION:
+#     In example above all paths has contained `_externals` will be removed:
+#     * `_externals/`
+#     * `_externals/dir1`
+#     * `_externals/file1`
 
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
@@ -33,7 +38,7 @@ function git_filter_repo_remove_path()
 {
   local path="$1"
 
-  git-filter-repo --invert-paths --path "$path" "${@:2}"
+  call git-filter-repo --invert-paths --path "$path" "${@:2}"
 
   return 0
 }
