@@ -1,4 +1,7 @@
 2023.04.20:
+* fixed: bash/tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: execution fixup
+
+2023.04.20:
 * fixed: bash/tacklelib/tools/git: return exit codes from single calls
 * new: bash/tacklelib/tools/git/git_filter_repo_replace_commit_msg.sh: added script to replace commit message from all commits in a repository using `git-filter-repo` script
 * refactor: bash/tacklelib/tools/git/git_filter_repo_*.sh: minor refactor

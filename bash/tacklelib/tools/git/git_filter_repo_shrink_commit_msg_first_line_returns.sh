@@ -47,12 +47,16 @@ function call()
   "$@"
 }
 
+# CAUTION:
+#   DO NOT USE `$` as an end single string matcher here.
+#   It does not follow the last line return!
+#
 function git_filter_repo_shrink_commit_msg_first_line_returns()
 {
   call git-filter-repo --commit-callback \
 'import re
 msg = commit.message.decode("utf-8")
-msg_new = re.sub(r'\''[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*?(.*)'\'', r'\''\1\2\3'\'', msg)
+msg_new = re.sub(r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL)
 commit.message = msg_new.encode("utf-8")
 ' --partial "$@"
 }
