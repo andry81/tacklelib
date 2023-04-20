@@ -1,4 +1,7 @@
 2023.04.20:
+* changed: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: imply `--partial` flag by default to avoid remove the origin remote
+
+2023.04.20:
 * new: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: added `git_filter_repo_shrink_commit_msg_first_line_returns.sh` script to shrink first line returns (remove all line returns before the first line and shrink repeating line returns after the first line) from all commits in a repository using `git-filter-repo` script
 * new: tacklelib/tools/git/git_filter_repo_remove_path_list.sh: added script to remove path list from all commits in a repository using `git-filter-repo` script
 * changed: tacklelib/tools/git/git_filter_repo_*.sh: use `call` prefix to print resulted command line into the stdout
