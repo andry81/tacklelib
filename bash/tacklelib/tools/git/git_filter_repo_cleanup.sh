@@ -23,8 +23,6 @@ function git_filter_repo_cleanup()
 {
   # based on: https://stackoverflow.com/questions/46229291/in-git-how-can-i-efficiently-delete-all-refs-matching-a-pattern/46229416#46229416
   evalcall "git for-each-ref --format='delete %(refname)' refs/replace | git update-ref --stdin"
-
-  return 0
 }
 
 # shortcut

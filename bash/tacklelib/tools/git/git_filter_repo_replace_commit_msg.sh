@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # Description:
-#   Script to shrink first line returns (remove all line returns before the
-#   first line and shrink repeating line returns after the first line) from all
-#   commits in a repository using `git-filter-repo` script:
+#   Script to replace commit message from all commits in a repository using
+#   `git-filter-repo` script:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
-#   git_filter_repo_shrink_commit_msg_first_line_returns.sh [<cmd-line>]
+#   git_filter_repo_replace_commit_msg.sh <from-str> <to-str> [<cmd-line>]
 #
 #   <cmd-line>:
 #     The rest of command line passed to `git-filter-repo` script.
@@ -15,7 +14,7 @@
 # Examples:
 #   >
 #   cd myrepo/path
-#   git_filter_repo_shrink_commit_msg_first_line_returns.sh --force
+#   git_filter_repo_replace_commit_msg.sh "Update README.md"$'\n' "" --force
 #
 
 # NOTE:
@@ -47,25 +46,30 @@ function call()
   "$@"
 }
 
-function git_filter_repo_shrink_commit_msg_first_line_returns()
+function git_filter_repo_replace_commit_msg()
 {
+  export FROM_STR="$1"
+  export TO_STR="$2"
+
   call git-filter-repo --commit-callback \
-'import re
+'import os, re
+from_str = os.environ["FROM_STR"]
+to_str = os.environ["TO_STR"]
 msg = commit.message.decode("utf-8")
-msg_new = re.sub(r'\''[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*?(.*)'\'', r'\''\1\2\3'\'', msg)
+msg_new = msg.replace(from_str, to_str)
 commit.message = msg_new.encode("utf-8")
-' --partial "$@"
+' --partial "${@:3}"
 }
 
 # shortcut
 function git_shcm_flr()
 {
-  git_filter_repo_shrink_commit_msg_first_line_returns "$@"
+  git_filter_repo_replace_commit_msg "$@"
 }
 
 if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
   # Script was not included, then execute it.
-  git_filter_repo_shrink_commit_msg_first_line_returns "$@"
+  git_filter_repo_replace_commit_msg "$@"
 fi
 
 fi

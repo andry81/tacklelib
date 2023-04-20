@@ -1,4 +1,9 @@
 2023.04.20:
+* fixed: tacklelib/tools/git: return exit codes from single calls
+* new: tacklelib/tools/git/git_filter_repo_replace_commit_msg.sh: added script to replace commit message from all commits in a repository using `git-filter-repo` script
+* refactor: tacklelib/tools/git/git_filter_repo_*.sh: minor refactor
+
+2023.04.20:
 * changed: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: imply `--partial` flag by default to avoid remove the origin remote
 
 2023.04.20:

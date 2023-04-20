@@ -6,7 +6,7 @@
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
-#   git_filter_repo_remove_path_list.sh <path0> [... <pathN>] // <cmd-line>
+#   git_filter_repo_remove_path_list.sh <path0> [... <pathN>] [// <cmd-line>]
 #
 #   <path0> [... <pathN>]:
 #     Paths to remove.
@@ -65,8 +65,6 @@ function git_filter_repo_remove_path_list()
   fi
 
   evalcall0 "git-filter-repo --invert-paths$path_list_cmdline" "$@"
-
-  return 0
 }
 
 # shortcut
