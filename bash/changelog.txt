@@ -1,3 +1,6 @@
+2023.04.30:
+* new: tacklelib/tools/git: git_gen_commit_hash.sh, git_gen_*_commit_hashes.sh: scripts to generate commit hashes and compare with existing hashes to detect commits inconsistency after history rewrite by `git filter-repo` command
+
 2023.04.20:
 * fixed: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: execution fixup
 
