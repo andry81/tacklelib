@@ -1,3 +1,6 @@
+2023.04.29:
+* fixed: bash/tacklelib/tools/git/git_unmirror_refs.sh: missed to backport changes from contools `git_unmirror_refs.bat` script
+
 2023.04.20:
 * fixed: README.md: static badges address change
 

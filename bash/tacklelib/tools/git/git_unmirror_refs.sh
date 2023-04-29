@@ -41,6 +41,8 @@ function git_unmirror_refs()
 
   local git_push_cmdline
 
+  # Remove all refs in all remotes to reset the mirror tracking:
+  #   refs/remotes/REMOTE/BRANCH -> refs/remotes/REMOTE/BRANCH
   IFS=$'\n\r'; for remote in `git remote 2>/dev/null`; do
     [[ -z "$remote" ]] && continue
     git_push_cmdline=''
@@ -51,7 +53,7 @@ function git_unmirror_refs()
       git_push_cmdline="$git_push_cmdline ':refs/remotes/$ref_remote'"
     done <<< `git show-ref 2>/dev/null`
     if [[ -n "$git_push_cmdline" ]]; then
-      eval call git push \"\$remote\" $git_push_cmdline
+      eval call git push \"\$remote\" $git_push_cmdline || exit 255
       echo ---
       echo
     fi
