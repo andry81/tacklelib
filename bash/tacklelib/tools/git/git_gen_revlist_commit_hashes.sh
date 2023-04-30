@@ -11,6 +11,9 @@
 #   <flags>:
 #     -c
 #       Print only commits with not equal hashes.
+#     -r
+#       Execute `git replace --graft <commit> <parents>` for all not equal
+#       hashes. Implies flag `-c`.
 #   //:
 #     Separator to stop parse flags or switch to next command line.
 #   <rev-list-cmd-line>:
@@ -38,15 +41,27 @@
 #   >
 #   cd myrepo/path
 #   git_gen_revlist_commit_hashes.sh -c // master // // git hash-object --stdin
+#
+#   >
+#   cd myrepo/path
+#   git_gen_revlist_commit_hashes.sh -r // master
 
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
+
+function call()
+{
+  local IFS=$' \t'
+  echo ">$*"
+  "$@"
+}
 
 function git_gen_revlist_commit_hashes()
 {
   local flag="$1"
 
   local flag_only_not_equal_hashes=0
+  local flag_execute_replace_graft=0
 
   while [[ "${flag:0:1}" == '-' ]]; do
     flag="${flag:1}"
@@ -60,6 +75,10 @@ function git_gen_revlist_commit_hashes()
       if [[ "${flag//c/}" != "$flag" ]]; then
         flag_only_not_equal_hashes=1
         flag="${flag//c/}"
+      elif [[ "${flag//r/}" != "$flag" ]]; then
+        flag_execute_replace_graft=1
+        flag_only_not_equal_hashes=1
+        flag="${flag//r/}"
       else
         echo "$0: error: invalid flag: \`${flag:0:1}\`"
         exit 255
@@ -146,6 +165,12 @@ function git_gen_revlist_commit_hashes()
       echo "$(git show "${show_cmdline[@]}" "$refhash")"
       echo ---
       echo
+
+      if (( flag_execute_replace_graft )) && [[ "$hashvalue" != "$refhash" ]]; then
+        call git replace --graft "$refhash" $(git show -s --format="%P" "$refhash")
+        echo ---
+        echo
+      fi
     fi
   done
 }

@@ -1,4 +1,7 @@
 2023.04.30:
+* new: tacklelib/tools/git: git_gen_revlist_commit_hashes.sh: added `-r` flag to execute `git replace --graft <commit> <parents>` for all commits with not equal hashes
+
+2023.04.30:
 * new: tacklelib/tools/git: git_gen_commit_hash.sh, git_gen_*_commit_hashes.sh: scripts to generate commit hashes and compare with existing hashes to detect commits inconsistency after history rewrite by `git filter-repo` command
 
 2023.04.20:
