@@ -6,7 +6,7 @@
 #   Useful to recheck show-ref commits consistency.
 
 # Usage:
-#   git_gen_ref_commit_hashes.sh <flags> [//] [<show-ref-cmd-line>] [// [<hash-cmd> [<hash-cmd-line>]]]
+#   git_gen_ref_commit_hashes.sh [<flags>] [//] [<show-ref-cmd-line>] [// [<hash-cmd> [<hash-cmd-line>]]]
 #
 #   <flags>:
 #     -c

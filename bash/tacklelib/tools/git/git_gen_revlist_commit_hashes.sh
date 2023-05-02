@@ -6,7 +6,7 @@
 #   Useful to recheck rev-list commits consistency.
 
 # Usage:
-#   git_gen_revlist_commit_hashes.sh <flags> [//] [<rev-list-cmd-line>] [// <show-cmd-line> [// [<hash-cmd> [<hash-cmd-line>]]]]
+#   git_gen_revlist_commit_hashes.sh [<flags>] [//] [<rev-list-cmd-line>] [// <show-cmd-line> [// [<hash-cmd> [<hash-cmd-line>]]]]
 #
 #   <flags>:
 #     -c
