@@ -57,12 +57,15 @@
 #
 
 # Libraries with sources or/and binaries built externally.
-
-global path exist _3DPARTY_ROOT:WIN="d:/_3dparty"
-global path exist _3DPARTY_ROOT:UNIX="/home/opt/_3dparty"
-
-global path exist _3DPARTY_BUILD_SOURCES_ROOT="$/{_3DPARTY_ROOT}/src"
-global path exist _3DPARTY_BUILD_OUTPUT_ROOT="$/{_3DPARTY_ROOT}/build"
+#
+# CAUTION:
+#   Variables must be defined externally, here is left as an example!
+#
+#global path exist _3DPARTY_ROOT:WIN="d:/_3dparty"
+#global path exist _3DPARTY_ROOT:UNIX="/home/opt/_3dparty"
+#
+#global path exist _3DPARTY_BUILD_SOURCES_ROOT="$/{_3DPARTY_ROOT}/src"
+#global path exist _3DPARTY_BUILD_OUTPUT_ROOT="$/{_3DPARTY_ROOT}/build"
 
 
 #global CMAKE_LIBRARY_PATH:UNIX="/usr/lib/i386-linux-gnu"

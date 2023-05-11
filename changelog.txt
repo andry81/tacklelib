@@ -1,3 +1,6 @@
+2023.05.11:
+* new: _config: preparation of config files for cmake build
+
 2023.05.02:
 * new: bash/tacklelib/tools/git/git_gen_commit_hash.sh: added `-p` flag to additionally generate and print parent hashes
 

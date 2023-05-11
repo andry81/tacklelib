@@ -72,7 +72,7 @@
 #final path exist canonical CXX=$/{MSYS_BIN_DIR}/g++.exe
 #final package force CMAKE_CXX_FLAGS=-I$/{MSYS_ROOT}/include
 #
-## WORKAROUND: `For MinGW make to work correctly sh.exe must NOT be in your path.`
+## WORKAROUND: For MinGW make to work correctly with the `sh.exe`, must NOT be in your path.
 #final path exist PATH:WIN=("$/{WINDIR}\system32" "$/{WINDIR}" "$/{WINDIR}\System32\Wbem" "$/{WINDIR}\System32\WindowsPowerShell\v1.0\" "$/{CMAKE_COMMAND_DIR}" "$/{MSYS_BIN_DIR}")
 
 # to enable Mingw GCC compiler

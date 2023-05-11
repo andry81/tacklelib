@@ -107,31 +107,5 @@ top bool ENABLE_QD_DD_INTEGRATION=1   # to map math::real to dd_real and map (de
 
 # utility
 
-local Boost_USE_SHARED_LIBS=ON
-local Boost_USE_STATIC_LIBS=OFF
-local Boost_USE_STATIC_RUNTIME=OFF
-local Boost_USE_MULTITHREADED=ON
-
-# associated with respective preprocessor definitions (must be changed together with build variables!)
-
-# Tells the config system not to automatically select which libraries to link against.
-# Normally if a compiler supports #pragma lib, then the correct library build variant will be
-# automatically selected and linked against, simply by the act of including one of that library's headers.
-# This macro turns that feature off.
-#
-local BOOST_ALL_NO_LIB=ON
-
-# Forces all libraries that have separate source, to be linked as dll's rather than static libraries
-# on Microsoft Windows (this macro is used to turn on __declspec(dllimport) modifiers, so that the compiler
-# knows which symbols to look for in a dll rather than in a static library).
-# Note that there may be some libraries that can only be statically linked (Boost.Test for example) and
-# others which may only be dynamically linked (Boost.Thread for example), in these cases this macro has no effect.
-#
-local BOOST_ALL_DYN_LINK=ON
-
-# Force to use C++11 lambda functions to implement scope exits
-#
-local BOOST_SCOPE_EXIT_CONFIG_USE_LAMBDAS=ON
-
 #
 #local Boost_DEBUG=ON
