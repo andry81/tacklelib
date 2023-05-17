@@ -2,7 +2,7 @@
 
 # Description:
 #   Script to remove a path from all commits in a repository using
-#   `git-filter-repo` script:
+#   `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
@@ -11,7 +11,7 @@
 #   <path>:
 #     Path to remove.
 #   <cmd-line>:
-#     The rest of command line passed to `git-filter-repo` script.
+#     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
 #   >
@@ -38,7 +38,7 @@ function git_filter_repo_remove_path()
 {
   local path="$1"
 
-  call git-filter-repo --invert-paths --path "$path" "${@:2}"
+  call git filter-repo --invert-paths --path "$path" "${@:2}"
 }
 
 # shortcut

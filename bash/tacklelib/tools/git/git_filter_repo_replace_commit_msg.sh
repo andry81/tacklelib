@@ -2,14 +2,14 @@
 
 # Description:
 #   Script to replace commit message from all commits in a repository using
-#   `git-filter-repo` script:
+#   `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
 #   git_filter_repo_replace_commit_msg.sh <from-str> <to-str> [<cmd-line>]
 #
 #   <cmd-line>:
-#     The rest of command line passed to `git-filter-repo` script.
+#     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
 #   >
@@ -51,7 +51,7 @@ function git_filter_repo_replace_commit_msg()
   export FROM_STR="$1"
   export TO_STR="$2"
 
-  call git-filter-repo --commit-callback \
+  call git filter-repo --commit-callback \
 'import os, re
 from_str = os.environ["FROM_STR"]
 to_str = os.environ["TO_STR"]

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Description:
-#   Script to replace user emails and names in all commits.
+#   Script to replace user emails and names in all commits using
+#   `git filter-branch` command.
 #
 #   The user email has priority over the user name, so if not matched, then
 #   user name search is skipped. To avoid that you have to call function below

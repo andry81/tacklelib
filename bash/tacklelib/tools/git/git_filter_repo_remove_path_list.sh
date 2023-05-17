@@ -2,7 +2,7 @@
 
 # Description:
 #   Script to remove path list from all commits in a repository using
-#   `git-filter-repo` script:
+#   `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
@@ -13,7 +13,7 @@
 #   //:
 #     Separator to stop parse path list.
 #   <cmd-line>:
-#     The rest of command line passed to `git-filter-repo` script.
+#     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
 #   >
@@ -64,7 +64,7 @@ function git_filter_repo_remove_path_list()
     return 255
   fi
 
-  evalcall0 "git-filter-repo --invert-paths$path_list_cmdline" "$@"
+  evalcall0 "git filter-repo --invert-paths$path_list_cmdline" "$@"
 }
 
 # shortcut

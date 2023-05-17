@@ -3,14 +3,14 @@
 # Description:
 #   Script to shrink first line returns (remove all line returns before the
 #   first line and shrink repeating line returns after the first line) from all
-#   commits in a repository using `git-filter-repo` script:
+#   commits in a repository using `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
 #   git_filter_repo_shrink_commit_msg_first_line_returns.sh [<cmd-line>]
 #
 #   <cmd-line>:
-#     The rest of command line passed to `git-filter-repo` script.
+#     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
 #   >
@@ -53,7 +53,7 @@ function call()
 #
 function git_filter_repo_shrink_commit_msg_first_line_returns()
 {
-  call git-filter-repo --commit-callback \
+  call git filter-repo --commit-callback \
 'import re
 msg = commit.message.decode("utf-8")
 msg_new = re.sub(r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL)

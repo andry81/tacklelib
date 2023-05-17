@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Description:
-#   Script to cleanup artefacts after repository filtering with the
-#   `git-filter-repo` script execution:
+#   Script to cleanup artefacts after repository using `git filter-repo`
+#   command:
 #   https://github.com/newren/git-filter-repo
 
 # Usage:

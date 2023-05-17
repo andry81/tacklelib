@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Description:
-#   Script to cleanup artefacts after branch filtering with the
-#   `git_filter_branch_user.sh` script execution.
+#   Script to cleanup artefacts after using `git filter-branch` command.
 
 # Usage:
 #   git_filter_branch_cleanup.sh
