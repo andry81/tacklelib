@@ -7,15 +7,20 @@
 #   https://github.com/newren/git-filter-repo
 
 # Usage:
-#   git_filter_repo_shrink_commit_msg_first_line_returns.sh [<cmd-line>]
+#   git_filter_repo_shrink_commit_msg_first_line_returns.sh [<flags>] [//] [<cmd-line>]
 #
+#   <flags>:
+#     -r1
+#       Leaves one more line return after the first line (2 line returns).
+#   //:
+#     Separator to stop parse flags.
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
 #   >
 #   cd myrepo/path
-#   git_filter_repo_shrink_commit_msg_first_line_returns.sh --force
+#   git_filter_repo_shrink_commit_msg_first_line_returns.sh // --force
 #
 
 # NOTE:
@@ -53,10 +58,46 @@ function call()
 #
 function git_filter_repo_shrink_commit_msg_first_line_returns()
 {
+  local flag="$1"
+
+  local flag_r1=0
+
+  while [[ "${flag:0:1}" == '-' ]]; do
+    flag="${flag:1}"
+
+    if [[ "${flag:0:1}" == '-' ]]; then
+      echo "$0: error: invalid flag: \`$flag\`"
+      exit 255
+    fi
+
+    if [[ "${flag//r1/}" != "$flag" ]]; then
+      flag_r1=1
+    else
+      echo "$0: error: invalid flag: \`$flag\`"
+      exit 255
+    fi
+
+    shift
+
+    flag="$1"
+  done
+
+  if [[ "$1" == '//' ]]; then
+    shift
+  fi
+
+  local re_sub_str
+
+  if (( ! flag_r1 )); then
+    re_sub_str = 'r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL'
+  else
+    re_sub_str = 'r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\2\3'\'', msg, flags=re.DOTALL'
+  fi
+
   call git filter-repo --commit-callback \
 'import re
 msg = commit.message.decode("utf-8")
-msg_new = re.sub(r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL)
+msg_new = re.sub('"$re_sub_str"')
 commit.message = msg_new.encode("utf-8")
 ' --partial "$@"
 }

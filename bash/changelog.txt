@@ -1,3 +1,6 @@
+2023.05.18:
+* new: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: added `-r1` flag to leave one more line return after the first line
+
 2023.05.17:
 * changed: tacklelib/tools/git/git_*.sh: replaced call to `git-filter-repo` script by call to `git filter-repo` command
 
