@@ -1,4 +1,7 @@
 2023.05.18:
+* new: tacklelib/tools/git/git_filter_branch_update_file.sh: script to add or replace file in a single commit (last commit) or multiple commits (first commit(s)) using `git update-index --add`
+
+2023.05.18:
 * new: tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: added `-r1` flag to leave one more line return after the first line
 
 2023.05.17:
