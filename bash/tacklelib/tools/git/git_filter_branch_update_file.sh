@@ -34,6 +34,10 @@
 #   cd myrepo/path
 #   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag~1..my-tag
 
+# NOTE:
+#   You must use `git_filter_branch_cleanup.sh` script to complete the
+#   operation and cleanup the repository from intermediate references.
+
 # Based on:
 #   https://stackoverflow.com/questions/21353584/git-how-do-i-add-a-file-to-the-first-commit-and-rewrite-history-in-the-process
 #

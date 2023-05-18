@@ -29,6 +29,10 @@
 #     git_fb_u a:c '<USER_NEW_EMAIL>' '<USER_NEW_NAME>' '<USER_OLD_EMAIL_1>' '<USER_OLD_NAME_1>' '<USER_OLD_EMAIL_2>' '<USER_OLD_NAME_2>'" -- --all
 #
 
+# NOTE:
+#   You must use `git_filter_branch_cleanup.sh` script to complete the
+#   operation and cleanup the repository from intermediate references.
+
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
 

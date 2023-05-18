@@ -36,6 +36,10 @@
 #     instead of replacing old refs with new refnames, it will instead create
 #     new refs and keep the old ones around. Use with caution.
 
+# NOTE:
+#   You must use `git_filter_repo_cleanup.sh` script to complete the
+#   operation and cleanup the repository from intermediate references.
+
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
 

@@ -1,4 +1,7 @@
 2023.05.18:
+* changed: bash/tacklelib/tools/git/git_filter_*.sh: minor details
+
+2023.05.18:
 * new: bash/tacklelib/tools/git/git_filter_branch_update_file.sh: script to add or replace file in a single commit (last commit) or multiple commits (first commit(s)) using `git update-index --add`
 
 2023.05.18:

@@ -29,6 +29,10 @@
 #     * `myfile`
 #     * `dir1/myfile`
 
+# NOTE:
+#   You must use `git_filter_repo_cleanup.sh` script to complete the
+#   operation and cleanup the repository from intermediate references.
+
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
 
