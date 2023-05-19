@@ -9,7 +9,7 @@
 #   git_filter_branch_update_file.sh <path-to-file> <sourcetree-path-to-dir> [<cmd-line>]
 #
 #   <path-to-file>:
-#     Local file path to add.
+#     Local file path to update.
 #   <sourcetree-path-to-dir>:
 #     Source tree relative file path to a directory.
 #   <cmd-line>:
@@ -29,16 +29,40 @@
 #   cd myrepo/path
 #   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- --all
 #
-#   # To update single commit by a tag to update the last commit.
+#   # To update single commit by a tag.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag~1..my-tag
+#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag --not my-tag^@
+#
+#   >
+#   cd myrepo/path
+#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag^!
+
+# CAUTION:
+#   In a generic case the `rev-list` parameter of the `git filter-branch`
+#   command must be a set of commit ranges to rewrite a single commit or a set
+#   of commits. This is required because a commit in the commits tree can has
+#   multiple parent commits and to select a single commit with multiple parents
+#   (merge commit) you must issue a range of commits for EACH PARENT to define
+#   range in each parent branch.
+#
+#   In other words a single expression `<obj>~1..<ref>` does not guarantee a
+#   selection of a single commit if `<ref>` points a commit with multiple
+#   parents or has it on a way over other commits to the `<obj>`.
+#   The same for the `<ref> --not <obj>^@` or `<obj>^@..<ref>` expression if
+#   the path between `<ref>` and `<obj>` contains more than 1 commit. In that
+#   particular case to select a single commit you must use multiple ranges.
+#
+#   If `<ref>` and `<obj>` points the same commit (range for a single), then
+#   the `<ref> --not <obj>^@` or `<obj>^@..<ref>` or `<ref>^!` is enough to
+#   always select a single commit in any tree.
 
 # NOTE:
 #   You must use `git_filter_branch_cleanup.sh` script to complete the
 #   operation and cleanup the repository from intermediate references.
 
 # Based on:
+#   https://stackoverflow.com/questions/54199584/how-to-add-a-file-to-a-specific-commit-with-git-filter-branch
 #   https://stackoverflow.com/questions/21353584/git-how-do-i-add-a-file-to-the-first-commit-and-rewrite-history-in-the-process
 #
 
@@ -63,7 +87,7 @@ function git_filter_branch_update_file()
 }
 
 # shortcut
-function git_fb_af()
+function git_fb_uf()
 {
   git_filter_branch_update_file "$@"
 }
