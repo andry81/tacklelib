@@ -1,8 +1,8 @@
 > **Warning** FOR GIT USERS: To clone including all dependecies you must use [fork](https://github.com/plusone-robotics/vcstool) (has the sparse checkout feature) of the [vcstool](https://github.com/dirk-thomas/vcstool) python module (currently the sparse checkout feature is not merged).
 
-<h4 align="center">A composite generic library consisted of various modules on different languages:
+<p align="center">A composite generic library consisted of various modules on different languages:</p>
 
-<div align="left">
+<p align="left">
 
 * <i>C++11</i><br/>
   Represents the same ideas as introduced in Boost/STL/Loki C++ libraries and
@@ -20,7 +20,7 @@
   
 * <i>VBS</i><br/>
   Various extension scritps/modules for the Visual Basic Script interpreter.<br/>
-</div><br/>
+</p>
 
 <p align="center">
   <a href="https://www.codefactor.io/repository/github/andry81/tacklelib">
@@ -68,8 +68,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/andry81/tacklelib/blob/master/changelog.txt">Changelog</a>
-• <a href="https://github.com/andry81/tacklelib/blob/master/README_EN.txt">Readme</a>
+  <a href="https://github.com/andry81/tacklelib/tree/HEAD/changelog.txt">Changelog</a>
+• <a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.txt">Readme</a>
 • <a href="#dependecies">Dependencies</a>
 • <a href="#copyright-and-license"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/license/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
 </p>
@@ -84,7 +84,7 @@
 
 ---
 
-## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/blob/master/README_EN.deps.txt">README_EN.deps.txt</a>)
+## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.deps.txt">README_EN.deps.txt</a>)
 
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/fmt
@@ -100,4 +100,4 @@ https://github.com/andry81-3dparty/3dparty
 
 ## <a name="copyright-and-license">Copyright and License</a>
 
-Code and documentation copyright 2023 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/blob/master/license.txt)
+Code and documentation copyright 2023 Andrey Dibrov. Code released under [MIT License](https://github.com/andry81/tacklelib/tree/HEAD/license.txt)
