@@ -1,3 +1,6 @@
+2023.05.20:
+* changed: tacklelib/tools/git/git_filter_branch_update_file.sh: more details
+
 2023.05.19:
 * fixed: tacklelib/tools/git/git_filter_branch_update_file.sh: minor fixup
 * changed: tacklelib/tools/git/git_filter_branch_update_file.sh: more details

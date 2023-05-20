@@ -57,6 +57,21 @@
 #   the `<ref> --not <obj>^@` or `<obj>^@..<ref>` or `<ref>^!` is enough to
 #   always select a single commit in any tree.
 
+# CAUTION:
+#   If a file already exist in a being updated commit or in a commit
+#   child/children and has changes, then the script does replace an existing
+#   file including children commits changes. This means that the changes in
+#   all child branches would be lost.
+#
+#   https://stackoverflow.com/questions/54199584/how-to-add-a-file-to-a-specific-commit-with-git-filter-branch/76288099#76288099
+#
+#   If you are trying to replace a file and it has changes in next child
+#   commit(s), for example, `changelog.txt` file, then you must rewrite it in
+#   each next child, otherwise the next commits will be left with old file.
+#   In that case actual to use `git filter-repo` with file text search and
+#   replace instead of a file add/replace or manually rewrite each next child
+#   commit before call to `git replace --graft ...`.
+
 # NOTE:
 #   You must use `git_filter_branch_cleanup.sh` script to complete the
 #   operation and cleanup the repository from intermediate references.
