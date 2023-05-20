@@ -4,6 +4,7 @@
 #   Script to remove path list from all commits in a repository using
 #   `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
+#   https://github.com/newren/git-filter-repo/tree/HEAD/Documentation/git-filter-repo.txt
 
 # Usage:
 #   git_filter_repo_remove_path_list.sh <path0> [... <pathN>] [// <cmd-line>]

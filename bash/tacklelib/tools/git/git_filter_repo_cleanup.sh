@@ -4,6 +4,7 @@
 #   Script to cleanup artefacts after repository using `git filter-repo`
 #   command:
 #   https://github.com/newren/git-filter-repo
+#   https://github.com/newren/git-filter-repo/tree/HEAD/Documentation/git-filter-repo.txt
 
 # Usage:
 #   git_filter_repo_cleanup.sh

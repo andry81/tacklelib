@@ -5,6 +5,7 @@
 #   first line and shrink repeating line returns after the first line) from all
 #   commits in a repository using `git filter-repo` command:
 #   https://github.com/newren/git-filter-repo
+#   https://github.com/newren/git-filter-repo/tree/HEAD/Documentation/git-filter-repo.txt
 
 # Usage:
 #   git_filter_repo_shrink_commit_msg_first_line_returns.sh [<flags>] [//] [<cmd-line>]
