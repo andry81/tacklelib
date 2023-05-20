@@ -1,4 +1,7 @@
 2023.05.20:
+* new: tacklelib/tools/git/git_filter_branch_update_file_text.sh: script to replace file text in a single commit (last commit) or multiple commits (first commit(s)) using `git filter-branch --tree-filter` with `find` and `sed`
+
+2023.05.20:
 * changed: tacklelib/tools/git/git_filter_repo_*.sh: added direct documentation link
 
 2023.05.20:
