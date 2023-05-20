@@ -32,6 +32,9 @@
 #   Beware of line returns in Windows. Even if `sed` does not match the string,
 #   it still can change the line returns of output lines. This brings an entire
 #   file change without any match.
+#
+#   So to workaound this the binary mode is always used:
+#     https://stackoverflow.com/questions/4652652/preserve-line-endings
 
 # NOTE:
 #   The `git filter-repo` implementation does not support non exclusive file
@@ -80,7 +83,7 @@ function git_filter_branch_update_file_text()
   sed_text_to_match="${sed_text_to_match//\|/\\\|}"
   sed_text_to_replace="${sed_text_to_replace//\|/\\\|}"
 
-  call git filter-branch --tree-filter "find . -name \"$sourcetree_file_name_pttn\" -type f -exec sed -i -e \
+  call git filter-branch --tree-filter "find . -name \"$sourcetree_file_name_pttn\" -type f -exec sed -i -b -e \
     \"s|$sed_text_to_match|$sed_text_to_replace|g\" {} \;" "${@:4}"
 }
 
