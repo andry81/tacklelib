@@ -21,6 +21,8 @@
 #   `Cannot rewrite branches: You have unstaged changes.`
 #   This happens because in that case the `<path-to-file>` is changed or a new
 #   file.
+#   DO NOT USE relative path as long as `git filter-branch` operates on
+#   internal current directory.
 
 # Examples:
 #   # To update all commits by a tag to update first commit(s) in all ancestor
