@@ -1,3 +1,8 @@
+2023.05.23:
+* fixed: bash/tacklelib/tools/git/git_filter_branch_update_file_text.sh: workarounded sed to enable it to match multiline text
+* new: bash/tacklelib/tools/git/git_filter_branch_update_file_text.sh: added `-E` and `-r` flags to enable sed to use extended regular expression
+* changed: bash/tacklelib/tools/git/git_filter_branch_update_file*.sh: more details
+
 2023.05.22:
 * changed: bash/tacklelib/tools/git/git_filter_branch_update_file.sh: more details
 

@@ -8,8 +8,14 @@
 #
 
 # Usage:
-#   git_filter_branch_update_file_text.sh <sourcetree-file-name-pattern> <text-to-match> <text-to-replace> [<cmd-line>]
+#   git_filter_branch_update_file_text.sh [<flags>] [//] <sourcetree-file-name-pattern> <text-to-match> <text-to-replace> [<cmd-line>]
 #
+#   <flags>:
+#     -E (POSIX)
+#     -r
+#       Use sed with extended regular expression.
+#   //:
+#     Separator to stop parse flags.
 #   <sourcetree-file-name-pattern>:
 #     Source tree relative file pattern to a file to update.
 #   <path-to-match>:
@@ -20,6 +26,7 @@
 #     The rest of command line passed to `git filter-branch` command.
 
 # Examples:
+#   # Single parent branch:
 #   >
 #   cd myrepo/path
 #   git_filter_branch_update_file_text.sh README.md '<p/>' '</p>' -- --all
@@ -27,6 +34,16 @@
 #   >
 #   cd myrepo/path
 #   git_filter_branch_update_file_text.sh README.md '<p/>' '</p>' -- master --not my-tag^@
+#
+#   # Multiple parent branches:
+#   >
+#   cd myrepo/path
+#   git_filter_branch_update_file_text.sh README.md '<p/>' '</p>' -- master ^my-tag1 ^my-tag2
+#
+#   # Remove multiline text with mixed line returns
+#   >
+#   cd myrepo/path
+#   git_filter_branch_update_file_text.sh -E changelog.txt '2023\.05\.23:\r?\n[^\r\n]+\r?\n' '' -- master ^my-tag1 ^my-tag2
 
 # CAUTION:
 #   Beware of line returns in Windows. Even if `sed` does not match the string,
@@ -61,8 +78,8 @@
 #   `git_filter_branch_update_file.sh` file.
 
 # NOTE:
-#   You must use `git_filter_repo_cleanup.sh` script to complete the
-#   operation and cleanup the repository from intermediate references.
+#   You must use `git_filter_branch_cleanup.sh` script to cleanup the
+#   repository from intermediate references.
 
 # Script both for execution and inclusion.
 if [[ -n "$BASH" ]]; then
@@ -76,6 +93,41 @@ function call()
 
 function git_filter_branch_update_file_text()
 {
+  local flag="$1"
+
+  local flag_E=0
+  local flag_r=0
+
+  local sed_bare_flags=' -i -b'
+
+  while [[ "${flag:0:1}" == '-' ]]; do
+    flag="${flag:1}"
+
+    if [[ "${flag:0:1}" == '-' ]]; then
+      echo "$0: error: invalid flag: \`$flag\`"
+      exit 255
+    fi
+
+    if [[ "${flag//E/}" != "$flag" ]]; then
+      flag_E=1
+      sed_bare_flags="$sed_bare_flags -E"
+    elif [[ "${flag//r/}" != "$flag" ]]; then
+      flag_r=1
+      sed_bare_flags="$sed_bare_flags -r"
+    else
+      echo "$0: error: invalid flag: \`$flag\`"
+      exit 255
+    fi
+
+    shift
+
+    flag="$1"
+  done
+
+  if [[ "$1" == '//' ]]; then
+    shift
+  fi
+
   local sourcetree_file_name_pttn="$1"
   local sed_text_to_match="$2"
   local sed_text_to_replace="$3"
@@ -83,8 +135,13 @@ function git_filter_branch_update_file_text()
   sed_text_to_match="${sed_text_to_match//\|/\\\|}"
   sed_text_to_replace="${sed_text_to_replace//\|/\\\|}"
 
-  call git filter-branch --tree-filter "find . -name \"$sourcetree_file_name_pttn\" -type f -exec sed -i -b -e \
-    \"s|$sed_text_to_match|$sed_text_to_replace|g\" {} \;" "${@:4}"
+  # Based on: https://unix.stackexchange.com/questions/182153/sed-read-whole-file-into-pattern-space-without-failing-on-single-line-input/182154#182154
+  #
+  # NOTE:
+  #   `H;1h;\\\$!d;x;` reads portably whole file into pattern space.
+  #
+  call git filter-branch --tree-filter "find . -name \"$sourcetree_file_name_pttn\" -type f -exec sed$sed_bare_flags -e \
+    \"H;1h;\\\$!d;x; s|$sed_text_to_match|$sed_text_to_replace|g\" {} \;" "${@:4}"
 }
 
 # shortcut

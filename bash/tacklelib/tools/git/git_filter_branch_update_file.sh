@@ -75,8 +75,8 @@
 #   commit before call to `git replace --graft ...`.
 
 # NOTE:
-#   You must use `git_filter_branch_cleanup.sh` script to complete the
-#   operation and cleanup the repository from intermediate references.
+#   You must use `git_filter_branch_cleanup.sh` script to cleanup the
+#   repository from intermediate references.
 
 # Based on:
 #   https://stackoverflow.com/questions/54199584/how-to-add-a-file-to-a-specific-commit-with-git-filter-branch
