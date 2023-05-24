@@ -1,3 +1,7 @@
+2023.05.24:
+* changed: tacklelib/tools/git/git_filter_repo_remove_path*.sh: added usage of `--partial` flag by default
+* changed: tacklelib/tools/git/git_filter_repo_remove_path*.sh: more details
+
 2023.05.23:
 * fixed: tacklelib/tools/git/git_filter_branch_update_file_text.sh: workarounded sed to enable it to match multiline text
 * new: tacklelib/tools/git/git_filter_branch_update_file_text.sh: added `-E` and `-r` flags to enable sed to use extended regular expression
