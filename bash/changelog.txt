@@ -1,4 +1,7 @@
 2023.05.24:
+* changed: tacklelib/tools/git/git_filter_repo_cleanup.sh: more details
+
+2023.05.24:
 * changed: tacklelib/tools/git/git_filter_repo_remove_path*.sh: added usage of `--partial` flag by default
 * changed: tacklelib/tools/git/git_filter_repo_remove_path*.sh: more details
 
