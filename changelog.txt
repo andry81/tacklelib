@@ -1,3 +1,6 @@
+2023.05.26:
+* fixed: bash/tacklelib/tools/git/git_filter_repo_shrink_commit_msg_first_line_returns.sh: execution fixup
+
 2023.05.24:
 * changed: bash/tacklelib/tools/git/git_filter_repo_cleanup.sh: more details
 

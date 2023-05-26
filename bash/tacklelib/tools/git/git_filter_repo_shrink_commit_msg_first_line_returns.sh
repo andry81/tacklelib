@@ -94,9 +94,9 @@ function git_filter_repo_shrink_commit_msg_first_line_returns()
   local re_sub_str
 
   if (( ! flag_r1 )); then
-    re_sub_str = 'r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL'
+    re_sub_str='r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\3'\'', msg, flags=re.DOTALL'
   else
-    re_sub_str = 'r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\2\3'\'', msg, flags=re.DOTALL'
+    re_sub_str='r'\''^[\r\n]*([^\r\n]+)(\r\n|\n|\r)?[\r\n]*(.*)'\'', r'\''\1\2\2\3'\'', msg, flags=re.DOTALL'
   fi
 
   call git filter-repo --commit-callback \
