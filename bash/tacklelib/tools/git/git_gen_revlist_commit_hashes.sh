@@ -67,8 +67,8 @@ function git_gen_revlist_commit_hashes()
     flag="${flag:1}"
 
     if [[ "${flag:0:1}" == '-' ]]; then
-      echo "$0: error: invalid flag: \`$flag\`"
-      exit 255
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
     fi
 
     while [[ -n "$flag" ]]; do
@@ -80,8 +80,8 @@ function git_gen_revlist_commit_hashes()
         flag_only_not_equal_hashes=1
         flag="${flag//r/}"
       else
-        echo "$0: error: invalid flag: \`${flag:0:1}\`"
-        exit 255
+        echo "$0: error: invalid flag: \`${flag:0:1}\`" >&2
+        return 255
       fi
     done
 

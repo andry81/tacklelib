@@ -20,7 +20,7 @@ function call()
 function git_filter_branch_cleanup()
 {
   # print all refs
-  call git show-ref || exit 255
+  call git show-ref || return 255
   echo ---
 
   local IFS

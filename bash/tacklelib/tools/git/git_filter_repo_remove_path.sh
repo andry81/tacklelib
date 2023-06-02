@@ -10,9 +10,18 @@
 #   git_filter_repo_remove_path.sh <path> [<cmd-line>]
 #
 #   <path>:
-#     Path to remove.
+#     Source tree relative file path to a file/directory to remove.
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-repo` command.
+
+# CAUTION:
+#   Currently the `git filter-repo` implementation is not stable and may miss
+#   to remove paths:
+#
+#   * `--invert-path does not invert path beginning a commit` :
+#     https://github.com/newren/git-filter-repo/issues/473
+#
+#   To avoid that use `git_filter_branch_remove_path.sh` script instead.
 
 # Examples:
 #   >

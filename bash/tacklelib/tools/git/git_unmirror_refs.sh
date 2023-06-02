@@ -20,7 +20,7 @@ function call()
 function git_unmirror_refs()
 {
   # print all remotes
-  call git remote || exit 255
+  call git remote || return 255
   echo ---
 
   # Pull to update local references and test on unmerged heads in the local.
@@ -31,7 +31,7 @@ function git_unmirror_refs()
   done
 
   # print all refs
-  call git show-ref || exit 255
+  call git show-ref || return 255
   echo ---
 
   local IFS
@@ -53,7 +53,7 @@ function git_unmirror_refs()
       git_push_cmdline="$git_push_cmdline ':refs/remotes/$ref_remote'"
     done <<< `git show-ref 2>/dev/null`
     if [[ -n "$git_push_cmdline" ]]; then
-      eval call git push \"\$remote\" $git_push_cmdline || exit 255
+      eval call git push \"\$remote\" $git_push_cmdline || return 255
       echo ---
       echo
     fi

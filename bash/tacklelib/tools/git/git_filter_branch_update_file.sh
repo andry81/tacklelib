@@ -6,14 +6,19 @@
 #
 
 # Usage:
-#   git_filter_branch_update_file.sh <path-to-file> <sourcetree-path-to-dir> [<cmd-line>]
+#   git_filter_branch_update_file.sh [<flags>] [//] <path-to-file> <sourcetree-path-to-dir> [<cmd-line>]
 #
+#   <flags>:
+#     -f
+#       Use `cp -f` instead.
+#   //:
+#     Separator to stop parse flags.
 #   <path-to-file>:
-#     Local file path to update.
+#     Local file path to copy from.
 #   <sourcetree-path-to-dir>:
-#     Source tree relative file path to a directory.
+#     Source tree relative file path of a directory to copy to.
 #   <cmd-line>:
-#     The rest of command line passed to `git filter-repo` command.
+#     The rest of command line passed to `git filter-branch` command.
 
 # CAUTION:
 #   Path `<path-to-file>` must be outside of the working copy, otherwise the
@@ -25,20 +30,26 @@
 #   internal current directory.
 
 # Examples:
-#   # To update all commits by a tag to update first commit(s) in all ancestor
-#   # branches.
+#   # To update all commits in all heads to update first commit(s) in all
+#   # ancestor branches.
 #   >
 #   cd myrepo/path
 #   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- --all
 #
+#   # To update all commits by tag `t1` to update first commit(s) in all
+#   # ancestor branches.
+#   >
+#   cd myrepo/path
+#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1
+#
 #   # To update single commit by a tag.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag --not my-tag^@
+#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1 --not t1^@
 #
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- my-tag^!
+#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1^!
 
 # CAUTION:
 #   In a generic case the `rev-list` parameter of the `git filter-branch`
@@ -95,12 +106,48 @@ function call()
 
 function git_filter_branch_update_file()
 {
+  local flag="$1"
+
+  local flag_f=0
+
+  local cp_bare_flags=''
+
+  while [[ "${flag:0:1}" == '-' ]]; do
+    flag="${flag:1}"
+
+    if [[ "${flag:0:1}" == '-' ]]; then
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
+    fi
+
+    if [[ "${flag//r/}" != "$flag" ]]; then
+      flag_f=1
+      cp_bare_flags="$cp_bare_flags -f"
+    else
+      echo "$0: error: invalid flag: \`${flag:0:1}\`" >&2
+      return 255
+    fi
+
+    shift
+
+    flag="$1"
+  done
+
+  if [[ "$1" == '//' ]]; then
+    shift
+  fi
+
   local local_path="${1//\\//}"
   local sourcetree_path_dir="${2//\\//}"
 
+  if [[ ! -f "$local_path" ]]; then
+    echo "$0: error: path-to-file file is not found: \`$local_path\`" >&2
+    return 255
+  fi
+
   local local_path_file_name="${local_path##*/}"
 
-  call git filter-branch --index-filter "cp \"$local_path\" \"$sourcetree_path_dir\" && git update-index --add \"$sourcetree_path_dir/$local_path_file_name\"" "${@:3}"
+  call git filter-branch --index-filter "cp$cp_bare_flags \"$local_path\" \"$sourcetree_path_dir\" && git update-index --add \"$sourcetree_path_dir/$local_path_file_name\"" "${@:3}"
 }
 
 # shortcut

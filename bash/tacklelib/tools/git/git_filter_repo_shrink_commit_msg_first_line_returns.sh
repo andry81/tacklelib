@@ -71,15 +71,15 @@ function git_filter_repo_shrink_commit_msg_first_line_returns()
     flag="${flag:1}"
 
     if [[ "${flag:0:1}" == '-' ]]; then
-      echo "$0: error: invalid flag: \`$flag\`"
-      exit 255
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
     fi
 
     if [[ "${flag//r1/}" != "$flag" ]]; then
       flag_r1=1
     else
-      echo "$0: error: invalid flag: \`$flag\`"
-      exit 255
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
     fi
 
     shift

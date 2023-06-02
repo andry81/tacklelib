@@ -10,11 +10,20 @@
 #   git_filter_repo_remove_path_list.sh <path0> [... <pathN>] [// <cmd-line>]
 #
 #   <path0> [... <pathN>]:
-#     Paths to remove.
+#     Source tree relative file paths to a file/directory to remove.
 #   //:
 #     Separator to stop parse path list.
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-repo` command.
+
+# CAUTION:
+#   Currently the `git filter-repo` implementation is not stable and may miss
+#   to remove paths:
+#
+#   * `--invert-path does not invert path beginning a commit` :
+#     https://github.com/newren/git-filter-repo/issues/473
+#
+#   To avoid that use `git_filter_branch_remove_path_list.sh` script instead.
 
 # Examples:
 #   >
@@ -80,8 +89,12 @@ function git_filter_repo_remove_path_list()
       break
     fi
 
-    path_list_cmdline="$path_list_cmdline --path \"$arg\""
+    if [[ -n "$arg" ]]; then
+      path_list_cmdline="$path_list_cmdline --path \"$arg\""
+    fi
+
     shift
+
     arg="$1"
   done
 
