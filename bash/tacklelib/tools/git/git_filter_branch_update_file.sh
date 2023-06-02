@@ -147,7 +147,11 @@ function git_filter_branch_update_file()
 
   local local_path_file_name="${local_path##*/}"
 
-  call git filter-branch --index-filter "cp$cp_bare_flags \"$local_path\" \"$sourcetree_path_dir\" && git update-index --add \"$sourcetree_path_dir/$local_path_file_name\"" "${@:3}"
+  call git filter-branch --index-filter \
+"if [[ ! -d \"$sourcetree_path_dir\" ]]; then
+  mkdir -p \"$sourcetree_path_dir\"
+fi
+cp$cp_bare_flags \"$local_path\" \"$sourcetree_path_dir\" && git update-index --add \"$sourcetree_path_dir/$local_path_file_name\"" "${@:3}"
 }
 
 # shortcut

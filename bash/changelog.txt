@@ -1,4 +1,7 @@
 2023.06.02:
+* fixed: tacklelib/tools/git/git_filter_branch_update_file.sh: execution fixup
+
+2023.06.02:
 * new: tacklelib/tools/git/git_filter_branch_remove_path*.sh: script to remove file or directory in a single commit (last commit) or multiple commits (first commit(s)) using `git update-index --index-info`, `git update-index --remove` or `git rm`
 * changed: tacklelib/tools/git/git_filter_branch_update_file.sh: added flag `-f`
 * changed: tacklelib/tools/git/git_*.sh: scripts improvements and fixup
