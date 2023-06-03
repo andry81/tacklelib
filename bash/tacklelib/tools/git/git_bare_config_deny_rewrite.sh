@@ -22,6 +22,28 @@ function call()
   "$@"
 }
 
+# Based on:
+#   https://stackoverflow.com/questions/71928010/makefile-on-windows-is-there-a-way-to-force-make-to-use-the-mingw-find-exe/76393735#76393735
+#
+function detect_find()
+{
+  SHELL_FIND=find
+
+  # detect `find.exe` in Windows behind `$SYSTEMROOT\System32\find.exe`
+  if which where >/dev/null 2>&1; then
+    for path in `where find 2>/dev/null`; do
+      case "$path" in
+        "$SYSTEMROOT"\\*) ;;
+        "$WINDIR"\\*) ;;
+        *)
+          SHELL_FIND="$path"
+          break
+          ;;
+      esac
+    done
+  fi
+}
+
 function git_bare_config_deny_rewrite()
 {
   local dir="$1"
@@ -30,6 +52,8 @@ function git_bare_config_deny_rewrite()
   local git_path
 
   if [[ -n "$name_pttn" ]]; then
+    detect_find
+
     for git_path in `find "$dir" -name "$name_pttn" -type d`; do
       call pushd "$git_path" && {
         call git config receive.denynonfastforwards true
