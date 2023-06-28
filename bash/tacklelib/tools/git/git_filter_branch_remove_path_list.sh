@@ -14,7 +14,7 @@
 #     --i1
 #       Use `git update-index --remove` instead.
 #     --i2
-#       Use `git rm` instead of `git rm`.
+#       Use `git rm` instead.
 #     -f
 #       Use `git rm -f` or `git update-index --force-remove` respectively
 #       instead. Is not applicable for the `--i0`.

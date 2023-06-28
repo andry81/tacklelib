@@ -1,3 +1,6 @@
+2023.06.28:
+* changed: bash/tacklelib/tools/git/git_filter_branch_*.sh: details fixup
+
 2023.06.03:
 * fixed: bash/tacklelib/tools/git: git_bare_*.sh, git_filter_branch_update_file_text.sh: portable `find` utility detection behind `$SYSTEMROOT\System32\find.exe`
 * changed: bash/tacklelib/tools/git/git_filter_branch_update_file_text.sh: added `<dir>` positional required parameter to pass parameters to `find` utility as is

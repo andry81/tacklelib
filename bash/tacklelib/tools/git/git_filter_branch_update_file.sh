@@ -6,26 +6,27 @@
 #
 
 # Usage:
-#   git_filter_branch_update_file.sh [<flags>] [//] <path-to-file> <sourcetree-path-to-dir> [<cmd-line>]
+#   git_filter_branch_update_file.sh [<flags>] [//] <abs-path-to-file> <sourcetree-path-to-dir> [<cmd-line>]
 #
 #   <flags>:
 #     -f
 #       Use `cp -f` instead.
 #   //:
 #     Separator to stop parse flags.
-#   <path-to-file>:
-#     Local file path to copy from.
+#   <abs-path-to-file>:
+#     Absolute local file path to copy from.
 #   <sourcetree-path-to-dir>:
 #     Source tree relative file path of a directory to copy to.
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-branch` command.
 
 # CAUTION:
-#   Path `<path-to-file>` must be outside of the working copy, otherwise the
-#   git will complain about unstaged changes:
+#   Path `<abs-path-to-file>` must be outside of the working copy, otherwise
+#   the Git will complain about unstaged changes:
 #   `Cannot rewrite branches: You have unstaged changes.`
-#   This happens because in that case the `<path-to-file>` is changed or a new
-#   file.
+#   This happens because in that case the `<abs-path-to-file>` is changed or
+#   a new file.
+#
 #   DO NOT USE relative path as long as `git filter-branch` operates on
 #   internal current directory.
 
@@ -34,22 +35,22 @@
 #   # ancestor branches.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- --all
+#   git_filter_branch_update_file.sh <absolute-path>/changelog.txt . -- --all
 #
 #   # To update all commits by tag `t1` to update first commit(s) in all
 #   # ancestor branches.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1
+#   git_filter_branch_update_file.sh <absolute-path>/changelog.txt . -- t1
 #
 #   # To update single commit by a tag.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1 --not t1^@
+#   git_filter_branch_update_file.sh <absolute-path>/changelog.txt . -- t1 --not t1^@
 #
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file.sh ../blabla/.empty-dummy . -- t1^!
+#   git_filter_branch_update_file.sh <absolute-path>/changelog.txt . -- t1^!
 
 # CAUTION:
 #   In a generic case the `rev-list` parameter of the `git filter-branch`
@@ -81,9 +82,9 @@
 #   If you are trying to replace a file and it has changes in next child
 #   commit(s), for example, `changelog.txt` file, then you must rewrite it in
 #   each next child, otherwise the next commits will be left with old file.
-#   In that case actual to use `git filter-repo` with file text search and
-#   replace instead of a file add/replace or manually rewrite each next child
-#   commit before call to `git replace --graft ...`.
+#   In that case actual to use `git_filter_branch_update_file_text.sh` with
+#   file text search and replace instead of a file add/replace or manually
+#   rewrite each next child commit before call to `git replace --graft ...`.
 
 # NOTE:
 #   You must use `git_filter_branch_cleanup.sh` script to cleanup the
