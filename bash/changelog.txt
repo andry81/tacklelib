@@ -1,3 +1,6 @@
+2023.07.04:
+* fixed: tacklelib/bash_tacklelib: empty array elements serialization and deserialization in `tkl_serialize_array`/`tkl_deserialize_array`
+
 2023.06.28:
 * changed: tacklelib/tools/git/git_filter_branch_*.sh: details fixup
 

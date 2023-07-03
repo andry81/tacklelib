@@ -1209,6 +1209,13 @@ function tkl_escape_string()
   return 0
 }
 
+# ISSUES:
+#   * Empty string converts to empty array, but array with one empty value should not convert to empty string.
+#   * The last separator character (IFS) does ignore in expression `arr=($var)`.
+# 
+# WORKAROUNDS:
+#   1. Add separator character at the end of each element in a serialized array if array is not empty.
+#
 function tkl_serialize_array()
 {
   local __array_var="$1"
@@ -1230,7 +1237,7 @@ function tkl_serialize_array()
     eval declare "__value=\"\${$__array_var[__index]}\""
     __value="${__value//\?/?00}"
     __value="${__value//|/?01}"
-    __escaped_array_str="$__escaped_array_str${__escaped_array_str:+|}$__value"
+    __escaped_array_str="$__escaped_array_str$__value|"
   done
 
   tkl_declare_global $__out_var "$__escaped_array_str"
@@ -1244,7 +1251,7 @@ function tkl_deserialize_array()
   local __out_var="$2"
 
   [[ -z "$__out_var" ]] && return 1
-  [[ -z "$__serialized_array" ]] && { tkl_declare $__out_var ''; return 0; }
+  [[ -z "$__serialized_array" ]] && { tkl_declare_array $__out_var; return 0; }
 
   local IFS='|'
   local __deserialized_array=($__serialized_array)
