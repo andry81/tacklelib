@@ -1,3 +1,10 @@
+2023.07.09:
+* fixed: tacklelib/bash_tacklelib: `tkl_set_error` must always change exit code
+* fixed: tacklelib/bash_tacklelib: `tkl_include*` missed to call `tkl_pop_source_file_components`
+* new: tacklelib/bash_tacklelib: added `tkl_get_include_nest_level` function to expose the `tkl_include*` nest level value
+* new: tacklelib/bash_tacklelib: added `tkl_register_call`, `tkl_execute_calls`, `tkl_unregister_call` functions to be able to register functions chain to call it later
+* refactor: tacklelib/bash_tacklelib: minor refactor
+
 2023.07.04:
 * fixed: tacklelib/bash_tacklelib: empty array elements serialization and deserialization in `tkl_serialize_array`/`tkl_deserialize_array`
 

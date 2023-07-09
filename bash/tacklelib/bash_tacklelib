@@ -386,10 +386,11 @@ function tkl_set_error()
 {
   if [[ -n "$1" && -z "${1//[0-9]/}" ]]; then
     tkl_declare_global tkl__last_error $1
-    return $tkl__last_error
   else
     tkl_declare_global tkl__last_error 0
   fi
+
+  return $tkl__last_error
 }
 
 function tkl_pause()
@@ -672,7 +673,7 @@ function tkl_get_source_file_path()
 
 function tkl_make_source_file_components()
 {
-  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && {
+  if [[ -z "$BASH_SOURCE_NEST_LVL" ]]; then
     tkl_export BASH_SOURCE_NEST_LVL 0
     # cleanup before first time use
     unset BASH_SOURCE_FILE
@@ -680,7 +681,7 @@ function tkl_make_source_file_components()
     unset BASH_SOURCE_FILE_NAME
     unset BASH_SOURCE_CMD_LINE
     unset BASH_SOURCE_CMD_LINE_ARR
-  }
+  fi
 
   local RETURN_VALUE
   tkl_get_source_file_path || return $?
@@ -721,7 +722,9 @@ function tkl_declare_source_file_components_from_args()
 
 function tkl_pushset_source_file_components()
 {
-  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_export BASH_SOURCE_NEST_LVL 0
+  if [[ -z "$BASH_SOURCE_NEST_LVL" ]]; then
+    tkl_export BASH_SOURCE_NEST_LVL 0
+  fi
 
   (( BASH_SOURCE_NEST_LVL++ ))
 
@@ -755,14 +758,16 @@ function tkl_pop_source_file_components()
   tkl_pop_var_from_stack global BASH_SOURCE_DIR
   tkl_pop_var_from_stack global BASH_SOURCE_CMD_LINE
 
-  # NOTE: disable due toa bug in the `${BASH_ARGV[@]}` expression: order is reversed
+  # NOTE: disable due to a bug in the `${BASH_ARGV[@]}` expression: order is reversed
   #if [[ BASH_SOURCE_NEST_LVL -eq 0 ]]; then
   #  tkl_make_source_file_components "${BASH_ARGV[@]}"
   #fi
 
   tkl_deserialize_array "$BASH_SOURCE_CMD_LINE" BASH_SOURCE_CMD_LINE_ARR
 
-  (( ! BASH_SOURCE_NEST_LVL )) && unset BASH_SOURCE_NEST_LVL
+  if (( ! BASH_SOURCE_NEST_LVL )); then
+    unset BASH_SOURCE_NEST_LVL
+  fi
 }
 
 function tkl_set_show_includes()
@@ -787,10 +792,10 @@ function tkl_include()
   #      because `source "..."` still can remove or change a local variable!
 
   local is_first_time_include=0
-  [[ -z "$BASH_SOURCE_NEST_LVL" ]] && {
+  if [[ -z "$BASH_SOURCE_NEST_LVL" ]]; then
     tkl_export BASH_SOURCE_NEST_LVL 0
     is_first_time_include=1
-  }
+  fi
 
   if tkl_is_abs_path "$1"; then
     if tkl_get_abs_path_from_dir "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
@@ -872,6 +877,9 @@ function tkl_include_local_impl()
     unset -f \"\${FUNCNAME[0]}\" # drop function after execution
   }"
 
+  # NOTE:
+  #   Set `trap RETURN` handler in case of erly exist before the `source` command.
+  #
   builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return $last_error
 
   #echo "tkl_include_local_impl: ${BASH_SOURCE_FILE} -> $1"
@@ -886,18 +894,32 @@ function tkl_include_local_impl()
 
   if (( tkl__include__show_includes )); then
     local source_prefix
-    local nest_level=$(( ${#BASH_LINENO[@]} / 3 - 1 ))
-    (( nest_level )) && builtin printf -v source_prefix "%*s" ${nest_level} ''
+    tkl_get_include_nest_level || builtin printf -v source_prefix "%*s" $(( $RETURN_VALUE - 1 )) ''
     echo "${source_prefix// /| }source: \`$BASH_SOURCE_CMD_LINE\`"
   fi
 
   tkl_declare_global tkl__last_error $last_error
 
+  # CAUTION:
+  #   We must avoid call to `trap RETURN` handler by the `source` command return itself, so we reset the handler.
+  #
   builtin trap 'builtin trap - RETURN' RETURN
   source "${BASH_SOURCE_CMD_LINE_ARR[@]}"
   tkl__last_error=$?
 
+  # NOTE:
+  #   The `trap RETURN` is called by the `source` command, so call to the return handler directly here.
+  #
+  eval "tkl_local_return_${#FUNCNAME[@]}"
+
   return $tkl__last_error
+}
+
+function tkl_get_include_nest_level()
+{
+  RETURN_VALUE=$(( BASH_SOURCE_NEST_LVL )) # 0 if empty
+
+  return $RETURN_VALUE
 }
 
 function tkl_get_native_parent_dir()
@@ -1711,12 +1733,84 @@ function tkl_bash_entry()
   return 0
 }
 
+function tkl_register_call()
+{
+  local call_entry="$1"
+  local func_name="$2"
+
+  if [[ -z "$call_entry" ]]; then
+    echo "tkl_register_call: call entry must be not empty" >&2
+    return 1
+  fi
+  if [[ -z "$func_name" ]]; then
+    echo "tkl_register_call: function name must be not empty: call_entry=\`$call_entry\`" >&2
+    return 2
+  fi
+
+  local call_cmd=("$func_name" "${@:3}")
+
+  local call_cmd_str
+  tkl_serialize_array call_cmd call_cmd_str
+
+  eval "tkl_declare_array tkl__registered_calls__\${call_entry} \"\${tkl__registered_calls__${call_entry}[@]}\" \"\$call_cmd_str\""
+
+  return 0
+}
+
+function tkl_execute_calls()
+{
+  local call_entry="$1"
+
+  if [[ -z "$call_entry" ]]; then
+    echo "tkl_execute_calls: call entry must be not empty" >&2
+    return 1
+  fi
+
+  local calls_len
+  eval "calls_len=\${#tkl__registered_calls__${call_entry}[@]}"
+
+  (( calls_len )) || return 255
+
+  local i
+  local call_cmd
+
+  for (( i=0; i < calls_len; i++ )); do
+    eval "tkl_deserialize_array \"\${tkl__registered_calls__${call_entry}[i]}\" call_cmd"
+    unset tkl__registered_calls__${call_entry}[i]
+    if (( ${#call_cmd[@]} )); then
+      "${call_cmd[@]}"
+    fi
+  done
+
+  local last_error=$? # return the last command exit code
+
+  unset tkl__registered_calls__${call_entry} # is required otherwise the `echo "${!tkl__registered_calls__@}"` would print the variable
+
+  return $last_error
+}
+
+function tkl_unregister_call()
+{
+  local call_entry="$1"
+
+  if [[ -z "$call_entry" ]]; then
+    echo "tkl_unregister_call: call entry must be not empty" >&2
+    return 1
+  fi
+
+  unset tkl__registered_calls__${call_entry}
+
+  return 0
+}
+
 # Special exit code value variable has used by the specific set of functions
 # like `tkl_call`, `tkl_exit`, `tkl_abort` to hold the exit code over the builtin
 # functions like `pushd` and `popd` which does change the exit code.
 tkl_declare_global tkl__last_error 0
 
 # register on first include
-[[ -z "$BASH_SOURCE_NEST_LVL" ]] && tkl_make_source_file_components "$@"
+if [[ -z "$BASH_SOURCE_NEST_LVL" ]]; then
+  tkl_make_source_file_components "$@"
+fi
 
 tkl_set_return
