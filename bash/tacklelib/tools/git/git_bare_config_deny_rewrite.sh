@@ -54,7 +54,7 @@ function git_bare_config_deny_rewrite()
   if [[ -n "$name_pttn" ]]; then
     detect_find
 
-    for git_path in `find "$dir" -name "$name_pttn" -type d`; do
+    for git_path in `\"$SHELL_FIND\" "$dir" -name "$name_pttn" -type d`; do
       call pushd "$git_path" && {
         call git config receive.denynonfastforwards true
         call popd

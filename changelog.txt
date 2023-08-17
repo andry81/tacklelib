@@ -1,3 +1,6 @@
+2023.08.17:
+* fixed: bash/tacklelib/tools/git/git_bare_config_deny_rewrite.sh: missed change
+
 2023.07.09:
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_set_error` must always change exit code
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_include*` missed to call `tkl_pop_source_file_components`
