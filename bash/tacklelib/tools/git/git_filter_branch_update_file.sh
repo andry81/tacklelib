@@ -121,7 +121,7 @@ function git_filter_branch_update_file()
       return 255
     fi
 
-    if [[ "${flag//r/}" != "$flag" ]]; then
+    if [[ "${flag//f/}" != "$flag" ]]; then
       flag_f=1
       cp_bare_flags="$cp_bare_flags -f"
     else

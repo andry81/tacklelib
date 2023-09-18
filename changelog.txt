@@ -1,3 +1,6 @@
+2023.09.18:
+* fixed: bash/tacklelib/tools/git/git_filter_branch_update_file.sh: missed change
+
 2023.08.17:
 * fixed: bash/tacklelib/tools/git/git_bare_config_deny_rewrite.sh: missed change
 
