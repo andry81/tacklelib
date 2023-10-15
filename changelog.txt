@@ -1,3 +1,8 @@
+2023.10.15:
+* fixed: include/tacklelib/utility/preprocessor.hpp: execution fixup
+* new: python/tacklelib/tools/pysh/cd.py: `cd_tempdir` to change directory into a temporary directory with automatic creation and handle
+* changed: python/tacklelib/tools/pysh/cd.py: added cleanup functionality before and after directory pop
+
 2023.09.18:
 * fixed: bash/tacklelib/tools/git/git_filter_branch_update_file.sh: missed change
 

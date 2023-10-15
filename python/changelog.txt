@@ -1,3 +1,7 @@
+2023.10.15:
+* new: tacklelib/tools/pysh/cd.py: `cd_tempdir` to change directory into a temporary directory with automatic creation and handle
+* changed: tacklelib/tools/pysh/cd.py: added cleanup functionality before and after directory pop
+
 2023.02.21:
 * changed: tacklelib/README_EN.txt, README_EN.txt: readme cleanup
 

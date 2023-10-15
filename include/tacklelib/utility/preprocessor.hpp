@@ -47,7 +47,7 @@
 #define UTILITY_PP_CONCAT(v1, v2) UTILITY_PP_CONCAT_(v1, v2)
 
 #define UTILITY_PP_CONCAT3_(v1, v2, v3) v1 ## v2 ## v3
-#define UTILITY_PP_CONCAT3(v1, v2, v3) UTILITY_PP_CONCAT3_(v1, v2, v3))
+#define UTILITY_PP_CONCAT3(v1, v2, v3) UTILITY_PP_CONCAT3_(v1, v2, v3)
 
 #define UTILITY_PP_CONCAT4_(v1, v2, v3, v4) v1 ## v2 ## v3 ## v4
 #define UTILITY_PP_CONCAT4(v1, v2, v3, v4) UTILITY_PP_CONCAT4_(v1, v2, v3, v4)
