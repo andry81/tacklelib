@@ -1,4 +1,8 @@
 2023.10.24:
+* new: bash_tests/unit/01_bash_tacklelib/02_cast_to_int: added tests for `tkl_if_*` functions
+* refactor: bash_tests/unit: tests refactor
+
+2023.10.24:
 * new: bash/tacklelib/bash_tacklelib: added `tkl_if_math_expr`, `tkl_if_int` and `tkl_cast_to_int` functions
 
 2023.10.15:

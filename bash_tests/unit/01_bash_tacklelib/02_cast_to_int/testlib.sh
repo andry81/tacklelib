@@ -20,15 +20,20 @@ function TestUserModuleInit()
 {
   TEST_SOURCES=()
   TEST_FUNCTIONS=()
-  TEST_VARIABLES=(CWD "$TESTS_PROJECT_ROOT/unit/01_bash_entry/01_normalize_path")
+  TEST_VARIABLES=(
+    _ ''
+    __ ''
+    a '+0'
+    b '-1'
+    c '-0+0'
+    d '1/1'
+    e '1/0'
+    f '1a'
+  )
 }
 
 function TestUserModuleExit() { :; }
 
-function TestUserInit()
-{
-  tkl_convert_native_path_to_backend "$CWD"
-  CWD="$RETURN_VALUE"
-}
+function TestUserInit() { :; }
 
 function TestUserExit() { :; }

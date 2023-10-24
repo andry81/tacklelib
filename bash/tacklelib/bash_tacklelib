@@ -187,7 +187,7 @@ function tkl_cast_to_int()
   local __value
   for __var in "$@"; do
     if (( "$__var" || ! "$__var" )) 2> /dev/null; then
-      if [[ -n "$__var" ]] then
+      if [[ -n "$__var" ]]; then
         eval "__value=\"\$$__var\""
       else
         __value=''
