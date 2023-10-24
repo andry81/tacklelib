@@ -7,7 +7,7 @@
 # Repositories:
 #   * https://github.com/andry81/tacklelib
 #   * https://sf.net/p/tacklelib
-#   * https://bitbucket.org/andry81/tacklelib
+#   * https://gitlab.com/andry81/tacklelib
 #
 # Base bash shell library module with a basic set of functionality.
 # Designed to be included through the absolute path and the source command -
@@ -161,6 +161,52 @@ function tkl_declare_array_as_expr_from_args()
   shift 2
 
   eval "unset out_var expr; tkl_declare_array '$out_var' $expr"
+}
+
+function tkl_if_math_expr()
+{
+  (( "$*" || ! "$*" )) 2> /dev/null && return 0
+  return 1
+}
+
+function tkl_if_int()
+{
+  if (( "$*" || ! "$*" )) 2> /dev/null; then
+    local __tmp
+    (( __tmp = "$*" )) 2> /dev/null # assignment with evaluation and deduction
+    [[ "$__tmp" == "$*" || "+$__tmp" == "$*" ]] && return 0 # test on not deduced expression
+  fi
+  return 1
+}
+
+# casts any not integer and not deduced value to 0, otherwise leave as is
+function tkl_cast_to_int()
+{
+  local __tmp
+  local __var
+  local __value
+  for __var in "$@"; do
+    if (( "$__var" || ! "$__var" )) 2> /dev/null; then
+      if [[ -n "$__var" ]] then
+        eval "__value=\"\$$__var\""
+      else
+        __value=''
+      fi
+      #echo "__value=$__value"
+      if [[ -n "$__value" && "$__value" != "__value" ]]; then # bash issue workaround for variable '_'
+        __tmp=''
+        (( __tmp = "$__var" )) 2> /dev/null # assignment with evaluation and deduction
+        #echo "__tmp=$__tmp"
+        if [[ "$__tmp" != "$__value" && "+$__tmp" != "$__value" ]]; then # test on not deduced expression
+          (( "$__var" = 0 )) # reset to 0 because deduced expression still is not an integer
+        fi
+      else
+        (( "$__var" = 0 )) # reset to 0 if empty
+      fi
+    else
+      (( "$__var" = 0 )) # reset to 0 because is not a math expression
+    fi
+  done
 }
 
 # NOTE:

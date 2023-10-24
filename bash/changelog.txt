@@ -1,3 +1,6 @@
+2023.10.24:
+* new: tacklelib/bash_tacklelib: added `tkl_if_math_expr`, `tkl_if_int` and `tkl_cast_to_int` functions
+
 2023.09.18:
 * fixed: tacklelib/tools/git/git_filter_branch_update_file.sh: missed change
 
