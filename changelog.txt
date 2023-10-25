@@ -1,3 +1,7 @@
+2023.10.25:
+* new: vbs/tacklelib/tools/shell: copy_file.vbs, move_file.vbs: added scripts to copy and move a file with auto conversion into short DOS path in case of a long path
+* changed: vbs/tacklelib/tools/shell: copy_dir.vbs, move_dir.vbs: added auto conversion into short DOS path in case of a long path
+
 2023.10.24:
 * new: bash_tests/unit/01_bash_tacklelib/02_cast_to_int: added tests for `tkl_if_*` functions
 * refactor: bash_tests/unit: tests refactor

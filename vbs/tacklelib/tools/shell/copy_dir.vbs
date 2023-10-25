@@ -1,9 +1,26 @@
 ' Description:
-'   Shell based script to be able to copy directory.
+'   Shell based script to copy a directory.
+'   Can translate a long file path to DOS short path to be able to copy a directory.
 '
 ' USAGE:
 '   "%WINDIR%\System32\cscript.exe" //NOLOGO copy_dir.vbs "<file-path-from-dir>" "<file-path-to-dir>"
 '
+
+Sub PrintOutput(msg)
+  On Error Resume Next
+  WScript.stdout.WriteLine msg
+  If err = &h80070006& Then
+    WScript.Echo msg
+  End If
+End Sub
+
+Sub PrintError(msg)
+  On Error Resume Next
+  WScript.stderr.WriteLine msg
+  If err = &h80070006& Then
+    WScript.Echo msg
+  End If
+End Sub
 
 ' Features:
 '   * Builtin of inclusion guard
@@ -50,6 +67,86 @@ Dim to_file_dir_str : to_file_dir_str = WScript.Arguments(1)
 Dim fs_obj : Set fs_obj = CreateObject("Scripting.FileSystemObject")
 
 If ENABLE_ON_ERROR Then On Error Resume Next
-Dim from_dir_obj : Set from_dir_obj = fs_obj.GetFolder(from_file_dir_str)
-from_dir_obj.Copy to_file_dir_str
-If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & " | " & "Description: " & Err.Description : WScript.Quit Err.Number
+
+Dim from_file_dir_path_abs : from_file_dir_path_abs = fs_obj.GetAbsolutePathName(from_file_dir_str)
+Dim to_file_dir_path_abs : to_file_dir_path_abs = fs_obj.GetAbsolutePathName(to_file_dir_str)
+
+' NOTE:
+'   The `*Exists` methods will return False on a long path without `\\?\`
+'   prefix.
+'
+
+' remove `\\?\` prefix
+If Left(from_file_dir_path_abs, 4) = "\\?\" Then
+  from_file_dir_path_abs = Mid(from_file_dir_path_abs, 5)
+End If
+
+If Not fs_obj.FolderExists("\\?\" & from_file_dir_path_abs) Then
+  PrintError _
+    WScript.ScriptName & ": error: input directory path does not exist:" & vbCrLf & _
+    WScript.ScriptName & ": info: InputPath=`" & from_file_dir_path_abs & "`"
+  WScript.Quit 1
+End IF
+
+' remove `\\?\` prefix
+If Left(to_file_dir_path_abs, 4) = "\\?\" Then
+  to_file_dir_path_abs = Mid(to_file_dir_path_abs, 5)
+End If
+
+Dim to_file_dir_path_abs_last_back_slash_offset : to_file_dir_path_abs_last_back_slash_offset = InStrRev(to_file_dir_path_abs, "\")
+
+Dim to_file_parent_dir_path_abs
+Dim to_file_name
+If to_file_dir_path_abs_last_back_slash_offset > 0 Then
+  to_file_parent_dir_path_abs = Left(to_file_dir_path_abs, to_file_dir_path_abs_last_back_slash_offset - 1)
+  to_file_name = Mid(to_file_dir_path_abs, to_file_dir_path_abs_last_back_slash_offset + 1)
+Else
+  to_file_parent_dir_path_abs = to_file_dir_path_abs
+  to_file_name = ""
+End If
+
+If Not fs_obj.FolderExists("\\?\" & to_file_parent_dir_path_abs & "\") Then
+  PrintError _
+    WScript.ScriptName & ": error: output parent directory path does not exist:" & vbCrLf & _
+    WScript.ScriptName & ": info: OutputPath=`" & to_file_dir_path_abs & "`"
+  WScript.Quit 2
+End IF
+
+Dim from_file_dir_obj
+
+' test on long path existence
+If fs_obj.FolderExists(from_file_dir_path_abs) Then
+  Set from_file_dir_obj = fs_obj.GetFolder(from_file_dir_path_abs)
+Else
+  ' translate into short path
+
+  ' WORKAROUND:
+  '   We use `\\?\` to bypass `GetFolder` error: `Path not found`.
+  Set from_file_dir_obj = fs_obj.GetFolder("\\?\" & from_file_dir_path_abs)
+  from_file_dir_path_abs = from_file_dir_obj.ShortPath
+  If Left(from_file_dir_path_abs, 4) = "\\?\" Then
+    from_file_dir_path_abs = Mid(from_file_dir_path_abs, 5)
+  End If
+
+  ' reopen by a short path
+  Set from_file_dir_obj = fs_obj.GetFolder(from_file_dir_path_abs)
+End If
+
+' test on long path existence
+If Not fs_obj.FolderExists(to_file_parent_dir_path_abs & "\") Then
+  ' translate into short path
+
+  ' WORKAROUND:
+  '   We use `\\?\` to bypass `GetFolder` error: `Path not found`.
+  Dim to_file_parent_dir_obj : Set to_file_parent_dir_obj = fs_obj.GetFolder("\\?\" & to_file_parent_dir_path_abs & "\")
+  to_file_parent_dir_path_abs = to_file_parent_dir_obj.ShortPath
+  If Left(to_file_parent_dir_path_abs, 4) = "\\?\" Then
+    to_file_parent_dir_path_abs = Mid(to_file_parent_dir_path_abs, 5)
+  End If
+End If
+
+to_file_dir_path_abs = to_file_parent_dir_path_abs & "\" & to_file_name
+
+from_file_dir_obj.Copy to_file_dir_path_abs
+
+If ENABLE_ON_ERROR Then If Err Then WScript.Echo WScript.ScriptName & ": fatal error: (" & CStr(Err.Number) & ") " & Err.Source & vbCrLf & "Description: " & Err.Description : WScript.Quit Err.Number

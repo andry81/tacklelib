@@ -1,3 +1,7 @@
+2023.10.25:
+* new: tools/shell: copy_file.vbs, move_file.vbs: added scripts to copy and move a file with auto conversion into short DOS path in case of a long path
+* changed: tools/shell: copy_dir.vbs, move_dir.vbs: added auto conversion into short DOS path in case of a long path
+
 2023.02.21:
 * changed: README_EN.txt: readme cleanup
 
