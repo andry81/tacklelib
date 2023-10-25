@@ -13,28 +13,71 @@ Function GetScriptDir()
     GetScriptDir = fs_obj.GetParentFolderName(script_file_obj)
 End Function
 
-Sub PrintLine(str)
-    Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
-    Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
+' console only output
 
+Sub PrintLine(str)
     On Error Resume Next
-    stdout_obj.WriteLine str
+    WScript.stdout.WriteLine str
     On Error Goto 0
 End Sub
 
 Sub Print(str)
-    Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
-    Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
-
     On Error Resume Next
-    stdout_obj.Write str
+    WScript.stdout.Write str
+    On Error Goto 0
+End Sub
+
+Sub PrintErrorLine(str)
+    On Error Resume Next
+    WScript.stderr.WriteLine str
+    On Error Goto 0
+End Sub
+
+Sub PrintError(str)
+    On Error Resume Next
+    WScript.stderr.Write str
+    On Error Goto 0
+End Sub
+
+' console or gui output
+
+Sub PrintOrEchoLine(str)
+    On Error Resume Next
+    WScript.stdout.WriteLine str
+    If err = &h80070006& Then
+        WScript.Echo str
+    End If
+    On Error Goto 0
+End Sub
+
+Sub PrintOrEcho(str)
+    On Error Resume Next
+    WScript.stdout.Write str
+    If err = &h80070006& Then
+        WScript.Echo str
+    End If
+    On Error Goto 0
+End Sub
+
+Sub PrintOrEchoErrorLine(str)
+    On Error Resume Next
+    WScript.stderr.WriteLine str
+    If err = &h80070006& Then
+        WScript.Echo str
+    End If
+    On Error Goto 0
+End Sub
+
+Sub PrintOrEchoError(str)
+    On Error Resume Next
+    WScript.stderr.Write str
+    If err = &h80070006& Then
+        WScript.Echo str
+    End If
     On Error Goto 0
 End Sub
 
 Sub PrintLineArr(arr, do_trim_lines)
-    Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
-    Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
-
     On Error Resume Next
     Dim i
     Dim line_str
@@ -44,15 +87,12 @@ Sub PrintLineArr(arr, do_trim_lines)
         Else
           line_str = arr(i)
         End If
-        stdout_obj.WriteLine arr(i)
+        WScript.stdout.WriteLine arr(i)
     Next
     On Error Goto 0
 End Sub
 
 Sub PrintArr(arr, separator_str, do_trim_lines)
-    Dim fs_obj : Set fs_obj = CreateObject ("Scripting.FileSystemObject")
-    Dim stdout_obj : Set stdout_obj = fs_obj.GetStandardStream(1)
-
     On Error Resume Next
     Dim i
     Dim line_str
@@ -63,9 +103,9 @@ Sub PrintArr(arr, separator_str, do_trim_lines)
           line_str = arr(i)
         End If
         If separator_str <> "" And i > 0 Then
-          stdout_obj.Write separator_str
+          WScript.stdout.Write separator_str
         End If
-        stdout_obj.Write arr(i)
+        WScript.stdout.Write arr(i)
     Next
     On Error Goto 0
 End Sub

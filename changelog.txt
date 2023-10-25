@@ -1,4 +1,11 @@
 2023.10.25:
+* fixed: vbs/tacklelib/tools/shell/*.vbs: missed error handling restore
+* changed: vbs/tacklelib/tools/shell/*.vbs: temporary disabled `__init__.vbs` execution
+* changed: vbs/tacklelib/tacklelib.vbs: added `PrintOrEcho*` functions
+* changed: vbs/tacklelib/tacklelib.vbs: code cleanup
+* refactor: vbs/tacklelib/tools/shell/*.vbs: code refactor
+
+2023.10.25:
 * new: vbs/tacklelib/tools/shell: copy_file.vbs, move_file.vbs: added scripts to copy and move a file with auto conversion into short DOS path in case of a long path
 * changed: vbs/tacklelib/tools/shell: copy_dir.vbs, move_dir.vbs: added auto conversion into short DOS path in case of a long path
 

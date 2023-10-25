@@ -1,4 +1,11 @@
 2023.10.25:
+* fixed: tools/shell/*.vbs: missed error handling restore
+* changed: tools/shell/*.vbs: temporary disabled `__init__.vbs` execution
+* changed: tacklelib.vbs: added `PrintOrEcho*` functions
+* changed: tacklelib.vbs: code cleanup
+* refactor: tools/shell/*.vbs: code refactor
+
+2023.10.25:
 * new: tools/shell: copy_file.vbs, move_file.vbs: added scripts to copy and move a file with auto conversion into short DOS path in case of a long path
 * changed: tools/shell: copy_dir.vbs, move_dir.vbs: added auto conversion into short DOS path in case of a long path
 
