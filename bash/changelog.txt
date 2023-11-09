@@ -1,3 +1,6 @@
+2023.11.09:
+* new: tacklelib/tools/git/git_init.sh: script to initialize a git repository and all common properties
+
 2023.10.24:
 * new: tacklelib/bash_tacklelib: added `tkl_if_math_expr`, `tkl_if_int` and `tkl_cast_to_int` functions
 
