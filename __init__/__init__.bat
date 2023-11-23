@@ -9,6 +9,11 @@ if not defined NEST_LVL set NEST_LVL=0
 if not defined TACKLELIB_PROJECT_ROOT                       call "%%~dp0canonical_path.bat" TACKLELIB_PROJECT_ROOT                 "%%~dp0.."
 if not defined TACKLELIB_PROJECT_EXTERNALS_ROOT             call "%%~dp0canonical_path.bat" TACKLELIB_PROJECT_EXTERNALS_ROOT       "%%TACKLELIB_PROJECT_ROOT%%/_externals"
 
+if not exist "%TACKLELIB_PROJECT_EXTERNALS_ROOT%\*" (
+  echo.%~nx0: error: TACKLELIB_PROJECT_EXTERNALS_ROOT directory does not exist: "%TACKLELIB_PROJECT_EXTERNALS_ROOT%".
+  exit /b 255
+) >&2
+
 if not defined PROJECT_OUTPUT_ROOT                          call "%%~dp0canonical_path.bat" PROJECT_OUTPUT_ROOT                    "%%TACKLELIB_PROJECT_ROOT%%/_out"
 if not defined PROJECT_LOG_ROOT                             call "%%~dp0canonical_path.bat" PROJECT_LOG_ROOT                       "%%TACKLELIB_PROJECT_ROOT%%/.log"
 
