@@ -130,7 +130,7 @@ If Not fs_obj.FileExists(from_file_path_abs) Then
 End If
 
 ' test on long path existence
-If Not fs_obj.FileExists(to_file_parent_dir_path_abs & "\") Then
+If Not fs_obj.FolderExists(to_file_parent_dir_path_abs & "\") Then
   ' translate into short path
 
   ' WORKAROUND:

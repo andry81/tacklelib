@@ -1,3 +1,6 @@
+2023.12.04:
+* fixup: vbs/tacklelib/tools/shell: copy_file.vbs, move_file.vbs: execution fixup
+
 2023.11.23:
 * fixed: __init__: check externals directory existence before externals initialization
 
