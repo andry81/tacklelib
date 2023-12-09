@@ -1,3 +1,6 @@
+2023.12.09:
+* fixed: __init__/__init__.bat: execution fixup
+
 2023.12.07:
 * new: javascript/examples: added javascript examples
 
