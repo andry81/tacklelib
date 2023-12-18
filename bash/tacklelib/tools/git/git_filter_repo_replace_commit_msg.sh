@@ -42,6 +42,10 @@
 #   cd myrepo/path
 #   git_filter_repo_replace_commit_msg.sh -use-re-sub -re-sub-flags 're.DOTALL' '(\r\n|\n|\r)[\r\n]*(git-svn-id:[ \t])' '\1\1\2'
 #
+#   # Remove empty lines after each `YYYY.MM.DD:` or `YYYY-MM-DD:` text lines.
+#   >
+#   cd myrepo/path
+#   git_filter_repo_replace_commit_msg.sh -use-re-sub -re-sub-flags 're.DOTALL' '(\d\d\d\d[.-]\d\d[.-]\d\d:)(\r\n|\n|\r)[\r\n]*' '\1\2'
 
 # NOTE:
 #   The implementation implies the `--partial` flag to avoid remove of the

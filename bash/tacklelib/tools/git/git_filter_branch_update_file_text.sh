@@ -14,22 +14,29 @@
 #     -E (POSIX)
 #     -r
 #       Use sed with extended regular expression.
+#
 #     --esc-sh-chars
 #       Escape shell control characters:
 #         ` -> \`
 #         $ -> \$
+#
 #   //:
 #     Separator to stop parse flags.
+#
 #   <dir>:
 #     Source tree relative directory, where to search the <file-name-pattern>.
 #     Passes to `find` utility.
+#
 #   <file-name-pattern>:
 #     Source tree relative file pattern to a file to update.
 #     Passes to `find` utility.
+#
 #   <path-to-match>:
 #     The `sed` text to match.
+#
 #   <text-to-replace>:
 #     The `sed` text to replace.
+#
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-branch` command.
 
@@ -56,10 +63,15 @@
 #   cd myrepo/path
 #   git_filter_branch_update_file_text.sh . README.md '<p/>' '</p>' -- master ^t1 ^t2
 #
-#   # Remove multiline text with mixed line returns
+#   # Remove specific 2 line text block with mixed line returns.
 #   >
 #   cd myrepo/path
-#   git_filter_branch_update_file_text.sh -E . changelog.txt '2023\.05\.23:\r?\n[^\r\n]+\r?\n' '' -- master ^t1 ^t2
+#   git_filter_branch_update_file_text.sh -E . changelog.txt '2023\.05\.23:(\r\n|\n|\r)[^\r\n]+(\r\n|\n|\r)' '' -- master ^t1 ^t2
+#
+#   # Remove empty lines after each `YYYY.MM.DD:` or `YYYY-MM-DD:` text lines.
+#   >
+#   cd myrepo/path
+#   git_filter_branch_update_file_text.sh -E . changelog.txt '(\d\d\d\d[.-]\d\d[.-]\d\d:)(\r\n|\n|\r)[\r\n]*' '\1\2' -- master ^t1 ^t2
 
 # CAUTION:
 #   Beware of line returns in Windows. Even if `sed` does not match the string,
