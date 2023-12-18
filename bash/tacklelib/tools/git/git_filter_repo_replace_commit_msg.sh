@@ -7,15 +7,40 @@
 #   https://github.com/newren/git-filter-repo/tree/HEAD/Documentation/git-filter-repo.txt
 
 # Usage:
-#   git_filter_repo_replace_commit_msg.sh <from-str> <to-str> [<cmd-line>]
+#   git_filter_repo_replace_commit_msg.sh [flags] [//] <from-str> <to-str> [<cmd-line>]
+#
+#   <flags>:
+#     -use-re-sub
+#       Use `re.sub` instead of `msg.replace` as by default.
+#
+#     -re-sub-flags <re-sub-flags-python-expr>
+#       Raw python expression string for `re.sub` flags parameter.
+#       Has effect if `-use-re-sub` is used.
+#       Ex: `re.DOTALL | ...`
+#
+#   //:
+#     Separator to stop parse flags.
+#
+#   <from-str>
+#     String to replace from.
+#
+#   <to-str>
+#     String to replace to.
 #
 #   <cmd-line>:
 #     The rest of command line passed to `git filter-repo` command.
 
 # Examples:
+#   # Removes `Update README.md` line from all commits.
 #   >
 #   cd myrepo/path
 #   git_filter_repo_replace_commit_msg.sh "Update README.md"$'\n' "" --force
+#
+#   # Resets a line return characters before the `git-svn-id:[ \t]` string into
+#   # a 2 line return characters.
+#   >
+#   cd myrepo/path
+#   git_filter_repo_replace_commit_msg.sh -use-re-sub -re-sub-flags 're.DOTALL' '(\r\n|\n|\r)[\r\n]*(git-svn-id:[ \t])' '\1\1\2'
 #
 
 # NOTE:
@@ -53,10 +78,43 @@ function call()
 
 function git_filter_repo_replace_commit_msg()
 {
+  local flag="$1"
+
+  local flag_use_re_sub=0
+  local flag_re_sub_flags
+
+  while [[ "${flag:0:1}" == '-' ]]; do
+    flag="${flag:1}"
+
+    if [[ "${flag:0:1}" == '-' ]]; then
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
+    fi
+
+    if [[ "$flag" == 'use-re-sub' ]]; then
+      flag_use_re_sub=1
+    elif [[ "$flag" == 're-sub-flags' ]]; then
+      flag_re_sub_flags="$2"
+      shift
+    else
+      echo "$0: error: invalid flag: \`$flag\`" >&2
+      return 255
+    fi
+
+    shift
+
+    flag="$1"
+  done
+
+  if [[ "$1" == '//' ]]; then
+    shift
+  fi
+
   export FROM_STR="$1"
   export TO_STR="$2"
 
-  call git filter-repo --commit-callback \
+  if ! (( flag_use_re_sub )); then
+    call git filter-repo --commit-callback \
 'import os, re
 from_str = os.environ["FROM_STR"]
 to_str = os.environ["TO_STR"]
@@ -64,6 +122,22 @@ msg = commit.message.decode("utf-8")
 msg_new = msg.replace(from_str, to_str)
 commit.message = msg_new.encode("utf-8")
 ' --partial "${@:3}"
+  else
+    export RE_SUB_FLAGS="$flag_re_sub_flags"
+    call git filter-repo --commit-callback \
+'import os, re
+from_str = os.environ["FROM_STR"]
+to_str = os.environ["TO_STR"]
+re_sub_flags = os.environ["RE_SUB_FLAGS"]
+if len(re_sub_flags):
+  re_sub_flags = eval(re_sub_flags)
+else:
+  re_sub_flags = None
+msg = commit.message.decode("utf-8")
+msg_new = re.sub(from_str, to_str, msg, flags=re_sub_flags)
+commit.message = msg_new.encode("utf-8")
+' --partial "${@:3}"
+  fi
 }
 
 # shortcut

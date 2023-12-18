@@ -1,3 +1,6 @@
+2023.12.18:
+* new: tacklelib/tools/git/git_filter_repo_replace_commit_msg.sh: added `-use-re-sub` flag and `-re-sub-flags <re-sub-flags-python-expr>` option to be able to use regular expression instead of raw substring replace
+
 2023.11.09:
 * new: tacklelib/tools/git/git_init.sh: script to initialize a git repository and all common properties
 
