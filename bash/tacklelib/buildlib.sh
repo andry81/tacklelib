@@ -20,12 +20,103 @@ tkl_include_or_abort 'stringlib.sh'
 #
 function tkl_call()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   tkl_pushset_source_file_components "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   "$@"
+  tkl_declare_global tkl__last_error $?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
+function tkl_evalcall()
+{
+  local OLDIFS="$IFS"
+  local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
+  tkl_make_command_line '' 1 "$@"
+  echo ">$RETURN_VALUE"
+  tkl_pushset_source_file_components "$1" "${@:2}"
+  tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
+  eval "$@"
+  tkl_declare_global tkl__last_error $?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
+function tkl_callxargs()
+{
+  local OLDIFS="$IFS"
+  local IFS
+  local CMDLINE
+
+  while IFS=$'\r\n' read -r CMDLINE; do
+    IFS="$OLDIFS" # restore IFS
+    tkl_call "$@" $CMDLINE || break
+  done
+
+  tkl_declare_global tkl__last_error $?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
+function tkl_callxargs_nobreak()
+{
+  local OLDIFS="$IFS"
+  local IFS
+  local CMDLINE
+
+  while IFS=$'\r\n' read -r CMDLINE; do
+    IFS="$OLDIFS" # restore IFS
+    tkl_call "$@" $CMDLINE
+  done
+
+  tkl_declare_global tkl__last_error $?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
+function tkl_evalcallxargs()
+{
+  local OLDIFS="$IFS"
+  local IFS
+  local CMDLINE
+
+  while IFS=$'\r\n' read -r CMDLINE; do
+    IFS="$OLDIFS" # restore IFS
+    tkl_evalcall "$@" $CMDLINE || break
+  done
+
+  tkl_declare_global tkl__last_error $?
+  return $tkl__last_error
+}
+
+# CAUTION:
+#   Executes an external shell process in case of a script.
+#
+function tkl_evalcallxargs_nobreak()
+{
+  local OLDIFS="$IFS"
+  local IFS
+  local CMDLINE
+
+  while IFS=$'\r\n' read -r CMDLINE; do
+    IFS="$OLDIFS" # restore IFS
+    tkl_evalcall "$@" $CMDLINE
+  done
+
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error
 }
@@ -35,6 +126,7 @@ function tkl_call()
 #
 function tkl_call_and_print_if()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
@@ -42,6 +134,7 @@ function tkl_call_and_print_if()
   }
   tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   "${@:2}"
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error
@@ -52,11 +145,13 @@ function tkl_call_and_print_if()
 #
 function tkl_call_inproc()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "$@"
   echo ">$RETURN_VALUE"
   tkl_pushset_source_file_components "$1" "${@:2}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   tkl_exec_inproc "$@"
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error
@@ -67,6 +162,7 @@ function tkl_call_inproc()
 #
 function tkl_call_inproc_and_print_if()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:2}"
   eval "$1" && {
@@ -74,6 +170,7 @@ function tkl_call_inproc_and_print_if()
   }
   tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   tkl_exec_inproc "${@:2}"
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error
@@ -84,11 +181,13 @@ function tkl_call_inproc_and_print_if()
 #
 function tkl_call_inproc_entry()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:3}"
   echo ">$2: $1 $RETURN_VALUE"
   tkl_pushset_source_file_components "$2" "${@:3}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   tkl_exec_inproc_entry "$@"
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error
@@ -99,6 +198,7 @@ function tkl_call_inproc_entry()
 #
 function tkl_call_inproc_entry_and_print_if()
 {
+  local OLDIFS="$IFS"
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   tkl_make_command_line '' 1 "${@:4}"
   eval "$1" && {
@@ -106,6 +206,7 @@ function tkl_call_inproc_entry_and_print_if()
   }
   tkl_pushset_source_file_components "$3" "${@:4}"
   tkl_push_trap 'tkl_pop_source_file_components' RETURN
+  IFS="$OLDIFS" # restore IFS
   tkl_exec_inproc "${@:2}"
   tkl_declare_global tkl__last_error $?
   return $tkl__last_error

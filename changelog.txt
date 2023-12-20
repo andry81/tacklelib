@@ -1,3 +1,11 @@
+2023.12.20:
+* new: bash/tacklelib/tools/git/git_subgit_svn_import_cleanup.sh: script to complete the last operation and cleanup artefacts after using `subgit import ...` command (https://subgit.com/documentation/howto.html#import)
+* new: bash/tacklelib/tools/git/git_subgit_svn_import_cleanup_remote.sh: script to complete the last operation and cleanup artefacts after using `subgit import ...` command in the remote (https://subgit.com/documentation/howto.html#import)
+* new: bash/tacklelib/buildlib.sh: add `tkl_evalcall` function to call with evaluation
+* new: bash/tacklelib/buildlib.sh: add `tkl_callxargs*` functions to call with arguments read from stdin
+* new: bash/tacklelib/buildlib.sh: add `tkl_evalcallxargs*` functions to call with arguments read from stdin and with evaluation
+* changed: bash/tacklelib/buildlib.sh: `IFS` variable restore before the call in `tkl_*call*` functions
+
 2023.12.18:
 * changed: bash/tacklelib/tools/git: more examples
 
