@@ -1,3 +1,6 @@
+2023.12.24:
+* changed: tacklelib/tools/git: all scripts extracted into `gitcmd` project
+
 2023.12.20:
 * new: tacklelib/tools/git/git_subgit_svn_import_cleanup.sh: script to complete the last operation and cleanup artefacts after using `subgit import ...` command (https://subgit.com/documentation/howto.html#import)
 * new: tacklelib/tools/git/git_subgit_svn_import_cleanup_remote.sh: script to complete the last operation and cleanup artefacts after using `subgit import ...` command in the remote (https://subgit.com/documentation/howto.html#import)
