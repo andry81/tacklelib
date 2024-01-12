@@ -1,3 +1,6 @@
+2024.01.12:
+* changed: rollup merge from `contools` project
+
 2023.12.24:
 * changed: bash/tacklelib/tools/git: all scripts extracted into `gitcmd` project
 
