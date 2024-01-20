@@ -1,3 +1,6 @@
+2024.01.20:
+* new: tools/shell/make_dir.vbs: script to make a directory with parent directory conversion into short DOS path in case of a resulted long path
+
 2023.10.25:
 * fixed: tools/shell/*.vbs: missed error handling restore
 * changed: tools/shell/*.vbs: temporary disabled `__init__.vbs` execution
