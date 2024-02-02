@@ -1,3 +1,6 @@
+2024.02.02:
+* fixed: cmake/tacklelib/ForwardVariables.cmake: missed to set `out_cached_var` in `tkl_get_var` function
+
 2024.01.20:
 * new: vbs/tackllelib/tools/shell/make_dir.vbs: script to make a directory with parent directory conversion into short DOS path in case of a resulted long path
 

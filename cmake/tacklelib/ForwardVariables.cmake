@@ -133,6 +133,7 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
       endif()
     endif()
 
+    # propagate cached variant of a variable
     if (out_cached_var_defined)
       unset(${out_cached_var} PARENT_SCOPE)
     endif()
@@ -150,6 +151,11 @@ function(tkl_get_var out_uncached_var out_cached_var var_name)
       set(${out_uncached_var} "${${var_name}}" PARENT_SCOPE)
     else()
       unset(${out_uncached_var} PARENT_SCOPE)
+    endif()
+
+    # propagate cached variant of a variable
+    if (out_cached_var_defined)
+      set(${out_cached_var} "${var_cache_value}" PARENT_SCOPE)
     endif()
 
     # restore cache properties of a variable
