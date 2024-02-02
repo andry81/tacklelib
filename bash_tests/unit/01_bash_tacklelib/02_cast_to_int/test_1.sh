@@ -1,14 +1,14 @@
 #!/bin/bash
 
-if [[ -n "$BASH" ]]; then
+[[ -n "$BASH" ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
   for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
-    [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]] && {
+    if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
       source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
       break
-    }
+    fi
   done
 fi
 
@@ -77,6 +77,4 @@ if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
   tkl_testmodule_run_test test_if_math_expr
   tkl_testmodule_run_test test_if_int
   tkl_testmodule_run_test test_cast_to_int
-fi
-
 fi

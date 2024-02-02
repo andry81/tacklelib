@@ -1,19 +1,8 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-[[ -z "$BASH" || (-n "$BASH_LINENO" && BASH_LINENO[0] -le 0) ]] && return
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
-if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-  # builtin search
-  for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
-    [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]] && {
-      source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
-      break
-    }
-  done
-fi
-
-tkl_include_or_abort '__init__.sh'
 tkl_include_or_abort 'testlib.sh'
 
 sigint_pause()

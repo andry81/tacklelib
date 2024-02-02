@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Script ONLY for execution.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
   for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
-    [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]] && {
+    if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
       source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
       break
-    }
+    fi
   done
 fi
 
@@ -25,17 +25,21 @@ flag_args=()
 tkl_read_command_line_flags flag_args "$@"
 (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
 
-APP_ROOT="`readlink -f "$BASH_SOURCE_DIR/../.."`"
-APP_DIR_LIST=("$APP_ROOT" "$APP_ROOT/lib")
+APP_ROOT="$1"
+CONFIGURE_ROOT="$2"
 
-CONFIGURE_ROOT="$1"
+if [[ ! -d "$APP_ROOT" ]]; then
+  echo "$0: error: application root directory does not exist: \`$APP_ROOT\`."
+fi
+
+APP_DIR_LIST=("$APP_ROOT" "$APP_ROOT/lib")
 
 if [[ -n "$CONFIGURE_ROOT" ]]; then
   if [[ -d "$CONFIGURE_ROOT" ]]; then
     CONFIGURE_ROOT="`readlink -f "$CONFIGURE_ROOT"`"
     APP_DIR_LIST=("$CONFIGURE_ROOT" "$CONFIGURE_ROOT/lib")
   else
-    echo "$BASH_SOURCE_FILE_NAME: error: input directory is not found: \"$CONFIGURE_ROOT\"."
+    echo "$BASH_SOURCE_FILE_NAME: error: input directory is not found: \"$CONFIGURE_ROOT\"." >&2
     exit 2
   fi
 fi
@@ -95,6 +99,4 @@ fi
 echo "Done."
 echo
 
-exit 0
-
-fi
+tkl_exit 0

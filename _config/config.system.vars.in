@@ -27,7 +27,7 @@
 #
 
 upath CMAKE_SHELL:BAT                       =%COMSPEC%
-upath CMAKE_SHELL:SH                        =$/{SHELL}
+upath CMAKE_SHELL:SH                        =%SHELL%
 
 upath CMAKE_PROJECT_ROOT                    ="%TACKLELIB_PROJECT_ROOT%"
 

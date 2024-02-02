@@ -10,7 +10,8 @@
 # exist on the way (useful in cygwin/msys/mingw contexts).
 #
 
-if [[ -n "$BASH" ]]; then
+# Script both for execution and inclusion.
+[[ -n "$BASH" ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
@@ -42,6 +43,4 @@ if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
 
   # always exit with current exit code
   tkl_exit
-fi
-
 fi

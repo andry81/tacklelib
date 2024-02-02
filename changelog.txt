@@ -1,6 +1,36 @@
+2024.03.07:
+* new: bash/tacklelib/tools/check_config_expiration.sh: configuration files expiration check script
+* new: bash/tacklelib/tools/load_config.sh: port of `load_config.bat` script from `contools` project
+* refactor: bash/tacklelib/bash_tacklelib: `tkl_get_abs_path_from_dir` renamed to `tkl_get_abs_path`
+
+2024.03.07:
+* new: bash/tacklelib/bash_tacklelib: `tkl_dump_includes_stack` function to dump includes call stack
+
+2024.03.01:
+* changed: bash/tacklelib/tools/load_config.sh: switched script to use uniform config files loader
+
 2024.03.01:
 * changed: _config: switched all configs to use uniform config files loader
 * changed: __init__: switched init script to use uniform config files loader
+
+2024.02.28:
+* new: bash/tacklelib/tools/load_config_dir.sh: configuration directory load functionality is extracted from `load_config.sh` script
+
+2024.02.26:
+* changed: _build: build scripts improvement
+* refactor: _build: build scripts refactor
+
+2024.02.25:
+* fixed: execution fixup
+* fixed: bash/tacklelib/bash_tacklelib: dump functions call stack from `tkl_abort`
+* new: bash/tacklelib/bash_tacklelib: `tkl_dump_call_stack` function to dump functions call stack
+* changed: bash/tacklelib/bash_tacklelib: removed `tkl_abort_include` function
+* changed: *.sh: removed all negations to avoid return not zero return code on success
+* changed: __init__: moved inclusion guard to the end
+* changed: cmake/tacklelib: improvements and fixes
+* changed: README.txt: readme update
+* changed: TODO.txt: todo update, implemented different approach with the configuration files expiration check through the file modification timestamp and the version string
+* refactor: code refactor
 
 2024.02.03:
 * changed: javascript: moved to `contools` project

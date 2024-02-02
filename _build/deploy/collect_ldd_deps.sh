@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Script ONLY for execution.
-if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -eq 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
   for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
-    [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]] && {
+    if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
       source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
       break
-    }
+    fi
   done
 fi
 
@@ -21,20 +21,18 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   exit 1
 fi
 
-tkl_normalize_path -a -s "$BASH_SOURCE_DIR/../.."
-APP_ROOT="$RETURN_VALUE"
-
-SEARCH_ROOT_LIST="$1"     # directory path list where to start search files dependencies not recursively
-FILE_LIST_TO_FIND="$2"    # `:`-separated list of wildcard case insensitive file names or file paths to find
-FILE_LIST_TO_EXCLUDE="$3" # `:`-separated list of wildcard case insensitive file names or file paths to exclude
-LD_LIBRARY_PATH_LIST="$4" # directory path list for the LD_LIBRARY_PATH
-OUT_DEPS_FILE="$5"        # output dependencies text file
-OUT_DEPS_DIR="$6"         # directory there to copy found dependencies
+APP_ROOT="$1"
+SEARCH_ROOT_LIST="$2"     # directory path list where to start search files dependencies not recursively
+FILE_LIST_TO_FIND="$3"    # `:`-separated list of wildcard case insensitive file names or file paths to find
+FILE_LIST_TO_EXCLUDE="$4" # `:`-separated list of wildcard case insensitive file names or file paths to exclude
+LD_LIBRARY_PATH_LIST="$5" # directory path list for the LD_LIBRARY_PATH
+OUT_DEPS_FILE="$6"        # output dependencies text file
+OUT_DEPS_DIR="$7"         # directory there to copy found dependencies
 
 
 if [[ -n "$OUT_DEPS_FILE" ]]; then
   touch "$OUT_DEPS_FILE" 2> /dev/null || {
-    echo "$BASH_SOURCE_FILE_NAME: error: cannot create OUT_DEPS_FILE file: \"$OUT_DEPS_FILE\"."
+    echo "$BASH_SOURCE_FILE_NAME: error: cannot create OUT_DEPS_FILE file: \"$OUT_DEPS_FILE\"." >&2
     exit 2
   } 1>&2
 fi
@@ -634,11 +632,9 @@ function CollectLddDeps()
   return $?
 }
 
-CollectLddDeps || exit $?
+CollectLddDeps || tkl_exit
 
 echo "Done."
 echo
 
-exit 0
-
-fi
+tkl_exit 0

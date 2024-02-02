@@ -1,3 +1,22 @@
+2024.03.07:
+* new: tacklelib/tools/check_config_expiration.sh: configuration files expiration check script
+* new: tacklelib/tools/load_config.sh: port of `load_config.bat` script from `contools` project
+* refactor: tacklelib/bash_tacklelib: `tkl_get_abs_path_from_dir` renamed to `tkl_get_abs_path`
+
+2024.03.07:
+* new: tacklelib/bash_tacklelib: `tkl_dump_includes_stack` function to dump includes call stack
+
+2024.03.01:
+* changed: tacklelib/tools/load_config.sh: switched script to use uniform config files loader
+
+2024.02.28:
+* new: tacklelib/tools/load_config_dir.sh: configuration directory load functionality is extracted from `load_config.sh` script
+
+2024.02.25:
+* fixed: tacklelib/bash_tacklelib: dump functions call stack from `tkl_abort`
+* new: tacklelib/bash_tacklelib: `tkl_dump_call_stack` function to dump functions call stack
+* changed: tacklelib/bash_tacklelib: removed `tkl_abort_include` function
+
 2023.12.24:
 * changed: tacklelib/tools/git: all scripts extracted into `gitcmd` project
 

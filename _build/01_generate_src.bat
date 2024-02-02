@@ -4,32 +4,8 @@ rem Source files generator script.
 
 setlocal
 
-if %IMPL_MODE%0 NEQ 0 goto IMPL
-
-call "%%~dp0__init__/__init__.bat" || exit /b
-
-call "%%TACKLELIB_PROJECT_ROOT%%/__init__/declare_builtins.bat" %%0 %%* || exit /b
-
-for %%i in (TACKLELIB_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILITIES_BIN_ROOT) do (
-  if not defined %%i (
-    echo.%~nx0: error: `%%i` variable is not defined.
-    exit /b 255
-  ) >&2
-)
-
-call "%%CONTOOLS_ROOT%%/build/init_project_log.bat" "%%?~n0%%" || exit /b
-
-call "%%CONTOOLS_ROOT%%/exec/exec_callf_prefix.bat" -- %%* || exit /b
-
-exit /b 0
-
-:IMPL
-rem CAUTION: We must to reinit the builtin variables in case if `IMPL_MODE` was already setup outside.
-call "%%CONTOOLS_ROOT%%/std/declare_builtins.bat" %%0 %%* || exit /b
-
-call "%%CONTOOLS_ROOT%%/std/get_cmdline.bat" %%?0%% %%*
-call "%%CONTOOLS_ROOT%%/std/echo_var.bat" RETURN_VALUE ">"
-echo.
+call "%%~dp0__init__/script_init.bat" %%0 %%* || exit /b
+if %IMPL_MODE%0 EQU 0 exit /b
 
 set /A NEST_LVL+=1
 

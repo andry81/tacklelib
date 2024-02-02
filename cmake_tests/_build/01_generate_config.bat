@@ -27,7 +27,7 @@ exit /b 0
 rem CAUTION: We must to reinit the builtin variables in case if `IMPL_MODE` was already setup outside.
 call "%%CONTOOLS_ROOT%%/std/declare_builtins.bat" %%0 %%* || exit /b
 
-call :CMDINT "%%CONTOOLS_ROOT%%/cmake/check_config_version.bat" -optional_compare ^
+call :CMDINT "%%CONTOOLS_ROOT%%/build/check_config_expiration.bat" -optional_compare ^
   "%%CMAKE_CONFIG_VARS_SYSTEM_FILE_IN%%" "%%CMAKE_CONFIG_VARS_SYSTEM_FILE%%" || exit /b
 
 set /A NEST_LVL+=1

@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2023.04.04
+* 2024.02.25
 * tacklelib
 
 1. DESCRIPTION
@@ -71,8 +71,8 @@ First mirror:
   * https://sf.net/p/tacklelib/tacklelib/ci/master/tree
     https://svn.code.sf.net/p/tacklelib/tacklelib
 Second mirror:
-  * https://bitbucket.org/andry81/tacklelib/branches
-    https://bitbucket.org/andry81/tacklelib.git
+  * https://gitlab.com/andry81/tacklelib/-/branches
+    https://gitlab.com/andry81/tacklelib.git
 
 -------------------------------------------------------------------------------
 4. CATALOG CONTENT DESCRIPTION
@@ -85,9 +85,14 @@ Second mirror:
  |    # Log files directory, where does store all log files from all scripts
  |    # including all nested projects.
  |
+ +- /`__init__`
+ |    #
+ |    # Contains special standalone and initialization script(s) to allocate
+ |    # basic environment variables and make common preparations.
+ |
  +- /`_externals`
  |    #
- |    # Immediate external projects catalog could not be moved into the 3dparty
+ |    # Immediate external projects catalog, could not be moved into a 3dparty
  |    # dependencies catalog.
  |
  +- /`_config`
@@ -123,10 +128,17 @@ Second mirror:
  |     |  |   # file.
  |     |  |
  |     |  +- `config.0.vars`
+ |     |  |   #
+ |     |  |   # Generated temporary file with set of user customized
+ |     |  |   # environment variables to set them locally.
+ |     |  |   # Loads after the system customized environment variables file.
+ |     |  |
+ |     |  +- `config.3dparty.vars`
  |     |      #
- |     |      # Generated temporary file with set of user customized
- |     |      # environment variables to set them locally.
- |     |      # Loads after the system customized environment variables file.
+ |     |      # One of 3dparty environment variables file for a standalone
+ |     |      # directory with built libraries.
+ |     |      # Pointed by the `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variable.
+ |     |      # Loads before the system customized environment variables file.
  |     |
  |     +- `config.system.vars`
  |     |   #
@@ -141,13 +153,11 @@ Second mirror:
  +- /`_build`
  |  | #
  |  | # Scripts to generate, configure, build, install and pack the entire
- |  | # solution.
- |  | # Contains special `__init*__` script to allocate basic environment
- |  | # variables and make common preparations.
+ |  | # project.
  |  |
  |  +-/`01_generate_src.*`
  |  |   #
- |  |   # Scriptw to generate source files in the root project and local
+ |  |   # Scripts to generate source files in the root project and local
  |  |   # 3dparty subprojects and libraries which are should not be included in
  |  |   # a version control system.
  |  |
@@ -240,14 +250,13 @@ Second mirror:
 -------------------------------------------------------------------------------
 5. PREREQUISITES
 -------------------------------------------------------------------------------
-
-Currently used these set of OS platforms, externals, compilers, interpreters,
-modules, IDE's, applications and patches to run with or from:
+Currently used these set of OS platforms, compilers, interpreters, modules,
+IDE's, applications and patches to run with or from:
 
 1. OS platforms:
 
-* Windows XP (`.vbs` only, minimal version for the Windows Script Host)
-* Windows 7+ (`.bat` only, minimal version for the cmake 3.14)
+* Windows XP x86 SP3/x64 SP2 (minimal version for the Windows Script Host)
+* Windows 7+ (minimal version for the cmake 3.14)
 
 * Cygwin 1.5+ or 3.0+ (`.sh` only):
   https://cygwin.com
@@ -259,17 +268,13 @@ modules, IDE's, applications and patches to run with or from:
 
 * Linux Mint 18.3 x64 (`.sh` only)
 
-2. Externals:
+2. C++11 compilers:
 
-  * `contools`
-
-3. C++11 compilers:
-
-* (primary) Microsoft Visual C++ 2015 Update 3 or Microsoft Visual C++ 2017
+* (primary) Microsoft Visual C++ 2019+
 * (secondary) GCC 5.4+
 * (experimental) Clang 3.8+
 
-4. Interpreters:
+3. Interpreters:
 
 * bash shell 3.2.48+
   - to run unix shell scripts
@@ -297,7 +302,7 @@ modules, IDE's, applications and patches to run with or from:
 * Windows Script Host 5.8+
   - standard implementation to run vbs scripts
 
-5. Modules:
+4. Modules:
 
 * Bash additional modules:
 
@@ -347,13 +352,13 @@ Temporary dropped usage:
     - extension to use Unix core utils within Python environment as plain
       executable or python function
 
-6. IDE's:
+5. IDE's:
 
 * Microsoft Visual Studio 2015 Update 3
 * Microsoft Visual Studio 2017
 * QtCreator 4.6+
 
-7. Applications:
+6. Applications:
 
 * subversion 1.8+
   https://tortoisesvn.net
@@ -368,7 +373,7 @@ Temporary dropped usage:
 * cygwin readlink 6.10+
   - to run specific bash script functions with `readlink` calls
 
-8. Patches:
+7. Patches:
 
 * Python site modules contains patches in the `python_patches`
   subdirectory:
@@ -403,7 +408,6 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#id13
 -------------------------------------------------------------------------------
 6. DEPENDENCIES
 -------------------------------------------------------------------------------
-
 Any project which is dependent on this project have has to contain the
 `README_EN.deps.txt` description file for the common dependencies in the
 Windows and in the Linux like platforms (see `PRECONFIGURE` section).
@@ -411,6 +415,8 @@ Windows and in the Linux like platforms (see `PRECONFIGURE` section).
 -------------------------------------------------------------------------------
 7. EXTERNALS
 -------------------------------------------------------------------------------
+All project externals are declared in `.externals*` files.
+
 To checkout externals you must use the
 [vcstool](https://github.com/dirk-thomas/vcstool) python module.
 

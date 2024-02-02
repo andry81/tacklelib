@@ -93,4 +93,17 @@ function(tkl_get_cmake_role out_var role_name)
   endif()
 endfunction()
 
+function(tkl_is_var_cached out_is_var_def var_name)
+  # `if (DEFINED CACHE{...})` is supported from 3.14.0: https://cmake.org/cmake/help/v3.14/release/3.14.html#commands
+  if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14.0")
+    if (DEFINED CACHE{${var_name}})
+      set(${out_is_var_def} 1)
+    else()
+      set(${out_is_var_def} 0)
+    endif()
+  else()
+    get_property(${out_is_var_def} CACHE "${var_name}" PROPERTY VALUE SET)
+  endif()
+endfunction()
+
 endif()
