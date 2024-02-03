@@ -1,3 +1,6 @@
+2024.02.03:
+* changed: javascript: moved to `contools` project
+
 2024.02.02:
 * fixed: cmake/tacklelib/ForwardVariables.cmake: missed to set `out_cached_var` in `tkl_get_var` function
 
