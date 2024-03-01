@@ -1,3 +1,7 @@
+2024.03.01:
+* changed: _config: switched all configs to use uniform config files loader
+* changed: __init__: switched init script to use uniform config files loader
+
 2024.02.03:
 * changed: javascript: moved to `contools` project
 
