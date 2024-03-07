@@ -178,7 +178,7 @@ function tkl_load_config()
     elif [[ "$__FLAG" == '-export-vars' ]]; then
       __FLAG_EXPORT_VARS=1
       __SKIP_FLAG=1
-    elif [[ "${__FLAG:1}" == '-' ]]; then
+    elif [[ "$__FLAG" == '-' ]]; then
       shift
       break
     else
@@ -408,7 +408,7 @@ function tkl_load_config()
       [[ ! "$__VAR" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] || [[ ! "${!__VAR+x}" ]] 2>/dev/null || continue # skip existed variable
     fi
 
-    echo "$__VAR:$__P0:$__P1=$__VALUE"
+    #echo "$__VAR:$__P0:$__P1=$__VALUE"
 
     if [[ -z "$__VALUE" ]]; then
       if (( ! __FLAG_EXPORT_VARS )) && [[ ! "${__ATTR[*]}" =~ ([[:space:]]|^)export([[:space:]]|$) ]]; then

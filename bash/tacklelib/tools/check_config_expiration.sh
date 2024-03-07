@@ -55,7 +55,7 @@ function tkl_check_config_expiration()
     if [[ "$__FLAG" == '-optional_compare' ]]; then
       __FLAG_OPTIONAL_COMPARE=1
       __SKIP_FLAG=1
-    elif [[ "${__FLAG:1}" == '-' ]]; then
+    elif [[ "$__FLAG" == '-' ]]; then
       shift
       break
     else

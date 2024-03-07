@@ -129,7 +129,7 @@ function tkl_load_config_dir()
     elif [[ "$__FLAG" == '-no-load-user-config' ]]; then
       __FLAG_NO_LOAD_USER_CONFIG=1
       __SKIP_FLAG=1
-    elif [[ "${__FLAG:1}" == '-' ]]; then
+    elif [[ "$__FLAG" == '-' ]]; then
       shift
       break
     fi
@@ -181,8 +181,8 @@ function tkl_load_config_dir()
   fi
 
   if (( ! __FLAG_NO_LOAD_SYSTEM_CONFIG )); then
-    eval tkl_call_and_print_if '(( LOAD_CONFIG_VERBOSE ))' \
-      tkl_load_config$__BARE_SYSTEM_FLAGS -- "\$__CONFIG_DIR_IN" "\$__CONFIG_DIR_OUT" "config.system.vars\$__SYSTEM_CONFIG_FILE_EXT" "\${@:4}" || \
+    eval tkl_call_and_print_if '"(( LOAD_CONFIG_VERBOSE ))"' \
+      tkl_load_config$__BARE_SYSTEM_FLAGS -- '"$__CONFIG_DIR_IN"' '"$__CONFIG_DIR_OUT"' '"config.system.vars$__SYSTEM_CONFIG_FILE_EXT"' '"${@:3}"' || \
     {
       echo "$BASH_SOURCE_FILE_NAME: error: \`$__CONFIG_DIR_OUT/config.system.vars$__SYSTEM_CONFIG_FILE_EXT\` is not loaded."
       return 255
@@ -204,8 +204,8 @@ function tkl_load_config_dir()
         fi
       fi
 
-      eval tkl_call_and_print_if '(( LOAD_CONFIG_VERBOSE ))' \
-        tkl_load_config$__BARE_USER_FLAGS -- "$__CONFIG_DIR_IN" "$__CONFIG_DIR_OUT" "config.$i.vars\$__USER_CONFIG_FILE_EXT" || \
+      eval tkl_call_and_print_if '"(( LOAD_CONFIG_VERBOSE ))"' \
+        tkl_load_config$__BARE_USER_FLAGS -- '"$__CONFIG_DIR_IN"' '"$__CONFIG_DIR_OUT"' '"config.$i.vars$__USER_CONFIG_FILE_EXT"' '"${@:3}"' || \
       {
         echo "$BASH_SOURCE_FILE_NAME: error: \`$__CONFIG_DIR_OUT/config.$i.vars$__USER_CONFIG_FILE_EXT\` is not loaded."
         return 255

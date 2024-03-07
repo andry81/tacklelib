@@ -1,4 +1,7 @@
 2024.03.07:
+* fixed: bash/tacklelib/tools: check_config_expiration.sh, load_config*.sh: execution fixup
+
+2024.03.07:
 * new: bash/tacklelib/tools/check_config_expiration.sh: configuration files expiration check script
 * new: bash/tacklelib/tools/load_config.sh: port of `load_config.bat` script from `contools` project
 * refactor: bash/tacklelib/bash_tacklelib: `tkl_get_abs_path_from_dir` renamed to `tkl_get_abs_path`
