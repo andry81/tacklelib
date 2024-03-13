@@ -28,19 +28,19 @@ fi
     case $BASH_VERSION in
       # < 4.2
       [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
-        PROJECT_LOG_FILE_NAME_SUFFIX=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
+        PROJECT_LOG_FILE_NAME_DATE_TIME=$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))
         ;;
       # >= 4.2
       *)
-        printf -v PROJECT_LOG_FILE_NAME_SUFFIX "%(%Y'%m'%d_%H'%M'%S'')T$(( RANDOM % 1000 ))" -1
+        printf -v PROJECT_LOG_FILE_NAME_DATE_TIME "%(%Y'%m'%d_%H'%M'%S'')T$(( RANDOM % 1000 ))" -1
         ;;
     esac
   }
 
   GetTime
 
-  PROJECT_LOG_DIR="$BASH_SOURCE_DIR/.log/$PROJECT_LOG_FILE_NAME_SUFFIX.${BASH_SOURCE_FILE_NAME%[.]*}"
-  PROJECT_LOG_FILE="$PROJECT_LOG_DIR/${PROJECT_LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
+  PROJECT_LOG_DIR="$BASH_SOURCE_DIR/.log/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}"
+  PROJECT_LOG_FILE="$PROJECT_LOG_DIR/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}.log"
 
   [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 11; }
 
@@ -82,7 +82,7 @@ cd "$BASH_SOURCE_DIR"
 
 echo
 echo "----"
-echo "---- Start time: $PROJECT_LOG_FILE_NAME_SUFFIX"
+echo "---- Start time: $PROJECT_LOG_FILE_NAME_DATE_TIME"
 echo "---- CWD=\"$(pwd)\""
 echo "----"
 
@@ -95,7 +95,7 @@ CallLr "$BASH_SOURCE_DIR/${BASH_SOURCE_FILE_NAME%[.]*}" "$@"
 GetTime
 
 echo "----"
-echo "---- End time: $PROJECT_LOG_FILE_NAME_SUFFIX"
+echo "---- End time: $PROJECT_LOG_FILE_NAME_DATE_TIME"
 echo "---- Exit code: $LastError"
 echo "----"
 echo

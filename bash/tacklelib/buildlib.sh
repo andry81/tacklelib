@@ -554,22 +554,22 @@ function tkl_init_project_log()
   # date time request base on: https://stackoverflow.com/questions/1401482/yyyy-mm-dd-format-date-in-shell-script/1401495#1401495
   #
 
-  tkl_declare_global PROJECT_LOG_FILE_NAME_SUFFIX
+  tkl_declare_global PROJECT_LOG_FILE_NAME_DATE_TIME
 
   # RANDOM instead of milliseconds
   case $BASH_VERSION in
     # < 4.2
     [123].* | 4.[01] | 4.0* | 4.1[^0-9]*)
-      PROJECT_LOG_FILE_NAME_SUFFIX="$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))"
+      PROJECT_LOG_FILE_NAME_DATE_TIME="$(date "+%Y'%m'%d_%H'%M'%S''")$(( RANDOM % 1000 ))"
       ;;
     # >= 4.2
     *)
-      printf -v PROJECT_LOG_FILE_NAME_SUFFIX "%(%Y'%m'%d_%H'%M'%S'')T$(( RANDOM % 1000 ))" -1
+      printf -v PROJECT_LOG_FILE_NAME_DATE_TIME "%(%Y'%m'%d_%H'%M'%S'')T$(( RANDOM % 1000 ))" -1
       ;;
   esac
 
-  tkl_declare_global PROJECT_LOG_DIR  "$PROJECT_LOG_ROOT/$PROJECT_LOG_FILE_NAME_SUFFIX.${BASH_SOURCE_FILE_NAME%[.]*}"
-  tkl_declare_global PROJECT_LOG_FILE "$PROJECT_LOG_DIR/${PROJECT_LOG_FILE_NAME_SUFFIX}.${BASH_SOURCE_FILE_NAME%[.]*}.log"
+  tkl_declare_global PROJECT_LOG_DIR  "$PROJECT_LOG_ROOT/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}"
+  tkl_declare_global PROJECT_LOG_FILE "$PROJECT_LOG_DIR/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}.log"
 
   [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 255; }
 }
