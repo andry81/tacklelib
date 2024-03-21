@@ -227,10 +227,11 @@ function(tkl_file_encode_strings out_var file_path)
 endfunction()
 
 function(tkl_file_decode_string out_var str)
-  string(REPLACE "?0" "?" str "${str}")
-  string(REPLACE "?1" "[" str "${str}")
-  string(REPLACE "?2" "]" str "${str}")
+  # in reverse order
   string(REPLACE "?3" "\\" str "${str}")
+  string(REPLACE "?2" "]" str "${str}")
+  string(REPLACE "?1" "[" str "${str}")
+  string(REPLACE "?0" "?" str "${str}")
 
   set(${out_var} "${str}" PARENT_SCOPE)
 endfunction()
