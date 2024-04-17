@@ -10,6 +10,7 @@
 #include <tacklelib/utility/type_identity.hpp>
 #include <tacklelib/utility/static_assert.hpp>
 #include <tacklelib/utility/debug.hpp>
+#include <tacklelib/utility/optimization.hpp>
 #include <tacklelib/utility/string.hpp>
 
 #include <type_traits>

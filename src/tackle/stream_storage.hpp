@@ -18,7 +18,9 @@
 
 #include <boost/scope_exit.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 #include <deque>
 #include <utility>
@@ -393,8 +395,14 @@ namespace tackle
         const int right_type_index = it.m_iterator_storage.type_index();
         if (left_type_index != right_type_index) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): incompatible iterator storages: left_type_index={:d} right_type_index={:d}",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, left_type_index, right_type_index));
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, left_type_index, right_type_index))
+#else
+                utility::string_format(256, "%s(%d): incompatible iterator storages: left_type_index=%d right_type_index=%d",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, left_type_index, right_type_index))
+#endif
+            );
         }
 
         return m_iterator_storage.template invoke<bool>([&](const auto & chunks_it)
@@ -484,9 +492,16 @@ namespace tackle
         const int chunk_type_index = math::int_log2_ceil(min_chunk_size);
         if (chunk_type_index >= num_chunk_variants_t::value) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): minimum chunk size is not supported: min_chunk_size={:d} pof2={:d} max={:d}",
                     UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, min_chunk_size,
-                    math::int_pof2_ceil(min_chunk_size), (0x01U << (num_chunk_variants_t::value - 1))));
+                    math::int_pof2_ceil(min_chunk_size), (0x01U << (num_chunk_variants_t::value - 1)))
+#else
+                utility::string_format(256, "%s(%d): minimum chunk size is not supported: min_chunk_size=%d pof2=%d max=%d",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, min_chunk_size,
+                    math::int_pof2_ceil(min_chunk_size), (0x01U << (num_chunk_variants_t::value - 1)))
+#endif
+            );
         }
 
         if (chunk_type_index != m_chunks.type_index()) {

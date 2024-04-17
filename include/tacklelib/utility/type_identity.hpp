@@ -75,6 +75,10 @@
 
 #define UTILITY_GET(value, constexpr_index)             (::utility::get<constexpr_index>(value))
 
+// Lambda helper to tokenize a lambda function by an argument type to be able to identify the call by this argument type in the stack call with enabled function signatures.
+// Declares a type using identity class.
+#define UTILITY_DECLARE_LAMBDA_IDENTITY_TYPE(token)     ::utility::identity<struct UTILITY_PP_CONCAT(UTILITY_PP_CONCAT(token, _L), UTILITY_PP_LINE)>*
+
 
 // define a tag type using int_identity class (through the using keyword)
 #define UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG(tag_token, ...) \

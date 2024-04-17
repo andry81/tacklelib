@@ -3,11 +3,13 @@
 
 //// public headers common setup symbols
 
-#define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 1         // Uses `fmt` 3dparty library to format string instead of `std::stringstream` (much faster and more convenient)
+#define USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT 0  // Uses `fmt::format` function instead of `utility::string_format` whereever it possible (avoids `fmt` dependency in some sources)
+
+#define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 0             // Uses `fmt` 3dparty library to format string instead of `std::stringstream` (much faster and more convenient)
 
 //// utility/utility.hpp
 
-#define USE_UTILITY_NETWORK_UNC 0                           // Enables network UNC utility functions, `pystring` library is required
+#define USE_UTILITY_NETWORK_UNC 0                               // Enables network UNC utility functions, `pystring` library is required
 
 // QD integration disabled by default
 

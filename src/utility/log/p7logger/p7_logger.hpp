@@ -19,7 +19,9 @@
 #include <tacklelib/tackle/smart_handle.hpp>
 #include <tacklelib/tackle/log/log_handle.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 #include <P7_Trace.h>
 #include <P7_Telemetry.h>
@@ -76,7 +78,9 @@
 #define LOG_P7_FLAG_TRUNCATE_FUNC_TO_NAME                   ::utility::log::p7logger::LogFlag_TruncateSrcFuncToName
 #define LOG_P7_FLAG_TRUNCATE_FILE_TO_REL_PATH               ::utility::log::p7logger::LogFlag_TruncateSrcFileToRelativePath
 #define LOG_P7_FLAG_ALLOW_NOT_STATIC_FMT                    ::utility::log::p7logger::LogFlag_AllowToUseNotStaticFmt
-#define LOG_P7_FLAG_USE_FMTLIB_FMT                          ::utility::log::p7logger::LogFlag_UseFmtLibCompatibleFmt        // not yet a c++ standard, but will be: http://fmtlib.net/Text%20Formatting.html
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#   define LOG_P7_FLAG_USE_FMTLIB_FMT                       ::utility::log::p7logger::LogFlag_UseFmtLibCompatibleFmt        // not yet a c++ standard, but will be: http://fmtlib.net/Text%20Formatting.html
+#endif
 #define LOG_P7_FLAG_USE_PRINTF_FMT                          ::utility::log::p7logger::LogFlag_UsePrintfCompatibleFmt
 #define LOG_P7_FLAG_DEFAULT                                 ::utility::log::p7logger::LogFlag_Default
 
@@ -115,6 +119,8 @@
 #define LOG_P7_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+
 // single log version with fmtlib compatible fmt argument
 
 #define LOG_P7_FMTLIB(constexpr_flags, trace_handle, trace_module, id, lvl, fmtlib_fmt, ...) \
@@ -137,6 +143,8 @@
 
 #define LOG_P7_FMTLIB_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
     LOG_P7_(log, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmtlib_fmt, ## __VA_ARGS__)
+
+#endif
 
 // single log version with printf compatible fmt argument
 
@@ -184,6 +192,8 @@
 #define LOG_P7M_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmt, ## __VA_ARGS__)
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+
 // multiline log version with fmtlib compatible fmt argument
 
 #define LOG_P7M_FMTLIB(constexpr_flags, trace_handle, trace_module, id, lvl, fmtlib_fmt, ...) \
@@ -206,6 +216,8 @@
 
 #define LOG_P7M_FMTLIB_CRITICAL(constexpr_flags, trace_handle, trace_module, id, fmtlib_fmt, ...) \
     LOG_P7_(log_multiline, constexpr_flags | LOG_P7_FLAG_USE_FMTLIB_FMT, trace_handle, trace_module, id, EP7TRACE_LEVEL_CRITICAL, fmtlib_fmt, ## __VA_ARGS__)
+
+#endif
 
 // multiline log version with printf compatible fmt argument
 
@@ -316,12 +328,14 @@ namespace p7logger {
         //
         LogFlag_AllowToUseNotStaticFmt              = 0x40000000, // must be used together with LogFlag_UsePrintfCompatibleFmt and with LogFlag_AllowRuntimeClientSideConversion
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         // Shall treat the `fmt` argument as compatible with the `fmt::format`/`fmt::print` function format string.
         // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
         // which automatically requires to reformat on a client side.
         // Slow downs a client call because of an inplace argument strings transformation or reformat.
         //
         LogFlag_UseFmtLibCompatibleFmt              = 0x01000000, // must be used together with LogFlag_AllowRuntimeClientSideConversion
+#endif
 
         // Shall treat the `fmt` argument as compatible with the `std::printf`/`std::wprintf` function format string.
         // This requires to convert this type of format string into the p7 format string (which has non C++ standard conformant printf string format!),
@@ -345,20 +359,33 @@ namespace detail {
         static_assert(is_static_storage_fmt || (log_flags & LogFlag_AllowToUseNotStaticFmt),
             "If the fmt format string is not a static storage string, then the fmt has to be explicitly allowed to be not a static storage string");
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert(
             !((log_flags & LogFlag_UseFmtLibCompatibleFmt) && (log_flags & LogFlag_UsePrintfCompatibleFmt)),
             "Only one of 2 supported formats is applicable at a time");
+#else
+        static_assert(
+            !(log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Only one supported format is applicable at a time");
+#endif
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert(
             !(log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
             "Current implementation is required the LogFlag_UseFmtLibCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
+#endif
 
         static_assert(
             !(log_flags & LogFlag_UsePrintfCompatibleFmt) || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
             "Current implementation is required the LogFlag_UsePrintfCompatibleFmt flag to be set together with the LogFlag_AllowRuntimeClientSideConversion flag");
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert(!is_multiline_log || (log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
             "Currently multiline log implementation available only through the client side evaluation through one of 2 supported format strings");
+#else
+        static_assert(!is_multiline_log || (log_flags & LogFlag_UsePrintfCompatibleFmt),
+            "Currently multiline log implementation available only through the client side evaluation through one supported format strings");
+#endif
 
         // duplication for a standalone check for particularly multiline log
         static_assert(!is_multiline_log || (log_flags & LogFlag_AllowRuntimeClientSideConversion),
@@ -370,8 +397,13 @@ namespace detail {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         // char is not supported by the platform, has to be converted or evaluated inplace
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+#   else
+        static_assert(log_flags & LogFlag_UsePrintfCompatibleFmt,
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one supported format strings to be evaluatable");
+#   endif
 #endif
     };
 
@@ -380,8 +412,13 @@ namespace detail {
     {
 #if defined(UTILITY_PLATFORM_WINDOWS)
         // char is not supported by the platform, has to be converted or evaluated inplace
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+# else
+        static_assert(log_flags & LogFlag_UsePrintfCompatibleFmt,
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one supported format strings to be evaluatable");
+# endif
 #endif
     };
 
@@ -390,8 +427,13 @@ namespace detail {
     {
 #if !defined(UTILITY_PLATFORM_WINDOWS)
         // wchar_t is not supported by the platform, has to be converted or evaluated inplace
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+# else
+        static_assert(log_flags & LogFlag_UsePrintfCompatibleFmt,
+            "Currently implementation has no support for evaluation from the p7 format over guaranteed a static storage string (tmpl_basic_string), fmt has to be compatible with one supported format strings to be evaluatable");
+# endif
 #endif
     };
 
@@ -400,8 +442,13 @@ namespace detail {
     {
 #if !defined(UTILITY_PLATFORM_WINDOWS)
         // wchar_t is not supported by the platform, has to be converted or evaluated inplace
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         static_assert((log_flags & LogFlag_UseFmtLibCompatibleFmt) || (log_flags & LogFlag_UsePrintfCompatibleFmt),
-            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluable");
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one of 2 supported format strings to be evaluatable");
+# else
+        static_assert(log_flags & LogFlag_UsePrintfCompatibleFmt,
+            "Currently implementation has no support for evaluation from the p7 format over may be not a static storage string (constexpr_basic_string), fmt has to be compatible with one supported format strings to be evaluatable");
+# endif
 #endif
     };
 
@@ -465,8 +512,14 @@ namespace detail {
             if (!deleter) {
                 // must always have a deleter
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): deleter is not allocated",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             base_type::reset(handle_rref.get(), *deleter);
@@ -483,8 +536,14 @@ namespace detail {
             IP7_Client * p = get();
             if (!p) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): null pointer dereference",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return p;
@@ -696,8 +755,14 @@ namespace detail {
             if (!deleter) {
                 // must always have a deleter
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): deleter is not allocated",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             base_type::reset(handle_rref.get(), *deleter);
@@ -719,8 +784,14 @@ namespace detail {
             IP7_Trace * p = get();
             if (!p) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): null pointer dereference",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return p;
@@ -876,8 +947,14 @@ namespace detail {
             if (!deleter) {
                 // must always have a deleter
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): deleter is not allocated",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             base_type::reset(handle_rref.get(), *deleter);
@@ -899,8 +976,14 @@ namespace detail {
             IP7_Telemetry * p = get();
             if (!p) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): null pointer dereference",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return p;
@@ -1011,8 +1094,14 @@ namespace detail {
             IP7_Telemetry * p = base_type::get();
             if (!p) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): null pointer dereference",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): null pointer dereference",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return p->Add(m_param_id, value) ? true : false;
@@ -1038,8 +1127,14 @@ namespace detail {
         IP7_Client * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1070,8 +1165,14 @@ namespace detail {
         IP7_Client * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1198,8 +1299,14 @@ namespace detail {
         IP7_Client * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1230,8 +1337,14 @@ namespace detail {
         IP7_Client * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1364,8 +1477,14 @@ namespace detail {
         IP7_Trace * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1387,8 +1506,14 @@ namespace detail {
         IP7_Trace * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1453,8 +1578,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+            );
         }
 
         return p->Unregister_Thread(thread_id) ? true : false;
@@ -1468,8 +1599,14 @@ namespace detail {
         IP7_Trace * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1491,8 +1628,14 @@ namespace detail {
         IP7_Trace * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
@@ -1561,8 +1704,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1588,10 +1737,13 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::string fmt_utf8;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -1602,12 +1754,18 @@ namespace detail {
             TM("%s"),   // UTF-16
             utility::get_c_str(fmt_utf16)) ? true : false;
 #else
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   else
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   endif
+        {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
@@ -1618,6 +1776,7 @@ namespace detail {
                 TM("%s"),  // UTF-8
                 utility::get_c_str(fmt_utf8)) ? true : false;
         }
+#   endif
 
         // std printf format, we have to evaluate fmt here
         auto fmt_utf8{
@@ -1639,8 +1798,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1666,10 +1831,13 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::string fmt_utf8;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -1680,12 +1848,18 @@ namespace detail {
             TM("%s"),   // UTF-16
             utility::get_c_str(fmt_utf16)) ? true : false;
 #else
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   else
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   endif
+        {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf8{
@@ -1696,6 +1870,7 @@ namespace detail {
                 TM("%s"),  // UTF-8
                 utility::get_c_str(fmt_utf8)) ? true : false;
         }
+#   endif
 
         // std printf format, we have to evaluate fmt here
         auto fmt_utf8{
@@ -1717,8 +1892,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1741,12 +1922,18 @@ namespace detail {
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   else
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   endif
+        {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
@@ -1757,6 +1944,7 @@ namespace detail {
                 TM("%s"),  // UTF-16
                 utility::get_c_str(fmt_utf16)) ? true : false;
         }
+#   endif
 
         // std printf format, we have to evaluate fmt here
         auto fmt_utf16{
@@ -1770,10 +1958,13 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::wstring fmt_utf16;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -1795,8 +1986,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1819,12 +2016,18 @@ namespace detail {
         }
 
 #if defined(UTILITY_PLATFORM_WINDOWS)
-        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt))) {
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UseFmtLibCompatibleFmt) && !(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   else
+        if (UTILITY_CONSTEXPR(!(log_flags & LogFlag_UsePrintfCompatibleFmt)))
+#   endif
+        {
             // p7 fmt format
             return p->Trace(id, lvl, trace_module.handle(), (tUINT16)inline_stack.top.line, file_path_c_str, inline_stack.top.func.c_str(),
                 utility::get_c_str(fmt),
                 utility::get_c_param(std::forward<Args>(args)...)) ? true : false;
         }
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         else if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             // std fmt format, we have to evaluate fmt here
             auto fmt_utf16{
@@ -1835,6 +2038,7 @@ namespace detail {
                 TM("%s"),  // UTF-16
                 utility::get_c_str(fmt_utf16)) ? true : false;
         }
+#   endif
 
         // std printf format, we have to evaluate fmt here
         auto fmt_utf16{
@@ -1848,10 +2052,13 @@ namespace detail {
         // not supported character type, we have to evaluate fmt here
         std::wstring fmt_utf16;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -1873,8 +2080,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1899,10 +2112,13 @@ namespace detail {
         // we have to evaluate fmt here
         std::string fmt_utf8;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -1951,8 +2167,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -1977,10 +2199,13 @@ namespace detail {
         // we have to evaluate fmt here
         std::string fmt_utf8;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf8 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf8 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -2029,8 +2254,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -2055,10 +2286,13 @@ namespace detail {
         // we have to evaluate fmt here
         std::wstring fmt_utf16;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -2107,8 +2341,14 @@ namespace detail {
         IP7_Trace * p = get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    inline_stack.top.func.c_str(), inline_stack.top.line));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         const char * file_path_c_str = nullptr;
@@ -2133,10 +2373,13 @@ namespace detail {
         // we have to evaluate fmt here
         std::wstring fmt_utf16;
 
+#   if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
         if (UTILITY_CONSTEXPR(log_flags & LogFlag_UseFmtLibCompatibleFmt)) {
             fmt_utf16 = fmt::format(fmt, std::forward<Args>(args)...);
         }
-        else {
+        else
+#   endif
+        {
             fmt_utf16 = utility::string_format(LOG_P7_STRING_FORMAT_BUFFER_RESERVE, utility::get_c_str(fmt), std::forward<Args>(args)...);
         }
 
@@ -2188,8 +2431,14 @@ namespace detail {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         tUINT16 param_id = 0;
@@ -2228,8 +2477,14 @@ namespace detail {
         IP7_Telemetry * p = base_type::get();
         if (!p) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): null pointer dereference",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#else
+                utility::string_format(256, "%s(%d): null pointer dereference",
+                    inline_stack.top.func.c_str(), inline_stack.top.line)
+#endif
+            );
         }
 
         tUINT16 param_id = 0;

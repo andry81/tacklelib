@@ -19,6 +19,10 @@
 #include <tacklelib/tackle/path_string.hpp>
 #include <tacklelib/tackle/file_handle.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS)
+#  include <fmt/format.h>
+#endif
+
 #ifdef UTILITY_COMPILER_CXX_MSC
 #   include <intrin.h>
 #else

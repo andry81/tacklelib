@@ -49,8 +49,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#endif
+                );
             }
         }
     }
@@ -81,8 +87,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#endif
+                );
             }
         }
     }
@@ -113,8 +125,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, type_index)
+#endif
+                );
             }
         }
     }
@@ -144,8 +162,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage construction: to_type_index={:d} from_type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage construction: to_type_index=%d from_type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#endif
+                );
             }
         }
     }
@@ -175,8 +199,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage construction: to_type_index={:d} from_type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage construction: to_type_index=%d from_type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#endif
+                );
             }
         }
     }
@@ -199,8 +229,14 @@ namespace tackle
         default_:;
             default: {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
     }
@@ -241,8 +277,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage assign: to_type_index={:d} from_type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage assign: to_type_index=%d from_type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#endif
+                );
             }
         }
 
@@ -286,8 +328,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage assign: to_type_index={:d} from_type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage assign: to_type_index=%d from_type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index, s.m_type_index)
+#endif
+                );
             }
         }
 
@@ -319,8 +367,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage assign: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 
@@ -351,8 +405,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid storage assign: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid storage assign: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 
@@ -379,8 +439,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 
@@ -413,8 +479,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 
@@ -450,8 +522,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 
@@ -487,8 +565,14 @@ namespace tackle
         default_:;
             default: if(throw_exceptions_on_type_error) {
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): invalid type index: type_index={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#else
+                    utility::string_format(256, "%s(%d): invalid type index: type_index=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_type_index)
+#endif
+                );
             }
         }
 

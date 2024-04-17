@@ -1,5 +1,5 @@
 * README_EN.deps.txt
-* 2023.03.05
+* 2024.04.17
 * tacklelib
 
 1. DESCRIPTION
@@ -89,7 +89,7 @@ Legend:
   14 depend on: NO
 
 * fmt
-  00 demand:    REQUIRED
+  00 demand:    OPTIONAL
   01 platform:  WINDOWS, LINUX
   02 version:   release 6.2.0
                 #9bdd1596cef1b57b9556f8bef32dc4a32322ef3e (2020.04.05)

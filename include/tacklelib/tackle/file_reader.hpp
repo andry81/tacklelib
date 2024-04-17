@@ -17,6 +17,10 @@
 
 #include <tacklelib/tackle/file_handle.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
+
 #include <vector>
 #include <functional>
 
@@ -129,9 +133,15 @@ namespace tackle
         static_assert(sizeof(uint64_t) >= sizeof(size_t), "uint64_t must be at least the same size as size_t type here");
 
         if (!m_file_handle.get()) {
-            DEBUG_BREAK_THROW(true) std::runtime_error(
-                fmt::format("{:s}({:d}): file handle is not set",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): file handle is not set",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): file handle is not set",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
         }
 
         int is_eof = feof(m_file_handle.get());

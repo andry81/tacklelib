@@ -6,7 +6,9 @@
 
 #include <boost/scope_exit.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 #include "inttypes.h"
 
@@ -139,8 +141,14 @@ namespace utility {
 
         _error:;
             DEBUG_BREAK_THROW(true) std::out_of_range(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): out of buffer write: reserve={:d} size={:d} buffer={:p}",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_reserve, m_size, buf_ptr));
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_reserve, m_size, buf_ptr)
+#else
+                utility::string_format(256, "%s(%d): out of buffer write: reserve=%d size=%d buffer=%p",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, m_reserve, m_size, buf_ptr)
+#endif
+            );
         }
     }
 

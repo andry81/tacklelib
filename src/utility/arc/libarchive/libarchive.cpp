@@ -12,7 +12,9 @@
 #include <tacklelib/tackle/file_handle.hpp>
 #include <tacklelib/tackle/path_string.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 #include <libarchive/archive_entry.h>
 
@@ -129,8 +131,14 @@ namespace {
                 // not supported
             default:
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): archive filter does not supported: filter_id={:d}",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, filter_id));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, filter_id)
+#else
+                    utility::string_format(256, "%s(%d): archive filter does not supported: filter_id=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, filter_id)
+#endif
+                );
             }
         }
 

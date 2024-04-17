@@ -12,11 +12,13 @@
 
 #include <tacklelib/utility/crc_tables.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
+
 #include <cstdlib>
 #include <cstdint>
 #include <utility>
-
-#include <fmt/format.h>
 
 
 // NOTE:
@@ -133,8 +135,14 @@ namespace utility
         DEBUG_ASSERT_TRUE(0); // not implemented
 
         DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
             fmt::format("{:s}({:d}): unimplemented crc polynomial: width={:d} polynomial={:08X}",
-                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, width, polynomial));
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, width, polynomial)
+#else
+            utility::string_format(256, "%s(%d): unimplemented crc polynomial: width=%d polynomial=%08X",
+                UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, width, polynomial)
+#endif
+        );
 
         //return 0; // unreachable code
     }

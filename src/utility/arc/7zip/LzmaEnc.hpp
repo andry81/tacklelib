@@ -10,7 +10,11 @@
 
 #include <tacklelib/tackle/smart_handle.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#else
+#  include <tacklelib/utility/utility.hpp>
+#endif
 
 #include <LzmaDec.h>
 #include <LzmaEnc.h>
@@ -89,8 +93,14 @@ namespace _7zip {
             if (!deleter) {
                 // must always have a deleter
                 DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                     fmt::format("{:s}({:d}): deleter is not allocated",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): deleter is not allocated",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             base_type::reset(handle.get(), *deleter);
@@ -132,8 +142,14 @@ namespace _7zip {
         CLzmaEncHandle enc = get();
         if (!enc) {
             DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
                 fmt::format("{:s}({:d}): encoder is not allocated",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                utility::string_format(256, "%s(%d): encoder is not allocated",
+                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+            );
         }
 
         CLzmaEncProps props;

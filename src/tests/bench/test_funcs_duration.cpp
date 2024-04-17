@@ -5,7 +5,9 @@
 
 #include <src/utility/arc/libarchive/libarchive.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 
 //// tackle::string_fromat
@@ -26,6 +28,8 @@ TEST(FunctionsTest, test_string_format_on_std_string_256_x1M)
     }
 }
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+
 //// fmt::format
 
 TEST(FunctionsTest, test_fmt_format_positional_x1M)
@@ -43,6 +47,8 @@ TEST(FunctionsTest, test_fmt_format_named_x1M)
         UTILITY_SUPPRESS_OPTIMIZATION_ON_VAR(v);
     }
 }
+
+#endif
 
 void test_std_fmod(bool in_radians, double range_factor, size_t repeats)
 {

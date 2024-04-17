@@ -23,7 +23,7 @@
 
 namespace utility {
 
-    enum StringConvertionType
+    enum StringConversionType
     {
         StringConv_utf8_to_utf16        = 1,
         StringConv_utf16_to_utf8        = 2,

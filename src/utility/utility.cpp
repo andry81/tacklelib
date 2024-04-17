@@ -10,6 +10,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/dll.hpp>
 
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
+
 #include <vector>
 #include <regex>
 #include <locale>
@@ -554,8 +558,15 @@ namespace {
 
         if (res) {
             if (throw_on_error) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): local path to network UNC path convertion error: LastError={:d}",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): local path to network UNC path conversion error: LastError={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError)
+#else
+                    utility::string_format(256, "%s(%d): local path to network UNC path conversion error: LastError=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError)
+#endif
+                );
             }
         }
 
@@ -688,8 +699,15 @@ namespace {
 
         if (res != ERROR_SUCCESS) {
             if (throw_on_error) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): network UNC path to local path convertion error: LastError={:d}",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): network UNC path to local path conversion error: LastError={:d}",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError)
+#else
+                    utility::string_format(256, "%s(%d): network UNC path to local path conversion error: LastError=%d",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE, dwLastError)
+#endif
+                );
             }
         }
 
@@ -830,8 +848,15 @@ namespace {
 
         if (!_convert_local_to_local_unc_path(path_rref, unc_path, throw_on_error)) {
             if (throw_on_error) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): local path to local UNC path convertion error",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): local path to local UNC path conversion error",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): local path to local UNC path conversion error",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
         }
 

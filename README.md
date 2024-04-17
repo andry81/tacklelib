@@ -87,7 +87,7 @@
 ## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.deps.txt">README_EN.deps.txt</a>)
 
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
-* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/fmt
+* <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/fmt
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/googletest
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/libarchive
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/p7client

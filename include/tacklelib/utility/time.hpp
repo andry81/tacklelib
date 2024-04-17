@@ -16,7 +16,6 @@
 #include <fmt/chrono.h>
 #endif
 
-
 #include <string>
 #include <vector>
 #include <ctime>

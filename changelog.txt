@@ -1,3 +1,6 @@
+2024.04.17:
+* changed: include, src: made `fmtlib` optional
+
 2024.03.21:
 * fixed: cmake/tacklelib/File.cmake: `tkl_file_decode_string` must be implemented in reverse order
 

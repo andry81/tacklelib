@@ -17,8 +17,10 @@
 
 //#include <tacklelib/tackle/string.hpp>
 
-#include <fmt/format.h>
-#include <fmt/chrono.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#  include <fmt/chrono.h>
+#endif
 
 #include <cstdint>
 #include <string>
@@ -120,7 +122,7 @@ namespace tackle
         {
         }
 
-        // store with convertion into custom type, format string is partially compatible with the std::strftime
+        // store with conversion into custom type, format string is partially compatible with the std::strftime
         FORCE_INLINE basic_date_time(const string_type & fmt, string_type time_str, const std::string & locale = "C", bool throw_on_error = true) :
             storage_type_{ StorageType_Unknown }
         {
@@ -307,7 +309,7 @@ namespace tackle
             }
         }
 
-        // store with convertion into custom type, format string is partially compatible with the std::strftime
+        // store with conversion into custom type, format string is partially compatible with the std::strftime
         FORCE_INLINE void reset(const string_type & fmt, string_type time_str, const std::string & locale = "C", bool throw_on_error = true)
         {
 #ifdef UTILITY_PLATFORM_FEATURE_STD_HAS_GET_TIME
@@ -317,8 +319,15 @@ namespace tackle
 
             if (!utility::time::get_time(time, locale, fmt, time_str_rref)) {
                 if (throw_on_error) {
-                    DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): time format string is invalid",
-                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                    DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                        fmt::format("{:s}({:d}): time format string is invalid",
+                            UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                        utility::string_format(256, "%s(%d): time format string is invalid",
+                            UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                    );
                 }
                 else {
                     return;
@@ -401,8 +410,15 @@ namespace tackle
         FORCE_INLINE const T & get(utility::int_identity<StorageType_Custom>) const
         {
             if (storage_type_ != StorageType_Custom) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): storage type is not custom type",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): storage type is not custom type",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): storage type is not custom type",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return custom;
@@ -411,8 +427,15 @@ namespace tackle
         FORCE_INLINE const string_type & get(utility::int_identity<StorageType_String>) const
         {
             if (storage_type_ != StorageType_String) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): storage type is not string type",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): storage type is not string type",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): storage type is not string type",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             return string_;

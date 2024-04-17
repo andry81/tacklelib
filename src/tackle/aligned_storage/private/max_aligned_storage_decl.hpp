@@ -36,7 +36,9 @@
 
 #include <boost/mpl/vector.hpp>
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#endif
 
 // alignof_ headers
 #include <boost/mpl/size_t.hpp>
@@ -151,8 +153,15 @@ namespace tackle
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             // make construction
@@ -167,8 +176,15 @@ namespace tackle
 
             // at first, check if storage is constructed
             if (!r.is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             // make construction
@@ -181,13 +197,27 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): this type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): this type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             // make assignment
@@ -200,13 +230,27 @@ namespace tackle
 
             // at first, check if both storages are constructed
             if (!is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): this type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): this type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): this type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             if (!r.is_constructed()) {
-                DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}({:d}): reference type is not constructed",
-                    UTILITY_PP_FUNCSIG, UTILITY_PP_LINE));
+                DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+                    fmt::format("{:s}({:d}): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#else
+                    utility::string_format(256, "%s(%d): reference type is not constructed",
+                        UTILITY_PP_FUNCSIG, UTILITY_PP_LINE)
+#endif
+                );
             }
 
             // make assignment

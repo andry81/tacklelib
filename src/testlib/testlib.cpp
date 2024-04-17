@@ -10,7 +10,11 @@
 #include <wincon.h>
 #endif
 
-#include <fmt/format.h>
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+#  include <fmt/format.h>
+#else
+#  include <tacklelib/utility/utility.hpp>
+#endif
 
 #include <cstdarg>
 #include <vector>
@@ -634,8 +638,15 @@ TestCaseStaticBase::TestCaseStaticBase()
 const tackle::path_string & TestCaseStaticBase::get_data_in_var(const char * error_msg_prefix)
 {
     if (s_TESTS_DATA_IN_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_IN_ROOT, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: s_TESTS_DATA_IN_ROOT directory does not exist: \"{:s}\"",
-            error_msg_prefix, s_TESTS_DATA_IN_ROOT));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: s_TESTS_DATA_IN_ROOT directory does not exist: \"{:s}\"",
+                error_msg_prefix, s_TESTS_DATA_IN_ROOT)
+#else
+            utility::string_format(256, "%s: s_TESTS_DATA_IN_ROOT directory does not exist: \"%s\"",
+                error_msg_prefix, s_TESTS_DATA_IN_ROOT)
+#endif
+        );
     }
 
     return s_TESTS_DATA_IN_ROOT;
@@ -644,8 +655,15 @@ const tackle::path_string & TestCaseStaticBase::get_data_in_var(const char * err
 const tackle::path_string & TestCaseStaticBase::get_data_out_var(const char * error_msg_prefix)
 {
     if (s_TESTS_DATA_OUT_ROOT.empty() || !utility::is_directory_path(s_TESTS_DATA_OUT_ROOT, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: s_TESTS_DATA_OUT_ROOT directory does not exist: \"{:s}\"",
-            error_msg_prefix, s_TESTS_DATA_OUT_ROOT));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: s_TESTS_DATA_OUT_ROOT directory does not exist: \"{:s}\"",
+                error_msg_prefix, s_TESTS_DATA_OUT_ROOT)
+#else
+            utility::string_format(256, "%s: s_TESTS_DATA_OUT_ROOT directory does not exist: \"%s\"",
+                error_msg_prefix, s_TESTS_DATA_OUT_ROOT)
+#endif
+        );
     }
 
     return s_TESTS_DATA_OUT_ROOT;
@@ -667,8 +685,15 @@ tackle::path_string TestCaseStaticBase::get_data_in_dir_path(const char * error_
 {
     const tackle::path_string & path = get_data_in_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: directory does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: directory does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -677,8 +702,15 @@ tackle::path_string TestCaseStaticBase::get_data_out_dir_path(const char * error
 {
     const tackle::path_string & path = get_data_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: directory does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: directory does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -687,8 +719,15 @@ tackle::path_string TestCaseStaticBase::get_data_in_file_path(const char * error
 {
     const tackle::path_string & path = get_data_in_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: file path does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -697,8 +736,15 @@ tackle::path_string TestCaseStaticBase::get_data_out_file_path(const char * erro
 {
     const tackle::path_string & path = get_data_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: file path does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -711,8 +757,15 @@ TestCaseWithDataReference::TestCaseWithDataReference()
 const tackle::path_string & TestCaseWithDataReference::get_ref_var(const char * error_msg_prefix)
 {
     if (s_TESTS_REF_DIR.empty() || !utility::is_directory_path(s_TESTS_REF_DIR, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: s_TESTS_REF_DIR directory does not exist: \"{:s}\"",
-            error_msg_prefix, s_TESTS_REF_DIR));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: s_TESTS_REF_DIR directory does not exist: \"{:s}\"",
+                error_msg_prefix, s_TESTS_REF_DIR)
+#else
+            utility::string_format(256, "%s: s_TESTS_REF_DIR directory does not exist: \"{:s}\"",
+                error_msg_prefix, s_TESTS_REF_DIR)
+#endif
+        );
     }
 
     return s_TESTS_REF_DIR;
@@ -734,8 +787,15 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir(const char * error_ms
 
     // reference directory must already exist at first request
     if (!utility::is_directory_path(ref_dir, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: test reference directory does not exist: \"{:s}\"",
-            error_msg_prefix, ref_dir));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: test reference directory does not exist: \"{:s}\"",
+                error_msg_prefix, ref_dir)
+#else
+            utility::string_format(256, "%s: test reference directory does not exist: \"%s\"",
+                error_msg_prefix, ref_dir)
+#endif
+        );
     }
 
     return ref_dir;
@@ -745,8 +805,15 @@ tackle::path_string TestCaseWithDataReference::get_ref_dir_path(const char * err
 {
     const tackle::path_string & path = get_ref_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: directory does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: directory does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -755,8 +822,15 @@ tackle::path_string TestCaseWithDataReference::get_ref_file_path(const char * er
 {
     const tackle::path_string & path = get_ref_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -769,8 +843,15 @@ TestCaseWithDataGenerator::TestCaseWithDataGenerator()
 const tackle::path_string & TestCaseWithDataGenerator::get_gen_var(const char * error_msg_prefix)
 {
     if (s_TESTS_GEN_DIR.empty() || !utility::is_directory_path(s_TESTS_GEN_DIR, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: s_TESTS_GEN_DIR directory does not exist: \"{:s}\"",
-            error_msg_prefix, s_TESTS_GEN_DIR));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: s_TESTS_GEN_DIR directory does not exist: \"%s\"",
+                error_msg_prefix, s_TESTS_GEN_DIR)
+#else
+            utility::string_format(256, "%s: s_TESTS_GEN_DIR directory does not exist: \"%s\"",
+                error_msg_prefix, s_TESTS_GEN_DIR)
+#endif
+        );
     }
 
     return s_TESTS_GEN_DIR;
@@ -802,8 +883,15 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_dir_path(const char * err
 {
     const tackle::path_string & path = get_gen_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: directory path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: directory path does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -812,8 +900,15 @@ tackle::path_string TestCaseWithDataGenerator::get_gen_file_path(const char * er
 {
     const tackle::path_string & path = get_gen_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -826,8 +921,15 @@ TestCaseWithDataOutput::TestCaseWithDataOutput()
 const tackle::path_string & TestCaseWithDataOutput::get_out_var(const char * error_msg_prefix)
 {
     if (s_TESTS_OUT_DIR.empty() || !utility::is_directory_path(s_TESTS_OUT_DIR, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: s_TESTS_OUT_DIR does not exist: \"{:s}\"",
-            error_msg_prefix, s_TESTS_OUT_DIR));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: s_TESTS_OUT_DIR does not exist: \"{:s}\"",
+                error_msg_prefix, s_TESTS_OUT_DIR)
+#else
+            utility::string_format(256, "%s: s_TESTS_OUT_DIR does not exist: \"%s\"",
+                error_msg_prefix, s_TESTS_OUT_DIR)
+#endif
+        );
     }
 
     return s_TESTS_OUT_DIR;
@@ -859,8 +961,15 @@ tackle::path_string TestCaseWithDataOutput::get_out_dir_path(const char * error_
 {
     const tackle::path_string & path = get_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_directory_path(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: directory path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: directory path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: directory path does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
@@ -869,8 +978,15 @@ tackle::path_string TestCaseWithDataOutput::get_out_file_path(const char * error
 {
     const tackle::path_string & path = get_out_var(error_msg_prefix) / path_suffix;
     if (!::utility::is_regular_file(path, true)) {
-        DEBUG_BREAK_THROW(true) std::runtime_error(fmt::format("{:s}: file path does not exist: \"{:s}\"",
-            error_msg_prefix, path));
+        DEBUG_BREAK_THROW(true) std::runtime_error(
+#if ERROR_IF_EMPTY_PP_DEF(USE_FMT_LIBRARY_FORMAT_INSTEAD_UTILITY_STRING_FORMAT)
+            fmt::format("{:s}: file path does not exist: \"{:s}\"",
+                error_msg_prefix, path)
+#else
+            utility::string_format(256, "%s: file path does not exist: \"%s\"",
+                error_msg_prefix, path)
+#endif
+        );
     }
     return path;
 }
