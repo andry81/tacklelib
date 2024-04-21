@@ -118,7 +118,7 @@ namespace utility
 //
 #   define LAMBDA_TRY_BEGIN(return_type)    [&]() -> ::utility::lambda_try_return_holder<return_type> { __try { return [&]() -> ::utility::lambda_try_return_holder<return_type> { do
 #   define LAMBDA_TRY_BEGIN_VA(...)         [&]() -> ::utility::lambda_try_return_holder<UTILITY_PP_VA_ARGS(__VA_ARGS__)> { __try { return [&]() -> ::utility::lambda_try_return_holder<UTILITY_PP_VA_ARGS(__VA_ARGS__)> { do
-#   define LAMBDA_TRY_FINALLY()             while(false); return {}; }(); } __finally { (void)0;
+#   define LAMBDA_TRY_FINALLY()             while(false); return {}; }(); } __finally { do
 #   define LAMBDA_TRY_END()                 while(false); } return {}; }().get();
 #   define LAMBDA_TRY_RETURN(v)             return ::utility::make_lambda_try_return_holder(v)
 #   define LAMBDA_TRY_RETURN_VA(...)        return ::utility::make_lambda_try_return_holder(UTILITY_PP_VA_ARGS(__VA_ARGS__))
@@ -132,11 +132,15 @@ namespace utility
 // NOTE:
 //  `do` and `while(false);` between macroses is required to avoid quantity of errors around missed brackets and in the same time requires to use `{}` brackets separately.
 //
+// CAUTION:
+//  Potential code breakage under `Microsoft Visual C++ 2019` around `static const auto & ... = [&]() { ... };` expression because of `static` keyword.
+//  DO NOT UNCOMMENT.
+//
 #   define LAMBDA_TRY_BEGIN(return_type)    [&]() -> ::utility::lambda_try_return_holder<return_type> { \
-                                                static const auto & lambda_try_catch = [&](bool lambda_try_throw_finally) -> ::utility::lambda_try_return_holder<return_type> { \
+                                                /*static*/ const auto & lambda_try_catch = [&](bool lambda_try_throw_finally) -> ::utility::lambda_try_return_holder<return_type> { \
                                                     try { if (lambda_try_throw_finally) throw UTILITY_DECLARE_LINE_UNIQUE_TYPE(lambda_try_throw_finally){}; do
 #   define LAMBDA_TRY_BEGIN_VA(...)         [&]() -> ::utility::lambda_try_return_holder<return_type> { \
-                                                static const auto & lambda_try_catch = [&](bool lambda_try_throw_finally) -> ::utility::lambda_try_return_holder<UTILITY_PP_VA_ARGS(__VA_ARGS__)> { \
+                                                /*static*/ const auto & lambda_try_catch = [&](bool lambda_try_throw_finally) -> ::utility::lambda_try_return_holder<UTILITY_PP_VA_ARGS(__VA_ARGS__)> { \
                                                     try { if (lambda_try_throw_finally) throw UTILITY_DECLARE_LINE_UNIQUE_TYPE(lambda_try_throw_finally){}; do
 #   define LAMBDA_TRY_FINALLY()             while(false); } catch(...) { do
 #   define LAMBDA_TRY_END()                 while(false); if(!lambda_try_throw_finally) throw; } return {}; }; auto ret = lambda_try_catch(false); lambda_try_catch(true); return ret; }().get();

@@ -1,4 +1,8 @@
 2024.04.21:
+* fixed: include/tacklelib/utility/lambda_try.hpp: `LAMBDA_TRY_*` macroses execution fixup under `Microsoft Visual C+ 2019` in case of `ENABLE_CXX_LAMBDA_TRY_FINALLY` definition enabled
+* fixed: include/tacklelib/utility/lambda_try.hpp: `LAMBDA_TRY_*` macroses minor fix in case of `ENABLE_WIN32_LAMBDA_TRY_FINALLY` definition enabled
+
+2024.04.21:
 * new: include/tacklelib/utility/lambda_try.hpp: `LAMBDA_TRY_*` macroses to support stack unwinding through __try/_finally and try/catch(...)
 * new: include/tacklelib/utility/type_identity.hpp: `UTILITY_DECLARE_LINE_UNIQUE_TYPE` macro
 * changed: include/tacklelib: code cleanup
