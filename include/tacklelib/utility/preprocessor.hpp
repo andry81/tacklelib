@@ -13,9 +13,9 @@
 //  * defined empty: `operator '||' has no left operand`
 //
 #if defined(__GNUC__) && __GNUC__ >= 3
-#define ERROR_IF_EMPTY_PP_DEF(x, args...) (x || (!defined(x ## args) && 0/x))
+#   define ERROR_IF_EMPTY_PP_DEF(x, args...) (x || (!defined(x ## args) && 0/x))
 #else
-#define ERROR_IF_EMPTY_PP_DEF(x) (x || (!defined (## x ##) && 0/x))
+#   define ERROR_IF_EMPTY_PP_DEF(x) (x || (!defined (## x ##) && 0/x))
 #endif
 
 #define UTILITY_PP_MACRO_ARG0_(v0, ...) v0

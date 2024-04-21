@@ -7,6 +7,12 @@
 
 #define USE_FMT_LIBRARY_INSTEAD_STD_STRINGSTREAMS 0             // Uses `fmt` 3dparty library to format string instead of `std::stringstream` (much faster and more convenient)
 
+//// utility/utility/lambda_try.hpp
+
+#define ENABLE_WIN32_LAMBDA_TRY_FINALLY 1                       // Enables `LAMBDA_TRY_*` macroses implemented through __try/__finally
+
+#define ENABLE_CXX_LAMBDA_TRY_FINALLY 0                         // Enables `LAMBDA_TRY_*` macroses implemented through try/catch(...)
+
 //// utility/utility.hpp
 
 #define USE_UTILITY_NETWORK_UNC 0                               // Enables network UNC utility functions, `pystring` library is required

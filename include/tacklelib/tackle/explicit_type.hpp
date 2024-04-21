@@ -32,7 +32,7 @@ namespace tackle
         explicit_type(explicit_type &&) = default;
 
         explicit_type & operator =(const explicit_type &) = default;
-        //explicit_type && operator =(explicit_type &&) = default;
+        explicit_type & operator =(explicit_type &&) = default;
 
         operator bool_type() const
         {
@@ -63,7 +63,7 @@ namespace tackle
         explicit_type(explicit_type &&) = default;
 
         explicit_type & operator =(const explicit_type &) = default;
-        //explicit_type && operator =(explicit_type &&) = default;
+        explicit_type & operator =(explicit_type &&) = default;
 
         operator int() const
         {
