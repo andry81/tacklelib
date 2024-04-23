@@ -561,23 +561,6 @@ Example:
   CMAKE_GENERATOR_PLATFORM:UNIX=""
 
 -------------------------------------------------------------------------------
-8. DEPLOY
--------------------------------------------------------------------------------
-To run bash shell scripts (`.sh` file extension) you should copy these scripts:
-
-* /bash/tacklelib/bash_entry
-* /bash/tacklelib/bash_tacklelib
-
-into the `/bin` directory of your platform.
-
-In pure Linux you have additional step to make scripts executable or readable:
-
->
-sudo chmod ug+x /bin/bash_entry
-sudo chmod o+r  /bin/bash_entry
-sudo chmod a+r  /bin/bash_tacklelib
-
--------------------------------------------------------------------------------
 9. PRECONFIGURE
 -------------------------------------------------------------------------------
 
