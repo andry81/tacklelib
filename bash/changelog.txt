@@ -1,3 +1,7 @@
+2024.04.30:
+* fixed: tacklelib/tools/load_config*.sh: execution fixup
+* new: tacklelib/tools/load_config_dir.sh: `--expand-*-config-*-vars` and `--expand-all-configs-*-vars` flags
+
 2024.03.07:
 * fixed: tacklelib/tools: check_config_expiration.sh, load_config*.sh: execution fixup
 

@@ -200,66 +200,66 @@ function tkl_load_config()
     __FLAG="$1"
   done
 
-  local __CONFIG_IN_DIR="$1"
-  local __CONFIG_OUT_DIR="$2"
+  local __CONFIG_DIR_IN="$1"
+  local __CONFIG_DIR_OUT="$2"
   local __CONFIG_FILE_NAME="$3"
   local __PARAM0="$4"
   local __PARAM1="$5"
 
-  if [[ -z "$__CONFIG_IN_DIR" ]]; then
+  if [[ -z "$__CONFIG_DIR_IN" ]]; then
     echo "$BASH_SOURCE_FILE_NAME: error: input config directory is not defined." >&2
     return 1
   fi
 
-  if [[ -z "$__CONFIG_OUT_DIR" ]]; then
+  if [[ -z "$__CONFIG_DIR_OUT" ]]; then
     echo "$BASH_SOURCE_FILE_NAME: error: output config directory is not defined." >&2
     return 2
   fi
 
-  __CONFIG_IN_DIR="${__CONFIG_IN_DIR//\\//}"
-  __CONFIG_OUT_DIR="${__CONFIG_OUT_DIR//\\//}"
+  __CONFIG_DIR_IN="${__CONFIG_DIR_IN//\\//}"
+  __CONFIG_DIR_OUT="${__CONFIG_DIR_OUT//\\//}"
 
   # CAUTION:
   #   Space before the negative value is required!
   #
-  [[ "${__CONFIG_IN_DIR: -1}" == '/' ]] && __CONFIG_IN_DIR="${__CONFIG_IN_DIR::-1}"
-  [[ "${__CONFIG_OUT_DIR: -1}" == '/' ]] && __CONFIG_OUT_DIR="${__CONFIG_OUT_DIR::-1}"
+  [[ "${__CONFIG_DIR_IN: -1}" == '/' ]] && __CONFIG_DIR_IN="${__CONFIG_DIR_IN::-1}"
+  [[ "${__CONFIG_DIR_OUT: -1}" == '/' ]] && __CONFIG_DIR_OUT="${__CONFIG_DIR_OUT::-1}"
 
-  if [[ ! -e "$__CONFIG_IN_DIR" ]]; then
-    echo "$BASH_SOURCE_FILE_NAME: error: input config directory does not exist: \`$__CONFIG_IN_DIR\`" >&2
+  if [[ ! -e "$__CONFIG_DIR_IN" ]]; then
+    echo "$BASH_SOURCE_FILE_NAME: error: input config directory does not exist: \`$__CONFIG_DIR_IN\`" >&2
     return 10
   fi
 
-  if (( __FLAG_GEN_CONFIG || __FLAG_LOAD_OUTPUT_CONFIG )) && [[ ! -e "$__CONFIG_OUT_DIR" ]]; then
-    echo "$BASH_SOURCE_FILE_NAME: error: output config directory does not exist: \`$__CONFIG_OUT_DIR\`" >&2
+  if (( __FLAG_GEN_CONFIG || __FLAG_LOAD_OUTPUT_CONFIG )) && [[ ! -e "$__CONFIG_DIR_OUT" ]]; then
+    echo "$BASH_SOURCE_FILE_NAME: error: output config directory does not exist: \`$__CONFIG_DIR_OUT\`" >&2
     return 11
   fi
 
-  local __config_file_name_generated=0
-  local __config_file_name_dir="$__CONFIG_OUT_DIR"
+  local __CONFIG_FILE_NAME_GENERATED=0
+  local __CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_OUT"
 
   if (( ! __FLAG_GEN_CONFIG )); then
     if (( ! __FLAG_LOAD_OUTPUT_CONFIG )); then
-      __config_file_name_dir="$__CONFIG_IN_DIR"
+      __CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_IN"
     fi
   else
-    if [[ ! -e "$__CONFIG_OUT_DIR/$__CONFIG_FILE_NAME" && -e "$__CONFIG_IN_DIR/$__CONFIG_FILE_NAME.in" ]]; then
-      echo "\`$__CONFIG_IN_DIR/$__CONFIG_FILE_NAME.in\` -> \`$__CONFIG_OUT_DIR/$__CONFIG_FILE_NAME\`"
-      cat "$__CONFIG_IN_DIR/$__CONFIG_FILE_NAME.in" > "$__CONFIG_OUT_DIR/$__CONFIG_FILE_NAME"
-      __config_file_name_generated=1
+    if [[ ! -e "$__CONFIG_DIR_OUT/$__CONFIG_FILE_NAME" && -e "$__CONFIG_DIR_IN/$__CONFIG_FILE_NAME.in" ]]; then
+      echo "\`$__CONFIG_DIR_IN/$__CONFIG_FILE_NAME.in\` -> \`$__CONFIG_DIR_OUT/$__CONFIG_FILE_NAME\`"
+      cat "$__CONFIG_DIR_IN/$__CONFIG_FILE_NAME.in" > "$__CONFIG_DIR_OUT/$__CONFIG_FILE_NAME"
+      __CONFIG_FILE_NAME_GENERATED=1
     fi
   fi
 
   # load configuration files
-  if [[ ! -e "$__config_file_name_dir/$__CONFIG_FILE_NAME" ]]; then
-    echo "$BASH_SOURCE_FILE_NAME: error: config file is not found: \`$__config_file_name_dir/$__CONFIG_FILE_NAME\`." >&2
+  if [[ ! -e "$__CONFIG_FILE_NAME_DIR/$__CONFIG_FILE_NAME" ]]; then
+    echo "$BASH_SOURCE_FILE_NAME: error: config file is not found: \`$__CONFIG_FILE_NAME_DIR/$__CONFIG_FILE_NAME\`." >&2
     return 20
   fi
 
   if (( __FLAG_GEN_CONFIG || __FLAG_LOAD_OUTPUT_CONFIG )) && \
-     (( ! __config_file_name_generated )) && \
-     [[ -e "$__CONFIG_IN_DIR/$__CONFIG_FILE_NAME.in" ]]; then
-     tkl_check_config_expiration -- "$__CONFIG_IN_DIR/$__CONFIG_FILE_NAME.in" "$__config_file_name_dir/$__CONFIG_FILE_NAME" || return $?
+     (( ! __CONFIG_FILE_NAME_GENERATED )) && \
+     [[ -e "$__CONFIG_DIR_IN/$__CONFIG_FILE_NAME.in" ]]; then
+     tkl_check_config_expiration -- "$__CONFIG_DIR_IN/$__CONFIG_FILE_NAME.in" "$__CONFIG_FILE_NAME_DIR/$__CONFIG_FILE_NAME" || return $?
   fi
 
   local __OSTYPE
@@ -432,7 +432,7 @@ function tkl_load_config()
         tkl_export "$__VAR" "$__VALUE"
       fi
     fi
-  done < "$__CONFIG_OUT_DIR/$__CONFIG_FILE_NAME"
+  done < "$__CONFIG_FILE_NAME_DIR/$__CONFIG_FILE_NAME"
 
   return $?
 }

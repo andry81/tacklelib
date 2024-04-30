@@ -1,0 +1,3 @@
+bash/tacklelib/bash_tacklelib:
+
+  - add builtin including guards in case of recursed inclusion

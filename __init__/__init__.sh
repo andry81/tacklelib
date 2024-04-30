@@ -13,7 +13,7 @@ if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELI
   done
 fi
 
-[[ -n "$NEST_LVL" ]] || tkl_declare_global NEST_LVL 0
+tkl_cast_to_int NEST_LVL
 
 [[ -z "${NO_GEN+x}" ]] || tkl_cast_to_int NO_GEN
 [[ -z "${NO_LOG+x}" ]] || tkl_cast_to_int NO_LOG
@@ -44,11 +44,17 @@ if [[ -z "$SOURCE_TACKLELIB_TOOLS_LOAD_CONFIG_SH" || SOURCE_TACKLELIB_TOOLS_LOAD
   tkl_include_or_abort "$TACKLELIB_PROJECT_ROOT/bash/tacklelib/tools/load_config.sh"
 fi
 
-[[ -e "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] || mkdir -p "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort
+if (( ! NO_GEN )); then
+  [[ -e "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" ]] || mkdir -p "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort
+fi
 
 [[ -n "$LOAD_CONFIG_VERBOSE" ]] || (( ! INIT_VERBOSE )) || tkl_export_path LOAD_CONFIG_VERBOSE 1
 
-tkl_load_config_dir -- "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort
+if (( ! NO_GEN )); then
+  tkl_load_config_dir --gen-user-config --expand-all-configs-bat-vars -- "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort
+else
+  tkl_load_config_dir --expand-all-configs-bat-vars -- "$TACKLELIB_PROJECT_INPUT_CONFIG_ROOT" "$TACKLELIB_PROJECT_OUTPUT_CONFIG_ROOT" || tkl_abort
+fi
 
 # init external projects
 
@@ -58,8 +64,10 @@ fi
 
 tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
 
-[[ -e "$PROJECT_OUTPUT_ROOT" ]] || mkdir -p "$PROJECT_OUTPUT_ROOT" || tkl_abort
-[[ -e "$PROJECT_LOG_ROOT" ]] || mkdir -p "$PROJECT_LOG_ROOT" || tkl_abort
+if (( ! NO_GEN )); then
+  [[ -e "$PROJECT_OUTPUT_ROOT" ]] || mkdir -p "$PROJECT_OUTPUT_ROOT" || tkl_abort
+  [[ -e "$PROJECT_LOG_ROOT" ]] || mkdir -p "$PROJECT_LOG_ROOT" || tkl_abort
+fi
 
 tkl_export_path TACKLELIB_PROJECT_ROOT_INIT0_DIR "$TACKLELIB_PROJECT_ROOT" # including guard
 

@@ -1,3 +1,11 @@
+2024.04.30:
+* fixed: __init__/__init__.sh, bash/tacklelib/tools/load_config*.sh: execution fixup
+* new: bash/tacklelib/tools/load_config_dir.sh: `--expand-*-config-*-vars` and `--expand-all-configs-*-vars` flags
+* new: __init__/canonical_path_if_ndef.bat: `canonical_path.bat` script variant
+* changed: __init__/canonical_path.bat: added parameters checks
+* changed: __init__: minor improvements
+* changed: TODO.txt: todo update
+
 2024.04.23:
 * changed: README_EN.txt: cleanup
 

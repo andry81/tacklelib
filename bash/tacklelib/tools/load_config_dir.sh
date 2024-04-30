@@ -43,6 +43,24 @@
 #
 #   --no-load-user-config
 #     Skips load the user configuration file(s).
+#
+#   --expand-system-config-bat-vars
+#     Allow %-variables expansion in the system config.
+#
+#   --expand-system-config-tkl-vars
+#     Allow $/-variables expansion in the system config.
+#
+#   --expand-user-config-bat-vars
+#     Allow %-variables expansion in the user config.
+#
+#   --expand-user-config-tkl-vars
+#     Allow $/-variables expansion in the user config.
+#
+#   --expand-all-configs-bat-vars
+#     Allow %-variables expansion in all configs.
+#
+#   --expand-all-configs-tkl-vars
+#     Allow $/-variables expansion in all configs.
 
 # --:
 #   Separator to stop parse flags.
@@ -98,6 +116,12 @@ function tkl_load_config_dir()
   local __FLAG_LOAD_USER_OUTPUT_CONFIG=0
   local __FLAG_NO_LOAD_SYSTEM_CONFIG=0
   local __FLAG_NO_LOAD_USER_CONFIG=0
+  local __FLAG_EXPAND_SYSTEM_CONFIG_BAT_VARS=0
+  local __FLAG_EXPAND_SYSTEM_CONFIG_TKL_VARS=0
+  local __FLAG_EXPAND_USER_CONFIG_BAT_VARS=0
+  local __FLAG_EXPAND_USER_CONFIG_TKL_VARS=0
+  local __FLAG_EXPAND_ALL_CONFIGS_BAT_VARS=0
+  local __FLAG_EXPAND_ALL_CONFIGS_TKL_VARS=0
   local __BARE_SYSTEM_FLAGS
   local __BARE_USER_FLAGS
 
@@ -109,25 +133,51 @@ function tkl_load_config_dir()
 
     if [[ "$__FLAG" == '-gen-system-config' ]]; then
       __FLAG_GEN_SYSTEM_CONFIG=1
-      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS -gen-config"
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --gen-config"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-gen-user-config' ]]; then
       __FLAG_GEN_USER_CONFIG=1
-      __BARE_USER_FLAGS="$__BARE_USER_FLAGS -gen-config"
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --gen-config"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-load-system-output-config' ]]; then
       __FLAG_LOAD_SYSTEM_OUTPUT_CONFIG=1
-      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS -load-output-config"
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --load-output-config"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-load-user-output-config' ]]; then
       __FLAG_LOAD_USER_OUTPUT_CONFIG=1
-      __BARE_USER_FLAGS="$__BARE_USER_FLAGS -load-output-config"
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --load-output-config"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-no-load-system-config' ]]; then
       __FLAG_NO_LOAD_SYSTEM_CONFIG=1
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-no-load-user-config' ]]; then
       __FLAG_NO_LOAD_USER_CONFIG=1
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-system-config-bat-vars' ]]; then
+      __FLAG_EXPAND_SYSTEM_CONFIG_BAT_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-bat-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-system-config-tkl-vars' ]]; then
+      __FLAG_EXPAND_SYSTEM_CONFIG_TKL_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-tkl-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-user-config-bat-vars' ]]; then
+      __FLAG_EXPAND_USER_CONFIG_BAT_VARS=1
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-bat-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-user-config-tkl-vars' ]]; then
+      __FLAG_EXPAND_USER_CONFIG_TKL_VARS=1
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-tkl-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-all-configs-bat-vars' ]]; then
+      __FLAG_EXPAND_ALL_CONFIGS_BAT_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-bat-vars"
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-bat-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-all-configs-tkl-vars' ]]; then
+      __FLAG_EXPAND_ALL_CONFIGS_TKL_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-tkl-vars"
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-tkl-vars"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-' ]]; then
       shift
@@ -164,15 +214,17 @@ function tkl_load_config_dir()
     fi
   fi
 
-  local __LOAD_USER_CONFIG_IN=0
+  local __SYSTEM_CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_OUT"
+  local __USER_CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_OUT"
   local __SYSTEM_CONFIG_FILE_EXT
   local __USER_CONFIG_FILE_EXT
 
   if (( ! __FLAG_LOAD_SYSTEM_OUTPUT_CONFIG && ! __FLAG_GEN_SYSTEM_CONFIG )); then
+    __SYSTEM_CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_IN"
     __SYSTEM_CONFIG_FILE_EXT='.in'
   fi
   if (( ! __FLAG_LOAD_USER_OUTPUT_CONFIG && ! __FLAG_GEN_USER_CONFIG )); then
-    __LOAD_USER_CONFIG_IN=1
+    __USER_CONFIG_FILE_NAME_DIR="$__CONFIG_DIR_IN"
     __USER_CONFIG_FILE_EXT='.in'
   fi
 
@@ -184,24 +236,22 @@ function tkl_load_config_dir()
     eval tkl_call_and_print_if '"(( LOAD_CONFIG_VERBOSE ))"' \
       tkl_load_config$__BARE_SYSTEM_FLAGS -- '"$__CONFIG_DIR_IN"' '"$__CONFIG_DIR_OUT"' '"config.system.vars$__SYSTEM_CONFIG_FILE_EXT"' '"${@:3}"' || \
     {
-      echo "$BASH_SOURCE_FILE_NAME: error: \`$__CONFIG_DIR_OUT/config.system.vars$__SYSTEM_CONFIG_FILE_EXT\` is not loaded."
+      echo "$BASH_SOURCE_FILE_NAME: error: \`$__SYSTEM_CONFIG_FILE_NAME_DIR/config.system.vars$__SYSTEM_CONFIG_FILE_EXT\` is not loaded."
       return 255
     } >&2
   fi
 
   if (( ! __FLAG_NO_LOAD_USER_CONFIG )); then
     # CAUTION:
-    #   We must stop loading only when both input and output user config does not exist.
+    #   In case of output config generation we must stop loading only when both input and output user config does not exist to avoid misload on misgeneration.
     #
     for (( i=0; ; i++ )); do
-      if (( __LOAD_USER_CONFIG_IN )); then
-        if [[ ! -e "$__CONFIG_DIR_IN/config.$i.vars$__USER_CONFIG_FILE_EXT" && ! -e "$__CONFIG_DIR_IN/config.$i.vars.in" ]]; then
-          break
-        fi
-      else
-        if [[ ! -e "$__CONFIG_DIR_OUT/config.$i.vars$__USER_CONFIG_FILE_EXT" && ! -e "$__CONFIG_DIR_IN/config.$i.vars.in" ]]; then
-          break
-        fi
+      if [[ ! -e "$__USER_CONFIG_FILE_NAME_DIR/config.$i.vars$__USER_CONFIG_FILE_EXT" ]]; then
+        break
+      fi
+
+      if [[ "$__USER_CONFIG_FILE_EXT" != '.in' && ! -e "$__CONFIG_DIR_IN/config.$i.vars.in" ]]; then
+        break
       fi
 
       eval tkl_call_and_print_if '"(( LOAD_CONFIG_VERBOSE ))"' \
