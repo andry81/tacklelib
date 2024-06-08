@@ -1,3 +1,6 @@
+2024.06.08:
+* changed: README_EN.txt: readme update
+
 2024.04.30:
 * fixed: __init__/__init__.sh, bash/tacklelib/tools/load_config*.sh: execution fixup
 * new: bash/tacklelib/tools/load_config_dir.sh: `--expand-*-config-*-vars` and `--expand-all-configs-*-vars` flags
