@@ -1,0 +1,11 @@
+[submodule "contools"]
+  path = _externals/contools
+  url = https://github.com/andry81/contools
+  branch = master
+  fetchRecurseSubmodules = false
+  update = none
+
+[submodule "gnuwin32"]
+  path = _externals/gnuwin32
+  url = https://github.com/andry81-3dparty/external-tools--gnuwin32
+  branch = 20101227

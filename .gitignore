@@ -1,5 +1,4 @@
 /.log
-/_externals
 /_out
 bash_tests/unit/01_bash_entry/01_normalize_path/.log
 bash_tests/unit/02_traplib/01_push_trap/.log
