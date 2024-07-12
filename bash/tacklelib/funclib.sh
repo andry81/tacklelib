@@ -22,11 +22,11 @@ function tkl_get_func_decl()
   # drop return value
   RETURN_VALUE=''
 
-  [[ -z "$FuncName" ]] && return 1
+  [[ -n "$FuncName" ]] || return 1
 
   local FuncDecl
   FuncDecl="$(declare -f "$FuncName")" || return 2
-  [[ -z "$FuncDecl" ]] && return 3
+  [[ -n "$FuncDecl" ]] || return 3
 
   RETURN_VALUE="$FuncDecl"
 
@@ -66,7 +66,7 @@ function tkl_make_func_copy()
   local NewFuncName="$2"    # could not be declared
   local SuffixCmd="$3"      # command added to the end of new function
 
-  [[-z "$NewFuncName" ]] && return 1
+  [[-n "$NewFuncName" ]] || return 1
   tkl_get_func_decl "$FuncName" || return 2
   tkl_make_func_copy_ex "$Flags" "$RETURN_VALUE" "$NewFuncName" "$SuffixCmd" || return 3
 
@@ -84,7 +84,7 @@ function tkl_make_func_copy_ex()
     # new function should not exist
     local NewFuncDecl
     NewFuncDecl="$(declare -f "$NewFuncName")" && return 1
-    [[ -n "$NewFuncDecl" ]] && return 2
+    [[ -z "$NewFuncDecl" ]] || return 2
   fi
 
   # replace function name
@@ -107,7 +107,7 @@ function tkl_delete_func()
 {
   local FuncName="$1" # has to be declared
 
-  [[ -z "$FuncName" ]] && return 2
+  [[ -n "$FuncName" ]] || return 2
 
   declare -f "$FuncName" > /dev/null &&
   {

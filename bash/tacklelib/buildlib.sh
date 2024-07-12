@@ -13,7 +13,7 @@ fi >&2
 tkl_include_or_abort 'traplib.sh'
 tkl_include_or_abort 'stringlib.sh'
 
-[[ -z "$NEST_LVL" ]] && export NEST_LVL=0
+[[ -n "$NEST_LVL" ]] || export NEST_LVL=0
 
 # CAUTION:
 #   Executes an external shell process in case of a script.
@@ -571,12 +571,12 @@ function tkl_init_project_log()
   tkl_declare_global PROJECT_LOG_DIR  "$PROJECT_LOG_ROOT/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}"
   tkl_declare_global PROJECT_LOG_FILE "$PROJECT_LOG_DIR/$PROJECT_LOG_FILE_NAME_DATE_TIME.${BASH_SOURCE_FILE_NAME%[.]*}.log"
 
-  [[ ! -e "$PROJECT_LOG_DIR" ]] && { mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 255; }
+  [[ -e "$PROJECT_LOG_DIR" ]] || mkdir -p "$PROJECT_LOG_DIR" || tkl_abort 255
 }
 
 function tkl_exec_project_logging()
 {
-  [[ -z "$NEST_LVL" ]] && tkl_declare_global NEST_LVL 0
+  [[ -n "$NEST_LVL" ]] || tkl_declare_global NEST_LVL 0
 
   # no local logging if nested call
   (( ! IMPL_MODE && ! NEST_LVL )) && {

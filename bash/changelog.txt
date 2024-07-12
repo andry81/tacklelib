@@ -1,3 +1,7 @@
+2024.07.12:
+* fixed: tacklelib/bash_tacklelib: `tkl_set_return` function correct return for the argument prefixed by `+` or `-`
+* changed: tacklelib: minor optimization
+
 2024.04.30:
 * fixed: tacklelib/tools/load_config*.sh: execution fixup
 * new: tacklelib/tools/load_config_dir.sh: `--expand-*-config-*-vars` and `--expand-all-configs-*-vars` flags

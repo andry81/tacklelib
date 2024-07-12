@@ -1,4 +1,8 @@
 2024.07.12:
+* fixed: bash/tacklelib/bash_tacklelib: `tkl_set_return` function correct return for the argument prefixed by `+` or `-`
+* changed: bash/tacklelib: minor optimization
+
+2024.07.12:
 * changed: README_EN.txt: readme update
 
 2024.06.08:

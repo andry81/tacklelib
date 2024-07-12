@@ -684,7 +684,7 @@ function tkl_push_trap()
   RETURN_VALUES=()
 
   local trap_cmdline="$1"
-  [[ -z "$trap_cmdline" ]] && return 0 # nothing to push
+  [[ -n "$trap_cmdline" ]] || return 0 # nothing to push
   shift
 
   local last_error=255

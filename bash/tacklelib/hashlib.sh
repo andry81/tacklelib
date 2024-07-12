@@ -200,13 +200,13 @@ function tkl_hash_func_body_as_token()
   # drop return value
   RETURN_VALUE=''
 
-  [[ -z "$FuncName" ]] && return 1
+  [[ -n "$FuncName" ]] || return 1
 
   local FuncDecl
   local FuncDeclSize
 
   FuncDecl="$(declare -f "$FuncName")"
-  [[ -z "$FuncDecl" ]] && return 2
+  [[ -n "$FuncDecl" ]] || return 2
 
   # remove function signature
   local FuncBody="${FuncDecl#$FuncName ()}"
@@ -228,13 +228,13 @@ function tkl_hash_func_as_token()
   # drop return value
   RETURN_VALUE=''
 
-  [[ -z "$FuncName" ]] && return 1
+  [[ -n "$FuncName" ]] || return 1
 
   local FuncDecl
   local FuncDeclSize
 
   FuncDecl="$(declare -f "$FuncName")"
-  [[ -z "$FuncDecl" ]] && return 2
+  [[ -n "$FuncDecl" ]] || return 2
 
   tkl_crc32 "$FuncDecl" tkl_crc32_gnu || return 3
   tkl_dec_to_hex "$RETURN_VALUE" 8

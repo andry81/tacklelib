@@ -42,7 +42,7 @@ function tkl_test_echo()
 function tkl_testmodule_init()
 {
   # avoid double initialization
-  [[ -n "$TestModuleSessionId" ]] && return 0
+  [[ -z "$TestModuleSessionId" ]] || return 0
 
   tkl_push_trap '' INT # ignore interruption while at init
   tkl_push_trap 'tkl_pop_trap INT' RETURN

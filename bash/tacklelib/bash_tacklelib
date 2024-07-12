@@ -190,18 +190,16 @@ function tkl_declare_array_as_expr_from_args()
 
 function tkl_if_math_expr()
 {
-  (( "$*" || ! "$*" )) 2> /dev/null && return 0
-  return 1
+  (( "$*" || ! "$*" )) 2> /dev/null || return 1
 }
 
 function tkl_if_int()
 {
-  if (( "$*" || ! "$*" )) 2> /dev/null; then
-    local __tmp
-    (( __tmp = "$*" )) 2> /dev/null # assignment with evaluation and deduction
-    [[ "$__tmp" == "$*" || "+$__tmp" == "$*" ]] && return 0 # test on not deduced expression
-  fi
-  return 1
+  (( "$*" || ! "$*" )) 2> /dev/null || return 1
+
+  local __tmp
+  (( __tmp = "$*" )) 2> /dev/null # assignment with evaluation and deduction
+  [[ "$__tmp" == "$*" || "+$__tmp" == "$*" ]] || return 1 # test on not deduced expression
 }
 
 # casts any not integer and not deduced value to 0, otherwise leave as is
@@ -403,14 +401,12 @@ function tkl_export_path_eval()
 
 function tkl_eval_if()
 {
-  eval "[[ $@ ]]" && return 0
-  return 1
+  eval "[[ $@ ]]" || return 1
 }
 
 function tkl_eval_if_expr()
 {
-  eval "(( $@ ))" && return 0
-  return 1
+  eval "(( $@ ))" || return 1
 }
 
 # replacement of the `true` command, as it can be an external process
@@ -432,8 +428,8 @@ function tkl_false()
 #
 function tkl_set_return()
 {
-  [[ -z "${1//[0-9]/}" ]] && return ${1:-0}
-  return 255
+  tkl_if_int "$1" || return 255
+  return ${1:-0}
 }
 
 function tkl_unset_and_set_return()
