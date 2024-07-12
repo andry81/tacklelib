@@ -136,7 +136,7 @@ SOURCE_TACKLELIB_TOOLS_LOAD_CONFIG_SH=1 # including guard
 tkl_include_or_abort 'load_config_dir.sh'
 tkl_include_or_abort 'check_config_expiration.sh'
 
-if [[ "${TACKLELIB_BASH_ROOT+x}" ]]; then
+if [[ -n "${TACKLELIB_BASH_ROOT+x}" ]]; then
   tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
 else
   tkl_include_or_abort "../buildlib.sh"

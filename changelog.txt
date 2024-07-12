@@ -1,4 +1,7 @@
 2024.07.12:
+* fixed: bash/tacklelib/tools/load_config*.sh: minor fixup
+
+2024.07.12:
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_set_return` function correct return for the argument prefixed by `+` or `-`
 * changed: bash/tacklelib: minor optimization
 
