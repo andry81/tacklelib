@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2024.06.08
+* 2024.07.12
 * tacklelib
 
 1. DESCRIPTION
@@ -126,12 +126,14 @@ Second mirror:
  |     |  |   # Loads after the global/3dparty environment configuration
  |     |  |   # file(s) but before the user customized environment variables
  |     |  |   # file.
+ |     |  |   # Loads within `CMakeLists.txt` script.
  |     |  |
  |     |  +- `config.0.vars`
  |     |  |   #
- |     |  |   # Generated temporary file with set of user customized
- |     |  |   # environment variables to set them locally.
+ |     |  |   # Generated temporary file from `*.in` file with set of user
+ |     |  |   # customized environment variables to set them locally.
  |     |  |   # Loads after the system customized environment variables file.
+ |     |  |   # Loads within `CMakeLists.txt` script.
  |     |  |
  |     |  +- `config.3dparty.vars`
  |     |      #
@@ -139,16 +141,21 @@ Second mirror:
  |     |      # directory with built libraries.
  |     |      # Pointed by the `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variable.
  |     |      # Loads before the system customized environment variables file.
+ |     |      # Loads within `CMakeLists.txt` script.
  |     |
  |     +- `config.system.vars`
  |     |   #
  |     |   # Generated temporary file from `*.in` file with set of system
  |     |   # customized environment variables to set them locally.
+ |     |   # Loads before the user customized environment variables file.
+ |     |   # Loads within `/__init__` scripts.
  |     |
  |     +- `config.0.vars`
  |         #
- |         # Generated temporary file with set of user customized environment
- |         # variables to set them locally.
+ |         # Generated temporary file from `*.in` file with set of user
+ |         # customized environment variables to set them locally.
+ |         # Loads after the system customized environment variables file.
+ |         # Loads within `/__init__` scripts.
  |
  +- /`_build`
  |  | #
@@ -370,8 +377,6 @@ Temporary dropped usage:
   - to run `bash_tacklelib` script under cygwin
 * msys cygpath 3.0+
   - to run `bash_tacklelib` script under msys2
-* cygwin readlink 6.10+
-  - to run specific bash script functions with `readlink` calls
 
 7. Patches:
 
