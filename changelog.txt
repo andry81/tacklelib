@@ -1,3 +1,6 @@
+2024.08.01:
+* new: include/tacklelib/utility/type_identity.hpp: `is_in` function
+
 2024.07.12:
 * fixed: bash/tacklelib/tools/load_config*.sh: minor fixup
 

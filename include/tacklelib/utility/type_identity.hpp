@@ -900,6 +900,19 @@ namespace utility
         return (std::forward<T0>(v0) ? false : true) || is_any_false(std::forward<Args>(args)...);
     }
 
+    // ex: `is_in(errno, EAGAIN, EWOULDBLOCK, EINTR, ENOSPC, ENOBUFS, ENOMEM)`
+    template <typename T, typename V>
+    FORCE_INLINE CONSTEXPR_FUNC bool is_in(T && v, V && v0)
+    {
+        return v == v0;
+    }
+
+    template <typename T, typename V, typename... Args>
+    FORCE_INLINE CONSTEXPR_FUNC bool is_in(T && v, V && v0, Args &&... args)
+    {
+        return is_in(v, v0) || is_in(v, args...);
+    }
+
     // move if movable, otherwise return a lvalue reference
 
     template <typename T>
