@@ -437,17 +437,21 @@ function tkl_testmodule_run_test()
 
   # add prefix and suffix
   for arg in "${RETURN_VALUES[@]}"; do
-    TestFuncDecls="${TestFuncDecls}function $arg"$'\n'
+    TestFuncDecls="${TestFuncDecls}function $arg"$'\n\n'
   done
 
   # Test script to run single test w/o environment inheritance from parent shell process.
   # First line in environment output is internal parameters list from
   # `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars` functions.
   local TestScript="#!/bin/bash
-if [[ -z \"\$SOURCE_TACKLELIB_BASH_TACKLELIB_SH\" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-  echo.\"\$0: error: \\\`bash_tacklelib\\\` must be included explicitly.\"
-  exit 255
-fi >&2
+
+# builtin search
+for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
+  if [[ -f \"\$BASH_SOURCE_DIR/bash_tacklelib\" ]]; then
+    source \"\$BASH_SOURCE_DIR/bash_tacklelib\" || exit \$?
+    break
+  fi
+done
 
 tkl_include_or_abort \"$SOURCE_TACKLELIB_TESTLIB_FILE\"
 
@@ -467,7 +471,9 @@ echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
     TestScript="${TestScript}tkl_include_or_abort \"$arg\""$'\n'
   done
 
-  TestScript="${TestScript}"$'\n'
+  if (( ${#TEST_SOURCES[@]} )); then
+    TestScript="${TestScript}"$'\n'
+  fi
 
   local i=0
   TestScript="${TestScript}TEST_SCRIPT_ARGS=()"$'\n'
@@ -477,7 +483,9 @@ echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
     (( i++ ))
   done
 
-  TestScript="${TestScript}"$'\n'
+  if (( ${#TEST_SCRIPT_ARGS[@]} )); then
+    TestScript="${TestScript}"$'\n'
+  fi
 
   local var_name
   local i=0
@@ -495,10 +503,13 @@ echo \"$TestScriptEntry: TestSessionId=\$TestSessionId\"
     (( i++ ))
   done
 
-  TestScript="$TestScript"$'\n'
+  if (( ${#TEST_VARIABLES[@]} )); then
+    TestScript="$TestScript"$'\n'
+  fi
 
-  TestScript="$TestScript$TestFuncDecls
+  TestScript="$TestScript$TestFuncDecls"
 
+  TestScript="${TestScript}\
 tkl_safe_func_call TestUserInit
 
 function tkl_test_script_LocalExitHandler()

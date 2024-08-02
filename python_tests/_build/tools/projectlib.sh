@@ -7,7 +7,7 @@ SOURCE_TACKLELIB_PYTHON_TESTS_BUILD_TOOLS_PROJECTLIB_SH=1 # including guard
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
-  for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
+  for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
     if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
       source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
       break

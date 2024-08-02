@@ -15,6 +15,8 @@ tkl_include_or_abort "../../__init__/__init__.sh" "${@:2}"
 # testlib tkl_testmodule_init variable
 [[ -n "$TESTS_PROJECT_LOG_ROOT" ]] || tkl_export_path -a -s TESTS_PROJECT_LOG_ROOT "$TACKLELIB_BASH_TESTS_PROJECT_LOG_ROOT"
 
+[[ -e "$TESTS_PROJECT_LOG_ROOT" ]] || mkdir -p "$TESTS_PROJECT_LOG_ROOT" || tkl_abort
+
 tkl_export_path TACKLELIB_BASH_TESTS_PROJECT_ROOT_INIT0_DIR "$TACKLELIB_BASH_TESTS_PROJECT_ROOT" # including guard
 
 : # resets exit code to 0

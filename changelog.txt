@@ -1,4 +1,10 @@
 2024.08.02:
+* fixed: bash/tacklelib: testlib.sh, tools/load_config.sh: execution fixup
+* fixed: bash_tests: execution fixup
+* new: bash_tests/unit/03_load_config: `load_config.sh` initial tests
+* refactor: `bash_tacklelib` load global refactor
+
+2024.08.02:
 * fixed: **/__init__.sh: wrong parameters line for `tkl_include*` function call
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_dump_includes_stack` wrong stack order
 * changed: bash/tacklelib/bash_tacklelib: improvements

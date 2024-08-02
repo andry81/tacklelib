@@ -132,7 +132,7 @@
 
 if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
   # builtin search
-  for BASH_SOURCE_DIR in "/usr/local/bin" "/usr/bin" "/bin"; do
+  for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
     if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
       source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
       break
@@ -314,6 +314,12 @@ function tkl_load_config()
 
     [[ -n "$__VAR" ]] || continue
 
+    # preprocess without expansion
+    __VALUE_LEN=${#__VALUE}
+    if [[ __VALUE_LEN -gt 1 && '"' == "${__VALUE:0:1}" && '"' == "${__VALUE: -1}" ]]; then
+      __VALUE="${__VALUE:1:__VALUE_LEN-2}"
+    fi
+
     # %-variables does expand at first
     if (( __FLAG_EXPAND_BAT_VARS )); then
       __VALUE_LEN=${#__VALUE}
@@ -326,7 +332,7 @@ function tkl_load_config()
             __IS_IN_PLACEHOLDER=0
             if [[ -n "$__BUF" ]]; then
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
+              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
               elif (( ! __FLAG_IGNORE_UNEXIST )); then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED*:%$__BUF%" # unexisted variable sequence placeholder
@@ -382,7 +388,7 @@ function tkl_load_config()
             __BUF="${__VALUE:__LAST_INDEX:__INDEX-__LAST_INDEX}"
             if [[ -n "$__BUF" ]]; then
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
+              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
               elif (( ! __FLAG_IGNORE_UNEXIST )); then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED*:\$/{$__BUF}" # unexisted variable sequence placeholder
@@ -438,18 +444,10 @@ function tkl_load_config()
       continue
     fi
 
-    if [[ __VALUE_LEN -gt 1 && '"' == "${__VALUE:0:1}" && '"' == "${__VALUE: -1}" ]]; then
-      if (( ! __FLAG_EXPORT_VARS )) && [[ ! "${__ATTR[*]}" =~ ([[:space:]]|^)export([[:space:]]|$) ]]; then
-        tkl_declare_global "$__VAR" "${__VALUE:1:__VALUE_LEN-2}"
-      else
-        tkl_export "$__VAR" "${__VALUE:1:__VALUE_LEN-2}"
-      fi
+    if (( ! __FLAG_EXPORT_VARS )) && [[ ! "${__ATTR[*]}" =~ ([[:space:]]|^)export([[:space:]]|$) ]]; then
+      tkl_declare_global "$__VAR" "$__VALUE"
     else
-      if (( ! __FLAG_EXPORT_VARS )) && [[ ! "${__ATTR[*]}" =~ ([[:space:]]|^)export([[:space:]]|$) ]]; then
-        tkl_declare_global "$__VAR" "$__VALUE"
-      else
-        tkl_export "$__VAR" "$__VALUE"
-      fi
+      tkl_export "$__VAR" "$__VALUE"
     fi
   done < "$__CONFIG_FILE_NAME_DIR/$__CONFIG_FILE_NAME"
 
