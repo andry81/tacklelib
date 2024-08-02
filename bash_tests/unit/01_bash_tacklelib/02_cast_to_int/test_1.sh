@@ -17,42 +17,42 @@ tkl_include_or_abort 'testlib.sh'
 
 function test_if_math_expr()
 {
-  tkl_test_assert_false 'if_math_expr'
-  tkl_test_assert_true  'if_math_expr +0'
-  tkl_test_assert_true  'if_math_expr +1'
-  tkl_test_assert_true  'if_math_expr -0+0'
-  tkl_test_assert_true  'if_math_expr 1/1'
-  tkl_test_assert_false 'if_math_expr 1/0'
-  tkl_test_assert_false 'if_math_expr 1a'
+  tkl_test_assert_false_expr if_math_expr
+  tkl_test_assert_true_expr  if_math_expr +0
+  tkl_test_assert_true_expr  if_math_expr +1
+  tkl_test_assert_true_expr  if_math_expr -0+0
+  tkl_test_assert_true_expr  if_math_expr 1/1
+  tkl_test_assert_false_expr if_math_expr 1/0
+  tkl_test_assert_false_expr if_math_expr 1a
 
-  tkl_test_assert_true  'if_math_expr _'
-  tkl_test_assert_true  'if_math_expr __'
-  tkl_test_assert_true  'if_math_expr a'
-  tkl_test_assert_true  'if_math_expr b'
-  tkl_test_assert_true  'if_math_expr c'
-  tkl_test_assert_true  'if_math_expr d'
-  tkl_test_assert_true  'if_math_expr e'
-  tkl_test_assert_true  'if_math_expr f'
+  tkl_test_assert_true_expr  if_math_expr _
+  tkl_test_assert_true_expr  if_math_expr __
+  tkl_test_assert_true_expr  if_math_expr a
+  tkl_test_assert_true_expr  if_math_expr b
+  tkl_test_assert_true_expr  if_math_expr c
+  tkl_test_assert_true_expr  if_math_expr d
+  tkl_test_assert_true_expr  if_math_expr e
+  tkl_test_assert_true_expr  if_math_expr f
 }
 
 function test_if_int()
 {
-  tkl_test_assert_false 'if_int'
-  tkl_test_assert_true  'if_int +0'
-  tkl_test_assert_true  'if_int +1'
-  tkl_test_assert_false 'if_int -0+0'
-  tkl_test_assert_false 'if_int 1/1'
-  tkl_test_assert_false 'if_int 1/0'
-  tkl_test_assert_false 'if_int 1a'
+  tkl_test_assert_false_expr if_int
+  tkl_test_assert_true_expr  if_int +0
+  tkl_test_assert_true_expr  if_int +1
+  tkl_test_assert_false_expr if_int -0+0
+  tkl_test_assert_false_expr if_int 1/1
+  tkl_test_assert_false_expr if_int 1/0
+  tkl_test_assert_false_expr if_int 1a
 
-  tkl_test_assert_false 'if_int _'
-  tkl_test_assert_false 'if_int __'
-  tkl_test_assert_false 'if_int a'
-  tkl_test_assert_false 'if_int b'
-  tkl_test_assert_false 'if_int c'
-  tkl_test_assert_false 'if_int d'
-  tkl_test_assert_false 'if_int e'
-  tkl_test_assert_false 'if_int f'
+  tkl_test_assert_false_expr if_int _
+  tkl_test_assert_false_expr if_int __
+  tkl_test_assert_false_expr if_int a
+  tkl_test_assert_false_expr if_int b
+  tkl_test_assert_false_expr if_int c
+  tkl_test_assert_false_expr if_int d
+  tkl_test_assert_false_expr if_int e
+  tkl_test_assert_false_expr if_int f
 }
 
 function test_cast_to_int()

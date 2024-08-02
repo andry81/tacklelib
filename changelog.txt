@@ -1,5 +1,23 @@
+2024.08.02:
+* fixed: **/__init__.sh: wrong parameters line for `tkl_include*` function call
+* fixed: bash/tacklelib/bash_tacklelib: `tkl_dump_includes_stack` wrong stack order
+* changed: bash/tacklelib/bash_tacklelib: improvements
+
 2024.08.01:
 * new: include/tacklelib/utility/type_identity.hpp: `is_in` function
+
+2024.07.30:
+* new: bash/tacklelib/tools/load_config.sh: `--ignore-unexist` flag to ignore unexisted variables and does not substitute an unexisted variable placeholder with `*:` prefix
+* changed: bash/tacklelib/bash_tacklelib: improvements in a path validation
+* changed: bash/tacklelib/tools/load_config.sh: improvements
+* changed: bash_tests: __init__/__init__.sh, unit/01_bash_tacklelib/02_cast_to_int/test_1.sh: improvements
+
+2024.07.29:
+* fixed: bash/tacklelib/bash_tacklelib: execution fixup
+* new: bash/tacklelib/testlib.sh: `tkl_test_assert_*_expr` functions to assert all arguments as a command line expression
+* changed: bash/tacklelib/testlib.sh: run test case in empty shell environment
+* changed: bash/tacklelib/testlib.sh: fall back to lesser variable while detect log output directory: `$TESTS_PROJECT_LOG_ROOT` -> `$PROJECT_LOG_ROOT` -> `$BASH_SOURCE_DIR/.log`
+* changed: bash/tacklelib/testlib.sh: improvements
 
 2024.07.12:
 * fixed: bash/tacklelib/tools/load_config*.sh: minor fixup

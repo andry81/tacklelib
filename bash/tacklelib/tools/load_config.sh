@@ -12,11 +12,12 @@
 #   The output configuration file must not contain the `.in` suffix in the
 #   file name and is used as a local storage for a user values.
 #
-#   The script detects the input file change before the output file change
-#   and interrupts the load with an error.
+#   The script detects the input file change time versus the output file change
+#   time and if the former is later, then interrupts the load with an
+#   error.
 #
 #   Additionally the `#%% version: ...` line is used to force the user to
-#   manually update the output confuguration file from the input
+#   manually update the output configuration file from the input
 #   configuration file in case if are not equal.
 #
 #   By default the script does load the input configuration from the
@@ -38,19 +39,27 @@
 #
 #   --expand-bat-vars
 #     Allow %-variables expansion.
-#     The only `%<variable>%` placeholders can be expanded in a variable value.
-#     If a variable does not exist, then leaves the placeholder as is.
-#     Use double `%` character to escape `%` character.
+#     The only `%<variable>%` placeholders can be expanded into a variable
+#     value.
+#     If `--ignore-unexist` flag is not defined and if a variable does not
+#     exist, then does replace the placeholder into `*:%<variable>%` sequence.
+#     Use the double `%` character to escape `%` character.
 #
 #   --expand-tkl-vars:
 #     Allow $/-variables expansion.
-#     The only `$/{<variable>}` placeholders can be expanded in a variable value.
-#     If a variable does not exist, then does replace the placeholder into
+#     The only `$/{<variable>}` placeholders can be expanded into a variable
+#     value.
+#     If `--ignore-unexist` flag is not defined and if a variable name is empty
+#     or a variable does not exist, then does replace the placeholder into
 #     `*:$/{<variable>}` sequence.
-#     Use `$/<char>` sequence to escape `<char>` character.
+#     Use the `$/<char>` sequence to escape `<char>` character.
 #
 #   --export-vars
 #     Export all variables.
+#
+#   --ignore-unexist
+#     Ignores unexisted variables.
+#     Does not substitute an unexisted variable placeholder with `*:` prefix.
 
 # --:
 #   Separator to stop parse flags.
@@ -156,6 +165,7 @@ function tkl_load_config()
   local __FLAG_EXPAND_BAT_VARS=0
   local __FLAG_EXPAND_TKL_VARS=0
   local __FLAG_EXPORT_VARS=0
+  local __FLAG_IGNORE_UNEXIST=0
 
   local __SKIP_FLAG
 
@@ -177,6 +187,9 @@ function tkl_load_config()
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-export-vars' ]]; then
       __FLAG_EXPORT_VARS=1
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-ignore-unexist' ]]; then
+      __FLAG_IGNORE_UNEXIST=1
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-' ]]; then
       shift
@@ -315,6 +328,8 @@ function tkl_load_config()
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
               if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
+              elif (( ! __FLAG_IGNORE_UNEXIST )); then
+                __VALUE_EXPANDED="$__VALUE_EXPANDED*:%$__BUF%" # unexisted variable sequence placeholder
               else
                 __VALUE_EXPANDED="$__VALUE_EXPANDED%$__BUF%"
               fi
@@ -369,11 +384,15 @@ function tkl_load_config()
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
               if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
-              else
+              elif (( ! __FLAG_IGNORE_UNEXIST )); then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED*:\$/{$__BUF}" # unexisted variable sequence placeholder
+              else
+                __VALUE_EXPANDED="$__VALUE_EXPANDED\$/{$__BUF}"
               fi
-            else
+            elif (( ! __FLAG_IGNORE_UNEXIST )); then
               __VALUE_EXPANDED="$__VALUE_EXPANDED*:\$/{}" # empty sequence placeholder
+            else
+              __VALUE_EXPANDED="$__VALUE_EXPANDED\$/{}"
             fi
             (( __LAST_INDEX = __INDEX+1 ))
           fi
