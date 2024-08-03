@@ -1,9 +1,13 @@
+2024.08.03:
+* new: unit/03_load_config/test_2_conditional.sh: conditional tests
+* changed: unit/03_load_config/test_1_empty.sh: references update
+
 2024.08.02:
 * fixed: execution fixup
-* new: bash_tests/unit/03_load_config: `load_config.sh` initial tests
+* new: unit/03_load_config: `load_config.sh` initial tests
 
 2024.07.30:
-* changed: bash_tests: __init__/__init__.sh, unit/01_bash_tacklelib/02_cast_to_int/test_1.sh: improvements
+* changed: __init__/__init__.sh, unit/01_bash_tacklelib/02_cast_to_int/test_1.sh: improvements
 
 2023.02.21:
 * changed: README_EN.txt: readme cleanup

@@ -1,3 +1,8 @@
+2024.08.03:
+* new: bash_tests/unit/03_load_config/test_2_conditional.sh: conditional tests
+* changed: bash/tacklelib/tools/load_config.sh: added variables value trim
+* changed: bash_tests/unit/03_load_config/test_1_empty.sh: references update
+
 2024.08.02:
 * fixed: bash/tacklelib: testlib.sh, tools/load_config.sh: execution fixup
 * fixed: bash_tests: execution fixup

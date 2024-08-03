@@ -315,6 +315,9 @@ function tkl_load_config()
     [[ -n "$__VAR" ]] || continue
 
     # preprocess without expansion
+    tkl_trim_chars "$__VALUE" '[:space:]'
+    __VALUE="$RETURN_VALUE"
+
     __VALUE_LEN=${#__VALUE}
     if [[ __VALUE_LEN -gt 1 && '"' == "${__VALUE:0:1}" && '"' == "${__VALUE: -1}" ]]; then
       __VALUE="${__VALUE:1:__VALUE_LEN-2}"
