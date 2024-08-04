@@ -1,3 +1,6 @@
+2024.08.04:
+* new: bash_tests/unit/03_load_config/test_3_substitution_*.sh: substitution tests
+
 2024.08.03:
 * new: bash_tests/unit/03_load_config/test_2_conditional.sh: conditional tests
 * changed: bash/tacklelib/tools/load_config.sh: added variables value trim

@@ -44,7 +44,7 @@ function test_load_config()
   shift 3
   local test_var_name_suffix_arr=("$@")
 
-  tkl_call tkl_test_assert_true_expr tkl_load_config$LOAD_CONFIG_BARE_FLAGS -- "$TEST_DATA_DIR" "$TEST_DATA_DIR" "$config_file" "$PARAM0" "$PARAM1"
+  tkl_call tkl_test_assert_true_expr tkl_load_config${LOAD_CONFIG_BARE_FLAGS:+ }$LOAD_CONFIG_BARE_FLAGS -- "$TEST_DATA_DIR" "$TEST_DATA_DIR" "$config_file" "$PARAM0" "$PARAM1"
 
   local arg
   for arg in "${test_var_name_suffix_arr[@]}"; do

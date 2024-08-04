@@ -1,3 +1,6 @@
+2024.08.04:
+* new: unit/03_load_config/test_3_substitution_*.sh: substitution tests
+
 2024.08.03:
 * new: unit/03_load_config/test_2_conditional.sh: conditional tests
 * changed: unit/03_load_config/test_1_empty.sh: references update
