@@ -1,4 +1,8 @@
 2024.08.05:
+* changed: bash/tacklelib/testlib.sh: changed the log directory name components order to retain the order of tests execution in the log directory
+* refactor: bash/tacklelib/testlib.sh: minor refactor
+
+2024.08.05:
 * new: bash/tacklelib/tools/load_config.sh: `--expand-all-vars` flag to imply `--expand-bat-vars` and `--expand-tkl-vars` flags
 * new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-system-config-all-vars` to imply `--expand-system-config-bat-vars` and `--expand-system-config-tkl-vars` flags
 * new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-user-config-all-vars` to imply `--expand-user-config-bat-vars` and `--expand-user-config-tkl-vars` flags
