@@ -1,4 +1,8 @@
 2024.08.05:
+* fixed: bash/tacklelib/testlib.sh: missed to copy test case init/exit environments on test case exit
+* refactor: bash/tacklelib/bash_tacklelib: minor refactor
+
+2024.08.05:
  * changed: bash/tacklelib/testlib.sh: unique internal test case function name
 
 2024.08.05:
@@ -7,9 +11,9 @@
 
 2024.08.05:
 * new: bash/tacklelib/tools/load_config.sh: `--expand-all-vars` flag to imply `--expand-bat-vars` and `--expand-tkl-vars` flags
-* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-system-config-all-vars` to imply `--expand-system-config-bat-vars` and `--expand-system-config-tkl-vars` flags
-* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-user-config-all-vars` to imply `--expand-user-config-bat-vars` and `--expand-user-config-tkl-vars` flags
-* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-all-config-all-vars` to imply `--expand-user-config-all-vars` and `--expand-user-config-all-vars` flags
+* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-system-config-all-vars` flag to imply `--expand-system-config-bat-vars` and `--expand-system-config-tkl-vars` flags
+* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-user-config-all-vars` flag to imply `--expand-user-config-bat-vars` and `--expand-user-config-tkl-vars` flags
+* new: bash/tacklelib/tools/load_config_dirs.sh: `--expand-all-config-all-vars` flag to imply `--expand-user-config-all-vars` and `--expand-user-config-all-vars` flags
 
 2024.08.04:
 * new: bash_tests/unit/03_load_config/test_3_substitution_*.sh: substitution tests

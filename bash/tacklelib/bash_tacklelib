@@ -60,7 +60,7 @@ SOURCE_TACKLELIB_BASH_TACKLELIB_SH=1 # including guard
 function tkl_debug_echo()
 {
   local last_error=$?
-  echo "$@"
+  echo "$*"
   return $last_error
 }
 

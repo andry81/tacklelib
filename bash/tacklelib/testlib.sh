@@ -338,11 +338,13 @@ function tkl_test_exit_handler()
       rm -f "$TestHasNoVarsEnvFilePath"
     fi
 
-    # move test output into respective
+    # move test init/exit environment
+    mv "$TestInitEnvFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
+    mv "$TestExitEnvFilePath" "$TestModuleScriptOutputDirPath/$TestModuleScriptLogDir/$TestScriptLogDir"
+
+    # test output cleanup
     rm -f "$TestStdoutFilePath"
     rm -f "$TestStdoutDefFilePath"
-    rm -f "$TestInitEnvFilePath"
-    rm -f "$TestExitEnvFilePath"
     rmdir "/tmp/$TestModuleScriptLogDir/$TestScriptLogDir"
 
     # copy return codes at last
