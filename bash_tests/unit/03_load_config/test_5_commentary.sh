@@ -1,0 +1,95 @@
+#!/bin/bash
+
+[[ -n "$BASH" ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
+
+if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
+  # builtin search
+  for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
+    if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
+      source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
+      break
+    fi
+  done
+fi
+
+tkl_include_or_abort '__init__.sh'
+tkl_include_or_abort 'testlib.sh'
+
+function test_5_commentary()
+{
+  LOAD_CONFIG_BARE_FLAGS=--expand-all-vars
+
+  # has no match anyway
+  PARAM0='P0'
+  PARAM1='P1'
+
+  REFERENCE_5_VALUE_001=''
+  REFERENCE_5_VALUE_002=''
+  REFERENCE_5_VALUE_003=''
+  REFERENCE_5_VALUE_004=''
+  REFERENCE_5_VALUE_005=''
+  REFERENCE_5_VALUE_006=''
+  REFERENCE_5_VALUE_007=''
+  REFERENCE_5_VALUE_008=''
+
+  REFERENCE_5_VALUE_101=''
+  REFERENCE_5_VALUE_102=''
+  REFERENCE_5_VALUE_103=''
+  REFERENCE_5_VALUE_104=''
+  REFERENCE_5_VALUE_105=''
+  REFERENCE_5_VALUE_106=''
+  REFERENCE_5_VALUE_107='#'
+  REFERENCE_5_VALUE_108=''
+  REFERENCE_5_VALUE_109='""#""'
+  REFERENCE_5_VALUE_110='""'
+  REFERENCE_5_VALUE_111='#'
+  REFERENCE_5_VALUE_112=''
+  REFERENCE_5_VALUE_113='""#""'
+  REFERENCE_5_VALUE_114='""'
+
+  REFERENCE_5_VALUE_201=''
+  REFERENCE_5_VALUE_202=''
+  REFERENCE_5_VALUE_203=''
+  REFERENCE_5_VALUE_204=''
+  REFERENCE_5_VALUE_205=''
+  REFERENCE_5_VALUE_206=''
+  REFERENCE_5_VALUE_207='##'
+  REFERENCE_5_VALUE_208=''
+  REFERENCE_5_VALUE_209='""##""'
+  REFERENCE_5_VALUE_210='""'
+  REFERENCE_5_VALUE_211='##'
+  REFERENCE_5_VALUE_212=''
+  REFERENCE_5_VALUE_213='""##""'
+  REFERENCE_5_VALUE_214='""'
+
+  REFERENCE_5_VALUE_301='X'
+  REFERENCE_5_VALUE_302='X'
+  REFERENCE_5_VALUE_303='X'
+  REFERENCE_5_VALUE_304='X'
+  REFERENCE_5_VALUE_305='X" # Y'
+  REFERENCE_5_VALUE_306='X" # Y"'
+  REFERENCE_5_VALUE_307='X" # "Y'
+  REFERENCE_5_VALUE_308='X" # "Y"'
+  REFERENCE_5_VALUE_309='"X # Y'
+  REFERENCE_5_VALUE_310='X # Y'
+  REFERENCE_5_VALUE_311='"X # "Y'
+  REFERENCE_5_VALUE_312='X # "Y'
+  REFERENCE_5_VALUE_313='X'
+  REFERENCE_5_VALUE_314='X'
+  REFERENCE_5_VALUE_315='X'
+  REFERENCE_5_VALUE_316='X'
+
+  test_load_config test_5_commentary.vars TEST_5_VALUE_ REFERENCE_5_VALUE_ \
+    001 002 003 004 005 006 007 008 009 010 011 012 013 014 \
+    101 102 103 104 105 106 107 108 109 110 111 112 113 114 \
+    201 202 203 204 205 206 207 208 209 210 211 212 213 214 \
+    301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 316
+}
+
+if [[ -z "$BASH_LINENO" || BASH_LINENO[0] -eq 0 ]]; then
+  # Script was not included, then execute it.
+
+  tkl_testmodule_init
+
+  tkl_testmodule_run_test test_5_commentary
+fi

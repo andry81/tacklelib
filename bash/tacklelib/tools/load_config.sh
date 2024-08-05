@@ -294,7 +294,7 @@ function tkl_load_config()
 
   local IFS # split by character
   local __ATTR __ARG __VAR __VALUE __P0 __P1
-  local __BUF __INDEX __LAST_INDEX __VALUE_LEN __VALUE_EXPANDED __IS_IN_PLACEHOLDER
+  local __BUF __INDEX __LAST_INDEX __VALUE_LEN __VALUE_EXPANDED __IS_IN_QUOTES __IS_IN_PLACEHOLDER
   local RETURN_VALUE
 
   while IFS=$'=\r\n' read -r __VAR __VALUE; do # IFS - with trim trailing line feeds
@@ -322,6 +322,33 @@ function tkl_load_config()
     [[ -n "$__VAR" ]] || continue
 
     # preprocess without expansion
+
+    # trim line end commentary
+    if [[ "${__VALUE//\"/}" != "$__VALUE" ]]; then
+      # has quotes, remove commentary only if not under opened quotes
+      __VALUE_LEN=${#__VALUE}
+      __IS_IN_QUOTES=0
+      __BUF=''
+      for (( __INDEX=0, __LAST_INDEX=0; __INDEX < __VALUE_LEN; __INDEX++ )); do
+        if [[ "${__VALUE:__INDEX:1}" == '"' ]]; then
+          __BUF="$__BUF${__VALUE:__LAST_INDEX:__INDEX-__LAST_INDEX}\""
+          if (( __IS_IN_QUOTES )); then
+            __IS_IN_QUOTES=0
+          else
+            __IS_IN_QUOTES=1
+          fi
+          (( __LAST_INDEX = __INDEX+1 ))
+        elif (( ! __IS_IN_QUOTES )) && [[ "${__VALUE:__INDEX:1}" == '#' ]]; then
+          __BUF="$__BUF${__VALUE:__LAST_INDEX:__INDEX-__LAST_INDEX}"
+          (( __LAST_INDEX = __VALUE_LEN ))
+          break
+        fi
+      done
+      __VALUE="$__BUF${__VALUE:__LAST_INDEX}"
+    else
+      __VALUE="${__VALUE%%#*}"
+    fi
+
     tkl_trim_chars "$__VALUE" '[:space:]'
     __VALUE="$RETURN_VALUE"
 
@@ -329,6 +356,8 @@ function tkl_load_config()
     if [[ __VALUE_LEN -gt 1 && '"' == "${__VALUE:0:1}" && '"' == "${__VALUE: -1}" ]]; then
       __VALUE="${__VALUE:1:__VALUE_LEN-2}"
     fi
+
+    # process with expansion
 
     # %-variables does expand at first
     if (( __FLAG_EXPAND_BAT_VARS )); then

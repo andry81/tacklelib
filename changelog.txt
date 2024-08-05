@@ -1,4 +1,8 @@
 2024.08.05:
+* new: bash/tacklelib/tools/load_config.sh: added line commentary support
+* new: bash_tests/unit/03_load_config/test_5_commentary.sh: commentary tests
+
+2024.08.05:
 * fixed: bash_tests/unit/03_load_config: missed to run some test cases
 * new: bash_tests/unit/03_load_config/test_4_escape.sh: escape tests
 * refactor: bash_tests/unit/03_load_config: tests minor refactor
