@@ -102,6 +102,9 @@ function tkl_testmodule_init()
   #   by the extension (date + time) separately.
   #
   TestModuleSessionId="${TestModuleLogFileNameDateTimeSuffix}-${TestModuleProcId}"
+  TestModuleSessionIdToken="${TestModuleSessionId//\'\'/_}"
+  TestModuleSessionIdToken="${TestModuleSessionIdToken//\'/_}"
+  TestModuleSessionIdToken="${TestModuleSessionIdToken//-/_}" # posix compliant naming (`set -o posix`)
   TestModuleScriptBaseFileName="${BASH_SOURCE_FILE_NAME%.*}"
   TestModuleScriptLogDir="${TestModuleSessionId}-${TestModuleScriptBaseFileName}"
 
@@ -524,15 +527,23 @@ function tkl_test_script_LocalExitHandler()
 
 tkl_push_trap 'tkl_test_script_LocalExitHandler' EXIT
 
+# NOTE:
+#   POSIX compliance:
+#     * \`set\` does not print functions
+#     * posix compliant function names, where the \`-\` is not valid character
+#     * ...
+#   Details:
+#     https://stackoverflow.com/questions/67684314/what-makes-a-shell-posix-compliant
+#
 set -o posix
 set > \"\$TestInitEnvFilePath\"
 
-function TestCase()
+function TestCase_$TestModuleSessionIdToken()
 {
 $TestFuncBody
 }
 
-TestCase
+TestCase_$TestModuleSessionIdToken
 "
 
   # save the script text into temporary file before run it

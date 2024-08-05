@@ -1,4 +1,7 @@
 2024.08.05:
+ * changed: tacklelib/testlib.sh: unique internal test case function name
+
+2024.08.05:
 * changed: tacklelib/testlib.sh: changed the log directory name components order to retain the order of tests execution in the log directory
 * refactor: tacklelib/testlib.sh: minor refactor
 
