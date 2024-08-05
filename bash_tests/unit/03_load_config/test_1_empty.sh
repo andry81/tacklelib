@@ -17,6 +17,10 @@ tkl_include_or_abort 'testlib.sh'
 
 function test_1_empty()
 {
+  # has no match anyway
+  PARAM0=''
+  PARAM1=''
+
   REFERENCE_1_VALUE_01=''
   REFERENCE_1_VALUE_02=''
   REFERENCE_1_VALUE_03=''

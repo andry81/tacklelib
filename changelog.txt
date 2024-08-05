@@ -1,4 +1,9 @@
 2024.08.05:
+* fixed: bash_tests/unit/03_load_config: missed to run some test cases
+* new: bash_tests/unit/03_load_config/test_4_escape.sh: escape tests
+* refactor: bash_tests/unit/03_load_config: tests minor refactor
+
+2024.08.05:
 * fixed: bash/tacklelib/testlib.sh: missed to copy test case init/exit environments on test case exit
 * refactor: bash/tacklelib/bash_tacklelib: minor refactor
 

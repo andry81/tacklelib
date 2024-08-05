@@ -17,6 +17,7 @@ tkl_include_or_abort 'testlib.sh'
 
 function test_2_conditional()
 {
+  # has no match anyway
   PARAM0=''
   PARAM1=''
 
@@ -80,8 +81,7 @@ function test_2_conditional()
   REFERENCE_2_VALUE_e3=''
 
   test_load_config test_2_conditional.vars TEST_2_VALUE_ REFERENCE_2_VALUE_ \
-    01 02 03 04 05 06 11 12 13 21 22 23 31 32 33 41 42 43 \
-    51 52 53 61 62 63 71 72 73 81 82 83 \
+    01 02 03 04 05 06 11 12 13 21 22 23 31 32 33 41 42 43 51 52 53 61 62 63 71 72 73 81 82 83 \
     a1 a2 a3 b1 b2 b3 c1 c2 c3 d1 d2 d3 e1 e2 e3
 }
 
