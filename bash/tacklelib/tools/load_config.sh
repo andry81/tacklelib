@@ -54,6 +54,9 @@
 #     `*:$/{<variable>}` sequence.
 #     Use the `$/<char>` sequence to escape `<char>` character.
 #
+#   --expand-all-vars
+#     Implies `--expands-bat-vars` and `--expands-tkl-vars` flags.
+#
 #   --export-vars
 #     Export all variables.
 #
@@ -183,6 +186,10 @@ function tkl_load_config()
       __FLAG_EXPAND_BAT_VARS=1
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-expand-tkl-vars' ]]; then
+      __FLAG_EXPAND_TKL_VARS=1
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-all-vars' ]]; then
+      __FLAG_EXPAND_BAT_VARS=1
       __FLAG_EXPAND_TKL_VARS=1
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-export-vars' ]]; then

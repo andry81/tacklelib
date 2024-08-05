@@ -1,5 +1,11 @@
+2024.08.05:
+* new: tacklelib/tools/load_config.sh: `--expand-all-vars` flag to imply `--expand-bat-vars` and `--expand-tkl-vars` flags
+* new: tacklelib/tools/load_config_dirs.sh: `--expand-system-config-all-vars` to imply `--expand-system-config-bat-vars` and `--expand-system-config-tkl-vars` flags
+* new: tacklelib/tools/load_config_dirs.sh: `--expand-user-config-all-vars` to imply `--expand-user-config-bat-vars` and `--expand-user-config-tkl-vars` flags
+* new: tacklelib/tools/load_config_dirs.sh: `--expand-all-config-all-vars` to imply `--expand-user-config-all-vars` and `--expand-user-config-all-vars` flags
+
 2024.08.02:
-* fixed: bash/tacklelib: testlib.sh, tools/load_config.sh: execution fixup
+* fixed: tacklelib: testlib.sh, tools/load_config.sh: execution fixup
 
 2024.08.02:
 * fixed: **/__init__.sh: wrong parameters line for `tkl_include*` function call

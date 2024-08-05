@@ -61,6 +61,18 @@
 #
 #   --expand-all-configs-tkl-vars
 #     Allow $/-variables expansion in all configs.
+#
+#   --expand-system-config-all-vars
+#     Implies `--expand-system-config-bat-vars` and
+#     `--expand-system-config-tkl-vars` flags.
+#
+#   --expand-user-config-all-vars
+#     Implies `--expand-user-config-bat-vars` and
+#     `--expand-user-config-tkl-vars` flags.
+#
+#   --expand-all-configs-all-vars
+#     Implies `--expand-system-config-all-vars` and
+#     `--expand-user-config-all-vars` flags.
 
 # --:
 #   Separator to stop parse flags.
@@ -179,6 +191,22 @@ function tkl_load_config_dir()
       __FLAG_EXPAND_ALL_CONFIGS_TKL_VARS=1
       __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-tkl-vars"
       __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-tkl-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-system-config-all-vars' ]]; then
+      __FLAG_EXPAND_SYSTEM_CONFIG_BAT_VARS=1
+      __FLAG_EXPAND_SYSTEM_CONFIG_TKL_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-all-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-user-config-all-vars' ]]; then
+      __FLAG_EXPAND_SYSTEM_CONFIG_BAT_VARS=1
+      __FLAG_EXPAND_SYSTEM_CONFIG_TKL_VARS=1
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-all-vars"
+      __SKIP_FLAG=1
+    elif [[ "$__FLAG" == '-expand-all-configs-all-vars' ]]; then
+      __FLAG_EXPAND_SYSTEM_CONFIG_BAT_VARS=1
+      __FLAG_EXPAND_SYSTEM_CONFIG_TKL_VARS=1
+      __BARE_SYSTEM_FLAGS="$__BARE_SYSTEM_FLAGS --expand-all-vars"
+      __BARE_USER_FLAGS="$__BARE_USER_FLAGS --expand-all-vars"
       __SKIP_FLAG=1
     elif [[ "$__FLAG" == '-' ]]; then
       shift
