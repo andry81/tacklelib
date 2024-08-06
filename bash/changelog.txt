@@ -1,3 +1,7 @@
+2024.08.06:
+* fixed: tacklelib/tools/load_config.sh: `once` attribute parse
+* changed: tacklelib/tools/load_config.sh: a variable attributes parse before the value parse
+
 2024.08.05:
 * fixed: tacklelib/testlib.sh: missed to copy test case init/exit environments on test case exit
 * refactor: tacklelib/bash_tacklelib: minor refactor

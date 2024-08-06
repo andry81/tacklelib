@@ -1,3 +1,9 @@
+2024.08.06:
+* fixed: bash/tacklelib/tools/load_config.sh: `once` attribute parse
+* changed: bash/tacklelib/tools/load_config.sh: a variable attributes parse before the value parse
+* new: bash_tests/unit/03_load_config/test_6_specific.sh: specific tests
+* new: bash_tests/unit/03_load_config/test_7_once.sh: `once` attribute tests
+
 2024.08.05:
 * new: bash/tacklelib/tools/load_config.sh: added line commentary support
 * new: bash_tests/unit/03_load_config/test_5_commentary.sh: commentary tests

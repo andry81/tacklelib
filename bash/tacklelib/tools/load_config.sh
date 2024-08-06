@@ -321,6 +321,27 @@ function tkl_load_config()
 
     [[ -n "$__VAR" ]] || continue
 
+    tkl_trim_chars "$__P0" '[:space:]'
+    __P0="$RETURN_VALUE"
+
+    if [[ -n "$__P0" ]]; then
+      [[ "$__P0" != 'BAT' && ( "$__P0" == 'SH' || "$__P0" == "$__OSTYPE" || -n "$__PARAM0" && "$__PARAM0" == "$__P0" ) ]] || continue # skip builtin or custom parameter if not equals
+    fi
+
+    tkl_trim_chars "$__P1" '[:space:]'
+    __P1="$RETURN_VALUE"
+
+    if [[ -n "$__P1" ]]; then
+      [[ -n "$__PARAM1" && "$__PARAM1" == "$__P1" ]] || continue # skip custom parameter if not equals
+    fi
+
+    if [[ "${__ATTR[*]}" =~ ([[:space:]]|^)once([[:space:]]|$) ]]; then
+      # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
+      if [[ "$__VAR" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ -n "${!__VAR+x}" ]] 2>/dev/null; then
+        continue # skip existed variable
+      fi
+    fi
+
     # preprocess without expansion
 
     # trim line end commentary
@@ -371,7 +392,7 @@ function tkl_load_config()
             __IS_IN_PLACEHOLDER=0
             if [[ -n "$__BUF" ]]; then
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
+              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ -n "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
               elif (( ! __FLAG_IGNORE_UNEXIST )); then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED*:%$__BUF%" # unexisted variable sequence placeholder
@@ -427,7 +448,7 @@ function tkl_load_config()
             __BUF="${__VALUE:__LAST_INDEX:__INDEX-__LAST_INDEX}"
             if [[ -n "$__BUF" ]]; then
               # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ "${!__BUF+x}" ]] 2>/dev/null; then
+              if [[ "$__BUF" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ -n "${!__BUF+x}" ]] 2>/dev/null; then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED${!__BUF}"
               elif (( ! __FLAG_IGNORE_UNEXIST )); then
                 __VALUE_EXPANDED="$__VALUE_EXPANDED*:\$/{$__BUF}" # unexisted variable sequence placeholder
@@ -451,25 +472,6 @@ function tkl_load_config()
       fi
       __VALUE="$__VALUE_EXPANDED"
       __VALUE_LEN=${#__VALUE}
-    fi
-
-    tkl_trim_chars "$__P0" '[:space:]'
-    __P0="$RETURN_VALUE"
-
-    if [[ -n "$__P0" ]]; then
-      [[ "$__P0" != 'BAT' && ( "$__P0" == 'SH' || "$__P0" == "$__OSTYPE" || -n "$__PARAM0" && "$__PARAM0" == "$__P0" ) ]] || continue # skip builtin or custom parameter if not equals
-    fi
-
-    tkl_trim_chars "$__P1" '[:space:]'
-    __P1="$RETURN_VALUE"
-
-    if [[ -n "$__P1" ]]; then
-      [[ -n "$__PARAM1" && "$__PARAM1" == "$__P1" ]] || continue # skip custom parameter if not equals
-    fi
-
-    if [[ "${__ATTR[*]}" =~ ([[:space:]]|^)once([[:space:]]|$) ]]; then
-      # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-      [[ ! "$__VAR" =~ ^[_a-zA-Z][_a-zA-Z0-9]$ ]] || [[ ! "${!__VAR+x}" ]] 2>/dev/null || continue # skip existed variable
     fi
 
     #echo "$__VAR:$__P0:$__P1=$__VALUE"
