@@ -293,7 +293,7 @@ function tkl_load_config()
   esac
 
   local IFS # split by character
-  local __ATTR __ARG __VAR __VALUE __P0 __P1
+  local __ATTR __ARG __VAR __VALUE __P0 __P1 __IS_VAR_VALID
   local __BUF __INDEX __LAST_INDEX __VALUE_LEN __VALUE_EXPANDED __IS_IN_QUOTES __IS_IN_PLACEHOLDER
   local RETURN_VALUE
 
@@ -334,10 +334,16 @@ function tkl_load_config()
     if [[ -n "$__P1" ]]; then
       [[ -n "$__PARAM1" && "$__PARAM1" == "$__P1" ]] || continue # skip custom parameter if not equals
     fi
+    
+    if [[ "$__VAR" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]]; then
+      __IS_VAR_VALID=1
+    else
+      __IS_VAR_VALID=0
+    fi
 
     if [[ "${__ATTR[*]}" =~ ([[:space:]]|^)once([[:space:]]|$) ]]; then
-      # WORKAROUND: regexp on variable name to avoid below if condition silent breakage
-      if [[ "$__VAR" =~ ^[_a-zA-Z][_a-zA-Z0-9]*$ ]] && [[ -n "${!__VAR+x}" ]] 2>/dev/null; then
+      # WORKAROUND: check on valid variable name to circumvent the followed if condition silent breakage
+      if (( __IS_VAR_VALID )) && [[ -n "${!__VAR+x}" ]] 2>/dev/null; then
         continue # skip existed variable
       fi
     fi
@@ -472,6 +478,10 @@ function tkl_load_config()
       fi
       __VALUE="$__VALUE_EXPANDED"
       __VALUE_LEN=${#__VALUE}
+    fi
+
+    if [[ "${__ATTR[*]}" =~ ([[:space:]]|^)upath([[:space:]]|$) ]]; then
+      __VALUE="${__VALUE//\\//}"
     fi
 
     #echo "$__VAR:$__P0:$__P1=$__VALUE"

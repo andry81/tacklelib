@@ -1,4 +1,8 @@
 2024.08.06:
+* new: bash/tacklelib/tools/load_config.sh: `upath` attribute parse
+* new: bash_tests/unit/03_load_config/test_8_upath.sh: `upath` attribute tests
+
+2024.08.06:
 * fixed: bash/tacklelib/tools/load_config.sh: `once` attribute parse
 * changed: bash/tacklelib/tools/load_config.sh: a variable attributes parse before the value parse
 * new: bash_tests/unit/03_load_config/test_6_specific.sh: specific tests

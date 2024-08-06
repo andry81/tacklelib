@@ -1,4 +1,7 @@
 2024.08.06:
+* new: unit/03_load_config/test_8_upath.sh: `upath` attribute tests
+
+2024.08.06:
 * new: unit/03_load_config/test_6_specific.sh: specific tests
 * new: unit/03_load_config/test_7_once.sh: `once` attribute tests
 

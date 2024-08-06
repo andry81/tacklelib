@@ -1,4 +1,7 @@
 2024.08.06:
+* new: tacklelib/tools/load_config.sh: `upath` attribute parse
+
+2024.08.06:
 * fixed: tacklelib/tools/load_config.sh: `once` attribute parse
 * changed: tacklelib/tools/load_config.sh: a variable attributes parse before the value parse
 
