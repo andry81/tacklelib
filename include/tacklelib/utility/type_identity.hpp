@@ -97,6 +97,27 @@
 #define UTILITY_CONSTEXPR_COUNTER_GET(type_name) type_name<__LINE__>::value
 
 
+// private value member accessor
+//
+// ex:
+//  class A
+//  {
+//  public:
+//     explicit A(int value) : m_value(value) {}
+//     int GetValue() const { return m_value; }
+//  private:
+//     int m_value;
+//  };
+//  ...
+//  UTILITY_DEFINE_PRIVATE_VALUE_MEMBER_ACCESSOR(A_value, A, int, m_value);
+//  ...
+//  *utility::private_value_member_accessor<A_value>(a) = 42;
+//
+#define UTILITY_DEFINE_PRIVATE_VALUE_MEMBER_ACCESSOR(tag_type, type_name, member_type_name, member_name) \
+    struct tag_type : ::utility::static_pointer_to_value_member_traits<tag_type, type_name, member_type_name> {}; \
+    template class ::utility::private_value_member_access_enabler<tag_type, &type_name::member_name>
+
+
 // define a tag type using int_identity class (through the using keyword)
 #define UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG(tag_token, ...) \
     using tag_ ## tag_token ## _t = ::utility::int_identity<UTILITY_PP_IIF(UTILITY_PP_IS_EMPTY(__VA_ARGS__))(tag_token, (__VA_ARGS__))>
@@ -946,6 +967,47 @@ namespace utility
     struct constexpr_counter_base : std::integral_constant<int, DEF>
     {
        static CONSTEXPR int inc = INC;
+    };
+
+    // private value member accessor
+
+    template <typename TagT, typename T, typename MemberType>
+    struct static_pointer_to_value_member_traits
+    {
+       using type                   = T;
+       using member_type            = MemberType;
+       using pointer_to_member_type = member_type type::*;
+       static pointer_to_member_type pointer_to_member_value;
+    };
+
+    template <typename TagT, typename T, typename MemberType>
+    MemberType T::* static_pointer_to_value_member_traits<TagT, T, MemberType>::pointer_to_member_value = nullptr;
+
+    template <typename TagT> using type = typename TagT::type;
+    template <typename TagT> using member_type = typename TagT::member_type;
+    template <typename TagT> using pointer_to_member_type = typename TagT::pointer_to_member_type;
+
+    template <typename TagT, pointer_to_member_type<TagT> pointer_to_member_value>
+    class private_value_member_access_enabler
+    {
+       private_value_member_access_enabler() { TagT::pointer_to_member_value = pointer_to_member_value; }
+       static private_value_member_access_enabler instance;
+    };
+
+    template <typename TagT, pointer_to_member_type<TagT> pointer_to_member_value>
+    private_value_member_access_enabler<TagT, pointer_to_member_value> private_value_member_access_enabler<TagT, pointer_to_member_value>::instance;
+
+    template <typename TagT>
+    class private_value_member_accessor
+    {
+    public:
+       explicit private_value_member_accessor(type<TagT>& obj) : m_obj(&obj) {}
+     
+       member_type<TagT>& operator* () const { return m_obj->*TagT::pointer_to_member_value; }
+       member_type<TagT>* operator-> () const { return &m_obj->*TagT::pointer_to_member_value; }
+     
+    private:
+       type<TagT>* m_obj;
     };
 }
 

@@ -1,4 +1,7 @@
 2024.08.08:
+* new: include/tacklelib/utility/type_identity.hpp: `UTILITY_DEFINE_PRIVATE_VALUE_MEMBER_ACCESSOR` macros and `utility::private_value_member_accessor` type to access private value members
+
+2024.08.08:
 * new: include/tacklelib/utility/type_identity.hpp: `UTILITY_DEFINE_CONSTEXPR_COUNTER` and `UTILITY_CONSTEXPR_COUNTER_*` compile time counter macroses
 
 2024.08.06:
