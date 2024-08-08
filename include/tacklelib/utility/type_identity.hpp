@@ -83,6 +83,20 @@
 #define UTILITY_DECLARE_LAMBDA_IDENTITY_TYPE(token)     UTILITY_DECLARE_LINE_UNIQUE_TYPE(token)*
 
 
+// Compile time counter
+#define UTILITY_DEFINE_CONSTEXPR_COUNTER(type_name, ...) \
+    template <size_t N> struct type_name : type_name<N - 1> {}; \
+    template <> struct type_name<__LINE__> : ::utility::constexpr_counter_base<__VA_ARGS__> {};
+
+#define UTILITY_CONSTEXPR_COUNTER_UPDATE(type_name) \
+    template <> struct type_name<__LINE__> : type_name<__LINE__ - 1> \
+    { \
+        static CONSTEXPR int value = type_name<__LINE__ - 1>::value + inc; \
+    };
+
+#define UTILITY_CONSTEXPR_COUNTER_GET(type_name) type_name<__LINE__>::value
+
+
 // define a tag type using int_identity class (through the using keyword)
 #define UTILITY_DEFINE_INT_IDENTITY_AS_USING_TYPE_TAG(tag_token, ...) \
     using tag_ ## tag_token ## _t = ::utility::int_identity<UTILITY_PP_IIF(UTILITY_PP_IS_EMPTY(__VA_ARGS__))(tag_token, (__VA_ARGS__))>
@@ -926,6 +940,13 @@ namespace utility
     {
         return v;
     }
+
+    // compile time counter
+    template <int DEF = 0, int INC = 1>
+    struct constexpr_counter_base : std::integral_constant<int, DEF>
+    {
+       static CONSTEXPR int inc = INC;
+    };
 }
 
 #endif
