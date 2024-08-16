@@ -15,27 +15,59 @@ End Function
 
 ' console only output
 
+Function FixStrToPrint(str)
+    Dim new_str : new_str = ""
+    Dim i, Char, CharAsc
+
+    For i = 1 To Len(str)
+        Char = Mid(str, i, 1)
+        CharAsc = Asc(Char)
+
+        ' NOTE:
+        '   `&H3F` - is not printable unicode origin character which can not pass through the stdout redirection.
+        If CharAsc <> &H3F Then
+            new_str = new_str & Char
+        Else
+            new_str = new_str & "?"
+        End If
+    Next
+
+    FixStrToPrint = new_str
+End Function
+
 Sub PrintLine(str)
     On Error Resume Next
     WScript.stdout.WriteLine str
+    If err = 5 Then ' Access is denied
+        WScript.stdout.WriteLine FixStrToPrint(str)
+    End If
     On Error Goto 0
 End Sub
 
 Sub Print(str)
     On Error Resume Next
     WScript.stdout.Write str
+    If err = 5 Then ' Access is denied
+        WScript.stdout.Write FixStrToPrint(str)
+    End If
     On Error Goto 0
 End Sub
 
 Sub PrintErrorLine(str)
     On Error Resume Next
     WScript.stderr.WriteLine str
+    If err = 5 Then ' Access is denied
+        WScript.stderr.WriteLine FixStrToPrint(str)
+    End If
     On Error Goto 0
 End Sub
 
 Sub PrintError(str)
     On Error Resume Next
     WScript.stderr.Write str
+    If err = 5 Then ' Access is denied
+        WScript.stderr.Write FixStrToPrint(str)
+    End If
     On Error Goto 0
 End Sub
 
@@ -44,7 +76,9 @@ End Sub
 Sub PrintOrEchoLine(str)
     On Error Resume Next
     WScript.stdout.WriteLine str
-    If err = &h80070006& Then
+    If err = 5 Then ' Access is denied
+        WScript.stdout.WriteLine FixStrToPrint(str)
+    ElseIf err = &h80070006& Then
         WScript.Echo str
     End If
     On Error Goto 0
@@ -53,7 +87,9 @@ End Sub
 Sub PrintOrEcho(str)
     On Error Resume Next
     WScript.stdout.Write str
-    If err = &h80070006& Then
+    If err = 5 Then ' Access is denied
+        WScript.stdout.Write FixStrToPrint(str)
+    ElseIf err = &h80070006& Then
         WScript.Echo str
     End If
     On Error Goto 0
@@ -62,7 +98,9 @@ End Sub
 Sub PrintOrEchoErrorLine(str)
     On Error Resume Next
     WScript.stderr.WriteLine str
-    If err = &h80070006& Then
+    If err = 5 Then ' Access is denied
+        WScript.stderr.WriteLine FixStrToPrint(str)
+    ElseIf err = &h80070006& Then
         WScript.Echo str
     End If
     On Error Goto 0
@@ -71,7 +109,9 @@ End Sub
 Sub PrintOrEchoError(str)
     On Error Resume Next
     WScript.stderr.Write str
-    If err = &h80070006& Then
+    If err = 5 Then ' Access is denied
+        WScript.stderr.Write FixStrToPrint(str)
+    ElseIf err = &h80070006& Then
         WScript.Echo str
     End If
     On Error Goto 0
@@ -88,6 +128,9 @@ Sub PrintLineArr(arr, do_trim_lines)
           line_str = arr(i)
         End If
         WScript.stdout.WriteLine arr(i)
+        If err = 5 Then ' Access is denied
+            WScript.stdout.WriteLine FixStrToPrint(arr(i))
+        End If
     Next
     On Error Goto 0
 End Sub
@@ -106,6 +149,9 @@ Sub PrintArr(arr, separator_str, do_trim_lines)
           WScript.stdout.Write separator_str
         End If
         WScript.stdout.Write arr(i)
+        If err = 5 Then ' Access is denied
+            WScript.stdout.Write FixStrToPrint(arr(i))
+        End If
     Next
     On Error Goto 0
 End Sub

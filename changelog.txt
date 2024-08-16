@@ -1,3 +1,6 @@
+2024.08.16:
+* fixed: **/*.vbs: stdout and stderr write fail in case of not printable unicode origin character (`&H3F`)
+
 2024.08.08:
 * new: include/tacklelib/utility/type_identity.hpp: `UTILITY_DEFINE_PRIVATE_VALUE_MEMBER_ACCESSOR` macros and `utility::private_value_member_accessor` type to access private value members
 
