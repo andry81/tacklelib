@@ -1,3 +1,6 @@
+2024.08.23:
+* changed: tools/shell/delete_file.vbs: code cleanup
+
 2024.01.20:
 * new: tools/shell/make_dir.vbs: script to make a directory with parent directory conversion into short DOS path in case of a resulted long path
 

@@ -1,3 +1,6 @@
+2024.08.23:
+* changed: vbs/tacklelib/tools/shell/delete_file.vbs: code cleanup
+
 2024.08.16:
 * fixed: **/*.vbs: stdout and stderr write fail in case of not printable unicode origin character (`&H3F`)
 
