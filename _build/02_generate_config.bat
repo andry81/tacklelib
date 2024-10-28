@@ -47,7 +47,7 @@ rem load command line from file
 set "CMAKE_CMD_LINE="
 for /F "usebackq eol=# tokens=* delims=" %%i in (%CMDLINE_FILE_IN%) do (
   if defined CMAKE_CMD_LINE (
-    setlocal ENABLEDELAYEDEXPANSION & for /F "eol= tokens=* delims=" %%j in ("!CMAKE_CMD_LINE!") do endlocal & set "CMAKE_CMD_LINE=%%j %%i"
+    setlocal ENABLEDELAYEDEXPANSION & for /F "tokens=* delims="eol^= %%j in ("!CMAKE_CMD_LINE!") do endlocal & set "CMAKE_CMD_LINE=%%j %%i"
   ) else (
     set "CMAKE_CMD_LINE=%%i"
   )
