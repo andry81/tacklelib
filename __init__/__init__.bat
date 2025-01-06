@@ -39,7 +39,10 @@ if not defined CONTOOLS_PROJECT_EXTERNALS_ROOT              call "%%~dp0canonica
 rem init external projects
 
 if exist "%TACKLELIB_PROJECT_EXTERNALS_ROOT%/contools/__init__/__init__.bat" (
+  rem disable code page change in nested __init__
+  set /A NO_CHCP+=1
   call "%%TACKLELIB_PROJECT_EXTERNALS_ROOT%%/contools/__init__/__init__.bat" %%* || exit /b
+  set /A NO_CHCP-=1
 )
 
 if %NO_GEN%0 EQU 0 (
