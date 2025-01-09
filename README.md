@@ -25,7 +25,7 @@
 <p align="center">
   <a href="https://www.codefactor.io/repository/github/andry81/tacklelib">
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codefactor-grade.svg" valign="middle" alt="codefactor.io|quality" /></a>
-• <a href="https://www.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade">
+• <a href="https://app.codacy.com/gh/andry81/tacklelib/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andry81/tacklelib&amp;utm_campaign=Badge_Grade">
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codacy-grade.svg" valign="middle" alt="codacy.com|quality" /></a>
 </p>
 
