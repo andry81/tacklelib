@@ -1,3 +1,7 @@
+2025.02.03:
+* changed: README.md: github markdown blockquotes update
+* refactor: README.md: minor refactor
+
 2025.01.09:
 * fixed: README.md: `codacy` badge link
 

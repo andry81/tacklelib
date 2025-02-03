@@ -1,4 +1,5 @@
-> **Note** To checkout externals read the details here: https://github.com/andry81/externals
+> [!NOTE]
+> To checkout externals read the details here: https://github.com/andry81/externals
 
 <p align="center">A composite generic library consisted of various modules on different languages:</p>
 
@@ -14,10 +15,10 @@
 * <i>CMake</i><br/>
   CMake modules to support and extend a build of a c++ project under cmake
   environment.<br/>
-  
+
 * <i>Python</i><br/>
   Various extension scritps/modules for the python.<br/>
-  
+
 * <i>VBS</i><br/>
   Various extension scritps/modules for the Visual Basic Script interpreter.<br/>
 </p>
@@ -70,7 +71,7 @@
 <p align="center">
   <a href="https://github.com/andry81/tacklelib/tree/HEAD/changelog.txt">Changelog</a>
 • <a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.txt">Readme</a>
-• <a href="#dependecies">Dependencies</a>
+• <a href="#dependencies">Dependencies</a>
 • <a href="#copyright-and-license"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/license/mit-license.svg" valign="middle" alt="copyright and license" />&nbsp;Copyright and License</a>
 </p>
 
@@ -84,7 +85,7 @@
 
 ---
 
-## <a name="dependecies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.deps.txt">README_EN.deps.txt</a>)
+## <a name="dependencies">Dependencies</a> (<a href="https://github.com/andry81/tacklelib/tree/HEAD/README_EN.deps.txt">README_EN.deps.txt</a>)
 
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/REQUIRED.svg" valign="middle" alt="REQUIRED" /></a> https://github.com/andry81-3dparty/boost
 * <a href="#"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/static/OPTIONAL.svg" valign="middle" alt="OPTIONAL" /></a> https://github.com/andry81-3dparty/fmt
