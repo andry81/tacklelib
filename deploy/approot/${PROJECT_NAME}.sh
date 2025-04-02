@@ -7,15 +7,7 @@
 # Script ONLY for execution.
 if [[ -n "$BASH" && (-z "$BASH_LINENO" || ${BASH_LINENO[0]} -eq 0) ]]; then 
 
-if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-  # builtin search
-  for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
-    if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
-      source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
-      break
-    fi
-  done
-fi
+(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || source bash_tacklelib || exit 255
 
 # no local logging if nested call
 (( ! IMPL_MODE && ! NEST_LVL )) && {

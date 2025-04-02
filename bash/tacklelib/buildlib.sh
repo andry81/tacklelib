@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Script can be ONLY included by "source" command.
-[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BUILDLIB_SH" || SOURCE_TACKLELIB_BUILDLIB_SH -eq 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]] && (( ! SOURCE_TACKLELIB_BUILDLIB_SH )) || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
-if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-  echo."$0: error: \`bash_tacklelib\` must be included explicitly."
+(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+  echo."$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-fi >&2
+}
 
 tkl_include_or_abort 'traplib.sh'
 tkl_include_or_abort 'stringlib.sh'

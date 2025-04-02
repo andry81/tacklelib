@@ -17,7 +17,16 @@ repositories:
       - Scripts/Tools/std
       - Scripts/Tools/wmi
       - Scripts/Tools/xcopy
-      - Utilities/bin/contools
+
+  _externals/contools--utils:
+    type:         git
+    url:          https://github.com/andry81/contools--utils
+    version:      master
+    subpaths:
+      - __init__
+      - _config
+      - bin
+
 
   _externals/gnuwin32:
     type:         git

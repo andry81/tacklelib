@@ -1,59 +1,34 @@
 #!/bin/bash
 
-# Author:   Andrey Dibrov (andry at inbox dot ru)
-
-# Tacklelib project library bash shell script module
+# Tacklelib project library bash shell script module with a generic set of
+# functionality.
 #
-# Repositories:
-#
-#   * https://github.com/andry81/tacklelib
-#   * https://sf.net/p/tacklelib
-#   * https://gitlab.com/andry81/tacklelib
-#
-# Base bash shell library module with a basic set of functionality.
-# Designed to be included through the absolute path and the source command:
+# Designed to be included through the source command:
 #
 #   >
-#   source '/bin/bash_tacklelib'
+#   (( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || source bash_tacklelib || return 255 || exit 255 # exit to avoid continue if the return can not be called
 #
-# Or by using a builtin search paths logic with include guards:
-#
-#   >
-#   if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-#     # builtin search
-#     for BASH_SOURCE_DIR in '/usr/local/bin' '/usr/bin' '/bin'; do
-#       if [[ -f "$BASH_SOURCE_DIR/bash_tacklelib" ]]; then
-#         source "$BASH_SOURCE_DIR/bash_tacklelib" || exit $?
-#         break
-#       fi
-#     done
-#   fi
-#
-# After that all other scripts can be included through the alternative
-# inclusion function:
+# After that a script can be included through the alternative inclusion
+# function:
 #
 #   >
-#   tkl_include <path>
-#
-# Or:
+#   tkl_include[_or_abort] <path-relative-to-script-directory>
 #
 #   >
-#   tkl_include_or_abort <path>
+#   tkl_include[_or_abort] :<path-relative-to-BASH_SOURCE_PATH-or-to-script-directory>
 #
-# The `tkl_include*` function does use an improved search paths logic and
-# instead of a current directory path a being included shell script is searched
-# through the inclusion path variable - `BASH_SOURCE_PATH` or a current script
-# directory in case if a relative inclusion path is not applicable to
-# paths from the `BASH_SOURCE_PATH` variable.
-#
+# NOTE:
+#   The leading `:` character is chosen to leave the completion feature in the
+#   console working because of the `:` character is a separator for a list of
+#   paths in the Bash shell.
 
 # Script can be ONLY included by "source" command.
-[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]] && (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
-if (( BASH_VERSINFO[0] < 3 )); then
-  echo "$0: error: script designed only for the Bash version 3.x or higher." >&2
+(( BASH_VERSINFO[0] >= 3 )) || {
+  echo "$0: error: Bash version 3+ is required." >&2
   exit 253
-fi
+}
 
 SOURCE_TACKLELIB_BASH_TACKLELIB_SH=1 # including guard
 
@@ -769,10 +744,10 @@ function tkl_is_abs_path()
 
   [[ -z "$file_path" ]] && return 1
 
-  if [[ "${file_path:0:1}" == "/" || "${file_path:0:1}" == "\\" ]]; then
+  if [[ "${file_path:0:1}" == '/' || "${file_path:0:1}" == '\' ]]; then
     RETURN_VALUE=1
     return 0
-  elif [[ "${file_path:1:1}" == ":" ]]; then
+  elif [[ "${file_path:1:1}" == ':' ]]; then
     RETURN_VALUE=1
     return 0
   fi
@@ -937,7 +912,8 @@ function tkl_include()
   else
     local _84CB4B34_included=0
 
-    if [[ -n "$BASH_SOURCE_PATH" ]]; then
+    # a path must begins by ':' string to enable search in the `BASH_SOURCE_PATH` variable first
+    if [[ "${1:0:1}" == ':' && -n "$BASH_SOURCE_PATH" ]]; then
       local _84CB4B34_path_prefix
       case "$OSTYPE" in
         cygwin* | msys* | mingw*)
@@ -948,7 +924,7 @@ function tkl_include()
         ;;
       esac
       for _84CB4B34_path_prefix in $BASH_SOURCE_PATH; do
-        if tkl_get_abs_path "$_84CB4B34_path_prefix/$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s && [[ -f "$RETURN_VALUE" ]]; then
+        if tkl_get_abs_path "$_84CB4B34_path_prefix/${1#:}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s && [[ -f "$RETURN_VALUE" ]]; then
           _84CB4B34_included=1
           tkl_set_return $_84CB4B34_last_error
           tkl_include_local_impl "$RETURN_VALUE" "${@:2}"
@@ -960,7 +936,7 @@ function tkl_include()
 
     if (( ! _84CB4B34_included )); then
       (( ! _84CB4B34_is_first_time_include )) || tkl_make_source_file_components "${@:2}"
-      if tkl_get_abs_path "$BASH_SOURCE_DIR" "$1" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
+      if tkl_get_abs_path "$BASH_SOURCE_DIR" "${1#:}" && tkl_convert_backend_path_to_native "$RETURN_VALUE" -s; then
         tkl_set_return $_84CB4B34_last_error
         tkl_include_local_impl "$RETURN_VALUE" "${@:2}"
         _84CB4B34_last_error=$?
@@ -1062,7 +1038,7 @@ function tkl_get_native_parent_dir()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      if [[ "${RETURN_VALUE: -1}" == ":" ]]; then
+      if [[ "${RETURN_VALUE: -1}" == ':' ]]; then
         RETURN_VALUE='' # root directory does not have a parent directory
         return 2
       fi
@@ -1157,7 +1133,7 @@ function tkl_convert_backend_path_to_native()
 
   tkl_normalize_path "$PathToConvert" || return 1
 
-  if (( ${#RETURN_VALUE} >= 2 )) && [[ "${RETURN_VALUE:1:1}" != ":" ]]; then
+  if (( ${#RETURN_VALUE} >= 2 )) && [[ "${RETURN_VALUE:1:1}" != ':' ]]; then
     case "$OSTYPE" in
       msys* | mingw*)
         while true; do

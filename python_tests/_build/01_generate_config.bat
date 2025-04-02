@@ -10,7 +10,7 @@ call "%%~dp0__init__/__init__.bat" || exit /b
 
 call "%%TACKLELIB_PROJECT_ROOT%%/__init__/declare_builtins.bat" %%0 %%* || exit /b
 
-for %%i in (TESTS_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILITIES_BIN_ROOT) do (
+for %%i in (TESTS_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILS_BIN_ROOT) do (
   if not defined %%i (
     echo.%~nx0: error: `%%i` variable is not defined.
     exit /b 255

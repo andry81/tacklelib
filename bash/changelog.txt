@@ -1,3 +1,8 @@
+2025.04.02:
+* changed: *.sh, bash_*: global header code reduction
+* changed: tacklelib/bash_tacklelib: changed and simplified script search and include logic, minor improvements
+* refactor: *.sh, bash_*: cleanup
+
 2024.08.06:
 * new: tacklelib/tools/load_config.sh: `upath` attribute parse
 

@@ -6,7 +6,7 @@ if %IMPL_MODE%0 NEQ 0 goto IMPL
 
 call "%%~dp0__init__.bat" || exit /b
 
-call "%%~dp0check_vars.bat" TACKLELIB_PROJECT_ROOT PROJECT_OUTPUT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILITIES_BIN_ROOT || exit /b
+call "%%~dp0check_vars.bat" TACKLELIB_PROJECT_ROOT PROJECT_OUTPUT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILS_BIN_ROOT || exit /b
 
 call "%%TACKLELIB_PROJECT_ROOT%%/__init__/declare_builtins.bat" %%* || exit /b
 

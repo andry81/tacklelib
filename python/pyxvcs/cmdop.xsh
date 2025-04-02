@@ -376,7 +376,7 @@ def main(configure_root, configure_dir, scm_token, cmd_token, bare_args, **kwarg
 #   Temporary disabled because of issues in the python xonsh module.
 #   See details in the `README_EN.python_xonsh.known_issues.txt` file.
 #
-#@(pcall, main, CONFIGURE_ROOT, CONFIGURE_DIR, SCM_TOKEN, CMD_TOKEN) | @(CONTOOLS_UTILITIES_BIN_ROOT + '/unxutils/tee.exe', CONFIGURE_DIR + '/.log/' + os.path.splitext(os.path.split(__file__)[1])[0] + '.' + datetime.now().strftime("%Y'%m'%d_%H'%M'%S''%f")[:-3])
+#@(pcall, main, CONFIGURE_ROOT, CONFIGURE_DIR, SCM_TOKEN, CMD_TOKEN) | @(CONTOOLS_UTILS_BIN_ROOT + '/unxutils/tee.exe', CONFIGURE_DIR + '/.log/' + os.path.splitext(os.path.split(__file__)[1])[0] + '.' + datetime.now().strftime("%Y'%m'%d_%H'%M'%S''%f")[:-3])
 
 # NOTE:
 #   Logging is implemented externally to the python.

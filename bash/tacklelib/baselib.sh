@@ -15,14 +15,14 @@
 #  pargs  - list of not unique wildcard pattern items which passed in function arguments ($@).
 
 # Script can be ONLY included by "source" command.
-[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$SOURCE_TACKLELIB_BASELIB_SH" || SOURCE_TACKLELIB_BASELIB_SH -eq 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
+[[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]] && (( ! SOURCE_TACKLELIB_BASELIB_SH )) || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
 SOURCE_TACKLELIB_BASELIB_SH=1 # including guard
 
-if [[ -z "$SOURCE_TACKLELIB_BASH_TACKLELIB_SH" || SOURCE_TACKLELIB_BASH_TACKLELIB_SH -eq 0 ]]; then
-  echo."$0: error: \`bash_tacklelib\` must be included explicitly."
+(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+  echo."$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-fi >&2
+}
 
 function tkl_enable_nocase_match()
 {
