@@ -1,4 +1,8 @@
 2025.04.02:
+* fixed: bash/tacklelib/bash_tacklelib: `tkl_include*` and execution fixup
+* changed: bash/tacklelib/bash_tacklelib: `tkl_include*` and stack dump reimplementation
+
+2025.04.02:
 * changed: *.sh, bash_*: global header code reduction
 * changed: bash/tacklelib/bash_tacklelib: changed and simplified script search and include logic, minor improvements
 * refactor: *.sh, bash_*, *.bat: cleanup
