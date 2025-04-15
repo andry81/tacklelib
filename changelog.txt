@@ -1,3 +1,7 @@
+2025.04.16:
+* new: deploy/3dparty/notepad++/plugins/MultiReplace/Lists/cpp/cpp.reformat.csv: cpp format corrector
+* new: deploy/3dparty/notepad++/plugins/MultiReplace/Lists/README_EN.txt: readme
+
 2025.04.02:
 * fixed: bash/tacklelib/bash_tacklelib: `tkl_include*` and execution fixup
 * changed: bash/tacklelib/bash_tacklelib: `tkl_include*` and stack dump reimplementation
