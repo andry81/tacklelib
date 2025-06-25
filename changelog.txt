@@ -1,3 +1,6 @@
+2025.06.25:
+* refactor: global directories rename to lower case name
+
 2025.04.16:
 * new: deploy/3dparty/notepad++/plugins/MultiReplace/Lists/cpp/cpp.reformat.csv: cpp format corrector
 * new: deploy/3dparty/notepad++/plugins/MultiReplace/Lists/README_EN.txt: readme
