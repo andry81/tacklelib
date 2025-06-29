@@ -1,3 +1,0 @@
-Selected,Find,Replace,WholeWord,MatchCase,UseVariables,Regex,Extended,Comments
-1,"([*&])(\\w)","\\1 \\2",0,0,0,0,1,""
-1,"(\\w)([*&])","\\1 \\2",0,0,0,0,1,""

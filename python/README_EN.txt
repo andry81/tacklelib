@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2023.02.21
+* 2025.06.25
 * tacklelib--python
 
 1. DESCRIPTION
@@ -192,9 +192,9 @@ Solution:
 
   http://www.swarley.me.uk/blog/2014/04/23/python-pip-and-windows-registry-corruption/
 
-  Or use a python script from here:
+  Or use a python script from `contools--admin` project:
 
-  /Scripts/Tools/admin/scan_broken_reg_keys.py
+  /scripts/scan_broken_reg_keys.py
 
 -------------------------------------------------------------------------------
 4.3. Python execution issues:

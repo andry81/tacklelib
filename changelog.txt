@@ -1,3 +1,9 @@
+2025.06.29:
+* changed: deploy/notepad++/plugins/MultiReplace: moved to `contools--notepadplusplus` project
+
+2025.06.25:
+* changed: python/README_EN.txt: readme update
+
 2025.06.25:
 * refactor: global directories rename to lower case name
 
