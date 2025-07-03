@@ -1140,7 +1140,7 @@ function tkl_convert_backend_path_to_native()
           RETURN_VALUE="${RETURN_VALUE%/}/"
           tkl_escape_string "$RETURN_VALUE" '' 2
           # msys automatically converts argument to the native path if it begins from '/' character
-          ConvertedPath="`"$ComSpecInternal" '^/C' \(echo.$RETURN_VALUE\)`"
+          ConvertedPath="`"$ComSpecInternal" '^/C' \(echo;$RETURN_VALUE\)`"
           # remove last slash
           RETURN_VALUE="${ConvertedPath%[/\\]}"
           break
@@ -1737,7 +1737,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
         RETURN_VALUE="${PathPrefix%/}/"
         tkl_escape_string "$RETURN_VALUE" '' 2
         # msys automatically converts argument to the native path if it begins from '/' character
-        ConvertedPath="$("$ComSpecInternal" '^/C' \(echo.$RETURN_VALUE\))"
+        ConvertedPath="$("$ComSpecInternal" '^/C' \(echo;$RETURN_VALUE\))"
         break
       done
       ;;

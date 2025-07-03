@@ -23,8 +23,8 @@ pause
 exit /b %LASTERROR%
 
 :CMD
-echo.^>%*
-echo.
+echo;^>%*
+echo;
 (
   %*
 )

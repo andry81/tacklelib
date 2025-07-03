@@ -12,7 +12,7 @@ call "%%TACKLELIB_PROJECT_ROOT%%/__init__/declare_builtins.bat" %%0 %%* || exit 
 
 for %%i in (TESTS_PROJECT_ROOT PROJECT_LOG_ROOT CONTOOLS_ROOT CONTOOLS_UTILS_BIN_ROOT) do (
   if not defined %%i (
-    echo.%~nx0: error: `%%i` variable is not defined.
+    echo;%~nx0: error: `%%i` variable is not defined.
     exit /b 255
   ) >&2
 )
@@ -82,16 +82,16 @@ call :CMD cmake %CMAKE_CMD_LINE%
 exit /b
 
 :PROCESS_COMMAND
-echo.^>"%TESTS_PROJECT_ROOT%/%CMD_PATH%" %CMD_PARAMS%
+echo;^>"%TESTS_PROJECT_ROOT%/%CMD_PATH%" %CMD_PARAMS%
 
 call "%%TESTS_PROJECT_ROOT%%/%%CMD_PATH%%" %CMD_PARAMS% || exit /b
-echo.
+echo;
 
 exit /b 0
 
 :CMD
-echo.^>%*
-echo.
+echo;^>%*
+echo;
 (
   %*
 )
@@ -99,8 +99,8 @@ exit /b
 
 :CMDINT
 if %INIT_VERBOSE%0 NEQ 0 (
-  echo.^>%*
-  echo.
+  echo;^>%*
+  echo;
 )
 (
   %*

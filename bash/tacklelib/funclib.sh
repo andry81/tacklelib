@@ -8,7 +8,7 @@
 SOURCE_TACKLELIB_FUNCLIB_SH=1 # including guard
 
 (( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
-  echo."$0: error: \`bash_tacklelib\` must be included explicitly." >&2
+  echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
 }
 

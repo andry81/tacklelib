@@ -23,7 +23,7 @@ call "%%~dp0canonical_path_if_ndef.bat" TACKLELIB_PROJECT_ROOT                 "
 call "%%~dp0canonical_path_if_ndef.bat" TACKLELIB_PROJECT_EXTERNALS_ROOT       "%%TACKLELIB_PROJECT_ROOT%%/_externals"
 
 if not exist "%TACKLELIB_PROJECT_EXTERNALS_ROOT%\*" (
-  echo.%~nx0: error: TACKLELIB_PROJECT_EXTERNALS_ROOT directory does not exist: "%TACKLELIB_PROJECT_EXTERNALS_ROOT%".
+  echo;%~nx0: error: TACKLELIB_PROJECT_EXTERNALS_ROOT directory does not exist: "%TACKLELIB_PROJECT_EXTERNALS_ROOT%".
   exit /b 255
 ) >&2
 
