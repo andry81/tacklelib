@@ -1,3 +1,6 @@
+2025.07.03:
+* fixed: .externals: missed to switch from `gnuwin32` to `msys2` external
+
 2025.06.29:
 * changed: deploy/notepad++/plugins/MultiReplace: moved to `contools--notepadplusplus` project
 

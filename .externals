@@ -28,7 +28,7 @@ repositories:
       - bin
 
 
-  _externals/gnuwin32:
+  _externals/msys2/win7:
     type:         git
-    url:          https://github.com/andry81-3dparty/external-tools--gnuwin32
-    version:      20101227
+    url:          https://github.com/andry81-3dparty/external-tools--msys2-win7
+    version:      msys2-i686-20160205
