@@ -1,3 +1,7 @@
+2025.07.05:
+* fixed: .externals: missed `contools/tools` directory
+* refactor: .externals: default branch rename
+
 2025.07.03:
 * fixed: bash/tacklelib/*.sh: accidental `echo` with dot
 * changed: global code improvement: `echo.` -> `echo;`, based on "Different `echo?...` variants" : https://github.com/andry81/contools/discussions/22
