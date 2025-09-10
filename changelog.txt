@@ -1,5 +1,11 @@
+2025.09.11:
+* changed: README.md: global remove of code metric references from all project pages
+
 2025.07.18:
 * changed: __init__.sh: avoid parameters pass to the root init script from a sub directory (if you want to pass a script parameter, then you have to pass it in to a script from the same directory or below it)
+
+2025.07.17:
+* changed: README_EN.txt: readme update
 
 2025.07.05:
 * fixed: .externals: missed `contools/tools` directory

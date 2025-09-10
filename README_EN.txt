@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2024.07.12
+* 2025.07.17
 * tacklelib
 
 1. DESCRIPTION
@@ -413,9 +413,7 @@ https://cmake.org/cmake/help/v3.14/release/3.14.html#id13
 -------------------------------------------------------------------------------
 6. DEPENDENCIES
 -------------------------------------------------------------------------------
-Any project which is dependent on this project have has to contain the
-`README_EN.deps.txt` description file for the common dependencies in the
-Windows and in the Linux like platforms (see `PRECONFIGURE` section).
+See details in `README_EN.deps.txt` file.
 
 -------------------------------------------------------------------------------
 7. EXTERNALS

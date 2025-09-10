@@ -30,7 +30,7 @@
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codacy-grade.svg" valign="middle" alt="codacy.com|quality" /></a>
 </p>
 
-<!-- -->
+<!-- now requires invite to log in - ->
 <p align="center">
   <a href="https://codeclimate.com/github/andry81/tacklelib/maintainability">
     <img src="https://github.com/andry81-cache/andry81--gh-content-cache/raw/master/repo/andry81/tacklelib/badges/metrics/codeclimate-maintainability.svg" valign="middle" alt="codeclimate.com|maintainability" /></a>
