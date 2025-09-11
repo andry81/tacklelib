@@ -76,7 +76,7 @@
 </p>
 
 <p align="center">
-  <a href="https://stackoverflow.com/search?q=tacklelib"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/board/stackoverflow-tacklelib.svg" valign="middle" alt="stackoverflow search" /></a>
+  <a href="https://stackexchange.com/search?q=tacklelib"><img src="https://github.com/andry81-cache/gh-content-static-cache/raw/master/common/badges/board/stackexchange-tacklelib.svg" valign="middle" alt="stackexchange search" /></a>
 </p>
 
 <p align="center">
