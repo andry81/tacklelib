@@ -1,3 +1,9 @@
+2026.01.15:
+* new: tacklelib/bash_tacklelib: `tkl_unset_all_include_guards` function to reload and reinit all related scripts which does use `SOURCE_*_SH` variables as include guards
+
+2025.07.03:
+* fixed: tacklelib/*.sh: accidental `echo` with dot
+
 2025.04.02:
 * fixed: tacklelib/bash_tacklelib: `tkl_include*` and execution fixup
 * changed: tacklelib/bash_tacklelib: `tkl_include*` and stack dump reimplementation

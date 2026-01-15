@@ -45,6 +45,16 @@ function tkl_debug_echo()
   return $last_error
 }
 
+function tkl_unset_all_include_guards()
+{
+  local var
+  for var in ${!SOURCE_*}; do
+    if [[ "$var" =~ ^SOURCE_.*_SH$ ]]; then
+      unset $var
+    fi
+  done
+}
+
 # WORKAROUND:
 #   The `declare -g` has been introduced in the `bash-4.2-alpha`, so to make
 #   a global variable in an older version we have to replace the
