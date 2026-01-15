@@ -13,6 +13,9 @@
 2025.07.17:
 * changed: README_EN.txt: readme update
 
+2025.07.07:
+* changed: *.bat: flag parse global code improvement, added `-+` flag to begin flags scope
+
 2025.07.05:
 * fixed: .externals: missed `contools/tools` directory
 * refactor: .externals: default branch rename
