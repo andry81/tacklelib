@@ -1,4 +1,7 @@
 2026.01.30:
+* changed: tacklelib/bash_tacklelib.sh: `tkl_is_call_registered` for protection from direct execution, where the `tkl_execute_calls` must be used instead
+
+2026.01.30:
 * fixed: tacklelib/baselib.sh: code fixup
 * changed: *.sh: global code improvement and refactor
 * changed: *.sh: inverted all not `if` conditions to avoid hidden return code set

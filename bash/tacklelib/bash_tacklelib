@@ -1917,6 +1917,19 @@ function tkl_unregister_call()
   return 0
 }
 
+function tkl_is_call_registered()
+{
+  local call_entry="$1"
+
+  if [[ -z "$call_entry" ]]; then
+    echo "tkl_unregister_call: call entry must be not empty" >&2
+    return 255
+  fi
+
+  # NOTE: treated as not registered in case of an empty array
+  tkl_eval_if "\${tkl__registered_calls__${call_entry}+x}" || return 1
+}
+
 # Special exit code value variable has used by the specific set of functions
 # like `tkl_call`, `tkl_exit`, `tkl_abort` to hold the exit code over the builtin
 # functions like `pushd` and `popd` which does change the exit code.
