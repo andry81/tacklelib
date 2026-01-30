@@ -7,10 +7,10 @@
 
 SOURCE_TACKLELIB_HASHLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'baselib.sh'
 

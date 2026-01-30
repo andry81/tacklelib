@@ -25,10 +25,10 @@
 # Script can be ONLY included by "source" command.
 [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called
 
-(( BASH_VERSINFO[0] >= 3 )) || {
+if (( BASH_VERSINFO[0] < 3 )); then
   echo "$0: error: Bash version 3+ is required." >&2
   exit 253
-}
+fi
 
 if (( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   # reregister on include
@@ -301,13 +301,13 @@ function tkl_export_path()
   local flag_args=()
 
   tkl_read_command_line_flags flag_args "$@"
-  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
 
   local flag_subst_empty_value_by_placeholder=0
 
   local flag
   for flag in "${flag_args[@]}"; do
-    [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
+    [[ "${flag//s/}" == "$flag" ]] || flag_subst_empty_value_by_placeholder=1
   done
 
   unset flag
@@ -348,13 +348,13 @@ function tkl_export_path_eval()
   local flag_args=()
 
   tkl_read_command_line_flags flag_args "$@"
-  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
 
   local flag_subst_empty_value_by_placeholder=0
 
   local flag
   for flag in "${flag_args[@]}"; do
-    [[ "${flag//s/}" != "$flag" ]] && flag_subst_empty_value_by_placeholder=1
+    [[ "${flag//s/}" == "$flag" ]] || flag_subst_empty_value_by_placeholder=1
   done
 
   unset flag
@@ -400,16 +400,10 @@ function tkl_eval_if_expr()
   eval "(( $@ ))" || return 1
 }
 
-# replacement of the `true` command, as it can be an external process
-function tkl_true()
+# sets error level or pass it through
+function tkl_errlvl()
 {
-  return 0
-}
-
-# replacement of the `false` command, as it can be an external process
-function tkl_false()
-{
-  return 1
+  return ${1:-$?}
 }
 
 # CAUTION:
@@ -482,7 +476,7 @@ function tkl_exit_if_error()
 {
   local last_error=${1:-$?}
   local IFS=$' \t\r\n' # workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
-  (( last_error )) && tkl_exit $last_error "${@:2}"
+  (( ! last_error )) || tkl_exit $last_error "${@:2}"
   return 0
 }
 
@@ -601,13 +595,13 @@ function tkl_push_var_to_stack_impl()
   local _2BA2974B_vars_stack_size
   tkl_eval_if -n "\${tkl__vars_stack__$1__$2__size}" && {
     eval "_2BA2974B_vars_stack_size=\"\${tkl__vars_stack__$1__$2__size}\""
-    tkl_true
+    :
   } || _2BA2974B_vars_stack_size=0
 
   tkl_export_eval "tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_size}" "\${$2}"
   tkl_eval_if -n "\${$2+x}" && {
     tkl_export "tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_size}__defined" 1
-    tkl_true
+    :
   } || {
     tkl_export "tkl__vars_stack__$1__$2__${_2BA2974B_vars_stack_size}__defined" 0
   }
@@ -747,7 +741,7 @@ function tkl_get_var_stack_size()
   #local var_name="$2"
 
   tkl_declare_global_eval RETURN_VALUE "\${tkl__vars_stack__$1__$2__size}"
-  [[ -z "$RETURN_VALUE" ]] && RETURN_VALUE=0
+  [[ -n "$RETURN_VALUE" ]] || RETURN_VALUE=0
 
   return 0
 }
@@ -759,17 +753,13 @@ function tkl_is_abs_path()
   # drop return value
   RETURN_VALUE=0
 
-  [[ -z "$file_path" ]] && return 1
+  [[ -n "$file_path" ]] || return 1
 
-  if [[ "${file_path:0:1}" == '/' || "${file_path:0:1}" == '\' ]]; then
-    RETURN_VALUE=1
-    return 0
-  elif [[ "${file_path:1:1}" == ':' ]]; then
+  if [[ "${file_path:0:1}" == '/' || "${file_path:0:1}" == '\' || "${file_path:1:1}" == ':' ]]; then
     RETURN_VALUE=1
     return 0
   fi
 
-  RETURN_VALUE=0
   return 1
 }
 
@@ -1037,7 +1027,7 @@ function tkl_get_native_parent_dir()
   tkl_convert_backend_path_to_native "$1" -s
 
   RETURN_VALUE="${RETURN_VALUE%[/]*}"
-  [[ -z "$RETURN_VALUE" ]] && return 1
+  [[ -n "$RETURN_VALUE" ]] || return 1
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
@@ -1130,7 +1120,7 @@ function tkl_convert_backend_path_to_native()
     tkl_exctract_path_ignoring_user_mount_points -w "$PathToConvert"
     local last_error=$?
     # convert backslashes to slashes
-    [[ "${Flags/s/}" != "$Flags" ]] && RETURN_VALUE="${RETURN_VALUE//\\//}"
+    [[ "${Flags/s/}" == "$Flags" ]] || RETURN_VALUE="${RETURN_VALUE//\\//}"
     return last_error
   fi
 
@@ -1188,8 +1178,8 @@ function tkl_find_char()
   # (Optional) Including by default, 0 - if excluding
   local Including="${3:-1}"
 
-  [[ -z "$String" ]] && return 1
-  [[ -z "$Chars" ]] && return 2
+  [[ -n "$String" ]] || return 1
+  [[ -n "$Chars" ]] || return 2
 
   local StringLen=${#String}
   local CharsLen=${#Chars}
@@ -1234,12 +1224,12 @@ function tkl_find_string()
   local flags="$3"
 
   local nocaseSearch=0
-  [[ "${flags//i/}" != "$flags" ]] && nocaseSearch=1
+  [[ "${flags//i/}" == "$flags" ]] || nocaseSearch=1
 
   local usePerl=0
-  [[ "${flags//p/}" != "$flags" ]] && usePerl=1
+  [[ "${flags//p/}" == "$flags" ]] || usePerl=1
 
-  [[ -z "$String" ]] && return 1
+  [[ -n "$String" ]] || return 1
   if [[ -z "$Substring" ]]; then
     RETURN_VALUE=${#String}
     return 2
@@ -1267,7 +1257,7 @@ function tkl_find_string()
       RETURN_VALUE="`/bin/perl.exe -e 'my $a=$ARGV[0]; my $b=$ARGV[1]; $a =~ /$b/i; print $-[0];' "$String" "$Substring"`"
     fi
 
-    (( RETURN_VALUE >= 0 )) && return 0
+    (( RETURN_VALUE < 0 )) || return 0
   fi
 
   return 255
@@ -1334,7 +1324,7 @@ function tkl_escape_string()
     esac
   done
 
-  [[ -z "$EscapedString" ]] && return 2
+  [[ -n "$EscapedString" ]] || return 2
 
   RETURN_VALUE="$EscapedString"
 
@@ -1353,13 +1343,16 @@ function tkl_serialize_array()
   local __array_var="$1"
   local __out_var="$2"
 
-  [[ -z "$__array_var" ]] && return 1
-  [[ -z "$__out_var" ]] && return 2
+  [[ -n "$__array_var" ]] || return 1
+  [[ -n "$__out_var" ]] || return 2
 
   local __array_var_size
   eval declare "__array_var_size=\${#$__array_var[@]}"
 
-  (( ! __array_var_size )) && { tkl_declare_global $__out_var ''; return 0; }
+  if (( ! __array_var_size )); then
+    tkl_declare_global $__out_var ''
+    return 0
+  fi
 
   local __escaped_array_str=''
 
@@ -1382,8 +1375,11 @@ function tkl_deserialize_array()
   local __serialized_array="$1"
   local __out_var="$2"
 
-  [[ -z "$__out_var" ]] && return 1
-  [[ -z "$__serialized_array" ]] && { tkl_declare_array $__out_var; return 0; }
+  [[ -n "$__out_var" ]] || return 1
+  if [[ -z "$__serialized_array" ]]; then
+    tkl_declare_array $__out_var
+    return 0
+  fi
 
   local IFS='|'
   local __deserialized_array=($__serialized_array)
@@ -1435,13 +1431,13 @@ function tkl_normalize_path()
   local flag_args=()
 
   tkl_read_command_line_flags flag_args "$@"
-  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
 
   local convert_to_abs_path=0
 
   local flag
   for flag in "${flag_args[@]}"; do
-    [[ "${flag//a/}" != "$flag" ]] && convert_to_abs_path=1
+    [[ "${flag//a/}" == "$flag" ]] || convert_to_abs_path=1
   done
 
   # convert all back slashes to slashes
@@ -1501,7 +1497,7 @@ function tkl_normalize_path()
           # can not reduce from here, just pass as is
           path_accumulator="$path_accumulator/.."
           # continue reduction next time from the beginning
-          (( path_accumulator_has_abs_component )) && continue_reduction=1
+          (( ! path_accumulator_has_abs_component )) || continue_reduction=1
           path="$path_suffix"
           read -r path_prefix path_suffix <<< "$path"
         elif [[ -z "$path_abs_prefix" ]]; then
@@ -1576,8 +1572,8 @@ function tkl_normalize_path()
 
     #echo "3: abs_prefix=$path_abs_prefix prefix=$path_prefix suffix=$path_suffix accum=$path_accumulator reductions=$num_reductions continue=$continue_reduction"
 
-    (( num_reductions )) && continue_reduction=1
-    (( ! continue_reduction )) && break
+    (( ! num_reductions )) || continue_reduction=1
+    (( continue_reduction )) || break
 
     path="$path_accumulator"
     path_accumulator='' # restart parsing from beginning
@@ -1613,15 +1609,17 @@ function tkl_convert_native_path_to_backend()
   # convert all back slashes to slashes
   local PathToConvert="${1//\\//}"
 
-  [[ -z "$PathToConvert" ]] && return 1
+  [[ -n "$PathToConvert" ]] || return 1
 
   # workaround for the bash 3.1.0 bug for the expression "${arg:X:Y}",
   # where "Y == 0" or "Y + X >= ${#arg}"
   local PathToConvertLen=${#PathToConvert}
   local PathPrefixes=('' '')
   local PathSuffix=''
-  (( PathToConvertLen > 0 )) && PathPrefixes[0]="${PathToConvert:0:1}"
-  (( PathToConvertLen > 1 )) && PathPrefixes[1]="${PathToConvert:1:1}"
+
+  (( PathToConvertLen <= 0 )) || PathPrefixes[0]="${PathToConvert:0:1}"
+  (( PathToConvertLen <= 1 )) || PathPrefixes[1]="${PathToConvert:1:1}"
+
   if (( PathToConvertLen >= 2 )) && [[ "${PathPrefixes[0]}" != '/' && "${PathPrefixes[0]}" != '.' && "${PathPrefixes[1]}" == ':' ]]; then
     PathSuffix="${PathToConvert:2}"
     PathSuffix="${PathSuffix%/}"
@@ -1673,7 +1671,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
   # drop return value
   RETURN_VALUE=''
 
-  [[ -z "$PathToConvert" ]] && return 1
+  [[ -n "$PathToConvert" ]] || return 1
 
   local DoConvertToBackendTypePath=1
   if [[ "${Flags//w/}" != "$Flags" ]]; then
@@ -1690,7 +1688,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
   #
   eval "function tkl_local_return_${#FUNCNAME[@]}()
   {
-    [[ -n \"\$oldShopt\" ]] && eval \$oldShopt
+    [[ -z \"\$oldShopt\" ]] || eval \$oldShopt
     unset -f \"\${FUNCNAME[0]}\" # drop function after execution
   }"
 
@@ -1777,9 +1775,10 @@ function tkl_exctract_path_ignoring_user_mount_points()
 
 function tkl_is_file_os_exec()
 {
-  [[ ! -x "$1" ]] && return 255
+  [[ -x "$1" ]] || return 255
 
   local exec_header_bytes
+
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
       # CAUTION:
@@ -1790,21 +1789,21 @@ function tkl_is_file_os_exec()
       {
         read -r -n 4 exec_header_bytes 2> /dev/null < "$1" ||
         {
-          [[ -x "${1%.exe}.exe" ]] && read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.exe}.exe"
+          [[ ! -x "${1%.exe}.exe" ]] || read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.exe}.exe"
         } ||
         {
-          [[ -x "${1%.com}.com" ]] && read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.com}.com"
+          [[ ! -x "${1%.com}.com" ]] || read -r -n 4 exec_header_bytes 2> /dev/null < "${1%.com}.com"
         }
       } &&
       if [[ "${exec_header_bytes:0:3}" == $'MZ\x90' ]]; then
         # $'MZ\x90\00' for bash version 3.2.42+
         # $'MZ\x90\03' for bash version 4.0+
-        [[ "${exec_header_bytes:3:1}" == $'\x00' || "${exec_header_bytes:3:1}" == $'\x03' ]] && return 0
+        [[ "${exec_header_bytes:3:1}" != $'\x00' && "${exec_header_bytes:3:1}" != $'\x03' ]] || return 0
       fi
     ;;
     *)
       read -r -n 4 exec_header_bytes < "$1"
-      [[ "$exec_header_bytes" == $'\x7fELF' ]] && return 0
+      [[ "$exec_header_bytes" != $'\x7fELF' ]] || return 0
     ;;
   esac
 
@@ -1840,7 +1839,7 @@ function tkl_exec_inproc_entry()
 function tkl_bash_entry()
 {
   local BashEntryPath="$1"
-  [[ -z "$BashEntryPath" ]] && return 1
+  [[ -n "$BashEntryPath" ]] || return 1
 
   tkl_exctract_path_ignoring_user_mount_points -b "$BashEntryPath" || return 2
   export BASH_ENTRY_FILE="$RETURN_VALUE"

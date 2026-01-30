@@ -5,10 +5,10 @@
 
 SOURCE_TACKLELIB_BUILDLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'traplib.sh'
 tkl_include_or_abort 'stringlib.sh'
@@ -235,7 +235,7 @@ function tkl_get_file_dir()
 
   if [[ -n "$file_in" ]]; then
     RETURN_VALUE="${file_in%/*}"
-    [[ -z "$RETURN_VALUE" ]] && RETURN_VALUE="/"
+    [[ -n "$RETURN_VALUE" ]] || RETURN_VALUE="/"
   else
     RETURN_VALUE="."
   fi
@@ -253,15 +253,15 @@ function tkl_make_dir()
   local flag_args=()
 
   tkl_read_command_line_flags flag_args "$@"
-  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
 
   local arg
   for arg in "$@"; do
-    [[ ! -d "$arg" ]] && {
+    if [[ ! -d "$arg" ]]; then
       tkl_make_command_line '' 1 "$arg"
       echo ">mkdir ${flag_args[@]} $RETURN_VALUE"
       mkdir "${flag_args[@]}" "$arg" || return $?
-    }
+    fi
   done
 
   return 0
@@ -272,7 +272,7 @@ function tkl_move_file()
   local flag_args=()
 
   tkl_read_command_line_flags flag_args "$@"
-  (( ${#flag_args[@]} )) && shift ${#flag_args[@]}
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
 
   local move_symlinks=0
   local flag
@@ -354,8 +354,8 @@ function tkl_load_command_line_from_file()
   local AlwaysQuoting=0
 
   if [[ "${Flags//-/}" != "" && "${Flags#-}" != "$Flags" ]]; then
-    [[ "${Flags//e/}" != "$Flags" ]] && DoEval=1
-    [[ "${Flags//q/}" != "$Flags" ]] && AlwaysQuoting=1
+    [[ "${Flags//e/}" == "$Flags" ]] || DoEval=1
+    [[ "${Flags//q/}" == "$Flags" ]] || AlwaysQuoting=1
   fi
 
   if [[ "$FilePath" != '-' ]]; then
@@ -480,7 +480,7 @@ function tkl_make_command_line_ex()
     EscapeType="${EscapeType%%:*}"
   fi
 
-  [[ -z "$EscapeType" ]] && EscapeType=0
+  [[ -n "$EscapeType" ]] || EscapeType=0
 
   shift 4
 
@@ -490,7 +490,7 @@ function tkl_make_command_line_ex()
   local CommandLine=""
   local AlwaysQuoting=0
 
-  [[ "${EscapeFlags//a/}" != "$EscapeFlags" ]] && AlwaysQuoting=1
+  [[ "${EscapeFlags//a/}" == "$EscapeFlags" ]] || AlwaysQuoting=1
 
   local arg
   local i=0
@@ -498,7 +498,7 @@ function tkl_make_command_line_ex()
   case "$EscapeType" in
     0)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
@@ -506,14 +506,14 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;
 
     1)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 1
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
@@ -521,14 +521,14 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;
 
     2)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 2
         tkl_escape_string "$RETURN_VALUE" '' 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
@@ -536,7 +536,7 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;
@@ -579,7 +579,7 @@ function tkl_exec_project_logging()
   [[ -n "$NEST_LVL" ]] || tkl_declare_global NEST_LVL 0
 
   # no local logging if nested call
-  (( ! IMPL_MODE && ! NEST_LVL )) && {
+  if (( ! IMPL_MODE && ! NEST_LVL )); then
     tkl_init_project_log
 
     export IMPL_MODE=1
@@ -596,7 +596,7 @@ function tkl_exec_project_logging()
     } 9>&2
 
     tkl_exit
-  }
+  fi
 
   (( NEST_LVL++ ))
 }

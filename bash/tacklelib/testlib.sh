@@ -19,10 +19,10 @@
 
 SOURCE_TACKLELIB_TESTLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'baselib.sh'
 tkl_include_or_abort 'traplib.sh'
@@ -167,7 +167,7 @@ function tkl_testmodule_exit_handler()
 
 function tkl_testmodule_int_handler()
 {
-  (( ! CONTINUE_ON_SIGINT )) && tkl_set_trap_postponed_exit 254
+  (( CONTINUE_ON_SIGINT )) || tkl_set_trap_postponed_exit 254
 }
 
 function tkl_test_init()
@@ -367,7 +367,7 @@ function tkl_test_exit_handler()
 function tkl_test_int_handler()
 {
   tkl_test_add_last_error 254
-  (( ! CONTINUE_ON_SIGINT )) && tkl_set_trap_postponed_exit $TestLastError
+  (( CONTINUE_ON_SIGINT )) || tkl_set_trap_postponed_exit $TestLastError
 }
 
 function tkl_testmodule_get_last_error()
@@ -560,7 +560,7 @@ TestCase_$TestModuleSessionIdToken
   local TestLastError
   tkl_testmodule_get_last_error TestLastError
 
-  [[ -z "$TestLastError" ]] && TestLastError=255 # just in case
+  [[ -n "$TestLastError" ]] || TestLastError=255 # just in case
 
   local i=0
   local test_func_name
@@ -581,8 +581,8 @@ TestCase_$TestModuleSessionIdToken
     (( NUM_TESTS_FAILED++ ))
   fi
   (( NUM_TESTS_OVERALL++ ))
-  (( TestLastError && ! CONTINUE_ON_TEST_FAIL )) && exit $TestLastError
-  (( TestProcessLastError && ! CONTINUE_ON_TEST_FAIL )) && exit $TestProcessLastError
+  (( ! TestLastError || CONTINUE_ON_TEST_FAIL )) || exit $TestLastError
+  (( ! TestProcessLastError || CONTINUE_ON_TEST_FAIL )) || exit $TestProcessLastError
 
   return 0
 }
@@ -710,7 +710,7 @@ function tkl_compare_envs()
 
   function tkl_compare_envs_LocalReturnHandler()
   {
-    [[ -n "$oldShopt" ]] && eval $oldShopt
+    [[ -z "$oldShopt" ]] || eval $oldShopt
   }
 
   local oldShopt
@@ -800,7 +800,7 @@ function tkl_compare_envs()
       fi
       TrapTypesArrSize=${#TrapTypesArr[@]}
       AssertTypeStr="${CompCmdLine[0]}"
-      (( ! TrapTypesArrSize )) && TrapTypesArr[0]='*'
+      (( TrapTypesArrSize )) || TrapTypesArr[0]='*'
       TrapTypesArrSize=${#TrapTypesArr[@]}
       # do zeros found trap type numbers
       FoundTrapTypeNums=()
@@ -833,7 +833,7 @@ function tkl_compare_envs()
         break
       fi
     done
-    (( DoIgnore )) && continue
+    (( ! DoIgnore )) || continue
     # but always checks presence of special extra variables created by the traplib functions
     if [[ "$AssertTypeStr" == "AssertHasExtraVars" ]]; then
       # test on specific extra variable absence except declared
@@ -860,7 +860,7 @@ function tkl_compare_envs()
             ;;
           esac
         done
-        (( DoIgnore )) && break
+        (( ! DoIgnore )) || break
       done
     elif [[ "$AssertTypeStr" == "AssertHasNoExtraVars" ]]; then
       # test on specific extra variable absence of declared
@@ -890,7 +890,7 @@ function tkl_compare_envs()
             ;;
           esac
         done
-        (( IsDiffLineFound )) && break
+        (( ! IsDiffLineFound )) || break
         if [[ "$TrapType" != '*' ]]; then
           for (( k=0; k < TrapStackHasVarsArrSize; k++ )); do
             eval "TrapStackHasVarName=\"\${$TrapStackHasVarsArrName[k]}\""
@@ -902,17 +902,20 @@ function tkl_compare_envs()
               ;;
             esac
           done
-          (( DoIgnore )) && break
+          (( ! DoIgnore )) || break
         fi
       done
     fi
+
     if (( IsDiffLineFound )); then
       LinesDiff[NumDiffLine]="$Line1"
       (( NumDiffLine++ ))
       (( NumDiffsFound++ ))
       HasCurBlockDiffs=1
     fi
-    (( IsDiffLineFound || DoIgnore )) && continue
+
+    (( ! IsDiffLineFound && ! DoIgnore )) || continue
+
     # lists should be already sorted, start compare after last found
     for (( j=LastFoundIndex+1; j < ListArrSize2; j++ )); do
       tkl_read_multiline_env_string ListArr2 $j
@@ -929,6 +932,7 @@ function tkl_compare_envs()
         break
       fi
     done
+
     if (( j >= ListArrSize2 )); then
       LinesDiff[NumDiffLine]="$Line1"
       (( NumDiffLine++ ))
@@ -986,7 +990,7 @@ function tkl_read_multiline_env_string()
   NewLineIndex=0
   while (( ! IsMultilineEnd )); do
     eval "Line=\"\${$ArrName[EndMultilineIndex]}\""
-    [[ -z "$Line" ]] && break
+    [[ -n "$Line" ]] || break
     Value="${Line#*=}"
     ValueSize=${#Value}
     IsEscape=0
@@ -1004,7 +1008,7 @@ function tkl_read_multiline_env_string()
           IsMultilineQuote=0
         fi
       elif [[ "$Char" == '\' ]]; then
-        (( ! IsMultilineQuote )) && IsEscape=1
+        (( IsMultilineQuote )) || IsEscape=1
       fi
     done
 
@@ -1012,9 +1016,9 @@ function tkl_read_multiline_env_string()
     (( NewLineIndex++ ))
 
     # stop state machine if no begin of '-quoted string
-    (( ! IsMultilineQuote )) && IsMultilineEnd=1
+    (( IsMultilineQuote )) || IsMultilineEnd=1
 
-    (( ! IsMultilineEnd && EndMultilineIndex++ ))
+    (( IsMultilineEnd || EndMultilineIndex++ ))
   done
 
   local IFS=$'\n' # to join by line return

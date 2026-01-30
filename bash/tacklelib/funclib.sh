@@ -7,10 +7,10 @@
 
 SOURCE_TACKLELIB_FUNCLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'baselib.sh'
 tkl_include_or_abort 'hashlib.sh'
@@ -41,15 +41,15 @@ function tkl_get_func_decls()
   local FuncName
   local NumFuncs=0
   local i=0
+
   for FuncName in "$@"; do
-    tkl_get_func_decl "$FuncName" &&
-    {
+    if tkl_get_func_decl "$FuncName"; then
       RETURN_VALUES[i++]="$RETURN_VALUE"
       (( NumFuncs++ ))
-    }
+    fi
   done
 
-  (( NumFuncs )) && return 0
+  (( ! NumFuncs )) || return 0
 
   return 1
 }
@@ -93,7 +93,7 @@ function tkl_make_func_copy_ex()
   # escape function declaration string
   FuncEscapedDecl="${FuncEscapedDecl//\\/\\\\}"
 
-  (( ${#SuffixCmd} )) && FuncEscapedDecl="${FuncEscapedDecl%\}*}"$'\n'"$SuffixCmd"$'\n'"}"
+  (( ! ${#SuffixCmd} )) || FuncEscapedDecl="${FuncEscapedDecl%\}*}"$'\n'"$SuffixCmd"$'\n'"}"
 
   # make new function
   eval function "$NewFuncName()" "$FuncEscapedDecl"

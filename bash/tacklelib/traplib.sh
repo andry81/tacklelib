@@ -241,10 +241,10 @@
 
 SOURCE_TACKLELIB_TRAPLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'baselib.sh'
 tkl_include_or_abort 'funclib.sh'
@@ -397,7 +397,7 @@ if (( \${#FUNCNAME[@]} )); then
 
     declare tkl__stack_arr_size=\${#$stack_var[@]}
     while (( tkl__stack_arr_size )); do
-      [[ \"\${$stack_var[tkl__stack_arr_size-3]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      [[ \"\${$stack_var[tkl__stack_arr_size-3]}\" == \"\$${stack_var}_func_names_stack\" ]] || break
       ${stack_var}_cmdline=\${$stack_var[tkl__stack_arr_size-2]}
       unset $stack_var[tkl__stack_arr_size-1]
       unset $stack_var[tkl__stack_arr_size-2]
@@ -495,7 +495,7 @@ if (( ! ${stack_var}_handling )); then
 
     # call the same function context RETURN handlers at first
     while (( tkl__stack_arr_size )); do
-      [[ \"\${$return_stack_var[tkl__stack_arr_size-3]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      [[ \"\${$return_stack_var[tkl__stack_arr_size-3]}\" == \"\$${stack_var}_func_names_stack\" ]] || break
       declare ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-1]}
       declare ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-2]}
       unset $return_stack_var[tkl__stack_arr_size-1]
@@ -601,7 +601,7 @@ if (( ! ${stack_var}_handling )); then
 
     # call the same function context RETURN handlers at first
     while (( tkl__stack_arr_size )); do
-      [[ \"\${$return_stack_var[tkl__stack_arr_size-2]}\" != \"\$${stack_var}_func_names_stack\" ]] && break
+      [[ \"\${$return_stack_var[tkl__stack_arr_size-2]}\" == \"\$${stack_var}_func_names_stack\" ]] || break
       declare ${return_stack_var}_trap_type=\${$return_stack_var[tkl__stack_arr_size-3]}
       declare ${return_stack_var}_cmdline=\${$return_stack_var[tkl__stack_arr_size-1]}
       unset $return_stack_var[tkl__stack_arr_size-1]
@@ -789,7 +789,7 @@ function tkl_push_trap()
   # and the EXIT signal trap handler is not present.
   if (( is_RETURN_trap_set && ! is_EXIT_trap_set )); then
     eval "stack_arr_size=\${#tkl__traplib_cmdline_stack__EXIT_${shell_pid}[@]}"
-    (( ! stack_arr_size )) && tkl_push_trap ':' EXIT # in case of exit call from the RETURN signal trap handler
+    (( stack_arr_size )) || tkl_push_trap ':' EXIT # in case of exit call from the RETURN signal trap handler
   fi
 
   return $last_error

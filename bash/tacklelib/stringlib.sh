@@ -7,10 +7,10 @@
 
 SOURCE_TACKLELIB_STRINGLIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 tkl_include_or_abort 'baselib.sh'
 tkl_include_or_abort 'traplib.sh'
@@ -27,7 +27,7 @@ function tkl_compare_strings()
   function tkl_local_return_impl()
   {
     tkl_push_trap "tkl_delete_this_func" RETURN
-    [[ -n "$oldShopt" ]] && eval $oldShopt
+    [[ -z "$oldShopt" ]] || eval $oldShopt
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl
@@ -72,7 +72,7 @@ function tkl_to_lower_case()
   function tkl_local_return_impl()
   {
     tkl_push_trap "tkl_delete_this_func" RETURN
-    [[ -n "$oldShopt" ]] && eval $oldShopt
+    [[ -z "$oldShopt" ]] || eval $oldShopt
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl
@@ -141,7 +141,7 @@ function tkl_make_command_line_ex()
     EscapeType="${EscapeType%%:*}"
   fi
 
-  [[ -z "$EscapeType" ]] && EscapeType=0
+  [[ -n "$EscapeType" ]] || EscapeType=0
 
   shift 4
 
@@ -153,7 +153,7 @@ function tkl_make_command_line_ex()
   local CommandLine=''
   local AlwaysQuoting=0
 
-  [[ "${EscapeFlags//a/}" != "$EscapeFlags" ]] && AlwaysQuoting=1
+  [[ "${EscapeFlags//a/}" == "$EscapeFlags" ]] || AlwaysQuoting=1
 
   local arg
   local i=0
@@ -161,7 +161,7 @@ function tkl_make_command_line_ex()
   case "$EscapeType" in
     0)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
@@ -169,14 +169,14 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;
 
     1)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 1
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
           # we must quote white space characters in an argument to avoid argument splitting
@@ -184,14 +184,14 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;
 
     2)
       for arg in "${Args[@]}"; do
-        [[ -n "$PredicatePrefixFunc" ]] && "$PredicatePrefixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicatePrefixFunc" ]] || "$PredicatePrefixFunc" CommandLine $i "$arg"
         tkl_escape_string "$arg" "$EscapeChars" 2
         tkl_escape_string "$RETURN_VALUE" '' 0
         if (( AlwaysQuoting )) || [[ "${RETURN_VALUE//[ $'\t\r\n']/}" != "$RETURN_VALUE" ]]; then
@@ -199,7 +199,7 @@ function tkl_make_command_line_ex()
         else
           CommandLine="$CommandLine${CommandLine:+" "}$RETURN_VALUE"
         fi
-        [[ -n "$PredicateSuffixFunc" ]] && "$PredicateSuffixFunc" CommandLine $i "$arg"
+        [[ -z "$PredicateSuffixFunc" ]] || "$PredicateSuffixFunc" CommandLine $i "$arg"
         (( i++ ))
       done
       ;;

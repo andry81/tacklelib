@@ -234,8 +234,8 @@ function tkl_load_config()
   # CAUTION:
   #   Space before the negative value is required!
   #
-  [[ "${__CONFIG_DIR_IN: -1}" == '/' ]] && __CONFIG_DIR_IN="${__CONFIG_DIR_IN::-1}"
-  [[ "${__CONFIG_DIR_OUT: -1}" == '/' ]] && __CONFIG_DIR_OUT="${__CONFIG_DIR_OUT::-1}"
+  [[ "${__CONFIG_DIR_IN: -1}" != '/' ]] || __CONFIG_DIR_IN="${__CONFIG_DIR_IN::-1}"
+  [[ "${__CONFIG_DIR_OUT: -1}" != '/' ]] || __CONFIG_DIR_OUT="${__CONFIG_DIR_OUT::-1}"
 
   if [[ ! -e "$__CONFIG_DIR_IN" ]]; then
     echo "$BASH_SOURCE_FILE_NAME: error: input config directory does not exist: \`$__CONFIG_DIR_IN\`" >&2

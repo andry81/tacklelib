@@ -19,10 +19,10 @@
 
 SOURCE_TACKLELIB_BASELIB_SH=1 # including guard
 
-(( SOURCE_TACKLELIB_BASH_TACKLELIB_SH )) || {
+if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   echo "$0: error: \`bash_tacklelib\` must be included explicitly." >&2
   exit 255
-}
+fi
 
 function tkl_enable_nocase_match()
 {
@@ -62,9 +62,9 @@ function tkl_get_shift_offset()
   fi
 
   local numArgs=$#
-  (( numArgs >= maxOffset )) && return $maxOffset
+  (( numArgs >= maxOffset )) || return $numArgs
 
-  return $numArgs
+  return $maxOffset
 }
 
 function tkl_is_equal_string_arrays()
@@ -140,14 +140,15 @@ function tkl_remove_array_from_uarray()
 
   local i
   local j
-  local isFound
+  local isFound=0
   local item1
   local item2
  
   eval declare "ArrayFromSize=\${#$1[@]}"
   eval declare "UArrayToSize=\${#$2[@]}"
 
-  (( ! UArrayToSize )) && return
+  (( UArrayToSize )) || return 255
+
   for (( i=0; i < ArrayFromSize; i++ )); do
     eval "item1=\"\${$1[i]}\""
     isFound=0
@@ -158,14 +159,19 @@ function tkl_remove_array_from_uarray()
         break
       fi
     done
+
     if (( isFound )); then
       # remove it from the array
       eval "$2=(\"\${$2[@]:0:j}\" \"\${$2[@]:j+1}\")"
       (( UArrayToSize-- ))
     fi
 
-    (( ! UArrayToSize )) && break
+    (( UArrayToSize )) || break
   done
+
+  (( isFound )) || return 1
+
+  return 0
 }
 
 function tkl_remove_item_from_uarray()
@@ -243,11 +249,15 @@ function tkl_clear_pargs_from_array()
 
   eval declare "ArraySize=\${#$ArrayName[@]}"
   local PArgsSize="${#PArgsArr[@]}"
+
   for (( i=0; i < PArgsSize; i++ )); do
-    [[ -z "${PArgsArr[i]}" ]] && continue
+    [[ -n "${PArgsArr[i]}" ]] || continue
+
     for (( j=0; j < ArraySize; j++ )); do
       eval "item=\"\${$ArrayName[j]}\""
-      [[ -z "$item" ]] && continue
+
+      [[ -n "$item" ]] || continue
+
       case "$item" in
         ${PArgsArr[i]})
           # clear it in the array
@@ -293,7 +303,7 @@ function tkl_assign_item_to_uarray()
 
   local AssignPredicateFunc="$3"
 
-  [[ -z "$AssignPredicateFunc" ]] && return 2
+  [[ -n "$AssignPredicateFunc" ]] || return 2
 
   local i
   local item
@@ -462,9 +472,9 @@ function tkl_assign_uarray_to_uarray()
   local SecondPredicateFunc="$4"
   local AssignPredicateFunc="$5"
 
-  [[ -z "$FirstPredicateFunc" ]] && return 1
-  [[ -z "$SecondPredicateFunc" ]] && return 2
-  [[ -z "$AssignPredicateFunc" ]] && return 3
+  [[ -n "$FirstPredicateFunc" ]] || return 1
+  [[ -n "$SecondPredicateFunc" ]] || return 2
+  [[ -n "$AssignPredicateFunc" ]] || return 3
 
   # by default: workaround for the bug in the "[@]:i" expression under the bash version lower than 4.1
   local IFS="${6:-$' \t\r\n'}"
@@ -545,19 +555,19 @@ function tkl_get_time_as_string()
 
   local TimeString=''
 
-  (( TimeDays )) && TimeString="$TimeString${TimeDays}${TimeDays:+" Days, "}"
-  (( TimeHours )) && TimeString="$TimeString${TimeHours}${TimeHours:+"h:"}"
+  (( ! TimeDays )) || TimeString="$TimeString${TimeDays}${TimeDays:+" Days, "}"
+  (( ! TimeHours )) || TimeString="$TimeString${TimeHours}${TimeHours:+"h:"}"
 
   local TimeMinsStr="$TimeMins"
   local TimeSecsStr="$TimeSecs"
   if (( TimeMins > 0 )); then
-    (( TimeMins <= 9 )) && TimeMinsStr="0$TimeMins"
-    (( ${#TimeSecs} == 1 )) && TimeSecsStr="0$TimeSecs"
+    (( TimeMins > 9 )) || TimeMinsStr="0${TimeMins:-0}"
+    (( TimeSecs > 9 )) || TimeSecsStr="0${TimeSecs:-0}"
   fi
 
-  (( TimeMins )) && TimeString="$TimeString${TimeMinsStr}${TimeMins:+"m:"}"
+  (( ! TimeMins )) || TimeString="$TimeString${TimeMinsStr}${TimeMins:+"m:"}"
   local TimeWord="second"
-  (( TimeSecsOverall > 1 )) && TimeWord="${TimeWord}s"
+  (( TimeSecsOverall <= 1 )) || TimeWord="${TimeWord}s"
 
   TimeString="$TimeString${TimeSecsStr}${TimeSecs:+"s"} ($TimeSecsOverall $TimeWord)"
 
@@ -575,7 +585,7 @@ function tkl_assoc_get()
   local Key="$3"
 
   if [[ -z "${ArrayName}" ]]; then
-    [[ -n "${DefaultValue}" ]] && RETURN_VALUE="${DefaultValue}"
+    [[ -z "${DefaultValue}" ]] || RETURN_VALUE="${DefaultValue}"
     return 1
   fi
 
@@ -588,23 +598,23 @@ function tkl_assoc_get()
   done
 
   if (( ! ${#Array[@]} )); then
-    [[ -n "${DefaultValue}" ]] && RETURN_VALUE="${DefaultValue}"
+    [[ -z "${DefaultValue}" ]] || RETURN_VALUE="${DefaultValue}"
     return 2
   fi
 
   if [[ -z "$Key" ]]; then
-    [[ -n "${DefaultValue}" ]] && RETURN_VALUE="${DefaultValue}"
+    [[ -z "${DefaultValue}" ]] || RETURN_VALUE="${DefaultValue}"
     return 3
   fi
 
   for (( i=0; i < ${#Array[@]}; i+=2 )); do
     if [[ "${Array[i]}" == "$Key" ]]; then
-      [[ -n "${Array[i+1]}" ]] && RETURN_VALUE="${Array[i+1]}"
+      [[ -z "${Array[i+1]}" ]] || RETURN_VALUE="${Array[i+1]}"
       return 0
     fi
   done
 
-  [[ -n "${DefaultValue}" ]] && RETURN_VALUE="${DefaultValue}"
+  [[ -z "${DefaultValue}" ]] || RETURN_VALUE="${DefaultValue}"
 
   return 4
 }
@@ -671,7 +681,7 @@ function tkl_dec_to_hex()
 
   RETURN_VALUE="${hex:-0}"
 
-  (( width )) && tkl_zero_padding $width $RETURN_VALUE
+  (( ! width )) || tkl_zero_padding $width $RETURN_VALUE
 
   return 0
 }
@@ -718,7 +728,7 @@ function tkl_get_shell_pid()
   local ParentNestIndex="${1:-0}" # 0 - self pid
 
   # always use the global array
-  [[ -z "${BASH_SUBSHELL_PIDS[@]}" ]] && tkl_declare_global_array BASH_SUBSHELL_PIDS
+  [[ -n "${BASH_SUBSHELL_PIDS[@]}" ]] || tkl_declare_global_array BASH_SUBSHELL_PIDS
 
   if (( BASH_VERSINFO[0] >= 4 )); then
     tkl_declare_global BASH_SUBSHELL_PIDS[BASH_SUBSHELL] $BASHPID
@@ -861,13 +871,13 @@ function tkl_join_array()
   # drop return values
   RETURN_VALUES=(0 '')
 
-  (( ArrayBegin < 0 )) && return 1
+  (( ArrayBegin >= 0 )) || return 1
 
   local ArraySize
   eval "ArraySize=\${#$ArrayName[@]}"
-  (( ! ArraySize )) && return 2
+  (( ArraySize )) || return 2
 
-  (( ArraySize < ArrayBegin )) && ArrayBegin=$ArraySize
+  (( ArraySize >= ArrayBegin )) || ArrayBegin=$ArraySize
   local ArrayMaxJoinSize=$(( ArraySize-ArrayBegin ))
   if [[ -z "$ArrayJoinSize" ]]; then
     ArrayJoinSize=$ArrayMaxJoinSize

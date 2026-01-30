@@ -1,3 +1,9 @@
+2026.01.30:
+* fixed: tacklelib/baselib.sh: code fixup
+* changed: *.sh: global code improvement and refactor
+* changed: *.sh: inverted all not `if` conditions to avoid hidden return code set
+* changed: tacklelib/bash_tacklelib.sh: `tkl_false` is replaced by `tkl_errlvl`, `tkl_true` is removed to use `:` instead
+
 2026.01.15:
 * new: tacklelib/bash_tacklelib: `tkl_unset_all_include_guards` function to reload and reinit all related scripts which does use `SOURCE_*_SH` variables as include guards
 
