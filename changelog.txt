@@ -1,3 +1,6 @@
+2026.02.02:
+* changed: bash/tacklelib/bash_tacklelib.sh: added `-s` flag to `tkl_execute_calls` function to return on first error
+
 2026.01.30:
 * changed: bash/tacklelib/bash_tacklelib.sh: `tkl_is_call_registered` for protection from direct execution, where the `tkl_execute_calls` must be used instead
 

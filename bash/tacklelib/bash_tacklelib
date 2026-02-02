@@ -1873,6 +1873,18 @@ function tkl_register_call()
 
 function tkl_execute_calls()
 {
+  local flag_args=()
+
+  tkl_read_command_line_flags flag_args "$@"
+  (( ! ${#flag_args[@]} )) || shift ${#flag_args[@]}
+
+  local flag_return_on_first_error=0
+
+  local flag
+  for flag in "${flag_args[@]}"; do
+    [[ "${flag//s/}" == "$flag" ]] || flag_return_on_first_error=1 # strict call
+  done
+
   local call_entry="$1"
 
   if [[ -z "$call_entry" ]]; then
@@ -1887,18 +1899,22 @@ function tkl_execute_calls()
 
   local i
   local call_cmd
+  local last_error=0
 
   for (( i=0; i < calls_len; i++ )); do
     eval "tkl_deserialize_array \"\${tkl__registered_calls__${call_entry}[i]}\" call_cmd"
     unset tkl__registered_calls__${call_entry}[i]
     if (( ${#call_cmd[@]} )); then
       "${call_cmd[@]}"
+      last_error=$? # return either the first or the last command exit code
+      (( ! flag_return_on_first_error )) || break
     fi
   done
 
-  local last_error=$? # return the last command exit code
-
-  unset tkl__registered_calls__${call_entry} # is required otherwise the `echo "${!tkl__registered_calls__@}"` would print the variable
+  # do not unset incomplete calls
+  if (( i + 1 >= calls_len )); then
+    unset tkl__registered_calls__${call_entry} # is required otherwise the `echo "${!tkl__registered_calls__@}"` would print the variable
+  fi
 
   return $last_error
 }
