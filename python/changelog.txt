@@ -1,3 +1,6 @@
+2026.02.04:
+* changed: *.sh: switched to portable version of shebang line
+
 2023.10.15:
 * new: tacklelib/tools/pysh/cd.py: `cd_tempdir` to change directory into a temporary directory with automatic creation and handle
 * changed: tacklelib/tools/pysh/cd.py: added cleanup functionality before and after directory pop

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Description:
 #   An application runner to fix application library dependecies and log the output.

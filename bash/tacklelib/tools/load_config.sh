@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # USAGE:
 #   load_config.sh [<flags>] [--] <InputDir> <OutputDir> <ConfigFileName> [<Param0> [<Param1>]]

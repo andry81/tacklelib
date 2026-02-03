@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script both for execution and inclusion.
 [[ -n "$BASH" ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called

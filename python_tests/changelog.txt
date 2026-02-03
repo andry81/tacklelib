@@ -1,3 +1,6 @@
+2026.02.04:
+* changed: *.sh: switched to portable version of shebang line
+
 2023.02.21:
 * changed: README_EN.txt: readme cleanup
 

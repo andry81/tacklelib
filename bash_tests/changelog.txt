@@ -1,3 +1,6 @@
+2026.02.04:
+* changed: *.sh: switched to portable version of shebang line
+
 2024.08.06:
 * new: unit/03_load_config/test_8_upath.sh: `upath` attribute tests
 

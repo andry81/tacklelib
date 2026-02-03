@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script can be ONLY included by "source" command.
 [[ -n "$BASH" && (-z "$BASH_LINENO" || BASH_LINENO[0] -gt 0) && (-z "$TACKLELIB_CMAKE_TESTS_ROOT_INIT0_DIR" || "$TACKLELIB_CMAKE_TESTS_ROOT_INIT0_DIR" != "$TACKLELIB_CMAKE_TESTS_ROOT") ]] || return 0 || exit 0 # exit to avoid continue if the return can not be called

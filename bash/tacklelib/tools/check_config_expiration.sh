@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # USAGE:
 #   check_config_expiration.sh [<flags>] [--] <InputFile> <OutputFile>

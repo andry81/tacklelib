@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Another variant of a configuration file variables read and set script.
 # The script must stay as simple as possible, so for this task it uses these parameters:

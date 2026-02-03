@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script library to support testing.
 
@@ -448,7 +448,7 @@ function tkl_testmodule_run_test()
   # Test script to run single test w/o environment inheritance from parent shell process.
   # First line in environment output is internal parameters list from
   # `tkl_test_assert_has_extra_vars` and `tkl_test_assert_has_not_extra_vars` functions.
-  local TestScript="#!/bin/bash
+  local TestScript="#!/usr/bin/env bash
 
 source bash_tacklelib || exit \$?
 

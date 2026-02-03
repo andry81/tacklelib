@@ -1,4 +1,7 @@
 2026.02.04:
+* changed: *.sh: switched to portable version of shebang line
+
+2026.02.04:
 * fixed: tacklelib/bash_tacklelib.sh: execution fixup of `-s` flag in `tkl_execute_calls`
 
 2026.02.02:
