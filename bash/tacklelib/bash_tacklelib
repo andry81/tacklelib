@@ -1907,7 +1907,7 @@ function tkl_execute_calls()
     if (( ${#call_cmd[@]} )); then
       "${call_cmd[@]}"
       last_error=$? # return either the first or the last command exit code
-      (( ! flag_return_on_first_error )) || break
+      (( ! flag_return_on_first_error )) || (( ! last_error )) || break
     fi
   done
 

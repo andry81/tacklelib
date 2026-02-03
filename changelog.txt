@@ -1,3 +1,6 @@
+2026.02.04:
+* fixed: bash/tacklelib/bash_tacklelib.sh: execution fixup of `-s` flag in `tkl_execute_calls`
+
 2026.02.02:
 * changed: bash/tacklelib/bash_tacklelib.sh: added `-s` flag to `tkl_execute_calls` function to return on first error
 
