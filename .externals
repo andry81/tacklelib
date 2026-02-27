@@ -17,7 +17,6 @@ repositories:
       - scripts/tools/std
       - scripts/tools/wmi
       - scripts/tools/xcopy
-      - tools
 
   _externals/contools--utils:
     type:         git
