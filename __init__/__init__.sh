@@ -50,9 +50,7 @@ fi
 
 # init external projects
 
-if [[ -f "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh" ]]; then
-  tkl_include_or_abort "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh"
-fi
+tkl_include_if_exist_or_abort "$TACKLELIB_PROJECT_EXTERNALS_ROOT/contools/__init__/__init__.sh"
 
 tkl_include_or_abort "$TACKLELIB_BASH_ROOT/tacklelib/buildlib.sh"
 

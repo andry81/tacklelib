@@ -16,9 +16,6 @@ if defined NO_LOG set /A NO_LOG+=0
 rem Do not make a log output or stdio duplication into files
 if defined NO_LOG_OUTPUT set /A NO_LOG_OUTPUT+=0
 
-rem Do not change code page
-if defined NO_CHCP set /A NO_CHCP+=0
-
 call "%%~dp0canonical_path_if_ndef.bat" TACKLELIB_PROJECT_ROOT                 "%%~dp0.."
 call "%%~dp0canonical_path_if_ndef.bat" TACKLELIB_PROJECT_EXTERNALS_ROOT       "%%TACKLELIB_PROJECT_ROOT%%/_externals"
 
@@ -40,10 +37,7 @@ call "%%~dp0canonical_path_if_ndef.bat" CONTOOLS_PROJECT_EXTERNALS_ROOT        "
 rem init external projects
 
 if exist "%TACKLELIB_PROJECT_EXTERNALS_ROOT%/contools/__init__/__init__.bat" (
-  rem disable code page change in nested __init__
-  set /A NO_CHCP+=1
   call "%%TACKLELIB_PROJECT_EXTERNALS_ROOT%%/contools/__init__/__init__.bat" %%* || exit /b
-  set /A NO_CHCP-=1
 )
 
 if %NO_GEN%0 EQU 0 (
@@ -58,10 +52,6 @@ if %NO_GEN%0 EQU 0 (
 
 if %NO_GEN%0 EQU 0 (
   call "%%CONTOOLS_BUILD_TOOLS_ROOT%%/mkdir_if_notexist.bat" "%%PROJECT_OUTPUT_ROOT%%" || exit /b
-)
-
-if %NO_CHCP%0 EQU 0 (
-  if defined CHCP call "%%CONTOOLS_ROOT%%/std/chcp.bat" %%CHCP%%
 )
 
 exit /b 0

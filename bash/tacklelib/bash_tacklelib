@@ -1046,6 +1046,13 @@ function tkl_include_or_abort()
   tkl_include "$@" || tkl_abort
 }
 
+function tkl_include_if_exist_or_abort()
+{
+  if [[ -f "$1" ]]; then
+    tkl_include "$@" || tkl_abort
+  fi
+}
+
 function tkl_read_command_line_flags()
 {
   local out_args_list_name_var="$1"
