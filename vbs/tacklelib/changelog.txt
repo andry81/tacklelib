@@ -1,3 +1,7 @@
+2026.06.23:
+* fixed: *.vbs: stdout and stderr line ends output mix
+* refactor: *.vbs: refactor
+
 2024.08.23:
 * changed: tools/shell/delete_file.vbs: code cleanup
 

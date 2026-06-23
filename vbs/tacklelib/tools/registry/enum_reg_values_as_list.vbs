@@ -1,33 +1,37 @@
-' CAUTION
-'   You must execute this script under `cscript.exe` ONLY!
-'
+''' CAUTION
+'''   You must execute this script under `cscript.exe` ONLY!
+
+''' CAUTION:
+'''   The `WScript.std[out|err].WriteLine STR` functions has issue with the
+'''   last line desynchronization between streams.
+'''   To workaround use `WScript.std[out|err].Write STR & vbCrLf` instead.
 
 ' Features:
 '   * Builtin of inclusion guard
 '   * Inclusion path can be relative to the script directory
 Class ImportFunction
-    Private imports_dict_obj_
-    Private fs_obj_
+  Private imports_dict_obj_
+  Private fs_obj_
 
-    Private Sub CLASS_INITIALIZE
-        set imports_dict_obj_ = WScript.createObject("Scripting.Dictionary")
-        set fs_obj_ = WScript.createObject("Scripting.FileSystemObject")
-    End Sub
+  Private Sub CLASS_INITIALIZE
+  set imports_dict_obj_ = WScript.createObject("Scripting.Dictionary")
+  set fs_obj_ = WScript.createObject("Scripting.FileSystemObject")
+  End Sub
 
-    Public Default Property Get func(file_path_str)
-        If "/" = Left(file_path_str, 1) Then
-            ' is relative to the script directory
-            script_file_path_str = WScript.ScriptFullName
-            Dim script_file_obj : Set script_file_obj = fs_obj_.GetFile(script_file_path_str)
-            file_path_str = fs_obj_.GetParentFolderName(script_file_obj) & file_path_str
-        End If
-        file_path_str = fs_obj_.GetAbsolutePathName(file_path_str)
+  Public Default Property Get func(file_path_str)
+  If "/" = Left(file_path_str, 1) Then
+      ' is relative to the script directory
+      script_file_path_str = WScript.ScriptFullName
+      Dim script_file_obj : Set script_file_obj = fs_obj_.GetFile(script_file_path_str)
+      file_path_str = fs_obj_.GetParentFolderName(script_file_obj) & file_path_str
+  End If
+  file_path_str = fs_obj_.GetAbsolutePathName(file_path_str)
 
-        If Not imports_dict_obj_.Exists(file_path_str) Then
-            ExecuteGlobal fs_obj_.OpenTextFile(file_path_str).ReadAll()
-            imports_dict_obj_.Add file_path_str, Null
-        End If
-    End Property
+  If Not imports_dict_obj_.Exists(file_path_str) Then
+      ExecuteGlobal fs_obj_.OpenTextFile(file_path_str).ReadAll()
+      imports_dict_obj_.Add file_path_str, Null
+  End If
+  End Property
 End Class
 
 Dim Import : Set Import = New ImportFunction
@@ -58,44 +62,44 @@ For i = 0 To WScript.Arguments.Count-1 : Do ' empty `Do-Loop` to emulate `Contin
   arg = WScript.Arguments(i)
 
   If ExpectFlags Then
-    If arg <> "--" And Mid(arg, 1, 1) = "-" Then
+  If arg <> "--" And Mid(arg, 1, 1) = "-" Then
       If arg = "-u" Then ' Unescape %xx or %uxxxx
-        UnescapeAllArgs = True
+    UnescapeAllArgs = True
       ElseIf arg = "-param" Then
-        in_param_arr_size = in_param_arr_size + 1
-        GrowArr in_param_arr, in_param_arr_size
-        i = i + 1
-        in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
+    in_param_arr_size = in_param_arr_size + 1
+    GrowArr in_param_arr, in_param_arr_size
+    i = i + 1
+    in_param_arr(in_param_arr_size - 1) = WScript.Arguments(i)
       ElseIf arg = "-sep" Then
-        i = i + 1
-        column_separator = WScript.Arguments(i)
+    i = i + 1
+    column_separator = WScript.Arguments(i)
       ElseIf arg = "-multisz_sep" Then
-        i = i + 1
-        multisz_separator = WScript.Arguments(i)
+    i = i + 1
+    multisz_separator = WScript.Arguments(i)
       ElseIf arg = "-defval" Then
-        i = i + 1
-        default_value = WScript.Arguments(i)
+    i = i + 1
+    default_value = WScript.Arguments(i)
       ElseIf arg = "-rep" Then
-        str_replace_arr_size = str_replace_arr_size + 1
+    str_replace_arr_size = str_replace_arr_size + 1
 
-        GrowArr from_str_replace_arr, str_replace_arr_size
-        i = i + 1
-        from_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
+    GrowArr from_str_replace_arr, str_replace_arr_size
+    i = i + 1
+    from_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
 
-        GrowArr to_str_replace_arr, str_replace_arr_size
-        i = i + 1
-        to_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
+    GrowArr to_str_replace_arr, str_replace_arr_size
+    i = i + 1
+    to_str_replace_arr(str_replace_arr_size - 1) = WScript.Arguments(i)
       End If
-    Else
+  Else
       ExpectFlags = False
 
       If arg = "--" Then Exit Do
-    End If
+  End If
   End If
 
   If Not ExpectFlags Then
-    hkey_str_arr(j) = arg
-    j = j + 1
+  hkey_str_arr(j) = arg
+  j = j + 1
   End If
 Loop While False : Next
 
@@ -113,7 +117,7 @@ Dim stdout_obj : Set stdout_obj = fso_obj.GetStandardStream(1)
 Dim stderr_obj : Set stderr_obj = fso_obj.GetStandardStream(2)
 
 If hkey_str_arr_ubound < 0 Then
-  stderr_obj.WriteLine WScript.ScriptName & ": error: must be defined at least one hkey."
+  stderr_obj.Write WScript.ScriptName & ": error: must be defined at least one hkey." & vbCrLf
   WScript.Quit 255
 End If
 
@@ -158,15 +162,15 @@ ReDim hkey_hive_arr(hkey_prefix_str_arr_ubound) ' upper bound instead of reserve
 For i = 0 To hkey_prefix_str_arr_ubound
   hkey_prefix_str = hkey_prefix_str_arr(i)
   If hkey_prefix_str = "HKEY_CLASSES_ROOT" Or hkey_prefix_str = "HKCR" Then
-    hkey_hive_arr(i) = HKEY_CLASSES_ROOT
+  hkey_hive_arr(i) = HKEY_CLASSES_ROOT
   ElseIf hkey_prefix_str = "HKEY_CURRENT_USER" Or hkey_prefix_str = "HKCU" Then
-    hkey_hive_arr(i) = HKEY_CURRENT_USER
+  hkey_hive_arr(i) = HKEY_CURRENT_USER
   ElseIf hkey_prefix_str = "HKEY_LOCAL_MACHINE" Or hkey_prefix_str = "HKLM" Then
-    hkey_hive_arr(i) = HKEY_LOCAL_MACHINE
+  hkey_hive_arr(i) = HKEY_LOCAL_MACHINE
   ElseIf hkey_prefix_str = "HKEY_USERS" Or hkey_prefix_str = "HKU" Then
-    hkey_hive_arr(i) = HKEY_USERS
+  hkey_hive_arr(i) = HKEY_USERS
   ElseIf hkey_prefix_str = "HKEY_CURRENT_CONFIG" Or hkey_prefix_str = "HKCC" Then
-    hkey_hive_arr(i) = HKEY_CURRENT_CONFIG
+  hkey_hive_arr(i) = HKEY_CURRENT_CONFIG
   End If
 Next
 
@@ -202,21 +206,21 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   hkey_str = hkey_str_arr(i)
 
   If UnescapeAllArgs Then
-    hkey_str = Unescape(hkey_str)
+  hkey_str = Unescape(hkey_str)
   End If
 
   hkey_str_len = Len(hkey_str)
   hkey_suffix_str = ""
 
   For j = 0 To hkey_prefix_str_arr_ubound
-    hkey_prefix_str = hkey_prefix_str_arr(j)
-    hkey_prefix_len = hkey_prefix_len_arr(j)
+  hkey_prefix_str = hkey_prefix_str_arr(j)
+  hkey_prefix_len = hkey_prefix_len_arr(j)
 
-    If Left(hkey_str, hkey_prefix_len) = hkey_prefix_str And (hkey_prefix_len = hkey_str_len Or Mid(hkey_str, hkey_prefix_len + 1, 1) = "\") Then
+  If Left(hkey_str, hkey_prefix_len) = hkey_prefix_str And (hkey_prefix_len = hkey_str_len Or Mid(hkey_str, hkey_prefix_len + 1, 1) = "\") Then
       hkey_suffix_str = Mid(hkey_str, hkey_prefix_len + 2)
       hkey_hive = hkey_hive_arr(j)
       Exit For
-    End If
+  End If
   Next
 
   If hkey_suffix_str = "" Then Exit Do
@@ -224,34 +228,34 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
   StdRegProv_obj.EnumValues hkey_hive, hkey_suffix_str, out_paramkey_arr, out_paramtype_arr
 
   If Not IsNull(out_paramkey_arr) Then
-    j = -1
-    For Each out_paramkey In out_paramkey_arr : Do ' empty `Do-Loop` to emulate `Continue`
+  j = -1
+  For Each out_paramkey In out_paramkey_arr : Do ' empty `Do-Loop` to emulate `Continue`
       j = j + 1
 
       If in_param_arr_size > 0 Then
-        is_found_paramkey = False
-        For Each paramkey In in_param_arr
+    is_found_paramkey = False
+    For Each paramkey In in_param_arr
           If paramkey = out_paramkey Then
-            is_found_paramkey = True
-            Exit For
+      is_found_paramkey = True
+      Exit For
           End If
-        Next
+    Next
       Else
-        is_found_paramkey = True
+    is_found_paramkey = True
       End If
 
       If Not is_found_paramkey Then Exit Do
 
       If Right(hkey_str, 1) <> "\" Then
-        hkey_path_str = hkey_str & "\" & out_paramkey
+    hkey_path_str = hkey_str & "\" & out_paramkey
       Else
-        hkey_path_str = hkey_str & out_paramkey
+    hkey_path_str = hkey_str & out_paramkey
       End If
       print_line = ReplaceStringArr(hkey_path_str, Len(hkey_path_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
       paramtype = out_paramtype_arr(j)
       Select Case paramtype
-        Case REG_SZ
+    Case REG_SZ
           paramval = default_value
 
           On Error Resume Next
@@ -262,7 +266,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
           print_line = print_line & column_separator & "REG_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-        Case REG_EXPAND_SZ
+    Case REG_EXPAND_SZ
           paramval = default_value
 
           On Error Resume Next
@@ -273,7 +277,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
           print_line = print_line & column_separator & "REG_EXPAND_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-        Case REG_BINARY
+    Case REG_BINARY
           parambytes = Array()
 
           On Error Resume Next
@@ -282,14 +286,14 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
           paramval = ""
           For Each parambyte in parambytes
-            paramval = paramval & Hex(parambyte)
+      paramval = paramval & Hex(parambyte)
           Next
 
           If paramval = "" Then paramval = default_value
 
           print_line = print_line & column_separator & "REG_BINARY" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-        Case REG_DWORD
+    Case REG_DWORD
           paramval = default_value
 
           On Error Resume Next
@@ -301,7 +305,7 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
           print_line = print_line & column_separator & "REG_DWORD" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-        Case REG_MULTI_SZ
+    Case REG_MULTI_SZ
           out_paramstr_arr = Array()
 
           On Error Resume Next
@@ -310,11 +314,11 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
 
           paramval = ""
           For Each paramstr in out_paramstr_arr
-            If paramval <> "" Then
+      If paramval <> "" Then
               paramval = paramval & multisz_separator & paramstr
-            Else
+      Else
               paramval = paramval & paramstr
-            End If
+      End If
           Next
 
           If paramval = "" Then paramval = default_value
@@ -322,11 +326,11 @@ For i = 0 To hkey_str_arr_ubound : Do ' empty `Do-Loop` to emulate `Continue`
           print_line = print_line & column_separator & "REG_MULTI_SZ" & column_separator & ReplaceStringArr(paramval, Len(paramval), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
       End Select
 
-      stdout_obj.WriteLine print_line
-    Loop While False : Next
+      stdout_obj.Write print_line & vbCrLf
+  Loop While False : Next
   Else
-    print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
+  print_line = ReplaceStringArr(hkey_str, Len(hkey_str), str_replace_arr_size, from_str_replace_arr, to_str_replace_arr)
 
-    stdout_obj.WriteLine print_line
+  stdout_obj.Write print_line & vbCrLf
   End If
 Loop While False : Next

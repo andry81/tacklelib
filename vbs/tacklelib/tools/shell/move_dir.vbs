@@ -1,80 +1,83 @@
-' Description:
-'   Shell based script to move a directory.
-'   Can translate a long file path to DOS short path to be able to move a directory.
-'
-' USAGE:
-'   "%WINDIR%\System32\cscript.exe" //NOLOGO move_dir.vbs "<file-path-from-dir>" "<file-path-to-dir>"
-'
+''' Shell based script to move a directory.
+''' Can translate a long file path to DOS short path to be able to move a directory.
 
-Function FixStrToPrint(str)
-    Dim new_str : new_str = ""
-    Dim i, Char, CharAsc
+''' USAGE:
+'''   "%WINDIR%\System32\cscript.exe" //NOLOGO move_dir.vbs "<file-path-from-dir>" "<file-path-to-dir>"
 
-    For i = 1 To Len(str)
-        Char = Mid(str, i, 1)
-        CharAsc = Asc(Char)
-
-        ' NOTE:
-        '   `&H3F` - is not printable unicode origin character which can not pass through the stdout redirection.
-        If CharAsc <> &H3F Then
-            new_str = new_str & Char
-        Else
-            new_str = new_str & "?"
-        End If
-    Next
-
-    FixStrToPrint = new_str
-End Function
-
-Sub PrintOrEchoLine(str)
-    On Error Resume Next
-    WScript.stdout.WriteLine str
-    If err = 5 Then ' Access is denied
-        WScript.stdout.WriteLine FixStrToPrint(str)
-    ElseIf err = &h80070006& Then
-        WScript.Echo str
-    End If
-    On Error Goto 0
-End Sub
-
-Sub PrintOrEchoErrorLine(str)
-    On Error Resume Next
-    WScript.stderr.WriteLine str
-    If err = 5 Then ' Access is denied
-        WScript.stderr.WriteLine FixStrToPrint(str)
-    ElseIf err = &h80070006& Then
-        WScript.Echo str
-    End If
-    On Error Goto 0
-End Sub
+''' CAUTION:
+'''   The `WScript.std[out|err].WriteLine STR` functions has issue with the
+'''   last line desynchronization between streams.
+'''   To workaround use `WScript.std[out|err].Write STR & vbCrLf` instead.
 
 '' Features:
 ''   * Builtin of inclusion guard
 ''   * Inclusion path can be relative to the script directory
 'Class ImportFunction
-'    Private imports_dict_obj_
-'    Private fs_obj_
+'  Private imports_dict_obj_
+'  Private fs_obj_
 '
-'    Private Sub CLASS_INITIALIZE
-'        set imports_dict_obj_ = WScript.createObject("Scripting.Dictionary")
-'        set fs_obj_ = WScript.createObject("Scripting.FileSystemObject")
-'    End Sub
+'  Private Sub CLASS_INITIALIZE
+'    set imports_dict_obj_ = WScript.createObject("Scripting.Dictionary")
+'    set fs_obj_ = WScript.createObject("Scripting.FileSystemObject")
+'  End Sub
 '
-'    Public Default Property Get func(file_path_str)
-'        If "/" = Left(file_path_str, 1) Then
-'            ' is relative to the script directory
-'            script_file_path_str = WScript.ScriptFullName
-'            Dim script_file_obj : Set script_file_obj = fs_obj_.GetFile(script_file_path_str)
-'            file_path_str = fs_obj_.GetParentFolderName(script_file_obj) & file_path_str
-'        End If
-'        file_path_str = fs_obj_.GetAbsolutePathName(file_path_str)
+'  Public Default Property Get func(file_path_str)
+'    If "/" = Left(file_path_str, 1) Then
+'      ' is relative to the script directory
+'      script_file_path_str = WScript.ScriptFullName
+'      Dim script_file_obj : Set script_file_obj = fs_obj_.GetFile(script_file_path_str)
+'      file_path_str = fs_obj_.GetParentFolderName(script_file_obj) & file_path_str
+'    End If
+'    file_path_str = fs_obj_.GetAbsolutePathName(file_path_str)
 '
-'        If Not imports_dict_obj_.Exists(file_path_str) Then
-'            ExecuteGlobal fs_obj_.OpenTextFile(file_path_str).ReadAll()
-'            imports_dict_obj_.Add file_path_str, Null
-'        End If
-'    End Property
+'    If Not imports_dict_obj_.Exists(file_path_str) Then
+'      ExecuteGlobal fs_obj_.OpenTextFile(file_path_str).ReadAll()
+'      imports_dict_obj_.Add file_path_str, Null
+'    End If
+'  End Property
 'End Class
+
+Function FixStrToPrint(str)
+  Dim new_str : new_str = ""
+  Dim i, Char, CharAsc
+
+  For i = 1 To Len(str)
+  Char = Mid(str, i, 1)
+  CharAsc = Asc(Char)
+
+  ' NOTE:
+  '   `&H3F` - is not printable unicode origin character which can not pass through the stdout redirection.
+  If CharAsc <> &H3F Then
+      new_str = new_str & Char
+  Else
+      new_str = new_str & "?"
+  End If
+  Next
+
+  FixStrToPrint = new_str
+End Function
+
+Sub PrintOrEchoLine(str)
+  On Error Resume Next
+  WScript.stdout.Write str & vbCrLf
+  If err = 5 Then ' Access is denied
+  WScript.stdout.Write FixStrToPrint(str) & vbCrLf
+  ElseIf err = &h80070006& Then
+  WScript.Echo str
+  End If
+  On Error Goto 0
+End Sub
+
+Sub PrintOrEchoErrorLine(str)
+  On Error Resume Next
+  WScript.stderr.Write str & vbCrLf
+  If err = 5 Then ' Access is denied
+  WScript.stderr.Write FixStrToPrint(str) & vbCrLf
+  ElseIf err = &h80070006& Then
+  WScript.Echo str
+  End If
+  On Error Goto 0
+End Sub
 
 'Dim Import : Set Import = New ImportFunction
 Dim ENABLE_ON_ERROR : ENABLE_ON_ERROR = True ' CAUTION: set `False` to debug this script!
@@ -109,8 +112,8 @@ End If
 
 If Not fs_obj.FolderExists("\\?\" & from_file_dir_path_abs) Then
   PrintOrEchoErrorLine _
-    WScript.ScriptName & ": error: input directory path does not exist:" & vbCrLf & _
-    WScript.ScriptName & ": info: InputPath=`" & from_file_dir_path_abs & "`"
+  WScript.ScriptName & ": error: input directory path does not exist:" & vbCrLf & _
+  WScript.ScriptName & ": info: InputPath=`" & from_file_dir_path_abs & "`"
   WScript.Quit 1
 End IF
 
@@ -133,8 +136,8 @@ End If
 
 If Not fs_obj.FolderExists("\\?\" & to_file_parent_dir_path_abs & "\") Then
   PrintOrEchoErrorLine _
-    WScript.ScriptName & ": error: output parent directory path does not exist:" & vbCrLf & _
-    WScript.ScriptName & ": info: OutputPath=`" & to_file_dir_path_abs & "`"
+  WScript.ScriptName & ": error: output parent directory path does not exist:" & vbCrLf & _
+  WScript.ScriptName & ": info: OutputPath=`" & to_file_dir_path_abs & "`"
   WScript.Quit 2
 End IF
 
@@ -151,7 +154,7 @@ Else
   Set from_file_dir_obj = fs_obj.GetFolder("\\?\" & from_file_dir_path_abs)
   from_file_dir_path_abs = from_file_dir_obj.ShortPath
   If Left(from_file_dir_path_abs, 4) = "\\?\" Then
-    from_file_dir_path_abs = Mid(from_file_dir_path_abs, 5)
+  from_file_dir_path_abs = Mid(from_file_dir_path_abs, 5)
   End If
 
   ' reopen by a short path
@@ -167,7 +170,7 @@ If Not fs_obj.FolderExists(to_file_parent_dir_path_abs & "\") Then
   Dim to_file_parent_dir_obj : Set to_file_parent_dir_obj = fs_obj.GetFolder("\\?\" & to_file_parent_dir_path_abs & "\")
   to_file_parent_dir_path_abs = to_file_parent_dir_obj.ShortPath
   If Left(to_file_parent_dir_path_abs, 4) = "\\?\" Then
-    to_file_parent_dir_path_abs = Mid(to_file_parent_dir_path_abs, 5)
+  to_file_parent_dir_path_abs = Mid(to_file_parent_dir_path_abs, 5)
   End If
 End If
 
