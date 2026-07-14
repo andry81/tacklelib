@@ -1,3 +1,8 @@
+2026.07.14:
+* new: bash/tacklelib/tools/detect/detect_find.sh: moved from `contools` project
+* changed: __init__/__init__.sh: disabled `contools` initialization in case of shell scripts
+* changed: README_EN.txt: readme update
+
 2026.06.23:
 * fixed: vbs/tacklelib/*.vbs: stdout and stderr line ends output mix
 * refactor: vbs/tacklelib/*.vbs: refactor

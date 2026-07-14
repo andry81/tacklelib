@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2025.07.17
+* 2026.07.14
 * tacklelib
 
 1. DESCRIPTION
@@ -148,14 +148,14 @@ Second mirror:
  |     |   # Generated temporary file from `*.in` file with set of system
  |     |   # customized environment variables to set them locally.
  |     |   # Loads before the user customized environment variables file.
- |     |   # Loads within `/__init__` scripts.
+ |     |   # Loads within `__init__` scripts.
  |     |
  |     +- `config.0.vars`
  |         #
  |         # Generated temporary file from `*.in` file with set of user
  |         # customized environment variables to set them locally.
  |         # Loads after the system customized environment variables file.
- |         # Loads within `/__init__` scripts.
+ |         # Loads within `__init__` scripts.
  |
  +- /`_build`
  |  | #
@@ -314,12 +314,12 @@ IDE's, applications and patches to run with or from:
 * Bash additional modules:
 
 **  tacklelib--bash:
-    /bash/tacklelib/
+    bash/tacklelib/
 
 * CMake additional modules:
 
 **  tacklelib--cmake:
-    /cmake/tacklelib/
+    cmake/tacklelib/
 
 * Python site modules:
 
@@ -427,8 +427,8 @@ https://github.com/andry81/externals
 -------------------------------------------------------------------------------
 To run bash shell scripts (`.sh` file extension) you should copy these scripts:
 
-* /bash/tacklelib/bash_entry
-* /bash/tacklelib/bash_tacklelib
+* bash/tacklelib/bash_entry
+* bash/tacklelib/bash_tacklelib
 
 into the `/bin` directory of your platform.
 
@@ -439,12 +439,14 @@ sudo chmod ug+x /bin/bash_entry
 sudo chmod o+r  /bin/bash_entry
 sudo chmod a+r  /bin/bash_tacklelib
 
+Or add `bash/tacklelib` directory into `PATH` variable.
+
 -------------------------------------------------------------------------------
 9. PROJECT CONFIGURATION VARIABLES
 -------------------------------------------------------------------------------
 
-1. `/_config/cmake/config.system.vars.in`
-   `/_config/cmake/config.0.vars.in`
+1. `_config/cmake/config.system.vars.in`
+   `_config/cmake/config.0.vars.in`
 
 These files must be designed per a particular project and platform, but several
 values are immutable to a project and a platform, and must always exist.
@@ -478,13 +480,13 @@ project root. Has used as base variables to point project local 3dparty
 directories. Must be initialized from respective builtin
 CMAKE_TOP_PACKAGE_SOURCE_DIR, CMAKE_CURRENT_PACKAGE_SOURCE_DIR
 variables which does initialize after the `tkl_configure_environment`
-(`/cmake/tacklelib/Project.cmake`) macro call.
+(`cmake/tacklelib/Project.cmake`) macro call.
 
 * _3DPARTY_GLOBAL_ROOTS_LIST, _3DPARTY_GLOBAL_ROOTS_FILE_LIST
 
 Optional variables which does define directories and files as a Cartesian
 product and has used from the `find_global_3dparty_environments` function
-(`/cmake/tacklelib/_3dparty/Global3dparty.cmake`) to search for cmake
+(`cmake/tacklelib/_3dparty/Global3dparty.cmake`) to search for cmake
 configuration files to load them as a 3dparty configuration before a system
 (preloads before cmake configure) and a user cmake configuration.
 
@@ -493,20 +495,20 @@ which is not a local part of the project.
 
 Loads at first before these configuration files:
 
-  * `/_out/config/tacklelib/cmake/config.system.vars`
-  * `/_out/config/tacklelib/cmake/config.0.vars`
+  * `_out/config/tacklelib/cmake/config.system.vars`
+  * `_out/config/tacklelib/cmake/config.0.vars`
 
 The resulting load sequence of the cmake configuration files:
 
   1. Preload (to extract variables dependent to OS, but independent to
      compiler, configuration and architecture):
-    1. `/_out/config/tacklelib/cmake/config.system.vars`
+    1. `_out/config/tacklelib/cmake/config.system.vars`
   2. Load (to extract variables dependent to OS, compiler, configuration and
      architecture):
-    1. `/_out/config/tacklelib/cmake/config.system.vars`
+    1. `_out/config/tacklelib/cmake/config.system.vars`
     2. Files as Cartesian product of
        `_3DPARTY_GLOBAL_ROOTS_LIST` x `_3DPARTY_GLOBAL_ROOTS_FILE_LIST`
-    3. `/_out/config/tacklelib/cmake/config.<N>.vars`, where <N> begins from 0.
+    3. `_out/config/tacklelib/cmake/config.<N>.vars`, where <N> begins from 0.
 
 Files from the `_3DPARTY_GLOBAL_ROOTS_FILE_LIST` variable must define these
 variables to distinguish the sources directory from the build output directory:
@@ -517,7 +519,7 @@ variables to distinguish the sources directory from the build output directory:
 * CMAKE_CONFIG_TYPES=(<space_separated_list>)
 
 Required variable which defines predefined list of configuration names has used
-from the `/_build/*_configure.*` script.
+from the `_build/*_configure.*` script.
 
 Example:
   CMAKE_CONFIG_TYPES=(Release Debug RelWithDebInfo MinSizeRel)
@@ -526,16 +528,16 @@ Example:
 
 An optional variable which defines a list of associated with the
 CMAKE_CONFIG_TYPES variable values of abbreviated configuration names has used
-from the `/_build/*_configure.*` script.
+from the `_build/*_configure.*` script.
 Useful to define short names for respective complete configuration names to
-issue them in respective scripts from the `/_build` directory.
+issue them in respective scripts from the `_build` directory.
 
 Example:
   CMAKE_CONFIG_ABBR_TYPES=(r d rd rm)
 
 * CMAKE_GENERATOR
 
-The cmake generator name does used from the `/_build/*_configure.*` script.
+The cmake generator name does used from the `_build/*_configure.*` script.
 Can be defined multiple times for different platforms.
 
 Example(s):
@@ -579,7 +581,7 @@ Steps:
   1. Read the `USAGE` section to prepare dependencies before build this
      project.
 
-  2. Use `/deploy/3dparty/.src` file to import only dependent sources into
+  2. Use `deploy/3dparty/.src` file to import only dependent sources into
      `3dparty` project.
 
 -------------------------------------------------------------------------------
@@ -597,7 +599,7 @@ NOTE:
 To generate the source files which are not included in a version control system
 do call to:
 
-`/_build/01_generate_src.*` script.
+`_build/01_generate_src.*` script.
 
 If some from template instantiated source files has been changed before the
 call, then they will be overwritten upon a call by the script unconditionally.
@@ -605,7 +607,7 @@ call, then they will be overwritten upon a call by the script unconditionally.
 To generate configuration files which are not included in a version control
 system do call to:
 
-`/_build/02_generate_config.*` script.
+`_build/02_generate_config.*` script.
 
 These set of files will be generated up on a call:
 
@@ -628,8 +630,8 @@ CAUTION:
 After that you should put or edit existed respective variables inside these
 generated files:
 
-* `/_out/config/tacklelib/cmake/config.system.vars`
-* `/_out/config/tacklelib/cmake/config.0.vars`
+* `_out/config/tacklelib/cmake/config.system.vars`
+* `_out/config/tacklelib/cmake/config.0.vars`
 
 The global or 3dparty dependencies which are excluded from the source files
 distribution does load through the separate configuration files is pointed by
@@ -663,23 +665,23 @@ them:
 
 For the Windows platform:
 
-(preload) `/_out/config/tacklelib/cmake/config.system.vars`
+(preload) `_out/config/tacklelib/cmake/config.system.vars`
 (load)    `d:/3dparty1/config.0.vars`
 (load)    `d:/3dparty1/config.1.vars`
 (load)    `d:/3dparty2/config.0.vars`
 (load)    `d:/3dparty2/config.1.vars`
-(load)    `/_out/config/tacklelib/cmake/config.system.vars`
-(load)    `/_out/config/tacklelib/cmake/config.0.vars`
+(load)    `_out/config/tacklelib/cmake/config.system.vars`
+(load)    `_out/config/tacklelib/cmake/config.0.vars`
 
 For the Linux like platform:
 
-(preload) `/_out/config/tacklelib/cmake/config.system.vars`
+(preload) `_out/config/tacklelib/cmake/config.system.vars`
 (load)    `/home/opt/3dparty1/config.0.vars`
 (load)    `/home/opt/3dparty1/config.1.vars`
 (load)    `/home/opt/3dparty2/config.0.vars`
 (load)    `/home/opt/3dparty2/config.1.vars`
-(load)    `/_out/config/tacklelib/cmake/config.system.vars`
-(load)    `/_out/config/tacklelib/cmake/config.0.vars`
+(load)    `_out/config/tacklelib/cmake/config.system.vars`
+(load)    `_out/config/tacklelib/cmake/config.0.vars`
 
 -------------------------------------------------------------------------------
 10.2. Configuration step
@@ -687,7 +689,7 @@ For the Linux like platform:
 
 To make a final configuration call to:
 
-`/_build/03_configure.* [<ConfigName>]`, where:
+`_build/03_configure.* [<ConfigName>]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
@@ -708,7 +710,7 @@ be in a directory pointed by the `CMAKE_BIN_DIR` configuration variable.
 11.1. From scripts
 -------------------------------------------------------------------------------
 
-1. Run `/_build/04_build.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `_build/04_build.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
@@ -746,7 +748,7 @@ NOTE:
 12. INSTALL
 -------------------------------------------------------------------------------
 
-1. Run `/_build/05_install.* [<ConfigName> [<TargetName>]]`, where:
+1. Run `_build/05_install.* [<ConfigName> [<TargetName>]]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
@@ -767,7 +769,7 @@ NOTE:
 NOTE:
   Is not required for the Windows platform.
 
-1. Run `/_build/06_post_install.* [<ConfigName>]`, where:
+1. Run `_build/06_post_install.* [<ConfigName>]`, where:
 
   <ConfigName> has any value from the `CMAKE_CONFIG_TYPES` or
   the `CMAKE_CONFIG_ABBR_TYPES` variables from the `config.system.vars`
@@ -797,7 +799,7 @@ a multiconfig feature but the `CMAKE_BUILT_TYPE` variable was not defined, or
 vice versa.
 
 The configuration name value either must be passed explicitly into a script
-from the `/_build` directory in case of not a multiconfig cmake generator or
+from the `_build` directory in case of not a multiconfig cmake generator or
 must not in case of a multiconfig cmake generator.
 
 Solution #1:
