@@ -1,3 +1,6 @@
+2026.08.06:
+* new: bash/tacklelib/bash_tacklelib.sh: `tkl_set_shopt_nocasematch`, `tkl_restore_shopt` functions and `OLD_SHOPT` variable
+
 2026.07.14:
 * new: bash/tacklelib/tools/detect/detect_find.sh: moved from `contools` project
 * changed: __init__/__init__.sh: disabled `contools` initialization in case of shell scripts

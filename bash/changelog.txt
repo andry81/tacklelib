@@ -1,3 +1,6 @@
+2026.08.06:
+* new: tacklelib/bash_tacklelib.sh: `tkl_set_shopt_nocasematch`, `tkl_restore_shopt` functions and `OLD_SHOPT` variable
+
 2026.07.14:
 * new: tacklelib/tools/detect/detect_find.sh: moved from `contools` project
 
@@ -43,6 +46,9 @@
 2024.08.06:
 * fixed: tacklelib/tools/load_config.sh: `once` attribute parse
 * changed: tacklelib/tools/load_config.sh: a variable attributes parse before the value parse
+
+2024.08.05:
+* new: tacklelib/tools/load_config.sh: added line commentary support
 
 2024.08.05:
 * fixed: tacklelib/testlib.sh: missed to copy test case init/exit environments on test case exit

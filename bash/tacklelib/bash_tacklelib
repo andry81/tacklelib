@@ -746,6 +746,32 @@ function tkl_get_var_stack_size()
   return 0
 }
 
+function tkl_set_shopt_nocasematch()
+{
+  # CAUTION `OLD_SHOPT` variable must be declared and empty before the call!
+  if [[ -z "${OLD_SHOPT+x}" || -n "$OLD_SHOPT" ]]; then
+    return
+  fi
+
+  OLD_SHOPT="$(shopt -p nocasematch)" # read state before change
+
+  if [[ "$OLD_SHOPT" != 'shopt -s nocasematch' ]]; then
+    shopt -s nocasematch
+  else
+    OLD_SHOPT=''
+  fi
+}
+
+function tkl_restore_shopt()
+{
+  if [[ -n "$OLD_SHOPT" ]]; then
+    eval $OLD_SHOPT
+  fi
+  if [[ -n "${OLD_SHOPT+x}" ]]; then
+    unset OLD_SHOPT
+  fi
+}
+
 function tkl_is_abs_path()
 {
   local file_path="$1"
@@ -1688,25 +1714,20 @@ function tkl_exctract_path_ignoring_user_mount_points()
   fi
 
   # enable nocase match
-  local oldShopt=''
+  local OLD_SHOPT
 
   # 1. We have to use the eval to declare a dynamic function to avoid a function name intersection with other inline functions
   #    in nested contexts.
   #
   eval "function tkl_local_return_${#FUNCNAME[@]}()
   {
-    [[ -z \"\$oldShopt\" ]] || eval \$oldShopt
+    tkl_restore_shopt
     unset -f \"\${FUNCNAME[0]}\" # drop function after execution
   }"
 
   builtin trap "tkl_local_return_${#FUNCNAME[@]}; builtin trap - RETURN" RETURN || return 253
 
-  oldShopt="$(shopt -p nocasematch)" # Read state before change
-  if [[ "$oldShopt" != 'shopt -s nocasematch' ]]; then
-    shopt -s nocasematch
-  else
-    oldShopt=''
-  fi
+  tkl_set_shopt_nocasematch
 
   # The case patterns w/o * ending character.
   # If / character at the end then it is required.
