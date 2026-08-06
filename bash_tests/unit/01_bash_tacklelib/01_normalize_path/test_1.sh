@@ -18,7 +18,8 @@ function test_1()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      shopt -s nocasematch
+      local OLD_SHOPT
+      tkl_set_shopt_nocasematch
     ;;
   esac
 
@@ -151,7 +152,8 @@ function test_5()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      shopt -s nocasematch
+      local OLD_SHOPT
+      tkl_set_shopt_nocasematch
     ;;
   esac
 
@@ -182,7 +184,8 @@ function test_6()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      shopt -s nocasematch
+      local OLD_SHOPT
+      tkl_set_shopt_nocasematch
     ;;
   esac
 
@@ -213,7 +216,8 @@ function test_7()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      shopt -s nocasematch
+      local OLD_SHOPT
+      tkl_set_shopt_nocasematch
     ;;
   esac
 
@@ -244,7 +248,8 @@ function test_8()
 
   case "$OSTYPE" in
     cygwin* | msys* | mingw*)
-      shopt -s nocasematch
+      local OLD_SHOPT
+      tkl_set_shopt_nocasematch
     ;;
   esac
 

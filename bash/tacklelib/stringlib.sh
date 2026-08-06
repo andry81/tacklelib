@@ -23,11 +23,12 @@ function tkl_compare_strings()
     Flags=''
   fi
 
-  local oldShopt=""
+  local OLD_SHOPT
+
   function tkl_local_return_impl()
   {
     tkl_push_trap "tkl_delete_this_func" RETURN
-    [[ -z "$oldShopt" ]] || eval $oldShopt
+    tkl_restore_shopt
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl
@@ -36,20 +37,10 @@ function tkl_compare_strings()
   # override RETURN with other traps restore
   tkl_push_trap "eval $RETURN_VALUE" RETURN || return 253
 
-  oldShopt="$(shopt -p nocasematch)" # Read state before change it
-
   if [[ "${Flags//i/}" == "$Flags" ]]; then # case matching
-    if [[ "$oldShopt" != 'shopt -u nocasematch' ]]; then
-      shopt -u nocasematch
-    else
-      oldShopt=''
-    fi
+    tkl_unset_shopt_nocasematch
   else # nocase matching
-    if [[ "$oldShopt" != 'shopt -s nocasematch' ]]; then
-      shopt -s nocasematch
-    else
-      oldShopt=''
-    fi
+    tkl_set_shopt_nocasematch
   fi
 
   [[ "$1" == "$2" ]] && return 0
@@ -68,11 +59,12 @@ function tkl_to_lower_case()
   local StringLen="${#String}"
   local ch
 
-  local oldShopt=""
+  local OLD_SHOPT
+
   function tkl_local_return_impl()
   {
     tkl_push_trap "tkl_delete_this_func" RETURN
-    [[ -z "$oldShopt" ]] || eval $oldShopt
+    tkl_restore_shopt
   }
 
   tkl_make_func_unique_copy tkl_local_return_impl
@@ -81,13 +73,7 @@ function tkl_to_lower_case()
   # override RETURN with other traps restore
   tkl_push_trap "eval $RETURN_VALUE" RETURN || return 253
 
-  oldShopt="$(shopt -p nocasematch)" # Read state before change it
-
-  if [[ "$oldShopt" != 'shopt -u nocasematch' ]]; then # case matching
-    shopt -u nocasematch
-  else
-    oldShopt=''
-  fi
+  tkl_unset_shopt_nocasematch
 
   local i
   local j

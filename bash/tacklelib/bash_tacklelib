@@ -746,6 +746,7 @@ function tkl_get_var_stack_size()
   return 0
 }
 
+# NOTE: can form a nested call if `OLD_SHOPT` variable is nested using `local` inside a new function
 function tkl_set_shopt_nocasematch()
 {
   # CAUTION `OLD_SHOPT` variable must be declared and empty before the call!
@@ -757,6 +758,23 @@ function tkl_set_shopt_nocasematch()
 
   if [[ "$OLD_SHOPT" != 'shopt -s nocasematch' ]]; then
     shopt -s nocasematch
+  else
+    OLD_SHOPT=''
+  fi
+}
+
+# NOTE: can form a nested call if `OLD_SHOPT` variable is nested using `local` inside a new function
+function tkl_unset_shopt_nocasematch()
+{
+  # CAUTION `OLD_SHOPT` variable must be declared and empty before the call!
+  if [[ -z "${OLD_SHOPT+x}" || -n "$OLD_SHOPT" ]]; then
+    return
+  fi
+
+  OLD_SHOPT="$(shopt -p nocasematch)" # read state before change
+
+  if [[ "$OLD_SHOPT" != 'shopt -u nocasematch' ]]; then
+    shopt -u nocasematch
   else
     OLD_SHOPT=''
   fi

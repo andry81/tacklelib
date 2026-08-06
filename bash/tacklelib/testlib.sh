@@ -708,21 +708,17 @@ function tkl_compare_envs()
   # drop return value
   RETURN_VALUES=''
 
+  local OLD_SHOPT
+
   function tkl_compare_envs_LocalReturnHandler()
   {
-    [[ -z "$oldShopt" ]] || eval $oldShopt
+    tkl_restore_shopt
   }
 
-  local oldShopt
   tkl_push_trap "tkl_compare_envs_LocalReturnHandler" RETURN
 
   # enable case match for a variable names
-  oldShopt="$(shopt -p nocasematch)"
-  if [[ "$oldShopt" == 'shopt -s nocasematch' ]]; then
-    shopt -u nocasematch
-  else
-    oldShopt=''
-  fi
+  tkl_unset_shopt_nocasematch
 
   # reload strings into arrays
   local IFS=$'\n' # to join by line return

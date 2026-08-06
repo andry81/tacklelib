@@ -91,8 +91,8 @@ function FindFiles()
   done
 
   # for lowercase comparison globbing
-  local SHELLNOCASEMATCH=`shopt -p nocasematch`
-  shopt -s nocasematch
+  local OLD_SHOPT
+  tkl_set_shopt_nocasematch
 
   local file_name
   local file_name2
@@ -120,7 +120,7 @@ function FindFiles()
   done
 
   # restore previous case comparison globbing
-  eval $SHELLNOCASEMATCH
+  tkl_restore_shopt
 
   i=0
 
@@ -600,8 +600,8 @@ function CollectLddDeps()
     done
 
     # for lowercase comparison globbing
-    local SHELLNOCASEMATCH=`shopt -p nocasematch`
-    shopt -s nocasematch
+    local OLD_SHOPT
+    tkl_set_shopt_nocasematch
 
     local file
     local file_name
@@ -614,7 +614,7 @@ function CollectLddDeps()
     done
 
     # restore previous case comparison globbing
-    eval $SHELLNOCASEMATCH
+    tkl_restore_shopt
 
     if (( ${#not_found_lib_list[@]} )); then
       echo "$BASH_SOURCE_FILE_NAME: error: having not found dependencies." >&2

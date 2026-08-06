@@ -24,32 +24,6 @@ if (( ! SOURCE_TACKLELIB_BASH_TACKLELIB_SH )); then
   exit 255
 fi
 
-function tkl_enable_nocase_match()
-{
-  RETURN_VALUE="$(shopt -p nocasematch)" && # Read state before change
-  if [[ "$RETURN_VALUE" != 'shopt -s nocasematch' ]]; then
-    shopt -s nocasematch
-    return 0
-  fi
-
-  RETURN_VALUE=''
-
-  return 1
-}
-
-function tkl_disable_nocase_match()
-{
-  RETURN_VALUE="$(shopt -p nocasematch)" && # Read state before change
-  if [[ "$RETURN_VALUE" != 'shopt -u nocasematch' ]]; then
-    shopt -u nocasematch
-    return 0
-  fi
-
-  RETURN_VALUE=''
-
-  return 1
-}
-
 # Function-wrapper over the shift command to pass into the shift the correct
 # number of parameters to offset.
 function tkl_get_shift_offset()

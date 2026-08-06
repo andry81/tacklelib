@@ -1,4 +1,9 @@
 2026.08.06:
+* new: bash/tacklelib/bash_tacklelib.sh: `tkl_unset_shopt_nocasematch` function
+* changed: *.sh: replace calls to `shopt -s nocasematch` and `shopt -u nocasematch` by respective `tkl_*set_shopt_nocasematch` functions
+* changed: bash/tacklelib/baselib.sh: obsolete code cleanup
+
+2026.08.06:
 * new: bash/tacklelib/bash_tacklelib.sh: `tkl_set_shopt_nocasematch`, `tkl_restore_shopt` functions and `OLD_SHOPT` variable
 
 2026.07.14:
