@@ -1,3 +1,6 @@
+2026.08.08:
+* fixed: tacklelib/bash_tacklelib.sh: wrong variable declaration detection in `tkl_set_shopt_nocasematch` function
+
 2026.08.06:
 * new: tacklelib/bash_tacklelib.sh: `tkl_unset_shopt_nocasematch` function
 * changed: *.sh: replace calls to `shopt -s nocasematch` and `shopt -u nocasematch` by respective `tkl_*set_shopt_nocasematch` functions
