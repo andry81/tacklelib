@@ -15,7 +15,7 @@ function path_distance_rel_to()
   local path0="$1"
   local path1="$2"
   local dist
-  local relpath="$(realpath -m --relative-to="$path0" "$path1")"
+  local relpath="$(realpath -m --relative-to="$path0" -- "$path1")"
 
   if [[ "$relpath" == ".." || "$relpath" == */.. ]]; then
     relpath="${relpath}/"
@@ -81,7 +81,7 @@ function detect_shell_userdir_file()
     local OLD_SHOPT
     tkl_set_shopt_nocasematch
 
-    local __shell="$(realpath "$(cygpath -w "$SHELL")")"
+    local __shell="$(realpath -- "$(cygpath -w -- "$SHELL")")"
     local __path
     local __paths=()
     local __dists=()
@@ -89,7 +89,7 @@ function detect_shell_userdir_file()
     local RETURN_VALUE
 
     IFS=$'\r\n'; for __path in `where "$__value" 2>/dev/null`; do # IFS - with trim trailing line feeds
-      __path="$(cygpath -w "$(realpath "${__path//\\//}")")"
+      __path="$(cygpath -w -- "$(realpath -- "${__path//\\//}")")"
       __path="${__path//\\//}"
 
       # collect paths and distances to `SHELL` variable value

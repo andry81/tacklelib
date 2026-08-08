@@ -1183,7 +1183,7 @@ function tkl_convert_backend_path_to_native()
         while true; do
           # in msys2 and higher we must use /bin/cygpath.exe to convert the path
           if [[ "$OSTYPE" == "msys" && -f "/bin/cygpath.exe" ]]; then
-            ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
+            ConvertedPath="`/bin/cygpath.exe -w -- "$RETURN_VALUE"`"
             break
           fi
           local ComSpecInternal="${COMSPEC//\\//}" # workaround for a "command not found" in the msys shell
@@ -1199,7 +1199,7 @@ function tkl_convert_backend_path_to_native()
       ;;
 
       cygwin*)
-        ConvertedPath="$(/bin/cygpath.exe -w "$RETURN_VALUE")"
+        ConvertedPath="$(/bin/cygpath.exe -w -- "$RETURN_VALUE")"
         # remove last slash
         RETURN_VALUE="${ConvertedPath%[/\\]}"
       ;;
@@ -1783,7 +1783,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
       while true; do
         # in msys2 and higher we must use /bin/cygpath.exe to convert the path
         if [[ "$OSTYPE" == "msys" && -f "/bin/cygpath.exe" ]]; then
-          ConvertedPath="`/bin/cygpath.exe -w "$RETURN_VALUE"`"
+          ConvertedPath="`/bin/cygpath.exe -w -- "$RETURN_VALUE"`"
           break
         fi
         local ComSpecInternal="${COMSPEC//\\//}" # workaround for a "command not found" in the msys shell
@@ -1797,7 +1797,7 @@ function tkl_exctract_path_ignoring_user_mount_points()
       ;;
 
     cygwin*)
-      ConvertedPath="`/bin/cygpath.exe -w "$PathPrefix"`"
+      ConvertedPath="`/bin/cygpath.exe -w -- "$PathPrefix"`"
       ;;
 
     *)
