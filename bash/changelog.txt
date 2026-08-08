@@ -1,4 +1,7 @@
 2026.08.08:
+* new: tacklelib/tools/detect/detect_shell_userdir_file.sh: more reliable `detect_find.sh` script replacement
+
+2026.08.08:
 * fixed: tacklelib/bash_tacklelib.sh: wrong variable declaration detection in `tkl_set_shopt_nocasematch` function
 
 2026.08.06:
