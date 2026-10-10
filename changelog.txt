@@ -1,3 +1,6 @@
+2026.10.11:
+* changed: README.md: disable `tokei` badge because of almost always empty or invalid
+
 2026.08.08:
 * fixed: bash/tacklelib: bash_tacklelib, *.sh: `cygpath` and `realpath` usage with `--` before a positional parameter
 
